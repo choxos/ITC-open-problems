@@ -1,0 +1,78 @@
+---
+title: "Reported intervals condition on the bridge being exactly true"
+description: "Intervals from disconnected-network analyses condition on the bridge model being true unless the model explicitly integrates over a drift or discrepancy parameter, and for the nonidentified part of that uncertainty the interval does not shrink with within-subnetwork sample size at a fixed design. Reporting the contrast as an identified set requires the drift parameterization to be written down: for treatments in subnetworks s and r the contrast is C_t' beta_s minus C_u' beta_r, so with beta_s = beta + Delta and beta_r = beta the target is (C_t minus C_u)' beta plus C_t' Delta, not (C_t minus C_u)'(beta + Delta). Once a loading a is defined so that theta = theta_0 plus a' Delta, box and ellipsoidal drift sets give analytic bounds through the corresponding support functions, with an ellipsoid encoding correlated drift only when a stochastic interpretation is added. Part of this already exists: the cpaic development package computes a per-draw tipping threshold under a uniform box bound with a taken as C_t minus C_u, and nmathresh implements decision-invariant thresholds over data-level bias in connected NMA."
+pid: "DIS-14"
+topic: "Disconnected networks & bridges"
+categories: ["Disconnected networks & bridges", "Very high priority", "Partially addressed"]
+priority: "Very high"
+prank: 1
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[DIS-14]{.problem-id}
+[Partially addressed]{.verdict .verdict-partially-addressed}
+[Very high priority]{.chip .chip-priority-very-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+## Statement
+
+Intervals from disconnected-network analyses condition on the bridge model being true unless the model explicitly integrates over a drift or discrepancy parameter, and for the nonidentified part of that uncertainty the interval does not shrink with within-subnetwork sample size at a fixed design. Reporting the contrast as an identified set requires the drift parameterization to be written down: for treatments in subnetworks s and r the contrast is C_t' beta_s minus C_u' beta_r, so with beta_s = beta + Delta and beta_r = beta the target is (C_t minus C_u)' beta plus C_t' Delta, not (C_t minus C_u)'(beta + Delta). Once a loading a is defined so that theta = theta_0 plus a' Delta, box and ellipsoidal drift sets give analytic bounds through the corresponding support functions, with an ellipsoid encoding correlated drift only when a stochastic interpretation is added. Part of this already exists: the cpaic development package computes a per-draw tipping threshold under a uniform box bound with a taken as C_t minus C_u, and nmathresh implements decision-invariant thresholds over data-level bias in connected NMA.
+
+## Why it is open
+
+Standard inference propagates sampling variability within the assumed model but treats the identifying bridge as a fixed input, so the interval narrows with sample size while the bridge assumption does not become more credible; richer within-subnetwork variation can inform testable parts of constancy, but not the part lying in the likelihood null space. Partial identification is not routine in evidence synthesis, and the tools that exist stop short: nmathresh perturbs observed data in a connected network rather than a bridge parameter, and cpaic returns a tipping threshold under one uniform box bound on component main effects rather than a full identified set, with no component-specific, interaction, or ellipsoidal drift, and it is an unreleased development package on GitHub not installable from CRAN. The drift set itself must be elicited rather than estimated, and there is no elicitation protocol or calibration evidence for how large a plausible component drift is across treatment contexts or eras.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Phillippo et al. 2018 (JRSS-A)](https://doi.org/10.1111/rssa.12341) | derives bias-adjustment thresholds measuring the smallest changes to the data that change a treatment decision, for individual studies or aggregate contrasts in fixed and random-effects NMA |
+| [nmathresh](https://cran.r-project.org/package=nmathresh) | released implementation of decision-invariant bias adjustment thresholds and intervals for network meta-analysis, over data-level bias in a connected network |
+| [Hussein et al. 2023](https://doi.org/10.1186/s12874-023-01925-5) | demonstrates empirically that intervals widen once the assumed cross-design structure is relaxed and design bias is modeled explicitly |
+| [cpaic 0.1.0 (development version, choxos/cpaic@9d150e9)](https://github.com/choxos/cpaic/commit/9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca) | unreleased development R package on GitHub, not on CRAN; bridge_fragility() computes a per-posterior-draw tipping threshold and robustness probability for a common box bound on component main-effect drift, but returns no full identified set and covers no component-specific, interaction, or ellipsoidal drift |
+
+:::
+
+## Probable solution or research direction
+
+Generalize the existing tipping calculation into a full identified set: define the loading from the subnetwork drift parameterization rather than assuming a shared drift, cover component-specific and interaction drift as well as main effects, and compute box and ellipsoidal bounds through their support functions. Build partial-identification, subnetwork-drift, robust-Bayes, and bias-function modules into synthesis software alongside the point estimate, extending the nmathresh style of decision-invariant thresholds from data-level bias to bridge parameters. Do the missing empirical work on the drift sets themselves: elicit clinical limits for the largest plausible change in a component effect across treatment contexts or eras, and calibrate them against networks where a connected answer is available.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Partially addressed. Part of this problem is addressed by existing work; the entry names which part.
+
+**The source said.** "Confidence and credible intervals from disconnected-network analyses condition on the bridge model being true, so the reported uncertainty omits the dominant source of uncertainty in the analysis. When cross-gap constancy cannot be defended pointwise the contrast should instead be reported as an identified set induced by a drift set: for component drift Delta in a set D the identified set is the set of values of (C_t minus C_u) transposed times (beta plus Delta) over Delta in D, with analytic extrema under box constraints and correlated drift representable by ellipsoidal sets."
+
+**What was wrong with it.** The source's algebra was wrong: GPT-5.6 Sol showed the cross-gap contrast under subnetwork drift is (C_t minus C_u)' beta plus C_t' Delta rather than (C_t minus C_u)'(beta + Delta), so a shared-drift formula can cancel a component exactly when differential subnetwork drift is what matters, and a valid analysis must define the loading explicitly. Sol also found cpaic already implements a uniform-box tipping threshold, making the software gap partial rather than total, and the literature auditor added doi:10.1111/rssa.12341 and the nmathresh package as existing fragility machinery the proposal should build on rather than restate.
+
+**Dissent.** literature dissented (open): I found no partial-identification treatment of disconnected networks, so the core problem stands, and the mathematics as stated is elementary and correct: for a linear component model the identified set induced by a drift set is the image of the drift set under the contrast functional, box constraints give analytic extrema, and ellipsoidal sets encode correlated drift. The caveat is that the entry's proposed 'tipping-point and fragility surfaces' already exist in a closely related form that prior_work omits. Phillippo et al. 2018 in JRSS-A derive 'bias adjustment thresholds which measure the smallest changes to the data that result in a change of treatment decision', shipped as the CRAN package nmathresh. That is a fragility surface for connected NMA over data-level bias, not over a bridge parameter, so it does not close the problem, but it means the machinery is not being invented from nothing. Hussein et al. 2023 also demonstrate empirically that intervals widen once the assumed structure is relaxed. codex dissented (overstated): C1 is correct for intervals fitted under a fixed bridge assumption, but not for models that explicitly integrate over a drift or discrepancy parameter. C2 holds only for the nonidentified part of bridge uncertainty at a fixed disconnected design; richer within-subnetwork component variation can inform testable parts of constancy. C3 is not the generic algebra for subnetwork drift. If beta_s = beta + Delta and beta_r = beta, then the cross-gap contrast is (C_t-C_u)^T beta + C_t^T Delta, not (C_t-C_u)^T(beta+Delta). A valid analysis must define a loading a such that theta = theta_0 + a^T Delta. C4-C5 then follow from support functions for box and ellipsoidal sets; an ellipsoid encodes probabilistic correlation only if a stochastic interpretation is added. cpaic already implements a uniform-box tipping threshold for its chosen a = C_t-C_u parameterization, so the software gap is partial rather than total.
+
+Literature and prior-art check
+:   **open / supported-with-caveat.** I found no partial-identification treatment of disconnected networks, so the core problem stands, and the mathematics as stated is elementary and correct: for a linear component model the identified set induced by a drift set is the image of the drift set under the contrast functional, box constraints give analytic extrema, and ellipsoidal sets encode correlated drift. The caveat is that the entry's proposed 'tipping-point and fragility surfaces' already exist in a closely related form that prior_work omits. Phillippo et al. 2018 in JRSS-A derive 'bias adjustment thresholds which measure the smallest changes to the data that result in a change of treatment decision', shipped as the CRAN package nmathresh. That is a fragility surface for connected NMA over data-level bias, not over a bridge parameter, so it does not close the problem, but it means the machinery is not being invented from nothing. Hussein et al. 2023 also demonstrate empirically that intervals widen once the assumed structure is relaxed.
+    Cites 10.1111/rssa.12341: Existing fragility/tipping-point machinery for NMA that the entry's proposed direction should build on rather than restate.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / overstated.** C1 is correct for intervals fitted under a fixed bridge assumption, but not for models that explicitly integrate over a drift or discrepancy parameter. C2 holds only for the nonidentified part of bridge uncertainty at a fixed disconnected design; richer within-subnetwork component variation can inform testable parts of constancy. C3 is not the generic algebra for subnetwork drift. If beta_s = beta + Delta and beta_r = beta, then the cross-gap contrast is (C_t-C_u)^T beta + C_t^T Delta, not (C_t-C_u)^T(beta+Delta). A valid analysis must define a loading a such that theta = theta_0 + a^T Delta. C4-C5 then follow from support functions for box and ellipsoidal sets; an ellipsoid encodes probabilistic correlation only if a stochastic interpretation is added. cpaic already implements a uniform-box tipping threshold for its chosen a = C_t-C_u parameterization, so the software gap is partial rather than total.
+    Cites choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca: Implements the per-posterior-draw tipping threshold and robustness probability for a common box bound on component main-effect drift. It does not return a full identified set or cover component-specific, interaction, or ellipsoidal drift..
+
+Decision path
+:   `R3:partially-solved(n=1) → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [ADJ-07 — Partial identification bounds under drift or omitted modifiers](ADJ-07-partial-identification-bounds-under-drift-or-omitted-modifie.qmd)
+- [CMP-17 — Survival pseudo-IPD reconstruction uncertainty is not propagated](CMP-17-survival-pseudo-ipd-reconstruction-uncertainty-is-not-propag.qmd)
+- [CMP-23 — Bridge fragility ignores interaction and correlated component drift](CMP-23-bridge-fragility-ignores-interaction-and-correlated-componen.qmd)
+:::
+
+## Source
+
+Derived from C:L214-215, C:L238, C:L1195-1211, C:L2487, C:L2513 of the reviewed corpus.

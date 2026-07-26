@@ -1,0 +1,72 @@
+---
+title: "Trial-engagement effects are mistaken for prognostic imbalance"
+description: "Trial participation can itself affect outcomes through monitoring, adherence support, visit frequency, diagnostic intensity and access to rescue care, and because engagement is a property of the protocol rather than of the patient, reweighting or regressing on baseline covariates cannot remove it. The source's dichotomy, that transport assumes either no engagement effect or an explicitly incorporated one, misses a third case established in the paper it cites: Ung, VanderWeele and Dahabreh (doi:10.1097/EDE.0000000000001863, erratum doi:10.1097/EDE.0000000000001891) define engagement-aware estimands and show that under a no participation-by-treatment-assignment interaction condition the identifying functionals are the same as those obtained under the stronger conditions invoked previously. What stays open is the ITC and PAIC specific part: where engagement is study-constant it is absorbed into the study intercept and is observationally identical to prognostic imbalance, and in a single-arm versus randomized comparison engagement is confounded with treatment, which is exactly where the no-interaction condition fails."
+pid: "IDN-11"
+topic: "Identification, transitivity & conditional constancy"
+categories: ["Identification, transitivity & conditional constancy", "High priority", "Partially addressed"]
+priority: "High"
+prank: 2
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
+maturity: "Emerging"
+---
+::: {.problem-meta}
+[IDN-11]{.problem-id}
+[Partially addressed]{.verdict .verdict-partially-addressed}
+[High priority]{.chip .chip-priority-high}
+[Emerging]{.chip .chip-maturity-emerging}
+:::
+## Statement
+
+Trial participation can itself affect outcomes through monitoring, adherence support, visit frequency, diagnostic intensity and access to rescue care, and because engagement is a property of the protocol rather than of the patient, reweighting or regressing on baseline covariates cannot remove it. The source's dichotomy, that transport assumes either no engagement effect or an explicitly incorporated one, misses a third case established in the paper it cites: Ung, VanderWeele and Dahabreh (doi:10.1097/EDE.0000000000001863, erratum doi:10.1097/EDE.0000000000001891) define engagement-aware estimands and show that under a no participation-by-treatment-assignment interaction condition the identifying functionals are the same as those obtained under the stronger conditions invoked previously. What stays open is the ITC and PAIC specific part: where engagement is study-constant it is absorbed into the study intercept and is observationally identical to prognostic imbalance, and in a single-arm versus randomized comparison engagement is confounded with treatment, which is exactly where the no-interaction condition fails.
+
+## Why it is open
+
+An anchored randomized contrast can cancel an engagement main effect, so the problem is not universal; it bites when engagement interacts with treatment and in unanchored comparisons. Where engagement is constant within a study it is collinear with study membership, so covariate-balance diagnostics say nothing about it and it cannot be told apart from baseline-risk differences. The protocol features that would let it be modeled, visit schedules, imaging frequency, adherence-support programs and rescue-therapy rules, are recorded as narrative design descriptions rather than analyzable variables and are rarely reported in aggregate publications. Study-design bias parameters can represent the remainder but they are sensitivity parameters, not identified corrections.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Ung, VanderWeele and Dahabreh 2025, Generalizing and Transporting Causal Inferences From Randomized Trials in the Presence of Trial Engagement Effects, Epidemiology](https://doi.org/10.1097/EDE.0000000000001863) | defines engagement-aware transport estimands and gives identification results under a no participation-by-treatment-assignment interaction condition, under which the identifying observed-data functionals are the same as those obtained under the stronger conditions invoked in prior work |
+| [Erratum to Ung, VanderWeele and Dahabreh 2025, Epidemiology 36(5):e25](https://doi.org/10.1097/EDE.0000000000001891) | correction to the trial-engagement transport paper, which the literature auditor flagged should be cited alongside it |
+
+:::
+
+## Probable solution or research direction
+
+Carry the engagement-aware estimands and identification results into the ITC and PAIC setting instead of restating the problem: say whether the no participation-by-treatment interaction condition is being assumed, and say what breaks in the single-arm versus randomized case where it cannot hold. Code protocol-intensity features as design covariates so crossed variation across studies can be exploited where it exists, and calibrate against pragmatic trials and real-world data where care intensity differs. Carry the unexplained remainder into quantitative bias analysis through study-design bias parameters that are varied in sensitivity analysis rather than assumed to be zero.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Partially addressed. Part of this problem is addressed by existing work; the entry names which part.
+
+**The source said.** "Trial participation itself can affect outcomes through monitoring, adherence support, visit frequency, diagnostic intensity and access to rescue care, so cross-study outcome differences are not fully explained by patient characteristics. Standard transportability assumes either that no relevant engagement effect exists or that it has been explicitly incorporated, and in PAIC engagement differences masquerade as prognostic imbalance or baseline-risk heterogeneity."
+
+**What was wrong with it.** The source cited Ung et al. as background while stating the assumption as a two-way choice. Both auditors found that the cited paper supplies the missing third case, identification under no participation-by-treatment interaction, so the usual functionals still apply with engagement effects present; the literature auditor also flagged the paper's erratum, doi:10.1097/EDE.0000000000001891.
+
+Literature and prior-art check
+:   **partially-solved / supported-with-caveat.** The citation is accurate and the abstract supports it verbatim: 'Most work on extending (generalizing or transporting) causal inferences from a randomized trial to a target population has, explicitly or implicitly, assumed that trial engagement effects are absent.' But the paper the entry cites as background is also the paper that partly resolves the problem, and the entry does not register this. Ung et al. define estimands and give identification results for transport in the presence of engagement effects under no interaction between trial participation and treatment assignment, and show 'The identifying observed data functionals under these no-interaction assumptions are the same as those obtained under the stronger identifiability conditions that have been invoked in prior work.' That is a third option the why_open dichotomy excludes: engagement effects present, standard estimators reinterpreted rather than assumed away or explicitly modelled. Genuinely open: the ITC/PAIC-specific case where engagement is absorbed into a study intercept and is observationally identical to prognostic imbalance, and the single-arm-versus-randomized case where engagement is confounded with treatment (which violates Ung et al.'s no-interaction condition). Housekeeping: an erratum exists (Epidemiology 2025;36(5):e25, 10.1097/EDE.0000000000001891) and should be cited alongside.
+    Cites 10.1097/EDE.0000000000001863: Supplies estimands and identification results for transport when trial-engagement effects are present, under no participation-by-treatment interaction; partially answers the entry's call for explicit engagement causal models.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / supported-with-caveat.** C1 and C4 are correct: a study-level engagement exposure is not changed by reweighting baseline patient covariates. C2 needs an estimand- and scale-specific third case: engagement may affect outcomes yet cancel from the randomized treatment contrast under a suitable no trial-participation-by-treatment interaction condition, without estimating an engagement coefficient. C3 holds when engagement or protocol intensity is study-constant and collinear with source, especially in a single-arm-versus-randomized comparison; it is not universal when crossed protocol variation, measured engagement, or multiple studies exist, and engagement-by-treatment heterogeneity is not merely baseline-risk heterogeneity. C5 describes sensitivity parameters, not identified corrections. C6 is accurate. Ung et al. partly resolves the causal estimand and identification problem, while the PAIC-specific confounded single-arm setting remains open. This is high priority for unanchored comparisons but less universal for anchored randomized contrasts whose engagement main effect cancels.
+    Cites 10.1097/EDE.0000000000001863: Defines engagement-aware transport estimands and identification under a no trial-participation-by-treatment-assignment interaction condition; it does not resolve the ITC or PAIC setting where engagement is confounded with treatment or study..
+
+Decision path
+:   `R3:partially-solved(n=2) → R11:caveated(n=2)`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [DIA-08 — PAIC simulations generate only shared, linear effect modification](DIA-08-paic-simulations-generate-only-shared-linear-effect-modifica.qmd)
+:::
+
+## Source
+
+Derived from C:L214-215, C:L226, C:L836-838, C:L2700 of the reviewed corpus.

@@ -1,0 +1,78 @@
+---
+title: "The shared effect modifier check has low and uncalibrated power"
+description: "A published, software-implemented check on the shared effect modifier assumption already exists: Phillippo et al. (doi:10.1177/0272989X221117162) split the common class interaction into treatment-specific interactions one covariate at a time and compare posteriors and model fit, inside a single nine-study network and with no second IPD trial, and multinma implements the hierarchical relaxation this entry proposed through nma(class_interactions = c('common', 'exchangeable', 'independent')). The check has low and uncharacterized power, which its authors concede, no calibration threshold and no agreed stability metric, and it is least feasible in the small, IPD-poor networks where the assumption does the most identifying work. The restriction is also not the universal mechanism that makes anchored adjustment work; it becomes an identifying restriction in particular class, component and sparse ML-NMR parameterizations, and hierarchical pooling regularizes weak information rather than creating identification."
+pid: "IDN-05"
+topic: "Identification, transitivity & conditional constancy"
+categories: ["Identification, transitivity & conditional constancy", "Very high priority", "Overstated"]
+priority: "Very high"
+prank: 1
+verdict: "Overstated"
+verdictslug: "overstated"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[IDN-05]{.problem-id}
+[Overstated]{.verdict .verdict-overstated}
+[Very high priority]{.chip .chip-priority-very-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+## Statement
+
+A published, software-implemented check on the shared effect modifier assumption already exists: Phillippo et al. (doi:10.1177/0272989X221117162) split the common class interaction into treatment-specific interactions one covariate at a time and compare posteriors and model fit, inside a single nine-study network and with no second IPD trial, and multinma implements the hierarchical relaxation this entry proposed through nma(class_interactions = c('common', 'exchangeable', 'independent')). The check has low and uncharacterized power, which its authors concede, no calibration threshold and no agreed stability metric, and it is least feasible in the small, IPD-poor networks where the assumption does the most identifying work. The restriction is also not the universal mechanism that makes anchored adjustment work; it becomes an identifying restriction in particular class, component and sparse ML-NMR parameterizations, and hierarchical pooling regularizes weak information rather than creating identification.
+
+## Why it is open
+
+Interaction terms are estimated far less precisely than main effects, so the existing check can pass on intervals wide enough to accommodate almost any drift, while apparent discrepancies can come from non-collapsibility, differing covariate ranges or different outcome definitions instead of genuine modifier drift. Nothing states how much interaction stability is enough, so comparing posteriors and model fit returns a judgment rather than a calibrated verdict. The networks where the restriction carries the most identifying weight are the ones with the least data to relax it, and treatment-specific interactions are rarely estimable where one arm contributes only aggregate summaries.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Phillippo et al. 2023, Validating the Assumptions of Population Adjustment: Application of Multilevel Network Meta-regression to a Network of Treatments for Plaque Psoriasis, Medical Decision Making](https://doi.org/10.1177/0272989X221117162) | assesses population-adjustment assumptions inside a nine-study network: splits the common class interaction into treatment-specific interactions one covariate at a time, checks conditional constancy through residual heterogeneity and inconsistency in sufficiently large networks, and reports that the shared-interaction restriction was required to identify the model where a treatment was informed only by aggregate data |
+| [multinma R package, nma() argument class_interactions](https://cran.r-project.org/package=multinma) | implements common, exchangeable (hierarchically shrunk) and independent treatment-class effect-modifier interactions, which is the relaxation the source proposed as future work |
+
+:::
+
+## Probable solution or research direction
+
+The estimator and the diagnostic exist, so the work is characterization: establish the power of the split-interaction check across network sizes and IPD availability, define a stability metric reporting how far interactions can drift before conclusions move rather than a binary verdict, and set a calibration threshold. Use estimated between-trial interaction drift to set priors or sensitivity envelopes on modifier drift, and report how conclusions move as the restriction is relaxed from common to exchangeable to independent, which multinma already supports. Where mechanistic pharmacology or biomarker evidence exists, use it to inform the shrinkage prior instead of defaulting to a common interaction.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Overstated. 2 independent auditors judged the claim as stated too strong. A published, software-implemented check on the shared effect modifier assumption exists (split the common class interaction into treatment-specific interactions and compare posteriors and model fit, as in Phillippo et al. 2023 with multinma's class_interactions argument), but it has low and uncharacterized power, no calibration threshold, and no agreed stability metric, and it is infeasible in the small, IPD-poor networks where the assumption does the most identifying work.
+
+**The source titled this.** "Shared effect modification is assumed rather than estimated or tested" The title says shared effect modification is never estimated or tested, but a published within-network check exists and its hierarchical relaxation ships in multinma.
+
+**The source said.** "Population adjustment commonly assumes that a covariate modifies the effects of different treatments in the same way, although the same modifier may act differently on different treatments. The only empirical check on offer, testing whether modifier interactions estimated in one IPD trial predict the treatment-effect heterogeneity observed in another, is not standardized and is rarely feasible."
+
+**What was wrong with it.** The source called cross-trial replication with two IPD trials the only empirical check on offer and proposed hierarchical shrinkage of treatment-specific interactions as future work. Both auditors found the check published in 2023 as a within-network procedure needing no second IPD trial (doi:10.1177/0272989X221117162) and the shrinkage already shipped in multinma's class_interactions argument, so what remains open is power, calibration and a stability metric rather than the method itself.
+
+Literature and prior-art check
+:   **partially-solved / overstated.** I read the full text of Phillippo et al. 2023 (Med Decis Making), which the entry does not cite, and it directly contradicts the statement's 'only empirical check on offer'. They assess the shared effect modifier assumption inside a single 9-study network with no second IPD trial, by splitting the common class interaction into treatment-specific interactions one covariate at a time and comparing posteriors and DIC, and they report a result (weak evidence against sharing for weight). The entry's own proposed direction, hierarchical shrinkage of treatment-specific interactions, is already released software: multinma's nma() takes class_interactions = c("common", "exchangeable", "independent") (verified in man/nma.Rd), so exchangeable within-class interactions are fittable today. What remains genuinely open is exactly what Phillippo et al. concede: 'It is likely that this approach to assessing the shared effect modifier assumption has low power, particularly when data are lacking.' Power, calibration, a stability metric rather than a binary verdict, and the data conditions under which the check is informative are unresolved. So the problem is real but the framing overstates the void by roughly one decade and one R package.
+    Cites 10.1177/0272989X221117162: Provides and applies a standardized within-network empirical check on the shared effect modifier assumption, not requiring two IPD trials.
+    Cites cran:multinma: Implements common, exchangeable (hierarchically shrunk) and independent treatment-class effect-modifier interactions, i.e. the entry's proposed direction.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / overstated.** C1 and C2 are correct: treatment-specific modification can differ, and shared conditional interactions do not make marginal odds or hazard ratios population-invariant. Hierarchical pooling is a coherent relaxation but regularizes weak information rather than creating identification. The shared-interaction restriction is not the universal mechanism that makes anchored PAIC work; an anchored analysis targeting the comparator-trial population can transport the IPD trial contrast and subtract the contrast observed in the target trial without assuming identical interactions for every treatment. Shared interactions become identifying restrictions in particular class, component, or sparse ML-NMR parameterizations. The proposed two-trial replication is also not the only empirical check and does not invariably require two complete IPD datasets: treatment-specific interactions can be compared within a mixed network, and sufficiently detailed subgroup aggregate data may support a limited check. Existing within-network relaxation and model comparison partially address the problem; power, calibration, and prior sensitivity remain open.
+    Cites 10.1177/0272989X221117162: Demonstrates a within-network empirical assessment of shared effect modification by relaxing common interactions to treatment-specific interactions and comparing the resulting models, so cross-trial replication using two IPD trials is not the only available check..
+
+Decision path
+:   `R3:partially-solved(n=2) → R8:overstated-majority(n=2)`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [CMP-02 — Adjusted component bridges need interaction constancy across the gap](CMP-02-adjusted-component-bridges-need-interaction-constancy-across.qmd)
+- [COV-01 — Deciding which covariates are true effect modifiers](COV-01-deciding-which-covariates-are-true-effect-modifiers.qmd)
+- [DEC-09 — Modifier selection and target moments reported without provenance](DEC-09-modifier-selection-and-target-moments-reported-without-prove.qmd)
+- [MOD-03 — Ecological versus within-study effect modification](MOD-03-ecological-versus-within-study-effect-modification.qmd)
+:::
+
+## Source
+
+Derived from C:L214-215, C:L223, C:L403 of the reviewed corpus.

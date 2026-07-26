@@ -1,0 +1,65 @@
+---
+title: "Partial identification and robust decision regions for HTA"
+description: "When no single probability distribution over the bias parameters is defensible, reporting the set of effects compatible with a justified assumption set plus the decisions that survive across it is an honest option, though not the uniquely honest one, since arbitrarily narrow bounds mislead as readily as an arbitrary prior. The identified set must be distinguished from a sampling or posterior interval, while a confidence region for an identified set may legitimately carry nominal coverage, and a set alone is not a robust decision region, which additionally requires a threshold or loss function. Set-based decision rules (minimax, minimax regret, dominance, robust Bayes) are already well developed in the statistical decision-theory literature, so the gap is PAIC-specific: no PAIC package the auditors could inspect returns identified sets or robust decision regions, and HTA appraisal practice, built around a point estimate and an incremental cost-effectiveness ratio, has no established procedure for acting on one."
+pid: "QBA-17"
+topic: "Quantitative bias analysis for unanchored PAIC"
+categories: ["Quantitative bias analysis for unanchored PAIC", "Very high priority", "Confirmed open"]
+priority: "Very high"
+prank: 1
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[QBA-17]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[Very high priority]{.chip .chip-priority-very-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+## Statement
+
+When no single probability distribution over the bias parameters is defensible, reporting the set of effects compatible with a justified assumption set plus the decisions that survive across it is an honest option, though not the uniquely honest one, since arbitrarily narrow bounds mislead as readily as an arbitrary prior. The identified set must be distinguished from a sampling or posterior interval, while a confidence region for an identified set may legitimately carry nominal coverage, and a set alone is not a robust decision region, which additionally requires a threshold or loss function. Set-based decision rules (minimax, minimax regret, dominance, robust Bayes) are already well developed in the statistical decision-theory literature, so the gap is PAIC-specific: no PAIC package the auditors could inspect returns identified sets or robust decision regions, and HTA appraisal practice, built around a point estimate and an incremental cost-effectiveness ratio, has no established procedure for acting on one.
+
+## Why it is open
+
+The honesty of the approach is purchased by shifting the burden from an untestable point assumption to an untestable range, and clinicians have little experience specifying the magnitude of a bias parameter, so the bounds require clinically defensible constraints that nobody has codified for PAIC estimands. There is no accepted criterion for how wide a stress-test range should be, so width becomes another analyst degree of freedom, and a set wide enough to be honest can be vacuous. Appraisal processes are built around a point estimate and an incremental cost-effectiveness ratio and provide no procedure for acting on an identified set, so honest wide ranges that span the decision threshold are experienced as uninformative and create direct pressure to narrow ranges without new evidence. Current PAIC software returns point estimates and intervals, so producing bounds requires bespoke code and the honest analysis is also the hardest one to produce.
+
+## What has been tried
+
+No prior work is identified for this problem in the reviewed sources.
+
+## Probable solution or research direction
+
+Instantiate the decision rules that already exist, minimax, minimax regret, dominance and robust Bayes, on PAIC estimands rather than developing decision theory from scratch; the missing pieces are clinically defensible restrictions for these estimands and a set-valued output object in reference PAIC software. Standardize how a stress-test range is constructed so its width is justified by an evidence hierarchy rather than chosen, and report the identified set separately from any confidence region for it. Translate bounds into decision tipping surfaces so they remain usable for reimbursement, and calibrate sensitivity parameters against measured covariates where that is possible.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+
+**The source said.** "For high-stakes unanchored comparisons, disconnected bridges and settings where evidence about bias parameters is weak, the defensible output is the set of effects compatible with bounded assumptions or prior neighborhoods plus a robust decision region, not a single selected estimate. Partial identification is currently dismissed for not returning one number, and no PAIC software has any representation for a set."
+
+**What was wrong with it.** The literature auditor found the claim that HTA decision rules provide no procedure for acting on an identified set too strong as a statement about decision theory, since minimax-regret and related rules for treatment choice under partial identification are well developed in econometrics; it is defensible only about appraisal practice. GPT-5.6 Sol added that partial identification is an honest option rather than the uniquely honest one, that its practical difficulties go well beyond producing a range (choosing defensible restrictions, vacuous sets, sampling uncertainty, computation, mapping effects to losses), and that a set and a robust decision region are different outputs.
+
+Literature and prior-art check
+:   **open / supported-with-caveat.** The entry cites nothing, and that is its weakness rather than its substance. Claims 1, 2, 4, 8, 11 are definitional statements about partial identification and are correct. Claims 13 and 14 (no PAIC software returns identified sets; HTA decision rules provide no procedure for acting on one) are no-method-exists assertions I could not falsify: I checked multinma, maicplus, drMAIC, outstandR and gemtc documentation surfaces and found only point estimates with intervals. However, a large and directly applicable statistical-decision-theory literature on acting under partial identification exists and is not acknowledged: minimax-regret and mean-square-regret optimal treatment choice under an identified set, and optimal decision rules under partial identification, are well developed in econometrics. Claim 14 as written ('provide no procedure for acting on an uninformative identified set') is therefore too strong as a statement about decision theory; it is defensible only as a statement about HTA appraisal practice. The genuinely open work is instantiating those decision rules on PAIC estimands with clinically defensible bounds and set-valued software output.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** C1, C2, C4, C8, and the narrow reading of C12 are correct. Partial identification returns values compatible with stated restrictions, and the identified set is not itself a probabilistic interval. C3 is generally true as a practical observation. C5 should call partial identification an honest option, not the uniquely honest option; arbitrary narrow bounds can be as misleading as an arbitrary prior. C6 understates the practical difficulties, which also include choosing defensible restrictions, vacuous sets, sampling uncertainty, computation, and mapping effects to losses. C7 and C9 are recommendations rather than technical necessities, and ranges should be justified rather than merely made deliberately wide. C10 should say can produce false precision: a diffuse or robust probabilistic model can instead be appropriately imprecise. C11 conflates outputs because partial identification yields a set, while a robust decision region additionally requires a decision threshold or loss function. C13 is a universal software claim not established here. C14 is false as a general technical claim: minimax, minimax-regret, dominance, and robust-Bayes rules can act on sets or prior classes. Whether particular HTA institutions operationalize those rules is a separate empirical question. The very-high severity applies when an unidentified point estimate is presented as identified, not simply because a method declines to return one number.
+
+Decision path
+:   `R5:default-open → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [ADJ-07 — Partial identification bounds under drift or omitted modifiers](ADJ-07-partial-identification-bounds-under-drift-or-omitted-modifie.qmd)
+- [DEC-05 — Committees get no one-page statement of what an estimate rests on](DEC-05-committees-get-no-one-page-statement-of-what-an-estimate-res.qmd)
+- [DIS-15 — Cross-gap bridge bounds are not propagated to net benefit](DIS-15-cross-gap-bridge-bounds-are-not-propagated-to-net-benefit.qmd)
+:::
+
+## Source
+
+Derived from C:L187-188, C:L203, C:L449, C:L532, C:L685-693, C:L709-715 of the reviewed corpus.

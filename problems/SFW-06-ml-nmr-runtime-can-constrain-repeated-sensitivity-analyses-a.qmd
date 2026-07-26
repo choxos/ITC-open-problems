@@ -1,0 +1,85 @@
+---
+title: "ML-NMR runtime can constrain repeated sensitivity analyses at scale"
+description: "multinma ML-NMR can become computationally expensive as aggregate-data integration rows and Hamiltonian Monte Carlo gradient evaluations grow, which can constrain repeated sensitivity analyses in large models. Open issue #66 (raised 17 March 2026) reports 24 hours or more for 16000 iterations with 200-plus integration points in a random-effects model over many studies, and open issue #29 (14 January 2024) requests a cmdstanr backend, which may improve compilation and execution but does not remove the model's integration arithmetic. The auditors disagreed on how far this generalizes and both readings stand: the literature auditor verified every claim as stated and read the tracker as evidence that users hit prohibitive runtimes, while GPT-5.6 Sol found that release 0.9.1 already reduced the default integration burden and added integration checking, so the evidence supports a material caution at larger scales rather than a general block on routine sensitivity analysis."
+pid: "SFW-06"
+topic: "Software, benchmarks & interface standards"
+categories: ["Software, benchmarks & interface standards", "High priority", "Unverifiable"]
+priority: "High"
+prank: 2
+verdict: "Unverifiable"
+verdictslug: "unverifiable"
+maturity: "Established"
+---
+::: {.problem-meta}
+[SFW-06]{.problem-id}
+[Unverifiable]{.verdict .verdict-unverifiable}
+[High priority]{.chip .chip-priority-high}
+[Established]{.chip .chip-maturity-established}
+[Implementation-specific]{.chip}
+:::
+::: {.callout-note appearance="simple"}
+## Scope
+
+This entry describes a limitation of a specific implementation rather than of the field.
+It is catalogued because the underlying methodological problem is general, and because a
+reference implementation is where such problems become concrete and checkable.
+:::
+
+## Statement
+
+multinma ML-NMR can become computationally expensive as aggregate-data integration rows and Hamiltonian Monte Carlo gradient evaluations grow, which can constrain repeated sensitivity analyses in large models. Open issue #66 (raised 17 March 2026) reports 24 hours or more for 16000 iterations with 200-plus integration points in a random-effects model over many studies, and open issue #29 (14 January 2024) requests a cmdstanr backend, which may improve compilation and execution but does not remove the model's integration arithmetic. The auditors disagreed on how far this generalizes and both readings stand: the literature auditor verified every claim as stated and read the tracker as evidence that users hit prohibitive runtimes, while GPT-5.6 Sol found that release 0.9.1 already reduced the default integration burden and added integration checking, so the evidence supports a material caution at larger scales rather than a general block on routine sensitivity analysis.
+
+## Why it is open
+
+ML-NMR requires numerical integration over the covariate distribution inside every likelihood and gradient evaluation, and while integration nodes and design data can be reused, the parameter-dependent likelihood terms cannot, so cost grows with total integration rows and is not amortizable across iterations. At large scale that turns computation into a methodological constraint, because the sensitivity analyses, prior checks and simulation studies the rest of the agenda demands multiply the cost. How large is large enough to matter has never been characterized, which is exactly why two auditors read the same tracker differently. The backend request reflects the same pressure but addresses compilation and execution rather than the integration arithmetic itself.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [multinma 0.9.1 (CRAN, published 16 Apr 2026)](https://cran.r-project.org/package=multinma) | provides Bayesian NMA, network meta-regression and ML-NMR with combined IPD and aggregate data, target integration and class effects |
+| [dmphillippo/multinma (GitHub)](https://github.com/dmphillippo/multinma) | development repository whose open issues were examined in the audit, including issue #29 requesting a cmdstanr backend, open since 14 January 2024 |
+| [multinma issue #66, High runtime for ML-NMR (open, raised 17 Mar 2026)](https://github.com/dmphillippo/multinma/issues/66) | user report of 24 hours or more for 16000 iterations with 200-plus integration points in a random-effects continuous-outcome model over many studies; a user question rather than a maintainer-acknowledged defect |
+| [multinma 0.9.1 release source and NEWS, dmphillippo/multinma@4fe8a6e](https://github.com/dmphillippo/multinma/commit/4fe8a6e9977b7ba6ef93822dda43b617b256587a) | reduces the default integration burden and adds integration checking, with the release notes stating that ML-NMR models are now much faster to run by default; partial counterweight to the runtime claim as stated |
+
+:::
+
+## Probable solution or research direction
+
+Characterize where the cost actually binds now that 0.9.1 has reduced the default integration burden: report runtime against total integration rows, outcome model and parameter dimension so users can predict feasibility instead of discovering it mid-analysis. Continue reducing cost through better quadrature and integration-point selection, reuse of parameter-independent structure and parallelization, and add the requested cmdstanr backend for compilation and workflow gains without expecting it to remove the integration cost. Treat this as a scaling boundary to be documented rather than a defect to be conceded, since no maintainer statement concedes a runtime bug.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Unverifiable. Auditors disagreed and the disagreement was evidence-bearing on both sides.
+
+**The source titled this.** "multinma ML-NMR runtime blocks routine sensitivity analysis" The audit explicitly did not sustain the title's claim that runtime blocks routine sensitivity analysis, since release 0.9.1 lowered the default integration burden.
+
+**The source said.** "multinma, described as the most mature open Bayesian NMA/NMR/ML-NMR platform, carries a runtime and numerical-integration burden, with an open issue on high runtime in ML-NMR when there are many studies and many integration points, and an open request for a cmdstanr backend."
+
+**What was wrong with it.** The title claim that runtime blocks routine sensitivity analysis was not sustained: GPT-5.6 Sol found in the 0.9.1 release source that ML-NMR models are now much faster to run by default (dmphillippo/multinma@4fe8a6e) and that cost depends on total integration rows, outcome model, parameter dimension and gradient evaluations rather than simply studies times points times iterations, and also called the most mature platform label an unsupported superlative. The literature auditor verified issues #66 and #29 and the 0.9.1 release date exactly as stated, so the disagreement is recorded rather than resolved.
+
+**Dissent.** literature dissented (supported): Retrieved the multinma issue tracker directly. Issue #66 'High runtime for ML-NMR' is open (raised 2026-03-17) and its body confirms the exact conditions claimed: many studies and many integration points. Issue #29 'Option to use cmdstanr as the backend' is open (2024-01-14). CRAN release history confirms 0.9.1 published 2026-04-16. Every claim in this entry is accurate as stated. One framing note the entry itself pre-empts elsewhere: #66 is a user question rather than a maintainer-acknowledged defect, and no maintainer statement in the thread concedes a runtime bug; the evidence supports 'users hit prohibitive runtimes', not 'the package is inefficient'. codex dissented (overstated): ML-NMR does incur a real integration burden because aggregate-data likelihood contributions must be evaluated across integration rows during repeated HMC log-density and gradient evaluations, supporting C2. The cost is not literally just studies multiplied by points and MCMC iterations: it depends on total integration rows, outcome model, parameter dimension, leapfrog and gradient evaluations, and parallelization. Parameter-independent nodes and design data can be reused, while parameter-dependent likelihood terms generally cannot. Version 0.9.1 already reduced the default integration burden and added integration checking, so the evidence supports a material caution at larger scales, not the general title claim that routine sensitivity analysis is blocked. A cmdstanr backend may improve compilation, execution, and workflow, but it does not remove the model's integration arithmetic; the backend request therefore does not prove that the current backend determines achievable model size. C1 is an unsupported superlative. C3-C5 concern issue and release metadata rather than statistical correctness, and their current online state cannot be refreshed under the no-web constraint.
+
+Literature and prior-art check
+:   **open / supported.** Retrieved the multinma issue tracker directly. Issue #66 'High runtime for ML-NMR' is open (raised 2026-03-17) and its body confirms the exact conditions claimed: many studies and many integration points. Issue #29 'Option to use cmdstanr as the backend' is open (2024-01-14). CRAN release history confirms 0.9.1 published 2026-04-16. Every claim in this entry is accurate as stated. One framing note the entry itself pre-empts elsewhere: #66 is a user question rather than a maintainer-acknowledged defect, and no maintainer statement in the thread concedes a runtime bug; the evidence supports 'users hit prohibitive runtimes', not 'the package is inefficient'.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** ML-NMR does incur a real integration burden because aggregate-data likelihood contributions must be evaluated across integration rows during repeated HMC log-density and gradient evaluations, supporting C2. The cost is not literally just studies multiplied by points and MCMC iterations: it depends on total integration rows, outcome model, parameter dimension, leapfrog and gradient evaluations, and parallelization. Parameter-independent nodes and design data can be reused, while parameter-dependent likelihood terms generally cannot. Version 0.9.1 already reduced the default integration burden and added integration checking, so the evidence supports a material caution at larger scales, not the general title claim that routine sensitivity analysis is blocked. A cmdstanr backend may improve compilation, execution, and workflow, but it does not remove the model's integration arithmetic; the backend request therefore does not prove that the current backend determines achievable model size. C1 is an unsupported superlative. C3-C5 concern issue and release metadata rather than statistical correctness, and their current online state cannot be refreshed under the no-web constraint.
+
+Decision path
+:   `R5:default-open → R7:counter-and-support-both-present`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [ADJ-14 — Federated ML-NMR and federated model checking do not exist](ADJ-14-federated-ml-nmr-and-federated-model-checking-do-not-exist.qmd)
+:::
+
+## Source
+
+Derived from C:L2246, C:L2259-2273 of the reviewed corpus.

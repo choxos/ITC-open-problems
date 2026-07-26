@@ -1,0 +1,78 @@
+---
+title: "Overdispersed counts and recurrent events as total disease burden"
+description: "The population-adjusted implementations the auditors checked fit Poisson models for counts and offer no negative-binomial, Poisson-lognormal, hurdle, zero-inflated, recurrent-event or frailty family, so those options are unavailable rather than merely uncommon. The consequence is narrower than the source said: where the conditional mean is correctly specified the Poisson estimating score remains unbiased under negative-binomial variance, so residual overdispersion invalidates likelihood-based uncertainty while leaving rate-ratio point estimates consistent, and transport bias instead requires misspecification of the conditional mean, the zero mechanism, the frailty or the exposure weighting. Time to first event and total event burden remain different estimands that can move in different directions, and general count meta-analysis evidence shows pooled effects and precision differ by whether a rate ratio, Poisson, negative-binomial, dichotomized risk ratio or time-to-first-event analysis is used (doi:10.1186/s13643-015-0144-x). The two auditors disagreed about how much of the source's mechanism survives, and that disagreement is recorded rather than resolved."
+pid: "OUT-08"
+topic: "Outcome-specific problems"
+categories: ["Outcome-specific problems", "High priority", "Unverifiable"]
+priority: "High"
+prank: 2
+verdict: "Unverifiable"
+verdictslug: "unverifiable"
+maturity: "Emerging"
+tractability: 2
+---
+::: {.problem-meta}
+[OUT-08]{.problem-id}
+[Unverifiable]{.verdict .verdict-unverifiable}
+[High priority]{.chip .chip-priority-high}
+[Emerging]{.chip .chip-maturity-emerging}
+[Tractability 2/5]{.chip}
+:::
+## Statement
+
+The population-adjusted implementations the auditors checked fit Poisson models for counts and offer no negative-binomial, Poisson-lognormal, hurdle, zero-inflated, recurrent-event or frailty family, so those options are unavailable rather than merely uncommon. The consequence is narrower than the source said: where the conditional mean is correctly specified the Poisson estimating score remains unbiased under negative-binomial variance, so residual overdispersion invalidates likelihood-based uncertainty while leaving rate-ratio point estimates consistent, and transport bias instead requires misspecification of the conditional mean, the zero mechanism, the frailty or the exposure weighting. Time to first event and total event burden remain different estimands that can move in different directions, and general count meta-analysis evidence shows pooled effects and precision differ by whether a rate ratio, Poisson, negative-binomial, dichotomized risk ratio or time-to-first-event analysis is used (doi:10.1186/s13643-015-0144-x). The two auditors disagreed about how much of the source's mechanism survives, and that disagreement is recorded rather than resolved.
+
+## Why it is open
+
+No population-adjusted implementation the auditors checked offers an overdispersed, zero-inflated or recurrent-event likelihood, so an analyst facing exacerbation or relapse counts either accepts Poisson uncertainty or leaves the population-adjusted framework. On the survival side, transporting a recurrent-event effect requires transporting a frailty distribution that is itself population-dependent, and aggregate-data trials report first-event Kaplan-Meier curves or annualized rates rather than the full event history, so the joint and dispersion structure cannot be recovered from what is published. A structural-zero subgroup makes the population a mixture whose mixing proportion can vary across trial populations, which is a transport problem and not only a fitting problem. Whether the closed-form-likelihood barrier that blocks non-standard count likelihoods in ML-NMR has already been removed is an open question the literature auditor flagged but did not check.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Do alternative methods for analysing count data produce similar estimates? Implications for meta-analyses, Systematic Reviews 2015](https://doi.org/10.1186/s13643-015-0144-x) | shows pooled effects and precision differ according to whether counts are analyzed as a rate ratio, Poisson, negative binomial, dichotomized risk ratio or time to first event, supporting both the Poisson-restriction claim and the claim that first-event and total-burden analyses are different estimands |
+| [multinma (CRAN), nma() likelihoods](https://cran.r-project.org/package=multinma) | the literature auditor verified from the nma() reference that the supported count and rate likelihoods are binomial, Bernoulli, Poisson and normal plus the survival families, with no negative-binomial, Poisson-lognormal, hurdle or zero-inflated option |
+| [cpaic, unreleased development package on GitHub (not on CRAN), commit 9d150e9](https://github.com/choxos/cpaic) | cmlnmr() accepts only binomial, Gaussian, Poisson and survival families, with no negative-binomial, Poisson-lognormal, hurdle, zero-inflated, recurrent-event or frailty path in NAMESPACE or the Stan models; the code auditor quotes its note that under overdispersion the rate-ratio point estimates stay consistent while the uncertainty does not |
+| [Don't Disregard the Data for Lack of a Likelihood: Bayesian Synthetic Likelihood for Enhanced Multilevel Network Meta-Regression (arxiv:2603.11019)](https://arxiv.org/abs/2603.11019) | named by the literature auditor as a lead they did not read, so its contents are unverified here; if it does what its title states it would remove the closed-form-likelihood barrier that currently blocks non-standard count likelihoods in ML-NMR |
+
+:::
+
+## Probable solution or research direction
+
+Extend component ML-NMR to negative-binomial and Poisson-lognormal likelihoods so overdispersion is modeled rather than left to invalidate the reported interval, and add hurdle and zero-inflated formulations whose zero and count components are permitted, not required, to carry different effect-modification structure. Develop recurrent-event and joint frailty models for population-adjusted network synthesis so total burden and time to first event can both be estimated and standardized to the target population, and connect them to the count models for the same underlying process. Check the lead the literature auditor named but did not read, Bayesian synthetic likelihood for multilevel network meta-regression (arxiv:2603.11019), before rebuilding integration machinery, since if it does what its title says it removes the closed-form-likelihood constraint.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Unverifiable. Auditors disagreed and the disagreement was evidence-bearing on both sides.
+
+**The source said.** "Repeated clinical events such as exacerbations or relapses are analyzed either as Poisson counts, which forces variance to equal the mean and ignores excess zeros, or as time to first event, which discards the recurrent process entirely. Neither negative-binomial and zero-inflated component ML-NMR nor recurrent-event and joint frailty models exist for population-adjusted network synthesis."
+
+**What was wrong with it.** The source said a mis-specified count likelihood distorts the transported effect and not only its standard error; the code auditor showed this is false as a general rule, since a correctly specified conditional mean leaves Poisson point estimates consistent under overdispersion. The same auditor narrowed the claim that Poisson is too restrictive to cases with observed residual conditional overdispersion, and rejected the claim that hurdle and zero-inflated formulations require separate effect-modification structure, since those coefficients may be constrained, shared or omitted in one component; the literature auditor judged the entry supported, so the adjudicated verdict is unverifiable with both positions on the record.
+
+**Dissent.** codex dissented (overstated): At the requested cpaic revision, cmlnmr() accepts only binomial, Gaussian, Poisson, and survival families. NAMESPACE and the Stan models contain no negative-binomial, Poisson-lognormal, hurdle, zero-inflated, recurrent-event, or frailty path. The core cpaic gap is therefore open, and C6-C7 correctly distinguish first recurrence from total burden. However, C1 needs observed residual conditional overdispersion; Poisson is not universally too restrictive. C3 is false as a general rule: when the conditional mean is correctly specified, the Poisson estimating score can remain unbiased under negative-binomial variance, leaving point effects consistent while model-based uncertainty is wrong. Transport bias requires misspecification of the conditional mean, zero mechanism, frailty, or exposure weighting. C5 also overstates necessity: hurdle and zero-inflated models have two predictors, but their effect-modifier coefficients may be constrained, shared, or omitted in one component. C8-C9 are universal prevalence or absence claims not established by cpaic source inspection.
+
+Literature and prior-art check
+:   **open / supported.** Verified from the multinma nma() reference that the supported count/rate likelihoods are binomial, bernoulli, poisson and normal plus the survival families, with no negative-binomial, Poisson-lognormal, hurdle or zero-inflated option, so 'proposed but not yet available' is accurate for the leading ML-NMR implementation. The general count-meta-analysis literature supports the Poisson-restriction claim: 'Do alternative methods for analysing count data produce similar estimates? Implications for meta-analyses' (doi 10.1186/s13643-015-0144-x) shows precision and pooled effects differ by whether rate ratio, Poisson, negative binomial, dichotomised risk ratio or time-to-first-event is used, which also supports the claim that time to first event and total burden are different estimands. I found no recurrent-event or joint-frailty model for population-adjusted network synthesis. One lead worth watching that I did not read: arXiv 2603.11019, 'Don't Disregard the Data for Lack of a Likelihood: Bayesian Synthetic Likelihood for Enhanced Multilevel Network Meta-Regression', which if it does what its title says would remove the closed-form-likelihood barrier for non-standard count likelihoods in ML-NMR.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** At the requested cpaic revision, cmlnmr() accepts only binomial, Gaussian, Poisson, and survival families. NAMESPACE and the Stan models contain no negative-binomial, Poisson-lognormal, hurdle, zero-inflated, recurrent-event, or frailty path. The core cpaic gap is therefore open, and C6-C7 correctly distinguish first recurrence from total burden. However, C1 needs observed residual conditional overdispersion; Poisson is not universally too restrictive. C3 is false as a general rule: when the conditional mean is correctly specified, the Poisson estimating score can remain unbiased under negative-binomial variance, leaving point effects consistent while model-based uncertainty is wrong. Transport bias requires misspecification of the conditional mean, zero mechanism, frailty, or exposure weighting. C5 also overstates necessity: hurdle and zero-inflated models have two predictors, but their effect-modifier coefficients may be constrained, shared, or omitted in one component. C8-C9 are universal prevalence or absence claims not established by cpaic source inspection.
+
+Decision path
+:   `R5:default-open → R7:counter-and-support-both-present`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [CMP-19 — Competing risks and recurrent events are absent from component PAIC](CMP-19-competing-risks-and-recurrent-events-are-absent-from-compone.qmd)
+- [OUT-09 — Endogenous exposure time and target-standardized rate contrasts](OUT-09-endogenous-exposure-time-and-target-standardized-rate-contra.qmd)
+- [OUT-16 — Competing risks and cumulative incidence transport](OUT-16-competing-risks-and-cumulative-incidence-transport.qmd)
+:::
+
+## Source
+
+Derived from C:L214-215, C:L246, C:L1557-1561, C:L1557-1562, C:L1557-1565, C:L1608-1610 of the reviewed corpus.

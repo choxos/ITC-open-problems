@@ -1,0 +1,75 @@
+---
+title: "Five mechanisms of cross-study effect variation are lumped together"
+description: "Cross-study effect variation can come from patient biology, treatment delivery, adherence, trial engagement and outcome ascertainment, and these transport differently, since a biological modifier travels with the patient while delivery, engagement and ascertainment travel with the care system. The five-way split is the source's own taxonomy and the categories are not mutually exclusive: engagement can change implementation and adherence, and ascertainment changes the observed endpoint rather than necessarily the underlying outcome. Identification results already exist for two categories outside the ITC literature, engagement in Ung, VanderWeele and Dahabreh (doi:10.1097/EDE.0000000000001863) and adherence-mediated effects separated from assignment effects in Dahabreh, Robertson and Hernan (arXiv:2211.04876). The ITC-specific part is what is open: when mechanism-specific variables and crossed variation are absent, which is the normal situation for aggregate-data indirect comparisons, the mechanisms share one statistical signature and the heterogeneity cannot be attributed."
+pid: "IDN-12"
+topic: "Identification, transitivity & conditional constancy"
+categories: ["Identification, transitivity & conditional constancy", "High priority", "Partially addressed"]
+priority: "High"
+prank: 2
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
+maturity: "Emerging"
+---
+::: {.problem-meta}
+[IDN-12]{.problem-id}
+[Partially addressed]{.verdict .verdict-partially-addressed}
+[High priority]{.chip .chip-priority-high}
+[Emerging]{.chip .chip-maturity-emerging}
+:::
+## Statement
+
+Cross-study effect variation can come from patient biology, treatment delivery, adherence, trial engagement and outcome ascertainment, and these transport differently, since a biological modifier travels with the patient while delivery, engagement and ascertainment travel with the care system. The five-way split is the source's own taxonomy and the categories are not mutually exclusive: engagement can change implementation and adherence, and ascertainment changes the observed endpoint rather than necessarily the underlying outcome. Identification results already exist for two categories outside the ITC literature, engagement in Ung, VanderWeele and Dahabreh (doi:10.1097/EDE.0000000000001863) and adherence-mediated effects separated from assignment effects in Dahabreh, Robertson and Hernan (arXiv:2211.04876). The ITC-specific part is what is open: when mechanism-specific variables and crossed variation are absent, which is the normal situation for aggregate-data indirect comparisons, the mechanisms share one statistical signature and the heterogeneity cannot be attributed.
+
+## Why it is open
+
+Aggregate publications do not carry the mediation-style information on adherence, exposure intensity, ascertainment schedules and care pathways that separating the mechanisms requires, so the aggregate treatment contrast is often the only signal and it mixes all of them. Conflating them gives the wrong prediction in the target setting, because the transport rule differs by mechanism. No population-adjustment implementation currently encodes the distinction: in cpaic, an unreleased development package on GitHub that is not on CRAN, the component ML-NMR fit uses a single interaction matrix for all component by covariate terms, and the STC path separates prognostic main effects from modifiers with no mechanism roles at all. Moving to realistic-strategy estimands to fix this forfeits the protection of randomization, adds adherence and treatment-version assumptions of its own, and yields a quantity that HTA reference cases may not accept without a parallel conventional analysis.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Ung, VanderWeele and Dahabreh 2025, Generalizing and Transporting Causal Inferences From Randomized Trials in the Presence of Trial Engagement Effects, Epidemiology](https://doi.org/10.1097/EDE.0000000000001863) | defines engagement-aware transport estimands and gives identification results under a no participation-by-treatment-assignment interaction condition, under which the identifying observed-data functionals are the same as those obtained under the stronger conditions invoked in prior work |
+| [Dahabreh, Robertson and Hernan, arXiv:2211.04876](https://arxiv.org/abs/2211.04876) | separates assignment effects from adherence-mediated effects for generalizability and transportability, treating a trial engagement effect via adherence as a distinct identification obstacle; it covers two of the five categories, outside the indirect-comparison setting |
+| [cpaic, unreleased development package on GitHub (not on CRAN), commit 9d150e9, cmlnmr() and cstc()](https://github.com/choxos/cpaic) | uses one interaction matrix for all component by covariate terms and separates prognostic main effects from modifiers without any mechanism roles, which is the source-code auditor's concrete check on the claim that no implementation distinguishes the mechanisms |
+
+:::
+
+## Probable solution or research direction
+
+Import the identification results that exist for engagement and for adherence-mediated effects into the ITC setting first, and treat implementation and ascertainment as the categories still needing estimand definitions. Require analyses to state which mechanism a claimed effect modifier belongs to so the correct transport rule is applied, and design evidence sets that supply crossed variation or mechanism-specific variables rather than assuming attribution is possible from aggregate contrasts. Where realistic-strategy estimands are used, report them alongside assignment-based effects so decision models retain a comparable conventional quantity.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Partially addressed. Part of this problem is addressed by existing work; the entry names which part.
+
+**The source said.** "Biological treatment modification, implementation modification, adherence-mediated modification, trial-engagement effects and outcome-ascertainment effects are all reported as undifferentiated effect modification or heterogeneity, although they transport differently. Separating them may require ITC/PAIC estimands defined under realistic treatment strategies rather than assignment-only effects."
+
+**What was wrong with it.** The source said no identification results or estimand definitions exist for the non-biological categories and that the mechanisms cannot be distinguished. The literature auditor found engagement formalized in the paper the entry already cites and adherence-mediated effects handled in arXiv:2211.04876, and the source-code auditor narrowed non-separability to the case where mechanism-specific variables and crossed variation are absent, since arm-level adherence, protocol, exposure and ascertainment data can distinguish some mechanisms.
+
+**Dissent.** codex dissented (overstated): C1 is a useful causal taxonomy, but the categories are not automatically distinct or mutually exclusive: trial engagement can change implementation and adherence, and ascertainment changes the observed endpoint rather than necessarily the underlying outcome. C2 holds only when an aggregate treatment contrast is the sole information and mechanism indicators or crossed variation are absent; arm-level adherence, protocol, exposure, and ascertainment data can distinguish some mechanisms. C3 is correct. C4 is a universal absence claim outside source-code ground truth. For cpaic specifically at 9d150e9, the claim holds: cmlnmr() uses one Gamma for all component-by-covariate interactions and cstc() separates prognostic main effects from modifiers but has no five-mechanism roles. C5 is relevant to adherence and treatment versions but is not automatically required for engagement or ascertainment; a target assignment effect may remain the decision estimand. C6-C7 are correct for assignment-only versus per-protocol or realistic-strategy effects. Ung et al. resolves one mechanism, not the integrated five-way PAIC problem.
+
+Literature and prior-art check
+:   **open / supported-with-caveat.** The Ung et al. citation is correctly used: trial-engagement effects are formalized there, and it is indeed one of the five categories. Caveat one: the five-way taxonomy is the report's own proposal, and no retrieved source states it, so 'at least five distinguishable mechanisms' is an assertion rather than a finding. Caveat two: 'No current PAIC method distinguishes these five mechanisms' is an absence claim I cannot verify, and it is too broad given work the entry misses. Dahabreh, Robertson and Hernan (arXiv 2211.04876) already separate assignment effects from adherence-mediated effects for generalizability and transportability, treating 'a trial engagement effect via adherence' as a distinct identification obstacle, which covers two of the five categories in the neighbouring literature. What is genuinely open, and what I would lead with, is the ITC-specific part: for aggregate-data indirect comparisons the mechanisms share one statistical signature, and the mediation and ascertainment data needed to separate them are not in the publications ITCs rely on. The claims about realistic-strategy estimands forfeiting randomization protection are logically sound and I found nothing contradicting them.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / overstated.** C1 is a useful causal taxonomy, but the categories are not automatically distinct or mutually exclusive: trial engagement can change implementation and adherence, and ascertainment changes the observed endpoint rather than necessarily the underlying outcome. C2 holds only when an aggregate treatment contrast is the sole information and mechanism indicators or crossed variation are absent; arm-level adherence, protocol, exposure, and ascertainment data can distinguish some mechanisms. C3 is correct. C4 is a universal absence claim outside source-code ground truth. For cpaic specifically at 9d150e9, the claim holds: cmlnmr() uses one Gamma for all component-by-covariate interactions and cstc() separates prognostic main effects from modifiers but has no five-mechanism roles. C5 is relevant to adherence and treatment versions but is not automatically required for engagement or ascertainment; a target assignment effect may remain the decision estimand. C6-C7 are correct for assignment-only versus per-protocol or realistic-strategy effects. Ung et al. resolves one mechanism, not the integrated five-way PAIC problem.
+    Cites 10.1097/EDE.0000000000001863: Formalizes estimands and identification for trial-engagement effects, resolving one member of the proposed taxonomy but not a five-way mechanism decomposition for PAIC..
+
+Decision path
+:   `R3:partially-solved(n=1) → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [CMP-05 — No versioned intervention ontology maps onto CNMA component matrices](CMP-05-no-versioned-intervention-ontology-maps-onto-cnma-component-.qmd)
+- [QBA-04 — Generic unmeasured confounding collapses distinct bias mechanisms](QBA-04-generic-unmeasured-confounding-collapses-distinct-bias-mecha.qmd)
+:::
+
+## Source
+
+Derived from C:L840-846, C:L848 of the reviewed corpus.

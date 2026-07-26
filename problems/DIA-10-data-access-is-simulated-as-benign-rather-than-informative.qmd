@@ -1,0 +1,73 @@
+---
+title: "Data access is simulated as benign rather than informative"
+description: "No PAIC simulation varies informative IPD availability, selective baseline or outcome reporting, MNAR covariate or outcome missingness, informative censoring, differential loss to follow-up, or sampling error on published target summaries, so access-driven error goes unmeasured and is attributed to method failure by default. Two parts of the original claim need narrowing. A simulate-digitize-reconstruct evaluation design for digitization error already exists in the reconstruction literature (doi:10.1177/23814683221077643); what is missing is its propagation into PAIC estimator performance. And a sponsor holding IPD for its own trial makes access treatment-dependent without making it depend on the study-specific treatment effect, so an explicit availability model is needed when inference generalizes over studies and availability depends on effect-relevant study characteristics, not automatically."
+pid: "DIA-10"
+topic: "Diagnostics & empirical validation"
+categories: ["Diagnostics & empirical validation", "High priority", "Confirmed open"]
+priority: "High"
+prank: 2
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[DIA-10]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[High priority]{.chip .chip-priority-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+## Statement
+
+No PAIC simulation varies informative IPD availability, selective baseline or outcome reporting, MNAR covariate or outcome missingness, informative censoring, differential loss to follow-up, or sampling error on published target summaries, so access-driven error goes unmeasured and is attributed to method failure by default. Two parts of the original claim need narrowing. A simulate-digitize-reconstruct evaluation design for digitization error already exists in the reconstruction literature (doi:10.1177/23814683221077643); what is missing is its propagation into PAIC estimator performance. And a sponsor holding IPD for its own trial makes access treatment-dependent without making it depend on the study-specific treatment effect, so an explicit availability model is needed when inference generalizes over studies and availability depends on effect-relevant study characteristics, not automatically.
+
+## Why it is open
+
+Simulating informative availability requires an explicit model coupling data access to effect-relevant study characteristics, which no PAIC generator contains. Treating published target moments as fixed removes a genuine uncertainty component whenever the estimand is a superpopulation target, and no simulation can show the consequence if the generator never adds sampling error to them. Selective reporting mechanisms are simply absent from the design space, and digitization error, although it has a standard evaluation design of its own in the reconstruction literature, has never been carried through into PAIC estimator performance.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [A Method for Reconstructing Individual Patient Data From Kaplan-Meier Survival Curves That Incorporate Marked Censoring Times, 2022](https://doi.org/10.1177/23814683221077643) | Illustrates the existing simulate-digitize-reconstruct evaluation design for digitization error, narrowing the claim that digitization error has no standard generator. Retrieved at title, venue and summary level only. |
+
+:::
+
+## Probable solution or research direction
+
+Add data-access mechanisms to the generator: reconstruction error using the existing simulate-digitize-reconstruct design, sampling error on published target summaries wherever the estimand is a superpopulation target, selective reporting of baseline characteristics and outcomes, MNAR covariate and outcome missingness, informative censoring, and differential loss to follow-up. Model informative IPD availability explicitly where availability depends on effect-relevant study characteristics rather than assuming sponsor ownership makes it informative. Report how each mechanism degrades estimator and interval performance separately from the primary causal assumptions, so that access-driven error is not attributed to method failure.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+
+**The source said.** "Simulation designs treat data access as benign: IPD is assumed available at random, published target summaries are treated as fixed and known, and pseudo-IPD is treated as exact. MAR and MNAR covariate missingness, outcome missingness and informative censoring, selective baseline and outcome reporting, informative IPD availability, digitization error, sampling error in target summaries and differential loss to follow-up are not varied."
+
+**What was wrong with it.** The source treated digitization error as having no standard generator and sponsor-held IPD as automatically informative; the literature auditor found an established simulate-digitize-reconstruct evaluation design (doi:10.1177/23814683221077643), and GPT-5.6 Sol separated structurally asymmetric access from an effect-informative availability mechanism and noted that fixed target summaries are appropriate when the target is the realized comparator-trial sample rather than a superpopulation.
+
+Literature and prior-art check
+:   **open / supported-with-caveat.** I found no PAIC simulation that varies informative IPD availability, selective baseline or outcome reporting, MNAR covariate or outcome missingness, informative censoring, differential loss to follow-up, or sampling error on published target summaries, so the core of the entry stands. The digitization sub-claim needs narrowing: the pseudo-IPD reconstruction literature does have a standard evaluation design in which curves are simulated, digitized and reconstructed and hazard ratios and survival quantiles are compared with the originals, and there is recent work propagating reconstruction uncertainty into downstream synthesis by bootstrapping pseudo-IPD. So a digitization-error generator is not absent from evidence synthesis generally; what is absent is its propagation into PAIC estimator performance. I retrieved these reconstruction items at title/summary level only, hence the moderate confidence.
+    Cites 10.1177/23814683221077643: Illustrates the existing simulate-digitize-reconstruct evaluation design for digitization error, narrowing the claim that digitization error has no standard generator. Retrieved at title/venue and summary level only..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** C2, C4, and C5 identify legitimate and distinct mechanisms. C1, however, confuses a structurally asymmetric data configuration with an informative missing-data mechanism. A sponsor possessing IPD for its own treatment makes access treatment-dependent, but it does not by itself make access depend on the study-specific treatment effect or induce selection bias. An explicit availability model is needed only when inference generalizes over studies and availability depends on effect-relevant study characteristics. C3 also needs an estimand condition: target summaries have sampling uncertainty for inference to a target superpopulation, but they may properly be conditioned on as fixed when the target is the realized comparator-trial sample. Consequently, treating them as fixed does not remove uncertainty from every valid downstream interval. Claims about what simulations usually assume are outside this audit. The access and missingness extensions are valuable, but their necessity and severity depend on the inferential target and actual evidence-acquisition process.
+
+Decision path
+:   `R5:default-open → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [CMP-22 — IPD availability may be informative rather than random](CMP-22-ipd-availability-may-be-informative-rather-than-random.qmd)
+- [DEC-09 — Modifier selection and target moments reported without provenance](DEC-09-modifier-selection-and-target-moments-reported-without-prove.qmd)
+- [EVB-05 — No reporting standard covers what population adjustment needs](EVB-05-no-reporting-standard-covers-what-population-adjustment-need.qmd)
+- [OUT-13 — Reconstruction uncertainty from digitized Kaplan-Meier curves](OUT-13-reconstruction-uncertainty-from-digitized-kaplan-meier-curve.qmd)
+:::
+
+## Source
+
+Derived from C:L1897-1908 of the reviewed corpus.

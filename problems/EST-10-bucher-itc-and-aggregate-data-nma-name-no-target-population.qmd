@@ -1,0 +1,74 @@
+---
+title: "Bucher ITC and aggregate-data NMA name no target population"
+description: "The Bucher adjusted indirect comparison and aggregate-data network meta-analysis produce relative effects whose formulas specify no target covariate distribution, and those effects are routinely read as common-population quantities. The assumption list is looser than the source states: what is required is transportability of same-scale direct effects to a common target, not literal balance of every effect modifier or identical trial designs, the direct evidence entering each contrast may itself synthesize several trials rather than one, and a random-effects network replaces homogeneity with an exchangeability model while also requiring connectedness. Neither method names the population its estimate refers to, and in wholly aggregate networks none can, since the population-adjusted successor that carries a network-wide target requires IPD from at least one study. The two auditors split on whether this leaves the problem open or partly solved."
+pid: "EST-10"
+topic: "Estimands & target populations"
+categories: ["Estimands & target populations", "Very high priority", "Unverifiable"]
+priority: "Very high"
+prank: 1
+verdict: "Unverifiable"
+verdictslug: "unverifiable"
+maturity: "Established"
+---
+::: {.problem-meta}
+[EST-10]{.problem-id}
+[Unverifiable]{.verdict .verdict-unverifiable}
+[Very high priority]{.chip .chip-priority-very-high}
+[Established]{.chip .chip-maturity-established}
+:::
+## Statement
+
+The Bucher adjusted indirect comparison and aggregate-data network meta-analysis produce relative effects whose formulas specify no target covariate distribution, and those effects are routinely read as common-population quantities. The assumption list is looser than the source states: what is required is transportability of same-scale direct effects to a common target, not literal balance of every effect modifier or identical trial designs, the direct evidence entering each contrast may itself synthesize several trials rather than one, and a random-effects network replaces homogeneity with an exchangeability model while also requiring connectedness. Neither method names the population its estimate refers to, and in wholly aggregate networks none can, since the population-adjusted successor that carries a network-wide target requires IPD from at least one study. The two auditors split on whether this leaves the problem open or partly solved.
+
+## Why it is open
+
+None of the identification conditions for Bucher or aggregate-data NMA pins down a covariate distribution, so there is no formal object against which population mismatch could be measured, and bias cannot even be defined until a target is chosen. Aggregate covariate summaries cannot separate individual-level effect modification from between-study gradients without strong assumptions, which is why assessment stays informal in practice. The successor that does carry a network-wide target needs IPD from at least one study, so it is unavailable exactly where the aggregate-only default is used. The maturity of the theory and software makes the common-population reading feel safe precisely where the underlying populations differ most.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Phillippo, Ades, Dias, Palmer, Abrams and Welton 2018, Methods for Population-Adjusted Indirect Comparisons in Health Technology Appraisal, Medical Decision Making (NICE DSU TSD18)](https://doi.org/10.1177/0272989X17725740) | States that a standard indirect comparison or fixed-effect network meta-analysis assumes constancy of relative effects on the linear predictor scale, requiring effect modifiers to be balanced between the trial populations, and tabulates those assumptions. It is the source for the descriptive claims about what Bucher and aggregate-data NMA assume; it does not supply a target covariate distribution for aggregate-only networks. |
+| [cpaic, unreleased development package on GitHub (not on CRAN), commit 9d150e9](https://github.com/choxos/cpaic) | Its cML-NMR relative-effect path requires a named one-row effect-modifier profile, partially implementing explicit target labeling, and states that ML-NMR relative effects are population-specific whenever effect modifiers are present. It returns a conditional contrast at that profile rather than a marginal effect standardized over a population. |
+
+:::
+
+## Probable solution or research direction
+
+Where IPD exist for at least one study, use ML-NMR as the successor that carries a network-wide target and label every network effect with the population it refers to. Where no IPD exist, the open work is different: state the population the network is being read as referring to and quantify how far the pooled parameter can sit from an effect in that population, since no aggregate-only estimator supplies one. Move effect-modification assessment from informal comparison of baseline tables to explicit modeling of within-study and between-study interaction components where the network supplies enough variation to identify them, and keep Bucher as a transparent estimator that remains decision-grade when its transport assumptions hold rather than demoting it by default.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Unverifiable. Auditors disagreed and the disagreement was evidence-bearing on both sides.
+
+**The source said.** "The Bucher adjusted indirect comparison identifies a relative effect in an implicitly common population defined only by the two connected trials sharing a comparator, and aggregate-data NMA produces network relative effects that are routinely read as common-population effects. Neither method names the population its estimate refers to, and population mismatch and effect modification across the network are only weakly assessed."
+
+**What was wrong with it.** The literature auditor confirmed every descriptive claim against NICE DSU TSD18 (doi:10.1177/0272989X17725740) and voted the problem open for aggregate-only networks; GPT-5.6 Sol judged the same entry overstated, correcting that Bucher needs common-comparator direct evidence rather than exactly two RCTs, that the requirement is transportability rather than literal effect-modifier balance, that connectedness and exchangeability belong in the NMA assumption list, and that Bucher can still be decision-grade when its transport assumptions hold, so calling it a benchmark only inflates the severity. The disagreement is recorded rather than resolved.
+
+**Dissent.** codex dissented (overstated): C1 is accurate for the canonical Bucher calculation when relative effects are population-dependent: the formula itself does not specify a target covariate distribution. For C2 and C3, the actual requirement is transportability of the same-scale direct effects to a common target; literal balance of effect modifiers or identical designs is not necessary, and differences matter only when they modify effects or introduce bias. C4 is a reasonable practical judgment, not a mathematical result. C5 is false literally: Bucher needs direct evidence linked through a common comparator, but each direct estimate may synthesize multiple RCTs rather than exactly one trial. C6 describes sufficient fixed-effect NMA conditions incompletely: connectedness is also required, while random-effects NMA replaces homogeneity with an exchangeability/distributional model. C7 and the “usually” part of C8 are practice claims outside this audit; technically, aggregate summaries alone cannot separate within-study effect modification from between-study gradients without strong assumptions. C9 is broadly plausible but qualitative. The pooled NMA parameter is model- and weight-defined and need not equal an effect in any literal mixture population. cpaic partially addresses the target-labeling gap by requiring a named effect-modifier profile for cML-NMR output, but that output is conditional rather than marginally standardized. Bucher can still be decision-grade when its transport assumptions hold, so benchmark-only language inflates severity.
+
+Literature and prior-art check
+:   **open / supported.** Every descriptive claim is confirmed by the full text of Phillippo et al. 2018 Med Decis Making: 'A standard indirect comparison or (fixed effect) network meta-analysis assumes constancy of relative effects on the linear predictor scale ... This requires that any and all effect modifiers are balanced between the 2 trial populations', with Table 1 tabulating exactly those assumptions for the standard indirect comparison. Fragility to effect-modifier imbalance and design differences, the requirement of two connected RCTs sharing a comparator, and the maturity of aggregate-data NMA theory and software (netmeta, gemtc, multinma; the NICE DSU evidence-synthesis TSD series) are all uncontroversial. Weak assessment of population mismatch is corroborated by Phillippo et al. 2019 (NICE appraisal review) and Serret-Larmande et al. 2023 (3 of 133 PAIC articles reported all key methodological aspects adequately). I vote open rather than partially-solved because the entry's scope is the aggregate-data-only setting: ML-NMR is the coherent successor that carries a network-wide target, but it requires IPD from at least one study, so for wholly aggregate networks no method names a target covariate distribution.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / overstated.** C1 is accurate for the canonical Bucher calculation when relative effects are population-dependent: the formula itself does not specify a target covariate distribution. For C2 and C3, the actual requirement is transportability of the same-scale direct effects to a common target; literal balance of effect modifiers or identical designs is not necessary, and differences matter only when they modify effects or introduce bias. C4 is a reasonable practical judgment, not a mathematical result. C5 is false literally: Bucher needs direct evidence linked through a common comparator, but each direct estimate may synthesize multiple RCTs rather than exactly one trial. C6 describes sufficient fixed-effect NMA conditions incompletely: connectedness is also required, while random-effects NMA replaces homogeneity with an exchangeability/distributional model. C7 and the “usually” part of C8 are practice claims outside this audit; technically, aggregate summaries alone cannot separate within-study effect modification from between-study gradients without strong assumptions. C9 is broadly plausible but qualitative. The pooled NMA parameter is model- and weight-defined and need not equal an effect in any literal mixture population. cpaic partially addresses the target-labeling gap by requiring a named effect-modifier profile for cML-NMR output, but that output is conditional rather than marginally standardized. Bucher can still be decision-grade when its transport assumptions hold, so benchmark-only language inflates severity.
+    Cites choxos/cpaic@9d150e9: The cML-NMR relative-effect path requires a named one-row effect-modifier profile, partially implementing explicit target labeling. It does not provide a marginal population-standardized estimand..
+
+Decision path
+:   `R3:partially-solved(n=1) → R7:counter-and-support-both-present`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [IDN-01 — Transitivity and conditional constancy cannot be tested in-sample](IDN-01-transitivity-and-conditional-constancy-cannot-be-tested-in-s.qmd)
+- [MOD-03 — Ecological versus within-study effect modification](MOD-03-ecological-versus-within-study-effect-modification.qmd)
+:::
+
+## Source
+
+Derived from C:L185-189, C:L187-190 of the reviewed corpus.

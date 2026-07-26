@@ -1,0 +1,87 @@
+---
+title: "Cross-subnetwork component constancy is the untestable bridge"
+description: "In a disconnected network the additive component bridge identifies a cross-gap contrast only when the requested component contrast lies in the row space of the pooled design, and the subnetwork-specific drift that would invalidate it has no data behind it. Petropoulou et al. 2023 state the point directly: for disconnected networks the additivity assumption cannot be tested, and the nested Q statistic comparing CNMA with NMA is unavailable because standard NMA cannot be fitted across the gap. The untestability is narrower than a blanket claim, because a common component parameter does impose observable compatibility restrictions, and any component functional lying in the intersection of two subnetworks' row spaces can be estimated in each and compared. What cannot be tested is a bridge-relevant drift functional that is not separately estimable in at least two subnetworks, and that is exactly the functional carrying the cross-gap comparison."
+pid: "CMP-01"
+topic: "Component methods (CNMA and component PAIC)"
+categories: ["Component methods (CNMA and component PAIC)", "Very high priority", "Confirmed open"]
+priority: "Very high"
+prank: 1
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Emerging"
+---
+::: {.problem-meta}
+[CMP-01]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[Very high priority]{.chip .chip-priority-very-high}
+[Emerging]{.chip .chip-maturity-emerging}
+:::
+## Statement
+
+In a disconnected network the additive component bridge identifies a cross-gap contrast only when the requested component contrast lies in the row space of the pooled design, and the subnetwork-specific drift that would invalidate it has no data behind it. Petropoulou et al. 2023 state the point directly: for disconnected networks the additivity assumption cannot be tested, and the nested Q statistic comparing CNMA with NMA is unavailable because standard NMA cannot be fitted across the gap. The untestability is narrower than a blanket claim, because a common component parameter does impose observable compatibility restrictions, and any component functional lying in the intersection of two subnetworks' row spaces can be estimated in each and compared. What cannot be tested is a bridge-relevant drift functional that is not separately estimable in at least two subnetworks, and that is exactly the functional carrying the cross-gap comparison.
+
+## Why it is open
+
+Writing subnetwork component effects as beta^(s) = beta + Delta^(s), the bridge requires the particular contrast of drifts loading the target comparison to be zero, and no randomized evidence inside either subnetwork bears on it. The pooled additive lack-of-fit statistic can detect some cross-subnetwork incompatibility, but it conflates that with other misfit, and the nested additivity test is unavailable precisely when the network is disconnected. The drift is also mis-parameterized in the only sensitivity tool that exists for it: the cross-gap bias is C_t' Delta_s minus C_u' Delta_r across two different subnetworks, not (C_t - C_u)' Delta, so a shared-drift formula can cancel a component exactly when differential subnetwork drift is what matters. Component labels additionally conceal dose, schedule, and delivery differences that can make the same nominal component a different intervention on each side of the gap.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Rucker et al. 2020](https://doi.org/10.1002/bimj.201800167) | gives the foundational frequentist formulation of component network meta-analysis and shows the models can be applied to disconnected networks when subnetworks share components |
+| [Wigle and Beliveau 2022](https://doi.org/10.1002/sim.9520) | develops Bayesian unanchored additive models for component network meta-analysis; 'unanchored' here means no anchor intervention in the additivity parameterization, not the anchored/unanchored ITC distinction |
+| [Petropoulou et al. 2023](https://doi.org/10.1186/s12874-023-01959-9) | states that for disconnected networks the additivity assumption cannot be tested and the CNMA-versus-NMA Q difference is unavailable; recommends separate subnetwork analyses |
+| [Rucker, Schmitz and Schwarzer 2021](https://doi.org/10.1002/bimj.201900339) | published precedent for using a component bridge instead of a matching or MAIC bridge across a disconnected network |
+| [Veroniki et al. 2026](https://doi.org/10.1136/bmj-2024-083075) | requires strong external clinical evidence for additivity in disconnected networks because the assumption cannot be assessed statistically once the network is disconnected |
+| [cpaic 0.1.0 (development version, choxos/cpaic@9d150e9)](choxos/cpaic@9d150e9) | unreleased development R package on GitHub, not on CRAN; implements the additive component bridge with a bridge-fragility threshold and additivity diagnostics, and documents that neither tests cross-subnetwork constancy |
+
+:::
+
+## Probable solution or research direction
+
+Reparameterize the fragility calculation so the perturbed quantity is the subnetwork-indexed drift contrast that actually loads the cross-gap comparison, and report partial-identification bounds over plausible drift sets together with commensurate priors that shrink toward but do not impose equality. Report which component functionals are estimable in more than one subnetwork, since those can be compared directly and are the only empirical purchase on constancy that a disconnected network provides. Where the decision matters enough, seek external bridge evidence or a trial spanning the gap, and otherwise follow the published recommendation to analyze subnetworks separately unless strong external clinical evidence supports additivity.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+
+**The source said.** "The additive component bridge that reconnects a disconnected treatment graph requires component effects to be constant across subnetworks, and that constancy cannot be tested against the observed evidence. It is the assumption that actually identifies the cross-gap comparison, so the same shared parameter that reconnects the network is also what makes the reconnection fragile."
+
+**What was wrong with it.** The source said no data could bear on cross-subnetwork constancy and that every computable goodness-of-fit statistic is structurally insensitive to it. GPT-5.6 Sol narrowed both from the design algebra: a shared component parameter imposes observable compatibility restrictions, the pooled additive Q can detect some cross-subnetwork incompatibility, and functionals estimable in two subnetworks can be compared directly, so only a drift functional not separately estimable in two subnetworks is untestable; the literature auditor supplied the missing source for what survives, doi:10.1186/s12874-023-01959-9.
+
+**Dissent.** literature dissented (supported): Retrieved both cited works. Rucker/Petropoulou/Schwarzer 2020 (Biom J 62:808-821) is indeed the foundational frequentist CNMA formulation (weighted least squares, netmeta) and its abstract ends: 'we show that these models can even be applied to disconnected networks, if the composite treatments in the subnetworks contain common components' - supporting the reconnection claim. Wigle and Beliveau 2022 is titled 'Bayesian unanchored additive models for component network meta-analysis', so the attribution is literally accurate; caveat for the site editor: 'unanchored' there means 'no anchor intervention in the additivity parameterisation', NOT the anchored/unanchored ITC distinction used elsewhere in this catalog. The untestability claim is independently asserted by a source the entry does not cite: Petropoulou et al. 2023 states plainly 'For disconnected networks, the additivity assumption cannot be tested' and 'The Q statistic of the difference between the CNMA and NMA model is not available for disconnected networks, as standard NMA cannot be fitted.' Nothing I found solves it. cpaic 0.1.0 is not on CRAN and I could not locate a public repository, so all cpaic-internal claims are outside my reach.
+
+Literature and prior-art check
+:   **open / supported.** Retrieved both cited works. Rucker/Petropoulou/Schwarzer 2020 (Biom J 62:808-821) is indeed the foundational frequentist CNMA formulation (weighted least squares, netmeta) and its abstract ends: 'we show that these models can even be applied to disconnected networks, if the composite treatments in the subnetworks contain common components' - supporting the reconnection claim. Wigle and Beliveau 2022 is titled 'Bayesian unanchored additive models for component network meta-analysis', so the attribution is literally accurate; caveat for the site editor: 'unanchored' there means 'no anchor intervention in the additivity parameterisation', NOT the anchored/unanchored ITC distinction used elsewhere in this catalog. The untestability claim is independently asserted by a source the entry does not cite: Petropoulou et al. 2023 states plainly 'For disconnected networks, the additivity assumption cannot be tested' and 'The Q statistic of the difference between the CNMA and NMA model is not available for disconnected networks, as standard NMA cannot be fitted.' Nothing I found solves it. cpaic 0.1.0 is not on CRAN and I could not locate a public repository, so all cpaic-internal claims are outside my reach.
+    Cites doi:10.1186/s12874-023-01959-9: Does NOT solve the problem; it is the missing citation that sources the untestability claim and independently recommends against additive CNMA bridging absent strong clinical argument..
+    Cites doi:10.1002/bimj.201900339: Missing prior work: the published precedent for using a component bridge instead of a matching/MAIC bridge across a disconnected network, i.e. the exact design cpaic generalises..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** C1, C2, C4, C5, and C15 are too absolute. For subnetwork designs X_s, a common beta imposes sum_s rank(X_s) - rank(rbind_s X_s) observable compatibility restrictions. Any component functional in the intersection of two subnetwork row spaces can be estimated and compared using within-subnetwork randomized contrasts, without a trial spanning the treatment-network gap. Consequently, the pooled total additive Q can detect some cross-subnetwork incompatibility, although it conflates that incompatibility with other lack of fit; the nested Q.diff is unavailable when ordinary NMA is disconnected. C3, C7, and C8 are correct only for the bridge-relevant projection: q = C_t-C_u must lie in the global row space, and only the projection of main-effect or interaction drift that loads q at the target covariates must be stable. C6 and C9-C13 are otherwise reasonable with these qualifications. A spanning trial tests its randomized contrast, not every component-specific constancy restriction. C14 describes reasonable sensitivity tools, but priors do not restore empirical identification. Moreover, cpaic's bridge_fragility() does not implement the report's subnetwork-indexed drift algebra: if beta_s=beta+Delta_s, cross-gap bias is C_t' Delta_s-C_u' Delta_r, not (C_t-C_u)'Delta. Its current L1 loading can cancel a shared component precisely when differential subnetwork drift should matter. A narrower, design-dependent constancy diagnostic and correctly parameterized drift analysis therefore remain open.
+
+Grok 4.5, recency lens
+:   **open / supported.** Inverted prior: sought drift models, partial identification of cross-subnetwork component effects, commensurate-prior bridges, or software that tests or weakens cross-gap constancy without losing identification. Highest-yield sources (Rücker et al. 2020; Wigle and Béliveau 2022; Veroniki et al. BMJ 2026 / medRxiv 2025.06.30.25330567; Petropoulou et al. 2023) formalize reconnection under additivity and repeatedly state that additivity/constancy cannot be assessed statistically once the network is disconnected. That literature strengthens, rather than closes, the problem. Veroniki et al. explicitly require strong external clinical evidence for additivity in disconnected networks and note that standard NMA (and thus additivity tests against NMA) is unavailable across the gap. Petropoulou et al. show forward selection of interaction CNMAs performs poorly for reconnection and recommend separate subnetwork analyses. Searches in RSM/SIM/Biometrical Journal/MDM/BMC MRM/JCE/Value in Health/Pharm Stat 2024–2026, arXiv stat.ME/AP, medRxiv, and CRAN/GitHub for multinma, netmeta, gemtc, MBNMAdose, crossnma found no released method that identifies nonzero cross-subnetwork component drift from within-network data alone, nor any package that reports drift-tipping magnitudes as required identification diagnostics. Claims C1–C13 and C15 are faithful statements of identification structure and known limitations; C14 is a reasonable research direction, not a solved method. Residual open work: estimable drift/partial-ID bridges, external-bridge protocols, and software that never presents within-network fit as validation of the bridge.
+
+Decision path
+:   `R5:default-open → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [DIA-12 — No study ranks competing bridges by worst-case misspecification](DIA-12-no-study-ranks-competing-bridges-by-worst-case-misspecificat.qmd)
+- [DIA-16 — No curated public suite for bridge-deletion validation with IPD](DIA-16-no-curated-public-suite-for-bridge-deletion-validation-with-.qmd)
+- [DIS-01 — Cross-gap contrasts are absent from the randomized likelihood](DIS-01-cross-gap-contrasts-are-absent-from-the-randomized-likelihoo.qmd)
+- [DIS-06 — Component additivity across a gap cannot be checked from the data](DIS-06-component-additivity-across-a-gap-cannot-be-checked-from-the.qmd)
+- [IDN-08 — No curated benchmark validates bridged cross-gap comparisons](IDN-08-no-curated-benchmark-validates-bridged-cross-gap-comparisons.qmd)
+- [MOD-05 — No doubly robust PAIC estimator is indexed by bias parameters](MOD-05-no-doubly-robust-paic-estimator-is-indexed-by-bias-parameter.qmd)
+- [QBA-20 — Component PAIC needs joint population-and-bridge bias analysis](QBA-20-component-paic-needs-joint-population-and-bridge-bias-analys.qmd)
+:::
+
+## Source
+
+Derived from C:L1355, C:L1331-1349, C:L1323-1325, C:L158, C:L187-188, C:L200, C:L214-215, C:L242, scope:field-level (applies to any component bridge; manifests in cpaic), scope:field-level (central limitation of all component bridging); stated for cpaic of the reviewed corpus.

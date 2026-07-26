@@ -1,0 +1,74 @@
+---
+title: "No minimum validation standard for ITC and PAIC packages"
+description: "The report specifies ten items every methodological ITC/PAIC package should contain, and the literature auditor confirmed the list is exactly ten and matches the source at section 16.5 item for item. The requirements are sound but scale with a package's model surface rather than applying uniformly: simulation-based calibration applies to Bayesian generative implementations rather than thin wrappers around already validated engines, and the multi-arm, separation, correlation-matrix and Stan toolchain items apply only where those features or dependencies exist. No package is documented as meeting the whole bar, but parts of it are met in practice: the literature auditor found multinma runs continuous integration and ships 13 test files reproducing published NICE TSD and paper examples, with no visible simulation-based calibration, non-estimability assertion or model card, and GPT-5.6 Sol found analytic estimability, deliberate non-estimability, multi-arm and cross-package equivalence tests in cpaic, an unreleased development package on GitHub that is not on CRAN."
+pid: "SFW-03"
+topic: "Software, benchmarks & interface standards"
+categories: ["Software, benchmarks & interface standards", "Very high priority", "Confirmed open"]
+priority: "Very high"
+prank: 1
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Emerging"
+---
+::: {.problem-meta}
+[SFW-03]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[Very high priority]{.chip .chip-priority-very-high}
+[Emerging]{.chip .chip-maturity-emerging}
+:::
+## Statement
+
+The report specifies ten items every methodological ITC/PAIC package should contain, and the literature auditor confirmed the list is exactly ten and matches the source at section 16.5 item for item. The requirements are sound but scale with a package's model surface rather than applying uniformly: simulation-based calibration applies to Bayesian generative implementations rather than thin wrappers around already validated engines, and the multi-arm, separation, correlation-matrix and Stan toolchain items apply only where those features or dependencies exist. No package is documented as meeting the whole bar, but parts of it are met in practice: the literature auditor found multinma runs continuous integration and ships 13 test files reproducing published NICE TSD and paper examples, with no visible simulation-based calibration, non-estimability assertion or model card, and GPT-5.6 Sol found analytic estimability, deliberate non-estimability, multi-arm and cross-package equivalence tests in cpaic, an unreleased development package on GitHub that is not on CRAN.
+
+## Why it is open
+
+Statistical packages in this field are usually validated by reproducing a published example, which exercises the happy path, so the failure modes that matter (non-estimable contrasts, degenerate overlap, invalid target moments, ill-conditioned correlation matrices) go mostly untested; the exceptions the audit found are one package's example suite and one unreleased development package. Several listed items have no standard tooling: there is no convention for asserting that a package refuses to produce a data-driven estimate for a non-estimable contrast, and model cards for statistical software are not an established artifact. Continuous integration across evolving Stan and R toolchains is a recurring maintenance cost few academic packages sustain and no funder pays for. Nothing yet says which items apply to which kind of package, so a maintainer cannot tell what compliance would even mean.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [multinma 0.9.1 (CRAN, published 16 Apr 2026)](https://cran.r-project.org/package=multinma) | runs GitHub Actions continuous integration (R-CMD-check, HTML5, rhub, test coverage) and carries 34 testthat files of which 13 reproduce published NICE TSD and paper examples; the literature auditor found no simulation-based calibration, non-estimability assertion or model card, which is the pattern this entry describes |
+| [cpaic, unreleased development package on GitHub (not on CRAN), commit 9d150e9](https://github.com/choxos/cpaic) | carries analytic estimability and likelihood tests, deliberate non-estimability tests, multi-arm tests and cross-package numerical equivalence tests against maicplus, meeting several items on the proposed bar; it is a development package a reader cannot install from CRAN |
+
+:::
+
+## Probable solution or research direction
+
+Publish the bar as a conditional standard: name the items that apply to every methodological package (analytic special cases, non-estimability behavior, equivalence tests where models coincide, deliberate failure tests) and the items that apply only when the corresponding feature or dependency exists (multi-arm covariance, Bayesian calibration, toolchain matrices). Build the shared tooling the conditional items need, and specify tolerances and inferential invariants for versioned expected outputs so they do not turn into brittle snapshots. Start from the partial implementations that exist rather than from nothing: multinma's continuous integration and published-example suite for the reproduction half, cpaic's analytic estimability and cross-package equivalence tests for the correctness half.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+
+**The source said.** "The report specifies ten items every methodological ITC/PAIC package should contain: analytic unit tests for special cases; simulation-based calibration for Bayesian models; numerical equivalence tests against established software where models coincide; tests that non-estimable contrasts return no data-driven estimate; tests for multi-arm covariance; deliberate failure tests for separation, poor overlap, invalid target moments and non-positive-definite correlations; reproducible vignettes with tracked simulation code; model cards recording estimand, target, priors, integration and assumptions; versioned expected outputs; and continuous integration across R and Stan/toolchain versions. No package in the field is documented as meeting this bar."
+
+**What was wrong with it.** GPT-5.6 Sol judged the universal framing overstated: several of the ten items are conditional on a package having the relevant model feature or dependency, model cards are desirable rather than a condition for mathematical correctness, and versioned expected outputs become brittle unless stochastic tolerances and inferential invariants are specified. The claim that no package meets the bar also needs qualifying, since the auditors found multinma's continuous integration and published-example suite and cpaic's analytic, non-estimability and cross-package equivalence tests already meeting parts of it.
+
+Literature and prior-art check
+:   **open / supported.** I retrieved section 16.5 of the source document (lines 2309-2322). It contains exactly ten numbered items and they match the ten claims_to_check one for one, in order, including 'simulation-based calibration for Bayesian models', 'tests that non-estimable contrasts return no data-driven estimate', 'model cards recording estimand, target, priors, integration, and assumptions' and 'continuous integration across R and Stan/toolchain versions'. The 'exactly ten items' claim is exact. On the empirical claim that no package meets the bar, I inspected the strongest candidate: multinma has GitHub Actions for R-CMD-check, R-CMD-check-HTML5, rhub and test-coverage, and 34 testthat files of which 13 are test-example_*.R reproductions of published NICE TSD and paper examples. That is CI plus published-example reproduction, with no visible simulation-based calibration, non-estimability assertion or model card, which is precisely the pattern the entry describes. Claims 1-10 are normative and not falsifiable by literature.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** C11 is correct: the report enumerates exactly ten items. Analytic special-case tests, equivalence tests where models coincide, non-estimability tests, covariance tests, and deliberate failure tests are sound requirements when applicable. The universal wording is too strong. Simulation-based calibration applies to Bayesian generative implementations, not necessarily thin wrappers around already validated engines. Multi-arm, separation, correlation-matrix, and Stan-version requirements apply only when those features or dependencies exist. Reproducible examples and model cards are highly desirable, but their exact artifact form is not a condition for mathematical correctness. Versioned outputs can also become brittle unless stochastic tolerances and inferential invariants are specified. CI should cover declared supported toolchains rather than every R and Stan version. This is an important software-quality agenda, but not every item is independently critical for every decision-grade package.
+
+Decision path
+:   `R5:default-open → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [CMP-26 — Unreleased cpaic has no tracked simulation benchmark or replication](CMP-26-unreleased-cpaic-has-no-tracked-simulation-benchmark-or-repl.qmd)
+- [DEC-04 — No PAIC-specific reporting standard or credibility appraisal tool](DEC-04-no-paic-specific-reporting-standard-or-credibility-appraisal.qmd)
+- [DIS-10 — multinma's baseline-synthesis bridge is an unmerged pull request](DIS-10-multinma-s-baseline-synthesis-bridge-is-an-unmerged-pull-req.qmd)
+- [OVL-02 — ESS is an insufficient overlap diagnostic and no battery is agreed](OVL-02-ess-is-an-insufficient-overlap-diagnostic-and-no-battery-is-.qmd)
+- [QBA-28 — Reference QBA software and a minimum reporting standard](QBA-28-reference-qba-software-and-a-minimum-reporting-standard.qmd)
+:::
+
+## Source
+
+Derived from C:L2309-2322 of the reviewed corpus.

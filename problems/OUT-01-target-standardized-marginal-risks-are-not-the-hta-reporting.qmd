@@ -1,0 +1,84 @@
+---
+title: "Target-standardized marginal risks are not the HTA reporting default"
+description: "Outcome-regression population-adjusted comparisons that report covariate-conditional coefficients, namely plug-in-means STC and conditional ML-NMR effects, return odds ratios that are not the marginal contrast the aggregate-data trial published, because the odds ratio is non-collapsible. This is not a property of binary PAIC as a class: a MAIC that fits a weighted outcome model containing treatment only already returns a marginal effect in the target population. Estimators and software for target-standardized marginal risks, risk differences and risk ratios already exist, including parametric G-computation (pmid:35485582), multiple-imputation marginalization, outstandR, maicplus and multinma's marginal_effects(). What remains is that these are not the reporting default in HTA submissions, and that marginal component effects are not generally additive, so the scale chosen for standardization has to be compatible with component synthesis."
+pid: "OUT-01"
+topic: "Outcome-specific problems"
+categories: ["Outcome-specific problems", "Very high priority", "Overstated"]
+priority: "Very high"
+prank: 1
+verdict: "Overstated"
+verdictslug: "overstated"
+maturity: "Established"
+---
+::: {.problem-meta}
+[OUT-01]{.problem-id}
+[Overstated]{.verdict .verdict-overstated}
+[Very high priority]{.chip .chip-priority-very-high}
+[Established]{.chip .chip-maturity-established}
+:::
+## Statement
+
+Outcome-regression population-adjusted comparisons that report covariate-conditional coefficients, namely plug-in-means STC and conditional ML-NMR effects, return odds ratios that are not the marginal contrast the aggregate-data trial published, because the odds ratio is non-collapsible. This is not a property of binary PAIC as a class: a MAIC that fits a weighted outcome model containing treatment only already returns a marginal effect in the target population. Estimators and software for target-standardized marginal risks, risk differences and risk ratios already exist, including parametric G-computation (pmid:35485582), multiple-imputation marginalization, outstandR, maicplus and multinma's marginal_effects(). What remains is that these are not the reporting default in HTA submissions, and that marginal component effects are not generally additive, so the scale chosen for standardization has to be compatible with component synthesis.
+
+## Why it is open
+
+The gap is between available methods and prevailing practice: conditional coefficients are still reported alongside marginal aggregate-data effects, and nothing in the output signals the mismatch because both are labeled odds ratios of plausible magnitude. Standardizing the conditional side requires both a fitted outcome model and an explicit target covariate distribution, which aggregate publications rarely supply, so the comparator side cannot be moved onto the conditional scale after the fact. Conditional and marginal odds ratios do coincide under the null, with no prognostic heterogeneity, or with a degenerate covariate distribution, so the mismatch is decision-critical when incompatible estimands are actually combined rather than automatically. Within cpaic, the unreleased development package, cML-NMR still has no marginal standardization path.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Remiro-Azocar, Heath and Baio 2022, Target estimands for population-adjusted indirect comparisons, Statistics in Medicine](https://doi.org/10.1002/sim.9413) | establishes that HTA agencies make reimbursement decisions at the population level and therefore require marginal estimands, and diagnoses the conditional versus marginal conflation in PAIC |
+| [Parametric G-computation for compatible indirect treatment comparisons with limited individual patient data, 2022 (PMID 35485582)](https://pubmed.ncbi.nlm.nih.gov/35485582/) | outcome-regression estimator that targets a marginal treatment effect compatible with the aggregate-data trial's published marginal effect, for binary outcomes |
+| [outstandR: Model-Based Standardisation for Indirect Treatment Comparison with Limited Subject-Level Data (CRAN)](https://cran.r-project.org/package=outstandR) | CRAN implementation of model-based standardization for PAIC, producing marginal contrasts on user-chosen scales |
+| [maicplus 0.1.2 (CRAN)](https://cran.r-project.org/package=maicplus) | the literature auditor quotes its release notes, 'changed the link function to binomial for RD and RR in binary analysis', so it produces risk differences and risk ratios rather than only odds ratios |
+| [multinma 0.7.0 (2024-05-07), marginal_effects()](https://cran.r-project.org/package=multinma) | produces population-average marginal treatment effects on difference, ratio and link scales, standardized to a target population supplied through newdata or baseline, from an ML-NMR fit |
+| [cpaic, unreleased development package on GitHub (not on CRAN), commit 9d150e9, README.md and R/cmaic.R](https://github.com/choxos/cpaic) | documents the estimand distinction, that cstc() returns a conditional effect at the target covariate values while cmaic() returns a marginal weighted effect in the target population and that these differ on non-collapsible scales, and records that marginal component effects are not generally additive; cML-NMR has no marginal standardization path |
+
+:::
+
+## Probable solution or research direction
+
+The estimators exist, so the work is adoption and extension rather than construction. Make a named target-population estimand and marginal standardization the declared default in submissions, using the existing implementations, and add a marginal standardization path to cML-NMR where one is still missing. Check in each analysis that the effect scale chosen for standardization is compatible with component synthesis, since marginal component effects add exactly when the standardized treatment effects remain affine in the component design.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Overstated. 2 independent auditors judged the claim as stated too strong. Plug-in-means STC and conditional ML-NMR coefficients return covariate-conditional odds ratios that, because the odds ratio is non-collapsible, are not the marginal contrast published by the AgD trial; methods (parametric G-computation, multiple-imputation marginalisation, multinma marginal_effects) and software (outstandR, maicplus, multinma) that produce target-standardised marginal risks, risk differences and risk ratios already exist, but they are not yet the reporting default in HTA submissions.
+
+**The source titled this.** "Odds-ratio default and conditional-marginal mismatch in binary PAIC" The title attributes the conditional-marginal mismatch to binary PAIC as a class, which both auditors rejected since weighted MAIC already returns a marginal target-population effect.
+
+**The source said.** "Binary population-adjusted indirect comparisons report conditional odds ratios because logistic models are convenient, but the odds ratio is non-collapsible, so the covariate-adjusted coefficient estimated from individual patient data is neither the marginal contrast in any named population nor on the same scale as the marginal effect published by the aggregate-data trial it is combined with."
+
+**What was wrong with it.** The source attributed the conditional-marginal mismatch to binary PAIC as a class and to the convenience of logistic models, and both auditors rejected that scope. The literature auditor found the estimand problem already named in Remiro-Azocar, Heath and Baio (doi:10.1002/sim.9413), solved by parametric G-computation (pmid:35485582), and implemented in outstandR, maicplus and multinma; the code auditor confirmed at commit 9d150e9 of cpaic, an unreleased development package on GitHub that is not installable from CRAN, that cmaic() returns a marginal weighted effect while cstc() and cmlnmr() return conditional ones.
+
+Literature and prior-art check
+:   **partially-solved / overstated.** Retrieved Remiro-Azocar/Heath/Baio, 'Target estimands for population-adjusted indirect comparisons' (Stat Med 2022, doi 10.1002/sim.9413) and 'Parametric G-computation for compatible ITCs with limited IPD' (RSM 2022, PMID 35485582), plus the CRAN package outstandR, maicplus 0.1.2 NEWS ('changed the link function to binomial for RD and RR in binary analysis'), and multinma NEWS 0.7.0 ('The new marginal_effects() function produces marginal treatment effects'), whose docs describe mtype='difference'/'ratio'/'link' standardised to a target population via newdata/baseline. The estimand-compatibility problem is named, formalised and implemented in three packages, so the methodological gap is largely closed; what remains is HTA default practice. The statement also over-generalises: MAIC fits a weighted outcome model containing treatment only, so its binary output is already a marginal effect in the AgD population. The conditional-marginal mismatch is specific to plug-in-means STC and to reporting ML-NMR conditional coefficients, not to 'binary PAIC' as a class. No source supports the motive claim about logistic convenience.
+    Cites doi:10.1002/sim.9413: Establishes that HTA decisions are made at population level and therefore require marginal estimands, and diagnoses the conditional/marginal conflation in PAIC..
+    Cites pmid:35485582: Provides an outcome-regression estimator that targets a marginal treatment effect compatible with the AgD trial's published marginal effect, for binary outcomes..
+    Cites cran:outstandR: CRAN implementation of model-based standardisation for PAIC, producing marginal contrasts on user-chosen scales..
+    Cites repo:dmphillippo/multinma NEWS 0.7.0 (2024-05-07): Produces population-average marginal treatment effects (difference, ratio, link scales) standardised to a specified target population from an ML-NMR fit..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / overstated.** At cpaic commit 9d150e9, cmaic() returns a marginal weighted effect, whereas cstc() and cmlnmr() report conditional profile-specific effects. Thus C2, C3, C5, and C6 are correct when read as general possibilities, not universal identities. Conditional and marginal odds ratios can coincide under the null, with no prognostic heterogeneity, or with a degenerate covariate distribution. C1's motive claim and C7's prevalence claim are not technically verifiable. C4 is too prescriptive: standardized risks, risk differences, and risk ratios are coherent named estimands, but require sufficient target-distribution and outcome information, and marginal component effects need not obey the component-additivity model. cpaic now documents the mismatch and already provides a marginal MAIC path, but cML-NMR still lacks marginal standardization. The issue is decision-critical when incompatible estimands are actually combined, not automatically for every binary PAIC.
+    Cites choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca:README.md#L184-L187: The package no longer silently presents cSTC and cMAIC effects as the same estimand..
+    Cites choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca:R/cmaic.R#L208-L221: cMAIC already supplies a marginal weighted path, while explicitly delimiting when marginal component synthesis is coherent..
+
+Decision path
+:   `R3:partially-solved(n=2) → R8:overstated-majority(n=2)`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [CMP-09 — cMAIC combines marginal effects through an additive component model](CMP-09-cmaic-combines-marginal-effects-through-an-additive-componen.qmd)
+- [CMP-10 — Component PAIC lacks a marginal target-standardized estimand path](CMP-10-component-paic-lacks-a-marginal-target-standardized-estimand.qmd)
+- [EST-04 — Methods return incompatible marginal and conditional estimands](EST-04-methods-return-incompatible-marginal-and-conditional-estiman.qmd)
+:::
+
+## Source
+
+Derived from C:L1515-1522, C:L1517-1522, C:L1526-1528, C:L220, C:L221 of the reviewed corpus.

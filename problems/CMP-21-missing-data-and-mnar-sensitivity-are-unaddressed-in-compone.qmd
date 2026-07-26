@@ -1,0 +1,74 @@
+---
+title: "Missing data and MNAR sensitivity are unaddressed in component PAIC"
+description: "No missing-data framework has been made congenial with component transport. Multiple imputation and MNAR tipping-point sensitivity have already been applied in an ordinary MAIC: Esnault et al. 2025 imputed missing covariates inside a prespecified propensity-score workflow with roughly half of ECOG performance status missing, and probed missingness with quantitative bias analysis including an explicit tipping-point analysis. What is absent is any specification of how an imputation model should be made compatible with a likelihood that integrates over a target covariate distribution and shares component parameters across subnetworks, and of how a single MNAR sensitivity parameter propagates simultaneously through the adjustment step, the covariate overlap, and the bridging assumption. Implemented component ML-NMR rejects missing effect modifiers and outcomes and states that it does not impute."
+pid: "CMP-21"
+topic: "Component methods (CNMA and component PAIC)"
+categories: ["Component methods (CNMA and component PAIC)", "Very high priority", "Overstated"]
+priority: "Very high"
+prank: 1
+verdict: "Overstated"
+verdictslug: "overstated"
+maturity: "Emerging"
+---
+::: {.problem-meta}
+[CMP-21]{.problem-id}
+[Overstated]{.verdict .verdict-overstated}
+[Very high priority]{.chip .chip-priority-very-high}
+[Emerging]{.chip .chip-maturity-emerging}
+:::
+## Statement
+
+No missing-data framework has been made congenial with component transport. Multiple imputation and MNAR tipping-point sensitivity have already been applied in an ordinary MAIC: Esnault et al. 2025 imputed missing covariates inside a prespecified propensity-score workflow with roughly half of ECOG performance status missing, and probed missingness with quantitative bias analysis including an explicit tipping-point analysis. What is absent is any specification of how an imputation model should be made compatible with a likelihood that integrates over a target covariate distribution and shares component parameters across subnetworks, and of how a single MNAR sensitivity parameter propagates simultaneously through the adjustment step, the covariate overlap, and the bridging assumption. Implemented component ML-NMR rejects missing effect modifiers and outcomes and states that it does not impute.
+
+## Why it is open
+
+In PAIC, dropping incomplete records redefines the population being reweighted or standardized, so transport assumptions are evaluated against a population that is not the one reported, and the overlap diagnostics are computed on the wrong set. An imputation model must be congenial with a likelihood that integrates over a target covariate distribution and shares component parameters across subnetworks, and no one has written down what congeniality means in that setting. Inverse probability of censoring weighting also interacts multiplicatively with MAIC weights, compounding variance and positivity problems, and a single MNAR sensitivity parameter propagates through several layers at once with no framework saying how those effects combine.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Esnault et al. 2025](https://doi.org/10.1186/s12874-025-02500-w) | applies multiple imputation of missing covariates in a MAIC together with quantitative bias analysis, including MNAR tipping-point and E-value sensitivity analysis |
+| [cpaic 0.1.0 (development version, choxos/cpaic@9d150e9)](choxos/cpaic@9d150e9) | unreleased development R package on GitHub, not on CRAN; rejects missing effect modifiers and outcomes in component ML-NMR and states that it does not impute, provides no MNAR sensitivity parameters, and leaves the two-stage routes to standard complete-case regression handling |
+
+:::
+
+## Probable solution or research direction
+
+Adapt the existing MAIC-level multiple imputation and tipping-point workflow rather than inventing one, and state the congeniality conditions between the imputation model and a component transport likelihood that integrates over a target distribution. Add inverse probability of censoring weighting for outcome missingness with explicit treatment of its interaction with adjustment weights, and let imputation uncertainty flow into the standardized target estimand rather than being handled outside the model. Specify MNAR sensitivity parameters that are interpretable for both outcome and effect-modifier missingness and report how they propagate jointly with the population-adjustment and bridging assumptions.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Overstated. 2 independent auditors judged the claim as stated too strong. No missing-data framework has been made congenial with component transport: multiple imputation and MNAR tipping-point sensitivity have been applied in ordinary MAIC, but nothing specifies how imputation models should be made compatible with a likelihood that integrates over a target covariate distribution and shares component parameters across subnetworks, nor how a single MNAR sensitivity parameter propagates simultaneously through the adjustment step, the covariate overlap, and the bridging assumption.
+
+**The source said.** "Component PAIC has no full missing-data module and no sensitivity analysis for missing-not-at-random mechanisms. Complete-case handling of missing covariates or outcomes changes the effective analysis population and therefore the overlap between the IPD study and the target population, and MNAR mechanisms can only be addressed through explicit sensitivity parameters that are not offered."
+
+**What was wrong with it.** The source said no compatible multiple imputation exists and that MNAR can only be addressed through explicit sensitivity parameters. The literature auditor found multiple imputation plus MNAR tipping-point and E-value analysis already done inside a MAIC (doi:10.1186/s12874-025-02500-w), so the gap is congeniality with component transport rather than missing-data methods as such; GPT-5.6 Sol added that MNAR identification can also come from parametric restrictions, instruments, refreshment samples, or validation data, so sensitivity parameters are important but not the only route.
+
+Literature and prior-art check
+:   **partially-solved / overstated.** Framed at field level ('Component PAIC has no full missing-data module and no sensitivity analysis for MNAR'), the entry is too strong. Esnault et al. 2025 report an applied MAIC in which missing covariates were handled by multiple imputation inside a prespecified propensity-score workflow, and missingness was probed by quantitative bias analysis including an explicit MNAR tipping-point analysis, with roughly half of ECOG performance status missing; they describe it as 'the first in-depth application of QBA in the context of MAIC'. So multiple imputation plus MNAR sensitivity has been done in a population-adjusted indirect comparison, just not congenially with a component transport model. The genuinely open parts survive: congeniality between an imputation model and a likelihood that integrates over a target covariate distribution and shares component parameters across subnetworks, the multiplicative interaction of IPCW with MAIC weights, and how a single sensitivity parameter propagates through adjustment, overlap and the bridge simultaneously.
+    Cites doi:10.1186/s12874-025-02500-w: Demonstrates multiple imputation of missing covariates plus MNAR tipping-point and E-value sensitivity analysis inside a MAIC; does not address congeniality with component transport..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** C1, C2, C4, and C6 are supported. cmlnmr() rejects missing effect modifiers and outcomes and explicitly says it does not impute; cSTC relies on standard regression handling, which can yield complete-case fits, and no cpaic path supplies MNAR sensitivity parameters. Complete-case selection can alter both the represented IPD population and its overlap with the target. C3 is an unsupported universal nonexistence claim: absence from cpaic does not show that compatible multiple-imputation procedures do not exist. C5 is also too absolute. Observed data alone generally cannot nonparametrically identify the missing values or distinguish MAR from MNAR without additional assumptions or information, but identification can come from imposed parametric restrictions, instruments, refreshment samples, validation data, or other external information; explicit sensitivity parameters are therefore important but not logically the only possible approach. This is potentially very high severity with material missing effect modifiers or outcomes, but not when missingness is negligible or absent.
+
+Grok 4.5, recency lens
+:   **open / supported-with-caveat.** No full missing-data module or MNAR sensitivity framework for component PAIC/cpaic was found. Adjacent MAIC practice now includes multiple imputation and delta-shift/tipping-point MNAR QBA (Esnault et al. 2025, BMC Med Res Methodol; doi:10.1186/s12874-025-02500-w), so claim C3 as a blanket 'MI methods compatible with component transport do not exist' is slightly strong: MI+MAIC workflows exist, but congenial MI under component transport with target integration and shared component parameters across subnetworks is still not a published, evaluated method. MNAR remains structurally untestable (C5); effect-modifier missingness still distorts overlap and adjustment (C2, C6). cpaic has no MNAR or full MI module (C1, C4). Queries: MNAR MAIC ML-NMR 2024–2026; Esnault MAIC missing; multiple imputation component transport; cpaic missing data. Problem open for component PAIC; MAIC-level MI/MNAR sensitivity is partial adjacent prior art only.
+
+Decision path
+:   `R3:partially-solved(n=1) → R8:overstated-majority(n=2)`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [MIS-01 — Missing aggregate summaries and unavailable IPD have no remedy](MIS-01-missing-aggregate-summaries-and-unavailable-ipd-have-no-reme.qmd)
+:::
+
+## Source
+
+Derived from C:L1379, scope:package-specific gap resting on a field-level PAIC problem, scope:field-level (missing-data sensitivity for PAIC); split from table row 25 of the reviewed corpus.

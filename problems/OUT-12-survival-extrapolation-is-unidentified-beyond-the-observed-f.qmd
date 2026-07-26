@@ -1,0 +1,81 @@
+---
+title: "Survival extrapolation is unidentified beyond the observed follow-up"
+description: "Flexible study-specific baseline hazards for survival ML-NMR are not open. The paper this entry cited as prior work develops them, proposing M-splines for the baseline hazard, stratifying the baseline by study to respect randomization, and controlling the resulting nuisance parameters with a weighted random-walk prior on the inverse-softmax transformed spline coefficients so the analyst can choose a large enough number of knots and let the model shrink to appropriate complexity; multinma and cpaic both implement study-stratified flexible baselines with shared smoothing. What is open is that survival beyond the observed support is not identified, so the chosen tail model rather than the data drives extrapolation, and observed-window fit statistics cannot separate models that are observationally equivalent or nearly equivalent on that support. Mixture-cure network meta-analysis exists for the unadjusted case (Chan et al., doi:10.1017/rsm.2025.10038, PMID 41626893) and has not been connected to population adjustment or to component treatment models."
+pid: "OUT-12"
+topic: "Outcome-specific problems"
+categories: ["Outcome-specific problems", "High priority", "Not supported"]
+priority: "High"
+prank: 2
+verdict: "Not supported"
+verdictslug: "not-supported"
+maturity: "Promising"
+tractability: 3
+---
+::: {.problem-meta}
+[OUT-12]{.problem-id}
+[Not supported]{.verdict .verdict-not-supported}
+[High priority]{.chip .chip-priority-high}
+[Promising]{.chip .chip-maturity-promising}
+[Tractability 3/5]{.chip}
+:::
+## Statement
+
+Flexible study-specific baseline hazards for survival ML-NMR are not open. The paper this entry cited as prior work develops them, proposing M-splines for the baseline hazard, stratifying the baseline by study to respect randomization, and controlling the resulting nuisance parameters with a weighted random-walk prior on the inverse-softmax transformed spline coefficients so the analyst can choose a large enough number of knots and let the model shrink to appropriate complexity; multinma and cpaic both implement study-stratified flexible baselines with shared smoothing. What is open is that survival beyond the observed support is not identified, so the chosen tail model rather than the data drives extrapolation, and observed-window fit statistics cannot separate models that are observationally equivalent or nearly equivalent on that support. Mixture-cure network meta-analysis exists for the unadjusted case (Chan et al., doi:10.1017/rsm.2025.10038, PMID 41626893) and has not been connected to population adjustment or to component treatment models.
+
+## Why it is open
+
+Beyond the last observed event time the survival function is not identified, so parametric families that fit the observed period equally well diverge afterwards and no fit statistic computed on that window can choose between them; this is assumption management rather than something more data of the same kind can settle. Population adjustment adds a layer because the extrapolation is performed in a target population whose long-term covariate-outcome relationship was never observed, and baseline flexibility, non-proportional hazards and cure structure change the tail interactively. Mixture-cure models split the population into cured and uncured fractions that depend on covariates differently, so the cure fraction and the uncured survival distribution would have to be transported separately, and neither multinma nor cpaic has a cure family or a component-cure path.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Phillippo, Dias, Ades and Welton 2025, Multilevel network meta-regression for general likelihoods: synthesis of individual and aggregate data with applications to survival analysis, Journal of the Royal Statistical Society Series A](https://doi.org/10.1093/jrsssa/qnaf169) | proposes M-splines to model the baseline hazard flexibly over time, stratifies the baseline hazard by study to respect randomization, and uses a weighted random-walk prior on the transformed spline coefficients to control smoothing and shrinkage in small networks; this is the capability the entry listed as open |
+| [Chan et al. 2026, mixture-cure network meta-analysis in resected stage III/IV melanoma, Research Synthesis Methods (PMID 41626893)](https://doi.org/10.1017/rsm.2025.10038) | incorporates the possibility of cure into network meta-analysis of recurrence-free survival in a resected melanoma case study; it does not involve population adjustment or component treatment models |
+| [multinma (CRAN) 0.6.0, flexible study-stratified survival models](https://cran.r-project.org/package=multinma) | implements flexible M-spline and piecewise-exponential hazards with auxiliary parameters such as shapes and spline coefficients always stratified by study to respect randomization |
+| [cpaic, unreleased development package on GitHub (not on CRAN), commit 9d150e9](https://github.com/choxos/cpaic) | cmlnmr() offers piecewise-exponential and continuous cubic M-spline baselines, gives every study its own spline or step coefficients smoothed toward a common shape by a shared random-walk scale, and has no cure family or component-cure path |
+
+:::
+
+## Probable solution or research direction
+
+Do not rebuild flexible study-specific baselines; instead assess how the baseline choice that is already available drives extrapolation, and report the data-supported horizon separately from the extrapolated portion with the tail treated as a declared assumption carrying its own sensitivity analysis. Connect mixture-cure network meta-analysis to population adjustment and component models so that both the cure fraction and the uncured survival distribution can be transported and can depend on treatment components. Where follow-up is short, state that the cure fraction rests on parametric assumptions rather than on empirical separation from a long uncured tail.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Not supported. No accessible source substantiates the claim as stated.
+
+**The source titled this.** "Baseline hazard flexibility, cure fractions, and extrapolation" The title lists flexible baseline hazards as open, which the entry's own cited paper develops and which multinma implements.
+
+**The source said.** "Health technology assessment needs lifetime survival, so population-adjusted survival results are extrapolated far beyond observed follow-up, where the answer comes from the parametric assumption rather than the data. Flexible study-specific baseline hazards remain an open problem for survival ML-NMR even after the 2025 general-likelihood extension, and mixture-cure network meta-analysis has only begun to develop and has not been connected to population adjustment or component models."
+
+**What was wrong with it.** The lead claim, that flexible study-specific baseline hazards remain open for survival ML-NMR after the 2025 general-likelihood extension, is contradicted by the paper the entry itself cites: Phillippo et al. (doi:10.1093/jrsssa/qnaf169) stratify the baseline hazard by study and propose M-splines with a shrinkage random-walk prior, which is this entry's own proposed direction. The code auditor found the same capability implemented in multinma 0.6.0 and at commit 9d150e9 in cpaic, an unreleased development package on GitHub that is not installable from CRAN, and narrowed two supporting claims: observed-window fit statistics do discriminate models that fit the observed data differently, and a cure fraction can be estimated under shorter follow-up through strong parametric assumptions, so it is empirical separation of cure from a long uncured tail that needs mature follow-up.
+
+**Dissent.** codex dissented (overstated): C1 is directly false at the requested cpaic revision. cmlnmr() offers piecewise-exponential and continuous cubic M-spline baselines, gives every study separate baseline coefficients, and applies shared random-walk smoothing. multinma likewise supplies study-stratified flexible baselines. C2-C5 are otherwise sound: data do not identify survival beyond observed support, so the chosen tail model drives extrapolation. C6 needs its omitted condition. Observed-window fit statistics can distinguish models that fit the observed data differently; they cannot validate different tails when models are observationally equivalent or nearly equivalent on the observed support. cpaic has no cure family or component-cure path, so connecting cure and uncured components to PAIC remains open. C9 is a plausible model, not a necessity. C10 is too categorical: a cure fraction can be estimated under shorter follow-up only through strong parametric assumptions, while empirical separation of cure from a long uncured tail requires sufficiently mature follow-up, not necessarily follow-up longer than most trials. Extrapolation is an assumption-management problem rather than a capability that data alone can solve.
+
+Literature and prior-art check
+:   **partially-solved / misattributed.** The lead claim, that 'flexible study-specific baseline hazards remain an open problem for survival ML-NMR after the 2025 general-likelihood extension', is contradicted by the very paper cited as prior_work. Phillippo et al. (doi 10.1093/jrsssa/qnaf169) state 'we propose a novel approach using M-splines to flexibly model the baseline hazard over time', 'notice that we stratify the baseline hazard by study to respect randomization' and 'Stratifying the baseline hazard by study is imperative for respecting randomization within studies', and they solve the small-network nuisance-parameter problem with a 'weighted random walk prior distribution on the inverse-softmax transformed spline coefficients' that 'controls the amount of smoothing and shrinkage' and 'allows the analyst to simply choose a large enough number of knots and have the model shrink to appropriate complexity'. That is the entry's own proposed direction, already implemented in multinma 0.6.0. The Chan et al. citation is faithful (mixture-cure NMA of RFS in resected stage III/IV melanoma, doi 10.1017/rsm.2025.10038) and does not involve population adjustment, so the cure-plus-PAIC gap and the identifiability of extrapolation beyond follow-up remain genuinely open.
+    Cites doi:10.1093/jrsssa/qnaf169: Develops exactly the flexible, study-stratified baseline hazard with shrinkage priors that the entry lists as an open problem and as its proposed direction..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / overstated.** C1 is directly false at the requested cpaic revision. cmlnmr() offers piecewise-exponential and continuous cubic M-spline baselines, gives every study separate baseline coefficients, and applies shared random-walk smoothing. multinma likewise supplies study-stratified flexible baselines. C2-C5 are otherwise sound: data do not identify survival beyond observed support, so the chosen tail model drives extrapolation. C6 needs its omitted condition. Observed-window fit statistics can distinguish models that fit the observed data differently; they cannot validate different tails when models are observationally equivalent or nearly equivalent on the observed support. cpaic has no cure family or component-cure path, so connecting cure and uncured components to PAIC remains open. C9 is a plausible model, not a necessity. C10 is too categorical: a cure fraction can be estimated under shorter follow-up only through strong parametric assumptions, while empirical separation of cure from a long uncured tail requires sufficiently mature follow-up, not necessarily follow-up longer than most trials. Extrapolation is an assumption-management problem rather than a capability that data alone can solve.
+    Cites choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca: Implements the flexible study-specific spline or step baselines with shared shrinkage that C1 says remain open..
+    Cites CRAN:multinma@0.6.0: Implements flexible M-spline and piecewise-exponential hazards with auxiliary parameters stratified by study..
+
+Decision path
+:   `R3:partially-solved(n=2) → R6:counter-quote-uncontested`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [OVL-03 — No support diagnostic aggregates over a PAIC target distribution](OVL-03-no-support-diagnostic-aggregates-over-a-paic-target-distribu.qmd)
+:::
+
+## Source
+
+Derived from C:L1578-1587, C:L1578-1588, C:L1578-1593, C:L1596-1604, C:L1606 of the reviewed corpus.

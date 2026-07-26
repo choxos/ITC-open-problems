@@ -1,0 +1,76 @@
+---
+title: "ML-NMR interactions can rest solely on aggregate-data variation"
+description: "In mixed IPD and aggregate-data ML-NMR, interaction directions without adequate within-study IPD support may be weakly identified or nonidentified and are then sensitive to aggregate-study variation, shared-interaction restrictions and priors, and one coefficient forced to carry both within-study and between-study variation conflates individual-level effect modification with an ecological gradient. How far this bites is design- and parameter-specific rather than a categorical property of the method. The auditors disagreed on scope and the disagreement stands: the literature auditor found each claim confirmed almost verbatim by the ML-NMR authors, who report that the secukinumab interaction estimates rest solely on aggregate data and that the shared-interaction restriction was required to identify the model (doi:10.1177/0272989X221117162), while the source-code auditor judged the diagnostic void overstated, because cpaic, an unreleased development package on GitHub that cannot be installed from CRAN, already labels whether a row is identified by IPD, by between-study gradients or by neither, and flags posteriors that simply reproduce their priors."
+pid: "IDN-06"
+topic: "Identification, transitivity & conditional constancy"
+categories: ["Identification, transitivity & conditional constancy", "Very high priority", "Unverifiable"]
+priority: "Very high"
+prank: 1
+verdict: "Unverifiable"
+verdictslug: "unverifiable"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[IDN-06]{.problem-id}
+[Unverifiable]{.verdict .verdict-unverifiable}
+[Very high priority]{.chip .chip-priority-very-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+## Statement
+
+In mixed IPD and aggregate-data ML-NMR, interaction directions without adequate within-study IPD support may be weakly identified or nonidentified and are then sensitive to aggregate-study variation, shared-interaction restrictions and priors, and one coefficient forced to carry both within-study and between-study variation conflates individual-level effect modification with an ecological gradient. How far this bites is design- and parameter-specific rather than a categorical property of the method. The auditors disagreed on scope and the disagreement stands: the literature auditor found each claim confirmed almost verbatim by the ML-NMR authors, who report that the secukinumab interaction estimates rest solely on aggregate data and that the shared-interaction restriction was required to identify the model (doi:10.1177/0272989X221117162), while the source-code auditor judged the diagnostic void overstated, because cpaic, an unreleased development package on GitHub that cannot be installed from CRAN, already labels whether a row is identified by IPD, by between-study gradients or by neither, and flags posteriors that simply reproduce their priors.
+
+## Why it is open
+
+Studies contributing only aggregate data inform covariate effects mainly through between-study contrasts, so when the model imposes one coefficient for both sources an ecological gradient is read as individual-level modification and the fit still looks good. Flags help but do not identify: labeling a parameter as aggregate-informed or as prior-driven tells a reader where to distrust the estimate without supplying the missing within-study information. The remedy the source proposes, splitting interactions by treatment, is described by the ML-NMR authors as possible given sufficient data and an interesting avenue for further research, so it has not been evaluated, and the general-likelihood extension (doi:10.1093/jrsssa/qnaf169) leaves the integration-distribution requirement intact.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Phillippo et al. 2023, Validating the Assumptions of Population Adjustment: Application of Multilevel Network Meta-regression to a Network of Treatments for Plaque Psoriasis, Medical Decision Making](https://doi.org/10.1177/0272989X221117162) | assesses population-adjustment assumptions inside a nine-study network: splits the common class interaction into treatment-specific interactions one covariate at a time, checks conditional constancy through residual heterogeneity and inconsistency in sufficiently large networks, and reports that the shared-interaction restriction was required to identify the model where a treatment was informed only by aggregate data |
+| [Phillippo et al. 2025, Multilevel network meta-regression for general likelihoods (arXiv:2401.12640), Journal of the Royal Statistical Society Series A](https://doi.org/10.1093/jrsssa/qnaf169) | extends ML-NMR to general likelihoods; the specified integration distribution for aggregate-data studies remains a requirement of the method |
+| [cpaic, unreleased development package on GitHub (not on CRAN), commit 9d150e9, R/estimability.R and R/plot-mlnmr.R](https://github.com/choxos/cpaic) | estimable_effects_at() labels whether a component by effect-modifier row is identified by IPD, by between-study covariate gradients or by neither, and plot_prior_posterior() exposes parameters whose posteriors reproduce their priors; these flag the problem rather than solving it |
+
+:::
+
+## Probable solution or research direction
+
+Do not rebuild the flags; make them standard and test them. Evaluate in simulation whether identified-by labeling, prior-to-posterior contraction and prior-data conflict checks actually detect the within-versus-between conflation when the truth is known, and report them next to estimates rather than on request. Fit within-study centered specifications that separate within-study from between-study coefficients, and treatment-specific interactions with hierarchical shrinkage, the avenue the ML-NMR authors flag as unexplored, then characterize how much IPD each interaction needs before its posterior stops tracking its prior.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Unverifiable. Auditors disagreed and the disagreement was evidence-bearing on both sides.
+
+**The source titled this.** "ML-NMR interaction parameters are only partially identified" The title states partial identification as a categorical property of the method, which the audit found to be design- and parameter-specific.
+
+**The source said.** "ML-NMR relies on conditional constancy of relative effects, a correct individual-level model, a specified integration distribution, and shared-interaction restrictions where needed. Partial identifiability of its interaction parameters and conflation of within-study with between-study effect modification remain unresolved weaknesses."
+
+**What was wrong with it.** The source stated partial identifiability as a categorical weakness and said nothing in standard output separates a parameter learned from data from one supplied by the prior. The source-code auditor found identifiability parameter- and design-specific and found both flags already implemented in cpaic at commit 9d150e9, while the literature auditor found the claims confirmed by the ML-NMR authors themselves; the entry is published as unverifiable because both readings carry evidence, and it is now sourced to doi:10.1177/0272989X221117162, for which it previously cited nothing.
+
+**Dissent.** codex dissented (overstated): C1 and C2 are technically sound: ML-NMR transports conditional relative-effect models and must integrate aggregate-study likelihood contributions over specified covariate distributions. C3 is too categorical. Interaction identifiability is parameter- and design-specific: interactions may be well identified by adequate within-trial IPD variation, weakly identified, or nonidentified. Aggregate arms can identify model-dependent integrated functionals and sometimes interaction combinations, rather than supplying only a generic ecological gradient. C4 is correct as a possibility when one coefficient is forced to represent both within-study and between-study variation. The report also overstates the diagnostic void for cpaic at 9d150e9: estimable_effects_at() labels whether information is from IPD, aggregate gradients, or neither, while plot_prior_posterior() exposes parameters whose posteriors reproduce their priors. These diagnostics flag rather than solve the underlying identification problem.
+
+Literature and prior-art check
+:   **open / supported.** This entry has no prior_work at all, yet every one of its four claims is confirmed almost verbatim by a paper by the ML-NMR authors themselves, which I read in full. On partial identifiability: in the psoriasis network the secukinumab interaction estimates 'are much more uncertain than for the ixekizumab regimens, as the secukinumab parameters are based solely on AgD, and the ixekizumab data largely drive the interaction estimates in the common interaction model', and the shared-interaction restriction was 'required to identify the model'. On within-versus-between conflation, Phillippo et al. state the ecological-bias mechanism explicitly and flag the entry's own proposed remedy as unexplored: 'it is possible to fit ML-NMR models where the interaction terms are split in this manner (given sufficient data), and this is an interesting avenue for further research.' That is a source asserting the gap, which is the strongest evidence a 'this is open' claim can have. The integration-distribution requirement is intrinsic to ML-NMR and restated in the general-likelihood extension (arXiv 2401.12640 / JRSS-A 10.1093/jrsssa/qnaf169). I recommend the catalog attach Phillippo et al. 2023 as prior_work rather than publishing this entry unsourced.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** C1 and C2 are technically sound: ML-NMR transports conditional relative-effect models and must integrate aggregate-study likelihood contributions over specified covariate distributions. C3 is too categorical. Interaction identifiability is parameter- and design-specific: interactions may be well identified by adequate within-trial IPD variation, weakly identified, or nonidentified. Aggregate arms can identify model-dependent integrated functionals and sometimes interaction combinations, rather than supplying only a generic ecological gradient. C4 is correct as a possibility when one coefficient is forced to represent both within-study and between-study variation. The report also overstates the diagnostic void for cpaic at 9d150e9: estimable_effects_at() labels whether information is from IPD, aggregate gradients, or neither, while plot_prior_posterior() exposes parameters whose posteriors reproduce their priors. These diagnostics flag rather than solve the underlying identification problem.
+
+Decision path
+:   `R5:default-open → R7:counter-and-support-both-present`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [CMP-25 — Component ML-NMR integration has no parallel or adaptive scheme](CMP-25-component-ml-nmr-integration-has-no-parallel-or-adaptive-sch.qmd)
+- [MOD-03 — Ecological versus within-study effect modification](MOD-03-ecological-versus-within-study-effect-modification.qmd)
+:::
+
+## Source
+
+Derived from C:L187-188, C:L195 of the reviewed corpus.

@@ -1,0 +1,79 @@
+---
+title: "Efficient influence-function transport estimators for ITC networks"
+description: "multinma's ML-NMR already produces population-average marginal treatment effects in a chosen target population across a connected network with partial individual data, through marginal_effects(), and Dahabreh et al. (doi:10.1111/biom.13716) give a doubly robust, influence-function-based estimator of target-population potential-outcome means from a collection of randomized trials. What does not exist is the specific object proposed here: a semiparametric-efficient, cross-fitted efficient-influence-function estimator defined over a mixed individual and aggregate-data likelihood that preserves within-study randomization and multi-arm covariance and delivers valid inference when the number of studies is small. The entry's negative claims survive scrutiny: double robustness covers the two nuisance models only, so unmeasured effect modification, absent overlap, a false network bridge and, in the component extension, a wrong additivity structure all pass through untouched."
+pid: "ADJ-03"
+topic: "Adjacent-field methods"
+categories: ["Adjacent-field methods", "Very high priority", "Overstated"]
+priority: "Very high"
+prank: 1
+verdict: "Overstated"
+verdictslug: "overstated"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[ADJ-03]{.problem-id}
+[Overstated]{.verdict .verdict-overstated}
+[Very high priority]{.chip .chip-priority-very-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+## Statement
+
+multinma's ML-NMR already produces population-average marginal treatment effects in a chosen target population across a connected network with partial individual data, through marginal_effects(), and Dahabreh et al. (doi:10.1111/biom.13716) give a doubly robust, influence-function-based estimator of target-population potential-outcome means from a collection of randomized trials. What does not exist is the specific object proposed here: a semiparametric-efficient, cross-fitted efficient-influence-function estimator defined over a mixed individual and aggregate-data likelihood that preserves within-study randomization and multi-arm covariance and delivers valid inference when the number of studies is small. The entry's negative claims survive scrutiny: double robustness covers the two nuisance models only, so unmeasured effect modification, absent overlap, a false network bridge and, in the component extension, a wrong additivity structure all pass through untouched.
+
+## Why it is open
+
+An efficient influence function cannot be written down until the observed-data experiment is specified: which quantities are sampled, what the aggregate summaries are as random objects, what the independent units are and which asymptotic regime is in force. Published aggregate estimates are not automatically likelihood contributions, and the mixed likelihood is not a single i.i.d. sample, so the usual efficiency and cross-fitting arguments do not transfer; cross-fitting organized by study is justified only when studies are the relevant independent units. With few studies the asymptotic regime behind influence-function inference and the rate conditions behind debiased machine learning are strained, though GPT-5.6 Sol noted this is not universal if another justified regime applies. The component extension is not a change of design matrix alone: it imposes a structural model whose identification depends on row-space conditions and treatment-version assumptions, and it needs its own influence-function derivation.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Dahabreh et al., Efficient and robust methods for causally interpretable meta-analysis: Transporting inferences from multiple randomized trials to a target population, Biometrics 2023;79:1057-1072](https://doi.org/10.1111/biom.13716) | Covers the all-individual-data multi-trial case: a doubly robust, efficiency-theory-based estimator of arm-level potential outcome means in a target population. Does not cover mixed individual and aggregate-data networks or multi-arm covariance. |
+| [marginal_effects(), multinma 0.9.1](https://dmphillippo.github.io/multinma/reference/marginal_effects.html) | Delivers population-average marginal treatment effects in a chosen target population across a connected network with partial individual data, by Bayesian ML-NMR rather than by an efficient influence function. |
+
+:::
+
+## Probable solution or research direction
+
+Specify the observed-data model for a mixed individual and aggregate-data network first, then derive the efficient influence function for arm-level potential outcomes in a declared target population, with cross-fitting organized by whatever the independent units turn out to be. Benchmark the result against what already delivers target-population marginal estimands, ML-NMR and the Dahabreh-style multi-trial estimator, rather than presenting it as the first such method. Develop cluster-aware inference that stays valid at small study counts, treat the component extension as a separate identification problem, and require every implementation to publish what remains non-identified alongside its robustness claim.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Overstated. 2 independent auditors judged the claim as stated too strong. No semiparametric-efficient, influence-function-based estimator exists for a connected network with mixed IPD and aggregate data that preserves multi-arm covariance and delivers valid small-study inference; likelihood-based ML-NMR and doubly robust multi-trial transport estimators already deliver target-population marginal estimands by other routes.
+
+**The source said.** "No estimator currently targets marginal, policy-relevant potential outcomes in a chosen population across a connected treatment network in which IPD are available for only some studies. The proposal is an AIPW/TMLE-style efficient influence-function estimator that combines an outcome model and a study-participation model, uses cross-fitted flexible nuisance estimation organized by study, preserves within-study randomization and multi-arm covariance, uses aggregate-data likelihood contributions where IPD are absent, and extends to components by replacing treatment indicators with component and interaction design vectors."
+
+**What was wrong with it.** The source opened by saying no estimator targets marginal, policy-relevant potential outcomes in a chosen population across a connected network with partial individual data. The literature auditor showed multinma's ML-NMR and marginal_effects() do exactly that, and that Dahabreh et al. (doi:10.1111/biom.13716) supply an influence-function-based multi-trial transport estimator; what remains open is the efficiency-theory version over a mixed individual and aggregate-data likelihood.
+
+Literature and prior-art check
+:   **partially-solved / overstated.** The lead sentence, 'No estimator currently targets marginal, policy-relevant potential outcomes in a chosen population across a connected treatment network in which IPD are available for only some studies', is false as written. ML-NMR in multinma does precisely this, and multinma's marginal_effects() 'generates population-average marginal treatment effects ... formed from population-average absolute predictions'; the package documents that estimates can be produced 'for an external target population'. Separately, Dahabreh et al. (Biometrics 2023;79:1057-1072, doi:10.1111/biom.13716) give a doubly robust, influence-function-based estimator of the potential outcome mean in a target population from a collection of randomized trials, and Vo et al. (arXiv:2503.05634) extend causal meta-analysis to trials with inaccessible IPD. What is genuinely absent is the specific object proposed: a cross-fitted efficient-influence-function estimator over a mixed IPD/AgD likelihood that preserves within-study randomization and multi-arm covariance, with valid inference at small study counts. The entry's own negative claims (AIPW/TMLE cannot fix unmeasured effect modification, absent overlap, a false bridge; DML rate conditions fail with few studies) are all defensible.
+    Cites doi:10.1111/biom.13716: Covers the all-IPD multi-trial case: doubly robust, efficiency-theory-based estimator of arm-level potential outcome means in a target population. Does not cover mixed IPD/AgD networks or multi-arm covariance..
+    Cites https://dmphillippo.github.io/multinma/reference/marginal_effects.html: Delivers population-average marginal treatment effects in a chosen target population across a connected network with partial IPD, by Bayesian ML-NMR rather than by an efficient influence function..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** C1-C5, C9, C12-C13 and C19-C20 capture sound principles under explicit consistency, conditional transportability, positivity and network-identification assumptions. The rest overstates what follows. An efficient influence function cannot be specified until the observed-data experiment, aggregate summaries, sampling units and asymptotic regime are defined; published aggregate estimates are not automatically likelihood contributions. Cross-fitting by study is appropriate only when studies are the relevant independent units, and few studies do not universally invalidate DML if another justified asymptotic regime applies. Flexible nuisance learning does not automatically improve estimation. A false bridge may sometimes be flagged by network inconsistency, although AIPW cannot generally identify or repair it. Arm-level absolute outcomes require stronger baseline-risk transport assumptions than relative effects. Most importantly, replacing treatment indicators with component vectors is not a complete extension: it imposes a component structural model and requires rank or row-space identification, treatment-version assumptions and revised nuisance and influence-function derivations. The claimed nonexistence of any current estimator is a literature claim outside this technical audit.
+
+Grok 4.5, recency lens
+:   **open / supported.** Pieces exist but not the joint object. Dahabreh et al. (Biometrics 2023) and CausalMetaR (Wang et al.; arXiv:2402.04341) give multi-trial transport with robust/efficient estimators to a declared target, typically assuming richer multi-source individual-level structure and a target sample, not a mixed IPD/AgD connected treatment network with multi-arm covariance and AgD likelihood contributions. Campbell and Remiro-Azócar DR-MAIC covers pairwise unanchored augmentation, not network EIF. multinma/crossnma implement mixed IPD/AgD NMA/ML-NMR without participation models or EIF/TMLE foundations. No retrieved work jointly delivers: EIF for arm-level potential outcomes in one policy population, study-organized cross-fitting, multi-arm covariance, AgD likelihood where IPD are missing, small-K valid uncertainty, and component design-vector extension with explicit non-identification statements. Caveat claims (unmeasured effect modification, no overlap, false bridge, component additivity outside DR) are consistent with identification theory and are not solved by any paper. C1–C3 and C7–C8 are directions with partial pairwise/multi-trial prior art, not completed network solutions. Queries: EIF AIPW TMLE network meta mixed IPD AgD; Dahabreh multi-trial transport; CausalMetaR; DR MAIC network; debiased ML few studies NMA.
+
+Decision path
+:   `R3:partially-solved(n=1) → R8:overstated-majority(n=2)`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [ADJ-11 — No proximal ITC method works with an aggregate-only comparator](ADJ-11-no-proximal-itc-method-works-with-an-aggregate-only-comparat.qmd)
+- [CMP-03 — Strict component additivity may be clinically false](CMP-03-strict-component-additivity-may-be-clinically-false.qmd)
+- [CMP-08 — Identification beyond row-space screens in nonlinear component ML-NMR](CMP-08-identification-beyond-row-space-screens-in-nonlinear-compone.qmd)
+- [CMP-12 — No two-stage adjusted estimator carries multi-arm covariance](CMP-12-no-two-stage-adjusted-estimator-carries-multi-arm-covariance.qmd)
+- [SFW-14 — drMAIC has no methods paper and no independent evaluation](SFW-14-drmaic-has-no-methods-paper-and-no-independent-evaluation.qmd)
+:::
+
+## Source
+
+Derived from C:L1642-1645, C:L1646-1648, C:L1646-1647, C:L1649, C:L1674-1685, C:L1686 of the reviewed corpus.

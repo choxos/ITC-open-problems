@@ -1,0 +1,73 @@
+---
+title: "IPD availability may be informative rather than random"
+description: "IPD availability may be informative rather than random, and the premise has empirical support: a survey of 31 IPD meta-analyses found that 16 (52 percent) did not obtain all the individual participant data requested, five of those did not mention it as a limitation, and only six examined how the trials without IPD might affect conclusions. Component PAIC conditions on the supplied IPD and provides neither a selection model for availability nor grouped leave-IPD-out validation. Nonrandomness has to be demonstrated or posited as a sensitivity assumption rather than assumed categorically: availability can be modeled where it depends on observed trial-level variables, and only selection on unobserved IPD quantities is unidentified without additional data or assumptions."
+pid: "CMP-22"
+topic: "Component methods (CNMA and component PAIC)"
+categories: ["Component methods (CNMA and component PAIC)", "High priority", "Confirmed open"]
+priority: "High"
+prank: 2
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Emerging"
+---
+::: {.problem-meta}
+[CMP-22]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[High priority]{.chip .chip-priority-high}
+[Emerging]{.chip .chip-maturity-emerging}
+:::
+## Statement
+
+IPD availability may be informative rather than random, and the premise has empirical support: a survey of 31 IPD meta-analyses found that 16 (52 percent) did not obtain all the individual participant data requested, five of those did not mention it as a limitation, and only six examined how the trials without IPD might affect conclusions. Component PAIC conditions on the supplied IPD and provides neither a selection model for availability nor grouped leave-IPD-out validation. Nonrandomness has to be demonstrated or posited as a sensitivity assumption rather than assumed categorically: availability can be modeled where it depends on observed trial-level variables, and only selection on unobserved IPD quantities is unidentified without additional data or assumptions.
+
+## Why it is open
+
+The IPD edges are the ones that get population-adjusted and the ones that inform interaction parameters, so a selection mechanism on availability propagates into which parts of covariate space are informed by causal evidence rather than by aggregate association. Selection depending on unobserved IPD characteristics cannot be estimated from within the network, because the trials with unobserved IPD are precisely the ones that would identify it. Federated approaches or a full selection model require access or assumptions that are currently unavailable, and no leave-IPD-out facility exists in component PAIC software to at least measure the dependence.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Ahmed, Sutton and Riley 2012](https://doi.org/10.1136/bmj.d7762) | surveys 31 IPD meta-analyses and documents that most did not obtain all requested individual participant data and few assessed the impact, establishing that IPD availability is not random |
+| [cpaic 0.1.0 (development version, choxos/cpaic@9d150e9)](choxos/cpaic@9d150e9) | unreleased development R package on GitHub, not on CRAN; conditions on the supplied IPD studies without modeling why IPD are available, and provides observation-level leave-one-out only, with no grouped leave-IPD-out facility |
+
+:::
+
+## Probable solution or research direction
+
+Implement grouped leave-IPD-out validation first, since it measures how conclusions depend on which trials contributed individual data even though it does not identify or correct the mechanism. Model availability where it depends on observed trial-level characteristics, and treat selection on unobserved characteristics as an explicit sensitivity assumption with a stated selection model rather than as an unmodeled default. Pursue federated methods that let non-sponsor trials contribute individual-level information without releasing data, which is the only route that addresses the cause rather than the symptom.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+
+**The source said.** "The trials for which IPD is available are typically sponsor-owned and are not a random subset of the evidence base, yet component PAIC treats IPD availability as an exogenous feature of the network."
+
+**What was wrong with it.** The source asserted non-random IPD availability categorically and cited nothing. GPT-5.6 Sol flagged the categorical form as unsupported and distinguished selection on observed trial-level variables, which is modelable, from selection on unobserved IPD quantities, which is not identified; the literature auditor supplied the missing empirical source, doi:10.1136/bmj.d7762.
+
+**Dissent.** literature dissented (supported): The premise is sourceable and the entry sources nothing. Ahmed, Sutton and Riley 2012 surveyed 31 recent IPD meta-analyses of randomised trials and found that 'Sixteen (52%) of the 31 meta-analyses did not obtain all the individual participant data requested, yet five of these (31%) did not mention this as a potential limitation, and only six (38%) examined how trials without individual participant data might affect the conclusions', concluding that 'Publication, availability, and selection biases are a potential concern for meta-analyses of individual participant data'. That converts 'IPD availability is not random' from assertion to evidence, and it also shows the field's partial response - their recommendation is to include aggregate data from the IPD-less studies to gauge impact, which is what a network with mixed IPD and AgD already does. What remains open is exactly what the entry says: a selection model for IPD availability, and leave-IPD-out validation, neither of which I found in the PAIC literature.
+
+Literature and prior-art check
+:   **open / supported.** The premise is sourceable and the entry sources nothing. Ahmed, Sutton and Riley 2012 surveyed 31 recent IPD meta-analyses of randomised trials and found that 'Sixteen (52%) of the 31 meta-analyses did not obtain all the individual participant data requested, yet five of these (31%) did not mention this as a potential limitation, and only six (38%) examined how trials without individual participant data might affect the conclusions', concluding that 'Publication, availability, and selection biases are a potential concern for meta-analyses of individual participant data'. That converts 'IPD availability is not random' from assertion to evidence, and it also shows the field's partial response - their recommendation is to include aggregate data from the IPD-less studies to gauge impact, which is what a network with mixed IPD and AgD already does. What remains open is exactly what the entry says: a selection model for IPD availability, and leave-IPD-out validation, neither of which I found in the PAIC literature.
+    Cites doi:10.1136/bmj.d7762: Empirically documents non-random IPD availability and its neglect; supplies the missing source for the entry's premise without solving the selection-modelling problem..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** C2 is confirmed: cpaic records the supplied IPD studies and adjusts those studies without modeling why IPD are available. C3 is true for cpaic; its LOO method is observation-level and explicitly lacks grouped leave-one-study-out, and no leave-IPD-out facility is exported. C1, however, is an unsupported categorical empirical assertion. IPD availability may be informative, but nonrandomness must be demonstrated or posited as a sensitivity assumption. Availability and its associations with observed trial-level variables can be modeled; only selection depending on unobserved IPD quantities is not identified without additional data or assumptions. Leave-IPD-out analysis assesses stability but does not identify or correct the selection mechanism.
+
+Decision path
+:   `R5:default-open → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [DIA-10 — Data access is simulated as benign rather than informative](DIA-10-data-access-is-simulated-as-benign-rather-than-informative.qmd)
+:::
+
+## Source
+
+Derived from C:L1381, scope:field-level (evidence access across all PAIC); unmodeled in cpaic of the reviewed corpus.

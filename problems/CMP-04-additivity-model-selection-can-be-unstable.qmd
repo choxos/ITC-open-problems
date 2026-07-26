@@ -1,0 +1,75 @@
+---
+title: "Additivity model selection can be unstable"
+description: "Forward selection of component and interaction structures, as implemented in the netmeta CNMA workflow, makes a sequence of data-driven decisions whose uncertainty is not carried into the reported intervals. Petropoulou et al. 2023 measured the failure in disconnected networks: forward selection recovered the correct interaction model in only 12.0 to 15.2 percent of runs under mild additivity violation and 21.6 to 26.3 percent under strong violation, and tended to select sparse, often additive, models even when additivity was violated. In connected networks the measured coverage penalty was modest. Where an analyst selects a structure externally and then reports intervals conditional on it, those intervals omit selection uncertainty and are optimistic."
+pid: "CMP-04"
+topic: "Component methods (CNMA and component PAIC)"
+categories: ["Component methods (CNMA and component PAIC)", "High priority", "Confirmed open"]
+priority: "High"
+prank: 2
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[CMP-04]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[High priority]{.chip .chip-priority-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+## Statement
+
+Forward selection of component and interaction structures, as implemented in the netmeta CNMA workflow, makes a sequence of data-driven decisions whose uncertainty is not carried into the reported intervals. Petropoulou et al. 2023 measured the failure in disconnected networks: forward selection recovered the correct interaction model in only 12.0 to 15.2 percent of runs under mild additivity violation and 21.6 to 26.3 percent under strong violation, and tended to select sparse, often additive, models even when additivity was violated. In connected networks the measured coverage penalty was modest. Where an analyst selects a structure externally and then reports intervals conditional on it, those intervals omit selection uncertainty and are optimistic.
+
+## Why it is open
+
+Post-selection intervals condition on the selected structure and ignore the sequence of decisions that produced it, so they are too narrow and the chosen structure is unstable under resampling. In a disconnected network the candidate structures are also poorly separated by the data, because the contrasts that would discriminate between them are the ones spanning the gap, so selection instability translates into instability of the bridge rather than of nuisance terms. No selection-aware inference has been developed for component structures, and the auditors found no application of projection predictive inference or stacking to CNMA additivity structures.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Petropoulou et al. 2023](https://doi.org/10.1186/s12874-023-01959-9) | evaluates forward CNMA model selection in 1000 simulated connected and disconnected networks and quantifies its failure in the disconnected case |
+| netmeta | supplies the frequentist component NMA machinery, including the forward-selection routine whose uncertainty is not propagated |
+
+:::
+
+## Probable solution or research direction
+
+Replace forward selection with shrinkage priors, projection predictive inference, or stacking across candidate additivity structures, and report selection-aware uncertainty so the reported interval includes the cost of having chosen a structure from the data. Because the failure is documented specifically for disconnected networks, the first target should be selection-aware inference for the cross-gap contrast rather than for the whole network fit. Where selection is done outside the fitting package, the resulting intervals should be labeled as conditional on the chosen component coding.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+
+**The source said.** "Selecting which components and which interactions enter the additive model by forward selection inflates optimism and can fail outright in sparse disconnected graphs. The uncertainty introduced by the selection step is not carried into the reported intervals."
+
+**What was wrong with it.** The source attributed the selection step to cpaic. GPT-5.6 Sol read choxos/cpaic@9d150e9 and found no forward, stepwise, projection-predictive, or stacking routine there: the package builds a fixed binary component matrix from the supplied treatment labels, so there is no in-package selection whose uncertainty could be propagated, and the problem belongs to the analyst's upstream choice and to netmeta's forward-selection workflow; the literature auditor supplied the missing source and the measured failure rates, doi:10.1186/s12874-023-01959-9.
+
+Literature and prior-art check
+:   **open / supported-with-caveat.** The entry cites only 'netmeta' but the claim has a direct published evidence base it does not cite: Petropoulou, Rucker, Weibel, Kranke, Schwarzer 2023 evaluated the forward CNMA selection strategy in 1000 simulated connected and disconnected networks. Their disconnected-network result is stronger than the entry's: forward selection recovered the correct interaction model in only 12.0-15.2 percent (mild violation) and 21.6-26.3 percent (strong violation) of runs, and 'Forward selection tended to select sparse (often additive) CNMA models for disconnected networks even if additivity was mildly or strongly violated.' So 'can fail in sparse disconnected graphs' is established, not conjectural. Caveat on 'inflates optimism': in CONNECTED networks the measured penalty was modest - coverage for the selected CNMA fell outside Monte-Carlo limits only at moderate heterogeneity, and per-comparison coverage was 'somewhat smaller ... however, not dramatically different'. Selection-uncertainty propagation is still unsolved, so the problem stands. 'Projection predictive inference and stacking have not been applied to component NMA' - I found no counterexample, but absence is unverifiable.
+    Cites doi:10.1186/s12874-023-01959-9: Establishes empirically (not fixes) that forward CNMA selection fails in disconnected networks; the missing citation for this entry's central claim..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **not-a-problem / misattributed.** C1 is generally correct: naive inference after forward selection is optimistic and conditions on the selected structure. C2 is also possible when candidate component models are rank-deficient, saturated, or numerically unstable. The attribution to current cpaic in C3 is wrong, however. At 9d150e9, cpaic deterministically constructs a binary C matrix from the supplied treatment labels and fits that fixed structure; NAMESPACE and the R sources contain no forward, stepwise, projection-predictive, stacking, or component-structure selection routine. There is therefore no package selection step whose uncertainty cpaic intervals could propagate. If an analyst performs external selection first, the resulting cpaic intervals are conditional on that externally chosen coding, but that is a different and conditional problem. C4 is a literature-coverage claim outside the assigned lens.
+
+Grok 4.5, recency lens
+:   **open / supported.** The main prior-art hit is Petropoulou et al. 2023 (and the related netmeta forward-selection machinery), which evaluates forward selection of CNMA structures and finds poor selection of the correct interaction structure under mild additivity violation, degraded performance with heterogeneity, and bad performance when the network is disconnected. That paper characterizes instability; it does not replace forward selection with selection-aware intervals, projection predictive inference, or stacking for component structures. netmeta still exposes netcomb/discomb and selection utilities without post-selection inference for the bridge. Searches for projpred, stacking, or Bayesian model averaging applied to CNMA additivity structure (RSM/SIM/BMC MRM 2023–2026, arXiv, CRAN) found no applied work. Claims C1–C2 are supported by that simulation evidence; C3 is consistent with netmeta/cpaic not advertising selection-aware intervals; C4 remains true as a gap. Status stays open: the problem is documented, not solved.
+
+Decision path
+:   `R5:default-open → R11:caveated(n=1)`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [DEC-11 — Intervals omit selection, reconstruction and target-summary error](DEC-11-intervals-omit-selection-reconstruction-and-target-summary-e.qmd)
+- [DIA-15 — Coding-error bias, rank reversal and drift calibration go unscored](DIA-15-coding-error-bias-rank-reversal-and-drift-calibration-go-uns.qmd)
+:::
+
+## Source
+
+Derived from C:L1384, scope:field-level (CNMA model selection); affects cpaic of the reviewed corpus.

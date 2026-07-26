@@ -1,0 +1,81 @@
+---
+title: "Coding-error bias, rank reversal and drift calibration go unscored"
+description: "Two of the five measures the entry calls unreported already exist. Petropoulou et al. 2023 (doi:10.1186/s12874-023-01959-9) reports the rate at which additivity is wrongly rejected when it truly holds, rising from 3.5 percent to 18.8 percent with increasing heterogeneity, plus correct-model selection rates, which is false-synergy selection under another name; Mao et al. 2025 (doi:10.1186/s12874-025-02619-w) gives a variance-based leave-one-out contribution measure for component networks; and cpaic, an unreleased GitHub development package not on CRAN, exports fitted-analysis bridge fragility and edge influence diagnostics. What is reported nowhere is bias under deliberately corrupted component coding, rank reversal as a performance measure, and sensitivity calibration, meaning whether a sensitivity interval covers the truth at the true drift. Two framings also need adjusting: false-synergy selection is a conventional null selection rate (type I error, family-wise error or false discovery), and component-effect error is meaningful only for identified parameters, so rank-deficient designs must score estimable row-space contrasts rather than arbitrary generalized-inverse coefficients."
+pid: "DIA-15"
+topic: "Diagnostics & empirical validation"
+categories: ["Diagnostics & empirical validation", "High priority", "Overstated"]
+priority: "High"
+prank: 2
+verdict: "Overstated"
+verdictslug: "overstated"
+maturity: "Emerging"
+---
+::: {.problem-meta}
+[DIA-15]{.problem-id}
+[Overstated]{.verdict .verdict-overstated}
+[High priority]{.chip .chip-priority-high}
+[Emerging]{.chip .chip-maturity-emerging}
+:::
+## Statement
+
+Two of the five measures the entry calls unreported already exist. Petropoulou et al. 2023 (doi:10.1186/s12874-023-01959-9) reports the rate at which additivity is wrongly rejected when it truly holds, rising from 3.5 percent to 18.8 percent with increasing heterogeneity, plus correct-model selection rates, which is false-synergy selection under another name; Mao et al. 2025 (doi:10.1186/s12874-025-02619-w) gives a variance-based leave-one-out contribution measure for component networks; and cpaic, an unreleased GitHub development package not on CRAN, exports fitted-analysis bridge fragility and edge influence diagnostics. What is reported nowhere is bias under deliberately corrupted component coding, rank reversal as a performance measure, and sensitivity calibration, meaning whether a sensitivity interval covers the truth at the true drift. Two framings also need adjusting: false-synergy selection is a conventional null selection rate (type I error, family-wise error or false discovery), and component-effect error is meaningful only for identified parameters, so rank-deficient designs must score estimable row-space contrasts rather than arbitrary generalized-inverse coefficients.
+
+## Why it is open
+
+Coding a treatment into components is a human data-preparation step, so its error propagates in ways only a simulation with deliberately corrupted coding can quantify, and no such simulation is standard. Sensitivity calibration is repeated-sampling coverage evaluated under a specified true drift rather than under the reference model, so it cannot be read off any currently reported quantity and has to be reported separately from nominal coverage. Rank reversal is an error only relative to a fixed target population and decision estimand, since a genuine population-dependent reversal is not a failure, and that conditioning is exactly what current reporting omits.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Petropoulou et al. 2023, Model selection for component network meta-analysis in connected and disconnected networks: a simulation study](https://doi.org/10.1186/s12874-023-01959-9) | Reports the rate at which additivity is wrongly rejected when it holds and the rate at which the wrong interaction model is selected, which is the false-synergy selection probability the entry says is unreported. |
+| [Mao et al. 2025, A leave-one-out algorithm for contribution analysis in component network meta-analysis](https://doi.org/10.1186/s12874-025-02619-w) | Provides a quantified bridge-contribution and fragility measure for component networks based on variance inflation when each direct comparison is removed. |
+| [cpaic (development version), commit 9d150e9](https://github.com/choxos/cpaic/commit/9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca) | Unreleased development package on GitHub, not available from CRAN. Implements a fitted-analysis tipping-point measure for cross-subnetwork main-effect drift, explicitly excluding interaction drift, and per-edge influence weights that can identify an adjusted IPD edge contributing nothing to the requested contrast. It does not provide false-selection rates, coding-error operating characteristics, or standardized Monte Carlo calibration. |
+
+:::
+
+## Probable solution or research direction
+
+Bring the measures that already exist into routine use rather than reinventing them: report the additivity-rejection and interaction-selection error rates computed in component simulation studies, and the leave-one-out contribution measure, as standard outputs for component and disconnected-network methods. Add the three that do not exist: robustness under an explicitly specified component-miscoding mechanism, ranking or decision loss for a fixed target estimand, and repeated-sampling coverage under a specified true sensitivity violation reported alongside reference-model coverage. Score error on estimable row-space contrasts and predictions, and extend the existing fitted-analysis fragility and influence diagnostics to interaction drift and to methods beyond the single package that implements them.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Overstated. 2 independent auditors judged the claim as stated too strong. Bias under component coding error, rank reversal, and sensitivity calibration at the true drift are not reported performance measures in component and disconnected-network simulation studies; false-synergy selection and bridge contribution have already been operationalized, as model-selection error rates and as variance-based leave-one-out contribution respectively.
+
+**The source titled this.** "False synergy, coding error, and bridge fragility are never scored" The title says false synergy and bridge fragility are never scored, but the audit found both already operationalized as model-selection error rates and leave-one-out contribution.
+
+**The source said.** "Component and network simulations do not report the performance measures that would expose their characteristic failures: component-effect and component-interaction error, bridge contribution and fragility, rank reversal, the probability of selecting a false synergy, bias under component coding error, and sensitivity calibration, meaning whether a sensitivity interval covers the truth at the true drift."
+
+**What was wrong with it.** The source said false-synergy selection probability and bridge contribution and fragility are not reported; the literature auditor found both already operationalized, as additivity-rejection and model-selection error rates (doi:10.1186/s12874-023-01959-9) and as a variance-based leave-one-out contribution algorithm (doi:10.1186/s12874-025-02619-w), and GPT-5.6 Sol found bridge_fragility() and edge_influence() implemented in cpaic at commit 9d150e9. Three of the five measures survive as genuinely unreported.
+
+Literature and prior-art check
+:   **partially-solved / overstated.** Two of the five claims are contradicted by papers I read. False-synergy selection IS reported: Petropoulou et al. 2023 report, for scenarios where additivity truly holds, 'The percentage of networks rejecting the additivity assumption increases from 3.5% to 18.8% with increasing [heterogeneity]', and give correct-model selection rates (69.3% and 65.2% for no and low heterogeneity, under 50% for moderate). Rejecting additivity when additivity holds is precisely the probability of concluding a synergy exists when it does not. Bridge contribution and fragility are also quantified: Mao et al. 2025 give a variance-based leave-one-out contribution algorithm for CNMA that measures how excluding each direct comparison inflates component-effect variance and flags comparisons whose removal destroys identifiability. The remaining three claims survive: I found no reporting of bias under deliberately corrupted component coding, no rank-reversal performance measure in this literature, and nothing on sensitivity calibration at the true drift.
+    Cites 10.1186/s12874-023-01959-9: Reports the rate at which additivity is wrongly rejected and the rate at which the wrong interaction model is selected, i.e. the false-synergy selection probability..
+    Cites 10.1186/s12874-025-02619-w: Provides a quantified bridge-contribution/fragility measure for component networks based on variance inflation on removal of each direct comparison..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / overstated.** C1 and C2 are uncited literature-absence assertions and are outside this technical audit. The methodological framing is nevertheless too broad. False-synergy selection probability is a conventional null selection rate, type I error, family-wise error rate, or false discovery measure. Raw component-effect or interaction error is meaningful only for identified parameters; in rank-deficient designs, simulations must score estimable row-space contrasts or predictions rather than arbitrary generalized-inverse coefficients. Rank reversal is an error only relative to a fixed target population and decision estimand; a true population-dependent reversal is not a failure. C5 is repeated-sampling coverage evaluated under a specified true drift, not a fundamentally different probability concept from coverage, although it should be reported separately from reference-model coverage. At 9d150e9, cpaic already exports bridge_fragility() and edge_influence(), partly addressing C4 at the fitted-analysis level. They do not provide false-selection rates, coding-error operating characteristics, or standardized Monte Carlo calibration. The asserted High severity is justified only when interaction selection, ranking, or a cross-gap decision is actually part of the analysis.
+    Cites choxos/cpaic@9d150e9: Implements a fitted-analysis tipping-point measure for cross-subnetwork main-effect drift, while explicitly excluding interaction drift..
+    Cites choxos/cpaic@9d150e9: Implements per-edge influence weights for a requested contrast and can identify an adjusted IPD edge that contributes nothing to that contrast..
+
+Decision path
+:   `R3:partially-solved(n=2) → R8:overstated-majority(n=2)`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [CMP-03 — Strict component additivity may be clinically false](CMP-03-strict-component-additivity-may-be-clinically-false.qmd)
+- [CMP-04 — Additivity model selection can be unstable](CMP-04-additivity-model-selection-can-be-unstable.qmd)
+- [CMP-05 — No versioned intervention ontology maps onto CNMA component matrices](CMP-05-no-versioned-intervention-ontology-maps-onto-cnma-component-.qmd)
+- [CMP-06 — Measurement error and component misclassification are ignored](CMP-06-measurement-error-and-component-misclassification-are-ignore.qmd)
+- [CMP-23 — Bridge fragility ignores interaction and correlated component drift](CMP-23-bridge-fragility-ignores-interaction-and-correlated-componen.qmd)
+:::
+
+## Source
+
+Derived from C:L2012-2020 of the reviewed corpus.

@@ -1,0 +1,73 @@
+---
+title: "Legitimate versus dangerous roles for flexible learners"
+description: "Flexible learners such as BART, causal forests, Gaussian processes, neural additive models and super learner can estimate nuisance functions, outcome surfaces or heterogeneous effects inside an identified PAIC analysis, but numerically well-behaved predictions do not repair missing overlap or missing information about the target distribution, and generic predictive feature importance is not evidence of effect modification. Neither auditor found a PAIC-specific protocol separating the roles where these learners help from the roles where they mislead. Two of the source's prohibitions do not hold as written: causal forests are constructed for causal heterogeneity under assumptions rather than for prediction alone, and variable importance can be defined on the CATE itself with inference (PermuCATE, arxiv:2408.13002), so what is disqualified is predictive importance from an outcome model, not importance measures in general."
+pid: "COV-05"
+topic: "Covariates: selection, target moments, measurement"
+categories: ["Covariates: selection, target moments, measurement", "High priority", "Confirmed open"]
+priority: "High"
+prank: 2
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[COV-05]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[High priority]{.chip .chip-priority-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+## Statement
+
+Flexible learners such as BART, causal forests, Gaussian processes, neural additive models and super learner can estimate nuisance functions, outcome surfaces or heterogeneous effects inside an identified PAIC analysis, but numerically well-behaved predictions do not repair missing overlap or missing information about the target distribution, and generic predictive feature importance is not evidence of effect modification. Neither auditor found a PAIC-specific protocol separating the roles where these learners help from the roles where they mislead. Two of the source's prohibitions do not hold as written: causal forests are constructed for causal heterogeneity under assumptions rather than for prediction alone, and variable importance can be defined on the CATE itself with inference (PermuCATE, arxiv:2408.13002), so what is disqualified is predictive importance from an outcome model, not importance measures in general.
+
+## Why it is open
+
+Whether a flexible fit is legitimate depends on an identified target estimand, adequate joint support, suitable target data, nuisance-rate conditions and an uncertainty procedure, and none of those is delivered by predictive accuracy; many learners return smooth predictions outside the region where the causal quantity is identified, which is exactly where an answer is most wanted. The event counts available for treatment interactions in typical trials are far below what nonparametric interaction estimation needs, so an apparently rich fit can be estimating noise. Reusing one sample for discovery, tuning, estimation and uncertainty breaks the guarantees of most procedures unless the inference explicitly accounts for the adaptivity. What is missing is a PAIC-specific protocol tying each role to the conditions under which it is defensible.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Paillard et al. (PermuCATE)](https://arxiv.org/abs/2408.13002) | Conditional permutation importance for the conditional average treatment effect, giving statistically rigorous global variable importance defined on the CATE; counter-evidence to the blanket claim that machine-learning importance can never be read causally. |
+
+:::
+
+## Probable solution or research direction
+
+Write the protocol conditionally rather than as a list of bans: name the target estimand and the support and target-data conditions that must hold, then state which use of a flexible learner is licensed under them, covering nuisance estimation inside AIPW, TMLE or DML, discovery of candidate nonlinear modifiers for later confirmation, flexible standardization, and support diagnostics or outcome-model stress testing. Replace the blanket prohibition on feature importance with a requirement that any importance claim use a causally defined estimand such as the CATE-based measure in arxiv:2408.13002. Require an inference procedure that accounts for adaptive fitting, with cross-fitting as one accepted route alongside external training, independent splitting and a bootstrap that repeats tuning and estimation, and require support diagnostics before any extrapolation to an unsupported target.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+
+**The source said.** "Flexible learners such as BART, causal forests, Gaussian processes, neural additive models and super learner can estimate complex outcome or participation models in PAIC, but their useful roles are narrow and their misuses are common. The report enumerates four legitimate roles and four dangerous ones, with no protocol enforcing the distinction."
+
+**What was wrong with it.** The source said interpreting machine-learning feature importance as causal effect modification is invalid, and that using one sample for discovery, tuning, estimation and uncertainty without cross-fitting invalidates the inference. The literature auditor cited PermuCATE (arxiv:2408.13002), a conditional-permutation importance measure defined directly on the CATE with inference, and the code auditor noted that valid inference can also rest on parametric or empirical-process restrictions, external training data, independent sample splitting, or a bootstrap that repeats tuning and estimation.
+
+Literature and prior-art check
+:   **open / supported-with-caveat.** Most of the enumerated claims are standard causal-machine-learning knowledge rather than contested propositions: flexible learners as nuisance estimators inside AIPW/TMLE/DML and the cross-fitting requirement are the defining features of double machine learning, and extrapolation to unsupported regions is a general property of predictive fits. I found no PAIC-specific protocol separating legitimate from dangerous roles, but 'no protocol exists' is an absence claim I cannot verify, so I do not credit it. One claim is too blunt as worded. 'Interpreting machine-learning feature importance as causal effect modification is invalid' is right about predictive importance, but Paillard et al. (PermuCATE) develops conditional-permutation variable importance defined directly on the CATE with inference, i.e. a causally-defined importance measure for exactly this question. The defensible version is that predictive feature importance from an outcome model is not evidence of effect modification, not that no importance measure can be causal.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** C1-C5 describe technically possible uses, but legitimacy depends on an identified target estimand, adequate joint support, suitable target data, nuisance-rate conditions, and an uncertainty procedure. Causal forests are specifically constructed for causal heterogeneity under assumptions, so the blanket statement that these learners are optimized only for prediction is inaccurate. C6 is right for generic predictive feature importance, but a formally defined causal variable-importance estimand is a different object. C7 is context-dependent, and C8 should say that many learners can return numerically smooth predictions outside support, not that extrapolation is inevitable. C9 is categorically false: cross-fitting is often valuable for flexible nuisance estimation, but valid inference can instead rest on parametric or empirical-process restrictions, external training, independent sample splitting, or a bootstrap that repeats tuning and estimation. At cpaic@9d150e9 none of the named learners is implemented; the exported forest() is a forest-plot function, not a causal forest. A PAIC-specific protocol remains open, but this is conditional guidance and validation rather than a universally critical missing method.
+
+Decision path
+:   `R5:default-open → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [ADJ-13 — Topology-only graph neural network output cannot identify effects](ADJ-13-topology-only-graph-neural-network-output-cannot-identify-ef.qmd)
+- [DIA-06 — Failure signatures across PAIC estimator families are uncharacterized](DIA-06-failure-signatures-across-paic-estimator-families-are-unchar.qmd)
+- [MOD-02 — Convenience functional forms and untested flexible alternatives](MOD-02-convenience-functional-forms-and-untested-flexible-alternati.qmd)
+- [MOD-08 — Cross-fitting folds and rate conditions undefined for PAIC](MOD-08-cross-fitting-folds-and-rate-conditions-undefined-for-paic.qmd)
+- [OVL-03 — No support diagnostic aggregates over a PAIC target distribution](OVL-03-no-support-diagnostic-aggregates-over-a-paic-target-distribu.qmd)
+:::
+
+## Source
+
+Derived from C:L945-959 of the reviewed corpus.

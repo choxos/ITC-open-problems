@@ -1,0 +1,79 @@
+---
+title: "No curated benchmark validates bridged cross-gap comparisons"
+description: "Bridge deletion has been done. Beliveau et al. (doi:10.1002/jrsm.1256) took two publicly available connected networks, disconnected them in several ways, compared the recovered contrasts against the connected analysis, and released code so other datasets can be run. It is also not the only empirical route: Rucker et al. (doi:10.1002/bimj.201900339) appraised a bridged comparison in a genuinely disconnected multiple myeloma network by re-analyzing it with RCT-only component network meta-analysis and comparing against a matching-based bridge, and later randomized direct evidence or masked and held-out validation designs are further options, with cross-method concordance counting as triangulation rather than validation. What is genuinely missing is a curated public benchmark with factorial scenarios, full-IPD gold standards and independent replication, together with evidence that performance on an artificially cut link transfers to a real gap."
+pid: "IDN-08"
+topic: "Identification, transitivity & conditional constancy"
+categories: ["Identification, transitivity & conditional constancy", "Very high priority", "Overstated"]
+priority: "Very high"
+prank: 1
+verdict: "Overstated"
+verdictslug: "overstated"
+maturity: "Promising"
+tractability: 5
+---
+::: {.problem-meta}
+[IDN-08]{.problem-id}
+[Overstated]{.verdict .verdict-overstated}
+[Very high priority]{.chip .chip-priority-very-high}
+[Promising]{.chip .chip-maturity-promising}
+[Tractability 5/5]{.chip}
+:::
+## Statement
+
+Bridge deletion has been done. Beliveau et al. (doi:10.1002/jrsm.1256) took two publicly available connected networks, disconnected them in several ways, compared the recovered contrasts against the connected analysis, and released code so other datasets can be run. It is also not the only empirical route: Rucker et al. (doi:10.1002/bimj.201900339) appraised a bridged comparison in a genuinely disconnected multiple myeloma network by re-analyzing it with RCT-only component network meta-analysis and comparing against a matching-based bridge, and later randomized direct evidence or masked and held-out validation designs are further options, with cross-method concordance counting as triangulation rather than validation. What is genuinely missing is a curated public benchmark with factorial scenarios, full-IPD gold standards and independent replication, together with evidence that performance on an artificially cut link transfers to a real gap.
+
+## Why it is open
+
+In a real disconnected network a cross-gap contrast has no direct or overidentifying evidence, so its bridging restriction cannot be tested from that dataset and validation has to be borrowed from connected networks where the answer is known. Whether that transfers depends on the deleted link being representative in population and design of the gap being bridged, which has not been shown. Connected networks carrying the IPD and bridging covariates needed to run the exercise are scarce and none have been assembled into a public benchmark, so methods are demonstrated on bespoke synthetic examples that establish no external operating characteristics. Fit-based checks do not fill the gap: in cpaic, an unreleased development package on GitHub that is not on CRAN, additivity_test() checks only the observed evidence and can be vacuous, returning Q = 0 on zero degrees of freedom.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Beliveau et al. 2017, Network meta-analysis of disconnected networks: how dangerous are random baseline treatment effects?, Research Synthesis Methods](https://doi.org/10.1002/jrsm.1256) | performs empirical bridge deletion on two publicly available connected networks, disconnecting them in multiple ways and benchmarking the recovered contrasts against the connected analysis, with code released |
+| [Rucker et al. 2020, Component network meta-analysis compared to a matching method in a disconnected network: a case study, Biometrical Journal](https://doi.org/10.1002/bimj.201900339) | appraises a bridged comparison in a real disconnected network by re-analyzing it with RCT-only component network meta-analysis and comparing against a matching-based bridge, so validation does not require deleting a link |
+| [cpaic, unreleased development package on GitHub (not on CRAN), commit 9d150e9, additivity_test()](https://github.com/choxos/cpaic) | tests additivity against the observed evidence only; the source-code auditor found it can be vacuous, returning Q = 0 on zero degrees of freedom, so it is not a check on the bridged contrast |
+
+:::
+
+## Probable solution or research direction
+
+Build the benchmark rather than the exercise: curate connected networks that carry IPD, apply factorial deletion scenarios, and require that direct and reconstructed estimates share an estimand and target population and that removed evidence is excluded from fitting. Register the two existing empirical routes as the starting point, reporting both deletion-based recovery and cross-method concordance while labeling the latter as triangulation. Report the degrees of freedom behind any additivity or fit-based check so a vacuous pass is visible, and pair the benchmark with independent replication before treating a disconnected-network method as decision-grade.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Overstated. 2 independent auditors judged the claim as stated too strong. Empirical bridge deletion has been demonstrated (Beliveau et al. 2017, two public connected networks disconnected multiple ways, with code released), but no curated public benchmark suite with factorial scenarios, full-IPD gold standards and independent replication exists, and it is not the only empirical route: cross-method concordance on real disconnected networks (Rucker et al. 2020) is another.
+
+**The source titled this.** "Bridge deletion is the only empirical check on bridged comparisons" The title says bridge deletion is the only empirical check, but the audit found it already published and found cross-method concordance on real disconnected networks as another route.
+
+**The source said.** "Deleting an existing bridge from a connected network and testing whether a disconnected-network method reconstructs the removed contrast is the only empirical route to validating bridged comparisons, because the bridging assumption in a genuinely disconnected network has no cross-gap evidence to test it against. No public benchmark suite for such bridge-deletion validation exists."
+
+**What was wrong with it.** The source said empirical bridge deletion is the only route to validating bridged comparisons, cited no one and rated the exercise's novelty at 3. The literature auditor found it published in 2017 on public data with code released (doi:10.1002/jrsm.1256) and a second route that requires no deletion at all (doi:10.1002/bimj.201900339), so the surviving gap is the benchmark suite rather than the design.
+
+Literature and prior-art check
+:   **partially-solved / overstated.** The entry has no prior_work and rates novelty 3, but the exercise it describes was published in 2017 with public data and released code. Beliveau et al. (Res Synth Methods) took two publicly available connected networks, disconnected them in multiple ways, analyzed each disconnected version, and compared the recovered contrasts against the original connected analysis, then wrote 'We provide code, so other datasets can be investigated.' That is empirical bridge deletion with a reproducible public starting point. Separately, 'empirical bridge deletion is the only route' is false: Rucker et al. (Biom J 2020) validated a bridged comparison by re-analyzing a genuinely disconnected multiple myeloma network with RCT-only component NMA and comparing against Schmitz et al.'s matching-based bridge, a cross-method concordance route requiring no deletion. What survives is narrower but still worth publishing: no curated, factorial, IPD-bearing benchmark suite with independent replication exists, and whether performance on an artificially cut link transfers to a real gap remains untested.
+    Cites 10.1002/jrsm.1256: Performs empirical bridge deletion on public connected networks and benchmarks the recovered contrasts against the connected analysis, with code released.
+    Cites 10.1002/bimj.201900339: Demonstrates a second empirical route to appraising a bridged comparison: RCT-only component NMA re-analysis of a real disconnected network, compared against a matching-based bridge.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** C1 is a legitimate held-out prediction and falsification design only if the removed evidence is not used in fitting, the direct and reconstructed estimates share an estimand and target population, and the deletion mechanism is relevant to the intended gaps. C2 is false: later or external randomized direct evidence, masked-arm or held-out-network validation, and independent validation designs with known truth are other empirical routes; mere cross-method concordance is only triangulation. C3 is true for an unsupported cross-gap contrast in an exactly identified disconnected likelihood, but bridge models can have testable observable implications when replicated component contrasts or other overidentifying restrictions exist. Passing those checks still does not validate the missing contrast. C5 is correct about external operating characteristics. C4 is a literature-absence claim outside this audit. At cpaic@9d150e9, additivity_test() is explicitly only an observed-evidence fit check and can be vacuous at Q = 0 on 0 degrees of freedom. A benchmark is useful, but neither necessary nor sufficient by itself for decision-grade credibility.
+
+Decision path
+:   `R3:partially-solved(n=1) → R8:overstated-majority(n=2)`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [CMP-01 — Cross-subnetwork component constancy is the untestable bridge](CMP-01-cross-subnetwork-component-constancy-is-the-untestable-bridg.qmd)
+- [DEC-11 — Intervals omit selection, reconstruction and target-summary error](DEC-11-intervals-omit-selection-reconstruction-and-target-summary-e.qmd)
+- [DIS-02 — No data-driven criterion can rank candidate bridge families](DIS-02-no-data-driven-criterion-can-rank-candidate-bridge-families.qmd)
+:::
+
+## Source
+
+Derived from C:L242, C:L399, C:L1385, C:L2147 of the reviewed corpus.

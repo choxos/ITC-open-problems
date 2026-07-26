@@ -1,0 +1,76 @@
+---
+title: "Component ML-NMR integration has no parallel or adaptive scheme"
+description: "Bayesian component ML-NMR integrates an individual-level outcome model over aggregate covariate distributions with fixed Sobol quasi-Monte Carlo points, a cost structure inherited from ML-NMR rather than invented for component models, and its survival work scales as the number of aggregate rows times the number of integration points. The Stan likelihood loops serially over that grid with no within-chain parallelization, and no adaptive quasi-Monte Carlo scheme is implemented in component or non-component packages. Two of the proposed remedies are already in place: noncentered random effects are the default and a prior-sensitivity refit under tighter and looser priors is provided. Divergences arise from posterior geometry and weak identification rather than from the integration alone, and the claim that the cost precludes broad simulation studies is not backed by a benchmark."
+pid: "CMP-25"
+topic: "Component methods (CNMA and component PAIC)"
+categories: ["Component methods (CNMA and component PAIC)", "High priority", "Partially addressed"]
+priority: "High"
+prank: 2
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[CMP-25]{.problem-id}
+[Partially addressed]{.verdict .verdict-partially-addressed}
+[High priority]{.chip .chip-priority-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+## Statement
+
+Bayesian component ML-NMR integrates an individual-level outcome model over aggregate covariate distributions with fixed Sobol quasi-Monte Carlo points, a cost structure inherited from ML-NMR rather than invented for component models, and its survival work scales as the number of aggregate rows times the number of integration points. The Stan likelihood loops serially over that grid with no within-chain parallelization, and no adaptive quasi-Monte Carlo scheme is implemented in component or non-component packages. Two of the proposed remedies are already in place: noncentered random effects are the default and a prior-sensitivity refit under tighter and looser priors is provided. Divergences arise from posterior geometry and weak identification rather than from the integration alone, and the claim that the cost precludes broad simulation studies is not backed by a benchmark.
+
+## Why it is open
+
+The aggregate likelihood requires a numerical integral inside every likelihood evaluation, so cost grows with integration points, aggregate studies, and posterior draws simultaneously, and survival likelihoods with flexible baselines and censoring make each evaluation expensive. Divergences concentrate in weakly identified interaction and drift parameters, which is exactly where the prior matters most, so computational failure and prior dominance are entangled and hard to diagnose separately even with a prior-sensitivity refit available. The remaining computational levers, adaptive quasi-Monte Carlo and within-chain parallelization through mechanisms such as Stan's reduce_sum, are absent from component and non-component implementations alike.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Phillippo et al. 2020](https://doi.org/10.1111/rssa.12579) | proposes the general quasi-Monte Carlo numerical integration approach for the ML-NMR aggregate likelihood, from which the component version inherits its cost structure |
+| [multinma 0.6.0 NEWS, default integration points](https://cran.r-project.org/package=multinma) | lowered the default number of integration points from 1000 to 64 on the grounds that the previous default was excessive, showing the cost is real and managed upstream |
+| cmdstanr | optional Stan backend for the component ML-NMR models, which are fitted with rstan by default |
+| [cpaic 0.1.0 (development version, choxos/cpaic@9d150e9)](choxos/cpaic@9d150e9) | unreleased development R package on GitHub, not on CRAN; integrates the aggregate likelihood over fixed Sobol quasi-Monte Carlo points with a serial Stan loop and no within-chain parallelization, and provides noncentered random effects by default plus prior_sensitivity() |
+
+:::
+
+## Probable solution or research direction
+
+Add adaptive quasi-Monte Carlo integration and within-chain parallelization, which are the two proposed items that are genuinely missing, and benchmark the result so the claim about simulation feasibility rests on measurement rather than assertion. Keep the noncentered parameterization and prior-sensitivity refit as defaults and extend them with a diagnostic that separates divergence caused by posterior geometry from prior dominance in the weakly identified directions. Surrogate or emulator models with validation are worth exploring only once a benchmark shows where the cost actually binds.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Partially addressed. Part of this problem is addressed by existing work; the entry names which part.
+
+**The source titled this.** "Aggregate-likelihood integration is slow and prior-entangled" The title asserts the integration is slow and prior-entangled, but the audit found no benchmark behind the runtime claim and traced divergences to posterior geometry rather than integration.
+
+**The source said.** "Bayesian component ML-NMR integrates an individual-level outcome model over aggregate covariate distributions by quasi-Monte Carlo; for complex survival likelihoods this can diverge or be too slow to permit broad simulation studies, and results can be sensitive to priors."
+
+**What was wrong with it.** The source proposed noncentered parameterizations and prior-sensitivity diagnostics as future work; GPT-5.6 Sol found both already implemented at choxos/cpaic@9d150e9, with noncentered as the default for random effects, and noted the runtime claim has no benchmark behind it. The literature auditor added that the quasi-Monte Carlo cost is inherited ML-NMR structure (doi:10.1111/rssa.12579) and is actively managed upstream, where multinma 0.6.0 lowered the default number of integration points from 1000 to 64.
+
+Literature and prior-art check
+:   **open / supported-with-caveat.** The computational structure is as described and inherited from ML-NMR rather than invented here: Phillippo et al. 2020 state 'Motivated by the complexity of the closed form integration, we propose a general numerical approach using quasi-Monte-Carlo integration', so the nested-integral cost is a property of the method, not of cpaic. Evidence that the cost is real and actively managed upstream: multinma 0.6.0 lowered the default number of integration points from 1000 to 64 on the grounds that the old default 'was excessive'. I found no mention of within-chain parallelisation or adaptive quasi-Monte Carlo anywhere in the multinma changelog either, so that gap generalises beyond cpaic; Stan's reduce_sum makes it available in principle. The entanglement argument (divergences concentrate in weakly identified interaction and drift parameters, which is where the prior matters most) is plausible and I found nothing addressing it. Claims about cpaic's own runtime behaviour are for the code auditor; cpaic is not publicly available.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / supported-with-caveat.** C2 is source-confirmed: aggregate covariates use fixed Sobol quasi-Monte-Carlo points. C3 is also correct: the Stan likelihood loops serially over a fixed n_int grid and contains no reduce_sum or other within-chain parallelization; parallel chains are not within-chain parallelism. C1 is plausible and explicitly acknowledged by the package: survival work scales as nrow(agd) times n_int, and random-effects survival fits can produce divergences. The claim that this precludes broad simulations is not supported by a benchmark, however, and HMC divergences arise from posterior geometry and weak identification rather than from QMC integration alone. The problem is partially mitigated already: noncentered random effects are the default, integration-error diagnostics exist, and prior_sensitivity() refits under tighter and looser priors. Adaptive QMC and within-chain parallelization remain open.
+    Cites choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca: The proposed noncentered parameterization is already the default for random effects..
+    Cites choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca: Provides explicit refitting under tighter and looser priors to separate prior-driven movement from a single fitted result..
+
+Decision path
+:   `R3:partially-solved(n=1) → R11:caveated(n=2)`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [IDN-06 — ML-NMR interactions can rest solely on aggregate-data variation](IDN-06-ml-nmr-interactions-can-rest-solely-on-aggregate-data-variat.qmd)
+:::
+
+## Source
+
+Derived from C:L1387, C:L1305-1307, C:L1327-1329, scope:package-specific computation resting on a field-level ML-NMR cost problem of the reviewed corpus.

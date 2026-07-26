@@ -1,0 +1,76 @@
+---
+title: "Two-stage component PAIC adjusts only the IPD edges"
+description: "In two-stage component MAIC and component STC, only edges with IPD are reweighted or re-fitted to the target population; aggregate-data-only edges enter the component bridge in their own study populations, so under effect modification the fitted component parameters combine contrasts with different population referents, and component STC additionally mixes target-profile conditional coefficients with usually marginal published aggregate contrasts. The incompatibility disappears when the relevant effects are transportable, for example with no effect modification or effectively identical populations. The coherent one-stage alternative is not hypothetical: ML-NMR gives every aggregate study its own reconstructed covariate distribution, integrates the individual-level model over it, and can predict into any target population, but no component version of that path is implemented."
+pid: "CMP-11"
+topic: "Component methods (CNMA and component PAIC)"
+categories: ["Component methods (CNMA and component PAIC)", "Very high priority", "Partially addressed"]
+priority: "Very high"
+prank: 1
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[CMP-11]{.problem-id}
+[Partially addressed]{.verdict .verdict-partially-addressed}
+[Very high priority]{.chip .chip-priority-very-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+## Statement
+
+In two-stage component MAIC and component STC, only edges with IPD are reweighted or re-fitted to the target population; aggregate-data-only edges enter the component bridge in their own study populations, so under effect modification the fitted component parameters combine contrasts with different population referents, and component STC additionally mixes target-profile conditional coefficients with usually marginal published aggregate contrasts. The incompatibility disappears when the relevant effects are transportable, for example with no effect modification or effectively identical populations. The coherent one-stage alternative is not hypothetical: ML-NMR gives every aggregate study its own reconstructed covariate distribution, integrates the individual-level model over it, and can predict into any target population, but no component version of that path is implemented.
+
+## Why it is open
+
+Adjusting the aggregate-only edges would require their covariate distributions, which are typically reported only as marginal summaries or not at all, so a two-stage workflow has nothing to transport them with. Labeling the output as partially target-adjusted makes the mixture visible but does not remove it, and the pooled component parameters still have no single population referent. Closing the gap requires either imputing those distributions with acknowledged uncertainty or building the component version of the one-stage integrated likelihood, which does not exist.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Phillippo et al. 2020](https://doi.org/10.1111/rssa.12579) | defines the one-stage multilevel network meta-regression in which aggregate studies are fitted by integrating the individual-level model over their covariate distribution, so comparisons can be produced in any target population |
+| [cpaic 0.1.0 (development version, choxos/cpaic@9d150e9)](choxos/cpaic@9d150e9) | unreleased development R package on GitHub, not on CRAN; implements two-stage cMAIC and cSTC on IPD edges only and labels the pooled result 'only partially target-adjusted' in R/cmaic.R and R/cstc.R and in its print methods |
+
+:::
+
+## Probable solution or research direction
+
+Make one-stage component ML-NMR the primary route, since the non-component version of that architecture already models all edges in one coherent population and predicts into a specified target. Where a two-stage route is retained for diagnostic purposes, keep the partially-target-adjusted labeling and add multiple imputation of aggregate-data covariate distributions so unadjusted edges can be transported with propagated uncertainty. Report which edges were transported and which were not alongside every pooled component parameter.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Partially addressed. Part of this problem is addressed by existing work; the entry names which part.
+
+**The source said.** "In two-stage component MAIC and component STC, only edges with IPD are reweighted or re-fitted to the target population; aggregate-data-only edges enter the component bridge as effects in their own study populations. The fitted component model therefore mixes target-population contrasts with study-population contrasts."
+
+**What was wrong with it.** The source said nothing in the fitted model records which contrasts were transported, leaving the mixture invisible, and presented the one-stage fix as hypothetical. Both are wrong: GPT-5.6 Sol found that choxos/cpaic@9d150e9 already labels the result 'only partially target-adjusted' in the documentation and print methods for both cmaic() and cstc(), and the literature auditor pointed to Phillippo et al. 2020, where the one-stage model is published and implemented for non-component networks.
+
+**Dissent.** codex dissented (overstated): C1-C4 and C6 are correct. Both two-stage functions replace only contrasts belonging to IPD studies; aggregate-only edges remain in their original populations. Under effect modification this mixes population referents, and cSTC additionally mixes target-profile conditional coefficients with usually marginal published aggregate contrasts. The incompatibility disappears when relevant effects are transportable, for example with no effect modification or effectively identical populations. The report's claim that the mixture is invisible and unrecorded is stale: both documentation and print methods explicitly call the result partially target-adjusted, and the fitted object retains the IPD-study information. C5 has therefore already been implemented, while transport or imputation of aggregate-only edges remains open.
+
+Literature and prior-art check
+:   **partially-solved / supported-with-caveat.** The diagnosis is correct for two-stage designs and is a documented limitation of MAIC and STC generally: Phillippo et al. 2020 state that 'current matching-adjusted indirect comparison and simulated treatment comparison methods are limited to pairwise indirect comparisons and cannot predict into a specified target population', which is the same defect the entry describes in component form. But the entry presents the one-stage fix as hypothetical ('Any fix therefore requires ... abandoning the two-stage structure'), when the one-stage fix is published and implemented: ML-NMR gives every aggregate study its own reconstructed covariate distribution and integrates the individual-level model over it, so aggregate-only edges are not left in their own study populations, and predictions can be made into any target. That solves the mixed-referent problem for non-component networks; it does not solve it for a component bridge, which is what remains open. The multiple-imputation claim for component STC is an absence claim I cannot verify.
+    Cites doi:10.1111/rssa.12579: The coherent one-stage model the entry describes as the required fix already exists for non-component networks: aggregate studies are fitted by integrating the individual-level model over their covariate distribution, and comparisons can be produced in any target population..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / overstated.** C1-C4 and C6 are correct. Both two-stage functions replace only contrasts belonging to IPD studies; aggregate-only edges remain in their original populations. Under effect modification this mixes population referents, and cSTC additionally mixes target-profile conditional coefficients with usually marginal published aggregate contrasts. The incompatibility disappears when relevant effects are transportable, for example with no effect modification or effectively identical populations. The report's claim that the mixture is invisible and unrecorded is stale: both documentation and print methods explicitly call the result partially target-adjusted, and the fitted object retains the IPD-study information. C5 has therefore already been implemented, while transport or imputation of aggregate-only edges remains open.
+    Cites choxos/cpaic@9d150e9: Makes the partial adjustment visible for cMAIC and recommends the coherent one-stage alternative..
+    Cites choxos/cpaic@9d150e9: Makes the partial adjustment visible for cSTC rather than presenting it as a fully target-population result..
+
+Decision path
+:   `R3:partially-solved(n=2) → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [EST-01 — Target population is unnamed and set by data availability](EST-01-target-population-is-unnamed-and-set-by-data-availability.qmd)
+- [EST-02 — Anchored PAIC needs a second transport to the decision population](EST-02-anchored-paic-needs-a-second-transport-to-the-decision-popul.qmd)
+:::
+
+## Source
+
+Derived from C:L1363, C:L1364, C:L1235, C:L1236, scope:package-specific implementation of a field-level two-stage PAIC flaw of the reviewed corpus.

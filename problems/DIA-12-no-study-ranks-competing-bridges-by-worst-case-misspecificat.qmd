@@ -1,0 +1,79 @@
+---
+title: "No study ranks competing bridges by worst-case misspecification"
+description: "A standard generator for component nonadditivity exists and has been used to quantify its consequences: Petropoulou et al. 2023 (doi:10.1186/s12874-023-01959-9) adds log-scale interaction departures at mild and strong magnitudes, crosses them with three heterogeneity levels, and reports mean squared error and coverage separately for connected and disconnected networks. Competing bridges have also been compared on the same disconnected network, component additivity against a matching bridge, by Rucker et al. 2020 (doi:10.1002/bimj.201900339). Conditional on a specified drift model the bias is quantifiable rather than unknown: main-effect drift enters the decision contrast as an inner product of the contrast loading with the drift vector, interaction drift as the same loading applied to the drift matrix evaluated at the target covariate value, and cpaic, an unreleased GitHub development package not on CRAN, already maps bounded main-effect drift to a worst-case decision-contrast shift and threshold. What is genuinely open is generating data under one bridge and fitting the competing bridges to rank them by worst-case behavior under misspecification, and any parameterization of drift on component-by-modifier interaction matrices."
+pid: "DIA-12"
+topic: "Diagnostics & empirical validation"
+categories: ["Diagnostics & empirical validation", "Very high priority", "Overstated"]
+priority: "Very high"
+prank: 1
+verdict: "Overstated"
+verdictslug: "overstated"
+maturity: "Emerging"
+---
+::: {.problem-meta}
+[DIA-12]{.problem-id}
+[Overstated]{.verdict .verdict-overstated}
+[Very high priority]{.chip .chip-priority-very-high}
+[Emerging]{.chip .chip-maturity-emerging}
+:::
+## Statement
+
+A standard generator for component nonadditivity exists and has been used to quantify its consequences: Petropoulou et al. 2023 (doi:10.1186/s12874-023-01959-9) adds log-scale interaction departures at mild and strong magnitudes, crosses them with three heterogeneity levels, and reports mean squared error and coverage separately for connected and disconnected networks. Competing bridges have also been compared on the same disconnected network, component additivity against a matching bridge, by Rucker et al. 2020 (doi:10.1002/bimj.201900339). Conditional on a specified drift model the bias is quantifiable rather than unknown: main-effect drift enters the decision contrast as an inner product of the contrast loading with the drift vector, interaction drift as the same loading applied to the drift matrix evaluated at the target covariate value, and cpaic, an unreleased GitHub development package not on CRAN, already maps bounded main-effect drift to a worst-case decision-contrast shift and threshold. What is genuinely open is generating data under one bridge and fitting the competing bridges to rank them by worst-case behavior under misspecification, and any parameterization of drift on component-by-modifier interaction matrices.
+
+## Why it is open
+
+Each bridge imports a different structural assumption, so their failures are not on a common scale and can only be ranked by generating data under one bridge and fitting the others, which no study has done; applied analysts therefore choose a bridge by data availability rather than robustness. A violation is untestable only when it lies in an observationally equivalent cross-subnetwork direction or the bridge supplies no overidentifying restriction, so a shared component estimable in more than one subnetwork, or an additive model with residual degrees of freedom, can reveal incompatibility, although failure to reject cannot validate the bridge. Drift on component-by-modifier interactions is the violation that interacts with population adjustment and has no parameterization at all, and because drift oriented along the target contrast biases the decision while orthogonal drift may cancel, magnitude alone cannot summarize it.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Petropoulou et al. 2023, Model selection for component network meta-analysis in connected and disconnected networks: a simulation study](https://doi.org/10.1186/s12874-023-01959-9) | Supplies a reusable parameterization for generating additivity (bridge) violations at mild and strong magnitudes and quantifies the resulting mean squared error and coverage penalty in disconnected networks. |
+| [Rucker et al. 2020, Component network meta-analysis compared to a matching method in a disconnected network: A case study](https://doi.org/10.1002/bimj.201900339) | Compares two competing bridges, component additivity and a matching-adjusted indirect comparison using single-arm observational studies, on the same disconnected network, contradicting the absolute form of the no-evidence claim. |
+| [cpaic (development version), commit 9d150e9](https://github.com/choxos/cpaic/commit/9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca) | Unreleased development package on GitHub, not available from CRAN. Its bridge_fragility() implements a worst-case mapping from bounded component main-effect drift to decision-contrast movement with a tipping threshold, verified by a regression test; it does not cover interaction drift, hidden synergy, stochastic drift correlation or comparative bridge ranking. |
+
+:::
+
+## Probable solution or research direction
+
+Extend the additivity-violation generator that already exists to cover interaction drift alongside main-effect drift, crossed with drift correlation and with drift direction relative to the target contrast, and extend the existing worst-case main-effect fragility mapping to interaction drift, hidden synergy, treatment-version differences, class outliers, wrong dose-response shape and external-control confounding. Then run the comparative study nobody has run: generate networks under each bridge mechanism in turn, fit all competing bridges, and report bias, decision error and detectability, ranking bridges by worst-case behavior under misspecification rather than by efficiency when correct. Publish the resulting mapping from drift magnitude, correlation and direction to decision-contrast bias as a function of network geometry, in units applied analysts can elicit.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Overstated. 2 independent auditors judged the claim as stated too strong. A standard generator exists for component nonadditivity and has been used to quantify its consequences, but no study generates data under one disconnected-network bridge and fits the competing bridges to rank them by worst-case behavior under misspecification, and no parameterization exists for drift on component-by-modifier interaction matrices.
+
+**The source titled this.** "Bridge violations have no standard generator or robustness ranking" The title says bridge violations have no standard generator, but a published, code-shared generator for additivity violations already quantifies error and coverage.
+
+**The source said.** "There is no standard way to generate violations of bridging assumptions in simulation, no quantitative mapping from plausible component nonadditivity or cross-subnetwork drift to bias in the decision contrast, and no evidence on which bridge (baseline-risk exchangeability, reference prediction, component additivity, class exchangeability, dose-response, external controls, expert priors) degrades least dangerously when its assumption is misspecified."
+
+**What was wrong with it.** The source said there is no standard way to generate bridging violations and no quantitative mapping from nonadditivity or drift to decision-contrast bias; the literature auditor found a published, code-shared generator for additivity violations with quantified error and coverage penalties (doi:10.1186/s12874-023-01959-9) and a head-to-head comparison of two bridges on one disconnected network (doi:10.1002/bimj.201900339), and GPT-5.6 Sol found the drift-to-decision mapping already implemented as bridge_fragility() in cpaic at commit 9d150e9.
+
+Literature and prior-art check
+:   **partially-solved / overstated.** The claim 'There is no standard way to generate violations of bridging assumptions in simulation' is contradicted for the component-additivity bridge. Petropoulou et al. 2023 use exactly such a parameterization: log-scale interaction departures added to the additive combination effect, with mild (exp(lambda)=1.5) and strong variants applied to different combinations, crossed with three heterogeneity levels, and scored by mean squared error and coverage separately for connected and disconnected networks. That is a published, code-shared generator plus a quantified mapping from violation magnitude to error in the affected contrasts. The cross-bridge ranking claim fares better but is not untouched: Rucker, Schmitz & Schwarzer 2020 fit the CNMA bridge and a matching/propensity bridge to the same disconnected multiple-myeloma network and compare, and Beliveau et al. 2017 stress-test the random-baseline bridge by disconnecting real networks. What remains genuinely open is a common scale, generating under one bridge and fitting all the others, and specifically drift on component-by-modifier interaction matrices, for which I found no parameterization.
+    Cites 10.1186/s12874-023-01959-9: Supplies a standard, reusable parameterization for generating additivity (bridge) violations at mild and strong magnitudes and quantifies the resulting MSE and coverage penalty in disconnected networks..
+    Cites 10.1002/bimj.201900339: Directly compares two competing bridges (component additivity vs matching-adjusted indirect comparison using single-arm observational studies) on the same disconnected network, contradicting 'no evidence on which bridge...' in its absolute form..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / overstated.** C2 and C8-C12 are broadly valid scenario distinctions, but the categorical impossibility and unquantified-bias claims are false. A bridge violation is untestable only when it lies in an observationally equivalent cross-subnetwork direction or the bridge supplies no overidentifying restriction. If a shared component is independently estimable in multiple subnetworks, or the additive model has residual degrees of freedom, heterogeneity or lack-of-fit can reveal incompatibility, although failure to reject cannot validate the bridge or identify the mechanism. Conditional on a specified drift model, bias is mathematically quantifiable: main-effect drift contributes an inner product such as m'Δ, while interaction drift contributes m'Λx. At cpaic 9d150e9, `bridge_fragility()` already maps a bounded main-effect drift to a worst-case decision-contrast shift and threshold. It does not address interaction drift, hidden synergy, stochastic drift correlation, or comparative bridge ranking, so the broader agenda remains open. Claims about a standard generator or the state of published comparative evidence were not adjudicated. Bridge fragility is critical for decision-grade disconnected comparisons; a universal robustness ranking is roadmap work.
+    Cites choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca: R/sensitivity.R implements a worst-case mapping from bounded component main-effect drift to decision-contrast movement, and tests/testthat/test-regression.R verifies the threshold arithmetic. This partially resolves the claimed absence of any quantitative drift mapping..
+
+Decision path
+:   `R3:partially-solved(n=2) → R8:overstated-majority(n=2)`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [CMP-01 — Cross-subnetwork component constancy is the untestable bridge](CMP-01-cross-subnetwork-component-constancy-is-the-untestable-bridg.qmd)
+- [CMP-23 — Bridge fragility ignores interaction and correlated component drift](CMP-23-bridge-fragility-ignores-interaction-and-correlated-componen.qmd)
+- [DIS-02 — No data-driven criterion can rank candidate bridge families](DIS-02-no-data-driven-criterion-can-rank-candidate-bridge-families.qmd)
+- [QBA-12 — Treatment version, care context and subsequent-therapy drift](QBA-12-treatment-version-care-context-and-subsequent-therapy-drift.qmd)
+:::
+
+## Source
+
+Derived from C:L1780, C:L1782, C:L1858-1878 of the reviewed corpus.

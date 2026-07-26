@@ -1,0 +1,72 @@
+---
+title: "MAIC sensitivity grids: infeasible calibration and failed fits"
+description: "With normalized nonnegative weights a matched target moment vector must lie in the convex hull of the source moment vectors, so an assumed moment for an omitted covariate outside that hull cannot be matched exactly, and finite strictly positive exponential tilting generally requires the relative interior, with boundary points needing zero weights or a limiting solution. Ren et al. 2025 (doi:10.1017/rsm.2025.13) give the applied version, restricting their published QBA to STC because a MAIC extension would suffer extreme effective-sample-size loss and might fail to produce feasible weights where overlap on the omitted covariate is limited. What software does with such a point is the open part: infeasibility, failed fits, divergent transitions and extreme weights are worked around or discarded rather than reported, and no implementation returns a feasibility region alongside the effect surface."
+pid: "QBA-18"
+topic: "Quantitative bias analysis for unanchored PAIC"
+categories: ["Quantitative bias analysis for unanchored PAIC", "Very high priority", "Confirmed open"]
+priority: "Very high"
+prank: 1
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Emerging"
+---
+::: {.problem-meta}
+[QBA-18]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[Very high priority]{.chip .chip-priority-very-high}
+[Emerging]{.chip .chip-maturity-emerging}
+:::
+## Statement
+
+With normalized nonnegative weights a matched target moment vector must lie in the convex hull of the source moment vectors, so an assumed moment for an omitted covariate outside that hull cannot be matched exactly, and finite strictly positive exponential tilting generally requires the relative interior, with boundary points needing zero weights or a limiting solution. Ren et al. 2025 (doi:10.1017/rsm.2025.13) give the applied version, restricting their published QBA to STC because a MAIC extension would suffer extreme effective-sample-size loss and might fail to produce feasible weights where overlap on the omitted covariate is limited. What software does with such a point is the open part: infeasibility, failed fits, divergent transitions and extreme weights are worked around or discarded rather than reported, and no implementation returns a feasibility region alongside the effect surface.
+
+## Why it is open
+
+An assumed target moment outside the source support means the desired counterfactual cannot be reached by reweighting the observed data, which is scientifically informative, but default software behavior treats it as a numerical nuisance to be worked around, so the surviving output is a selected sample of the sensitivity region rather than the whole of it. Current implementations report one effective sample size and a point estimate, so an unsupported scenario cannot be distinguished from an inconvenient failed run and severe effective-sample-size loss goes unreported. Trimming to rescue a fit silently redefines the target as an overlap population and nothing in the output flags the switch, while ad hoc weight truncation biases estimation of the original target without defining a clean replacement estimand. There is no accepted abstention or bounding rule and no output object that presents a failure map next to the effect surface.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Ren et al. 2025, Research Synthesis Methods](https://doi.org/10.1017/rsm.2025.13) | States that a sensitivity analysis over the full spectrum of possible values for the omitted covariate includes cases with very limited overlap, where MAIC would suffer an extreme reduction of the effective sample size and may even fail to produce feasible weights. This is why the published QBA covers only STC. |
+
+:::
+
+## Probable solution or research direction
+
+Develop sensitivity-adjusted calibration for MAIC that returns a feasibility map alongside the effect surface, reporting effective sample size and local effective sample size, weight concentration, residual target-moment imbalance and a support measure such as distance to the support boundary or a depth statistic with its norm and scaling stated, and that distinguishes exact from approximate balance in the output. Specify abstention behavior so software flags or declines an unsupported assumed moment rather than coercing a finite answer, and supply a bound only where the additional outcome and selection assumptions needed for one are stated. Make the feasibility and convergence map a required component of the QBA object and the published report, including the fraction of the sensitivity region in which the analysis could not be computed.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+
+**The source said.** "When an omitted covariate's target moment is unknown, MAIC QBA varies an assumed moment vector and re-solves the calibration; assumed moments outside the convex hull of source support make exact balance infeasible, yet software either coerces a finite answer or errors out. Failed fits, infeasible calibration, divergent transitions and extreme weights are silently discarded rather than reported as results."
+
+**What was wrong with it.** GPT-5.6 Sol qualified the convex-hull argument and narrowed two claims: an infeasible calibration means exact reweighting of the observed empirical support is impossible rather than that the target counterfactual is logically unsupported, and finite-sample support must be distinguished from optimizer failure. It also found false the claim that approximate balance changes the estimand: trimming to an explicit overlap population changes the estimand, while approximate balance generally changes the estimator and leaves residual imbalance. Returning a bound instead of a coerced answer requires additional outcome and selection assumptions rather than following automatically.
+
+Literature and prior-art check
+:   **open / supported.** The single citation is accurate. Ren et al. 2025 state, as the reason they present QBA only for STC, that 'the sensitivity analysis should assess the impact of the full spectrum of possible values for U and this would include the cases where there would be very limited overlap on U between the two studies. MAIC approach would suffer an extreme reduction of the effect sample size and may even fail to produce feasible weights', and again in the discussion that 'an extension of the MAIC approach would lead to a large reduction of the effective sample size when the overlap in the unmeasured covariates between the studies is small'. That verifies claims 6 and 10 verbatim, and claim 1 follows from the convex-optimization structure of moment balancing. Claims 3, 4, 7, 9 are proposals for software behaviour and reporting, not literature claims. I found no published feasibility-region or support-surface framework for a MAIC sensitivity grid; the closest work assesses positivity violations by simulation rather than returning a feasibility map, so the problem stands open. Claim 5 (trimming or approximate balance changes the estimand) is a correct and uncontroversial consequence of restricting to the overlap population.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** The convex-hull claim is correct with an empirical-support qualification. With normalized nonnegative weights, a target moment vector t must satisfy t = sum_i w_i z_i and therefore lie in the convex hull of the source moment vectors. Finite strictly positive exponential tilting generally requires the relative interior; boundary points may require zero weights or a limiting solution. Thus C1, C6, and C10 are sound. C2 and C8 should say that exact reweighting of the observed empirical support is unsupported, not that the target counterfactual itself is logically impossible; finite-sample support and optimizer failure must also be distinguished. C3 is right that software should flag or abstain, but a bound is not automatic and requires additional outcome and selection assumptions. C4 proposes useful diagnostics, although local ESS needs a definition, hull distance depends on scaling and norm, and ordinary outside-hull distance is zero throughout the interior, so distance to the boundary or depth is also needed. C5 is correct when trimming explicitly changes the target to an overlap population. Ad hoc weight truncation may instead bias estimation of the same target without defining a clean replacement estimand. C11 is false for approximate balance alone: approximate balance generally changes the estimator and leaves residual imbalance, but need not change the estimand. C7 and C9 are sound reporting principles when the listed diagnostics apply; divergent transitions are relevant only when a Bayesian component is fitted. Universal claims about software silently discarding failures were not established. This becomes critical when conclusions rely on infeasible or weak-overlap grid points.
+
+Decision path
+:   `R5:default-open → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [CMU-05 — Failed fits are deleted rather than classified and reported](CMU-05-failed-fits-are-deleted-rather-than-classified-and-reported.qmd)
+- [DIA-14 — QBA is judged on oracle recovery, not honest classification](DIA-14-qba-is-judged-on-oracle-recovery-not-honest-classification.qmd)
+- [OVL-01 — Weak overlap leaves target regions the source data cannot support](OVL-01-weak-overlap-leaves-target-regions-the-source-data-cannot-su.qmd)
+- [OVL-04 — Weight trimming silently changes the estimand](OVL-04-weight-trimming-silently-changes-the-estimand.qmd)
+:::
+
+## Source
+
+Derived from C:L519, C:L538-562, C:L748, C:L800-803, C:L803 of the reviewed corpus.

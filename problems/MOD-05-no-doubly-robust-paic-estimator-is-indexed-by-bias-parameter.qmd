@@ -1,0 +1,78 @@
+---
+title: "No doubly robust PAIC estimator is indexed by bias parameters"
+description: "An augmented estimator combining an outcome model with a sampling or transport weight model is consistent if either nuisance model is correct, given conditional exchangeability, positivity and the usual consistency conditions. The seven failures the source enumerates (unmeasured effect modifier, lack of overlap, wrong treatment or outcome version, both nuisance models wrong, wrong target moments, network inconsistency, false component bridge) are true by construction, but they are the agenda's own list and the paper it cites asserts none of them. Campbell and Remiro-Azocar (doi:10.1017/rsm.2026.10106) do supply the augmented entropy-balancing MAIC estimator, demonstrated in simulation for binary outcomes with a logistic outcome model, and drMAIC ships doubly robust MAIC for practitioners. What is open is the layer around the estimator: no doubly robust estimator indexed by bias parameters and nested inside quantitative bias analysis exists, and network versions are absent."
+pid: "MOD-05"
+topic: "Model specification, double robustness & targeted learning"
+categories: ["Model specification, double robustness & targeted learning", "Very high priority", "Partially addressed"]
+priority: "Very high"
+prank: 1
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
+maturity: "Established"
+---
+::: {.problem-meta}
+[MOD-05]{.problem-id}
+[Partially addressed]{.verdict .verdict-partially-addressed}
+[Very high priority]{.chip .chip-priority-very-high}
+[Established]{.chip .chip-maturity-established}
+:::
+## Statement
+
+An augmented estimator combining an outcome model with a sampling or transport weight model is consistent if either nuisance model is correct, given conditional exchangeability, positivity and the usual consistency conditions. The seven failures the source enumerates (unmeasured effect modifier, lack of overlap, wrong treatment or outcome version, both nuisance models wrong, wrong target moments, network inconsistency, false component bridge) are true by construction, but they are the agenda's own list and the paper it cites asserts none of them. Campbell and Remiro-Azocar (doi:10.1017/rsm.2026.10106) do supply the augmented entropy-balancing MAIC estimator, demonstrated in simulation for binary outcomes with a logistic outcome model, and drMAIC ships doubly robust MAIC for practitioners. What is open is the layer around the estimator: no doubly robust estimator indexed by bias parameters and nested inside quantitative bias analysis exists, and network versions are absent.
+
+## Why it is open
+
+Double robustness is a union-model property for two measured-data nuisance models with the identification assumptions held fixed, so every threat operating through those assumptions or through data support is untouched by construction and cannot be repaired by better nuisance estimation. Packages return a single augmented point estimate with an interval that conditions on identification holding, so the residual-bias layer is never displayed to a decision maker; drMAIC ships E-values and weight trimming as separate sensitivity analyses rather than an estimator indexed by bias parameters. The estimators have also been developed for a single source and a single target rather than for the network structures HTA submissions contain, and no AIPW or TMLE network estimator was found in the implementations the auditors read.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Campbell & Remiro-Azocar 2026, Doubly robust augmented weighting estimators for the analysis of externally controlled single-arm trials and unanchored indirect treatment comparisons, Research Synthesis Methods (preprint arXiv:2505.00113)](https://doi.org/10.1017/rsm.2026.10106) | Places externally controlled single-arm trials and unanchored ITCs in one causal framework and proposes an augmented entropy-balancing MAIC estimator that is doubly robust to misspecification of the weighting or outcome model. Demonstrated in simulation for binary outcomes with a logistic outcome model. |
+| [drMAIC: Doubly Robust Matching-Adjusted Indirect Comparison for HTA](https://cran.r-project.org/package=drMAIC) | Released implementation of augmented doubly robust MAIC. Ships E-values and weight trimming as separate sensitivity analyses, not the bias-parameter-indexed estimator this entry asks for. |
+
+:::
+
+## Probable solution or research direction
+
+Nest the augmented estimators that already exist inside quantitative bias analysis, reporting the estimate as a function of bias parameters rather than as a single number, and state in every report which layer double robustness covers (measured-data outcome and transport models) and which it does not (unmeasured modifiers, positivity, treatment version, target moments, network consistency, component additivity). Extend the demonstration beyond binary outcomes with a logistic outcome model, since that is the extent of the current evidence for the augmented MAIC estimator. Combine augmented estimation with overlap diagnostics and partial identification so the residual-bias layer stays visible, and extend to network settings where nothing is implemented.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Partially addressed. Part of this problem is addressed by existing work; the entry names which part.
+
+**The source titled this.** "Double robustness is routinely read as general robustness" The title asserts that double robustness is routinely misread, a prevalence claim neither auditor could establish, and the seven-failure list came from the entry rather than its citation.
+
+**The source said.** "An augmented estimator combining an outcome model with a sampling or transport weight model is consistent under standard conditions if either nuisance model is correct, given conditional exchangeability. The report holds that the label doubly robust is routinely read as general robustness and enumerates seven distinct failures it does not protect against: an unmeasured effect modifier, lack of overlap, an incorrect treatment or outcome version, both nuisance models being wrong, wrong target moments, network inconsistency, and a false component bridge."
+
+**What was wrong with it.** The source presented a seven-item enumeration of what double robustness does not protect against as though it came from its cited paper; the literature auditor found that the paper makes no such negative claims and that its double robustness demonstration covers binary outcomes with a logistic outcome model only (doi:10.1017/rsm.2026.10106). Neither auditor could establish the prevalence claim carried by the word 'routinely'.
+
+**Dissent.** literature dissented (open): Retrieved Campbell & Remiro-Azocar, 'Doubly robust augmented weighting estimators for the analysis of externally controlled single-arm trials and unanchored indirect treatment comparisons', Res Synth Methods 2026 (doi 10.1017/rsm.2026.10106; preprint arXiv:2505.00113). The abstract confirms the entry's description exactly: an entropy-balancing MAIC augmented with a conditional outcome expectation model, doubly robust to misspecification of either. Two caveats make this supported-with-caveat rather than fully supported. First, the demonstration is binary outcomes with a logistic outcome model only, so 'doubly robust' is evidenced for that case; the entry does not say so. Second, the seven-item enumeration of what double robustness does NOT protect against is the agenda's own construction, not anything the cited paper asserts; the paper makes no such negative claims. Those seven items are nonetheless true by construction, since double robustness is a property of two measured-data nuisance models with identification held fixed. The 'no reference implementation of a DR estimator indexed by bias parameters inside QBA' claim I could not falsify; drMAIC ships E-values and weight trimming as separate sensitivity analyses, not a bias-parameter-indexed DR estimator.
+
+Literature and prior-art check
+:   **open / supported-with-caveat.** Retrieved Campbell & Remiro-Azocar, 'Doubly robust augmented weighting estimators for the analysis of externally controlled single-arm trials and unanchored indirect treatment comparisons', Res Synth Methods 2026 (doi 10.1017/rsm.2026.10106; preprint arXiv:2505.00113). The abstract confirms the entry's description exactly: an entropy-balancing MAIC augmented with a conditional outcome expectation model, doubly robust to misspecification of either. Two caveats make this supported-with-caveat rather than fully supported. First, the demonstration is binary outcomes with a logistic outcome model only, so 'doubly robust' is evidenced for that case; the entry does not say so. Second, the seven-item enumeration of what double robustness does NOT protect against is the agenda's own construction, not anything the cited paper asserts; the paper makes no such negative claims. Those seven items are nonetheless true by construction, since double robustness is a property of two measured-data nuisance models with identification held fixed. The 'no reference implementation of a DR estimator indexed by bias parameters inside QBA' claim I could not falsify; drMAIC ships E-values and weight trimming as separate sensitivity analyses, not a bias-parameter-indexed DR estimator.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / supported-with-caveat.** C1-C2 state the usual double-robustness result, provided consistency, conditional exchangeability, positivity, and any required treatment and censoring mechanisms also hold. C3-C11 are technically correct: double robustness is a union-model property for specified measured-data nuisances and does not repair identification, support, target-definition, network-consistency, or component-additivity failures; C4 and C5 are duplicates. C12 is supported for the measured-data weighting and outcome models in the estimator's stated scope. C13 and the word 'routinely' are literature and prevalence claims outside this lens. Source-code ground truth adds that cpaic@9d150e9 exports no AIPW, TMLE, or other doubly robust network estimator. The underlying limitations are decision-critical, but they are established assumptions rather than a new technical discovery; nesting a DR estimator in QBA and extending it to networks are roadmap items. Existing augmented estimation partly addresses the agenda, while the residual-bias and network layers remain open.
+    Cites doi:10.1017/rsm.2026.10106: Supplies an augmented entropy-balancing MAIC estimator with consistency under either the measured-data weighting model or outcome model in its stated setting; it does not resolve identification failures or the proposed QBA and network extensions..
+
+Decision path
+:   `R3:partially-solved(n=1) → R11:caveated(n=2)`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [CMP-01 — Cross-subnetwork component constancy is the untestable bridge](CMP-01-cross-subnetwork-component-constancy-is-the-untestable-bridg.qmd)
+- [OVL-01 — Weak overlap leaves target regions the source data cannot support](OVL-01-weak-overlap-leaves-target-regions-the-source-data-cannot-su.qmd)
+- [QBA-11 — Outcome-model misspecification and doubly robust QBA](QBA-11-outcome-model-misspecification-and-doubly-robust-qba.qmd)
+- [SFW-14 — drMAIC has no methods paper and no independent evaluation](SFW-14-drmaic-has-no-methods-paper-and-no-independent-evaluation.qmd)
+:::
+
+## Source
+
+Derived from C:L187-188, C:L202, C:L595-601, C:L1022-1042, C:L1686 of the reviewed corpus.

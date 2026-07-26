@@ -1,0 +1,84 @@
+---
+title: "No design method chooses which edge to add across a disconnected gap"
+description: "Principled study-design machinery exists. Salanti et al. 2018 give a four-step framework identifying the optimal design for a new trial that updates existing evidence while minimizing required sample size, without requiring the trial to include every comparison of interest; Nikolakopoulou et al. 2022 extend it to power and sample allocation for a subsequent trial with a new treatment; and Jackson et al. 2019 supply expected value of partial perfect information and expected value of sample information for Bayesian evidence synthesis, which can in principle rank treatment pairs, IPD acquisition, measured modifiers, subpopulation, sample size, allocation, and biomarker-versus-outcome designs once each candidate has a predictive likelihood, costs, and a decision utility. None of it has been extended to choosing an edge across a disconnected gap, where the objective itself depends on the contested bridge assumption. For a component network the optimal new edge is not necessarily the clinically obvious comparison, but neither is it simply the edge that most reduces null-space dimension: one added edge changes rank by at most one, so all independent candidate edges tie on that criterion, and what matters is whether the decision-critical contrast enters the updated row space and what the study is worth net of its cost."
+pid: "DIS-16"
+topic: "Disconnected networks & bridges"
+categories: ["Disconnected networks & bridges", "Very high priority", "Overstated"]
+priority: "Very high"
+prank: 1
+verdict: "Overstated"
+verdictslug: "overstated"
+maturity: "Emerging"
+tractability: 3
+---
+::: {.problem-meta}
+[DIS-16]{.problem-id}
+[Overstated]{.verdict .verdict-overstated}
+[Very high priority]{.chip .chip-priority-very-high}
+[Emerging]{.chip .chip-maturity-emerging}
+[Tractability 3/5]{.chip}
+:::
+## Statement
+
+Principled study-design machinery exists. Salanti et al. 2018 give a four-step framework identifying the optimal design for a new trial that updates existing evidence while minimizing required sample size, without requiring the trial to include every comparison of interest; Nikolakopoulou et al. 2022 extend it to power and sample allocation for a subsequent trial with a new treatment; and Jackson et al. 2019 supply expected value of partial perfect information and expected value of sample information for Bayesian evidence synthesis, which can in principle rank treatment pairs, IPD acquisition, measured modifiers, subpopulation, sample size, allocation, and biomarker-versus-outcome designs once each candidate has a predictive likelihood, costs, and a decision utility. None of it has been extended to choosing an edge across a disconnected gap, where the objective itself depends on the contested bridge assumption. For a component network the optimal new edge is not necessarily the clinically obvious comparison, but neither is it simply the edge that most reduces null-space dimension: one added edge changes rank by at most one, so all independent candidate edges tie on that criterion, and what matters is whether the decision-critical contrast enters the updated row space and what the study is worth net of its cost.
+
+## Why it is open
+
+Value-of-information machinery scores a candidate design against an assumed model, and across a disconnected gap the assumed model contains the bridge whose validity is the question, so the objective function inherits the contested assumption and a design can rank highly precisely because the bridge it relies on was taken for granted. The published trial-design frameworks are built for connected networks and say nothing about which edge to add across a gap, whether to acquire IPD on an existing edge, or how to score a short biomarker bridging study against a long clinical-outcome trial, which also requires a credible surrogate relationship and a valuation of time and cost. The estimability half exists but is not wired to the design question: a contrast is estimable if and only if it is orthogonal to the null space of the design, and cpaic computes rank, null space, and contrast estimability, but nothing enumerates candidate edges or evaluates them, and cpaic is an unreleased development package on GitHub not installable from CRAN.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Salanti, Nikolakopoulou, Sutton et al. 2018](https://doi.org/10.1186/s13063-018-2740-2) | four-step framework identifying the optimal design for a new trial that updates an existing network while minimizing required sample size, without requiring all comparisons of interest to be included |
+| [Nikolakopoulou et al. 2022](https://doi.org/10.1186/s12874-022-01792-6) | extends network-informed trial design to a new treatment entering the network, covering power, sample allocation, and the two-arm versus three-arm choice |
+| [Jackson, Presanis, Conti and De Angelis 2019 (also arXiv:1703.08994)](https://doi.org/10.1080/01621459.2018.1562932) | general value-of-information machinery for Bayesian evidence synthesis, including EVPPI and EVSI for comparing candidate data sources and sample sizes against sampling cost |
+| [Wigle, Beliveau, Nikolakopoulou and Lin 2026](https://arxiv.org/abs/2605.15142) | workflow for explicitly identifying the uniquely estimable relative effects in frequentist and Bayesian component NMA, demonstrated on a disconnected network, supplying the estimability step the edge-design question needs |
+| [cpaic 0.1.0 (development version, choxos/cpaic@9d150e9)](https://github.com/choxos/cpaic/commit/9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca) | unreleased development R package on GitHub, not on CRAN; exposes the combination and design matrices, rank, null space, and contrast estimability, but enumerates no candidate edges and computes no value of information |
+
+:::
+
+## Probable solution or research direction
+
+Extend the existing frameworks to the disconnected case rather than starting over: define candidate designs that add an edge across a gap, acquire IPD on an existing edge, measure an additional modifier, or change subpopulation, and score them with standard expected value of sample information under explicitly stated bridge, surrogate, transport, cost, and decision assumptions. Report the objective under more than one bridge, since ranking under a single assumed bridge inherits exactly the assumption in question. Combine that with row-space estimability screening, using the CNMA estimability workflow to check whether the decision-critical contrast enters the updated design, and report the recommended design alongside the clinically obvious one so the difference is visible to trial planners.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Overstated. 2 independent auditors judged the claim as stated too strong. Principled frameworks exist for designing a future trial conditional on an existing connected network meta-analysis and for value-of-information research design in Bayesian evidence synthesis, but none has been extended to choosing which edge to add across a disconnected gap, to whether to acquire IPD on an existing edge, or to scoring a short biomarker bridging study against a long clinical-outcome trial when the objective itself depends on the contested bridge assumption.
+
+**The source titled this.** "No principled design of bridging studies or new network edges" The title says no principled study design exists, but conditional trial design for networks and value-of-information research design are published.
+
+**The source said.** "The scientifically best solution to a disconnected network may be to collect new evidence, and value-of-information methods could choose which pair of treatments to compare, whether to collect IPD on an existing edge, which effect modifiers to measure, sample size and allocation, which subpopulation maximizes identification of a component interaction, and whether a short biomarker bridge beats a long clinical-outcome trial. For a component network the optimal new edge is not necessarily the clinically obvious comparison; it is the edge that most reduces uncertainty or null-space dimension for decision-critical contrasts."
+
+**What was wrong with it.** The source said there is no principled method for choosing which IPD or which bridging trial to obtain; both auditors judged this false as stated, citing doi:10.1186/s13063-018-2740-2, doi:10.1186/s12874-022-01792-6, and doi:10.1080/01621459.2018.1562932. GPT-5.6 Sol also corrected the null-space criterion, since one added edge changes rank by at most one and reducing global nullity need not make the decision-critical contrast estimable, rejected 'which subpopulation maximizes identification' as conflating a rank property with expected decision value, and narrowed the software-absence claim to cpaic, which exposes rank, null space, and contrast estimability but has no candidate-edge or value-of-information routine; the literature auditor added arXiv:2605.15142 for determining which CNMA relative effects are uniquely estimable, demonstrated on a disconnected network.
+
+Literature and prior-art check
+:   **partially-solved / overstated.** Claim 1, that there is no principled method for choosing which trial to obtain and that such decisions are made opportunistically, is too strong. Salanti, Nikolakopoulou, Sutton et al. (Trials 2018) 'introduce a four-step framework that aims to identify the optimal design for a new trial that will update the existing evidence while minimizing the required sample size', explicitly noting the new trial need not include all comparisons of interest; Nikolakopoulou and colleagues (BMC Med Res Methodol 2022) extend this to optimizing power and sample allocation for a subsequent trial with a new treatment; and Jackson, Presanis, Conti and De Angelis give a general value-of-information framework for research design in Bayesian evidence synthesis. Separately, the estimability half of claim 8 now exists: Wigle, Beliveau, Nikolakopoulou and Lin (arXiv 2026) give a workflow for explicitly identifying uniquely estimable relative effects in CNMA, demonstrated on a disconnected network. What remains genuinely open is bridging-specific design: choosing an edge to add across a gap, IPD acquisition, and biomarker-versus-outcome trade-offs under bridge uncertainty.
+    Cites 10.1186/s13063-018-2740-2: Principled, published framework for choosing which comparisons a new trial should include given an existing network, contradicting 'no principled method' as stated.
+    Cites 10.1186/s12874-022-01792-6: Extends network-informed trial design to a new treatment entering the network, including allocation and two- versus three-arm choice.
+    Cites arXiv:1703.08994: General value-of-information machinery for research design in evidence synthesis, which the entry treats as not yet existing for this setting.
+    Cites arXiv:2605.15142: Supplies the estimability determination underlying the null-space claim, demonstrated on a disconnected network.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / overstated.** C1 is false as a blanket technical claim. Standard EVSI or expected-net-benefit-of-sampling defines a principled choice among candidate designs once each design has a predictive likelihood, costs, and a decision utility. It can therefore represent treatment pairs, acquisition of an existing IPD source, measured modifiers, subpopulation, sample size, allocation, and biomarker-versus-outcome designs, making C2 correct in principle. C3 is not well defined: identification is a rank or row-space property, whereas VOI maximizes expected decision value; a subpopulation cannot 'maximize identification' without an explicit design, estimand, support condition, and scoring rule. C4 is possible only under a credible predictive or surrogate relationship and appropriate time and cost valuation. C5 is exactly confirmed by the portfolio metadata. C6 is correct. C7 is not generally correct: one added edge changes rank by at most one, all independent candidate edges tie on global null-space reduction, and reducing global nullity need not make the decision-critical contrast estimable or maximize decision value. The relevant algebra is whether the contrast enters the updated row space, followed by decision value net of study cost. At 9d150e9, cpaic exposes B, C, X, rank, null space, and contrast estimability but has no candidate-edge or VOI routine; that supports only a cpaic-scoped version of C8, not the universal software claim. The remaining bridge-specific integration is a legitimate roadmap item, but it is not an absence of principled design theory and is critical only when the current decision is sensitive and new evidence is feasible.
+    Cites 10.1186/s13063-018-2740-2: Provides a network-informed framework for selecting the design and comparisons of a subsequent trial while considering required sample size..
+    Cites 10.1080/01621459.2018.1562932: Provides EVPPI and EVSI machinery for Bayesian evidence-synthesis models, including comparison of candidate data sources and sample sizes against sampling cost..
+    Cites choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca: Supplies the rank, null-space, and contrast-specific row-space computations needed to assess estimability after a candidate design change, but does not enumerate or optimize candidate edges..
+
+Decision path
+:   `R3:partially-solved(n=2) → R8:overstated-majority(n=2)`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [DEC-03 — Value of information is not extended to IPD or bridge acquisition](DEC-03-value-of-information-is-not-extended-to-ipd-or-bridge-acquis.qmd)
+:::
+
+## Source
+
+Derived from C:L261, C:L1215-1224, C:L1226, C:L2153, C:L2492 of the reviewed corpus.

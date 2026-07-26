@@ -1,0 +1,77 @@
+---
+title: "Design-dependent roles of prognostic covariates"
+description: "Whether a strong prognostic non-modifier should be adjusted for depends on the estimand and the design, not on the variable alone. For a conditional or collapsible effect in an anchored comparison, balancing such a variable spends effective sample size without removing bias, although including it in an outcome model can improve precision. For non-collapsible measures such as the odds ratio or hazard ratio, a variable that is purely prognostic on the conditional scale can still change the marginal effect, so cross-study imbalance in it can bias an anchored marginal comparison even when marginal covariate moments are balanced (Remiro-Azocar 2024, doi:10.1002/sim.10111). In unanchored comparisons, omitting prognostic variables biases the cross-study contrast on any scale."
+pid: "COV-03"
+topic: "Covariates: selection, target moments, measurement"
+categories: ["Covariates: selection, target moments, measurement", "High priority", "Overstated"]
+priority: "High"
+prank: 2
+verdict: "Overstated"
+verdictslug: "overstated"
+maturity: "Established"
+---
+::: {.problem-meta}
+[COV-03]{.problem-id}
+[Overstated]{.verdict .verdict-overstated}
+[High priority]{.chip .chip-priority-high}
+[Established]{.chip .chip-maturity-established}
+:::
+## Statement
+
+Whether a strong prognostic non-modifier should be adjusted for depends on the estimand and the design, not on the variable alone. For a conditional or collapsible effect in an anchored comparison, balancing such a variable spends effective sample size without removing bias, although including it in an outcome model can improve precision. For non-collapsible measures such as the odds ratio or hazard ratio, a variable that is purely prognostic on the conditional scale can still change the marginal effect, so cross-study imbalance in it can bias an anchored marginal comparison even when marginal covariate moments are balanced (Remiro-Azocar 2024, doi:10.1002/sim.10111). In unanchored comparisons, omitting prognostic variables biases the cross-study contrast on any scale.
+
+## Why it is open
+
+Covariate role is a function of the estimand, the effect scale and the evidence structure, and the clean split between anchored and unanchored designs holds only on collapsible or conditional scales; once the target is a marginal odds ratio or hazard ratio, prognostic distributions matter for transport too. Applied analyses and guidance still carry one covariate list across both designs, so either the effective-sample-size cost or the bias is paid without being noticed. Software support is uneven rather than absent: the cSTC interface in the development package cpaic already separates prognostic main effects from treatment interactions while its cML-NMR path has no prognostic-only role, and cpaic is an unreleased GitHub development version, commit 9d150e9, not installable from CRAN. The numbers that exist cover a transported risk difference, so the trade-off has not been quantified where non-collapsibility makes it hardest.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Webster-Clark, 2024](https://doi.org/10.1093/aje/kwae048) | Variable selection when estimating effects in external target populations; quantifies in one simulation the precision penalty of adjusting for non-effect-measure-modifiers and the bias from omitting modifiers when transporting a risk difference. |
+| [Campbell and Remiro-Azocar, 2025](https://arxiv.org/abs/2505.00113) | Doubly robust augmented weighting estimators for externally controlled single-arm trials and unanchored indirect comparisons; uses prognostic covariates through the outcome model rather than through balancing constraints, with higher precision than non-augmented weighting. |
+| [Remiro-Azocar, 2024](https://doi.org/10.1002/sim.10111) | Counter-evidence to the source's first claim: unadjusted anchored indirect comparisons can be biased even when marginal covariate moments are balanced, so adjustment for purely prognostic variables may be necessary for non-collapsible marginal estimands. |
+| [cpaic, commit 9d150e9](choxos/cpaic@9d150e9) | Unreleased development R package on GitHub, not on CRAN; its cSTC function already separates prognostic main effects from treatment interactions, while its cML-NMR function has no prognostic-only covariate role, so the proposed software separation is partly present already. |
+
+:::
+
+## Probable solution or research direction
+
+Index covariate role by estimand and scale in guidance and in software, keeping the modifier set required for bias removal separate from the prognostic set used for precision, and complete that separation in the code paths that lack it rather than designing it from scratch. Extend the existing simulation evidence from a transported risk difference (doi:10.1093/aje/kwae048) to non-collapsible measures, so the anchored penalty and the unanchored bias are quantified where the design-based rule breaks down. Extend the augmented weighting approach (arxiv:2505.00113), which already uses prognostic covariates without balancing constraints, from the single-source unanchored case to anchored comparisons and to networks.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Overstated. 2 independent auditors judged the claim as stated too strong. On a collapsible effect scale, or for a conditional estimand, balancing strong prognostic variables that are not effect modifiers in an anchored comparison reduces effective sample size without removing bias; for non-collapsible measures such as the odds ratio or hazard ratio, purely prognostic variables can modify the marginal effect, so cross-trial imbalance in them can bias even an anchored marginal comparison and adjustment may be warranted. In unanchored comparisons, omitting prognostic variables biases the cross-study contrast on any scale.
+
+**The source said.** "Whether a strong prognostic variable that is not an effect modifier should be adjusted for depends on the design: in anchored analyses balancing it can reduce effective sample size without reducing bias, whereas in unanchored analyses omitting prognostic variables can directly bias cross-study contrasts. Precision-oriented methods may use such variables differently again."
+
+**What was wrong with it.** Both auditors judged the source's first claim too strong: it holds on a collapsible scale or for a conditional estimand, but under non-collapsibility purely prognostic variables can modify the marginal effect, so an anchored comparison can be biased even with balanced marginal moments and adjustment may be warranted (doi:10.1002/sim.10111). The source also said no guidance covers the precision-oriented intermediate case; Campbell and Remiro-Azocar 2025 (arxiv:2505.00113) give an augmented estimator that uses prognostic covariates through an outcome model without imposing balance constraints on them, and Webster-Clark 2024 (doi:10.1093/aje/kwae048) already quantifies the precision penalty of adjusting for non-modifiers and the bias from omitting modifiers in one simulation.
+
+Literature and prior-art check
+:   **partially-solved / overstated.** The first and fifth claims are false as stated for non-collapsible measures. Remiro-Azocar 2024 (Stat Med, read verbatim) concludes that 'Unadjusted anchored indirect comparisons can be biased in the absence of individual-level treatment effect heterogeneity, or when marginal covariate moments are balanced across studies', and that adjustment 'may be necessary to account for cross-study imbalances in joint covariate distributions involving purely prognostic variables'. So balancing a purely prognostic variable in an anchored comparison does not merely cost effective sample size; on the odds-ratio or hazard-ratio scale it can remove real bias in the marginal estimand. Separately, the precision half of the problem is partly answered: Webster-Clark 2024 quantifies in one simulation both the precision cost of including non-modifiers and the bias from omitting modifiers, and Campbell & Remiro-Azocar 2025 give an augmented estimator that uses prognostic covariates in an outcome model for precision without imposing balance constraints on them, reporting 'higher precision than all non-augmented weighting estimators'.
+    Cites doi:10.1093/aje/kwae048: Quantifies, in a single simulation, the precision penalty of adjusting for non-effect-measure-modifiers and the bias from omitting modifiers when transporting a risk difference.
+    Cites arxiv:2505.00113: Shows how prognostic covariates can be used for precision through the outcome model rather than through balancing constraints, i.e. the 'intermediate case' the entry says has no guidance.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / overstated.** C1 is correct for a conditional or collapsible target contrast when the variable truly is not an effect modifier on that scale: balancing it can spend ESS without removing bias, while including it as an outcome-model main effect may improve precision. It is not generally correct for a marginal odds ratio or hazard ratio, because a purely prognostic variable on the conditional scale can change the marginal contrast through non-collapsibility. C2-C4 are broadly correct for unanchored absolute-outcome comparisons, provided the prognostic factor differs between studies and is otherwise uncontrolled. C5 confuses modifier selection with inclusion as a prognostic nuisance variable and its word 'only' misses non-collapsibility and proxy-variable cases. cpaic@9d150e9 already lets cstc() separate prognostic main effects from treatment interactions, while cmlnmr() explicitly lacks a prognostic-only role. Thus the software-design part is only partially open; the unanchored identification issue is decision-critical, while the anchored efficiency issue is a roadmap item.
+    Cites choxos/cpaic@9d150e9: cstc() already implements separate treatment-interaction and prognostic-main-effect roles; cmlnmr() does not, so only part of the proposed software separation is present..
+
+Decision path
+:   `R3:partially-solved(n=2) → R8:overstated-majority(n=2)`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [IDN-03 — No procedure shows an unanchored adjustment set is complete](IDN-03-no-procedure-shows-an-unanchored-adjustment-set-is-complete.qmd)
+- [IDN-04 — Recorded-covariate adjustment cannot remove unmeasured modifier bias](IDN-04-recorded-covariate-adjustment-cannot-remove-unmeasured-modif.qmd)
+- [OVL-01 — Weak overlap leaves target regions the source data cannot support](OVL-01-weak-overlap-leaves-target-regions-the-source-data-cannot-su.qmd)
+:::
+
+## Source
+
+Derived from C:L924, C:L930 of the reviewed corpus.

@@ -1,0 +1,74 @@
+---
+title: "Treatment version, care context and subsequent-therapy drift"
+description: "Differences in dose, backbone therapy, rescue and subsequent therapy, treatment switching, monitoring intensity and calendar era between the compared studies are a real threat, because with one nominal treatment per study baseline patient balancing cannot separate a study-level implementation shift from the treatment effect and cannot standardize post-baseline therapy. Whether they constitute bias at all depends on the estimand: these differences may define different treatment versions, and post-progression therapy and switching may belong to a treatment-policy estimand rather than being bias in a common treatment effect. Study-level or era-level treatment-shift parameters, hierarchical drift models and commensurate priors can encode assumptions where replicated studies supply the structure, but none is universally required and none identifies perfectly confounded drift on its own; g-methods, intercurrent-event estimands and partial identification are alternatives."
+pid: "QBA-12"
+topic: "Quantitative bias analysis for unanchored PAIC"
+categories: ["Quantitative bias analysis for unanchored PAIC", "High priority", "Confirmed open"]
+priority: "High"
+prank: 2
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Emerging"
+---
+::: {.problem-meta}
+[QBA-12]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[High priority]{.chip .chip-priority-high}
+[Emerging]{.chip .chip-maturity-emerging}
+:::
+## Statement
+
+Differences in dose, backbone therapy, rescue and subsequent therapy, treatment switching, monitoring intensity and calendar era between the compared studies are a real threat, because with one nominal treatment per study baseline patient balancing cannot separate a study-level implementation shift from the treatment effect and cannot standardize post-baseline therapy. Whether they constitute bias at all depends on the estimand: these differences may define different treatment versions, and post-progression therapy and switching may belong to a treatment-policy estimand rather than being bias in a common treatment effect. Study-level or era-level treatment-shift parameters, hierarchical drift models and commensurate priors can encode assumptions where replicated studies supply the structure, but none is universally required and none identifies perfectly confounded drift on its own; g-methods, intercurrent-event estimands and partial identification are alternatives.
+
+## Why it is open
+
+In an unanchored comparison the treatment and the study are the same unit, so any difference in how the treatment was delivered is indistinguishable from a treatment effect, and covariate balancing cannot address drift that is a property of the protocol and care pathway rather than of patients. Switching and subsequent-therapy differences act after baseline, so they operate through a post-randomization pathway that baseline balancing cannot touch, and they change which estimand the comparison targets, because a treatment-policy survival estimate under one set of rescue options is not comparable to one under another. Encoding drift requires study-level design covariates and subsequent-therapy patterns that are seldom extracted, usually only narratively described in the comparator publication and never balanced, and no published PAIC method implements the hierarchical or commensurate structures that would let those assumptions be varied.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Phillippo, Ades, Dias, Palmer, Abrams and Welton 2017, Methods for Population-Adjusted Indirect Comparisons in Health Technology Appraisal, Medical Decision Making (the peer-reviewed account of NICE DSU TSD 18)](https://doi.org/10.1177/0272989X17725740) | States that unanchored comparisons make much stronger assumptions, widely regarded as infeasible, and that the accuracy of an unanchored estimate is unknown because residual bias from unobserved factors cannot be quantified. Supports the structural claims but implements none of the drift parameterizations the entry proposes. |
+
+:::
+
+## Probable solution or research direction
+
+State the target intervention and the intercurrent-event strategy first, so it is explicit whether an observed delivery difference is a different treatment version, part of a treatment-policy estimand, or a departure to be modeled. Where it is a departure, introduce study-level or era-level treatment-shift parameters and report results across a range of assumed drift magnitudes rather than assuming exact treatment-version equivalence, using hierarchical drift models or commensurate priors only where replicated studies give their identifying structure some purchase, and g-methods or partial identification otherwise. Analyze these parameters jointly with the confounding and censoring parameters rather than as disconnected scenario analyses.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+
+**The source said.** "Differences in dose, backbone therapy, rescue and subsequent therapy, treatment switching, monitoring intensity and calendar era between the compared studies form a distinct bias target requiring study-specific or era-specific treatment-shift parameters, handled with design-bias parameters, hierarchical drift models or commensurate priors."
+
+**What was wrong with it.** The entry named one class of sensitivity parameters and analysis families as the appropriate response; GPT-5.6 Sol found that too prescriptive, since the differences may define a different treatment version or belong to a treatment-policy estimand, and hierarchical drift models and commensurate priors cannot identify drift that is perfectly confounded with study. The literature auditor could verify none of the entry's proposals against any published PAIC method and voted unverifiable on support; the entry cited nothing, and the structural point that residual bias from unobserved factors in unanchored comparisons cannot be quantified is in Phillippo et al. 2017 (doi:10.1177/0272989X17725740), the peer-reviewed account of NICE DSU TSD 18.
+
+Literature and prior-art check
+:   **open / unverifiable.** This entry has no prior_work and all five claims are normative or definitional. Claims 3 and 5 are logically true given the unanchored design (treatment and study are the same unit; baseline balancing cannot act on post-baseline subsequent therapy) and are consistent with NICE DSU TSD 18 and with Phillippo et al., who note that residual bias from unobserved factors in unanchored comparisons cannot be quantified. Claims 1, 2 and 4 assert that a specific class of sensitivity parameters and analysis families (study- or era-specific treatment-shift parameters, hierarchical drift models, commensurate priors) is the appropriate response; that is a proposal, not a verifiable statement about the literature, and I found no published PAIC method implementing it. Commensurate priors and hierarchical drift models are established devices in historical-borrowing and bias-adjustment literature (bias-adjusted meta-analysis, NICE DSU bias-adjustment TSDs), so the components exist even though the PAIC assembly does not. I vote unverifiable on support rather than guess.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** The core concern is real but the proposed remedy is not universal. Dose, backbone, monitoring, and era may define different treatment versions rather than bias in a common treatment effect. Post-progression therapy and switching may likewise be part of a treatment-policy estimand; they become bias problems only relative to a different hypothetical or standardized strategy. With one nominal treatment per study, baseline patient adjustment cannot separate a study-level implementation shift from treatment, and it cannot standardize post-baseline therapies, supporting C3 and the conditional version of C5. C1 and C4 overstate the need for distinct shift parameters or bias models. G-methods, intercurrent-event estimands, or partial identification may be more appropriate. Hierarchical drift models and commensurate priors can encode assumptions when replicated studies provide structure, but they cannot identify perfectly confounded drift and are not automatically appropriate, contrary to C2.
+
+Decision path
+:   `R5:default-open → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [CMP-05 — No versioned intervention ontology maps onto CNMA component matrices](CMP-05-no-versioned-intervention-ontology-maps-onto-cnma-component-.qmd)
+- [DIA-12 — No study ranks competing bridges by worst-case misspecification](DIA-12-no-study-ranks-competing-bridges-by-worst-case-misspecificat.qmd)
+- [DIA-18 — Constancy assumptions are never tested across calendar time](DIA-18-constancy-assumptions-are-never-tested-across-calendar-time.qmd)
+- [DIS-04 — Dose-response bridges assume a curve that may not transport](DIS-04-dose-response-bridges-assume-a-curve-that-may-not-transport.qmd)
+- [HET-01 — Design and conduct differences survive baseline covariate balancing](HET-01-design-and-conduct-differences-survive-baseline-covariate-ba.qmd)
+- [OUT-15 — Treatment switching and subsequent therapies in survival PAIC](OUT-15-treatment-switching-and-subsequent-therapies-in-survival-pai.qmd)
+:::
+
+## Source
+
+Derived from C:L410, C:L489, C:L770-780 of the reviewed corpus.

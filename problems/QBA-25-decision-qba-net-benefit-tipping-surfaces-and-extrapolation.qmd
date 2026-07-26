@@ -1,0 +1,70 @@
+---
+title: "Decision QBA: net benefit, tipping surfaces and extrapolation"
+description: "For an HTA governed by cost-effectiveness the decision-relevant QBA output is the economic model evaluated over the plausible bias region, reported as incremental net benefit surfaces, decision-reversal proportions and expected regret against clinical and cost-effectiveness thresholds, and because HTA needs lifetime survival the bias region must be carried through the extrapolation model as well. A p = 0.05 tipping boundary is a valid answer to an inferential question and merely insufficient for the decision, though the entry's exemplar analysis does read its result off exactly that boundary. The claim that nothing links the ITC sensitivity region to the economic model is wrong: Ren et al. 2025 (doi:10.1017/rsm.2025.13) explicitly recommend incorporating sensitivity results into economic scenario analyses and judging robustness by whether all scenarios yield ICERs below the threshold; what does not exist is a link to the model's probabilistic sensitivity analysis through a shared parameter space, or any framework indexing the survival extrapolation model jointly with the bias parameters."
+pid: "QBA-25"
+topic: "Quantitative bias analysis for unanchored PAIC"
+categories: ["Quantitative bias analysis for unanchored PAIC", "Very high priority", "Confirmed open"]
+priority: "Very high"
+prank: 1
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Emerging"
+---
+::: {.problem-meta}
+[QBA-25]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[Very high priority]{.chip .chip-priority-very-high}
+[Emerging]{.chip .chip-maturity-emerging}
+:::
+## Statement
+
+For an HTA governed by cost-effectiveness the decision-relevant QBA output is the economic model evaluated over the plausible bias region, reported as incremental net benefit surfaces, decision-reversal proportions and expected regret against clinical and cost-effectiveness thresholds, and because HTA needs lifetime survival the bias region must be carried through the extrapolation model as well. A p = 0.05 tipping boundary is a valid answer to an inferential question and merely insufficient for the decision, though the entry's exemplar analysis does read its result off exactly that boundary. The claim that nothing links the ITC sensitivity region to the economic model is wrong: Ren et al. 2025 (doi:10.1017/rsm.2025.13) explicitly recommend incorporating sensitivity results into economic scenario analyses and judging robustness by whether all scenarios yield ICERs below the threshold; what does not exist is a link to the model's probabilistic sensitivity analysis through a shared parameter space, or any framework indexing the survival extrapolation model jointly with the bias parameters.
+
+## Why it is open
+
+The map from a bias parameter to a decision runs through survival extrapolation, costs and QALYs and is strongly nonlinear, so a modest change in a hazard ratio can move the decision quantity far more than it moves the effect estimate, and propagating a single corrected point estimate cannot reproduce that. Economic models are usually built by a different team in different software from the ITC, so evaluating the model at every point of the bias surface is organizationally and computationally expensive, and nothing shares draws or parameters between the ITC sensitivity region and the model's probabilistic sensitivity analysis even though nesting or conditioning over bias scenarios is statistically possible. Bias parameters are naturally specified for the observed follow-up while the decision depends mostly on a period in which no data exist, and no framework indexes the extrapolation model choice by the bias parameters, so the two are explored separately and their interaction is never displayed. With several bias parameters the tipping point is a surface with no accepted summary, and judging whether the tipping region is attainable still requires the elicitation the method was often adopted to avoid.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Ren et al. 2025, Research Synthesis Methods](https://doi.org/10.1017/rsm.2025.13) | Recommends that sensitivity analysis results be incorporated into scenario analyses within economic models, explicitly assessing their impact on the ICER, with robustness judged by whether all scenarios fall below the threshold. Counter-evidence to the claim that no link to the economic model exists; it does not link to the model's probabilistic sensitivity analysis or share a parameter space. Its case study also reads a significance-crossing point off a deterministic sensitivity curve. |
+
+:::
+
+## Probable solution or research direction
+
+Move from the scenario analysis published guidance already recommends to a shared parameter space: nest or condition the economic model's probabilistic sensitivity analysis over bias scenarios using shared draws, and report incremental net benefit surfaces, decision-reversal proportions and expected regret against noninferiority margins and cost-effectiveness thresholds alongside the feasibility and support map. Index the extrapolation model jointly with the bias parameters so the sensitivity surface reports lifetime survival and net benefit rather than in-trial effects only. Build interfaces so a PAIC QBA object can be consumed directly by the health-economic model, and pass a single effect parameter only where it demonstrably carries the whole modeled bias.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+
+**The source said.** "The decision-relevant QBA quantity is incremental net benefit as a function of the bias parameters, together with the probability of recommendation reversal and expected regret, not whether a 95% interval for a log hazard ratio excludes zero. Tipping points should be surfaces computed against clinical and cost-effectiveness thresholds rather than a p = 0.05 boundary, and because HTA needs lifetime survival the bias region has to be carried through the extrapolation model as well."
+
+**What was wrong with it.** The literature auditor found the claim that nothing links the ITC sensitivity region to the economic model contradicted by Ren et al. 2025 (doi:10.1017/rsm.2025.13), which recommends precisely that link as scenario analysis against the ICER threshold, leaving only the probabilistic-sensitivity-analysis link and the shared parameter space missing. GPT-5.6 Sol softened two absolutes: a p = 0.05 tipping boundary is legitimate when the prespecified conclusion is statistical significance, and passing one effect parameter into the economic model is adequate when that parameter is a sufficient conduit for the modeled biases and its full scenario or uncertainty distribution is propagated, rather than a misuse in every case.
+
+Literature and prior-art check
+:   **open / supported-with-caveat.** Claim 2 is corroborated by the very method the agenda holds up as the state of the art: Ren et al. 2025's case study reads its sensitivity result off a significance boundary, 'If the proportion is greater than 28%, then the treatment effect becomes statistically significant', which is exactly the p=0.05 anchoring claim 2 calls a misuse. The caveat is claim 9. Ren et al. 2025 do explicitly link the sensitivity region to the economic model, recommending that 'These sensitivity analysis results can be incorporated into scenario analyses within economic models, explicitly assessing their impact on the incremental cost-effectiveness ratio (ICER)', with decision rules based on whether all scenarios fall below or above the threshold. So a link to the economic model exists in published guidance; what does not exist is a link to the model's probabilistic sensitivity analysis or a shared parameter space, and no published work indexes the survival extrapolation model jointly with the bias parameters (claims 7, 8). Claims 1, 3, 4, 5, 6 are normative and correct in substance. Tipping-point machinery for evidence synthesis exists but only for arm-based network meta-analysis correlation parameters, not for unanchored PAIC bias surfaces.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** C1 is correct only after defining the reference point, feasible set, direction, or metric: with several parameters the tipping set is a boundary or hypersurface, but 'smallest departure' is otherwise undefined. C2 is too categorical. A p=0.05 tipping boundary is valid when the prespecified conclusion is statistical significance; it is merely insufficient for an HTA decision. C3 is appropriate for a conventional cost-effectiveness decision rule, but incremental net benefit is not the only possible HTA decision quantity and cannot replace clinical, budget, equity, or other constraints. C4, C5, C7, and C8 are valid possibility statements. C6 is false as a universal rule: if bias acts only through one treatment-effect parameter and the full scenario or uncertainty distribution for that parameter is passed to the economic model, it can be sufficient; a single corrected point estimate is inadequate only for a question about the whole bias region. C9 is an absolute practice claim outside a technical audit and is not a statistical impossibility: probabilistic sensitivity analysis can be nested or conditioned over bias scenarios using shared draws. The remaining open work is integration, extrapolation specification, and software workflow, not a new identification result, so the asserted very-high severity is inflated.
+
+Decision path
+:   `R5:default-open → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [DIS-15 — Cross-gap bridge bounds are not propagated to net benefit](DIS-15-cross-gap-bridge-bounds-are-not-propagated-to-net-benefit.qmd)
+- [OUT-20 — No PAIC workflow carries dependence through transport to net benefit](OUT-20-no-paic-workflow-carries-dependence-through-transport-to-net.qmd)
+:::
+
+## Source
+
+Derived from C:L709-713, C:L709-725, C:L725, C:L770-780 of the reviewed corpus.

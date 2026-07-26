@@ -1,0 +1,63 @@
+---
+title: "Treatment switching and subsequent therapies in survival PAIC"
+description: "Treatment switching and subsequent therapy are intercurrent events that change the estimand, and they differ across trials in a network, so an intention-to-treat survival comparison from a trial with high crossover answers a different question from one without. Switching adjustments such as RPSFTM, inverse probability of censoring weighting and two-stage estimation need switching times, treatment exposure histories and sometimes time-varying prognostic data, which in a population-adjusted comparison typically exist only on the individual-patient side; this follows from the usual design rather than being a theorem, since such histories or an already-adjusted published estimate may occasionally be available. Combining a switching-adjusted source estimate with an unadjusted comparator estimate creates an estimand mismatch where the two correspond to different intercurrent-event strategies, for example a hypothetical no-switch effect against a treatment-policy effect, and not merely because one is labeled adjusted and the other is not. Neither auditor found any switching-adjustment method embedded in an indirect comparison, MAIC, STC or network meta-analysis."
+pid: "OUT-15"
+topic: "Outcome-specific problems"
+categories: ["Outcome-specific problems", "High priority", "Confirmed open"]
+priority: "High"
+prank: 2
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Emerging"
+---
+::: {.problem-meta}
+[OUT-15]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[High priority]{.chip .chip-priority-high}
+[Emerging]{.chip .chip-maturity-emerging}
+:::
+## Statement
+
+Treatment switching and subsequent therapy are intercurrent events that change the estimand, and they differ across trials in a network, so an intention-to-treat survival comparison from a trial with high crossover answers a different question from one without. Switching adjustments such as RPSFTM, inverse probability of censoring weighting and two-stage estimation need switching times, treatment exposure histories and sometimes time-varying prognostic data, which in a population-adjusted comparison typically exist only on the individual-patient side; this follows from the usual design rather than being a theorem, since such histories or an already-adjusted published estimate may occasionally be available. Combining a switching-adjusted source estimate with an unadjusted comparator estimate creates an estimand mismatch where the two correspond to different intercurrent-event strategies, for example a hypothetical no-switch effect against a treatment-policy effect, and not merely because one is labeled adjusted and the other is not. Neither auditor found any switching-adjustment method embedded in an indirect comparison, MAIC, STC or network meta-analysis.
+
+## Why it is open
+
+Adjustment for switching is asymmetric by construction in the usual PAIC design, so the source side can be corrected while the comparator side cannot, and the resulting mismatch is invisible in the reported effect because both sides are presented as the same outcome. Subsequent therapy availability reflects the era and jurisdiction of the trial rather than patient characteristics, so covariate adjustment cannot balance it. At commit 9d150e9, cpaic, the unreleased development package on GitHub that is not installable from CRAN, accepts event, censoring, interval and delayed-entry data but has no switching-history, subsequent-therapy or intercurrent-event strategy interface. How much this matters depends on whether switching patterns or strategies differ materially between the trials being combined.
+
+## What has been tried
+
+No prior work is identified for this problem in the reviewed sources.
+
+## Probable solution or research direction
+
+Make the intercurrent-event strategy an explicit part of the estimand and state which strategy each contributing trial's reported effect corresponds to, so a strategy mismatch is visible instead of buried in a single reported hazard ratio. Develop transport methods that do not require symmetric individual-level switching data on both sides, and quantify the residual mismatch where only one side can be adjusted. Where the comparator publication reports an adjusted estimate or usable switching information, use it rather than assuming the asymmetry.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+
+**The source said.** "Patients in survival trials switch treatments or receive different subsequent therapies, and these post-randomization events differ across trials in a network, contaminating the transported survival comparison."
+
+**What was wrong with it.** The source treated the estimand mismatch as automatic and the data asymmetry as definitional; the code auditor narrowed both, since the mismatch requires the two estimates to use different intercurrent-event strategies and comparator-side histories or an adjusted published estimate are sometimes available. The literature auditor noted that the claim that switching is an open problem for PAIC rests on a failed search rather than on any source asserting the absence, so it is recorded as unverified rather than established.
+
+Literature and prior-art check
+:   **open / supported-with-caveat.** I searched for switching-adjustment methods embedded in indirect comparisons, MAIC, STC or network meta-analysis and retrieved nothing; the population-adjustment literature I did retrieve (NICE DSU TSD 18 material, ML-NMR, two-stage MAIC) does not address intercurrent events at all. The second claim is the strongest and is essentially definitional: RPSFTM, IPCW and two-stage estimation all require individual-level treatment histories and post-baseline covariates, which by construction exist only on the IPD side of a PAIC, so the asymmetry follows from the design rather than needing a citation. The third claim, that mixing a switching-adjusted source estimate with an unadjusted comparator creates an estimand mismatch, follows from the ICH E9(R1) estimand framework. The caveat is that I could not anchor claim one to any source that itself asserts the absence, so on the support axis 'switching is an open problem for PAIC' is unverifiable in the strict sense used elsewhere in this audit.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / supported-with-caveat.** C1 is a genuine PAIC estimand-harmonization problem under asymmetric IPD and AgD. RPSFTM, IPCW, and two-stage switching adjustments generally need switching times, treatment exposure histories, and sometimes time-varying prognostic data, supporting C2. Unavailability on the comparator side is typical, however, not a theorem: histories or an appropriately adjusted published estimate may exist. C3 holds when the estimates use different intercurrent-event strategies, such as a hypothetical no-switch effect versus a treatment-policy effect. It does not follow merely from the labels adjusted and unadjusted if the comparator has no switching or both estimates target the same strategy. At cpaic@9d150e9, the survival path accepts event, censoring, interval, and delayed-entry data but has no switching-history, subsequent-therapy, or intercurrent-event strategy interface. This is decision-critical when switching patterns or strategies differ materially; otherwise it is a roadmap issue.
+
+Decision path
+:   `R5:default-open → R11:caveated(n=2)`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [QBA-12 — Treatment version, care context and subsequent-therapy drift](QBA-12-treatment-version-care-context-and-subsequent-therapy-drift.qmd)
+:::
+
+## Source
+
+Derived from C:L1578-1594 of the reviewed corpus.

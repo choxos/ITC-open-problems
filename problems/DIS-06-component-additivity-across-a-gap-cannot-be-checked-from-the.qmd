@@ -1,0 +1,76 @@
+---
+title: "Component additivity across a gap cannot be checked from the data"
+description: "Component NMA connects treatments through shared components, but sharing components is not sufficient for a cross-gap contrast to be estimable: under strict additive CNMA a treatment effect is c_t' beta and a target contrast is estimable only when c_a minus c_b lies in the row space of the design X = BC. Petropoulou et al. 2023 found additive CNMA performs well in connected networks when additivity holds and concluded it should be used for disconnected networks only with strong clinical arguments for additivity. Across a gap, any additivity or component-constancy restriction lying in the likelihood null space cannot be tested from those data: the nested Q difference against standard NMA is unavailable because standard NMA cannot be fitted across the gap, and a saturated Q has no power because it is identically zero by arithmetic. Component models that include estimable interaction terms are a different case and are not covered by the word additive."
+pid: "DIS-06"
+topic: "Disconnected networks & bridges"
+categories: ["Disconnected networks & bridges", "High priority", "Unverifiable"]
+priority: "High"
+prank: 2
+verdict: "Unverifiable"
+verdictslug: "unverifiable"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[DIS-06]{.problem-id}
+[Unverifiable]{.verdict .verdict-unverifiable}
+[High priority]{.chip .chip-priority-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+## Statement
+
+Component NMA connects treatments through shared components, but sharing components is not sufficient for a cross-gap contrast to be estimable: under strict additive CNMA a treatment effect is c_t' beta and a target contrast is estimable only when c_a minus c_b lies in the row space of the design X = BC. Petropoulou et al. 2023 found additive CNMA performs well in connected networks when additivity holds and concluded it should be used for disconnected networks only with strong clinical arguments for additivity. Across a gap, any additivity or component-constancy restriction lying in the likelihood null space cannot be tested from those data: the nested Q difference against standard NMA is unavailable because standard NMA cannot be fitted across the gap, and a saturated Q has no power because it is identically zero by arithmetic. Component models that include estimable interaction terms are a different case and are not covered by the word additive.
+
+## Why it is open
+
+In a connected network additivity can be tested against standard NMA only when the unrestricted model and the relevant interactions are estimable and residual degrees of freedom remain; across a gap the additive structure is exactly the untested quantity supplying the answer, and the restriction sits where the likelihood is flat. Good performance under simulated additivity says nothing about performance when additivity fails, and the failure mode across a gap is not detectable by fit statistics computed within the observed components. There is no accepted standard for what counts as a strong clinical argument for additivity, so the qualifier attached to the method is not operationalized in practice.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Petropoulou et al. 2023](https://doi.org/10.1186/s12874-023-01959-9) | simulation study of additive CNMA in connected and disconnected networks; recommends its use for disconnected networks only with strong clinical arguments for additivity |
+| [Wigle, Beliveau, Nikolakopoulou and Lin 2026](https://arxiv.org/abs/2605.15142) | gives a step-by-step workflow for identifying which relative effects in a component network meta-analysis are uniquely estimable, demonstrated on a disconnected network |
+| [Ruecker, Schmitz and Schwarzer 2021](https://doi.org/10.1002/bimj.201900339) | compares a component NMA model against a matching method on the same real disconnected network and concludes a CNMA model should be considered when subnetwork treatments share components |
+| [cpaic 0.1.0 (development version, choxos/cpaic@9d150e9)](https://github.com/choxos/cpaic/commit/9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca) | unreleased development R package on GitHub, not on CRAN; makes the nested Q difference unavailable for disconnected networks, documents that a saturated Q has no power, and supplies bridge_fragility() as sensitivity analysis rather than a test of additivity |
+
+:::
+
+## Probable solution or research direction
+
+Before fitting, report which cross-gap contrasts enter the row space of the pooled component design, since a hierarchy built on relative effects that are not uniquely estimable is misleading, and use the estimability workflow of Wigle et al. 2026 for that step. Require an explicit clinical additivity argument before using CNMA across a gap and define what such an argument must contain, since the published recommendation attaches the qualifier without operationalizing it. Pair the estimate with component drift sensitivity rather than a single interval, recognizing that a fragility calculation is a sensitivity analysis and not a test.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Unverifiable. Auditors disagreed and the disagreement was evidence-bearing on both sides.
+
+**The source said.** "Component NMA connects treatments through shared components and is compelling when interventions are genuinely modular and additive. A simulation study concluded that additive CNMA performs well in connected networks when additivity holds but should be used for disconnected networks only with strong clinical arguments for additivity."
+
+**What was wrong with it.** The literature auditor checked all three source claims verbatim against doi:10.1186/s12874-023-01959-9 and rated the entry supported; GPT-5.6 Sol read the code and narrowed it, since shared components alone do not make a contrast estimable and the untestability is a row-space property rather than a property of disconnection as such. The published text follows the narrower version and the disagreement stands in the audit trail. The auditors also supplied two additions the source omitted: arXiv:2605.15142, which determines which relative effects in a CNMA are uniquely estimable, and doi:10.1002/bimj.201900339, a head-to-head comparison of a component bridge against a matching bridge on a real disconnected network.
+
+**Dissent.** literature dissented (supported): All three claims match the Petropoulou et al. 2023 abstract almost word for word: 'CNMA models provide good performance for connected networks and can be an alternative to standard NMA if additivity holds'; 'For disconnected networks, we recommend to use additive CNMA only if strong clinical arguments for additivity exist'; 'CNMA methods are feasible for connected networks but questionable for disconnected networks.' The severity string is a verbatim fragment of the paper's recommendation, correctly used. The entry's own contribution, that no standard exists for what a 'strong clinical argument for additivity' must contain, is fair and is not answered by the cited paper. Two additions worth making rather than corrections: Ruecker, Schmitz and Schwarzer 2021 compare CNMA against a matching bridge on a real disconnected network, and Wigle, Beliveau, Nikolakopoulou and Lin 2026 (arXiv) give a workflow for identifying which relative effects in a CNMA, including a disconnected one, are uniquely estimable. codex dissented (supported-with-caveat): For strict additive CNMA, a treatment effect is c_t' beta and a target contrast is estimable only when (c_a-c_b) lies in the row space of X = BC. Shared components or treatment-network connectedness alone are not sufficient. In a connected network, additivity can be tested against standard NMA only when the unrestricted model and relevant interactions are estimable and there are residual degrees of freedom. Across a disconnected gap, any additivity or component-constancy restriction lying in the likelihood null space cannot be tested from those data. cpaic at 9d150e9 reflects this correctly: Q.diff is unavailable for disconnected networks, saturated Q has no power, and bridge_fragility() supplies sensitivity analysis rather than a test. Thus C3 is technically sound when read as strict additive CNMA; component models with estimable interactions are not covered by the word additive. C1-C2 are source-attribution claims outside this audit, although their mathematical content is coherent. Cross-gap additivity is decision-critical; defining a clinical argument is governance, while drift sensitivity is an appropriate but nonidentifying safeguard.
+
+Literature and prior-art check
+:   **open / supported.** All three claims match the Petropoulou et al. 2023 abstract almost word for word: 'CNMA models provide good performance for connected networks and can be an alternative to standard NMA if additivity holds'; 'For disconnected networks, we recommend to use additive CNMA only if strong clinical arguments for additivity exist'; 'CNMA methods are feasible for connected networks but questionable for disconnected networks.' The severity string is a verbatim fragment of the paper's recommendation, correctly used. The entry's own contribution, that no standard exists for what a 'strong clinical argument for additivity' must contain, is fair and is not answered by the cited paper. Two additions worth making rather than corrections: Ruecker, Schmitz and Schwarzer 2021 compare CNMA against a matching bridge on a real disconnected network, and Wigle, Beliveau, Nikolakopoulou and Lin 2026 (arXiv) give a workflow for identifying which relative effects in a CNMA, including a disconnected one, are uniquely estimable.
+    Cites arXiv:2605.15142: Adds the estimability machinery for CNMA across a gap that the entry's proposed direction implicitly needs; demonstrated on a disconnected CLL network.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / supported-with-caveat.** For strict additive CNMA, a treatment effect is c_t' beta and a target contrast is estimable only when (c_a-c_b) lies in the row space of X = BC. Shared components or treatment-network connectedness alone are not sufficient. In a connected network, additivity can be tested against standard NMA only when the unrestricted model and relevant interactions are estimable and there are residual degrees of freedom. Across a disconnected gap, any additivity or component-constancy restriction lying in the likelihood null space cannot be tested from those data. cpaic at 9d150e9 reflects this correctly: Q.diff is unavailable for disconnected networks, saturated Q has no power, and bridge_fragility() supplies sensitivity analysis rather than a test. Thus C3 is technically sound when read as strict additive CNMA; component models with estimable interactions are not covered by the word additive. C1-C2 are source-attribution claims outside this audit, although their mathematical content is coherent. Cross-gap additivity is decision-critical; defining a clinical argument is governance, while drift sensitivity is an appropriate but nonidentifying safeguard.
+
+Decision path
+:   `R5:default-open → R7:counter-and-support-both-present`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [CMP-01 — Cross-subnetwork component constancy is the untestable bridge](CMP-01-cross-subnetwork-component-constancy-is-the-untestable-bridg.qmd)
+- [CMP-03 — Strict component additivity may be clinically false](CMP-03-strict-component-additivity-may-be-clinically-false.qmd)
+:::
+
+## Source
+
+Derived from C:L1122-1124 of the reviewed corpus.

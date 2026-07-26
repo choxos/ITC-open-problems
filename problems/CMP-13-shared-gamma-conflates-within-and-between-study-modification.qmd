@@ -1,0 +1,77 @@
+---
+title: "Shared Gamma conflates within- and between-study modification"
+description: "Component ML-NMR estimates a single shared component-by-modifier interaction matrix Gamma from IPD and aggregate data together and does not separate within-trial from across-trial interaction information, so aggregate studies can pull the estimate toward a non-randomized across-trial association. It does not, however, plug in covariate means: ML-NMR integrates an individual-level model over each study's covariate distribution precisely to avoid aggregation bias, so the ecological mechanism is not the one the source described. Aggregate data are also not categorically uninformative about Gamma, because a nonlinear integrated likelihood contains curvature-based information; in the implemented log-link case the aggregate data identify beta + log cosh(gamma) rather than beta alone. The within-trial and across-trial separation is standard practice in IPD meta-analysis and simply has not been ported to component models."
+pid: "CMP-13"
+topic: "Component methods (CNMA and component PAIC)"
+categories: ["Component methods (CNMA and component PAIC)", "Very high priority", "Overstated"]
+priority: "Very high"
+prank: 1
+verdict: "Overstated"
+verdictslug: "overstated"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[CMP-13]{.problem-id}
+[Overstated]{.verdict .verdict-overstated}
+[Very high priority]{.chip .chip-priority-very-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+## Statement
+
+Component ML-NMR estimates a single shared component-by-modifier interaction matrix Gamma from IPD and aggregate data together and does not separate within-trial from across-trial interaction information, so aggregate studies can pull the estimate toward a non-randomized across-trial association. It does not, however, plug in covariate means: ML-NMR integrates an individual-level model over each study's covariate distribution precisely to avoid aggregation bias, so the ecological mechanism is not the one the source described. Aggregate data are also not categorically uninformative about Gamma, because a nonlinear integrated likelihood contains curvature-based information; in the implemented log-link case the aggregate data identify beta + log cosh(gamma) rather than beta alone. The within-trial and across-trial separation is standard practice in IPD meta-analysis and simply has not been ported to component models.
+
+## Why it is open
+
+Between-study variation in covariate distributions is not randomized, so any association between a study's covariate profile and its treatment effect is confounded by everything else that differs between studies, and a single Gamma lets that association share a parameter with the within-trial causal modification. The published fix for ordinary IPD meta-analysis, centering patient-level covariates at their trial mean so within-trial and across-trial interactions are separately estimated, has not been implemented for component ML-NMR, where the interaction is additionally shared across components and across subnetworks. Current implementations mitigate only by labeling whether a target contrast is supported by IPD or by aggregate arms and by excluding aggregate-only screen results from default rankings.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Hua et al. 2017](https://doi.org/10.1002/sim.7171) | shows that centering patient-level covariates at their trial mean is required to separate within-trial from across-trial interaction information, with a worked reversal of an interaction estimate |
+| [Freeman et al. 2018](https://doi.org/10.1002/jrsm.1300) | extends the within-trial and across-trial separation to IPD network meta-analysis and gives a practical framework including consistency checks between the two sources |
+| [Phillippo et al. 2020](https://doi.org/10.1111/rssa.12579) | defines ML-NMR as integrating an individual-level model over each study's covariate distribution rather than regressing on covariate means, which is what avoids aggregation bias |
+| [Phillippo et al. 2022](https://doi.org/10.1177/0272989X221117162) | describes ML-NMR as coherently synthesizing IPD and AgD while avoiding aggregation bias and non-collapsibility bias |
+| [cpaic 0.1.0 (development version, choxos/cpaic@9d150e9)](choxos/cpaic@9d150e9) | unreleased development R package on GitHub, not on CRAN; fits one shared Gamma across IPD and AgD, labels each target contrast as identified by IPD, aggregate evidence, or neither, and excludes aggregate-only elements from default rankings |
+
+:::
+
+## Probable solution or research direction
+
+Port the established within-trial and across-trial separation into component ML-NMR: estimate Gamma_W and Gamma_B as distinct parameters and restrict causal interaction learning to the directions actually informed by IPD, with the across-trial parameter reported separately rather than pooled in. Use the existing framework for identifying treatment-covariate interactions in IPD network meta-analysis, including its visual consistency checks between the two information sources, as the template. Keep the labeling of which contrasts are IPD-supported, since that is the partial mitigation already in place.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Overstated. 2 independent auditors judged the claim as stated too strong. Component ML-NMR would estimate a single shared component-by-modifier interaction matrix and, like ML-NMR generally, would not separate within-trial from across-trial interaction information, so aggregate studies can still pull the estimate toward a non-randomised across-trial association; unlike standard network meta-regression it does not plug in covariate means, so it does not incur aggregation bias from nonlinearity, and the within/across separation is already standard practice in IPD meta-analysis and merely needs porting to component models.
+
+**The source said.** "Component ML-NMR estimates one shared component-by-modifier interaction matrix Gamma using both IPD and aggregate data. Aggregate covariate means identify ecological, between-study gradients, whereas randomization within a trial identifies only within-study effect modification, so combining them in one parameter conflates the two."
+
+**What was wrong with it.** The source said aggregate covariate means identify ecological gradients in ML-NMR; that describes standard network meta-regression, not ML-NMR, which was built to avoid aggregation bias by integrating over the covariate distribution (doi:10.1111/rssa.12579; doi:10.1177/0272989X221117162). The literature auditor also found the fix already exists outside component models: trial-mean centering separates within-trial from across-trial interaction information (Hua et al. 2017; Freeman et al. 2018), and GPT-5.6 Sol added that nonlinear aggregate likelihoods carry curvature-based information about Gamma, so the aggregate contribution is not purely ecological.
+
+Literature and prior-art check
+:   **partially-solved / overstated.** Two problems. First, the mechanism attributed to ML-NMR is wrong: ML-NMR does not regress on aggregate covariate means. Phillippo et al. 2020 built it precisely because 'Existing meta-regression approaches incur aggregation bias', by integrating an individual-level model over the covariate distribution; Phillippo et al. 2022 describe ML-NMR as 'avoiding aggregation bias and noncollapsibility bias'. So 'Aggregate-data covariate means identify ecological gradients' describes standard network meta-regression, not ML-NMR. Second, the residual worry - that a single shared interaction does not separate within-trial from across-trial information - is real but already solved methodologically outside component models. Hua et al. 2017 show the fix ('it is crucial to centre patient-level covariates by their mean value in each trial, in order to separate out within-trial and across-trial information') with a worked reversal (interaction -0.011, p = 0.004 amalgamated, versus -0.007, p = 0.22 separated), and Freeman et al. 2018 give a full framework for IPD network meta-analysis. What is open is porting that separation into component ML-NMR.
+    Cites doi:10.1002/sim.7171: Gives the established fix (trial-mean centring) that separates within-trial from across-trial interaction information; not yet applied to component or ML-NMR models..
+    Cites doi:10.1002/jrsm.1300: Extends the within/across separation to network meta-analysis and gives a practical framework including visual consistency checks between the two sources..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / overstated.** C3 and C4 are correct: randomization does not randomize study-level covariate distributions, and cpaic fits only one Gamma. C1 describes a real ecological-bias risk when aggregate information about Gamma comes from across-study distribution shifts. C2 is too categorical across the supported families. For an identity-link, first-moment aggregate contrast, the centered within-study interaction averages out. In a nonlinear integrated likelihood, however, an aggregate arm mean depends on the interaction through the entire covariate distribution; cpaic's own log-link example identifies beta + log cosh(gamma). Such information is model-dependent and generally insufficient for nonparametric causal effect-modification identification, but it is not literally zero or reducible solely to a gradient in covariate means. The model-level separation remains open. cpaic partially mitigates it by labeling whether target contrasts are supported by IPD or only aggregate arms and excluding aggregate-only screen results from rankings by default.
+    Cites choxos/cpaic@9d150e9: Labels each target contrast as identified by IPD, aggregate evidence, or neither, exposing the information source..
+    Cites choxos/cpaic@9d150e9: Prevents aggregate-only first-order screens from entering default treatment or component hierarchies..
+
+Decision path
+:   `R3:partially-solved(n=2) → R8:overstated-majority(n=2)`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [MOD-03 — Ecological versus within-study effect modification](MOD-03-ecological-versus-within-study-effect-modification.qmd)
+:::
+
+## Source
+
+Derived from C:L1367, C:L1237, scope:field-level (ML-NMR generally; implemented in cpaic) of the reviewed corpus.

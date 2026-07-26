@@ -1,0 +1,75 @@
+---
+title: "Generic unmeasured confounding collapses distinct bias mechanisms"
+description: "The report sets out eleven bias targets for unanchored PAIC and argues they must not be collapsed into one generic unmeasured confounder. The flagship distinction survives scrutiny and now has a source the entry did not cite: Ren et al. 2025 (doi:10.1017/rsm.2025.13) state that their sensitivity analysis relies on the important covariates being measured in the company's own trial and that a covariate unmeasured in both studies would limit what it could achieve, which is exactly the difference between a covariate unreported in the target aggregate data and one absent from the source IPD. The auditors split on how far the taxonomy carries and both brought evidence: the literature auditor judged the distinction supported, while GPT-5.6 Sol held that the categories are neither mutually exclusive nor guaranteed to require different data or causal diagrams, that a binary latent U is a defensible composite net-bias device when labeled as one and misleading only when read as a literal correction for a specific mechanism, and that proxy, negative-control, validation-data and proximal approaches belong alongside the three families the entry names for the unmeasured-in-both case."
+pid: "QBA-04"
+topic: "Quantitative bias analysis for unanchored PAIC"
+categories: ["Quantitative bias analysis for unanchored PAIC", "Very high priority", "Unverifiable"]
+priority: "Very high"
+prank: 1
+verdict: "Unverifiable"
+verdictslug: "unverifiable"
+maturity: "Emerging"
+---
+::: {.problem-meta}
+[QBA-04]{.problem-id}
+[Unverifiable]{.verdict .verdict-unverifiable}
+[Very high priority]{.chip .chip-priority-very-high}
+[Emerging]{.chip .chip-maturity-emerging}
+:::
+## Statement
+
+The report sets out eleven bias targets for unanchored PAIC and argues they must not be collapsed into one generic unmeasured confounder. The flagship distinction survives scrutiny and now has a source the entry did not cite: Ren et al. 2025 (doi:10.1017/rsm.2025.13) state that their sensitivity analysis relies on the important covariates being measured in the company's own trial and that a covariate unmeasured in both studies would limit what it could achieve, which is exactly the difference between a covariate unreported in the target aggregate data and one absent from the source IPD. The auditors split on how far the taxonomy carries and both brought evidence: the literature auditor judged the distinction supported, while GPT-5.6 Sol held that the categories are neither mutually exclusive nor guaranteed to require different data or causal diagrams, that a binary latent U is a defensible composite net-bias device when labeled as one and misleading only when read as a literal correction for a specific mechanism, and that proxy, negative-control, validation-data and proximal approaches belong alongside the three families the entry names for the unmeasured-in-both case.
+
+## Why it is open
+
+When a variable is absent from the source data entirely, its prevalence, outcome association, treatment interaction and correlation with measured covariates must all come from external evidence and none can be checked against the analysis dataset, because an optimizer cannot balance a variable that does not exist. Threats such as differential outcome ascertainment, treatment version or calendar-era care need data (validation substudies, visit-process information, protocol details) and parameters (prevalence, sensitivity and specificity, lag distributions) that a single latent binary confounder does not carry, so a composite device gives the wrong sign and magnitude when it is read as a literal correction. No PAIC tool asks the analyst to declare which mechanism is being modeled: cpaic (choxos/cpaic@9d150e9, an unreleased development package on GitHub, not installable from CRAN) implements a mechanism-specific diagnostic for one of the eleven targets, cross-subnetwork component drift, but nothing combines omitted-variable, selection, measurement, ascertainment and bridge mechanisms, so a balanced-covariate table is still presented as evidence of adjustment for threats it never touched.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Soutar et al. 2025, BMC Medical Research Methodology](https://doi.org/10.1186/s12874-025-02551-z) | Bayesian data augmentation with a latent variable for subject-level indirect comparisons, imputing an unmeasured confounder under user-specified associations. |
+| [Ren et al. 2025, Research Synthesis Methods](https://doi.org/10.1017/rsm.2025.13) | States that the proposed QBA relies on the important covariates being measured in the company's own trial, and that covariates unmeasured in both studies would limit what the sensitivity analysis could achieve. The paper's own admission that its method covers only the unreported-in-target case. |
+| [cpaic, unreleased development package on GitHub (not on CRAN), commit 9d150e9](choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca) | Implements bridge_fragility(), a mechanism-specific sensitivity diagnostic for one listed target, cross-subnetwork component drift, rather than reducing every threat to a generic latent U. It does not combine omitted-variable, selection, measurement, ascertainment and bridge mechanisms. |
+
+:::
+
+## Probable solution or research direction
+
+Require analysts to name the specific bias mechanism and its causal diagram, then select matching sensitivity parameters and an analysis family, declaring whether each sensitivity variable is unreported in the target aggregate data, unmeasured in the source IPD, measured with error, or a proxy for design and care differences, while acknowledging that these categories overlap and that a composite latent variable is legitimate when presented as a net-bias device. Build on the mechanism-specific pattern cpaic already demonstrates for bridge drift and extend tooling to support several mechanisms at once rather than only a latent binary confounder. Route the unmeasured-in-both case to bias-function analysis, latent-U data augmentation or partial identification, and consider proxy, negative-control, validation-data and proximal approaches where their additional assumptions are defensible.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Unverifiable. Auditors disagreed and the disagreement was evidence-bearing on both sides.
+
+**The source said.** "The report sets out eleven distinct bias targets for unanchored PAIC, each with its own manifestation, sensitivity parameters and analysis family, and argues they must not be collapsed into one generic unmeasured confounder. The flagship distinction is between a covariate measured in the source IPD but unreported in the target aggregate data and a variable unmeasured in both sources, which no weighting or regression adjustment can address."
+
+**What was wrong with it.** GPT-5.6 Sol narrowed the claim that each mechanism needs its own data and diagram and that a binary latent U is inherently misleading: selection bias can be written as a latent-variable or potential-outcome shift, measurement, ascertainment and missingness can share one observation model, and a composite U is only misleading when read literally. The claim that applied analysts frequently ignore the distinction is an empirical assertion about practice that neither auditor could verify. The flagship distinction itself is now sourced to Ren et al. 2025 (doi:10.1017/rsm.2025.13).
+
+**Dissent.** codex dissented (supported-with-caveat): The central distinction is correct. A variable measured in source IPD but absent from target summaries can be handled by sensitivity analysis over target moments; a variable absent from source IPD cannot be balanced directly by MAIC. Its association and dependence structure are not nonparametrically identified from the primary data. The eleven-item list is internally accurate. The caveat is that the categories are neither mutually exclusive nor guaranteed to require entirely different data or DAGs: selection bias can be represented through a latent-variable or potential-outcome-shift parameterization, and measurement, ascertainment, and missingness mechanisms may share a joint observation model. A binary latent U is not inherently misleading when explicitly presented as a composite net-bias device; it becomes misleading when interpreted as a literal correction for a specific measurement or care-process mechanism. C9's three families are reasonable but not exhaustive, since proxy, negative-control, validation-data, and proximal approaches may also apply under additional assumptions. C10 is an unsupported empirical-frequency claim. cpaic 9d150e9 partly addresses the taxonomy through a mechanism-specific bridge_fragility() diagnostic for component-bridge drift, but it does not combine omitted-variable, selection, measurement, ascertainment, and bridge mechanisms.
+
+Literature and prior-art check
+:   **open / supported.** Claims 5 to 8 (the flagship distinction between a covariate unreported in the target aggregate data and one unmeasured in both sources) are directly and explicitly supported by a source the entry does not cite here: Ren et al. 2025 state 'Our proposed QBA approach using sensitivity analysis relies on the important covariates being measured in the company's own trial. If any important covariates were not measured in both studies, it would limit what the sensitivity analysis could achieve.' That is the paper's own admission that its method covers only the unreported-in-target case. Soutar et al. 2025 is correctly described as latent-variable Bayesian data augmentation for subject-level comparisons. Claims 1, 2 and 9 are taxonomy internal to the source report and are not literature-checkable; I take no view on the count of eleven. Claim 10 (applied analysts frequently ignore the distinction) is an empirical assertion about practice with no supporting review cited and I could not verify it; a review of applied unanchored PAIC submissions would be needed.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / supported-with-caveat.** The central distinction is correct. A variable measured in source IPD but absent from target summaries can be handled by sensitivity analysis over target moments; a variable absent from source IPD cannot be balanced directly by MAIC. Its association and dependence structure are not nonparametrically identified from the primary data. The eleven-item list is internally accurate. The caveat is that the categories are neither mutually exclusive nor guaranteed to require entirely different data or DAGs: selection bias can be represented through a latent-variable or potential-outcome-shift parameterization, and measurement, ascertainment, and missingness mechanisms may share a joint observation model. A binary latent U is not inherently misleading when explicitly presented as a composite net-bias device; it becomes misleading when interpreted as a literal correction for a specific measurement or care-process mechanism. C9's three families are reasonable but not exhaustive, since proxy, negative-control, validation-data, and proximal approaches may also apply under additional assumptions. C10 is an unsupported empirical-frequency claim. cpaic 9d150e9 partly addresses the taxonomy through a mechanism-specific bridge_fragility() diagnostic for component-bridge drift, but it does not combine omitted-variable, selection, measurement, ascertainment, and bridge mechanisms.
+    Cites choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca: Implements a mechanism-specific sensitivity analysis for one of the eleven listed targets, cross-subnetwork component drift, rather than reducing every threat to a generic latent U..
+
+Decision path
+:   `R3:partially-solved(n=1) → R7:counter-and-support-both-present`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [IDN-02 — No assumption map spans identification, transport and consistency](IDN-02-no-assumption-map-spans-identification-transport-and-consist.qmd)
+- [IDN-12 — Five mechanisms of cross-study effect variation are lumped together](IDN-12-five-mechanisms-of-cross-study-effect-variation-are-lumped-t.qmd)
+:::
+
+## Source
+
+Derived from C:L474-492, C:L481, C:L512, C:L529, C:L564 of the reviewed corpus.

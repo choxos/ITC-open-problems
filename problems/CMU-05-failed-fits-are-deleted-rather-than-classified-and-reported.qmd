@@ -1,0 +1,78 @@
+---
+title: "Failed fits are deleted rather than classified and reported"
+description: "Dropping failed or non-converged replicates makes every reported performance figure conditional on the method having worked, and when failure depends on scenario difficulty or on the size of the estimation error those figures can favor the more fragile method. The general solution is already published: Pawel et al. (arXiv:2409.18527; The American Statistician, doi:10.1080/00031305.2025.2540002) review 482 simulation studies, find that only 23% mention missingness at all, 19% report its frequency and 14% report how it was handled, propose a classification of failure types with handling options, and state the direction of the bias explicitly. What remains open is adoption in ITC and PAIC, where no equivalent review or typed failure reporting was found, plus one extension: their taxonomy does not separate a principled refusal to estimate a non-estimable contrast from a numerical convergence failure, and in this field that distinction carries scientific content."
+pid: "CMU-05"
+topic: "Computation & reproducibility"
+categories: ["Computation & reproducibility", "Very high priority", "Unverifiable"]
+priority: "Very high"
+prank: 1
+verdict: "Unverifiable"
+verdictslug: "unverifiable"
+maturity: "Established"
+---
+::: {.problem-meta}
+[CMU-05]{.problem-id}
+[Unverifiable]{.verdict .verdict-unverifiable}
+[Very high priority]{.chip .chip-priority-very-high}
+[Established]{.chip .chip-maturity-established}
+:::
+## Statement
+
+Dropping failed or non-converged replicates makes every reported performance figure conditional on the method having worked, and when failure depends on scenario difficulty or on the size of the estimation error those figures can favor the more fragile method. The general solution is already published: Pawel et al. (arXiv:2409.18527; The American Statistician, doi:10.1080/00031305.2025.2540002) review 482 simulation studies, find that only 23% mention missingness at all, 19% report its frequency and 14% report how it was handled, propose a classification of failure types with handling options, and state the direction of the bias explicitly. What remains open is adoption in ITC and PAIC, where no equivalent review or typed failure reporting was found, plus one extension: their taxonomy does not separate a principled refusal to estimate a non-estimable contrast from a numerical convergence failure, and in this field that distinction carries scientific content.
+
+## Why it is open
+
+Failures are not missing at random with respect to the truth: separation, non-overlap, weak identification and sampler breakdown occur in the same cells that produce the largest errors, so deleting the failing method's replicates while keeping the others' flatters the method that failed. Software defaults reinforce the practice by returning NA values that pipelines drop without comment, and reviewers cannot detect the deletion because the per-cell replicate count is usually not reported. A conceptual problem also remains in what 'reporting performance including failures' means: an absent estimate has no bias and no interval coverage, so failure rates and conditional performance have to sit side by side unless a prespecified loss or worst-case rule combines them.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Pawel, Bartos, Siepe and Lohmann 2025, Handling missingness, failures, and non-convergence in simulation studies (arXiv:2409.18527), The American Statistician](https://doi.org/10.1080/00031305.2025.2540002) | reviews 482 simulation studies (only 23% mention missingness, 19% report frequency, 14% report handling), proposes a classification of data-generating, method and performance missingness with handling options, and states that excluding results only for the non-convergent method may bias results in favor of that method |
+| [cpaic, unreleased development package on GitHub (not on CRAN), commit 9d150e9](https://github.com/choxos/cpaic) | fails closed when too few MAIC bootstrap replicates succeed, on the ground that the standard error cannot then be trusted; it does not retain or publish replicate-level failure categories |
+
+:::
+
+## Probable solution or research direction
+
+Apply the Pawel et al. classification per scenario cell instead of inventing a new one, and add the category it lacks: a principled refusal to estimate a non-estimable contrast, which is a scientific result rather than a numerical failure. Report the per-cell replicate count and the failure rate as a primary robustness measure alongside conditional performance, and combine the two into a single number only under a prespecified loss rule. The concrete missing artifact is a retained, published record of replicate-level failure categories; cpaic, an unreleased development package on GitHub that is not on CRAN, fails closed when too few bootstrap replicates succeed but does not keep those categories.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Unverifiable. Auditors disagreed and the disagreement was evidence-bearing on both sides.
+
+**The source said.** "Simulation studies silently drop non-converged or failed replicates instead of publishing a classification of the failures, so every reported performance figure is conditional on the method having worked. That condition fails precisely in the hard scenarios the study exists to probe."
+
+**What was wrong with it.** The source proposed a failure classification as new work. The literature auditor found that Pawel et al. 2025 (arXiv:2409.18527) already published one together with the empirical evidence that failures go unreported, so the residual gap is adoption in this field; the 'refusal to estimate' category is this entry's own extension and is not part of that taxonomy. The source-code auditor narrowed the bias claim: the direction follows only when failure is informative about difficulty or error, and it is not guaranteed as a theorem.
+
+**Dissent.** literature dissented (supported): I read the full PDF of Pawel, Bartos, Siepe & Lohmann, 'Handling Missingness, Failures, and Non-Convergence in Simulation Studies' (arXiv:2409.18527v3; The American Statistician, doi 10.1080/00031305.2025.2540002). It supports the entry's claims almost line for line and, crucially, it also does what the entry proposes: it reviews 482 simulation studies, finds only 23% mention missingness (19% report frequency, 14% report handling), proposes a classification of missingness types with handling options, and demonstrates in a case study that non-convergence is systematically driven by simulation factors. It states explicitly that deleting only the failing method's replicates biases results in favor of that method, and cites the Peduzzi 'ten events per variable' rule as an influential result later shown to be driven by non-convergence handling. So the general-methodology solution now exists (2025) and the residual gap is adoption in ITC/PAIC, where I found no equivalent review. Caveat: the taxonomy distinguishes data-generating, method and performance missingness; it does not separately name 'principled refusal to estimate a non-estimable contrast', so that sub-claim is an extension, not a citation. codex dissented (open): C1 and C3 are sound methodological cautions. If failures are omitted, bias, RMSE, and coverage describe performance conditional on successful estimation rather than unconditional operational performance. C2 requires an explicit condition: the failure mechanism must depend on scenario difficulty, the latent estimation error, or both. The direction and effect on method ranking are not guaranteed mathematically. C4 is correct because principled abstention for a nonidentified estimand is scientifically different from numerical non-convergence. The direction's request to report performance including failures also needs an operational definition: an absent estimate has no ordinary bias or interval coverage, so failure rates and conditional performance should be reported separately unless a prespecified loss or worst-case rule combines them. cpaic fails closed when too few MAIC bootstrap replicates succeed, but it does not retain and publish replicate-level failure categories, so the agenda item remains open.
+
+Literature and prior-art check
+:   **partially-solved / supported.** I read the full PDF of Pawel, Bartos, Siepe & Lohmann, 'Handling Missingness, Failures, and Non-Convergence in Simulation Studies' (arXiv:2409.18527v3; The American Statistician, doi 10.1080/00031305.2025.2540002). It supports the entry's claims almost line for line and, crucially, it also does what the entry proposes: it reviews 482 simulation studies, finds only 23% mention missingness (19% report frequency, 14% report handling), proposes a classification of missingness types with handling options, and demonstrates in a case study that non-convergence is systematically driven by simulation factors. It states explicitly that deleting only the failing method's replicates biases results in favor of that method, and cites the Peduzzi 'ten events per variable' rule as an influential result later shown to be driven by non-convergence handling. So the general-methodology solution now exists (2025) and the residual gap is adoption in ITC/PAIC, where I found no equivalent review. Caveat: the taxonomy distinguishes data-generating, method and performance missingness; it does not separately name 'principled refusal to estimate a non-estimable contrast', so that sub-claim is an extension, not a citation.
+    Cites arxiv:2409.18527: Supplies both the empirical evidence that failures go unreported and the failure classification plus reporting recommendations that this entry proposes; published in The American Statistician (doi 10.1080/00031305.2025.2540002)..
+    Cites arxiv:2409.18527: States the direction of the bias claimed by this entry..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** C1 and C3 are sound methodological cautions. If failures are omitted, bias, RMSE, and coverage describe performance conditional on successful estimation rather than unconditional operational performance. C2 requires an explicit condition: the failure mechanism must depend on scenario difficulty, the latent estimation error, or both. The direction and effect on method ranking are not guaranteed mathematically. C4 is correct because principled abstention for a nonidentified estimand is scientifically different from numerical non-convergence. The direction's request to report performance including failures also needs an operational definition: an absent estimate has no ordinary bias or interval coverage, so failure rates and conditional performance should be reported separately unless a prespecified loss or worst-case rule combines them. cpaic fails closed when too few MAIC bootstrap replicates succeed, but it does not retain and publish replicate-level failure categories, so the agenda item remains open.
+
+Grok 4.5, recency lens
+:   **open / supported.** Pawel, Bartoš, Siepe & Lohmann (arXiv:2409.18527v2; The American Statistician 2025) reviewed 482 methodological simulation studies (including RSM and SiM) and found only 23% mentioned missingness/failures, 19% quantified frequency, and 14% described handling; case-wise deletion was the modal strategy and can over-optimistically assess methods that fail on hard data. That paper classifies DGM/method/performance missingness and recommends always quantifying failures and treating failure rate as informative, which aligns with C1–C4 and strengthens rather than closes the agenda item. It is cross-field guidance with a meta-analysis case study, not an ITC/PAIC convention change or package default. Searches for PAIC/ML-NMR simulation papers that publish typed failure taxonomies (optimizer, non-convergence, separation, infeasible weights, principled refusal, integration failure) with performance both including and excluding failures found no field-wide adoption. Silent deletion and unreported per-cell replicate counts remain open practice problems as stated.
+
+Decision path
+:   `R3:partially-solved(n=1) → R7:counter-and-support-both-present`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [DEC-13 — Published PAIC analyses cannot be reconstructed from the record](DEC-13-published-paic-analyses-cannot-be-reconstructed-from-the-rec.qmd)
+- [QBA-18 — MAIC sensitivity grids: infeasible calibration and failed fits](QBA-18-maic-sensitivity-grids-infeasible-calibration-and-failed-fit.qmd)
+:::
+
+## Source
+
+Derived from C:L2126, C:L2131 of the reviewed corpus.

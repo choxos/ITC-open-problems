@@ -1,0 +1,76 @@
+---
+title: "External-control bridges become cross-design causal synthesis"
+description: "Real-world or historical controls can bridge a disconnected gap, but doing so replaces randomization-only identification with cross-design exchangeability, transportability, consistency, and positivity assumptions. If residual design bias is left unmodeled, reported intervals omit an important source of uncertainty; the false precision follows from that omission rather than arising automatically. Most of the design-bias layer the source proposed is already built: Hussein et al. 2023 nest studies within designs with an additional, optionally class-specific bias parameter for observational studies and report that uncertainty around effect estimates increased once design differences were modeled; Schmitz et al. 2018 bridged two disconnected myeloma networks with single-arm observational data and propagated bridge uncertainty by analyzing the space of possible matches; a 2022 rheumatoid arthritis study bridged first- and second-line networks using registry data with target-trial emulation; and robust mixture priors for down-weighting external information have been standard since Schmidli et al. 2014. What remains is calibration: where no overlapping randomized and observational contrasts, validation data, negative controls, or external calibration inform the bias, treatment effect and residual design bias are not separately identified."
+pid: "DIS-07"
+topic: "Disconnected networks & bridges"
+categories: ["Disconnected networks & bridges", "High priority", "Partially addressed"]
+priority: "High"
+prank: 2
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[DIS-07]{.problem-id}
+[Partially addressed]{.verdict .verdict-partially-addressed}
+[High priority]{.chip .chip-priority-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+## Statement
+
+Real-world or historical controls can bridge a disconnected gap, but doing so replaces randomization-only identification with cross-design exchangeability, transportability, consistency, and positivity assumptions. If residual design bias is left unmodeled, reported intervals omit an important source of uncertainty; the false precision follows from that omission rather than arising automatically. Most of the design-bias layer the source proposed is already built: Hussein et al. 2023 nest studies within designs with an additional, optionally class-specific bias parameter for observational studies and report that uncertainty around effect estimates increased once design differences were modeled; Schmitz et al. 2018 bridged two disconnected myeloma networks with single-arm observational data and propagated bridge uncertainty by analyzing the space of possible matches; a 2022 rheumatoid arthritis study bridged first- and second-line networks using registry data with target-trial emulation; and robust mixture priors for down-weighting external information have been standard since Schmidli et al. 2014. What remains is calibration: where no overlapping randomized and observational contrasts, validation data, negative controls, or external calibration inform the bias, treatment effect and residual design bias are not separately identified.
+
+## Why it is open
+
+The external control supplies the missing arm, so any difference between the observational source and the randomized trials that still affects the outcome after adjustment loads directly onto the cross-gap contrast. A synthesis likelihood that treats the external control as another randomized arm shrinks the interval while leaving that residual bias unmodeled. Where no design overlaps both evidence types and no validation or negative-control data exist, the treatment effect and the residual design bias are not separately identified, and there is no accepted way to elicit or calibrate the bias parameter that the published hierarchical models require as an input.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Hussein et al. 2023](https://doi.org/10.1186/s12874-023-01925-5) | implements hierarchical NMA models nesting studies within designs with an additional bias parameter for observational studies, and shows uncertainty widens relative to naive pooling |
+| [Schmitz et al. 2018](https://doi.org/10.1186/s12874-018-0509-7) | bridges a genuinely disconnected myeloma network with single-arm observational data and incorporates bridge uncertainty by analyzing the space of possible matches |
+| [Bridging disconnected networks of first and second lines of biologic therapies in rheumatoid arthritis with registry data (2022)](https://doi.org/10.1016/j.jclinepi.2022.06.011) | uses registry data with target-trial emulation to supplement randomized evidence and bridge disconnected treatment-line networks, so target-trial emulation as a bridge is implemented rather than proposed |
+| [Schmidli et al. 2014](https://doi.org/10.1111/biom.12242) | establishes robust meta-analytic-predictive mixture priors for historical control information, giving the down-weighting and prior-data-conflict behavior the source proposed as new |
+
+:::
+
+## Probable solution or research direction
+
+Use the published design-bias machinery rather than rebuilding it: fit hierarchical models with design-level bias parameters, use robust mixture priors to down-weight external evidence and react to prior-data conflict, and keep the randomized and observational likelihoods separate. Direct new work at the calibration problem that remains: elicitation protocols and empirical calibration evidence for how large residual design bias is in a given disease area and era, and estimation of it wherever overlapping randomized and observational contrasts, validation samples, or negative controls exist. Report the sensitivity of the cross-gap contrast to that bias parameter alongside the point estimate, since separating likelihoods or emulating a target trial does not by itself remove residual bias.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Partially addressed. Part of this problem is addressed by existing work; the entry names which part.
+
+**The source said.** "Real-world or historical controls can create a bridge across a disconnected gap, but doing so converts the problem into one of cross-design causal synthesis. Combining randomized and nonrandomized evidence without an explicit design-bias layer often produces false precision."
+
+**What was wrong with it.** The source listed the design-bias layer, robust priors, cross-design estimators, and target-trial emulation as directions to build; the literature auditor found each already published, at doi:10.1186/s12874-023-01925-5, doi:10.1186/s12874-018-0509-7, doi:10.1016/j.jclinepi.2022.06.011, and doi:10.1111/biom.12242. GPT-5.6 Sol narrowed two overstatements: only residual differences affecting the outcome after valid adjustment load onto the contrast, not all confounding, selection, and measurement differences, and design bias is not invariably unidentified, since overlapping randomized and observational comparisons, validation samples, negative controls, or external calibration can inform it.
+
+Literature and prior-art check
+:   **partially-solved / supported-with-caveat.** prior_work is empty and the entry's proposed direction is largely already published. Hussein et al. 2023 (BMC Med Res Methodol) build exactly the design-bias layer the entry asks for: hierarchical NMA models nesting studies within designs with an additional bias parameter for observational studies, optionally class-specific, and they report that uncertainty around effect estimates increased once design differences were modelled, which is the entry's false-precision claim demonstrated. Schmitz et al. 2018 bridged two genuinely disconnected myeloma networks with single-arm observational studies and propagated bridge uncertainty by analysing the space of possible matches. Bujkiewicz et al. 2022 bridged disconnected first- and second-line networks using registry data with target-trial emulation, which the entry lists as a future direction. Robust mixture priors for down-weighting external information are standard since Schmidli et al. 2014. What genuinely remains open is calibration and elicitation of design-bias parameters, which are not identified from the data. The entry overstates novelty by presenting existing methods as directions.
+    Cites 10.1186/s12874-023-01925-5: Implements the explicit design-bias layer the entry proposes, and shows the widened uncertainty relative to naive pooling.
+    Cites 10.1186/s12874-018-0509-7: External-control bridging of a real disconnected network with explicit propagation of bridge-choice uncertainty.
+    Cites 10.1016/j.jclinepi.2022.06.011: Target-trial emulation as a bridge is already implemented, not merely a proposal.
+    Cites 10.1111/biom.12242: The robust/down-weighting prior for external controls the entry proposes is an established, validated construction.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** C1 is correct: once an external or historical control carries the missing comparison, identification rests on cross-design exchangeability, transportability, consistency, and positivity rather than randomization alone. C2 is directionally correct but its frequency word often is empirical, and false precision is conditional rather than automatic. The problem occurs when nominal uncertainty conditions on an unjustified no-residual-bias assumption. The why-open text overstates that all design differences load onto the contrast; only residual differences affecting the outcome after valid adjustment do so. Design bias is not invariably unidentified or necessarily elicited. It may be estimated or partially informed by overlapping randomized and observational comparisons, validation samples, negative controls, or external calibration. Without such information, however, treatment effect and residual design bias are not separately identified. The strategies in C3 are useful conditional tools, but separating likelihoods, down-weighting, or target-trial emulation alone does not remove residual bias. The residual identification problem remains open and decision-critical when the external control materially carries the comparison.
+
+Decision path
+:   `R3:partially-solved(n=1) → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [QBA-08 — Index-date, immortal time and delayed entry in external comparators](QBA-08-index-date-immortal-time-and-delayed-entry-in-external-compa.qmd)
+:::
+
+## Source
+
+Derived from C:L1126-1136 of the reviewed corpus.

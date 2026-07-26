@@ -1,0 +1,75 @@
+---
+title: "Topology-only graph neural network output cannot identify effects"
+description: "No graph neural network has been applied to a treatment or component evidence network, so the proposal is untested; the closest retrieved work is graph-theoretic rather than neural, including a preprint on the bipartite treatment-trial structure (arXiv:2505.18036). The claim that survives is narrow: a model reading topology alone can rank candidates or emulate simulations but cannot certify that any bridge is valid, because identification is a property of the assumptions attached to edges rather than of the shape of the graph. The stronger version, that a graph neural network's output must never be an effect estimate, is too broad; such a model may legitimately serve as a nuisance or outcome model inside an otherwise identified estimator, and what is invalid is treating a topology-only prediction as an identified causal effect."
+pid: "ADJ-13"
+topic: "Adjacent-field methods"
+categories: ["Adjacent-field methods", "Medium priority", "Confirmed open"]
+priority: "Medium"
+prank: 4
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Speculative"
+---
+::: {.problem-meta}
+[ADJ-13]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[Medium priority]{.chip .chip-priority-medium}
+[Speculative]{.chip .chip-maturity-speculative}
+:::
+## Statement
+
+No graph neural network has been applied to a treatment or component evidence network, so the proposal is untested; the closest retrieved work is graph-theoretic rather than neural, including a preprint on the bipartite treatment-trial structure (arXiv:2505.18036). The claim that survives is narrow: a model reading topology alone can rank candidates or emulate simulations but cannot certify that any bridge is valid, because identification is a property of the assumptions attached to edges rather than of the shape of the graph. The stronger version, that a graph neural network's output must never be an effect estimate, is too broad; such a model may legitimately serve as a nuisance or outcome model inside an otherwise identified estimator, and what is invalid is treating a topology-only prediction as an identified causal effect.
+
+## Why it is open
+
+Identification in an evidence network is carried by the assumptions attached to edges, so a topology-reading model can rank candidates but cannot establish that any of them holds. A trained model nevertheless emits a number, and no current tooling or reporting convention types that number differently from an estimated treatment effect, so nothing structural prevents a topology-only prediction from being consumed as one. Because no such model has been applied in this field yet, this is a design principle for a technology that has not arrived rather than a documented failure.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [arXiv:2505.18036 (bipartite treatment-trial structure in network meta-analysis)](https://arxiv.org/abs/2505.18036) | Closest retrieved work on structural representation of evidence networks; graph-theoretic rather than neural, and it does not rank bridges or emulate simulations. |
+
+:::
+
+## Probable solution or research direction
+
+Restrict graph neural network tooling to simulation emulation, bridge-candidate ranking, prior construction and design prioritization, and validate the emulator against the simulations it replaces. Establish reporting conventions that type emulator output differently from estimated treatment effects so the distinction survives into submissions. Where such a model is used as a nuisance or outcome model inside an identified estimator, say so explicitly and carry valid inference for the learned component.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+
+**The source titled this.** "Graph neural networks must output hypotheses, not effect estimates" The title asserts a graph neural network must never output an effect estimate, which the audit rejected as too broad since such a model may serve as a nuisance model inside an identified estimator.
+
+**The source said.** "Graph neural networks are proposed to encode treatment-network and component-network topology so as to inform priors, rank bridge candidates and emulate expensive simulation studies. The report is explicit that they must not decide causal validity: the appropriate output is a hypothesis or design recommendation, not an effect estimate."
+
+**What was wrong with it.** The source said the appropriate output of a graph neural network here is a hypothesis or design recommendation and never an effect estimate; GPT-5.6 Sol narrowed that, since such a model can be a nuisance or outcome model inside an identified estimator, so the prohibition attaches to topology-only predictions rather than to the architecture. The literature auditor added that the governance risk is a prediction about a practice that does not yet exist rather than an observed failure mode.
+
+Literature and prior-art check
+:   **open / supported-with-caveat.** I found no graph neural network applied to a treatment or component evidence network; searches returned graph-theoretic but not neural work (random walks on NMA networks, Rucker/Davies; the bipartite treatment-trial structure preprint arXiv:2505.18036). So the technical proposal is open. The caveat is about what kind of claim this entry is making. 'Network topology alone cannot establish causal identification', 'a GNN should not decide causal validity' and 'the appropriate output is a hypothesis or design recommendation' are normative positions, not findings; no source asserts them, and no source contradicts them. Likewise the governance claim, that nothing prevents a GNN number being consumed as an effect estimate, is a prediction about practice with no evidence base because the practice does not yet exist. The entry is defensible but should be worded as a design principle for a technology not yet in the field rather than as an observed failure mode.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **not-a-problem / overstated.** C1 through C3 are feasible only as learned surrogates trained on relevant simulations or data and validated within their training domain. C4 and C5 are correct when restricted to topology alone: graph shape contributes to structural estimability, but it cannot establish the causal assumptions attached to a bridge. C6 is too broad and architecture-specific. A GNN may legitimately be a nuisance or outcome model inside an otherwise identified causal estimator, and could contribute to an effect estimate with valid design and inference. What is invalid is treating a topology-only prediction or simulation surrogate as an identified causal effect. C7 accurately reports the label. The stated governance risk is generic model misuse, not a distinct unresolved statistical problem; the technically correct restriction can be imposed by defining the estimand, role, and output type. This is a speculative roadmap item rather than a decision-grade gap.
+
+Grok 4.5, recency lens
+:   **open / supported.** Search for GNN applications to evidence-network topology, NMA bridge ranking, simulation emulation, or prior construction for ITC found no field-closing work. Broader GNN ranking papers exist for general pairwise comparison graphs, and GNN causal-learning surveys exist, but none establish permissible, evaluated tooling that ranks ITC bridges or emulates NMA simulations under governance that prevents topology-trained numbers from being read as causal effect estimates. The identification claim that topology alone cannot certify causal validity is standard and unrefuted; the open part is tooling-plus-convention so that GNN output is typed as hypothesis/design recommendation rather than estimate. Queries: graph neural network network meta-analysis; GNN treatment ranking evidence synthesis; GNN bridge candidates NMA.
+
+Decision path
+:   `R5:default-open → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [COV-05 — Legitimate versus dangerous roles for flexible learners](COV-05-legitimate-versus-dangerous-roles-for-flexible-learners.qmd)
+- [DIS-10 — multinma's baseline-synthesis bridge is an unmerged pull request](DIS-10-multinma-s-baseline-synthesis-bridge-is-an-unmerged-pull-req.qmd)
+:::
+
+## Source
+
+Derived from C:L1646-1647, C:L1661, C:L1726 of the reviewed corpus.

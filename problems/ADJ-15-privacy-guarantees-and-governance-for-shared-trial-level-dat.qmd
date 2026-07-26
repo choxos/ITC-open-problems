@@ -1,0 +1,75 @@
+---
+title: "Privacy guarantees and governance for shared trial-level data"
+description: "Differential privacy would let data holders publish richer target-population summaries under a formal guarantee, and adjacent work exists: differentially private covariate balancing propagates privacy noise into weighted treatment-effect estimators (arXiv:2410.14789), FedECA delivers federated inverse-probability-weighted external-control analysis without pooling individual data (arXiv:2311.16984), and methods exist for choosing the privacy parameter for trial data release (PMC11031247). None calibrates a budget for the target moments PAIC needs, and no PAIC estimator treats released summaries as noisy inputs and propagates that noise into the transported effect. Two claims need narrowing: a correctly calibrated guarantee does not cease to hold because an arm is small, with utility rather than validity the casualty, and the assertion that no governance framework exists in evidence synthesis was not verifiable by any auditor."
+pid: "ADJ-15"
+topic: "Adjacent-field methods"
+categories: ["Adjacent-field methods", "High priority", "Confirmed open"]
+priority: "High"
+prank: 2
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Emerging"
+---
+::: {.problem-meta}
+[ADJ-15]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[High priority]{.chip .chip-priority-high}
+[Emerging]{.chip .chip-maturity-emerging}
+:::
+## Statement
+
+Differential privacy would let data holders publish richer target-population summaries under a formal guarantee, and adjacent work exists: differentially private covariate balancing propagates privacy noise into weighted treatment-effect estimators (arXiv:2410.14789), FedECA delivers federated inverse-probability-weighted external-control analysis without pooling individual data (arXiv:2311.16984), and methods exist for choosing the privacy parameter for trial data release (PMC11031247). None calibrates a budget for the target moments PAIC needs, and no PAIC estimator treats released summaries as noisy inputs and propagates that noise into the transported effect. Two claims need narrowing: a correctly calibrated guarantee does not cease to hold because an arm is small, with utility rather than validity the casualty, and the assertion that no governance framework exists in evidence synthesis was not verifiable by any auditor.
+
+## Why it is open
+
+Trial arms are small, so aggregate quantities computed on them have high sensitivity: gradients, sufficient statistics or likelihood contributions from a few dozen patients need large noise to be protected, and standard federated privacy analyses assume per-site samples far larger than a 40-patient arm. The guarantee is bought with injected noise, so extra moments arrive already degraded, and PAIC estimators must propagate that noise into the effect rather than treating the summaries as fixed; nobody has established what privacy budget yields target moments precise enough to change a PAIC conclusion. Governance is the second constraint, since cross-sponsor analysis requires legal agreement about who runs the code, who sees intermediate quantities and who is accountable.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Ohnishi & Awan (arXiv:2410.14789), differentially private covariate balancing](https://arxiv.org/abs/2410.14789) | Privatizes propensity-score and balancing steps and propagates privacy noise into weighted treatment-effect estimators with privacy-utility rates. Does not calibrate a budget for the target moments PAIC needs. |
+| [FedECA (Nature Communications 2025; arXiv:2311.16984)](https://arxiv.org/abs/2311.16984) | Federated inverse-probability-weighted external-control analysis for time-to-event outcomes without pooling individual data, with discussion of differentially private variants. |
+| [PMC11031247 (data-driven choice of the privacy parameter for clinical trial data release)](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11031247/) | Addresses privacy-parameter selection for trial data release, the nearest existing answer to the budget-calibration question, but not for PAIC target moments. |
+| [PMC8449619 (scoping review of differential privacy in health research)](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8449619/) | Surveys differential privacy applications in health research, establishing the privacy-utility trade-off and the state of adoption. |
+
+:::
+
+## Probable solution or research direction
+
+Characterize the privacy attack surface of evidence synthesis when trial arms are small, and design release mechanisms and noise calibration for exactly the target moments PAIC needs in that regime, extending the differentially private balancing work that already propagates privacy noise into weighted estimators. Build PAIC estimators that treat released summaries as noisy inputs and carry the uncertainty into the transported effect. Develop governance conventions for cross-sponsor analyses covering code custody, intermediate quantities and accountability, and document what already exists before claiming a vacuum.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+
+**The source said.** "Differential privacy is proposed so data holders can publish richer target-population summaries, including more moments, correlations and joint structure, under a formal guarantee, while the report separately names privacy attacks arising from small trial arms and the governance of cross-sponsor analyses as key open questions. Together these determine what can safely be released and who is accountable for the result."
+
+**What was wrong with it.** The source implied that small trial arms defeat formal privacy guarantees and that no cross-sponsor governance framework exists. GPT-5.6 Sol pointed out that a correctly calibrated guarantee still applies at small n and that the universal governance claim is not established, and the literature auditor could not verify it either; Grok 4.5 supplied the adjacent differentially private causal work the source did not cite.
+
+Literature and prior-art check
+:   **open / supported.** I found differential privacy applied to clinical trial data sharing, including a data-driven method for choosing the privacy parameter for trial data release (PMC11031247) and a scoping review of DP in health research (PMC8449619), plus the standard precedent that published aggregate summaries alone permitted large-scale reconstruction of the 2010 US Census. Nothing I retrieved releases DP-protected target-population moments and propagates the injected noise through a PAIC estimator, which is the entry's specific gap, and nothing establishes what privacy budget still yields target moments precise enough to change a PAIC conclusion. The privacy-utility trade-off, the requirement to account for injected noise, and the elevated re-identification risk of statistics computed on small arms are all standard and documented. The governance claim ('no such framework exists in evidence synthesis') is a no-method-exists assertion; I found no source stating the absence, so treat that specific sentence as unverified rather than verified.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** C1, C2, C4, C6, and C8 are technically sound with conditions. A differential-privacy guarantee requires a defined neighboring unit, bounded contributions, a specified mechanism, and privacy accounting; releasing more or higher-dimensional moments generally consumes privacy budget or increases error. Small arms worsen sensitivity and utility, but a correctly calibrated formal guarantee does not cease to apply merely because n is small. Attack feasibility also does not follow from sample size alone. Privacy-induced randomness should normally be propagated for unconditional inference, although an explicitly conditional analysis can condition on the released value. Cross-sponsor governance is a legitimate implementation question, but the universal claim that no framework exists is not established technically. This remains open PAIC-specific work, but it is a decision-grade blocker only when privacy-constrained sharing is required.
+
+Grok 4.5, recency lens
+:   **open / supported-with-caveat.** Inverted-prior search found adjacent DP-plus-causal and federated ECA work, but not a solution to the PAIC-specific package as stated. Differentially private covariate balancing (Ohnishi and Awan, arXiv:2410.14789) shows how to privatize propensity-score / balancing steps and propagate privacy noise into weighted ATE/WATE estimators with privacy-utility rates; FedECA (Nature Communications 2025; arXiv:2311.16984) delivers federated IPTW for time-to-event external control arms without pooling IPD and discusses DP variants. Neither calibrates a privacy budget for richer target-population moments (means, correlations, joints) that classic AgD PAIC needs, nor builds PAIC estimators that treat those released moments as noisy inputs, nor characterises the small-arm (tens of patients) attack surface specific to evidence-synthesis statistics, nor supplies a cross-sponsor governance framework for code custody and intermediate quantities. Gradient-leakage and federated DP literature confirm C5–C6 as general facts, not as ITC closures. C1–C4 are standard DP properties (supported as framing), not evidence that the PAIC adaptation is done. C7 remains open. C8 is a report-internal maturity label and was not independently auditable beyond consistency with the sparse PAIC-DP literature. Queries run: differential privacy + (MAIC|PAIC|NMA|indirect comparison|target moments); FedECA DP; DP covariate balancing causal inference; small-sample federated gradient leakage; ISPOR/EUnetHTA/NICE federated HTA governance 2024–2026.
+
+Decision path
+:   `R5:default-open → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [CMP-15 — Target joint covariate distribution is only approximately known](CMP-15-target-joint-covariate-distribution-is-only-approximately-kn.qmd)
+:::
+
+## Source
+
+Derived from C:L1646-1647, C:L1665, C:L1728-1730, C:L1735-1736 of the reviewed corpus.

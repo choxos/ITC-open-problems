@@ -1,0 +1,82 @@
+---
+title: "drMAIC has no methods paper and no independent evaluation"
+description: "drMAIC 0.1.0 appeared on CRAN on 29 March 2026 as Doubly Robust Matching-Adjusted Indirect Comparison for HTA, sole author Anupama Singh, implementing entropy balancing with augmented, doubly robust MAIC, diagnostics and bootstrap confidence intervals for binary and time-to-event outcomes, with one vignette and a single test file; its repository was created on 23 March 2026 and last pushed the next day. No accompanying methods publication and no independent evaluation were found, so treating it as a reference implementation is premature. What such an audit can settle needs separating from what it cannot: double robustness is an analytical property holding under identification, positivity, regularity and correct specification of at least one nuisance model, so simulation tests the implementation and its finite-sample behavior rather than the theorem. Augmented weighting for PAIC is also not new with drMAIC, since Gao, Heath and Baio (doi:10.1017/rsm.2025.10021) published G-MAIC, which combines outcome regression with weighting adjustment and was evaluated across 18 scenarios against MAIC and parametric G-computation."
+pid: "SFW-14"
+topic: "Software, benchmarks & interface standards"
+categories: ["Software, benchmarks & interface standards", "High priority", "Confirmed open"]
+priority: "High"
+prank: 2
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Emerging"
+---
+::: {.problem-meta}
+[SFW-14]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[High priority]{.chip .chip-priority-high}
+[Emerging]{.chip .chip-maturity-emerging}
+[Implementation-specific]{.chip}
+:::
+::: {.callout-note appearance="simple"}
+## Scope
+
+This entry describes a limitation of a specific implementation rather than of the field.
+It is catalogued because the underlying methodological problem is general, and because a
+reference implementation is where such problems become concrete and checkable.
+:::
+
+## Statement
+
+drMAIC 0.1.0 appeared on CRAN on 29 March 2026 as Doubly Robust Matching-Adjusted Indirect Comparison for HTA, sole author Anupama Singh, implementing entropy balancing with augmented, doubly robust MAIC, diagnostics and bootstrap confidence intervals for binary and time-to-event outcomes, with one vignette and a single test file; its repository was created on 23 March 2026 and last pushed the next day. No accompanying methods publication and no independent evaluation were found, so treating it as a reference implementation is premature. What such an audit can settle needs separating from what it cannot: double robustness is an analytical property holding under identification, positivity, regularity and correct specification of at least one nuisance model, so simulation tests the implementation and its finite-sample behavior rather than the theorem. Augmented weighting for PAIC is also not new with drMAIC, since Gao, Heath and Baio (doi:10.1017/rsm.2025.10021) published G-MAIC, which combines outcome regression with weighting adjustment and was evaluated across 18 scenarios against MAIC and parametric G-computation.
+
+## Why it is open
+
+A doubly robust weighting package makes a claim about behavior under misspecification that a user cannot check from their own data, so only review of the estimating equations plus finite-sample simulation can show whether the implementation delivers what the theory promises. Simulation evidence shipped with a method is generated under that method's own assumptions, and here there is no shipped simulation and no methods paper at all, only one vignette and one test file. The field has no neutral benchmark suite, so a new package's operating characteristics cannot be checked by anyone except its author. A CRAN release confers apparent legitimacy in HTA submissions faster than independent evaluation can be produced, so the validation gap widens with each new package.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [drMAIC 0.1.0 (CRAN, published 29 Mar 2026; Anupama Singh)](https://cran.r-project.org/package=drMAIC) | implements entropy balancing with standard and augmented, doubly robust MAIC, diagnostics, sensitivity tools and bootstrap confidence intervals for binary and time-to-event outcomes; one vignette, a single test file, and no accompanying methods publication found |
+| [Gao, Heath and Baio 2025, Regression augmented weighting adjustment for indirect comparisons in health decision modelling (G-MAIC)](https://doi.org/10.1017/rsm.2025.10021) | combines outcome regression with weighting adjustment and uses a Bayesian bootstrap to propagate the uncertainty of population-adjusted estimates, evaluated against non-adjusted methods, MAIC and parametric G-computation across 18 scenarios; the published comparator any drMAIC benchmark should include |
+
+:::
+
+## Probable solution or research direction
+
+Subject drMAIC to independent review of its code and estimating equations, then to finite-sample comparison under one nuisance model correct, both models wrong and weak overlap, reporting failed fits rather than only successful ones. Include the published comparators, G-MAIC and parametric G-computation, so the exercise places drMAIC against methods that already carry simulation evidence. Keep the claims separated in reporting: the double-robustness property needs a proof under stated identification and regularity conditions, while omitted-modifier scenarios test violation of exchangeability and belong in a sensitivity analysis. Component drift belongs only in a component-PAIC extension, not in this package's benchmark.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+
+**The source titled this.** "drMAIC's doubly robust claims lack independent adversarial audit" The title demands an adversarial audit of the double-robustness claim, a standard the audit rejected since simulation tests the implementation rather than the theorem.
+
+**The source said.** "drMAIC appeared on CRAN in March 2026 as an early implementation of standard and augmented, doubly robust MAIC with diagnostics and sensitivity tools. The report holds that its methodological and software claims require independent audit, adversarial simulation and head-to-head comparison with established transport estimators before it is treated as a reference implementation, because package availability is evidence of implementation and not of methodological superiority."
+
+**What was wrong with it.** GPT-5.6 Sol judged the proposed proof standard wrong: adversarial simulation checks implementation and operating characteristics but cannot establish or refute the double-robustness theorem, both nuisance models being wrong is an expected failure condition rather than a test of the property, an omitted modifier violates exchangeability rather than misspecifying a nuisance model, and component drift is irrelevant unless drMAIC is extended to component models. The literature auditor added that augmented weighting for PAIC already has a published comparator, G-MAIC (doi:10.1017/rsm.2025.10021), which any benchmark should include.
+
+Literature and prior-art check
+:   **open / supported-with-caveat.** CRAN confirms drMAIC 0.1.0 published 2026-03-29, 'Doubly Robust Matching-Adjusted Indirect Comparison for HTA', sole author Anupama Singh, entropy balancing plus augmented/DR MAIC with diagnostics, bootstrap CIs, binary and time-to-event outcomes, one vignette. Source line 1044 matches the entry's wording verbatim. The repository corroborates the immaturity concern harder than the entry does: created 2026-03-23, last pushed 2026-03-24, two stars, and tests/testthat contains a single file, test_core.R. I found no accompanying methods publication and no independent evaluation, though per calibration an absence I found by searching is not proof. One correction of emphasis: augmented weighting for PAIC is not new with drMAIC. Gao, Heath and Baio (2025) published G-MAIC, combining outcome regression with weighting and evaluated over 18 scenarios against MAIC and parametric G-computation, so the benchmark the entry asks for has a published comparator to include.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** Independent implementation audit and finite-sample benchmarking are prudent before treating drMAIC as a reference implementation. The report's proof standard is nevertheless wrong: double robustness is an analytical property under identification, consistency, positivity, regularity, and correct specification of at least one nuisance model; simulation checks implementation and finite-sample behavior but cannot establish the theorem by itself. Both nuisance models being wrong is an expected failure condition, poor overlap targets positivity and numerical behavior, and an omitted modifier violates exchangeability rather than merely misspecifying a nuisance model. Component drift is not a relevant benchmark unless drMAIC is extended to component models. No local drMAIC source was available to verify C1-C3, while absence of prior audits and field-wide benchmarks are literature-status claims outside this lens.
+
+Decision path
+:   `R5:default-open → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [ADJ-03 — Efficient influence-function transport estimators for ITC networks](ADJ-03-efficient-influence-function-transport-estimators-for-itc-ne.qmd)
+- [MOD-05 — No doubly robust PAIC estimator is indexed by bias parameters](MOD-05-no-doubly-robust-paic-estimator-is-indexed-by-bias-parameter.qmd)
+:::
+
+## Source
+
+Derived from C:L1044, C:L2233, C:L2250 of the reviewed corpus.

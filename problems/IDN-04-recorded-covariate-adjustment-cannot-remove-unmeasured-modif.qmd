@@ -1,0 +1,82 @@
+---
+title: "Recorded-covariate adjustment cannot remove unmeasured modifier bias"
+description: "Absent randomization, valid proxies or instruments, validation data or other structural information, weighting and outcome regression built on recorded covariates cannot guarantee removal of bias from unmeasured effect modifiers or unmeasured prognostic causes of study selection, and balance on measured covariates does not establish comparability. The stronger claim that no estimator can address such bias is wrong: proximal identification with valid proxies and bridge conditions, instruments, or validation data can identify effects without observing the latent variable, and balancing measured covariates can reduce, preserve or amplify omitted-variable bias depending on the causal structure. Quantitative bias analysis is operable here rather than aspirational: across 15 emulated advanced non-small-cell lung cancer comparisons, adjustment for measured confounders cut the mean absolute log hazard ratio difference from 0.247 to 0.139 and external adjustment for unmeasured confounders to 0.098 (doi:10.1001/jamanetworkopen.2025.2152), which narrows the gap without closing it and takes its sensitivity parameters from outside the data."
+pid: "IDN-04"
+topic: "Identification, transitivity & conditional constancy"
+categories: ["Identification, transitivity & conditional constancy", "Very high priority", "Confirmed open"]
+priority: "Very high"
+prank: 1
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Emerging"
+---
+::: {.problem-meta}
+[IDN-04]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[Very high priority]{.chip .chip-priority-very-high}
+[Emerging]{.chip .chip-maturity-emerging}
+:::
+::: {.source-unsourced}
+**Source note.** This entry derives in part from a source document whose inline citations
+were ChatGPT interface tokens rather than references, and so resolve to nothing. Claims
+below are attributed to that document and were checked independently where possible;
+anything that could not be independently sourced is marked in the verification trail.
+:::
+
+## Statement
+
+Absent randomization, valid proxies or instruments, validation data or other structural information, weighting and outcome regression built on recorded covariates cannot guarantee removal of bias from unmeasured effect modifiers or unmeasured prognostic causes of study selection, and balance on measured covariates does not establish comparability. The stronger claim that no estimator can address such bias is wrong: proximal identification with valid proxies and bridge conditions, instruments, or validation data can identify effects without observing the latent variable, and balancing measured covariates can reduce, preserve or amplify omitted-variable bias depending on the causal structure. Quantitative bias analysis is operable here rather than aspirational: across 15 emulated advanced non-small-cell lung cancer comparisons, adjustment for measured confounders cut the mean absolute log hazard ratio difference from 0.247 to 0.139 and external adjustment for unmeasured confounders to 0.098 (doi:10.1001/jamanetworkopen.2025.2152), which narrows the gap without closing it and takes its sensitivity parameters from outside the data.
+
+## Why it is open
+
+Balancing, weighting and outcome modeling operate on recorded covariates, so a variable that drives both study membership and outcome is outside their reach by construction; this is an identification failure, so better algorithms and larger samples do not reduce it. Every diagnostic the field reports is a function of the measured covariates, so a perfectly balanced covariate table is compatible with large residual bias, and design and care differences sit in the unmeasured node precisely because no function of the measured covariates blocks that path. The alternatives that do identify carry further untestable structure of their own: proximal methods need proxy independence, completeness and bridge conditions rather than merely a plausible proxy, and quantitative bias analysis characterizes sensitivity without licensing a causal reading. Overlap is a second identification requirement, not only a weight-stability nuisance.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [NICE DSU Technical Support Document 18: Methods for Population-Adjusted Indirect Comparisons in Submissions to NICE](https://www.sheffield.ac.uk/nice-dsu/tsds/population-adjusted) | official guidance stating that unanchored MAIC and STC assume all effect modifiers and prognostic factors are accounted for, an assumption it calls very strong and largely considered impossible to meet, and that anchored approaches are preferred whenever a connected network exists |
+| [Phillippo et al. 2023, Validating the Assumptions of Population Adjustment: Application of Multilevel Network Meta-regression to a Network of Treatments for Plaque Psoriasis, Medical Decision Making](https://doi.org/10.1177/0272989X221117162) | assesses population-adjustment assumptions inside a nine-study network: splits the common class interaction into treatment-specific interactions one covariate at a time, checks conditional constancy through residual heterogeneity and inconsistency in sufficiently large networks, and reports that the shared-interaction restriction was required to identify the model where a treatment was informed only by aggregate data |
+| [Gupta et al. 2025, Quantitative Bias Analysis for Single-Arm Trials With External Control Arms, JAMA Network Open](https://doi.org/10.1001/jamanetworkopen.2025.2152) | sets aside the randomized control arms of 14 advanced non-small-cell lung cancer trials (15 experimental arms), substitutes Flatiron Health external controls, and benchmarks against the randomized answer: mean absolute log hazard ratio difference 0.247 unadjusted, 0.139 after measured-confounder adjustment, 0.098 after external adjustment for unmeasured confounding. It is retrospective and compares relative effects, not transported versus observed absolute control-arm outcomes |
+
+:::
+
+## Probable solution or research direction
+
+Replace routine covariate-balancing language with an assumption map drawn from a causal DAG that names the unmeasured design and care node, and pair every balancing analysis with bias analysis aimed at that node rather than with balance tables alone. Use quantitative bias analysis with explicit, externally elicited sensitivity parameters, partial identification that reports bounds, negative controls, and proximal methods where proxy independence and bridge conditions can actually be defended. Benchmark these against hidden randomized truth as Gupta et al. did, so the residual gap after adjustment is reported rather than assumed away.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+
+**The source titled this.** "Unmeasured modifiers and design differences are beyond adjustment" The title says such bias is beyond adjustment, which the audit rejected since proximal, instrumental and validation-data designs can identify effects without observing the latent variable.
+
+**The source said.** "No adjustment method can balance a variable that was not measured, so unmeasured effect modifiers and, in unanchored comparisons, unmeasured prognostic factors and unmeasured design or care differences leave a residual bias that no estimator can address. Weighting or outcome regression cannot rescue such a comparison and at best disguises the bias more elegantly."
+
+**What was wrong with it.** The source cited nothing and said the residual bias is beyond every estimator. The source-code auditor found that too strong, since proximal, instrumental and validation-data designs can identify effects without observing the latent variable and measured balancing can amplify as well as reduce bias; the literature auditor supplied the references the entry lacked, so it is now sourced to NICE DSU TSD 18, Phillippo et al. 2023 on overlap acting through weight stability and extrapolation, and Gupta et al. 2025 on quantitative bias analysis at this exact task.
+
+Literature and prior-art check
+:   **open / supported.** This unsourced entry's claims are structurally true rather than empirical, and I found no work that contradicts them. NICE DSU TSD 18's judgement that the unanchored assumption is 'largely considered impossible to meet' is the guidance-level version of the same point. Phillippo et al. 2023 independently supports the overlap claim I was asked to check: 'unlike MAIC, ML-NMR does not require full overlap between populations for stable estimation and remains unbiased under the usual extrapolation assumptions' - i.e. overlap acts through weight stability and extrapolation, not through balance alone. On the entry's normative claim that QBA and partial identification are the appropriate response, Gupta et al. 2025 (JAMA Netw Open) is direct empirical evidence that QBA is operable at this exact task: across 15 emulated aNSCLC comparisons, adjustment for measured confounders cut the mean absolute log hazard ratio difference from 0.247 to 0.139, and external adjustment for unmeasured confounders to 0.098. That demonstrates QBA's usefulness, not identification: the residual gap is still not zero and the sensitivity parameters are supplied externally. The problem is unsolvable by any paper and correctly listed as open.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** Measured-covariate weighting or ordinary outcome regression cannot guarantee removal of bias caused by an unmeasured study-selection variable, and perfect balance on measured covariates does not establish exchangeability. The report improperly expands that result to 'no estimator can address' the bias. Randomization, valid instruments, validation data, proximal identification with valid proxies and bridge conditions, or other structural information can identify effects without directly observing the latent variable. C6 is not a general theorem: balancing measured variables can reduce, preserve, or amplify bias from an unmeasured variable, depending on the causal structure. C7 understates overlap because positivity is also an identification condition, not merely a weight-stability issue. Credible proxies are necessary but not sufficient for proximal methods; proxy-independence, completeness, and bridge assumptions are also needed. QBA and bounds are appropriate responses when point identification fails, but they are not the only responses.
+
+Decision path
+:   `R5:default-open → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [ADJ-11 — No proximal ITC method works with an aggregate-only comparator](ADJ-11-no-proximal-itc-method-works-with-an-aggregate-only-comparat.qmd)
+- [COV-03 — Design-dependent roles of prognostic covariates](COV-03-design-dependent-roles-of-prognostic-covariates.qmd)
+- [HET-01 — Design and conduct differences survive baseline covariate balancing](HET-01-design-and-conduct-differences-survive-baseline-covariate-ba.qmd)
+:::
+
+## Source
+
+Derived from A:L82-93, A:L95, C:L214-215, C:L224 of the reviewed corpus.

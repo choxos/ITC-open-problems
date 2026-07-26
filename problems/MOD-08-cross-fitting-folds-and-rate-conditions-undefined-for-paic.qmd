@@ -1,0 +1,77 @@
+---
+title: "Cross-fitting folds and rate conditions undefined for PAIC"
+description: "For a specified PAIC estimator, cross-fitting must split the independent units that appear in its likelihood or estimating equations: participant folds are invalid when held-out scores share study-level information, study-level folds are appropriate but may leave too few clusters in a network of a handful of trials, and no PAIC-specific fold construction or rate theory has been written down. The general answer to the fold question exists outside ITC and needs porting rather than inventing, since multiway cluster-robust double machine learning (Chiang et al., doi:10.1080/07350015.2021.1895815) supplies cross-fitting and cluster-robust standard errors for exactly this dependence structure. The target-distribution half is a different problem from the one the source framed: a target law estimated independently of the source outcomes can be reused across source-data folds without train-test leakage, and splitting synthetic target records creates no independent information, so what it needs is sampling-uncertainty propagation and partial-identification analysis rather than fold assignment. The joint target law is genuinely not identified by published means, standard deviations and proportions, which is why ML-NMR imposes correlation structure with copulas (doi:10.1111/rssa.12579) rather than estimating it."
+pid: "MOD-08"
+topic: "Model specification, double robustness & targeted learning"
+categories: ["Model specification, double robustness & targeted learning", "High priority", "Confirmed open"]
+priority: "High"
+prank: 2
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Promising"
+tractability: 2
+---
+::: {.problem-meta}
+[MOD-08]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[High priority]{.chip .chip-priority-high}
+[Promising]{.chip .chip-maturity-promising}
+[Tractability 2/5]{.chip}
+:::
+## Statement
+
+For a specified PAIC estimator, cross-fitting must split the independent units that appear in its likelihood or estimating equations: participant folds are invalid when held-out scores share study-level information, study-level folds are appropriate but may leave too few clusters in a network of a handful of trials, and no PAIC-specific fold construction or rate theory has been written down. The general answer to the fold question exists outside ITC and needs porting rather than inventing, since multiway cluster-robust double machine learning (Chiang et al., doi:10.1080/07350015.2021.1895815) supplies cross-fitting and cluster-robust standard errors for exactly this dependence structure. The target-distribution half is a different problem from the one the source framed: a target law estimated independently of the source outcomes can be reused across source-data folds without train-test leakage, and splitting synthetic target records creates no independent information, so what it needs is sampling-uncertainty propagation and partial-identification analysis rather than fold assignment. The joint target law is genuinely not identified by published means, standard deviations and proportions, which is why ML-NMR imposes correlation structure with copulas (doi:10.1111/rssa.12579) rather than estimating it.
+
+## Why it is open
+
+PAIC dependence is clustered by study, so ordinary random participant folds let nuisance information leak across fold boundaries and the bias correction cross-fitting is supposed to deliver is not obtained, while study-level folds remove the leakage and leave very few units. Aggregate arms contribute no participant records, so the fold object for the aggregate half of the evidence has to be defined by which independent contribution is held out with its study rather than by participants. Because implementations treat the reconstructed target as fixed known data, both its sampling uncertainty and its unidentified dependence structure are absent from intervals that look correct and are silently too narrow. Meanwhile component-by-modifier interaction terms grow multiplicatively while studies, arms and events do not, so the product-rate conditions invoked for debiased machine learning may be unattainable at realistic network sizes, and no rate theory covers a design where part of the evidence contributes only integrated aggregate summaries.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Chiang, Kato, Ma & Sasaki 2022, Multiway Cluster Robust Double/Debiased Machine Learning, Journal of Business and Economic Statistics (preprint arXiv:1909.03489)](https://doi.org/10.1080/07350015.2021.1895815) | Supplies a multiway cross-fitting algorithm and cluster-robust standard errors for clustered dependence, so folding by the dependence unit is established theory that needs porting to PAIC rather than new derivation. |
+| [Phillippo et al. 2020, Multilevel network meta-regression for population-adjusted treatment comparisons, JRSS-A (PMID 32684669)](https://doi.org/10.1111/rssa.12579) | Accounts for covariate correlation structures using copulas, which is the standard response to the fact that the joint target covariate law is not identified by published marginal means, standard deviations and proportions. |
+
+:::
+
+## Probable solution or research direction
+
+Port multiway cluster-robust cross-fitting to PAIC rather than deriving fold rules from scratch: fold by the independent likelihood or estimating-equation contribution, hold an aggregate arm out with its study, and use contrast or subnetwork folds only where those define nonoverlapping independent units. Handle the reconstructed target law as an estimated and partly unidentified nuisance in its own right, propagating sampling uncertainty and reporting structural uncertainty through maximum-entropy reconstruction, copula-based dependence sensitivity, distributionally robust standardization or bounds, rather than through fold assignment. Establish rate requirements for cross-fitted component transport estimators under sparsity or heredity constraints on the interaction set, accounting for aggregate-data contributions, and pair the theory with hierarchical shrinkage so effective dimension is controlled rather than assumed small.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+
+**The source said.** "Cross-fitting is required when flexible learners estimate nuisance functions, but population adjustment leaves its basic ingredients undefined: whether folds should be formed by participant, study, treatment contrast, or subnetwork; how aggregate-data arms should be assigned to folds at all; how a target distribution reconstructed from published moments should be cross-fitted; and what nuisance convergence rates are required when component-by-covariate interactions are high dimensional."
+
+**What was wrong with it.** The source presented fold construction, aggregate-arm assignment and target-reconstruction cross-fitting as undefined ingredients with no prior work cited. The literature auditor supplied the general clustered-dependence solution (doi:10.1080/07350015.2021.1895815), and GPT-5.6 Sol found that the target-reconstruction claims conflate cross-fitting with uncertainty propagation and partial identification of an external target law.
+
+Literature and prior-art check
+:   **open / supported-with-caveat.** Found no PAIC-specific treatment of fold construction, aggregate-arm fold assignment, cross-fitting a reconstructed target distribution, or rate conditions for high-dimensional component-by-covariate interactions, so the entry's core open claims survive. Caveat on two points. First, the general fold-construction question is not unresolved outside ITC: Chiang, Kato, Ma & Sasaki, 'Multiway Cluster Robust Double/Debiased Machine Learning', J Bus Econ Stat 2022 (doi 10.1080/07350015.2021.1895815, arXiv:1909.03489) supplies a multiway cross-fitting algorithm and cluster-robust standard errors for exactly the clustered-dependence structure the entry describes, so 'fold by the dependence unit' is established theory that only needs porting; the entry cites nothing. Second, the claim that a joint target covariate distribution is not identified by published marginal means, SDs and proportions is correct and is precisely why Phillippo et al. 2020 JRSS-A impose correlation structure via copulas rather than estimating it: 'Covariate correlation structures are accounted for by using copulas.' The remaining claims (flexible learners invalidating standard asymptotics, what cross-fitting does) are textbook DML and uncontested.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** C1, C2, C9, C10 and C13 are correct. C3 holds when studies are the independent sampling clusters and held-out scores retain within-study dependence, but PAIC does not automatically make participant-level folds invalid after conditioning on fixed study effects. C4, C7 and C8 conflate cross-fitting with uncertainty and partial identification of an external target law. A target-law estimate obtained independently of source outcomes may be reused across source-data folds without train-test leakage; its sampling uncertainty still requires propagation, while its unidentified dependence structure requires assumptions, sensitivity analysis or bounds. Splitting synthetic target records does not create independent information. C5 and C6 also overstate the ambiguity: folds should follow the independent likelihood or estimating-equation contributions, and an aggregate arm can be held out with its study. Contrast or subnetwork folds are valid only when they define nonoverlapping independent units. C11 is estimator-specific and C12 is qualitative rather than a general theorem. PAIC-specific rate theory for mixed IPD and AgD with high-dimensional component interactions remains open, but this is high severity only for analyses attempting flexible or debiased inference.
+
+Decision path
+:   `R5:default-open → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [ADJ-06 — Distributionally robust bounds over compatible target laws](ADJ-06-distributionally-robust-bounds-over-compatible-target-laws.qmd)
+- [CMP-02 — Adjusted component bridges need interaction constancy across the gap](CMP-02-adjusted-component-bridges-need-interaction-constancy-across.qmd)
+- [COV-05 — Legitimate versus dangerous roles for flexible learners](COV-05-legitimate-versus-dangerous-roles-for-flexible-learners.qmd)
+- [COV-06 — No causal forest aggregates to a target known only by marginals](COV-06-no-causal-forest-aggregates-to-a-target-known-only-by-margin.qmd)
+- [COV-07 — Unknown target joint covariate distribution](COV-07-unknown-target-joint-covariate-distribution.qmd)
+- [QBA-10 — Target population and joint-distribution uncertainty](QBA-10-target-population-and-joint-distribution-uncertainty.qmd)
+:::
+
+## Source
+
+Derived from C:L243, C:L959, C:L963-974, C:L1046-1053, C:L1055, C:L1056, C:L2149, C:L2225 of the reviewed corpus.

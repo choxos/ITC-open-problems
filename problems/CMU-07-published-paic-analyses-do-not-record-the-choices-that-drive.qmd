@@ -1,0 +1,90 @@
+---
+title: "Published PAIC analyses do not record the choices that drive them"
+description: "The choices that determine a population-adjusted estimate (covariate selection and exclusion, weight trimming, priors, target population definition, survival curve reconstruction settings) are frequently not reported, and this is now documented rather than asserted: Truong et al. (doi:10.1002/jrsm.1653) reviewed 106 articles and 157 PAIC analyses and found conduct and reporting 'remarkably heterogeneous and suboptimal in current practice', Farinasso et al. (doi:10.1016/j.vhri.2025.101088) found 3 of 117 oncology MAICs met all NICE recommendations with weight distributions and effect-modifier evidence among the least reported items, and Phillippo et al. 2019 (PMID 31190671) documents covariate selection in NICE appraisals resting variously on availability, expert opinion, effective sample size, statistical significance or cross-validation. No released PAIC package emits a standalone analysis manifest or model card; cpaic, an unreleased development package on GitHub that is not on CRAN, stores priors, targets, selected covariates, seed and integration settings inside its fitted objects but exports no manifest and records neither the covariate-selection rationale nor upstream survival reconstruction. Shared executable code can recover many of these choices, so the failure is one of disclosure and machine-readability rather than of absolute irrecoverability."
+pid: "CMU-07"
+topic: "Computation & reproducibility"
+categories: ["Computation & reproducibility", "High priority", "Unverifiable"]
+priority: "High"
+prank: 2
+verdict: "Unverifiable"
+verdictslug: "unverifiable"
+maturity: "Emerging"
+---
+::: {.problem-meta}
+[CMU-07]{.problem-id}
+[Unverifiable]{.verdict .verdict-unverifiable}
+[High priority]{.chip .chip-priority-high}
+[Emerging]{.chip .chip-maturity-emerging}
+:::
+::: {.source-unsourced}
+**Source note.** This entry derives in part from a source document whose inline citations
+were ChatGPT interface tokens rather than references, and so resolve to nothing. Claims
+below are attributed to that document and were checked independently where possible;
+anything that could not be independently sourced is marked in the verification trail.
+:::
+
+## Statement
+
+The choices that determine a population-adjusted estimate (covariate selection and exclusion, weight trimming, priors, target population definition, survival curve reconstruction settings) are frequently not reported, and this is now documented rather than asserted: Truong et al. (doi:10.1002/jrsm.1653) reviewed 106 articles and 157 PAIC analyses and found conduct and reporting 'remarkably heterogeneous and suboptimal in current practice', Farinasso et al. (doi:10.1016/j.vhri.2025.101088) found 3 of 117 oncology MAICs met all NICE recommendations with weight distributions and effect-modifier evidence among the least reported items, and Phillippo et al. 2019 (PMID 31190671) documents covariate selection in NICE appraisals resting variously on availability, expert opinion, effective sample size, statistical significance or cross-validation. No released PAIC package emits a standalone analysis manifest or model card; cpaic, an unreleased development package on GitHub that is not on CRAN, stores priors, targets, selected covariates, seed and integration settings inside its fitted objects but exports no manifest and records neither the covariate-selection rationale nor upstream survival reconstruction. Shared executable code can recover many of these choices, so the failure is one of disclosure and machine-readability rather than of absolute irrecoverability.
+
+## Why it is open
+
+The decisive choices are made before any model is fitted and leave no trace in the printed estimate, so a reviewer has only the analyst's narration to check and no artifact to check it against. Package defaults fill the gaps silently, which turns scientific decisions into settings chosen by the package author, and because the analysis looks complete without disclosure there is no error signal prompting it. Fitted objects can hold much of this, as cpaic shows, but nothing exports it in a form a reviewer can read without running R, and the upstream choices (how a survival curve was reconstructed, why a covariate was in or out) sit outside the fitted object entirely. HTA timelines reward a defensible-looking number over an auditable pipeline, so the documentation effort is unrewarded exactly where the stakes are highest.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Truong et al. 2023, Population adjusted-indirect comparisons in health technology assessment: a methodological systematic review, Research Synthesis Methods](https://doi.org/10.1002/jrsm.1653) | reviews 106 articles and 157 PAIC analyses and concludes that conduct and reporting are remarkably heterogeneous and suboptimal, with model-fitting results adequately reported in 3 of the 18 analyses that required an outcome model |
+| [Farinasso et al. 2025, Matching-adjusted indirect comparison studies in oncology: a scoping review focused on reporting quality, Value in Health Regional Issues](https://doi.org/10.1016/j.vhri.2025.101088) | finds that only 3 of 117 oncology MAICs fulfilled all NICE recommendations, with adjustment for all effect modifiers and prognostic variables, evidence of effect-modifier status, and the distribution of weights the least reported items |
+| [Phillippo et al. 2019, Population adjustment methods for indirect comparisons: a review of NICE technology appraisals (PMID 31190671)](https://pubmed.ncbi.nlm.nih.gov/31190671/) | documents that covariates were included on the basis of availability, expert opinion, effective sample size, statistical significance or cross-validation, that is, heterogeneous and largely undocumented selection practice |
+| [cpaic, unreleased development package on GitHub (not on CRAN), commit 9d150e9](https://github.com/choxos/cpaic) | stores the complete prior specification, refit arguments, sampler seed, integration settings and provenance in its component ML-NMR object and the target and selected covariates in its MAIC and STC objects; it exports no manifest, omits some MAIC tuning values, and records neither selection rationale nor upstream survival reconstruction |
+
+:::
+
+## Probable solution or research direction
+
+The fitted objects already carry much of the specification, so the near-term work is an export: a machine-readable manifest or model card generated from the fit, covering the covariate set with the reason for each inclusion and exclusion, any trimming rule, the priors, the target definition, the reconstruction settings and the diagnostics. Extend it upstream to survival curve reconstruction and to the covariate-selection rationale, which no fitted object currently holds. Require environment capture in some form, with a container as one implementation rather than as the requirement itself, and pair the manifest with a registry-style pre-specified analysis plan so what was done can be compared with what was planned.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Unverifiable. Auditors disagreed and the disagreement was evidence-bearing on both sides.
+
+**The source said.** "The choices that determine a population-adjusted estimate (covariate selection and exclusion, weight trimming, priors, target population definition, and survival curve reconstruction settings) are made outside the fitted object and are frequently left undocumented, and no package emits a manifest that records them. A published estimate therefore cannot be reconstructed or interrogated even when the code is shared."
+
+**What was wrong with it.** The source asserted that PAIC reporting is suboptimal without any citation; the entry was flagged source_unsourced and the literature auditor supplied three real references, so the claim is now sourced: Truong et al. 2023 (doi:10.1002/jrsm.1653), Farinasso et al. 2025 (doi:10.1016/j.vhri.2025.101088), and Phillippo et al. 2019 (PMID 31190671). The source-code auditor narrowed the software claim: fitted objects in cpaic already store much of the specification, so what is missing is a manifest export and the selection rationale rather than all provenance, and shared code makes the original 'cannot be reconstructed' too absolute.
+
+**Dissent.** literature dissented (open): This entry is marked source_unsourced, and the reporting-quality claims are in fact well supported by real literature I retrieved from PubMed, which converts them. Truong et al. 2023 (Res Synth Methods, doi 10.1002/jrsm.1653, PMID 37400080) reviewed 106 articles and 157 PAIC analyses and concludes conduct and reporting are 'remarkably heterogeneous and suboptimal in current practice', with model-fitting results adequately reported in only 3 of 18 analyses that required an outcome model. Farinasso et al. 2025 (doi 10.1016/j.vhri.2025.101088, PMID 39999561) reviewed 117 oncology MAICs and found only 3 met all NICE recommendations, with weight distributions and effect-modifier evidence among the least reported items. Phillippo et al. 2019 (doi 10.1017/S0266462319000333, PMID 31190671) documents that covariate selection in NICE appraisals rested on availability, expert opinion, effective sample size, statistical significance or cross-validation, i.e. heterogeneous undocumented practice. The manifest/model-card claims remain absence claims: I found no PAIC package emitting an analysis manifest (maicplus README and multinma R/ show none), so those are unrefuted rather than verified. codex dissented (overstated): C1 is a placeholder rather than an assessable claim. C2 and C4 are plausible practice concerns but are unsupported empirical generalizations here; C3 is explicitly a literature-coverage claim outside the assigned lens. C5 and C6 are universal negatives that cannot be established from cpaic or the supplied works. C7 is a reasonable proposal. C8 is too strong because a container is one environment-capture mechanism, not a necessary or sufficient condition for reproducibility. Source inspection materially narrows the statement: cpaic's cML-NMR object stores the complete prior specification, refit arguments, sampler seed, integration settings, and provenance; cMAIC and cSTC objects store their target and selected covariates. However, cMAIC omits target_sd, min_boot_success, and seed from its returned object; upstream survival reconstruction choices and covariate-selection rationale are not recorded; and no standalone manifest or model-card export exists. cpaic also has no trimming option, so there is no hidden package trimming setting to document. Shared executable code can reconstruct many choices even without a manifest, contrary to the report's absolute claim.
+
+Literature and prior-art check
+:   **open / supported.** This entry is marked source_unsourced, and the reporting-quality claims are in fact well supported by real literature I retrieved from PubMed, which converts them. Truong et al. 2023 (Res Synth Methods, doi 10.1002/jrsm.1653, PMID 37400080) reviewed 106 articles and 157 PAIC analyses and concludes conduct and reporting are 'remarkably heterogeneous and suboptimal in current practice', with model-fitting results adequately reported in only 3 of 18 analyses that required an outcome model. Farinasso et al. 2025 (doi 10.1016/j.vhri.2025.101088, PMID 39999561) reviewed 117 oncology MAICs and found only 3 met all NICE recommendations, with weight distributions and effect-modifier evidence among the least reported items. Phillippo et al. 2019 (doi 10.1017/S0266462319000333, PMID 31190671) documents that covariate selection in NICE appraisals rested on availability, expert opinion, effective sample size, statistical significance or cross-validation, i.e. heterogeneous undocumented practice. The manifest/model-card claims remain absence claims: I found no PAIC package emitting an analysis manifest (maicplus README and multinma R/ show none), so those are unrefuted rather than verified.
+    Cites doi:10.1002/jrsm.1653: Supplies the real citation for the previously unsourced claim that PAIC reporting is suboptimal..
+    Cites doi:10.1016/j.vhri.2025.101088: Quantifies non-adherence to NICE reporting recommendations across 117 MAICs..
+    Cites pmid:31190671: Documents the heterogeneity of undocumented covariate-selection practice in NICE appraisals (doi 10.1017/S0266462319000333)..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / overstated.** C1 is a placeholder rather than an assessable claim. C2 and C4 are plausible practice concerns but are unsupported empirical generalizations here; C3 is explicitly a literature-coverage claim outside the assigned lens. C5 and C6 are universal negatives that cannot be established from cpaic or the supplied works. C7 is a reasonable proposal. C8 is too strong because a container is one environment-capture mechanism, not a necessary or sufficient condition for reproducibility. Source inspection materially narrows the statement: cpaic's cML-NMR object stores the complete prior specification, refit arguments, sampler seed, integration settings, and provenance; cMAIC and cSTC objects store their target and selected covariates. However, cMAIC omits target_sd, min_boot_success, and seed from its returned object; upstream survival reconstruction choices and covariate-selection rationale are not recorded; and no standalone manifest or model-card export exists. cpaic also has no trimming option, so there is no hidden package trimming setting to document. Shared executable code can reconstruct many choices even without a manifest, contrary to the report's absolute claim.
+    Cites choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca: Makes priors, model settings, sampler settings, data inputs, and core provenance machine-readable in the fitted object..
+    Cites choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca: Stores the target population and selected effect modifiers in both two-stage PAIC result objects, with prognostics stored for cSTC and bootstrap count for cMAIC..
+
+Grok 4.5, recency lens
+:   **open / supported.** Recent oncology MAIC scoping work (Farinasso et al. 2025) reports that only a tiny minority of published MAICs meet all NICE reporting recommendations, with weakest reporting on effect-modifier/prognostic adjustment completeness: direct empirical support for C2–C4. EU HTA practical guidelines and NICE DSU-style guidance reiterate transparent reporting of EM identification, trimming, and targets but do not ship machine-readable manifests. Package review (maicplus CRAN 2025, multinma through 0.9.x, netmeta, gemtc) shows analysis objects and vignettes without enforced analysis manifests, model cards, or mandatory recording of covariate sets, trimming rules, priors, target definitions, and survival reconstruction settings (C5–C6). C7–C8 remain proposals (model cards/containers are promising and needed) rather than implemented PAIC standards. No 2025–2026 software release or HTA mandate was found that closes the problem. Claim C1 is labeled SOURCE-A-UNSOURCED in the input and is treated as non-evaluable; remaining claims are proportionate.
+
+Decision path
+:   `R3:partially-solved(n=1) → R7:counter-and-support-both-present`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [DEC-09 — Modifier selection and target moments reported without provenance](DEC-09-modifier-selection-and-target-moments-reported-without-prove.qmd)
+- [SFW-04 — No neutral cross-package benchmark suite for PAIC implementations](SFW-04-no-neutral-cross-package-benchmark-suite-for-paic-implementa.qmd)
+:::
+
+## Source
+
+Derived from A:L77, A:L196, C:L214-215, C:L258 of the reviewed corpus.

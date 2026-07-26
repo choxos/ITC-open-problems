@@ -1,0 +1,76 @@
+---
+title: "Pseudo-IPD cannot express delayed entry or assessment windows"
+description: "Population-adjusted survival likelihoods do represent this structure: multinma has supported left, right and interval censoring and left truncation for survival outcomes since 0.6.0, and cpaic's exact survival likelihood supports observed events, right, left and interval censoring and delayed entry for both individual and aggregate pseudo-patient rows when those fields are supplied. What survives is an information problem rather than a likelihood problem: pseudo individual data reconstructed from a published right-censored Kaplan-Meier curve cannot express delayed entry or interval censoring, because the publication does not report entry times or assessment intervals. Assessment schedules are design features that patient-level covariate balancing cannot correct, though they can be represented in the observation model or, with enough studies, modeled at study level. Once an outcome is dichotomized into an event-by-time proportion the follow-up length and assessment grid disappear from the reported number, and there is no method for placing binary endpoints from trials with different windows on a common time scale."
+pid: "OUT-14"
+topic: "Outcome-specific problems"
+categories: ["Outcome-specific problems", "High priority", "Overstated"]
+priority: "High"
+prank: 2
+verdict: "Overstated"
+verdictslug: "overstated"
+maturity: "Emerging"
+---
+::: {.problem-meta}
+[OUT-14]{.problem-id}
+[Overstated]{.verdict .verdict-overstated}
+[High priority]{.chip .chip-priority-high}
+[Emerging]{.chip .chip-maturity-emerging}
+:::
+## Statement
+
+Population-adjusted survival likelihoods do represent this structure: multinma has supported left, right and interval censoring and left truncation for survival outcomes since 0.6.0, and cpaic's exact survival likelihood supports observed events, right, left and interval censoring and delayed entry for both individual and aggregate pseudo-patient rows when those fields are supplied. What survives is an information problem rather than a likelihood problem: pseudo individual data reconstructed from a published right-censored Kaplan-Meier curve cannot express delayed entry or interval censoring, because the publication does not report entry times or assessment intervals. Assessment schedules are design features that patient-level covariate balancing cannot correct, though they can be represented in the observation model or, with enough studies, modeled at study level. Once an outcome is dichotomized into an event-by-time proportion the follow-up length and assessment grid disappear from the reported number, and there is no method for placing binary endpoints from trials with different windows on a common time scale.
+
+## Why it is open
+
+The capability exists but the inputs often do not, so an analysis built on reconstructed pseudo individual data silently reverts to complete follow-up with exactly observed event times, because reconstruction cannot recover information absent from the publication. Interval censoring induced by different assessment grids coarsens event times differently across trials, and substituting exact times for interval-censored ones can shift progression-type curves in a way that resembles a treatment effect. Different maximum follow-up means trials identify the survival function over different ranges, so any common summary requires either truncation to the shortest window or extrapolation, and each choice changes the estimand. Cross-trial binary event-by-time proportions remain non-comparable when the windows differ, and covariate balancing cannot repair a difference that arises purely from follow-up length.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [multinma (CRAN) 0.6.0, survival models with censoring and truncation support](https://cran.r-project.org/package=multinma) | its release notes list left, right and interval censoring and left truncation as supported, and its set_ipd() reference states that right, left and interval censoring and left truncation, that is delayed entry, are supported for survival outcomes specified with Surv() |
+| [cpaic, unreleased development package on GitHub (not on CRAN), commit 9d150e9, exact survival likelihood](https://github.com/choxos/cpaic) | supports observed events, right censoring, left censoring, interval censoring and delayed entry in component ML-NMR for individual and aggregate pseudo-patient rows when the required fields are supplied |
+
+:::
+
+## Probable solution or research direction
+
+Use the censoring and truncation support that already exists by carrying entry times and assessment intervals into the analysis data rather than accepting reconstruction defaults, and say when an analysis has silently reverted to exactly observed event times. Choose a primary horizon supported by all contributing trials and declare anything beyond it as extrapolation. Develop the missing piece, which is treating a binary event-by-time endpoint as a coarsening of a time-to-event process so endpoints from trials with different windows can be placed on a common time scale, and model assessment timing jointly only where that timing is plausibly informative.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Overstated. 2 independent auditors judged the claim as stated too strong. Delayed entry and interval censoring are supported in population-adjusted survival likelihoods (multinma implements right, left and interval censoring and left truncation), but reconstructed pseudo-IPD from published curves cannot express them, differing assessment grids and follow-up windows are design features that covariate adjustment cannot balance, and there is no method for putting binary endpoints from trials with different windows on a common time scale.
+
+**The source titled this.** "Delayed entry, interval censoring, and differing follow-up windows" The title lists delayed entry and interval censoring as unrepresented, but population-adjusted survival likelihoods have supported left truncation and interval censoring since multinma 0.6.0.
+
+**The source said.** "Trials in a network observe patients over different windows and on different assessment grids, with delayed entry and interval-censored endpoints such as radiologically assessed progression; the same heterogeneity is hidden entirely when the endpoint is reported as a binary event-by-time-t proportion. Population-adjusted likelihoods do not represent any of this structure."
+
+**What was wrong with it.** The statement that population-adjusted likelihoods do not represent any of this structure is false; the literature auditor cited multinma's release notes and set_ipd() documentation for left, right and interval censoring and left truncation, and the code auditor found the same support at commit 9d150e9 of cpaic, an unreleased development package on GitHub that is not installable from CRAN. The code auditor also narrowed two claims: differing follow-up under independent censoring is handled by an appropriate survival likelihood, so what remains is unsupported horizons and estimand alignment, and joint modeling of assessment timing is warranted where the timing is informative, whereas a known noninformative grid needs only an interval-censored likelihood.
+
+Literature and prior-art check
+:   **partially-solved / overstated.** The claim 'Population-adjusted likelihoods do not represent any of this structure' is false. multinma NEWS 0.6.0 (2024-01-24) lists 'Left/right/interval censoring and left truncation supported' among the new survival features, and the set_ipd() reference states that right, left and interval censoring and left truncation (delayed entry) are supported for survival outcomes specified with Surv(). So delayed entry and interval censoring are already representable in the leading ML-NMR implementation, for both the individual-level likelihood and, via the general-likelihood integration, the aggregate side. Two claims survive intact and are the defensible core: reconstructed pseudo-IPD from published Kaplan-Meier curves cannot represent left truncation or interval censoring (the Guyot-style algorithm assumes right censoring only), and assessment schedules are design features that no covariate adjustment can balance. I found no work on placing binary endpoints from trials with different follow-up windows on a common time scale by joint modelling of assessment timing and event status, so that part is genuinely open.
+    Cites repo:dmphillippo/multinma NEWS 0.6.0 (2024-01-24): Population-adjusted survival likelihoods that do represent interval censoring and delayed entry..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / overstated.** The blanket statement and C1 are false. At the requested cpaic revision, the exact survival likelihood explicitly represents observed events, right, left, and interval censoring, plus delayed entry, for both IPD and aggregate pseudo-patient rows when those fields are supplied. multinma also supports these structures. C3 remains correct only for conventional pseudo-IPD reconstructed from a published right-censored Kaplan-Meier curve that does not report entry or assessment intervals; the likelihood can represent the structures, but reconstruction cannot recover information absent from the publication. C2 is also too broad: differing follow-up under independent censoring is handled by an appropriate survival likelihood, although unsupported horizons and binary endpoints measured at different times remain estimand problems. C4-C5 are sound when exact event times are naively substituted for interval-censored times. C6 is true only of patient-level covariate balancing; assessment schedule can be represented as a design feature in the observation model or, with adequate studies, modeled at study level. C7-C8 are correct. C9 is warranted when assessment timing is informative, but a known noninformative grid needs only an interval-censored likelihood, not necessarily a joint timing model.
+    Cites choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca: Implements delayed entry and left, right, and interval censoring in component ML-NMR, directly resolving C1 for cpaic when the required fields are available..
+    Cites CRAN:multinma@0.6.0: Provides population-adjusted survival models supporting interval censoring and delayed entry..
+
+Decision path
+:   `R3:partially-solved(n=2) → R8:overstated-majority(n=2)`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [QBA-07 — Outcome ascertainment and the observation process in external data](QBA-07-outcome-ascertainment-and-the-observation-process-in-externa.qmd)
+- [QBA-08 — Index-date, immortal time and delayed entry in external comparators](QBA-08-index-date-immortal-time-and-delayed-entry-in-external-compa.qmd)
+:::
+
+## Source
+
+Derived from C:L1517-1524, C:L1526-1531, C:L1578-1589, C:L1578-1592 of the reviewed corpus.

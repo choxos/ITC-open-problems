@@ -1,0 +1,66 @@
+---
+title: "Outcome misclassification in binary indirect comparisons"
+description: "Binary outcomes can be misclassified differently in the source and comparator trials, and differential sensitivity and specificity can move an indirect contrast in either direction rather than only toward the null: if the true arm risk is p, the observed risk is Se*p + (1-Sp)*(1-p). The claim that population-adjusted analyses assume perfect and equal classification holds only where the intended estimand concerns a latent true outcome, since an ordinary model consistently estimates the effect on the recorded endpoint without that assumption. What requires measurement comparability or an explicit error model is the step of treating two trials as measuring the same true endpoint. Neither auditor found any quantitative bias analysis of outcome misclassification applied inside a population-adjusted synthesis."
+pid: "OUT-03"
+topic: "Outcome-specific problems"
+categories: ["Outcome-specific problems", "High priority", "Confirmed open"]
+priority: "High"
+prank: 2
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[OUT-03]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[High priority]{.chip .chip-priority-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+## Statement
+
+Binary outcomes can be misclassified differently in the source and comparator trials, and differential sensitivity and specificity can move an indirect contrast in either direction rather than only toward the null: if the true arm risk is p, the observed risk is Se*p + (1-Sp)*(1-p). The claim that population-adjusted analyses assume perfect and equal classification holds only where the intended estimand concerns a latent true outcome, since an ordinary model consistently estimates the effect on the recorded endpoint without that assumption. What requires measurement comparability or an explicit error model is the step of treating two trials as measuring the same true endpoint. Neither auditor found any quantitative bias analysis of outcome misclassification applied inside a population-adjusted synthesis.
+
+## Why it is open
+
+Population adjustment balances baseline covariates and leaves the outcome measurement process untouched, so differential misclassification passes through weighting or outcome regression into the transported effect. Sensitivity and specificity of endpoint ascertainment are almost never reported in trial publications, so without validation data, a gold standard or replicate measurements the bias parameters are not identified from the data at hand and have to be supplied from outside. Because the parameters are not estimable from what publications report, this is structurally a sensitivity-analysis problem, which means no single paper can close it. cpaic, the unreleased development package on GitHub that is not installable from CRAN, has no outcome-misclassification model at the audited commit.
+
+## What has been tried
+
+No prior work is identified for this problem in the reviewed sources.
+
+## Probable solution or research direction
+
+Build sensitivity analyses for differential outcome misclassification into binary PAIC, parameterized by study- and arm-specific sensitivity and specificity, and report how much misclassification would be required to overturn the conclusion. State explicitly whether the estimand is the recorded endpoint or a latent true outcome, since the error model is needed only for the latter. Where validation data, a gold standard or replicate measurements exist for either trial, use them to anchor the bias parameters instead of eliciting them, and reserve the elicited version for endpoints where nothing better is available.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+
+**The source said.** "Binary outcomes in the source and comparator trials may be misclassified, and the misclassification may differ between studies, arms, or assessment schemes, yet population-adjusted analyses implicitly assume perfect and equal classification."
+
+**What was wrong with it.** The source said population-adjusted analyses implicitly assume perfect and equal classification; the code auditor narrowed this to analyses whose estimand is a latent true outcome, and added that true risk, sensitivity and specificity are not jointly identified from one fallible binary measurement but are not unestimable under every data design, since validation data, a gold standard, replicate measurements or identifying restrictions can identify them. The literature auditor noted that the absence of PAIC-specific work rests on a failed search rather than on any source asserting the absence, so the correct framing is unaddressed rather than unsolved.
+
+Literature and prior-art check
+:   **open / supported-with-caveat.** I searched PubMed and the web for quantitative bias analysis of outcome misclassification applied to indirect comparisons, MAIC, STC or ML-NMR and retrieved nothing PAIC-specific; the general QBA apparatus for sensitivity/specificity bias parameters is long established in epidemiology but I found no application inside a population-adjusted synthesis. That supports the entry's direction but means the three claims rest on my failure to find contrary work, which is weak evidence. The third claim, that differential misclassification can bias in either direction, is standard measurement-error epidemiology and is the strongest of the three; the first claim (that PAIC 'implicitly assumes' perfect equal classification) is really a statement that no PAIC paper models it, which I could not confirm from any source that asserts the absence. Because the bias parameters are not estimable from trial publications, this problem is structurally a sensitivity-analysis problem, and per the audit calibration no sensitivity-analysis paper could ever close it; the correct framing is 'unaddressed', not 'unsolved'.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / supported-with-caveat.** C3 is correct. If true arm risk is p, observed risk is Se*p + (1-Sp)*(1-p); study- or arm-specific sensitivity and specificity can therefore move an indirect contrast in either direction. C1 is accurate only when the intended estimand concerns a latent true outcome. An ordinary model can consistently estimate an effect on the recorded endpoint without assuming perfect classification, but interpreting trials as measuring the same true endpoint requires measurement comparability or an explicit error model. Without validation data, a gold standard, replicated measurements, external information, or identifying restrictions, true risk, sensitivity, and specificity are not jointly identified from one fallible binary measurement. They are not unestimable under every possible data design. C2's claim that such analysis is non-standard is a practice or coverage claim outside this lens, although the proposed sensitivity analysis is technically appropriate. cpaic at the audited commit has no outcome-misclassification model. The issue can be decision-critical when ascertainment plausibly differs, but High priority is not automatic for well-defined, blinded, consistently assessed endpoints.
+
+Decision path
+:   `R5:default-open → R11:caveated(n=2)`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [CMP-06 — Measurement error and component misclassification are ignored](CMP-06-measurement-error-and-component-misclassification-are-ignore.qmd)
+- [COV-09 — Measurement non-equivalence of covariates across trials](COV-09-measurement-non-equivalence-of-covariates-across-trials.qmd)
+- [QBA-06 — Measurement and misclassification QBA under population adjustment](QBA-06-measurement-and-misclassification-qba-under-population-adjus.qmd)
+- [QBA-07 — Outcome ascertainment and the observation process in external data](QBA-07-outcome-ascertainment-and-the-observation-process-in-externa.qmd)
+:::
+
+## Source
+
+Derived from C:L1517-1524, C:L1526-1532 of the reviewed corpus.

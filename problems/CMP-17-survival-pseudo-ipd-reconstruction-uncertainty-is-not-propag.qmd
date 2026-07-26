@@ -1,0 +1,76 @@
+---
+title: "Survival pseudo-IPD reconstruction uncertainty is not propagated"
+description: "Component survival models condition on pseudo-IPD reconstructed from digitized Kaplan-Meier curves and at-risk tables as if the event and censoring times were observed, with no reconstruction-error layer, and the implemented route further rejects event-count and person-time summaries as insufficient for its exact individual survival likelihood. Reconstruction uncertainty now has some machinery behind it: RESOLVE-IPD (arXiv 2511.01785, November 2025) extracts coordinates and explicit censoring marks from vectorized figures, drops the uniform-censoring assumption, and generates ensembles of valid labelings so that a downstream meta-analysis propagates that uncertainty. It is a preprint and its propagated uncertainty is over subgroup label assignment rather than over pixel-level curve reading or at-risk-table rounding, so it narrows the gap without closing it, and no measurement model of this kind is implemented in component PAIC."
+pid: "CMP-17"
+topic: "Component methods (CNMA and component PAIC)"
+categories: ["Component methods (CNMA and component PAIC)", "Very high priority", "Partially addressed"]
+priority: "Very high"
+prank: 1
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
+maturity: "Emerging"
+---
+::: {.problem-meta}
+[CMP-17]{.problem-id}
+[Partially addressed]{.verdict .verdict-partially-addressed}
+[Very high priority]{.chip .chip-priority-very-high}
+[Emerging]{.chip .chip-maturity-emerging}
+:::
+## Statement
+
+Component survival models condition on pseudo-IPD reconstructed from digitized Kaplan-Meier curves and at-risk tables as if the event and censoring times were observed, with no reconstruction-error layer, and the implemented route further rejects event-count and person-time summaries as insufficient for its exact individual survival likelihood. Reconstruction uncertainty now has some machinery behind it: RESOLVE-IPD (arXiv 2511.01785, November 2025) extracts coordinates and explicit censoring marks from vectorized figures, drops the uniform-censoring assumption, and generates ensembles of valid labelings so that a downstream meta-analysis propagates that uncertainty. It is a preprint and its propagated uncertainty is over subgroup label assignment rather than over pixel-level curve reading or at-risk-table rounding, so it narrows the gap without closing it, and no measurement model of this kind is implemented in component PAIC.
+
+## Why it is open
+
+The reconstruction pipeline turns an image plus a risk table into an exact-looking event and censoring dataset, and every downstream likelihood then treats those synthetic records as real observations. Existing work addresses fidelity and subgroup-label ambiguity, not a measurement model for pixel-level curve reading or at-risk-table rounding, so the dominant error sources still have no distribution attached. In oncology this compounds with an exact individual survival likelihood that is deliberately more demanding than event-count summaries, so the model is precise about data whose provenance is uncertain.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [RESOLVE-IPD 2025](https://arxiv.org/abs/2511.01785) | reconstructs individual patient data from vectorized figures with explicit censoring marks, removes the uniform-censoring assumption, and generates labeling ensembles so subgroup reconstruction uncertainty propagates into a meta-analysis |
+| [cpaic 0.1.0 (development version, choxos/cpaic@9d150e9)](choxos/cpaic@9d150e9) | unreleased development R package on GitHub, not on CRAN; supports exact individual survival likelihood contributions with right, left, and interval censoring and delayed entry, rejects event-count and person-time summaries, and contains no reconstruction-error layer |
+
+:::
+
+## Probable solution or research direction
+
+Generate multiple reconstructions and pool across them, using the ensemble machinery that already exists for subgroup labeling as the template, and extend it to pixel-level curve reading and at-risk-table rounding. Build a Bayesian measurement model for those two error sources and propagate it into the posterior rather than conditioning on one reconstruction. Report how much of the reported precision survives the propagation, since that is the number a decision maker needs.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Partially addressed. Part of this problem is addressed by existing work; the entry names which part.
+
+**The source said.** "Pseudo-IPD reconstructed from digitized Kaplan-Meier curves and at-risk tables is treated as if it were observed data. Digitization and reconstruction error are therefore not propagated into the reported uncertainty."
+
+**What was wrong with it.** The source said reconstruction error has no distribution to propagate. The literature auditor found RESOLVE-IPD (arxiv:2511.01785), which quantifies and propagates reconstruction ambiguity into a meta-analysis, though only for subgroup labeling and as a preprint; Grok 4.5 agreed it is partial prior art rather than a resolution, and GPT-5.6 Sol scoped the software-absence claim to choxos/cpaic@9d150e9 rather than to component PAIC software generally.
+
+Literature and prior-art check
+:   **partially-solved / supported-with-caveat.** The premise that reconstructed pseudo-IPD is normally treated as observed data is correct and widely true, but the claim that reconstruction uncertainty has 'no distribution to propagate' is now dated. RESOLVE-IPD (arXiv 2511.01785, submitted November 2025, revised January 2026) is a framework whose stated purpose is high-fidelity reconstruction plus 'uncertainty-aware subgroup meta-analysis': VEC-KM extracts coordinates and explicit censoring marks from vectorised figures to minimise digitisation error, CEN-KM removes the uniform-censoring assumption, and MAPLE 'generates ensembles of mathematically valid labelings, facilitating a propagating meta-analysis that quantifies and reflects uncertainty from subgroup reconstruction'. Two honest caveats: it is a preprint, and its propagated uncertainty is over subgroup label assignment rather than over pixel-level curve reading or at-risk-table rounding, so it narrows rather than closes the entry's gap. The specific claim that no such measurement model exists in component PAIC software remains true.
+    Cites arxiv:2511.01785: Quantifies reconstruction uncertainty and propagates it into a downstream meta-analysis, and removes the uniform-censoring assumption; covers subgroup-label uncertainty rather than digitisation and at-risk-table error..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** C1, C2, and C4 are source-confirmed. cmlnmr() accepts supplied or reconstructed event/censoring rows, passes their times and statuses directly into the survival likelihood, contains no reconstruction-error layer, and explicitly rejects event-count/person-time summaries for that intended exact individual likelihood. C3 is established only for cpaic. Neither this repository nor the cited package claim supports the ecosystem-wide assertion that no Bayesian measurement model exists in any component PAIC software, and the broader statement that there is no accepted measurement model is outside this source-code audit. The problem is potentially decision-critical when reconstructed pseudo-IPD materially drives the result, but irrelevant to analyses using genuinely observed individual survival data.
+
+Grok 4.5, recency lens
+:   **open / supported.** cpaic still requires reconstructed event/censor rows and treats them as ordinary individual contributions; README and man/cmlnmr.Rd explicitly say uncertainty from KM reconstruction is not propagated. Adjacent 2025 work improves fidelity and some uncertainty handling but does not solve this problem for component PAIC: RESOLVE-IPD (arXiv:2511.01785) reduces digitization/censoring bias and propagates subgroup-label ensembles into meta-analysis, yet it is not a Bayesian measurement model for pixel/risk-table error inside a cML-NMR likelihood, nor integrated with cpaic. IPDfromKM/KM-GPT remain point-reconstruction pipelines. No Bayesian measurement model for KM curve plus at-risk table uncertainty in component PAIC software was found. Queries: RESOLVE-IPD; IPDfromKM uncertainty propagation; Bayesian measurement model Kaplan-Meier digitization; cpaic pseudo-IPD. Status remains open; RESOLVE is partial prior art for ensemble pooling of reconstruction ambiguity, not a resolution of cpaic's conditioning on one pseudo-IPD.
+
+Decision path
+:   `R3:partially-solved(n=1) → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [DIS-14 — Reported intervals condition on the bridge being exactly true](DIS-14-reported-intervals-condition-on-the-bridge-being-exactly-tru.qmd)
+- [OUT-13 — Reconstruction uncertainty from digitized Kaplan-Meier curves](OUT-13-reconstruction-uncertainty-from-digitized-kaplan-meier-curve.qmd)
+- [QBA-23 — Propagating every uncertainty layer without prohibitive cost](QBA-23-propagating-every-uncertainty-layer-without-prohibitive-cost.qmd)
+:::
+
+## Source
+
+Derived from C:L1375, C:L1309-1311, scope:field-level (all survival PAIC using digitized curves); applies to cpaic's survival path of the reviewed corpus.

@@ -1,0 +1,81 @@
+---
+title: "Component PAIC lacks a marginal target-standardized estimand path"
+description: "No component-additive PAIC produces target-standardized arm outcomes or marginal contrasts. ML-NMR already does this for non-component networks: multinma has provided marginal_effects() since 0.7.0 (2024-05-07), which standardizes absolute predictions over a target population's covariate distribution and contrasts them, including hazard, survival probability, median survival, and RMST contrasts, and Phillippo et al. 2025 state that ML-NMR is currently the only population-adjustment method producing both conditional and marginal estimates in any decision target population. Once treatment effects are decomposed into components, no equivalent path exists: component STC centers modifiers at supplied target means and reports the treatment coefficient, and component ML-NMR returns a conditional linear-predictor contrast at one covariate profile. Evaluating a component regression at target covariate means is exact only under an identity link and linearity in covariates, so it is not a substitute."
+pid: "CMP-10"
+topic: "Component methods (CNMA and component PAIC)"
+categories: ["Component methods (CNMA and component PAIC)", "Very high priority", "Partially addressed"]
+priority: "Very high"
+prank: 1
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[CMP-10]{.problem-id}
+[Partially addressed]{.verdict .verdict-partially-addressed}
+[Very high priority]{.chip .chip-priority-very-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+## Statement
+
+No component-additive PAIC produces target-standardized arm outcomes or marginal contrasts. ML-NMR already does this for non-component networks: multinma has provided marginal_effects() since 0.7.0 (2024-05-07), which standardizes absolute predictions over a target population's covariate distribution and contrasts them, including hazard, survival probability, median survival, and RMST contrasts, and Phillippo et al. 2025 state that ML-NMR is currently the only population-adjustment method producing both conditional and marginal estimates in any decision target population. Once treatment effects are decomposed into components, no equivalent path exists: component STC centers modifiers at supplied target means and reports the treatment coefficient, and component ML-NMR returns a conditional linear-predictor contrast at one covariate profile. Evaluating a component regression at target covariate means is exact only under an identity link and linearity in covariates, so it is not a substitute.
+
+## Why it is open
+
+The correct operation is g-computation or posterior standardization, integrating the fitted model over the whole target covariate distribution for every posterior draw, which requires that distribution rather than only its means and therefore inherits the target-reconstruction problem and its uncertainty. The proposed arm-mean formula also requires an identified or externally supplied target baseline alpha*, which study-specific intercepts do not provide. Because the choice between conditional and standardized output changes the reported number, this is an estimand decision rather than a presentation preference, and decision modelers currently apply conditional component coefficients to marginal baselines, which is incoherent on non-collapsible scales.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [multinma 0.7.0 (2024-05-07), marginal_effects()](https://cran.r-project.org/package=multinma) | implements posterior standardization over a target covariate distribution and marginal contrasts for ML-NMR, including RMST and survival probability differences |
+| [Phillippo et al. 2025](https://doi.org/10.1017/rsm.2025.2) | states that ML-NMR is currently the only population-adjustment method capable of producing both conditional and marginal estimates in any decision target population |
+| [cpaic 0.1.0 (development version, choxos/cpaic@9d150e9)](choxos/cpaic@9d150e9) | unreleased development R package on GitHub, not on CRAN; fits one-stage component-additive ML-NMR jointly on IPD and AgD, returns conditional component contrasts at a covariate profile, averages fitted survival curves over each observed arm's own covariates, and has no common target-distribution standardization or RMST contrast output |
+
+:::
+
+## Probable solution or research direction
+
+Port the existing ML-NMR standardization path to the component case rather than building it from scratch: integrate the component-additive model over an explicit user-supplied target distribution for every posterior draw, returning arm-level risks, means, rates, and survival curves, plus differences and ratios, survival probability differences, and RMST differences. Resolve the target baseline explicitly, since the component decomposition does not supply alpha*. Propagate uncertainty from model parameters and, where the target distribution is estimated or reconstructed rather than fixed, from that reconstruction as well, and retain conditional component effects as model parameters rather than as the policy estimand.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Partially addressed. Part of this problem is addressed by existing work; the entry names which part.
+
+**The source said.** "Component STC evaluates a fitted conditional outcome regression at target covariate means and component ML-NMR returns conditional link-scale component effects, so neither route produces a marginal, target-standardized quantity of the kind HTA decision models require. The flagship output should instead be target-standardized arm outcomes mu_t = integral g-inverse{alpha* + p(x) + C_t'(beta + Gamma x)} dF*(x) and contrasts h(mu_t, mu_u) derived from them."
+
+**What was wrong with it.** The source said this machinery does not exist in current software. It has existed since multinma 0.7.0 (2024-05-07), which added marginal_effects() for exactly this posterior standardization, including RMST and survival-probability contrasts; what remains missing is the component case. Found by the literature auditor (cran:multinma; doi:10.1017/rsm.2025.2), with GPT-5.6 Sol adding that the implemented component code already averages fitted survival curves over each observed arm's own covariates, so the gap is the absence of a common user-supplied target distribution, not of marginalization as such.
+
+**Dissent.** literature dissented (overstated): The why_open asserts 'That machinery does not exist in current software'. It does. multinma 0.7.0 (2024-05-07) added marginal_effects(), documented as a wrapper around predict.stan_nma() that standardises absolute predictions over a target population's covariate distribution and then contrasts them - i.e. posterior g-computation - with differences, ratios and link-scale measures, and for survival supports hazard, survival probability, median survival and RMST contrasts. Phillippo et al. 2025 state it flatly: 'Currently, multilevel network meta-regression is the only population-adjustment method capable of producing both conditional and marginal estimates, in any decision target population.' So target-standardised arm outcomes and RMST differences are available in ML-NMR today; what does not exist is the component-additive version. The narrower claims (cSTC plug-in at covariate means is not marginal; conditional coefficients should not be applied to marginal baselines) are correct. The entry should be reworded so the gap is scoped to component models rather than to software in general.
+
+Literature and prior-art check
+:   **partially-solved / overstated.** The why_open asserts 'That machinery does not exist in current software'. It does. multinma 0.7.0 (2024-05-07) added marginal_effects(), documented as a wrapper around predict.stan_nma() that standardises absolute predictions over a target population's covariate distribution and then contrasts them - i.e. posterior g-computation - with differences, ratios and link-scale measures, and for survival supports hazard, survival probability, median survival and RMST contrasts. Phillippo et al. 2025 state it flatly: 'Currently, multilevel network meta-regression is the only population-adjustment method capable of producing both conditional and marginal estimates, in any decision target population.' So target-standardised arm outcomes and RMST differences are available in ML-NMR today; what does not exist is the component-additive version. The narrower claims (cSTC plug-in at covariate means is not marginal; conditional coefficients should not be applied to marginal baselines) are correct. The entry should be reworded so the gap is scoped to component models rather than to software in general.
+    Cites cran:multinma 0.7.0 (2024-05-07), function marginal_effects(): Implements posterior standardisation over a target covariate distribution and marginal contrasts (including RMST and survival differences) for ML-NMR, the machinery the entry says does not exist..
+    Cites doi:10.1017/rsm.2025.2: States that ML-NMR already delivers both conditional and marginal estimates in any decision target population..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / supported-with-caveat.** C1-C4 and C6 are source-confirmed. cSTC centers modifiers at supplied target means and reports the treatment coefficient; cML-NMR relative_effects() returns the conditional linear-predictor contrast at one covariate profile and explicitly negates marginal standardization. Under nonlinear links, applying the inverse link after substituting means is not integration over the target distribution. C5, C7, C9, and C10 are reasonable decision-analysis recommendations but are not universal mathematical requirements. C8 applies when the target distribution is estimated or reconstructed; a fixed finite target population need not receive an additional sampling-uncertainty component. The proposed arm-mean formula also requires an identified or externally supplied target baseline alpha*, which cpaic's study-specific intercepts do not supply automatically. cpaic already averages fitted survival curves over each observed arm's own covariates, so marginalization machinery exists, but there is no common, user-supplied target-distribution path or RMST-contrast output.
+
+Decision path
+:   `R3:partially-solved(n=1) → R9:substantiated-single-overstatement:literature`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [MOD-01 — Conventional STC reports a conditional effect at target means](MOD-01-conventional-stc-reports-a-conditional-effect-at-target-mean.qmd)
+- [OUT-01 — Target-standardized marginal risks are not the HTA reporting default](OUT-01-target-standardized-marginal-risks-are-not-the-hta-reporting.qmd)
+- [OUT-06 — Change scores, trajectories, and responder-threshold estimands](OUT-06-change-scores-trajectories-and-responder-threshold-estimands.qmd)
+- [OUT-09 — Endogenous exposure time and target-standardized rate contrasts](OUT-09-endogenous-exposure-time-and-target-standardized-rate-contra.qmd)
+- [OUT-10 — Proportional odds, category probabilities, and ordinal utilities](OUT-10-proportional-odds-category-probabilities-and-ordinal-utiliti.qmd)
+- [OUT-11 — Non-proportional hazards and the transported hazard ratio](OUT-11-non-proportional-hazards-and-the-transported-hazard-ratio.qmd)
+- [SFW-09 — maicplus supports only binary and time-to-event endpoints](SFW-09-maicplus-supports-only-binary-and-time-to-event-endpoints.qmd)
+:::
+
+## Source
+
+Derived from C:L1365, C:L1236, C:L1366, C:L1391-1414, scope:package-specific instance of a field-level plug-in-means error in STC, scope:package-specific recommendation with field-level estimand implications of the reviewed corpus.

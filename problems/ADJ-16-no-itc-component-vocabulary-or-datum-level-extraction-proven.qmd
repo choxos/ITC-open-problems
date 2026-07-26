@@ -1,0 +1,80 @@
+---
+title: "No ITC component vocabulary or datum-level extraction provenance"
+description: "Versioned ontologies for intervention components, doses and schedules already exist: the Behaviour Change Intervention Ontology family, built on Basic Formal Ontology and released through OBO Foundry, covers intervention content, delivery mode, source, schedule and dose, setting and target population, with the Behaviour Change Technique Ontology as its content layer (PMC10427801; pmid:33447665), while ATC/DDD, SNOMED, CDISC and COMET cover drugs, doses, trial data structure and outcome sets. What is missing is an ITC-specific vocabulary bound to component network meta-analysis design matrices and effect-modifier definitions, an operational boundary between appropriate and inappropriate LLM roles, and a provenance chain in which every extracted datum carries its source span, an extraction confidence flag and a human verification state through to the analysis object. The LLM half is empirically supported: extraction studies report high headline accuracy alongside errors in roughly one outcome cell in five and observed hallucinations, LLM extraction for evidence synthesis is now evaluated in the methods literature (doi:10.1002/jrsm.1710), and provenance is the standard mitigation, though raw model confidence is not calibrated and must not be read as evidence of correctness."
+pid: "ADJ-16"
+topic: "Adjacent-field methods"
+categories: ["Adjacent-field methods", "High priority", "Confirmed open"]
+priority: "High"
+prank: 2
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Emerging"
+---
+::: {.problem-meta}
+[ADJ-16]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[High priority]{.chip .chip-priority-high}
+[Emerging]{.chip .chip-maturity-emerging}
+:::
+## Statement
+
+Versioned ontologies for intervention components, doses and schedules already exist: the Behaviour Change Intervention Ontology family, built on Basic Formal Ontology and released through OBO Foundry, covers intervention content, delivery mode, source, schedule and dose, setting and target population, with the Behaviour Change Technique Ontology as its content layer (PMC10427801; pmid:33447665), while ATC/DDD, SNOMED, CDISC and COMET cover drugs, doses, trial data structure and outcome sets. What is missing is an ITC-specific vocabulary bound to component network meta-analysis design matrices and effect-modifier definitions, an operational boundary between appropriate and inappropriate LLM roles, and a provenance chain in which every extracted datum carries its source span, an extraction confidence flag and a human verification state through to the analysis object. The LLM half is empirically supported: extraction studies report high headline accuracy alongside errors in roughly one outcome cell in five and observed hallucinations, LLM extraction for evidence synthesis is now evaluated in the methods literature (doi:10.1002/jrsm.1710), and provenance is the standard mitigation, though raw model confidence is not calibrated and must not be read as evidence of correctness.
+
+## Why it is open
+
+No existing vocabulary is bound to component network meta-analysis design matrices or to effect-modifier definitions, so component coding errors and version drift still enter analyses silently; ontology work produces no effect estimate, so it attracts less methodological effort than estimator work while blocking it. Permitted and forbidden LLM roles produce identical-looking output: a model that suggests candidate modifiers and one that selects them return the same list, and one asked for a missing target correlation supplies a plausible number rather than refusing. Once extracted values reach an analysis dataset they are indistinguishable from hand-curated ones, and no current pipeline, data format or synthesis package carries span-level provenance and verification state through to the analysis object, so the verification regime that would make machine extraction acceptable cannot be checked. The role boundary is a governance proposal rather than a finding, and it has no enforcement mechanism.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [The Behaviour Change Technique Ontology: Transforming the Behaviour Change Technique Taxonomy v1 (2023)](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10427801/) | A versioned, OBO-Foundry-aligned ontology of intervention components, part of a family covering delivery mode, schedule and dose, setting and target population. Contradicts the claim that no shared versioned component vocabulary exists; it is not bound to component NMA design matrices. |
+| [Ontologies relevant to behaviour change interventions: a method for their development (2021)](https://pubmed.ncbi.nlm.nih.gov/33447665/) | Documents the versioning and maintenance methodology behind that ontology family. |
+| [Gartlehner et al., Res Synth Methods 2024 (doi:10.1002/jrsm.1710)](https://doi.org/10.1002/jrsm.1710) | Evaluation of large language model data extraction for evidence synthesis, named by the recency auditor as the reference for the LLM half; extraction studies of this kind report high headline accuracy alongside a material per-cell error rate, which is why provenance and human verification state are the mitigation. |
+
+:::
+
+## Probable solution or research direction
+
+Extend the existing ontology families rather than starting a new one, binding component, dose, schedule, outcome and modifier terms to component network meta-analysis design matrices and machine-readable analysis specifications. Codify the permitted and forbidden LLM roles as an operational standard, with tooling that structurally prevents moment invention, unreviewed modifier selection, similarity-based transitivity claims and unverified component mappings. Implement a provenance schema in which every extracted datum carries its source span and human verification state into analysis datasets and reporting objects, and keep any model confidence flag labeled as uncalibrated.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+
+**The source titled this.** "Ontologies, LLM extraction roles, and datum-level provenance" The title lists ontologies as missing, but the audit found the versioned Behaviour Change Intervention Ontology family already covering components, doses and schedules.
+
+**The source said.** "The machine-readable evidence layer for ITC is missing three things: versioned ontologies and knowledge graphs for treatments, components, doses, outcomes and effect modifiers; an operational boundary between appropriate LLM roles (extraction, ontology population, candidate modifier generation, auditable extraction suggestions, assumption-versus-text comparison) and inappropriate ones (inventing missing target moments, selecting modifiers without expert review, asserting transitivity from semantic similarity, replacing statistical estimation, producing unverified component mappings); and datum-level provenance carrying a source span, a confidence flag and a human verification state."
+
+**What was wrong with it.** The source said there is no shared versioned vocabulary for components, doses, schedules, outcome definitions or modifier definitions. The literature auditor found the Behaviour Change Intervention Ontology family, which is exactly that (PMC10427801; pmid:33447665), so the gap narrows to an ITC-specific vocabulary bound to component design matrices and to the datum-level provenance chain.
+
+**Dissent.** literature dissented (overstated): The estimator-facing gap is real, but 'There is no shared versioned vocabulary for components, doses, schedules, outcome definitions or modifier definitions' is too strong. The Behaviour Change Intervention Ontology is exactly that: an OBO Foundry ontology built on Basic Formal Ontology, versioned (v1.4 and later), comprising component ontologies for intervention content, delivery mode, source, schedule and dose, setting and target population, with the Behaviour Change Technique Ontology as its content layer (PMC10427801; development method at PMID 33447665). ATC/DDD, SNOMED and CDISC cover drugs, doses and trial data structure; COMET covers outcome sets. What is missing is an ITC-specific vocabulary bound to component NMA design matrices and effect-modifier definitions, and the datum-level provenance chain. The LLM half is well supported empirically: extraction studies report high headline accuracy but errors in roughly one in five outcome cells and observed hallucinations, and provenance/citation is the standard mitigation. The permitted/forbidden role list is a sensible governance proposal, not a finding.
+
+Literature and prior-art check
+:   **open / overstated.** The estimator-facing gap is real, but 'There is no shared versioned vocabulary for components, doses, schedules, outcome definitions or modifier definitions' is too strong. The Behaviour Change Intervention Ontology is exactly that: an OBO Foundry ontology built on Basic Formal Ontology, versioned (v1.4 and later), comprising component ontologies for intervention content, delivery mode, source, schedule and dose, setting and target population, with the Behaviour Change Technique Ontology as its content layer (PMC10427801; development method at PMID 33447665). ATC/DDD, SNOMED and CDISC cover drugs, doses and trial data structure; COMET covers outcome sets. What is missing is an ITC-specific vocabulary bound to component NMA design matrices and effect-modifier definitions, and the datum-level provenance chain. The LLM half is well supported empirically: extraction studies report high headline accuracy but errors in roughly one in five outcome cells and observed hallucinations, and provenance/citation is the standard mitigation. The permitted/forbidden role list is a sensible governance proposal, not a finding.
+    Cites pmc:PMC10427801: A versioned, OBO-Foundry-aligned ontology of intervention components, part of a family covering delivery mode, schedule and dose, setting and target population. Contradicts the claim that no shared versioned component vocabulary exists..
+    Cites pmid:33447665: Documents the versioning and maintenance methodology behind that ontology family..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / supported-with-caveat.** C1-C3 and C5-C17 are sound as infrastructure and role-boundary claims, provided LLM ontology construction and extraction are treated as assistance rather than authoritative decisions and receive domain review. C18 and C20 are strong provenance requirements. Retaining a confidence flag under C19 can aid auditability, but raw LLM confidence is generally not calibrated and must not be treated as evidence of correctness. The two maturity descriptions in C4 and C21 match the report. The claims that no shared vocabulary or suitable pipeline currently exists are landscape claims, not consequences of statistical theory, and cannot be established under this audit's technical-only lens. The remaining work is chiefly infrastructure and governance; it is important for scalable automated evidence engineering but not a prerequisite for every manually curated decision-grade analysis.
+
+Grok 4.5, recency lens
+:   **open / supported-with-caveat.** No cited prior_work in the problem card. Search of RSM/JCE/medRxiv/arXiv and SR-automation literature shows active LLM extraction for evidence synthesis (e.g. Gartlehner et al., Res Synth Methods 2024, doi:10.1002/jrsm.1710; follow-on Annals 2025 AI-assisted extraction; TrialMind-style pipelines with source linking), and emerging provenance / span-return designs in clinical LLM operations literature, but none of that closes the three-part machine-readable ITC layer as stated. There is still no shared, versioned ontology/KG covering treatments, components, doses/schedules, outcomes, and effect modifiers that ITC/CNMA packages consume; no community operational standard that structurally forbids moment invention, unreviewed modifier selection, similarity-based transitivity, or unverified component maps; and no synthesis package or standard analysis object that propagates span-level source, confidence, and human verification state through to the final ITC/PAIC report. C1–C3 and C5–C17 are proportionate research-agenda framing (ontologies do not identify causal effects; LLMs extract and hallucinate; inventing moments or replacing estimation is inappropriate). C18–C20 are normative design claims with partial adjacent tooling, not solved infrastructure. C4 and C21 are report-internal labels. Queries: ontology/KG + (NMA|CNMA|component|effect modifier); LLM extraction + (systematic review|evidence synthesis) + provenance; PICO knowledge graph Cochrane; span-level verification 2024–2026.
+
+Decision path
+:   `R5:default-open → R9:substantiated-single-overstatement:literature`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [SFW-02 — No machine-readable specification standard for ITC analyses](SFW-02-no-machine-readable-specification-standard-for-itc-analyses.qmd)
+:::
+
+## Source
+
+Derived from C:L1646-1647, C:L1662, C:L1669, C:L1741-1757, C:L1759 of the reviewed corpus.

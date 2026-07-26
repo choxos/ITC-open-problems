@@ -1,0 +1,80 @@
+---
+title: "No PAIC workflow carries dependence through transport to net benefit"
+description: "Incremental net monetary benefit in a target population, willingness-to-pay times the expected quality-adjusted outcome minus the expected cost, is a valid decision estimand and can be estimated directly, either by transporting a constructed patient-level net-benefit outcome or by combining target-standardized quality-adjusted-outcome and cost means. Because the expectation is linear, a joint outcome model is not required to identify its mean; covariance is required for the uncertainty, the probability of cost-effectiveness and any nonlinear or patient-level quantity. Defining net monetary benefit as a causal estimand and estimating it directly rather than assembling it downstream already exists in the cost-effectiveness literature (arxiv:2002.04706), so what is unbuilt is the coupling of that idea to evidence synthesis and transport. The open part is a practical PAIC workflow that preserves dependence through synthesis, transport and extrapolation when only marginal aggregate data and external economic or preference inputs are available."
+pid: "OUT-20"
+topic: "Outcome-specific problems"
+categories: ["Outcome-specific problems", "High priority", "Partially addressed"]
+priority: "High"
+prank: 2
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
+maturity: "Emerging"
+---
+::: {.problem-meta}
+[OUT-20]{.problem-id}
+[Partially addressed]{.verdict .verdict-partially-addressed}
+[High priority]{.chip .chip-priority-high}
+[Emerging]{.chip .chip-maturity-emerging}
+:::
+## Statement
+
+Incremental net monetary benefit in a target population, willingness-to-pay times the expected quality-adjusted outcome minus the expected cost, is a valid decision estimand and can be estimated directly, either by transporting a constructed patient-level net-benefit outcome or by combining target-standardized quality-adjusted-outcome and cost means. Because the expectation is linear, a joint outcome model is not required to identify its mean; covariance is required for the uncertainty, the probability of cost-effectiveness and any nonlinear or patient-level quantity. Defining net monetary benefit as a causal estimand and estimating it directly rather than assembling it downstream already exists in the cost-effectiveness literature (arxiv:2002.04706), so what is unbuilt is the coupling of that idea to evidence synthesis and transport. The open part is a practical PAIC workflow that preserves dependence through synthesis, transport and extrapolation when only marginal aggregate data and external economic or preference inputs are available.
+
+## Why it is open
+
+In current practice synthesis and the economic model are separate steps, and the handover typically passes point estimates and marginal uncertainty rather than joint draws, so the correlation between transported outcome estimates and between transport and extrapolation uncertainty is lost. The additional outcome classes, resource use, costs and preferences, are reported in incompatible formats and are frequently absent from publications, so they are supplied by assumption inside economic models rather than estimated. Discontinuation and adherence are post-randomization processes that can act as mediators, intercurrent events, outcomes or time-varying confounders, so linking them requires an explicit choice rather than adding them as further endpoints. Patient preferences come from outside the trial evidence and vary between source and target, adding a preference-transport problem, and the willingness-to-pay parameter makes the estimand decision-rule-dependent rather than purely statistical.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Bayesian nonparametric causal inference for cost-effectiveness analysis (arxiv:2002.04706)](https://arxiv.org/abs/2002.04706) | estimates causal net monetary benefit estimands, including subgroup-specific net benefit, directly from data rather than assembling them downstream; it is not coupled to evidence synthesis or to transport, which is where this entry's contribution lies |
+| [cpaic, unreleased development package on GitHub (not on CRAN), commit 9d150e9, cmlnmr() Gaussian outcome path](https://github.com/choxos/cpaic) | supports binomial, Gaussian, Poisson and survival families, so a precomputed patient-level net-benefit variable is admissible as the numeric outcome in the existing Gaussian component ML-NMR path; it has no built-in net-benefit framework, no quality-adjusted-outcome and cost dependence and no extrapolation framework |
+
+:::
+
+## Probable solution or research direction
+
+Estimate incremental target net monetary benefit directly, either from a constructed patient-level net-benefit outcome or from transported quality-adjusted-outcome and cost means, and carry the covariance rather than assuming that only a single joint likelihood can deliver it. Keep the workflow modular and pass joint posterior draws across the synthesis, transport and extrapolation steps so dependence survives the handover into the decision quantity. Link efficacy, harms, quality of life, adherence, resource use, costs and preferences coherently, stating for each whether it is an outcome, a mediator, an intercurrent event or an external input, rather than folding all of them into one model.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Partially addressed. Part of this problem is addressed by existing work; the entry names which part.
+
+**The source titled this.** "Causal net-benefit estimand with joint uncertainty propagation" The title names the causal net-benefit estimand as the open object, but defining and estimating it directly already exists in the cost-effectiveness literature.
+
+**The source said.** "Rather than producing separate effect estimates that a downstream economic model recombines, the report proposes targeting a causal net monetary benefit estimand directly in the target population, with uncertainty from synthesis, transport, and extrapolation propagated jointly, and with quality of life, discontinuation and adherence, resource use, costs, and patient preferences modeled inside the same framework."
+
+**What was wrong with it.** The source implied that targeting net benefit directly requires a joint outcome model and one monolithic synthesis framework; the code auditor showed the mean is identified from marginal means by linearity and that a modular economic model can preserve covariance by passing joint posterior draws. The literature auditor noted that direct causal net-benefit estimation is not new (arxiv:2002.04706), and both auditors treated the claims that no estimator targets a transported causal net benefit and that no network synthesis models exist for resource use, costs and preferences as absence claims neither could verify from a source.
+
+**Dissent.** codex dissented (overstated): C1 and C2 define a valid decision estimand, preferably as incremental target net monetary benefit between treatments. Linearity is crucial: E(lambda Q^a minus C^a) equals lambda E(Q^a) minus E(C^a), so a joint outcome model is not required to identify its mean. A transport estimator can instead use individual net benefit as the outcome or combine transported QALY and cost means. Covariance is needed for correct uncertainty, and C3 is a sound objective, but a modular economic model can preserve it by passing joint posterior draws; one monolithic synthesis model is not required. C4 and C8 are universal absence claims not established by cpaic or by mathematics. C6 is an overextended roadmap: efficacy, harms, costs, adherence, and external preferences need coherent linkage, not necessarily one likelihood. C7 is also too categorical because discontinuation and adherence can be mediators, intercurrent events, outcomes, or time-varying confounders. cpaic@9d150e9 has no built-in net-benefit or extrapolation framework, although its Gaussian path can accept a precomputed numeric net-benefit outcome. The unresolved part is preserving dependence through synthesis, transport, and extrapolation with limited AgD.
+
+Literature and prior-art check
+:   **open / supported-with-caveat.** I found no estimator that targets a transported causal net-benefit quantity with joint propagation of synthesis, transport and extrapolation uncertainty, so the central claim stands. The caveat is that the first component idea is not new: defining net monetary benefit as a causal estimand and estimating it directly rather than assembling it downstream already exists in the cost-effectiveness literature, for example the Bayesian nonparametric causal cost-effectiveness work (arXiv 2002.04706) which estimates causal NMB estimands and subgroup-specific net benefit directly from data. What is unbuilt is the coupling of that idea to evidence synthesis and transport, which is where this entry's contribution lies. The willingness-to-pay claim, that the estimand becomes decision-rule dependent, is definitional. The claim that there are no accepted network synthesis models for resource use, costs and patient preferences is an absence claim I could not verify from a source that asserts it; I would phrase it as 'we found none' rather than 'there are none'.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / overstated.** C1 and C2 define a valid decision estimand, preferably as incremental target net monetary benefit between treatments. Linearity is crucial: E(lambda Q^a minus C^a) equals lambda E(Q^a) minus E(C^a), so a joint outcome model is not required to identify its mean. A transport estimator can instead use individual net benefit as the outcome or combine transported QALY and cost means. Covariance is needed for correct uncertainty, and C3 is a sound objective, but a modular economic model can preserve it by passing joint posterior draws; one monolithic synthesis model is not required. C4 and C8 are universal absence claims not established by cpaic or by mathematics. C6 is an overextended roadmap: efficacy, harms, costs, adherence, and external preferences need coherent linkage, not necessarily one likelihood. C7 is also too categorical because discontinuation and adherence can be mediators, intercurrent events, outcomes, or time-varying confounders. cpaic@9d150e9 has no built-in net-benefit or extrapolation framework, although its Gaussian path can accept a precomputed numeric net-benefit outcome. The unresolved part is preserving dependence through synthesis, transport, and extrapolation with limited AgD.
+    Cites choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca: Shows that a precomputed patient-level net-benefit variable is admissible as the numeric outcome in the existing Gaussian component ML-NMR path. This resolves only direct synthesis of a constructed continuous outcome, not built-in QALY-cost dependence or extrapolation..
+
+Decision path
+:   `R3:partially-solved(n=1) → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [DEC-01 — Method evaluations score estimator error, not decision error](DEC-01-method-evaluations-score-estimator-error-not-decision-error.qmd)
+- [DIA-09 — Narrow outcome families and hazard-ratio-only survival scoring](DIA-09-narrow-outcome-families-and-hazard-ratio-only-survival-scori.qmd)
+- [OUT-10 — Proportional odds, category probabilities, and ordinal utilities](OUT-10-proportional-odds-category-probabilities-and-ordinal-utiliti.qmd)
+- [OUT-16 — Competing risks and cumulative incidence transport](OUT-16-competing-risks-and-cumulative-incidence-transport.qmd)
+- [QBA-25 — Decision QBA: net benefit, tipping surfaces and extrapolation](QBA-25-decision-qba-net-benefit-tipping-surfaces-and-extrapolation.qmd)
+- [SFW-07 — multinma lacks partial IPD, missing data and a data-informed bridge](SFW-07-multinma-lacks-partial-ipd-missing-data-and-a-data-informed-.qmd)
+:::
+
+## Source
+
+Derived from C:L1620-1638, C:L247 of the reviewed corpus.

@@ -1,0 +1,79 @@
+---
+title: "QBA modes and interval semantics are routinely conflated"
+description: "Bias correction, deterministic grid QBA, probabilistic QBA, partial identification and tipping-point analysis answer different questions and emit differently interpretable objects, yet applied analyses blur them and confidence, systematic-error, total-error and identified-set ranges are all published as 95% intervals. The distinctions are long established rather than new: they organize the Lash, Fox and Fink bias-analysis textbook (doi:10.1007/978-3-030-82673-4) and Greenland's multiple-bias literature, and Ren et al. 2025 (doi:10.1017/rsm.2025.13) make the PAIC-specific point that a deterministic grid treats every sensitivity-parameter value as equally likely. What remains open is narrower than the source said, because some labeling already exists: cpaic (choxos/cpaic@9d150e9, an unreleased development package on GitHub, not installable from CRAN) tags contrasts by whether they are identified by IPD, by aggregate data or by neither, returns nonidentified effects as NA and diagnoses prior-driven movement, but no PAIC package carries the QBA mode or the interval type as metadata, and no ITC or PAIC reporting guideline enforces the taxonomy, including the 2025 PAIC framework of Ishak et al. (doi:10.1007/s40273-025-01503-1), which covers risk of bias and reporting but not interval semantics."
+pid: "QBA-03"
+topic: "Quantitative bias analysis for unanchored PAIC"
+categories: ["Quantitative bias analysis for unanchored PAIC", "Very high priority", "Partially addressed"]
+priority: "Very high"
+prank: 1
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
+maturity: "Established"
+---
+::: {.problem-meta}
+[QBA-03]{.problem-id}
+[Partially addressed]{.verdict .verdict-partially-addressed}
+[Very high priority]{.chip .chip-priority-very-high}
+[Established]{.chip .chip-maturity-established}
+:::
+## Statement
+
+Bias correction, deterministic grid QBA, probabilistic QBA, partial identification and tipping-point analysis answer different questions and emit differently interpretable objects, yet applied analyses blur them and confidence, systematic-error, total-error and identified-set ranges are all published as 95% intervals. The distinctions are long established rather than new: they organize the Lash, Fox and Fink bias-analysis textbook (doi:10.1007/978-3-030-82673-4) and Greenland's multiple-bias literature, and Ren et al. 2025 (doi:10.1017/rsm.2025.13) make the PAIC-specific point that a deterministic grid treats every sensitivity-parameter value as equally likely. What remains open is narrower than the source said, because some labeling already exists: cpaic (choxos/cpaic@9d150e9, an unreleased development package on GitHub, not installable from CRAN) tags contrasts by whether they are identified by IPD, by aggregate data or by neither, returns nonidentified effects as NA and diagnoses prior-driven movement, but no PAIC package carries the QBA mode or the interval type as metadata, and no ITC or PAIC reporting guideline enforces the taxonomy, including the 2025 PAIC framework of Ishak et al. (doi:10.1007/s40273-025-01503-1), which covers risk of bias and reporting but not interval semantics.
+
+## Why it is open
+
+All five modes emit an estimate and a range, and nothing in current PAIC software carries the mode or the interval type as metadata, so the distinction survives only in the analyst's prose. Summarizing a grid as the fraction of scenarios favoring a decision imposes a uniform measure over an arbitrarily chosen and arbitrarily spaced set of points, producing a number that looks probabilistic with no elicited distribution behind it. Where bias parameters have no validation or auxiliary data behind them the observed-data likelihood does not update them, so a probabilistic output is the analyst's input distribution passed through the estimator while presenting in the same visual form as a data-driven posterior. Because no ITC or PAIC reporting guideline enforces the taxonomy, economic models and appraisal committees downstream cannot tell a sensitivity envelope from a confidence interval.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Lash, Fox, Fink and colleagues, Applying Quantitative Bias Analysis to Epidemiologic Data (Springer)](https://doi.org/10.1007/978-3-030-82673-4) | Textbook whose organizing structure is the distinction between simple or deterministic, probabilistic and multiple-bias analysis, and between conventional confidence intervals, systematic-error intervals and total-error intervals. Supplied by the literature auditor as the source the entry presented uncited. |
+| [Ren et al. 2025, Research Synthesis Methods](https://doi.org/10.1017/rsm.2025.13) | States, in the exact PAIC setting, that a deterministic sensitivity analysis treats all possible sensitivity-parameter values as equally likely, which may not be realistic in practice. |
+| [cpaic, unreleased development package on GitHub (not on CRAN), commit 9d150e9](choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca) | Refutes the claim that no PAIC software labels identified versus analyst-specified quantities: estimable_effects_at() labels contrasts by identified_by (IPD, aggregate or none) and basis (exact, first-order screen or not identified), nonidentified effects are returned as NA, and prior_sensitivity() with plot_prior_posterior() diagnose prior-driven movement. It carries no QBA-mode or interval-type metadata. |
+| [Ishak, Chandler, Liu and Klijn 2025, A Framework for Reliable, Transparent, and Reproducible Population-Adjusted Indirect Comparisons, PharmacoEconomics 43:691-710](https://doi.org/10.1007/s40273-025-01503-1) | Published PAIC framework covering estimand definition, method and adjustment-variable selection, application, risk-of-bias assessment and comprehensive reporting. It occupies part of the reporting-guideline space but does not cover QBA mode or interval semantics. |
+
+:::
+
+## Probable solution or research direction
+
+Extend the labeling that already exists rather than specify it from scratch: cpaic's identification tags and prior-movement diagnostics show the pattern, and what is needed is QBA-mode and interval-type metadata on the result object so a systematic-error interval, a total-error interval and an identified set are never printed as one thing. Enforce a reporting vocabulary that names the mode and the interval type for every reported range and never labels a set with nominal coverage, while allowing a confidence region for an identified set to state its coverage explicitly. Attach a method-appropriate support or feasibility diagnostic to every grid point, using effective sample size where weights are involved and feasibility or overlap measures where they are not, so unsupported scenarios are not plotted with equal visual weight.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Partially addressed. Part of this problem is addressed by existing work; the entry names which part.
+
+**The source said.** "Bias correction, deterministic grid QBA, probabilistic QBA, partial identification and tipping-point analysis answer different questions and emit differently interpretable objects, yet applied analyses blur them: a deterministic envelope is read as a confidence interval, an MCMC-sampled bias posterior is read as data-identified, and a grid is summarized as if it were a probability distribution. The four interval types (confidence, systematic-error, total-error, identified set) are all published as 95% intervals."
+
+**What was wrong with it.** The source presented long-established bias-analysis vocabulary with an empty prior_work list; the literature auditor sourced it to the Lash, Fox and Fink textbook (doi:10.1007/978-3-030-82673-4) and to Ren et al. 2025 (doi:10.1017/rsm.2025.13). GPT-5.6 Sol read cpaic at commit 9d150e9 and found the claim that no PAIC software labels identified versus analyst-specified quantities false there, and added that an effective sample size is meaningless outside weighting-based analyses, that validation or auxiliary data can partially identify bias parameters, and that a confidence region for an identified set may legitimately carry nominal coverage.
+
+**Dissent.** literature dissented (open): This entry has zero prior_work, yet claims 1 to 15 are standard, long-established epidemiologic bias-analysis methodology, not novel observations: the distinction between simple/deterministic, probabilistic and multiple-bias analysis, and between conventional confidence intervals, systematic-error intervals and total-error intervals, is the organising structure of Lash, Fox, Fink and colleagues' textbook (Applying Quantitative Bias Analysis to Epidemiologic Data, Springer, 10.1007/978-3-030-82673-4) and of Greenland's multiple-bias modelling literature. Presenting them uncited reads as if the agenda originated them. What is genuinely PAIC-specific and open is claim 6 (no PAIC software labels identified vs analyst-specified quantities) and claim 16 (no ITC/PAIC reporting guideline enforces the interval taxonomy). Claim 7 is corroborated by a retrieved primary source: Ren et al. 2025 state that in their deterministic analysis 'all possible values for the sensitivity parameters (i.e., the marginal mean of the unmeasured covariates) are treated equally likely, which may not be realistic in practice.' I could not verify claims 6 and 16 by absence and treat them as unverified rather than false. codex dissented (overstated): C1-C3, C7, and C11-C15 state important distinctions, but several absolutes fail. The five modes are useful labels, not mutually exclusive categories: tipping analysis is commonly computed from a deterministic surface, and bias correction is a selected point on such a surface. C8 is weighting-specific; an ESS is meaningless for many outcome-regression, bias-function, measurement-error, and partial-identification analyses, which instead need method-appropriate support or feasibility diagnostics. C9 is true only when bias parameters lack validation or auxiliary data; a joint validation likelihood can partially identify them. An identified set is not probabilistic, but a confidence region for an identified set may legitimately have nominal coverage. Bayesian credible intervals are also legitimate when clearly described as conditional on sensitivity priors. C6 is false as written. At cpaic 9d150e9, estimable_effects_at() labels contrasts by identified_by and basis, nonidentified effects are returned as NA, and prior_sensitivity() explicitly diagnoses prior-driven movement. The live checkout is d281149, whose only change from 9d150e9 is src/Makevars.win, so these R-source findings apply to both. cpaic still lacks first-class QBA-mode metadata and systematic-error versus total-error labels, leaving the main reporting problem partially open. C16 is a guideline-absence claim outside this lens.
+
+Literature and prior-art check
+:   **open / supported-with-caveat.** This entry has zero prior_work, yet claims 1 to 15 are standard, long-established epidemiologic bias-analysis methodology, not novel observations: the distinction between simple/deterministic, probabilistic and multiple-bias analysis, and between conventional confidence intervals, systematic-error intervals and total-error intervals, is the organising structure of Lash, Fox, Fink and colleagues' textbook (Applying Quantitative Bias Analysis to Epidemiologic Data, Springer, 10.1007/978-3-030-82673-4) and of Greenland's multiple-bias modelling literature. Presenting them uncited reads as if the agenda originated them. What is genuinely PAIC-specific and open is claim 6 (no PAIC software labels identified vs analyst-specified quantities) and claim 16 (no ITC/PAIC reporting guideline enforces the interval taxonomy). Claim 7 is corroborated by a retrieved primary source: Ren et al. 2025 state that in their deterministic analysis 'all possible values for the sensitivity parameters (i.e., the marginal mean of the unmeasured covariates) are treated equally likely, which may not be realistic in practice.' I could not verify claims 6 and 16 by absence and treat them as unverified rather than false.
+    Cites 10.1017/rsm.2025.13: Does not resolve the problem; supplies a real source for claim 7 (a deterministic grid imposes an implicit uniform measure) in the exact PAIC setting..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / overstated.** C1-C3, C7, and C11-C15 state important distinctions, but several absolutes fail. The five modes are useful labels, not mutually exclusive categories: tipping analysis is commonly computed from a deterministic surface, and bias correction is a selected point on such a surface. C8 is weighting-specific; an ESS is meaningless for many outcome-regression, bias-function, measurement-error, and partial-identification analyses, which instead need method-appropriate support or feasibility diagnostics. C9 is true only when bias parameters lack validation or auxiliary data; a joint validation likelihood can partially identify them. An identified set is not probabilistic, but a confidence region for an identified set may legitimately have nominal coverage. Bayesian credible intervals are also legitimate when clearly described as conditional on sensitivity priors. C6 is false as written. At cpaic 9d150e9, estimable_effects_at() labels contrasts by identified_by and basis, nonidentified effects are returned as NA, and prior_sensitivity() explicitly diagnoses prior-driven movement. The live checkout is d281149, whose only change from 9d150e9 is src/Makevars.win, so these R-source findings apply to both. cpaic still lacks first-class QBA-mode metadata and systematic-error versus total-error labels, leaving the main reporting problem partially open. C16 is a guideline-absence claim outside this lens.
+    Cites choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca: Refutes C6 for model contrasts by labeling whether evidence comes from IPD, aggregate data, or neither, and by distinguishing exact identification from a first-order screen..
+    Cites choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca: Provides an explicit diagnostic for distinguishing likelihood-supported estimates from estimates that move with weakly identified priors..
+
+Decision path
+:   `R3:partially-solved(n=1) → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [DEC-04 — No PAIC-specific reporting standard or credibility appraisal tool](DEC-04-no-paic-specific-reporting-standard-or-credibility-appraisal.qmd)
+- [MOD-13 — No reporting convention exposes prior-dominated contrasts in PAIC](MOD-13-no-reporting-convention-exposes-prior-dominated-contrasts-in.qmd)
+- [SFW-05 — No coherent QBA software object for population-adjusted comparison](SFW-05-no-coherent-qba-software-object-for-population-adjusted-comp.qmd)
+:::
+
+## Source
+
+Derived from C:L444-452, C:L709-711, C:L709-712, C:L750-755 of the reviewed corpus.

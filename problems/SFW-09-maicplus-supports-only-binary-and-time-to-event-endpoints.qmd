@@ -1,0 +1,82 @@
+---
+title: "maicplus supports only binary and time-to-event endpoints"
+description: "maicplus 0.1.2 (CRAN, 21 February 2025) restricts its public analysis APIs to binary and time-to-event endpoints, offering odds ratio, risk difference or risk ratio for binary data and hazard ratio for survival, with open issues requesting continuous and count outcomes (#209, #96), further time-to-event effect measures (#51) and a time-dependent Cox model (#95). Risk ratio is fitted with a weighted binomial model with a log link, with warnings suppressed and no explicit convergence guard, and issue #200 reports problems with it, so the numerical concern is credible. This is a package scope gap rather than a field gap: continuous-outcome MAIC is available elsewhere in the ecosystem, for example the Shiny-MAIC application (doi:10.1002/jrsm.1709), which offers anchored and unanchored MAIC across different covariate and outcome types with bootstrap and robust variance estimators. The gaps bind only when an analysis needs one of the missing outcomes or estimands."
+pid: "SFW-09"
+topic: "Software, benchmarks & interface standards"
+categories: ["Software, benchmarks & interface standards", "High priority", "Confirmed open"]
+priority: "High"
+prank: 2
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Established"
+---
+::: {.problem-meta}
+[SFW-09]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[High priority]{.chip .chip-priority-high}
+[Established]{.chip .chip-maturity-established}
+[Implementation-specific]{.chip}
+:::
+::: {.callout-note appearance="simple"}
+## Scope
+
+This entry describes a limitation of a specific implementation rather than of the field.
+It is catalogued because the underlying methodological problem is general, and because a
+reference implementation is where such problems become concrete and checkable.
+:::
+
+## Statement
+
+maicplus 0.1.2 (CRAN, 21 February 2025) restricts its public analysis APIs to binary and time-to-event endpoints, offering odds ratio, risk difference or risk ratio for binary data and hazard ratio for survival, with open issues requesting continuous and count outcomes (#209, #96), further time-to-event effect measures (#51) and a time-dependent Cox model (#95). Risk ratio is fitted with a weighted binomial model with a log link, with warnings suppressed and no explicit convergence guard, and issue #200 reports problems with it, so the numerical concern is credible. This is a package scope gap rather than a field gap: continuous-outcome MAIC is available elsewhere in the ecosystem, for example the Shiny-MAIC application (doi:10.1002/jrsm.1709), which offers anchored and unanchored MAIC across different covariate and outcome types with bootstrap and robust variance estimators. The gaps bind only when an analysis needs one of the missing outcomes or estimands.
+
+## Why it is open
+
+The estimation and variance machinery was built around binary and time-to-event endpoints, so the weighted variance, bootstrap and reporting paths all assume those outcome types and adding a link function is not sufficient. Effect measures that are not a single coefficient, such as anything derived from the weighted survival curve, change the object being bootstrapped rather than only the summary reported. The risk-ratio path is a weighted binomial fit with a log link and no convergence guard, so instability there is a numerical problem in existing code rather than a missing feature. None of this blocks an analysis whose outcome the package already supports, which is why the gaps persist in an actively maintained package.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [maicplus 0.1.2 (CRAN, published 21 Feb 2025)](https://cran.r-project.org/package=maicplus) | provides a maintained MAIC workflow with anchored and unanchored binary and survival analyses plus weighting and reporting utilities across seven vignettes; public analysis APIs are limited to binary (odds ratio, risk difference, risk ratio) and time-to-event (hazard ratio) endpoints |
+| [hta-pharma/maicplus (GitHub)](https://github.com/hta-pharma/maicplus) | development repository whose open issues were examined in the audit, including #209 and #96 on continuous and count data, #200 on risk ratio for binary outcomes, #51 on further time-to-event effect measures and #95 on a time-dependent Cox model |
+| [Shiny-MAIC application](https://doi.org/10.1002/jrsm.1709) | graphical MAIC application offering anchored or unanchored analysis across different covariate and outcome types with bootstrap and robust standard errors; shows continuous-outcome MAIC exists in the ecosystem, so this entry is a maicplus scope gap rather than a missing method |
+
+:::
+
+## Probable solution or research direction
+
+Add continuous and count outcome paths with variance and reporting machinery matched to each outcome type rather than retrofitted onto the binary and survival paths, porting what already works in other MAIC implementations instead of deriving it again. Add an explicit convergence guard and diagnostics to the weighted log-link binomial fit behind the risk ratio rather than suppressing warnings. Specify which further time-to-event effect measures are actually wanted, since the underlying issue asks for more measures rather than for non-proportional-hazards measures specifically, and add the requested time-dependent Cox path.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+
+**The source titled this.** "maicplus lacks continuous, count and non-proportional-hazards outcomes" The title names non-proportional-hazards outcomes as a documented gap, but the audit found the underlying issue asks for more time-to-event effect measures and mentions neither NPH nor RMST.
+
+**The source said.** "maicplus, the maintained CRAN MAIC workflow supporting anchored and unanchored binary and survival analyses, has open needs for continuous and count outcomes, risk-ratio convergence, non-proportional-hazards effect measures and time-dependent Cox models."
+
+**What was wrong with it.** Two of the source's labels were stronger than the tracker text the literature auditor checked: risk-ratio convergence rests on an issue titled only issues with RR for binary (#200), and non-proportional-hazards effect measures maps to #51, add more effect measure for time to event, which mentions neither non-proportional hazards nor RMST. The auditor also found continuous-outcome MAIC available elsewhere (doi:10.1002/jrsm.1709), and GPT-5.6 Sol judged the general high severity inflated because these gaps matter only for analyses needing those outcomes.
+
+Literature and prior-art check
+:   **open / supported-with-caveat.** Retrieved all 23 open maicplus issues. Confirmed open: #209 'add support for continuous and count data' (2026-05-18), #96 'add continuous endpoint', #200 'issues with RR for binary', #95 'add time dependent cox model'. CRAN confirms 0.1.2 published 2025-02-21 and a scope of time-to-event and binary endpoints, anchored and unanchored, across seven vignettes. Two claims are paraphrases stronger than the tracker text: 'risk-ratio convergence' rests on an issue titled only 'issues with RR for binary', and 'non-proportional-hazards effect measures' maps to #51 'add more effect measure for time to event', which does not mention non-PH or RMST. Context worth adding rather than a defect: continuous-outcome MAIC is available elsewhere in the ecosystem, so this is a maicplus gap and not a field gap.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / supported-with-caveat.** maicplus 0.1.2 restricts its public analysis APIs to binary and time-to-event endpoints, with OR, RD, or RR for binary data and HR for survival data. It lacks continuous and count paths, inferential non-proportional-hazards measures such as RMST contrasts, and time-dependent Cox models. RR uses a weighted binomial model with a log link, suppressed warnings, and no explicit convergence guard, so the numerical concern is credible. These are material only when the analysis requires those outcomes or estimands, making the asserted general high severity somewhat inflated. The v0.1.2 tag is dated 21 February 2025 and supports anchored and unanchored binary and survival analyses.
+
+Decision path
+:   `R5:default-open → R11:caveated(n=2)`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [CMP-10 — Component PAIC lacks a marginal target-standardized estimand path](CMP-10-component-paic-lacks-a-marginal-target-standardized-estimand.qmd)
+:::
+
+## Source
+
+Derived from C:L2247, C:L2275-2290 of the reviewed corpus.

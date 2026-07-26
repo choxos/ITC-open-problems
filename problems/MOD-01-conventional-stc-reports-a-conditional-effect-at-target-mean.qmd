@@ -1,0 +1,84 @@
+---
+title: "Conventional STC reports a conditional effect at target means"
+description: "A conventional or anchored STC that fits a generalized linear or Cox model in the IPD trial and reports the treatment coefficient evaluated at the aggregate trial's covariate means returns a conditional parameter at a mean covariate profile, which on non-collapsible scales is not the marginal effect the aggregate-data trial reports. The mismatch is real and was demonstrated by simulation in Remiro-Azocar et al. 2021 (doi:10.1002/jrsm.1511), but it is no longer an open methods problem: parametric g-computation (doi:10.1002/jrsm.1565, 2022) and multiple imputation marginalization (doi:10.1186/s12874-024-02157-x, 2024) standardize the fitted model over the target covariate distribution, and outstandR ships both on CRAN. What is still open is the input those methods need. The target joint covariate law is rarely published, and implementations condition on reported target means and standard deviations as if they were known constants."
+pid: "MOD-01"
+topic: "Model specification, double robustness & targeted learning"
+categories: ["Model specification, double robustness & targeted learning", "Very high priority", "Partially addressed"]
+priority: "Very high"
+prank: 1
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
+maturity: "Established"
+---
+::: {.problem-meta}
+[MOD-01]{.problem-id}
+[Partially addressed]{.verdict .verdict-partially-addressed}
+[Very high priority]{.chip .chip-priority-very-high}
+[Established]{.chip .chip-maturity-established}
+:::
+## Statement
+
+A conventional or anchored STC that fits a generalized linear or Cox model in the IPD trial and reports the treatment coefficient evaluated at the aggregate trial's covariate means returns a conditional parameter at a mean covariate profile, which on non-collapsible scales is not the marginal effect the aggregate-data trial reports. The mismatch is real and was demonstrated by simulation in Remiro-Azocar et al. 2021 (doi:10.1002/jrsm.1511), but it is no longer an open methods problem: parametric g-computation (doi:10.1002/jrsm.1565, 2022) and multiple imputation marginalization (doi:10.1186/s12874-024-02157-x, 2024) standardize the fitted model over the target covariate distribution, and outstandR ships both on CRAN. What is still open is the input those methods need. The target joint covariate law is rarely published, and implementations condition on reported target means and standard deviations as if they were known constants.
+
+## Why it is open
+
+The mismatch persists in practice rather than in theory. Evaluating a fitted model at target means is numerically trivial and produces something that looks like a treatment effect, so the estimand error leaves no trace in output, diagnostics or balance tables, while the compatible route needs the target joint covariate distribution that aggregate reports rarely provide. Standardization also replaces one identification problem with two estimation problems, because the target covariate law must be modeled alongside the outcome and neither model can be validated against the aggregate data that motivated the analysis. GPT-5.6 Sol added that target-summary uncertainty is a genuine omission when the estimand indexes a superpopulation, but may properly be conditioned on when the estimand indexes the realized finite target sample.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Remiro-Azocar, Heath & Baio 2022, Parametric G-computation for compatible indirect treatment comparisons with limited individual patient data, Research Synthesis Methods (PMID 35485582)](https://doi.org/10.1002/jrsm.1565) | Standardizes a GLM or Cox outcome model over the target covariate distribution to recover a marginal effect compatible with the aggregate-data trial. This is the resolution of the estimand mismatch the entry describes, and it is the entry's own citation. |
+| [Model-based standardization using multiple imputation, BMC Medical Research Methodology 2024 (PMID 38341552)](https://doi.org/10.1186/s12874-024-02157-x) | Supplies the multiple imputation marginalization route the entry names, with Bayesian uncertainty propagation, benchmarked by simulation for binary outcomes and a logistic model. |
+| [Methods for population adjustment with limited access to individual patient data: a review and simulation study, 2021 (PMID 34196111)](https://doi.org/10.1002/jrsm.1511) | Establishes the entry's central bias claim by simulation across 162 survival scenarios, showing that typical STC targets a conditional effect where the estimand should be marginal, and names the fix that was delivered in 2022. |
+| [outstandR: Population-Adjusted Indirect Treatment Comparison in R (described in arXiv:2601.07532)](https://cran.r-project.org/package=outstandR) | Ships maximum-likelihood and Bayesian G-computation plus multiple imputation marginalization, so the compatible alternative is a released package rather than research-only. |
+
+:::
+
+## Probable solution or research direction
+
+Use the existing standardization implementations rather than rebuilding them, and state the conditional or marginal status and the indexing population of every reported STC quantity. The research work left is the target law: propagate uncertainty in it instead of fixing it, using a Bayesian distribution over the target law or bootstrap and influence-function expansions that include target-summary estimation, and reconstruct the joint distribution from published marginals with copulas, maximum entropy or synthetic target populations while reporting sensitivity to that reconstruction. State which estimand each uncertainty statement is for, since conditioning on the realized target sample is legitimate for a finite-population estimand.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Partially addressed. Part of this problem is addressed by existing work; the entry names which part.
+
+**The source said.** "A conventional or anchored simulated treatment comparison fits a generalized linear or Cox model in the IPD trial and reports the treatment coefficient evaluated at the aggregate trial's covariate means. That quantity is a conditional parameter at a mean covariate profile; on non-collapsible scales it is not the marginal effect the aggregate-data trial reports, so the two arms of the indirect comparison are not the same estimand."
+
+**What was wrong with it.** The source framed the conditional versus marginal mismatch as an open problem. Both auditors voted it partially solved: the fix is the entry's own citation (parametric g-computation, doi:10.1002/jrsm.1565, 2022), extended by multiple imputation marginalization (doi:10.1186/s12874-024-02157-x, 2024) and shipped on CRAN in outstandR, so what survives is the treatment of reported target summaries as fixed known constants.
+
+**Dissent.** literature dissented (supported): Retrieved the cited work (Remiro-Azocar, Heath & Baio 2022, Res Synth Methods, PMID 35485582). Its abstract states verbatim: 'Current outcome regression-based alternatives can extrapolate but target a conditional treatment effect that is incompatible in the indirect comparison. When adjusting for covariates, one must integrate or average the conditional estimate over the relevant population to recover a compatible marginal treatment effect.' The prior_work description is accurate. The same abstract also supports the extrapolation claim ('MAIC ... cannot extrapolate beyond the observed covariate space') and the efficiency claim ('Parametric G-computation achieves more precise and more accurate estimates than MAIC, particularly when covariate overlap is poor'). However, the entry's OWN citation is the fix: the estimand mismatch was diagnosed in Remiro-Azocar 2021 (jrsm.1511), solved by parametric G-computation (2022), extended by multiple imputation marginalization (2024, PMID 38341552), and is now shipped on CRAN in outstandR. What remains genuinely open is the sub-claim I could not verify: that implementations ignore uncertainty in the reported target summaries. Vote partially-solved, not open.
+
+Literature and prior-art check
+:   **partially-solved / supported.** Retrieved the cited work (Remiro-Azocar, Heath & Baio 2022, Res Synth Methods, PMID 35485582). Its abstract states verbatim: 'Current outcome regression-based alternatives can extrapolate but target a conditional treatment effect that is incompatible in the indirect comparison. When adjusting for covariates, one must integrate or average the conditional estimate over the relevant population to recover a compatible marginal treatment effect.' The prior_work description is accurate. The same abstract also supports the extrapolation claim ('MAIC ... cannot extrapolate beyond the observed covariate space') and the efficiency claim ('Parametric G-computation achieves more precise and more accurate estimates than MAIC, particularly when covariate overlap is poor'). However, the entry's OWN citation is the fix: the estimand mismatch was diagnosed in Remiro-Azocar 2021 (jrsm.1511), solved by parametric G-computation (2022), extended by multiple imputation marginalization (2024, PMID 38341552), and is now shipped on CRAN in outstandR. What remains genuinely open is the sub-claim I could not verify: that implementations ignore uncertainty in the reported target summaries. Vote partially-solved, not open.
+    Cites doi:10.1002/jrsm.1565 (PMID 35485582): Resolves the conditional-vs-marginal estimand mismatch for GLM and Cox outcome models by standardizing over the target covariate distribution; the entry cites this itself..
+    Cites doi:10.1186/s12874-024-02157-x (PMID 38341552): Supplies the MIM alternative named in the entry, with Bayesian uncertainty propagation, benchmarked by simulation for binary outcomes and a logistic model..
+    Cites cran:outstandR (arXiv:2601.07532): Ships maximum-likelihood and Bayesian G-computation plus MIM as a reference implementation, so the compatible alternative is no longer research-only..
+    Cites doi:10.1002/jrsm.1511 (PMID 34196111): Independently establishes the entry's central bias claim by simulation across 162 survival scenarios, and names the fix as a future objective that was then delivered in 2022..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / supported-with-caveat.** At choxos/cpaic@9d150e9, NAMESPACE exports cstc(), R/cstc.R centers effect modifiers at target means and explicitly labels the result conditional, and R/effects.R and R/cmlnmr.R state that no marginal standardized path is returned. That establishes C1-C5, C7, and the conditional-versus-marginal core: in general m(E[X]) is not E[m(X)], and non-collapsible link-scale contrasts cannot be substituted for marginal trial contrasts. C9-C10 are resolved by g-computation and MIM. C6 is not a universal efficiency ordering; correct parametric outcome regression can outperform MAIC, but the ordering depends on the estimand, models, design, and overlap. C11 needs a sufficiently correct target-law representation only when that law must be reconstructed; empirical target IPD or special estimands need not introduce a parametric target-distribution model. C8 and C12 are prevalence claims not established by technical reasoning, and target-summary uncertainty is genuine for a superpopulation target but may properly be conditioned on when the estimand indexes the realized finite target sample. The estimand mismatch is therefore solved in method, while target-law identification, uncertainty propagation, and cpaic's own marginal path remain open.
+    Cites doi:10.1002/jrsm.1565: Provides explicit standardization of GLM and Cox outcome models over a target covariate distribution to obtain a compatible marginal treatment effect..
+    Cites doi:10.1186/s12874-024-02157-x: Provides the MIM route named in the agenda for converting conditional outcome-model predictions into target-population marginal effects..
+
+Decision path
+:   `R3:partially-solved(n=2) → R11:caveated(n=1)`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [CMP-10 — Component PAIC lacks a marginal target-standardized estimand path](CMP-10-component-paic-lacks-a-marginal-target-standardized-estimand.qmd)
+- [EST-04 — Methods return incompatible marginal and conditional estimands](EST-04-methods-return-incompatible-marginal-and-conditional-estiman.qmd)
+- [OVL-03 — No support diagnostic aggregates over a PAIC target distribution](OVL-03-no-support-diagnostic-aggregates-over-a-paic-target-distribu.qmd)
+- [QBA-10 — Target population and joint-distribution uncertainty](QBA-10-target-population-and-joint-distribution-uncertainty.qmd)
+- [QBA-13 — Simulated-covariate QBA is an STC route, not a general solution](QBA-13-simulated-covariate-qba-is-an-stc-route-not-a-general-soluti.qmd)
+:::
+
+## Source
+
+Derived from C:L142, C:L187-188, C:L193, C:L194, C:L1007-1020, C:L1015 of the reviewed corpus.

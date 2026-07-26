@@ -1,0 +1,72 @@
+---
+title: "Optimal transport for distributional balancing in PAIC"
+description: "Matching a finite list of moments, the basis of MAIC and entropy balancing, leaves the rest of the distribution unconstrained, so source and target can agree on every balanced moment while differing in the tails and in the joint dependence structure. Optimal transport aligns fully specified empirical measures under an explicit cost function and makes the amount and location of transport visible, and it has already reached causal inference: Dunipace derives optimal-transport weights that minimize the transport distance between treatment and control (arxiv:2109.01991), and Gunsilius and Xu match for causal effects via multimarginal unbalanced optimal transport (arxiv:2112.04398). Neither addresses the PAIC data structure in which the target is known only through published marginal moments, which is where an adaptation would be new. Two auditors searched and found no such adaptation, so the absence is a negative search result rather than a verified fact, and the transport cost is a weaker diagnostic than the source claimed, since it measures separation under a chosen and scaled cost function rather than positivity failure as such."
+pid: "OVL-05"
+topic: "Positivity, overlap & extrapolation"
+categories: ["Positivity, overlap & extrapolation", "High priority", "Confirmed open"]
+priority: "High"
+prank: 2
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[OVL-05]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[High priority]{.chip .chip-priority-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+## Statement
+
+Matching a finite list of moments, the basis of MAIC and entropy balancing, leaves the rest of the distribution unconstrained, so source and target can agree on every balanced moment while differing in the tails and in the joint dependence structure. Optimal transport aligns fully specified empirical measures under an explicit cost function and makes the amount and location of transport visible, and it has already reached causal inference: Dunipace derives optimal-transport weights that minimize the transport distance between treatment and control (arxiv:2109.01991), and Gunsilius and Xu match for causal effects via multimarginal unbalanced optimal transport (arxiv:2112.04398). Neither addresses the PAIC data structure in which the target is known only through published marginal moments, which is where an adaptation would be new. Two auditors searched and found no such adaptation, so the absence is a negative search result rather than a verified fact, and the transport cost is a weaker diagnostic than the source claimed, since it measures separation under a chosen and scaled cost function rather than positivity failure as such.
+
+## Why it is open
+
+Balancing a finite list of moments leaves tails and joint dependence unconstrained, exactly where nonlinear outcome models and survival estimands are most sensitive, so the failure mode the source identifies is real. Optimal transport addresses it in principle only when both measures are fully specified, and in PAIC the target usually is not: aligning entire distributions requires first imposing a synthetic joint distribution that published marginals do not identify, so the transport is computed against an assumption rather than against data. Robust optimal transport over a moment-constrained ambiguity set is a coherent response but naturally returns worst-case criteria or ranges rather than a unique target distribution or effect. Computation, per-covariate cost specification, and uncertainty quantification for transport-based weights in a network context are all unresolved, so there is no estimator to evaluate, and none of this would repair an identification failure in any case.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Dunipace, Optimal transport weights for causal inference (2021)](https://arxiv.org/abs/2109.01991) | derives weights by minimizing the optimal-transport distance between treatment and control groups, targeting distributional rather than moment balance; does not address the PAIC setting where the target is known only through published marginal moments |
+| [Gunsilius and Xu, Matching for causal effects via multimarginal unbalanced optimal transport](https://arxiv.org/abs/2112.04398) | formulates causal matching as a multimarginal unbalanced optimal-transport problem, which is the closest existing analogue to partial transport that leaves unmatched mass; does not address aggregate-data targets or indirect comparison |
+
+:::
+
+## Probable solution or research direction
+
+Build on the existing causal optimal-transport weighting and matching methods (arxiv:2109.01991, arxiv:2112.04398) rather than deriving PAIC transport from scratch, and treat the aggregate-data case as the genuinely new problem: transport to a target specified only by published marginals, using robust optimal transport over a moment-constrained uncertainty set and reporting the resulting range rather than a single aligned distribution. Add entropic regularization for computational stability, covariate-specific costs reflecting clinical plausibility, and partial transport that leaves unsupported target mass unmatched instead of forcing a match. Before transport cost can be reported as a diagnostic it needs clinical scaling, calibration against reference cases and decomposition by covariate direction, because an unscaled cost separates overlap from nonoverlap poorly in both directions. Frame the line of work as a research roadmap rather than as a prerequisite for decision-grade analysis, and never as evidence that positivity has been repaired.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+
+**The source said.** "Moment matching, the basis of MAIC and entropy balancing, can miss differences in the tails and in the dependence structure of the source and target covariate distributions. Optimal transport would align entire empirical distributions under an explicit cost function, with the amount and location of transport serving as a positivity diagnostic, but it has not been adapted to PAIC."
+
+**What was wrong with it.** The source read as if optimal-transport balancing for causal work were unbuilt; the literature auditor found two existing causal optimal-transport weighting and matching methods (arxiv:2109.01991, arxiv:2112.04398), neither covering the PAIC case where the target is only published moments, and recorded the absence claim itself as unverifiable rather than verified. GPT-5.6 Sol struck the claim that a large transport cost is a valid diagnostic of an unsupported target, since common support can coexist with a large Wasserstein distance, nonoverlap can produce a small cost, and a low cost can be falsely reassuring when effect-modifier directions are omitted, so cost needs clinical scaling, reference calibration and decomposition before it warns of anything.
+
+Literature and prior-art check
+:   **open / unverifiable.** Searched arXiv full text for 'optimal transport' AND 'indirect comparison' (zero results returned by the API), plus abstract queries pairing optimal transport with covariate balancing, transportability, external control and generalizability, plus PubMed. I found no adaptation of optimal transport to population-adjusted indirect comparison, and no source that asserts the absence. Per the standing rule, an absence cannot be verified by finding nothing, so the pivotal claim 'Optimal-transport balancing has not yet been adapted to population-adjusted indirect comparison' is unverifiable rather than verified. The generic OT facts asserted (distributional alignment under a cost function, entropic regularisation, partial transport, robust OT over uncertainty sets) are standard and correct. Two adjacent works exist and should be cited so the entry is not read as claiming OT-based causal weighting itself is novel: Dunipace, 'Optimal transport weights for causal inference' (arXiv:2109.01991), which minimises OT distance between treatment and control to target distributional balance, and Gunsilius and Xu, 'Matching for causal effects via multimarginal unbalanced optimal transport' (arXiv:2112.04398). Neither addresses the PAIC data structure in which the target is known only through published moments, which is the entry's genuine novelty.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / supported-with-caveat.** C1-C6 and C8 are technically sound. A finite set of balanced moments need not determine tails or joint dependence; balanced OT constructs a minimum-cost coupling between fully specified empirical measures; entropic regularization smooths computation; and partial OT can leave mass unmatched. Important qualifications remain. In the usual PAIC setting, the target empirical distribution is unavailable, so an entire-distribution alignment is possible only after imposing a synthetic joint distribution that is not identified by marginal moments. Robust OT over a moment-constrained ambiguity set is a coherent research construction, but it naturally yields worst-case criteria or ranges rather than a uniquely identified target distribution or effect. C9 is too categorical: a large transport cost shows separation under the chosen, scaled cost function, not positivity failure as such. Common support can coexist with a large Wasserstein distance, nonoverlap can have a small cost, and omitted effect-modifier directions can make a low cost falsely reassuring. Cost requires clinical scaling, reference calibration, and decomposition before serving as a useful warning. C10 is a literature-absence claim and is not adjudicated here. The PAIC adaptation is therefore an open research direction, but it is a roadmap item rather than a prerequisite for decision-grade analysis, and it cannot repair identification failure.
+
+Decision path
+:   `R5:default-open → R11:caveated(n=1)`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [ADJ-05 — Optimal transport for distributional rather than moment balance](ADJ-05-optimal-transport-for-distributional-rather-than-moment-bala.qmd)
+- [COV-07 — Unknown target joint covariate distribution](COV-07-unknown-target-joint-covariate-distribution.qmd)
+- [COV-08 — Entropy balancing has no network extension or variance theory](COV-08-entropy-balancing-has-no-network-extension-or-variance-theor.qmd)
+:::
+
+## Source
+
+Derived from C:L896-906 of the reviewed corpus.

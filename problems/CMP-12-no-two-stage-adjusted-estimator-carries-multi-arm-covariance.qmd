@@ -1,0 +1,81 @@
+---
+title: "No two-stage adjusted estimator carries multi-arm covariance"
+description: "When a multi-arm trial's contrasts are population-adjusted one at a time, the within-study covariance induced by a shared arm and a shared weighting step is not recovered by naive variance formulas, so standard errors and network precision would be wrong. Current implementations avoid the error by refusing the capability rather than by solving it: both the component MAIC and component STC routes reject IPD studies with more than two arms, so multi-arm IPD trials must be split or dropped. The covariance is handled natively on the synthesis side of frequentist CNMA and in the one-stage ML-NMR likelihood, which keeps multi-arm trials inside a single arm-level model; what is missing is a two-stage adjusted estimator that carries it, and any multi-arm handling in component PAIC."
+pid: "CMP-12"
+topic: "Component methods (CNMA and component PAIC)"
+categories: ["Component methods (CNMA and component PAIC)", "High priority", "Partially addressed"]
+priority: "High"
+prank: 2
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[CMP-12]{.problem-id}
+[Partially addressed]{.verdict .verdict-partially-addressed}
+[High priority]{.chip .chip-priority-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+## Statement
+
+When a multi-arm trial's contrasts are population-adjusted one at a time, the within-study covariance induced by a shared arm and a shared weighting step is not recovered by naive variance formulas, so standard errors and network precision would be wrong. Current implementations avoid the error by refusing the capability rather than by solving it: both the component MAIC and component STC routes reject IPD studies with more than two arms, so multi-arm IPD trials must be split or dropped. The covariance is handled natively on the synthesis side of frequentist CNMA and in the one-stage ML-NMR likelihood, which keeps multi-arm trials inside a single arm-level model; what is missing is a two-stage adjusted estimator that carries it, and any multi-arm handling in component PAIC.
+
+## Why it is open
+
+Population adjustment reweights or re-fits per contrast, and a two-stage route that processes one contrast at a time has no natural place to carry the induced correlation, so multi-arm studies must be split, which double counts the shared arm, or dropped, which discards evidence. A stratified bootstrap could recover the covariance only if replicates are carried jointly across a trial's contrasts rather than per contrast, which requires multivariate estimating equations or an arm-level likelihood and therefore changes the two-stage architecture. Until then the practical cost is lost evidence rather than wrong intervals.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Phillippo et al. 2020](https://doi.org/10.1111/rssa.12579) | handles multi-arm trials natively within a one-stage arm-level NMA likelihood, so the within-study covariance is never discarded |
+| [Petropoulou et al. 2023](https://doi.org/10.1186/s12874-023-01959-9) | records that multi-arm study weights are adjusted in the netmeta CNMA machinery, showing the covariance loss is introduced by the adjustment stage rather than by component modeling |
+| [cpaic 0.1.0 (development version, choxos/cpaic@9d150e9)](choxos/cpaic@9d150e9) | unreleased development R package on GitHub, not on CRAN; re-estimates weights and outcome models in arm-stratified bootstrap replicates, fails closed when too few replicates succeed, and rejects IPD studies with more than two arms in both cmaic() and cstc() |
+
+:::
+
+## Probable solution or research direction
+
+Use a multivariate bootstrap or stacked estimating equations that carry all of a trial's contrasts jointly, so the two-stage route can accept multi-arm IPD studies with the correct correlation structure. Alternatively move to a one-stage arm-level component likelihood, where the full contrast covariance is produced by the model rather than reconstructed afterwards, which is how the non-component version already handles multi-arm trials. Either way the fix should lift the current two-arm restriction rather than adding a variance correction on top of it.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Partially addressed. Part of this problem is addressed by existing work; the entry names which part.
+
+**The source titled this.** "Two-stage adjustment loses multi-arm within-study covariance" The title asserts the covariance is lost in practice, but the audit found both component routes reject multi-arm IPD studies outright, so it is a refused capability rather than a wrong-standard-error defect.
+
+**The source said.** "When a multi-arm trial's contrasts are population-adjusted one at a time in a two-stage workflow, the within-study covariance among those contrasts can be lost or misstated, so standard errors and network precision can be wrong. The same limitation appears as a hard restriction in the cSTC route, which accepts only two-arm IPD studies."
+
+**What was wrong with it.** The source implied that adjusted multi-arm contrasts are emitted with lost covariance. GPT-5.6 Sol read choxos/cpaic@9d150e9 and found both cmaic() and cstc() reject IPD studies with more than two arms, so this is a refused capability rather than a current wrong-standard-error defect; the literature auditor added that the one-stage fix is published and implemented for non-component networks (doi:10.1111/rssa.12579) and that netmeta's CNMA machinery already adjusts multi-arm weights.
+
+Literature and prior-art check
+:   **partially-solved / supported-with-caveat.** I found no paper that recovers within-study covariance among multi-arm contrasts after two-stage population adjustment, so that specific gap is real. Two qualifications. First, the multi-arm covariance problem is already solved on the synthesis side of CNMA: Petropoulou et al. 2023 record that in the netmeta CNMA machinery 'For multi-arm studies, the weights are assumed to be adjusted as described in [Rucker and Schwarzer]', so the loss is introduced by the adjustment stage, not by component modelling. Second, the one-stage alternative avoids the problem entirely: ML-NMR keeps multi-arm trials inside a single arm-level likelihood, and Phillippo et al. 2020 give the limitation of the two-stage route as a motivation for it. So the practical need is met for non-component networks; what is open is a two-stage estimator that carries the covariance, and any multi-arm handling in a component PAIC. The claim that cSTC accepts only two-arm IPD studies is a code fact I cannot check.
+    Cites doi:10.1111/rssa.12579: Handles multi-arm trials natively within a one-stage NMA likelihood, so the covariance is never discarded; does not solve the two-stage or component case..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / supported-with-caveat.** C1, C2, and C6 are correct for a workflow that estimates several shared-arm contrasts separately and passes only their marginal variances onward. C3 and C4 are source-confirmed: cMAIC jointly re-estimates weights and its arm-only outcome model within arm-stratified bootstrap replicates, fails closed below the success threshold, and both cMAIC and cSTC reject IPD studies with more than two arms. Consequently, current cpaic does not silently emit multi-arm adjusted contrasts with incorrect covariance; it avoids the error by refusing that capability. Joint multi-arm adjustment remains an open feature, but this is a roadmap limitation rather than a current wrong-standard-error defect. C5 is an empirical prevalence claim outside the assigned lens and was not assessed.
+    Cites choxos/cpaic@9d150e9: Propagates weight and outcome-model uncertainty for supported two-arm studies and refuses unsupported multi-arm IPD rather than discarding covariance silently..
+    Cites choxos/cpaic@9d150e9: Prevents cSTC from producing a falsely independent set of adjusted multi-arm contrasts..
+
+Decision path
+:   `R3:partially-solved(n=2) → R11:caveated(n=2)`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [ADJ-03 — Efficient influence-function transport estimators for ITC networks](ADJ-03-efficient-influence-function-transport-estimators-for-itc-ne.qmd)
+- [DEC-11 — Intervals omit selection, reconstruction and target-summary error](DEC-11-intervals-omit-selection-reconstruction-and-target-summary-e.qmd)
+- [HET-02 — Multi-arm covariance is lost when contrasts are adjusted pairwise](HET-02-multi-arm-covariance-is-lost-when-contrasts-are-adjusted-pai.qmd)
+- [MOD-07 — No influence-function theory for mixed-granularity multi-arm networks](MOD-07-no-influence-function-theory-for-mixed-granularity-multi-arm.qmd)
+- [OUT-02 — Rare events, separation, and zero-event studies in weighted synthesis](OUT-02-rare-events-separation-and-zero-event-studies-in-weighted-sy.qmd)
+- [OUT-19 — No multivariate population-adjusted model for correlated outcomes](OUT-19-no-multivariate-population-adjusted-model-for-correlated-out.qmd)
+:::
+
+## Source
+
+Derived from C:L1374, C:L1291-1293, C:L1373, scope:field-level (all two-stage PAIC); manifests in cpaic's cMAIC and cSTC, scope:package-specific of the reviewed corpus.

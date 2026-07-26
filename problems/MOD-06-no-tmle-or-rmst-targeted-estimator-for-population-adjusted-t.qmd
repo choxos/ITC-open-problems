@@ -1,0 +1,85 @@
+---
+title: "No TMLE or RMST-targeted estimator for population-adjusted transport"
+description: "Doubly robust estimators for unanchored population-adjusted indirect comparison with time-to-event outcomes and aggregate-data comparators have been proposed and applied in a case study (Park et al. 2024, doi:10.1016/j.jval.2023.11.011) and are implemented on CRAN in drMAIC 0.1.0, which states support for binary and time-to-event (hazard ratio) outcomes; Campbell and Remiro-Azocar (doi:10.1017/rsm.2026.10106) extend augmented MAIC to an aggregate-only external control. What does not exist is narrower: no targeted (TMLE) estimator using a transport clever covariate with cross-fitted nuisances for PAIC, none targeting RMST, survival probabilities or net benefit in a declared population, and no formal handling of incompletely reported aggregate covariate summaries. GPT-5.6 Sol added that these estimands are not one generic clever covariate away, because each needs its own efficient influence function and, for survival, treatment, event and censoring nuisances handled separately."
+pid: "MOD-06"
+topic: "Model specification, double robustness & targeted learning"
+categories: ["Model specification, double robustness & targeted learning", "Very high priority", "Overstated"]
+priority: "Very high"
+prank: 1
+verdict: "Overstated"
+verdictslug: "overstated"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[MOD-06]{.problem-id}
+[Overstated]{.verdict .verdict-overstated}
+[Very high priority]{.chip .chip-priority-very-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+::: {.source-unsourced}
+**Source note.** This entry derives in part from a source document whose inline citations
+were ChatGPT interface tokens rather than references, and so resolve to nothing. Claims
+below are attributed to that document and were checked independently where possible;
+anything that could not be independently sourced is marked in the verification trail.
+:::
+
+## Statement
+
+Doubly robust estimators for unanchored population-adjusted indirect comparison with time-to-event outcomes and aggregate-data comparators have been proposed and applied in a case study (Park et al. 2024, doi:10.1016/j.jval.2023.11.011) and are implemented on CRAN in drMAIC 0.1.0, which states support for binary and time-to-event (hazard ratio) outcomes; Campbell and Remiro-Azocar (doi:10.1017/rsm.2026.10106) extend augmented MAIC to an aggregate-only external control. What does not exist is narrower: no targeted (TMLE) estimator using a transport clever covariate with cross-fitted nuisances for PAIC, none targeting RMST, survival probabilities or net benefit in a declared population, and no formal handling of incompletely reported aggregate covariate summaries. GPT-5.6 Sol added that these estimands are not one generic clever covariate away, because each needs its own efficient influence function and, for survival, treatment, event and censoring nuisances handled separately.
+
+## Why it is open
+
+The residual gap is the combination of incomplete target reporting with absolute-scale or decision-scale estimands. A membership or weighting model cannot be fitted from a table of published summaries when the required moments are not all published, and the transport density ratio would then have to be estimated from those same summaries. Survival adds a censoring nuisance and a time-varying estimand, and each decision-relevant target (risk at a horizon, survival probability, RMST, net benefit across several outcomes) needs its own influence function and fluctuation, none of which have been worked out here. Because no implementation exists for that combination, the head-to-head comparison against MAIC, STC and ML-NMR that would justify adoption cannot be run.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Park et al. 2024, Unanchored Population-Adjusted Indirect Comparison Methods for Time-to-Event Outcomes Using Inverse Odds Weighting, Regression Adjustment, and Doubly Robust Methods With Either Individual Patient or Aggregate Data, Value in Health (PMID 38135212)](https://doi.org/10.1016/j.jval.2023.11.011) | Proposes and applies a doubly robust PAIC estimator for time-to-event outcomes in the IPD-versus-aggregate-data setting, which is the combination the source said had no usable estimator. |
+| [drMAIC 0.1.0: Doubly Robust Matching-Adjusted Indirect Comparison for HTA](https://cran.r-project.org/package=drMAIC) | Released implementation of doubly robust MAIC against aggregate comparator summaries, with stated support for binary outcomes (risk difference, risk ratio, odds ratio) and time-to-event outcomes (hazard ratio). Does not supply TMLE, RMST, net benefit or incomplete-summary handling. |
+| [Campbell & Remiro-Azocar 2026, Doubly robust augmented weighting estimators for the analysis of externally controlled single-arm trials and unanchored indirect treatment comparisons (preprint arXiv:2505.00113)](https://doi.org/10.1017/rsm.2026.10106) | Extends doubly robust augmented MAIC to the setting where individual data for the external control are unavailable, that is, an aggregate-only target. |
+
+:::
+
+## Probable solution or research direction
+
+Start from the doubly robust survival PAIC estimators that already exist rather than building from scratch, and extend them in the two directions that are actually missing: incompletely reported target covariate summaries, and absolute-scale or decision-scale estimands (survival probabilities, RMST, net benefit) with their own efficient influence functions and with treatment, event and censoring nuisances treated separately. Add cross-fitted nuisance estimation and a targeted variant using a transport clever covariate, with software and validation in ITC settings rather than generic transport settings. Evaluate against existing PAIC methods under adversarial simulation and keep the residual-bias layer explicit, because AIPW and TMLE do not address unmeasured modifiers, absent overlap or a false bridge.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Overstated. 2 independent auditors judged the claim as stated too strong. Doubly robust estimators for unanchored population-adjusted indirect comparison with time-to-event outcomes and aggregate-data comparators have been proposed and applied in a case study (Park et al. 2024) and are now implemented on CRAN (drMAIC), but no targeted (TMLE) estimator using a transport clever covariate with cross-fitted nuisances exists for PAIC, none targets RMST or net benefit in a declared population, and none formally handles incompletely reported aggregate covariate summaries.
+
+**The source titled this.** "No doubly robust estimator for aggregate-only targets and survival" The title says no doubly robust estimator exists for aggregate-only survival targets, which the audit found false: the estimator is published and ships on CRAN as drMAIC.
+
+**The source said.** "The report ranks as one of its most consequential open questions whether doubly robust and targeted estimators can be made usable under the HTA data regime: limited target data, survival outcomes, and partial aggregate-data reporting. TMLE with a transport clever covariate could in principle target marginal risks, survival probabilities, RMST, or net benefit in a declared population, but the report states this is a promising research direction and not a ready-made solution."
+
+**What was wrong with it.** The source's title claim, that no doubly robust estimator exists for aggregate-only targets with survival outcomes, is false and was unattributed. Both auditors found Park et al. 2024 (doi:10.1016/j.jval.2023.11.011), co-authored by Phillippo, which proposes and applies exactly that estimator, plus drMAIC 0.1.0 on CRAN which ships it; the claim is now sourced. The entry's own claims_to_check already contained the line that doubly robust work for time-to-event indirect comparison exists, contradicting its title.
+
+Literature and prior-art check
+:   **partially-solved / overstated.** The title claim is contradicted by a paper that David Phillippo co-authored. Park, Campbell, Towle, Yuan, Jansen, Phillippo & Cope, Value Health 2024;27(3):278-286 (PMID 38135212) proposes and applies a doubly robust estimator for unanchored population-adjusted indirect comparison with TIME-TO-EVENT outcomes in the IPD-versus-AGGREGATE-DATA setting, i.e. precisely the combination of limited target data, survival outcomes and aggregate-only reporting that the entry says has no usable estimator. drMAIC 0.1.0 (CRAN, 2026-03-29) then ships a DR-MAIC estimator whose stated scope includes binary and time-to-event (hazard ratio) outcomes against aggregate comparator summaries. What survives is narrower and worth keeping: no TMLE with a transport clever covariate, no cross-fitted nuisance estimation, no targeting of RMST or net benefit, and no formal handling of INCOMPLETE aggregate covariate reporting. Note the entry's own claims_to_check already contains 'Doubly robust work for time-to-event indirect comparison already exists in the literature', which is inconsistent with its title.
+    Cites doi:10.1016/j.jval.2023.11.011 (PMID 38135212): Proposes and demonstrates a doubly robust PAIC estimator for survival outcomes in the IPD-to-aggregate-data setting, contradicting the entry's title and its first claim..
+    Cites cran:drMAIC 0.1.0: Reference implementation of augmented doubly robust MAIC against aggregate comparator summaries, with stated support for binary and time-to-event (hazard ratio) outcomes..
+    Cites doi:10.1017/rsm.2026.10106 (arXiv:2505.00113): Extends a doubly robust augmented MAIC estimator to the setting with unavailable individual participant data for the external control, i.e. an aggregate-only target..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / overstated.** C2 overstates the absence by sliding between 'aggregate-only' and 'incompletely reported.' A doubly robust time-to-event PAIC method already covers IPD versus aggregate-data targets when the required summaries are available, so C5 is true and the broad title is false; missing required moments remains a narrower unsolved identification problem. C3 is not resolved by cpaic: at 9d150e9 its NAMESPACE exports cmaic(), cstc(), and cmlnmr() but no AIPW or TMLE function. C4 is feasible in principle, but risks, survival probabilities, RMST, and net benefit require parameter-specific efficient influence functions and, for survival, treatment, event, and censoring nuisances rather than one generic clever covariate. C7's 'one of two' summary is therefore incomplete outside the simplest setting. C8 is correct. C6 and C9 are maturity assessments rather than technical propositions. The important remaining gap is a ready-made targeted or cross-fitted method for incomplete target summaries and absolute-scale survival or decision estimands; that is a roadmap item, not evidence that no usable doubly robust survival PAIC exists.
+    Cites doi:10.1016/j.jval.2023.11.011: Provides and applies a doubly robust PAIC estimator for time-to-event outcomes with an aggregate-data comparator, contradicting the broad no-estimator claim..
+    Cites CRAN:drMAIC: Provides software for doubly robust MAIC, including stated time-to-event support, while not supplying the broader TMLE, RMST, net-benefit, or incomplete-summary framework..
+
+Decision path
+:   `R3:partially-solved(n=2) → R8:overstated-majority(n=2)`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [OUT-11 — Non-proportional hazards and the transported hazard ratio](OUT-11-non-proportional-hazards-and-the-transported-hazard-ratio.qmd)
+:::
+
+## Source
+
+Derived from A:L50, A:L158, A:L223, C:L1058-1060, C:L1648 of the reviewed corpus.

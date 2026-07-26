@@ -1,0 +1,78 @@
+---
+title: "No agreed leave-one-out unit for mixed IPD and aggregate likelihoods"
+description: "Open multinma issues record poor Pareto-k behavior together with ambiguity over the unit of leave-one-out prediction (#60), absent prior-sensitivity tooling (#32) and uncertainty around rankings and SUCRA (#17). Two of these are implementation gaps with published prescriptions rather than missing methods: #32 asks multinma to expose log-prior evaluations so the existing power-scaling method in priorsense can be used, and #17 asks for SUCRA credible intervals following Trinquart et al., which is arithmetic on the mean-rank posterior. multinma 0.9.1 already reports posterior rank distributions with credible intervals through posterior_ranks() and shows prior-to-posterior movement through plot_prior_posterior(), so the ranking and prior-dependence gaps are narrower than stated. What is genuinely unsettled is the held-out unit: loo.stan_nma delegates to rstan::loo while the log-likelihood mixes patient-level IPD, arm-level aggregate and study-level contrast contributions, so the unit is heterogeneous, no unit selection or exact-refit fallback is exposed, and no field convention fixes which unit answers which predictive question."
+pid: "SFW-08"
+topic: "Software, benchmarks & interface standards"
+categories: ["Software, benchmarks & interface standards", "High priority", "Partially addressed"]
+priority: "High"
+prank: 2
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
+maturity: "Established"
+---
+::: {.problem-meta}
+[SFW-08]{.problem-id}
+[Partially addressed]{.verdict .verdict-partially-addressed}
+[High priority]{.chip .chip-priority-high}
+[Established]{.chip .chip-maturity-established}
+:::
+## Statement
+
+Open multinma issues record poor Pareto-k behavior together with ambiguity over the unit of leave-one-out prediction (#60), absent prior-sensitivity tooling (#32) and uncertainty around rankings and SUCRA (#17). Two of these are implementation gaps with published prescriptions rather than missing methods: #32 asks multinma to expose log-prior evaluations so the existing power-scaling method in priorsense can be used, and #17 asks for SUCRA credible intervals following Trinquart et al., which is arithmetic on the mean-rank posterior. multinma 0.9.1 already reports posterior rank distributions with credible intervals through posterior_ranks() and shows prior-to-posterior movement through plot_prior_posterior(), so the ranking and prior-dependence gaps are narrower than stated. What is genuinely unsettled is the held-out unit: loo.stan_nma delegates to rstan::loo while the log-likelihood mixes patient-level IPD, arm-level aggregate and study-level contrast contributions, so the unit is heterogeneous, no unit selection or exact-refit fallback is exposed, and no field convention fixes which unit answers which predictive question.
+
+## Why it is open
+
+In a hierarchical evidence-synthesis model there is no single natural held-out unit, and multinma's log-likelihood mixes patients, arms and study-level contrasts, so a reported leave-one-out number aggregates over units that answer different predictive questions and is not comparable across analyses. No convention fixes the unit and no exact-refit or grouped fallback is exposed for when the importance-sampling approximation degrades, which is precisely when the model is complex enough for the comparison to matter. Prior dependence in sparse or partially disconnected networks is visible only if the analyst chooses to look, since power-scaling needs a log-prior the package does not expose and the prior-versus-posterior plot is qualitative. Rankings compound this because SUCRA is a nonlinear functional of the posterior reported without an interval, even though the mean-rank interval it would be derived from is already available.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [multinma 0.9.1 (CRAN, published 16 Apr 2026)](https://cran.r-project.org/package=multinma) | implements Bayesian ML-NMR whose leave-one-out predictive validation, prior-sensitivity and ranking tooling are at issue; loo.stan_nma delegates to rstan::loo over a log-likelihood that mixes patient, arm and study-level contributions |
+| [multinma issue #32, Include the logprior evaluations to support use of priorsense (2024)](https://github.com/dmphillippo/multinma/issues/32) | requests exposing log-prior evaluations so the existing power-scaling method of Kallioinen et al. 2024, as implemented in priorsense, can be applied; shows the prior-sensitivity gap is plumbing rather than absent methodology |
+| [multinma issue #17, Uncertainty around SUCRA (open since 2022)](https://github.com/dmphillippo/multinma/issues/17) | quotes the published prescription of Trinquart et al. for translating the mean-rank credible interval into a SUCRA credible interval; the gap is implementation, not derivation |
+| [multinma 0.9.1 ranking and prior-versus-posterior diagnostics, dmphillippo/multinma@4fe8a6e](https://github.com/dmphillippo/multinma/commit/4fe8a6e9977b7ba6ef93822dda43b617b256587a) | posterior_ranks() already produces posterior rank distributions with mean or median rank and 95 percent credible intervals, and plot_prior_posterior() compares prior and posterior distributions; partial coverage of the ranking-uncertainty and prior-dependence items, without power-scaling sensitivity or SUCRA intervals |
+
+:::
+
+## Probable solution or research direction
+
+Settle the held-out unit first, because it is the only item with no published answer: define what leaving out a patient, an arm, a study or a treatment means in hierarchical NMA and ML-NMR, implement a diagnostic for each, and provide an exact-refit or grouped fallback when Pareto-k diagnostics fail. The other three are plumbing against known prescriptions: expose log-prior evaluations so priorsense power-scaling works, derive SUCRA intervals from the mean-rank posterior as Trinquart et al. specify, and surface both by default rather than as optional extra analysis. Report Pareto-k failure as a statement about the approximation rather than about the model, so users do not discard a valid fit.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Partially addressed. Part of this problem is addressed by existing work; the entry names which part.
+
+**The source titled this.** "No agreed leave-one-out unit or prior-sensitivity tooling for ML-NMR" The title says prior-sensitivity tooling is absent, but the power-scaling prescription is off the shelf and prior-posterior plotting already ships in multinma 0.9.1.
+
+**The source said.** "Open multinma issues record poor Pareto-k behavior, ambiguity over the unit of leave-one-out prediction, absent prior-sensitivity tooling and unquantified uncertainty around rankings and SUCRA, alongside a table caution that predictive validation for this class of model is complex. These are model-validation and decision-uncertainty problems for hierarchical evidence synthesis, not only diagnostic warnings in one package."
+
+**What was wrong with it.** Both auditors narrowed the entry: the literature auditor found that prior-sensitivity and SUCRA uncertainty have off-the-shelf prescriptions named in the issues themselves (priorsense power-scaling in #32, Trinquart et al. in #17), so no tooling exists overstates them, and GPT-5.6 Sol found posterior_ranks() and plot_prior_posterior() already shipping in 0.9.1. GPT-5.6 Sol also corrected the reading of Pareto-k, which signals that the importance-sampling approximation is unreliable rather than that the fitted model has failed.
+
+Literature and prior-art check
+:   **partially-solved / supported-with-caveat.** All five issue claims verify against open multinma issues. #60 'DIC/LOO bad pareto k and general interpretation' contains both the Pareto-k failure and, explicitly, the leave-one-out unit ambiguity: the reporter asks whether LOO is mixing leave-one-patient-out error for IPD studies with leave-one-study-out error for aggregate studies. #17 'Uncertainty around SUCRA' is open since 2022. #32 requests logprior evaluations. The caveat is that two of the four sub-problems have off-the-shelf published solutions awaiting only package plumbing, so 'no tooling exists' overstates them: #32 asks multinma to expose lprior so the existing priorsense power-scaling method (Kallioinen et al. 2024, cited in the issue) can be used, and #17 asks for SUCRA credible intervals following Trinquart et al., a fix that is arithmetic on the mean-rank posterior. The genuinely open item is the field convention for the held-out unit in hierarchical NMA/ML-NMR, which no source resolves.
+    Cites https://github.com/dmphillippo/multinma/issues/32: Shows prior-sensitivity methodology already exists (power-scaling, priorsense); the multinma gap is exposing lprior, not the absence of a method..
+    Cites https://github.com/dmphillippo/multinma/issues/17: SUCRA uncertainty has a published prescription (Trinquart et al.) quoted in the issue; the gap is implementation..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / supported-with-caveat.** In multinma 0.9.1, loo.stan_nma delegates to rstan::loo while log_lik combines patient-level IPD, arm-level aggregate-data, and study-level contrast contributions. The held-out unit is therefore heterogeneous, and no unit-selection or exact-refit fallback is exposed. Formal prior-sensitivity and SUCRA-uncertainty tooling remain gaps. However, posterior_ranks already reports posterior rank distributions with credible intervals, and plot_prior_posterior exposes prior-to-posterior movement. Poor Pareto-k indicates unreliable PSIS approximation, not failure of the fitted model itself.
+    Cites dmphillippo/multinma@4fe8a6e9977b7ba6ef93822dda43b617b256587a: Provides posterior uncertainty for treatment rankings and qualitative inspection of prior dependence, although it does not provide formal power-scaling sensitivity or SUCRA intervals..
+
+Decision path
+:   `R3:partially-solved(n=2) → R11:caveated(n=2)`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [ADJ-08 — Nonparametric and commensurate priors in disconnected evidence](ADJ-08-nonparametric-and-commensurate-priors-in-disconnected-eviden.qmd)
+- [MOD-13 — No reporting convention exposes prior-dominated contrasts in PAIC](MOD-13-no-reporting-convention-exposes-prior-dominated-contrasts-in.qmd)
+:::
+
+## Source
+
+Derived from C:L2246, C:L2259-2273 of the reviewed corpus.

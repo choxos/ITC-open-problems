@@ -1,0 +1,82 @@
+---
+title: "ESS is an insufficient overlap diagnostic and no battery is agreed"
+description: "The conventional MAIC effective sample size is a scalar functional of the weight vector: it records only how concentrated the weights are, and carries no information about where in covariate space the weight mass sits, about moments left out of the balancing constraints, about the outcome model, or about the network position of the adjusted edge. Two parts of the proposed eleven-item battery are already built. Glimm and Yau 2022 supply the support-geometry item as a published convex-hull feasibility test with an R package, proving that the MAIC calibration problem has a finite solution only if the target mean lies in the convex hull of the source covariate rows, and demonstrating a real subgroup where a linear program proves infeasibility while optim() silently returns weights with an ESS of 2 percent of n (doi:10.1002/pst.2210); and cpaic, an unreleased development R package on GitHub (commit 9d150e9) that a reader cannot install from CRAN, exports weight_diagnostics(), which already reports ESS, n, entropy efficiency, coefficient of variation, maximum normalized weight, top-5-percent mass and residual balance, and edge_influence(), which reports whether an individual-patient-data edge informs the requested contrast at all. What remains open is standardization rather than invention, plus feasibility for several items: a PAIC reporting and risk-of-bias framework now exists (Ishak et al. 2025, doi:10.1007/s40273-025-01503-1) but does not fix a computed minimum diagnostic set that software must emit, only 3 of 133 reviewed PAIC articles reported all key methodological aspects (doi:10.1016/j.jclinepi.2023.09.004), and the density-ratio, convex-hull and stratum-specific-ESS items are not generally computable when the target is known only through published marginal moments."
+pid: "OVL-02"
+topic: "Positivity, overlap & extrapolation"
+categories: ["Positivity, overlap & extrapolation", "Very high priority", "Partially addressed"]
+priority: "Very high"
+prank: 1
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[OVL-02]{.problem-id}
+[Partially addressed]{.verdict .verdict-partially-addressed}
+[Very high priority]{.chip .chip-priority-very-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+## Statement
+
+The conventional MAIC effective sample size is a scalar functional of the weight vector: it records only how concentrated the weights are, and carries no information about where in covariate space the weight mass sits, about moments left out of the balancing constraints, about the outcome model, or about the network position of the adjusted edge. Two parts of the proposed eleven-item battery are already built. Glimm and Yau 2022 supply the support-geometry item as a published convex-hull feasibility test with an R package, proving that the MAIC calibration problem has a finite solution only if the target mean lies in the convex hull of the source covariate rows, and demonstrating a real subgroup where a linear program proves infeasibility while optim() silently returns weights with an ESS of 2 percent of n (doi:10.1002/pst.2210); and cpaic, an unreleased development R package on GitHub (commit 9d150e9) that a reader cannot install from CRAN, exports weight_diagnostics(), which already reports ESS, n, entropy efficiency, coefficient of variation, maximum normalized weight, top-5-percent mass and residual balance, and edge_influence(), which reports whether an individual-patient-data edge informs the requested contrast at all. What remains open is standardization rather than invention, plus feasibility for several items: a PAIC reporting and risk-of-bias framework now exists (Ishak et al. 2025, doi:10.1007/s40273-025-01503-1) but does not fix a computed minimum diagnostic set that software must emit, only 3 of 133 reviewed PAIC articles reported all key methodological aspects (doi:10.1016/j.jclinepi.2023.09.004), and the density-ratio, convex-hull and stratum-specific-ESS items are not generally computable when the target is known only through published marginal moments.
+
+## Why it is open
+
+ESS is a concentration summary of a weight vector, so weight vectors with identical ESS can put their mass in different covariate regions, and nothing in it depends on the outcome model, on excluded moments, or on the network position of the adjusted edge; a nominally healthy ESS can therefore coexist with zero influence of the individual-patient-data edge on the contrast actually reported. Several of the missing items are hard rather than merely unimplemented: when the target is available only as published marginals, a convex-hull check on target means tests calibration feasibility rather than support for the target joint distribution, and stratum-specific ESS measures concentration within observed source strata rather than coverage of the target unless target stratum masses are known. Generalizing the edge-influence diagnostic beyond linear component contrasts to nonlinear and target-standardized contrasts is unsettled, and the existing implementation uses diagonal inverse-edge variances, so it is only an approximation when the fitted network estimator carries within-study covariance. Because ESS is cheap, familiar and reported by default while nothing forces the geometric or analyst-choice items, each analysis can pick the diagnostic that flatters it, and the measured consequence is inconsistent reporting across the applied literature.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Glimm and Yau 2022, Geometric approaches to assessing the numerical feasibility for conducting matching-adjusted indirect comparisons](https://doi.org/10.1002/pst.2210) | delivers the convex-hull support and feasibility item of the proposed battery, with an R package: proves the MAIC calibration equation has a finite solution only if the target mean lies in the convex hull of the source covariate rows, and shows a real subgroup where a linear program proves infeasibility while optim() silently returns weights with an ESS of 2 percent of n; also states verbatim that ESS measures only the variability of the normalized weights |
+| [cpaic, unreleased development package on GitHub (not on CRAN), commit 9d150e9, weight_diagnostics() and edge_influence()](https://github.com/choxos/cpaic) | exports weight_diagnostics(), reporting ESS, n, entropy efficiency, coefficient of variation, maximum normalized weight, top-5-percent mass and residual balance, and edge_influence(), reporting whether an individual-patient-data edge informs the requested contrast at all; edge influence uses diagonal inverse-edge variances, so it is approximate for multi-arm studies |
+| [Serret-Larmande et al. 2023, A methodological review of population-adjusted indirect comparisons reveals inconsistent reporting and suggests publication bias](https://doi.org/10.1016/j.jclinepi.2023.09.004) | documents the part of the problem that is genuinely open: key methodological aspects of PAICs were reported inconsistently, with only three of 133 articles adequately reporting all aspects, and calls for strengthened guidelines |
+| [Ishak et al. 2025, PharmacoEconomics](https://doi.org/10.1007/s40273-025-01503-1) | publishes a framework for reliable, transparent and reproducible population-adjusted indirect comparisons, including reporting and risk-of-bias guidance; it does not specify a computed minimum set of overlap and support diagnostics that software must emit by default |
+| [Phillippo et al. 2018, Medical Decision Making](https://doi.org/10.1177/0272989X17725740) | notes that the method of moments by definition ensures covariate balance to the level of information published in the aggregate-data trial, which makes standardized differences on balanced moments a convergence check rather than an informative diagnostic; also recommends inspecting the weight distribution directly |
+
+:::
+
+## Probable solution or research direction
+
+Demote ESS from a sufficiency certificate to one entry in a standardized battery, and assemble that battery from what exists rather than rebuilding it: adopt the published convex-hull feasibility test and its R package for the support item (doi:10.1002/pst.2210), and take ESS, ESS divided by nominal n, maximum normalized weight, top-share mass, entropy, coefficient of variation and residual balance from weight_diagnostics() in cpaic (https://github.com/choxos/cpaic, commit 9d150e9, unreleased and not installable from CRAN), noting that coefficient of variation adds nothing beyond Kish ESS at fixed n. Drop or demote standardized differences on balanced moments, which are zero by construction under the method of moments and serve only as a convergence check, and state explicitly which items require an assumed target joint distribution rather than published marginals. Generalize edge_influence() so it applies to nonlinear models and target-standardized marginal contrasts rather than only to linear network edges, and make it exact for multi-arm studies by using the fitted within-study covariance. The remaining work is agreement and enforcement: attach the battery to the existing PAIC reporting and risk-of-bias framework (doi:10.1007/s40273-025-01503-1) so the items become required outputs rather than optional ones.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Partially addressed. Part of this problem is addressed by existing work; the entry names which part.
+
+**The source said.** "The conventional MAIC effective sample size is a scalar functional of the weight vector that is routinely used as the single summary of overlap, yet it cannot establish support, moment alignment, network relevance, outcome-model stability, or the scientific appropriateness of the target. There is no agreed minimum set of overlap and support diagnostics that PAIC software must report; the report proposes an eleven-item battery."
+
+**What was wrong with it.** The source presented all eleven battery items as unbuilt; the literature auditor found the support-geometry item already published with an R package (Glimm and Yau 2022, doi:10.1002/pst.2210) and noted that standardized differences on balanced moments are near-decorative because the method of moments enforces balance by construction (doi:10.1177/0272989X17725740), while GPT-5.6 Sol read choxos/cpaic@9d150e9 and confirmed weight_diagnostics() and edge_influence() are exported, adding that coefficient of variation is algebraically one-to-one with Kish ESS at fixed n and that several proposed items are not computable from published marginal moments. The claim that no reporting standard exists also narrows, following a correction established elsewhere in this audit: Ishak et al. 2025 (doi:10.1007/s40273-025-01503-1) published a PAIC reporting and risk-of-bias framework, so what is missing is a required computed diagnostic set, not a framework as such.
+
+Literature and prior-art check
+:   **partially-solved / supported-with-caveat.** I retrieved the full text of Glimm and Yau 2022 (Pharm Stat 21:974-987, arXiv 2108.01896). It supplies verbatim support for claim 2 ('ESS is in fact only a measure of the variability of the w-tilde-i's') and, more importantly, already delivers battery item 7: a published convex-hull support diagnostic with an R package. They prove 'Equation (2) has a finite solution if and only if x-bar is an element of the set H(Y)={z: z=Yw, 0<=w_i<=1, sum w_i=1}' and demonstrate a real subgroup where LP-solve shows no solution exists while optim() silently returns weights giving ESS of 2 percent of n. So the support-geometry item is solved, not open. Second caveat: battery item 4 is near-decorative. Phillippo et al. 2018 note 'the method of moments, by definition, ensures covariate balance,' so standardized differences on balanced moments are zero by construction and serve only as a convergence check. What remains genuinely open is standardization, not invention: Serret-Larmande et al. 2023 found only 3 of 133 PAIC articles reported all key methodological aspects and called for strengthened guidelines. The cpaic/edge_influence citation checks out against the repository README but is an uncited, unversioned self-citation to an unreleased GitHub package.
+    Cites doi:10.1002/pst.2210: Battery item 7 (convex-hull / support-distance diagnostics) already exists, is published, and ships with an R package; also gives verbatim support for the claim that ESS measures only weight variability..
+    Cites doi:10.1016/j.jclinepi.2023.09.004: A source that itself asserts the absence of agreed reporting standards, which is the part of OVL-02 that is genuinely open..
+    Cites https://github.com/choxos/cpaic: Confirms the prior_work attribution: edge_influence() does exist and does report whether IPD inform the contrast..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / supported-with-caveat.** C1-C10 capture the central mathematics. ESS equals the inverse squared concentration of normalized weights and contains no covariate locations, outcomes, or network topology. The same weights can be assigned to different covariate regions without changing ESS, and a component contrast can assign zero linear influence to an otherwise well-weighted IPD edge. At cpaic commit 9d150e9, edge_influence() exists, is exported, and implements this contrast-specific diagnostic. Its documented multi-arm limitation matters: it uses diagonal inverse-edge variances, so its influence is only an approximation when the fitted network estimator uses within-study covariance. The proposed battery is useful but heterogeneous: it mixes overlap, achieved balance, model extrapolation, network relevance, and sensitivity analysis. C15 overstates the incremental value of coefficient of variation because, given n, CV and Kish ESS are algebraically one-to-one; entropy and Gini can add different distributional information. C18-C20 are not universally available when the target is known only through marginal moments. A target-moment convex-hull check assesses calibration feasibility, not support for the full target distribution, and stratum-specific ESS measures concentration within observed source strata rather than target coverage unless target stratum masses are known. Thus existing cpaic diagnostics partly resolve the software gap, while a defensible, feasible minimum set remains open. The fieldwide agreement claim is a literature question and is not established by this technical audit.
+    Cites choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca: Confirms C10 and partially addresses the proposed battery. NAMESPACE exports edge_influence() and weight_diagnostics(); the former computes contrast-specific linear edge influence, while the latter reports ESS, n, entropy efficiency, CV, maximum normalized weight, top-5-percent mass, and residual balance..
+
+Decision path
+:   `R3:partially-solved(n=2) → R11:caveated(n=2)`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [CMP-24 — Edge influence is approximate for multi-arm and random effects](CMP-24-edge-influence-is-approximate-for-multi-arm-and-random-effec.qmd)
+- [DEC-04 — No PAIC-specific reporting standard or credibility appraisal tool](DEC-04-no-paic-specific-reporting-standard-or-credibility-appraisal.qmd)
+- [DEC-10 — Trimming redefines the target population without naming it](DEC-10-trimming-redefines-the-target-population-without-naming-it.qmd)
+- [DIA-01 — No diagnostic can falsify unmeasured effect modification in PAIC](DIA-01-no-diagnostic-can-falsify-unmeasured-effect-modification-in-.qmd)
+- [DIA-02 — No agreed ESS definition and no support-geometry diagnostics](DIA-02-no-agreed-ess-definition-and-no-support-geometry-diagnostics.qmd)
+- [SFW-03 — No minimum validation standard for ITC and PAIC packages](SFW-03-no-minimum-validation-standard-for-itc-and-paic-packages.qmd)
+:::
+
+## Source
+
+Derived from C:L254, C:L854-870, C:L866, C:L870, C:L872-886, C:L885 of the reviewed corpus.

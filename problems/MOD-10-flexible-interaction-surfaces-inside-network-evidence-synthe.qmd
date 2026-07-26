@@ -1,0 +1,72 @@
+---
+title: "Flexible interaction surfaces inside network evidence synthesis"
+description: "Neither Bayesian additive regression trees nor Gaussian-process treatment-covariate interaction surfaces have been developed for network population adjustment; the literature auditor searched for either embedded in a hierarchical evidence-synthesis model with target standardization and found none. Both are legitimate candidates, and neither identifies target expectations outside the observed support, where numerical predictions are model or prior extrapolations that cross-fitting cannot repair. Reading a fitted surface as evidence of causal effect modification is invalid when it rests on feature importance alone, although conditional treatment-effect heterogeneity can carry a causal interpretation under a randomized or otherwise identified design. Gaussian-process scaling is implementation-dependent, since sparse and inducing-point approximations reduce the computational cost, but no approximation creates support."
+pid: "MOD-10"
+topic: "Model specification, double robustness & targeted learning"
+categories: ["Model specification, double robustness & targeted learning", "Medium-high priority", "Confirmed open"]
+priority: "Medium-high"
+prank: 3
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[MOD-10]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[Medium-high priority]{.chip .chip-priority-medium-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+## Statement
+
+Neither Bayesian additive regression trees nor Gaussian-process treatment-covariate interaction surfaces have been developed for network population adjustment; the literature auditor searched for either embedded in a hierarchical evidence-synthesis model with target standardization and found none. Both are legitimate candidates, and neither identifies target expectations outside the observed support, where numerical predictions are model or prior extrapolations that cross-fitting cannot repair. Reading a fitted surface as evidence of causal effect modification is invalid when it rests on feature importance alone, although conditional treatment-effect heterogeneity can carry a causal interpretation under a randomized or otherwise identified design. Gaussian-process scaling is implementation-dependent, since sparse and inducing-point approximations reduce the computational cost, but no approximation creates support.
+
+## Why it is open
+
+A flexible interaction surface is estimated where the source trials have data and is then integrated over a target distribution that may lie partly outside the observed support, so added flexibility can amplify extrapolation error instead of removing bias. Embedding either device inside a hierarchical multi-study likelihood with numerical integration over an aggregate-data target adds computational burden on top of an already heavy ML-NMR fit, which is a research-engineering barrier rather than a conceptual one. There is also a standing temptation to read the fitted surface as a claim about which covariates modify treatment effect, which the fit alone does not license.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Wager & Athey 2018, Estimation and Inference of Heterogeneous Treatment Effects using Random Forests, JASA](https://doi.org/10.1080/01621459.2017.1319839) | Asymptotic theory and confidence intervals for heterogeneous treatment effect estimation with causal forests on a single i.i.d. sample. It does not address multi-study evidence synthesis, population adjustment, study-aware splitting or target-aware aggregation, and covers neither BART nor Gaussian processes. |
+
+:::
+
+## Probable solution or research direction
+
+Embed BART or Gaussian-process interaction surfaces as nuisance components of a hierarchical evidence-synthesis model with target standardization, coupled to support diagnostics that flag the parts of the target distribution where the surface is extrapolating. Separate discovery from inference with cross-fitting or an equivalent device, and use sparse or inducing-point approximations where Gaussian-process cost is the barrier, while treating support as the limit no approximation removes. Use flexible fits for standardization and stress testing, and make causal effect-modification claims from the design rather than from the fitted surface.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+
+**The source said.** "Gaussian-process treatment-covariate interactions and Bayesian additive regression trees placed inside a hierarchical evidence-synthesis model are listed as replacements for the linear interaction terms used in STC and ML-NMR. Neither has been developed for network population adjustment."
+
+**What was wrong with it.** The entry's only citation, Wager and Athey 2018, concerns causal forests on a single i.i.d. sample and mentions neither BART, Gaussian processes, evidence synthesis nor population adjustment; the clause 'requiring study-aware splitting and target-aware aggregation for PAIC use' is the source's own inference presented as the paper's content, which the literature auditor flagged. The citation is kept below with an honest description.
+
+Literature and prior-art check
+:   **open / supported-with-caveat.** Searched for BART or Gaussian-process treatment-covariate interaction surfaces embedded in a hierarchical evidence-synthesis model with target standardization and found none, so the entry's core claim stands. The citation, however, is decorative and slightly mis-described. Wager & Athey 2018 JASA (doi 10.1080/01621459.2017.1319839) is 'Estimation and Inference of Heterogeneous Treatment Effects using Random Forests': it concerns causal forests on a single i.i.d. sample, and says nothing about multi-study evidence synthesis, population adjustment, study-aware splitting or target-aware aggregation. The clause 'requiring study-aware splitting and target-aware aggregation for PAIC use' is the agenda's own extrapolation presented as if it were the paper's content. It is also the only citation attached to a statement whose named methods are BART and Gaussian processes, neither of which appears in Wager & Athey. Recommend either re-describing the citation honestly as a general causal-forest reference or replacing it with BART/GP sources.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / supported-with-caveat.** C1 through C4 and C6 are technically sound. BART and Gaussian processes can model flexible response or treatment-interaction surfaces, but neither identifies target expectations outside observed support; numerical predictions there remain model or prior extrapolations. Cross-fitting can address overfitting and some inferential bias but cannot repair absent support. C5 needs qualification: feature importance alone is not evidence of causal effect modification, although conditional treatment-effect heterogeneity can receive a causal interpretation under an appropriate randomized or otherwise identified design. Gaussian-process scaling is also implementation-dependent because sparse and inducing-point approximations can reduce computational cost without resolving support. The methodological integration and inference problem remains open, but it is primarily a research-engineering roadmap item rather than a correction that every current decision-grade PAIC analysis requires. The claim that neither construction has appeared in prior work is outside this audit's assigned lens.
+
+Decision path
+:   `R5:default-open → R11:caveated(n=2)`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [COV-04 — Selection uncertainty in PAIC interaction shrinkage is uncalibrated](COV-04-selection-uncertainty-in-paic-interaction-shrinkage-is-uncal.qmd)
+- [COV-06 — No causal forest aggregates to a target known only by marginals](COV-06-no-causal-forest-aggregates-to-a-target-known-only-by-margin.qmd)
+- [DEC-09 — Modifier selection and target moments reported without provenance](DEC-09-modifier-selection-and-target-moments-reported-without-prove.qmd)
+- [OVL-01 — Weak overlap leaves target regions the source data cannot support](OVL-01-weak-overlap-leaves-target-regions-the-source-data-cannot-su.qmd)
+:::
+
+## Source
+
+Derived from C:L947-958, C:L1067-1068, C:L1650-1652 of the reviewed corpus.

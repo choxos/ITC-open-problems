@@ -1,0 +1,74 @@
+---
+title: "Narrow outcome families and hazard-ratio-only survival scoring"
+description: "Published PAIC simulations score survival on the hazard ratio: Remiro-Azocar et al. 2021 on the log hazard ratio, Liu et al. 2025 on marginal log hazard ratios from Cox models, Hatswell et al. 2020 on mean error of the effect measure, and none reports time-indexed survival-probability error, RMST bias, integrated Brier score or extrapolation error. Under delayed, waning or crossing effects a hazard-ratio bias summary can be small while the survival curves the economic model consumes are badly wrong. Cure fractions, competing risks, recurrent events, multistate processes, proportional-odds violations for ordinal outcomes and jointly generated efficacy, safety, quality-of-life and cost outcomes are absent from this simulation literature. The tooling is no longer the obstacle: ML-NMR has been extended to general individual-level likelihoods with flexible M-spline baseline hazards (arxiv:2401.12640), so absolute-scale target-population survival quantities are computable even though simulations do not score on them."
+pid: "DIA-09"
+topic: "Diagnostics & empirical validation"
+categories: ["Diagnostics & empirical validation", "Very high priority", "Confirmed open"]
+priority: "Very high"
+prank: 1
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[DIA-09]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[Very high priority]{.chip .chip-priority-very-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+## Statement
+
+Published PAIC simulations score survival on the hazard ratio: Remiro-Azocar et al. 2021 on the log hazard ratio, Liu et al. 2025 on marginal log hazard ratios from Cox models, Hatswell et al. 2020 on mean error of the effect measure, and none reports time-indexed survival-probability error, RMST bias, integrated Brier score or extrapolation error. Under delayed, waning or crossing effects a hazard-ratio bias summary can be small while the survival curves the economic model consumes are badly wrong. Cure fractions, competing risks, recurrent events, multistate processes, proportional-odds violations for ordinal outcomes and jointly generated efficacy, safety, quality-of-life and cost outcomes are absent from this simulation literature. The tooling is no longer the obstacle: ML-NMR has been extended to general individual-level likelihoods with flexible M-spline baseline hazards (arxiv:2401.12640), so absolute-scale target-population survival quantities are computable even though simulations do not score on them.
+
+## Why it is open
+
+PAIC theory is cleanest for collapsible linear-scale outcomes, so simulation practice has concentrated where the theory is tidy while HTA submissions are dominated by survival endpoints with non-proportional hazards. Generating crossing hazards, cure fractions or competing risks with a known target-population marginal estimand requires deriving that estimand analytically or by large-sample Monte Carlo, which is more work than a Gaussian scenario and is routinely skipped. Correlated multi-outcome generation is needed to evaluate net benefit and other nonlinear decision functionals, yet simulations generate one outcome at a time.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Multilevel network meta-regression for general likelihoods: synthesis of individual and aggregate data with applications to survival analysis, 2024](https://arxiv.org/abs/2401.12640) | Extends population-adjusted synthesis to arbitrary individual-level likelihoods with flexible M-spline baseline hazards and survival applications, so absolute-scale target-population survival quantities are computable. Retrieved at abstract level. |
+| [Remiro-Azocar et al. 2021, Methods for population adjustment with limited access to individual patient data: A review and simulation study](https://doi.org/10.1002/jrsm.1511) | Scores survival performance on the log hazard ratio, one of the studies the literature auditor cites as evidence of hazard-ratio-only survival scoring. |
+| [Liu et al. 2025, Is the Use of Unanchored Matching-Adjusted Indirect Comparison Always Superior to Naive Indirect Comparison on Survival Outcomes? A Simulation Study](https://doi.org/10.1007/s40258-025-00952-1) | Scores survival performance on marginal log hazard ratios from Cox models, with no absolute-scale or time-indexed measures. |
+| [Hatswell et al. 2020, The Effects of Model Misspecification in Unanchored Matching-Adjusted Indirect Comparison: Results of a Simulation Study](https://doi.org/10.1016/j.jval.2020.02.008) | Scores on mean error and mean absolute error of the effect measure, again with no survival-probability, RMST or extrapolation measures. |
+
+:::
+
+## Probable solution or research direction
+
+Extend simulation generators to the missing outcome families with explicitly derived target-population marginal estimands (survival probability, RMST, cumulative incidence, cure fraction, event burden), using the general-likelihood ML-NMR machinery that already computes absolute-scale target-population quantities, so that bias is computed against the quantity the decision uses. Score survival PAIC on time-indexed survival-probability error and RMST bias by default, and add the remaining measures where they apply rather than universally: integrated Brier score where survival predictions and censoring handling are defined, extrapolation error where the pipeline extrapolates beyond observed follow-up, recurrent-event calibration where event burden is the estimand. Generate efficacy, safety, quality-of-life and cost outcomes jointly where the decision functional is nonlinear or joint uncertainty matters.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+
+**The source said.** "The simulation evidence base does not span the outcome families decision problems involve (rare and very rare binary events, overdispersed, zero-inflated and exposure-dependent counts, ordinal outcomes violating proportional odds, delayed, waning and crossing hazards, non-Weibull mixtures, cure fractions, competing risks, recurrent events, multistate disease, and correlated efficacy, safety, quality-of-life and cost outcomes), and survival performance is scored by hazard-ratio bias rather than by the quantities decisions use."
+
+**What was wrong with it.** Both auditors judged the problem open, and the correction is a caveat the source did not acknowledge: the literature auditor notes that survival PAIC methodology has moved, with ML-NMR extended to general likelihoods and flexible baseline hazards (arxiv:2401.12640), so the gap is in what simulations score rather than in what methods can produce. GPT-5.6 Sol also narrowed the proposed measures, since integrated Brier score, extrapolation error, joint outcome generation and recurrent-event calibration apply to specific pipelines and estimands rather than universally.
+
+Literature and prior-art check
+:   **open / supported-with-caveat.** The survival-scoring claim is broadly right in the PAIC simulation literature I retrieved: Remiro-Azocar 2021 scores on the log hazard ratio, Liu et al. 2025 on marginal log hazard ratios from Cox models, Hatswell 2020 on mean error/mean absolute error of the effect measure. None reports time-indexed survival-probability error, integrated Brier score, RMST bias or extrapolation error. The caveat is that survival PAIC methodology has moved: ML-NMR has been extended to general likelihoods with M-spline baseline hazards and survival applications, and unanchored STC has been implemented with parametric and Royston-Parmar models explicitly to handle non-proportional hazards and extrapolation, so the tooling for absolute-scale survival quantities exists even though simulations do not score on them. I found no PAIC simulation work at all on cure fractions, competing risks, recurrent events, multistate processes, ordinal proportional-odds violation, or jointly generated efficacy/safety/QoL/cost outcomes, so those parts of the claim stand.
+    Cites arXiv:2401.12640: Extends population-adjusted synthesis to arbitrary individual-level likelihoods with flexible (M-spline) baseline hazards and survival applications, so absolute-scale target-population survival quantities are computable even though simulations still score on the hazard ratio. Retrieved at abstract/summary level..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / supported-with-caveat.** The technical core is sound. Under non-proportional hazards, bias against a single constant hazard ratio does not characterize errors in survival probabilities, RMST, cumulative incidence, or downstream economic quantities. Delayed, waning, and crossing effects can have materially different decision consequences and merit distinguishable scenarios. Rare events and proportional-odds violations are also genuine factors. The proposed measures are not all universal requirements: integrated Brier score is a predictive-distribution score requiring defined survival predictions and censoring handling, not a generic measure of causal contrast estimation; joint outcome generation is essential for joint uncertainty and nonlinear decision functionals but not for every marginal-effect evaluation; extrapolation error belongs only to pipelines that extrapolate; and recurrent-event calibration is relevant only when recurrent burden is an estimand. The claims about which outcome families and measures appear in published studies are literature-coverage claims and were not adjudicated. Very high priority is proportionate for methods making survival decision claims, while the full outcome catalogue is a broader roadmap.
+
+Decision path
+:   `R5:default-open → R11:caveated(n=2)`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [CMP-19 — Competing risks and recurrent events are absent from component PAIC](CMP-19-competing-risks-and-recurrent-events-are-absent-from-compone.qmd)
+- [OUT-20 — No PAIC workflow carries dependence through transport to net benefit](OUT-20-no-paic-workflow-carries-dependence-through-transport-to-net.qmd)
+:::
+
+## Source
+
+Derived from C:L1880-1895, C:L2036-2044 of the reviewed corpus.

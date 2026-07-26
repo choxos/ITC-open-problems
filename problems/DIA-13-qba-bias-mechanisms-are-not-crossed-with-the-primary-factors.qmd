@@ -1,0 +1,69 @@
+---
+title: "QBA bias mechanisms are not crossed with the primary factors"
+description: "Quantitative bias analysis for unanchored PAIC has not been evaluated over a design crossing bias mechanisms with the primary data-generating factors. The leading recent method paper, Ren et al. 2025 (doi:10.1017/rsm.2025.13), proposes NORTA-based simulation of unreported comparator covariates plus deterministic sensitivity analysis over assumed marginal means of unmeasured confounders, and runs no simulation study of the proposed method, relying instead on prior results for standard unanchored STC and on a case study. The cells that would be decisive are the ones nobody runs: the truth outside the elicited range, cancelling biases, a misspecified bias model, non-confounding biases acting jointly with omitted-variable bias, and correlated sensitivity parameters. A complete Cartesian factorial is not mathematically required; the scenario set should be chosen by estimand, plausible mechanisms and the interactions that could change the conclusion."
+pid: "DIA-13"
+topic: "Diagnostics & empirical validation"
+categories: ["Diagnostics & empirical validation", "Very high priority", "Confirmed open"]
+priority: "Very high"
+prank: 1
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Emerging"
+---
+::: {.problem-meta}
+[DIA-13]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[Very high priority]{.chip .chip-priority-very-high}
+[Emerging]{.chip .chip-maturity-emerging}
+:::
+## Statement
+
+Quantitative bias analysis for unanchored PAIC has not been evaluated over a design crossing bias mechanisms with the primary data-generating factors. The leading recent method paper, Ren et al. 2025 (doi:10.1017/rsm.2025.13), proposes NORTA-based simulation of unreported comparator covariates plus deterministic sensitivity analysis over assumed marginal means of unmeasured confounders, and runs no simulation study of the proposed method, relying instead on prior results for standard unanchored STC and on a case study. The cells that would be decisive are the ones nobody runs: the truth outside the elicited range, cancelling biases, a misspecified bias model, non-confounding biases acting jointly with omitted-variable bias, and correlated sensitivity parameters. A complete Cartesian factorial is not mathematically required; the scenario set should be chosen by estimand, plausible mechanisms and the interactions that could change the conclusion.
+
+## Why it is open
+
+QBA papers typically demonstrate a single bias mechanism in a single scenario to show that a correction works, which cannot reveal how the correction behaves when several biases act at once or when the bias model itself is wrong. Crossing bias mechanisms with the primary factors multiplies the design size, so authors avoid it unless a shared simulation platform exists. The scientifically decisive cells, where the truth lies outside the elicited range, where biases cancel, or where the bias model is misspecified, are precisely the cells a proponent has no incentive to run.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Ren et al. 2025, Quantitative bias analysis for unmeasured confounding in unanchored population-adjusted indirect comparisons](https://doi.org/10.1017/rsm.2025.13) | Proposes NORTA-based simulation of unreported comparator covariates with deterministic sensitivity analysis over assumed means of unmeasured confounders, demonstrated on a case study with no simulation study of the proposed method; the state of practice the entry describes. |
+
+:::
+
+## Probable solution or research direction
+
+Build a QBA simulation design that crosses bias count, bias type, measurement status of the unmeasured variable, dependence structure, elicitation correctness and bias-model correctness with the primary population and outcome factors, selecting cells by which interactions could change the decision rather than by exhaustive crossing. Include cells where the truth lies outside the elicited range, where multiple biases cancel, and where selection, index-date, outcome-misclassification and censoring bias act jointly with omitted-variable bias. Treat correlated sensitivity parameters as a factor wherever the QBA is probabilistic or its joint sensitivity set is dependence-sensitive.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+
+**The source said.** "Quantitative bias analysis for unanchored PAIC has never been evaluated over a factorial design crossing the primary data-generating mechanisms with explicit bias mechanisms: one, two or five omitted variables of varying type; U measured in source IPD but unreported in target AgD versus unmeasured in both; prognostic-only, treatment-modifying, component-modifying and time-varying U; varying source-target imbalance and U-X dependence; correct versus misspecified target prevalence, outcome association and interaction; true sensitivity parameters inside versus outside the elicited range; deterministic versus probabilistic QBA; independent versus correlated sensitivity parameters; selection, index-date, outcome-misclassification and censoring bias separately and jointly; component drift; reinforcing versus cancelling biases; correct versus misspecified bias models; and target-population versus comparator-trial-population QBA."
+
+**What was wrong with it.** Both auditors judged the claim open, and the literature auditor sourced the state of practice to Ren et al. 2025 (doi:10.1017/rsm.2025.13), which conducts no simulation of its proposed method. GPT-5.6 Sol narrowed the prescription: no complete Cartesian factorial is mathematically required, and correlated sensitivity parameters matter for probabilistic QBA or dependence-sensitive joint sensitivity sets rather than for a deterministic analysis whose joint support is held fixed.
+
+Literature and prior-art check
+:   **open / supported.** I retrieved the leading recent QBA-for-unanchored-PAIC paper, Ren, Ren, Welton & Strong 2025 in Research Synthesis Methods, which proposes NORTA-based simulation of unreported comparator covariates plus deterministic sensitivity analysis over assumed marginal means of unmeasured confounders. No simulation study was conducted for the proposed method; the authors instead lean on prior simulation properties of standard unanchored STC and demonstrate on a case study. A companion strand, flexible QBA for subject-level ITC under proportional-hazards violation, is likewise method development with case-study demonstration. That is direct positive evidence for the entry's claim that QBA in this setting varies one mechanism at a time at most and has never been crossed factorially with the primary data-generating factors. The decisive cells named by the entry (truth outside the elicited range, cancelling biases, misspecified bias model, joint non-confounding biases, correlated sensitivity parameters) appear nowhere in what I retrieved.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / supported-with-caveat.** The proposed stress tests are technically well motivated. C2 tests elicitation failure rather than merely correction under oracle inputs; C3 correctly separates reinforcing from canceling biases; C4 distinguishes partial measurement, where source associations can be estimated, from complete nonmeasurement; C5 separates mechanisms with different identifying assumptions; and C6 distinguishes estimands defined in different target populations. C7 applies specifically to probabilistic QBA or dependence-sensitive joint sensitivity sets: correlation can materially change the distribution of combined bias, but it need not change a deterministic analysis whose joint support is held fixed. A complete Cartesian factorial is not mathematically required for every QBA method; scenarios should be chosen according to the estimand, plausible mechanisms, and interactions that could alter conclusions. The assertion about how existing studies vary factors is a literature-coverage claim and was not assessed. This is primarily a method-validation roadmap rather than a uniformly critical omission in each applied analysis.
+
+Decision path
+:   `R5:default-open → R11:caveated(n=1)`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [QBA-22 — Total bias is non-additive, so one-at-a-time analyses mislead](QBA-22-total-bias-is-non-additive-so-one-at-a-time-analyses-mislead.qmd)
+:::
+
+## Source
+
+Derived from C:L1923-1944 of the reviewed corpus.

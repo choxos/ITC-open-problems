@@ -1,0 +1,82 @@
+---
+title: "Reported target moments are treated as known constants"
+description: "Reported target-population means and standard deviations are estimates, and standard PAIC estimators condition on them as fixed inputs, so the reported interval omits that variability whenever the inference is to a superpopulation rather than to the realized finite target sample. The first of the four uncertainty sources the source bundles together has been solved, though outside the ITC literature: Sheng, Sun and Huang (arxiv:2603.02474) give asymptotic normality and a variance estimator for an entropy-balancing transport estimator, which is MAIC-equivalent, that accounts for uncertainty in covariate summaries, and Chen, Chen and Yu (doi:10.1002/sim.70358) construct resampling-based perturbation intervals for a target effect estimated from summary-level target information. The other three sources are not sampling error and do not belong in the same interval: uncertainty in reconstructed correlations is model uncertainty, inclusion-criteria ambiguity is estimand ambiguity, and secular change is a transport bias over time. The claim that no software propagates target-moment uncertainty was verified only for cpaic, an unreleased development package on GitHub that is not installable from CRAN, where at commit 9d150e9 cmaic() bootstraps IPD patients while holding target means and standard deviations fixed."
+pid: "EST-07"
+topic: "Estimands & target populations"
+categories: ["Estimands & target populations", "Very high priority", "Partially addressed"]
+priority: "Very high"
+prank: 1
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[EST-07]{.problem-id}
+[Partially addressed]{.verdict .verdict-partially-addressed}
+[Very high priority]{.chip .chip-priority-very-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+## Statement
+
+Reported target-population means and standard deviations are estimates, and standard PAIC estimators condition on them as fixed inputs, so the reported interval omits that variability whenever the inference is to a superpopulation rather than to the realized finite target sample. The first of the four uncertainty sources the source bundles together has been solved, though outside the ITC literature: Sheng, Sun and Huang (arxiv:2603.02474) give asymptotic normality and a variance estimator for an entropy-balancing transport estimator, which is MAIC-equivalent, that accounts for uncertainty in covariate summaries, and Chen, Chen and Yu (doi:10.1002/sim.70358) construct resampling-based perturbation intervals for a target effect estimated from summary-level target information. The other three sources are not sampling error and do not belong in the same interval: uncertainty in reconstructed correlations is model uncertainty, inclusion-criteria ambiguity is estimand ambiguity, and secular change is a transport bias over time. The claim that no software propagates target-moment uncertainty was verified only for cpaic, an unreleased development package on GitHub that is not installable from CRAN, where at commit 9d150e9 cmaic() bootstraps IPD patients while holding target means and standard deviations fixed.
+
+## Why it is open
+
+Conditioning on published summaries as if exact omits variability from the reported interval in a way no convergence diagnostic reveals, and the fix is not a bootstrap of the source IPD, which carries no information about how the target summaries were estimated. Propagating that uncertainty needs target microdata, a sampling design, or at least the covariance or influence information behind the published summaries, which aggregate publications rarely provide. Two of the four listed sources have no conventional variance representation at all, so they need declared alternative estimands or explicit bias models rather than a wider interval. The solutions that do exist sit in the transportability literature and have not been carried into PAIC estimators or packages, which still take reported moments as given.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Sheng, Sun and Huang 2026, Transportable inference using target population summary statistics under covariate shift](https://arxiv.org/abs/2603.02474) | Establishes asymptotic normality for the entropy balancing estimator, which is MAIC-equivalent, and proposes a variance estimator that accounts for uncertainty in covariate summaries, plus a second method handling covariate shift and summary uncertainty together. It is framed as transportability rather than PAIC and has not been carried into ITC software. |
+| [Chen, Chen and Yu 2026, Confidence Interval Construction for Causally Generalized Estimates With Target Sample Summary Information, Statistics in Medicine 45(1-2):e70358](https://doi.org/10.1002/sim.70358) | Proposes a resampling-based perturbation method for constructing confidence intervals for an estimated target average treatment effect using summary-level target information with entropy balancing weights. |
+| [Gao, Heath and Baio 2025, Regression augmented weighting adjustment for indirect comparisons in health decision modelling (G-MAIC), Research Synthesis Methods](https://doi.org/10.1017/rsm.2025.10021) | Uses Bayesian bootstrap to propagate the uncertainty of population-adjusted estimates, but treats the reported comparator summaries as fixed balancing targets, so it addresses uncertainty from the matching process rather than sampling error in the target moments. |
+| [cpaic, unreleased development package on GitHub (not on CRAN), commit 9d150e9](https://github.com/choxos/cpaic) | At commit 9d150e9, cmaic() holds target means and standard deviations fixed while bootstrapping only IPD patients, cstc() centers on fixed target means, and cmlnmr() builds fixed integration points from aggregate means, standard deviations and a supplied or borrowed correlation. This confirms the conditioning behavior in one unreleased package rather than across all PAIC software. |
+
+:::
+
+## Probable solution or research direction
+
+Port the existing target-summary variance results into PAIC rather than deriving them again: the entropy-balancing variance estimator and the perturbation interval both apply to MAIC-equivalent weighting, so the work is validation under PAIC conditions and implementation in packages that currently hold target moments fixed. A Bayesian formulation placing a distribution over the target covariate law is a reasonable complement, but its posterior is identified only through the target data and the chosen law or prior, so that prior has to be stated rather than absorbed. Handle inclusion-criteria ambiguity and secular drift as declared alternative estimands or explicit bias models with sensitivity ranges, not as extra variance in one interval. Uncertainty in reconstructed correlations remains the genuinely unaddressed component and is the natural next target.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Partially addressed. Part of this problem is addressed by existing work; the entry names which part.
+
+**The source said.** "Reported target-population means and standard deviations are estimates, not known constants, yet standard PAIC estimators condition on them as fixed inputs. Direction B holds that a joint model should propagate sampling uncertainty in target moments, uncertainty in reconstructed correlations, ambiguity in target inclusion criteria, and secular change between the trial and current practice."
+
+**What was wrong with it.** The source treated all four uncertainty sources as unaddressed; the literature auditor found the first already solved for MAIC-equivalent estimators (arxiv:2603.02474; doi:10.1002/sim.70358) and noted that G-MAIC (doi:10.1017/rsm.2025.10021) propagates uncertainty by Bayesian bootstrap of the IPD only, leaving the target summaries fixed. GPT-5.6 Sol judged the entry overstated for treating the moments as necessarily random when the estimand may condition on the realized finite target, for bundling estimand ambiguity and secular drift with sampling variance, and for a universal software negative that source code confirms only for cpaic.
+
+**Dissent.** codex dissented (overstated): C1 is correct for superpopulation inference from a finite target sample, but not when the estimand deliberately conditions on the realized finite target population and its exact summaries. C2 is an empirical ecosystem claim; source code confirms it for cpaic. At 9d150e9, cmaic() holds target means and SDs fixed while bootstrapping only IPD patients, cstc() centers on fixed target means, and cmlnmr() constructs fixed integration points from aggregate means, SDs, and a supplied or borrowed correlation. C3 improperly bundles sampling uncertainty, reconstructed-law model uncertainty, estimand ambiguity, and temporal transport bias. Inclusion criteria and secular change need explicit alternative estimands, scenarios, or bias models, not automatic addition to one interval. C4 is possible but posterior uncertainty is identified only through the target data and chosen law or prior. C5 requires target microdata, a sampling design, or at least the covariance or influence information for the reported summaries; bootstrapping source IPD alone cannot do it. C6 is an unsupported universal software negative, although it is true of cpaic. Frequentist methods already address target-summary sampling uncertainty, so only the broader structural components remain open. The priority is very high only when the target sample is small, the effect is sensitive to its law, or the decision changes.
+
+Literature and prior-art check
+:   **partially-solved / supported-with-caveat.** The descriptive half checks out. G-MAIC (Gao, Heath & Baio, Res Synth Methods 2025) uses the reported comparator summaries as fixed balancing targets and propagates uncertainty only by Bayesian bootstrap of the IPD; Chandler & Proskorovsky's 108-scenario MAIC variance study (Res Synth Methods 2024) compares conventional, ESS-rescaled, sandwich and bootstrap estimators, all of which address uncertainty from the matching process, none the sampling error in the target moments; maicplus matches weighted moments to reported moments taken as given. But the first of the four listed uncertainty sources has been solved outside the ITC literature, using estimators that are equivalent to MAIC. Sheng, Sun & Huang (arXiv:2603.02474, March 2026) apply entropy balancing to transportability and 'propose a variance estimator to account for uncertainty in covariate summaries', then give a second method handling covariate shift and summary uncertainty simultaneously; Chen, Chen & Yu (Stat Med 45(1-2):e70358, 2026) give a resampling-perturbation confidence interval for a target ATE estimated from target summary-level information. The other three sources (reconstructed correlations, inclusion-criteria ambiguity, secular drift) remain genuinely unaddressed.
+    Cites arxiv:2603.02474: Delivers valid inference for an entropy-balancing (MAIC-equivalent) transport estimator that treats the reported target covariate moments as estimated rather than known..
+    Cites doi:10.1002/sim.70358: Constructs confidence intervals for a target-population effect when only summary-level target information is available, using entropy balancing weights..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / overstated.** C1 is correct for superpopulation inference from a finite target sample, but not when the estimand deliberately conditions on the realized finite target population and its exact summaries. C2 is an empirical ecosystem claim; source code confirms it for cpaic. At 9d150e9, cmaic() holds target means and SDs fixed while bootstrapping only IPD patients, cstc() centers on fixed target means, and cmlnmr() constructs fixed integration points from aggregate means, SDs, and a supplied or borrowed correlation. C3 improperly bundles sampling uncertainty, reconstructed-law model uncertainty, estimand ambiguity, and temporal transport bias. Inclusion criteria and secular change need explicit alternative estimands, scenarios, or bias models, not automatic addition to one interval. C4 is possible but posterior uncertainty is identified only through the target data and chosen law or prior. C5 requires target microdata, a sampling design, or at least the covariance or influence information for the reported summaries; bootstrapping source IPD alone cannot do it. C6 is an unsupported universal software negative, although it is true of cpaic. Frequentist methods already address target-summary sampling uncertainty, so only the broader structural components remain open. The priority is very high only when the target sample is small, the effect is sensitive to its law, or the decision changes.
+    Cites arxiv:2603.02474: Provides variance estimation that accounts for uncertainty in target covariate summaries and also addresses covariate shift..
+    Cites doi:10.1002/sim.70358: Constructs intervals for target effects when only target summary information is available, resolving the first uncertainty source in a defined sampling setting..
+
+Decision path
+:   `R3:partially-solved(n=2) → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [COV-07 — Unknown target joint covariate distribution](COV-07-unknown-target-joint-covariate-distribution.qmd)
+- [COV-08 — Entropy balancing has no network extension or variance theory](COV-08-entropy-balancing-has-no-network-extension-or-variance-theor.qmd)
+- [DEC-09 — Modifier selection and target moments reported without provenance](DEC-09-modifier-selection-and-target-moments-reported-without-prove.qmd)
+- [HET-02 — Multi-arm covariance is lost when contrasts are adjusted pairwise](HET-02-multi-arm-covariance-is-lost-when-contrasts-are-adjusted-pai.qmd)
+- [QBA-10 — Target population and joint-distribution uncertainty](QBA-10-target-population-and-joint-distribution-uncertainty.qmd)
+:::
+
+## Source
+
+Derived from C:L326-335, C:L251 of the reviewed corpus.

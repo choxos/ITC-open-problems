@@ -1,0 +1,77 @@
+---
+title: "Distributionally robust bounds over compatible target laws"
+description: "Instead of picking one synthetic target distribution consistent with the reported marginals, distributionally robust optimization would define the set of laws whose moments lie in the admissible moment set and which sit within a divergence distance of a reference distribution, then report the infimum and supremum of the treatment effect over that set. No work in evidence synthesis does this; the generic machinery exists elsewhere, including distributionally robust generalization of heterogeneous treatment effects across sites (arXiv:2412.11136) and distributionally robust treatment-effect estimation (arXiv:2512.12781), but none takes reported marginal means and proportions as moment constraints and bounds a PAIC effect. Two limits belong in the statement: the bounded set is the intersection of the moment constraints and the divergence ball, so it is not an interval over every moment-compatible law, and the resulting range describes target-law ambiguity rather than sampling uncertainty."
+pid: "ADJ-06"
+topic: "Adjacent-field methods"
+categories: ["Adjacent-field methods", "Very high priority", "Confirmed open"]
+priority: "Very high"
+prank: 1
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[ADJ-06]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[Very high priority]{.chip .chip-priority-very-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+## Statement
+
+Instead of picking one synthetic target distribution consistent with the reported marginals, distributionally robust optimization would define the set of laws whose moments lie in the admissible moment set and which sit within a divergence distance of a reference distribution, then report the infimum and supremum of the treatment effect over that set. No work in evidence synthesis does this; the generic machinery exists elsewhere, including distributionally robust generalization of heterogeneous treatment effects across sites (arXiv:2412.11136) and distributionally robust treatment-effect estimation (arXiv:2512.12781), but none takes reported marginal means and proportions as moment constraints and bounds a PAIC effect. Two limits belong in the statement: the bounded set is the intersection of the moment constraints and the divergence ball, so it is not an interval over every moment-compatible law, and the resulting range describes target-law ambiguity rather than sampling uncertainty.
+
+## Why it is open
+
+Current practice fixes the unreported correlation and tail structure by fiat when it reconstructs a target distribution, so a point estimate hides a family of equally compatible target laws, and for non-collapsible measures the marginal effect depends on the joint distribution of modifiers and prognostic variables (arXiv:2210.01757). Computing the bounds means optimizing an effect functional over an infinite-dimensional constrained set, and the bounds can be infinite or undefined if outcome behavior outside the observed support is left unrestricted. The ambiguity set has no accepted calibration: a loose set contains implausible target laws and gives an interval too wide to inform a decision, while a tight set encodes an unverifiable assumption, so justifying the set reintroduces the judgment the method was meant to remove.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [arXiv:2412.11136 (distributionally robust generalization of heterogeneous treatment effects across sites, minimax regret over a multisite uncertainty set)](https://arxiv.org/abs/2412.11136) | Generic machinery the entry would draw on: distributionally robust optimization over a set of plausible target distributions. Does not take published marginal summaries as moment constraints. |
+| [arXiv:2512.12781 (distributionally robust treatment-effect estimation)](https://arxiv.org/abs/2512.12781) | Generic distributionally robust treatment-effect estimation. Does not bound a PAIC effect over target laws compatible with reported summaries. |
+| [Remiro-Azocar, Transportability of model-based estimands in evidence synthesis, Stat Med 2024;43(22):4217-4249](https://arxiv.org/abs/2210.01757) | Establishes that marginal effects for non-collapsible measures depend on the joint distribution of modifiers and prognostic variables, which is why unreported dependence structure matters here. |
+
+:::
+
+## Probable solution or research direction
+
+Define the ambiguity set from the admissible target moment set plus a divergence ball around a reference distribution, and report the induced interval as target-law ambiguity, labeled separately from sampling uncertainty. Develop tractable optimization for the infimum and supremum, restrict outcome behavior outside the observed support so the bounds stay finite, and establish conventions for the divergence radius. Build elicitation and justification procedures for the set so it can survive review in a real submission, applying the method first where the effect measure is non-collapsible or interactions are nonlinear.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+
+**The source said.** "Instead of picking one synthetic target distribution consistent with the reported marginals, distributionally robust optimization would define the set of distributions whose moments lie in the admissible moment set and which sit within a divergence distance of a reference distribution, then report the infimum and supremum of the treatment effect over that set. This is a direct treatment of uncertainty in unreported correlations and tails."
+
+**What was wrong with it.** GPT-5.6 Sol narrowed two claims: the reported range covers only the intersection of the moment constraints and the divergence ball rather than all moment-compatible laws, and non-collapsibility makes marginal effects depend on the covariate distribution without guaranteeing a wide range. The source also cited nothing for the generic machinery it draws on; the auditors named it.
+
+Literature and prior-art check
+:   **open / supported.** I searched for distributionally robust bounds constructed from an ambiguity set of target laws consistent with published summary statistics and found nothing in evidence synthesis. What exists is the generic machinery the entry would draw on: DRO over plausible target distributions for generalizing heterogeneous treatment effects across sites (arXiv:2412.11136, minimax regret over a multisite uncertainty set), DRO treatment-effect estimation (arXiv:2512.12781), and Wasserstein ambiguity sets whose radius calibration is itself an active problem. None of these takes reported marginal means and proportions as moment constraints and reports the infimum and supremum of a PAIC effect over the compatible set, which is the entry's specific proposal. The entry's stated obstacles are also accurate: the ambiguity-set calibration problem is acknowledged in the DRO literature, and the dependence of non-collapsible effects on unreported joint structure is established (Remiro-Azocar, arXiv:2210.01757, shows marginal effects for non-collapsible measures depend on the joint distribution of modifiers and prognostic variables). I read abstracts only, hence the moderate confidence.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / supported-with-caveat.** The proposed optimization is mathematically coherent when the ambiguity set is nonempty, the target effect functional is identified and integrable over its support, and the extrema exist. It can expose sensitivity to unreported dependence and tail behavior. The bounded set is the intersection of the moment constraints and divergence ball, however, so C3 is not literally an interval over every moment-compatible law. Divergence direction, reference support and radius can strongly constrain which correlations and tails vary. Non-collapsibility makes marginal effects depend on the prognostic covariate distribution, but does not guarantee a wide range. The resulting bounds describe target-law ambiguity, not sampling uncertainty, and can be infinite or undefined if outcome behavior outside observed support is unrestricted. Calibration and computation remain genuine open work.
+
+Grok 4.5, recency lens
+:   **open / supported.** Distributionally robust and ambiguity-set methods for treatment effects under model or distributional risk appear in general causal/ML venues, but no retrieved PAIC/HTA method defines an ambiguity set from published target moments plus a divergence ball, optimizes inf/sup of the target-population effect for non-collapsible measures or nonlinear interactions, calibrates the radius for reimbursement use, and ships software usable with MAIC/STC/ML-NMR. The report's institutional caveats (loose sets uninformative; tight sets reintroduce judgment) remain live. Queries: DRO treatment effect target population moments; distributionally robust PAIC MAIC; ambiguity set covariate correlations tails causal; RSM/SiM/Value Health 2024–2026 DRO ITC.
+
+Decision path
+:   `R5:default-open → R12:supported`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [CMP-15 — Target joint covariate distribution is only approximately known](CMP-15-target-joint-covariate-distribution-is-only-approximately-kn.qmd)
+- [MOD-08 — Cross-fitting folds and rate conditions undefined for PAIC](MOD-08-cross-fitting-folds-and-rate-conditions-undefined-for-paic.qmd)
+- [QBA-10 — Target population and joint-distribution uncertainty](QBA-10-target-population-and-joint-distribution-uncertainty.qmd)
+- [QBA-15 — Multiple correlated omitted variables and their dependence structure](QBA-15-multiple-correlated-omitted-variables-and-their-dependence-s.qmd)
+:::
+
+## Source
+
+Derived from C:L1646-1647, C:L1654, C:L1688-1706 of the reviewed corpus.

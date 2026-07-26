@@ -1,0 +1,86 @@
+---
+title: "Selective IPD availability threatens transport across the network"
+description: "Individual patient data enter a network non-randomly: reviews of individual participant data meta-analyses find that requested data are frequently not obtained (Nevitt et al. 2017, pmid:28381561; Ahmed et al. 2012, pmid:22214758) and that funding support is associated with retrieval (Wu et al. 2021, doi:10.1016/j.jclinepi.2020.10.011). Selective availability threatens transportability whenever inference links the IPD subset to the rest of the network, so a combined IPD and aggregate-data analysis needs explicit assumptions about that link plus sensitivity analysis for departures the observed data cannot identify. It is not a universal identification requirement: inference conditional on a fixed set of studies does not require a stochastic model of IPD availability."
+pid: "EVB-01"
+topic: "Evidence-base construction & data access"
+categories: ["Evidence-base construction & data access", "High priority", "Confirmed open"]
+priority: "High"
+prank: 2
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[EVB-01]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[High priority]{.chip .chip-priority-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+## Statement
+
+Individual patient data enter a network non-randomly: reviews of individual participant data meta-analyses find that requested data are frequently not obtained (Nevitt et al. 2017, pmid:28381561; Ahmed et al. 2012, pmid:22214758) and that funding support is associated with retrieval (Wu et al. 2021, doi:10.1016/j.jclinepi.2020.10.011). Selective availability threatens transportability whenever inference links the IPD subset to the rest of the network, so a combined IPD and aggregate-data analysis needs explicit assumptions about that link plus sensitivity analysis for departures the observed data cannot identify. It is not a universal identification requirement: inference conditional on a fixed set of studies does not require a stochastic model of IPD availability.
+
+## Why it is open
+
+Availability is determined by commercial and legal control, so it is informative about the trials themselves and cannot be assumed ignorable once the analysis generalizes beyond the IPD subset. Because withheld data are unavailable by definition, non-ignorable availability is not identified from observed data without restrictions or sensitivity parameters, and Ahmed et al. 2012 found that most IPD meta-analyses failing to obtain all requested data did not examine what that implied. Senior evidence-synthesis methodologists have asked in print why IPD are not routinely released to reimbursement authorities and guideline developers (Ades et al. 2024, doi:10.1002/jrsm.1745), which locates the constraint in the access process. Separately, high-dimensional treatment-by-covariate interactions and within-study missing data remain hard even among the trials that do share, though these are estimation difficulties rather than proof that no IPD-NMA works.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Nevitt et al. 2017, BMJ](https://pubmed.ncbi.nlm.nih.gov/28381561/) | Systematic review of 760 IPD meta-analyses showing that only 25% retrieved 100% of eligible IPD and 43% retrieved 80% or more; documents that IPD availability is not a random subset. |
+| [Wu et al. 2021, Journal of Clinical Epidemiology](https://doi.org/10.1016/j.jclinepi.2020.10.011) | Cross-sectional study of 210 IPD meta-analyses tying data retrieval to trial number, funding support and intervention type; supplies the funding-related mechanism the entry asserted without a citation. |
+| [Ahmed et al. 2012, BMJ](https://pubmed.ncbi.nlm.nih.gov/22214758/) | Database survey naming data availability bias as a distinct threat in IPD meta-analysis and showing that most analysts who failed to obtain requested data did not examine or even mention the consequences. |
+| [Ades et al. 2024, Research Synthesis Methods](https://doi.org/10.1002/jrsm.1745) | Response to discussants of 'NMA, the first 20 years' asking in print why IPD are not routinely made available to reimbursement authorities and guideline developers; sources the framing of availability as an access process. |
+| [MOLGENIS Armadillo: a lightweight server for federated analysis using DataSHIELD, Bioinformatics 2024](https://doi.org/10.1093/bioinformatics/btae726) | Production federated-analysis infrastructure already used for one-stage IPD meta-analysis across cohorts; shows federated analysis is deployed rather than speculative, while leaving sponsor-controlled participation untouched. |
+| [Phillippo et al. 2023, Medical Decision Making](https://doi.org/10.1177/0272989X221117162) | Validates population-adjustment assumptions in multilevel network meta-regression by checking model predictions against observed aggregate study outcomes; partly realizes the external-validation idea without needing the withheld IPD. |
+
+:::
+
+## Probable solution or research direction
+
+Selection or pattern-mixture models of IPD availability, framed as sensitivity parameters rather than automatic correction, remain to be developed; the literature auditor searched for them and found none. Federated analysis should be treated as infrastructure to extend rather than to build, since DataSHIELD-based servers already run one-stage IPD meta-analysis across cohorts (MOLGENIS Armadillo, doi:10.1093/bioinformatics/btae726); what federation cannot do is compel a sponsor to join, so it broadens participation without removing selection. External validation is partly realized by comparing population-adjustment predictions against observed aggregate outcomes (Phillippo et al. 2023, doi:10.1177/0272989X221117162); completely withheld IPD cannot themselves serve as a validation set. Interaction terms need regularized or hierarchical structure rather than unrestricted high-dimensional models.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+
+**The source titled this.** "IPD availability is sponsor-controlled and not ignorable" The title calls IPD availability not ignorable as a universal property, which the audit rejected since inference conditional on a fixed study set needs no availability model.
+
+**The source said.** "Individual patient data are supplied for the sponsor's own trials rather than for a random subset of the network, so the set of studies that can be population-adjusted or entered into an IPD network meta-analysis is systematically related to who paid for them. IPD-NMA identification requires an availability mechanism, and that mechanism is a data-access process rather than a statistical nuisance."
+
+**What was wrong with it.** The source made the availability mechanism a universal identification requirement for IPD-NMA and asserted that no configuration works straightforwardly once IPD are obtained; GPT-5.6 Sol judged both false, because inference conditional on a fixed study set needs no stochastic availability model. The empirical core carried no citation and is now sourced to Nevitt et al. 2017 (pmid:28381561), Wu et al. 2021 (doi:10.1016/j.jclinepi.2020.10.011) and Ahmed et al. 2012 (pmid:22214758), the last of which names data availability bias directly.
+
+Literature and prior-art check
+:   **open / supported-with-caveat.** prior_work is empty, so there was no citation to check; I built the case independently. The empirical core is well established and the entry simply fails to cite it: Nevitt 2017 BMJ (760 IPD-MAs), Wu 2021 JCE (210 IPD-MAs) and Ahmed 2012 BMJ all quantify non-random IPD retrieval, and Wu identifies funding support as a predictor of retrieval. Ades 2024 RSM explicitly asks why IPD is not routinely released to reimbursement authorities. So claim 2 is supported and should be sourced. Claims 1 and 4 are defensible but I found no paper formalizing an IPD-availability mechanism as an identification requirement. Claim 5 ('can be modeled explicitly') is aspiration: I searched for selection/pattern-mixture models of IPD availability and found none. Claim 6 understates maturity: federated IPD analysis is deployed infrastructure (DataSHIELD/MOLGENIS Armadillo, EU Child Cohort Network), though not for trial NMA in HTA, and it does not solve sponsor withholding since joining the federation is still the sponsor's choice. Claim 7 is partly realized by Phillippo 2023 MDM, which validates population-adjustment predictions against observed aggregate outcomes.
+    Cites pmid:28381561: Supplies the missing empirical citation for claim 2 (IPD availability is not a random subset). Does not solve the problem; it documents it..
+    Cites doi:10.1016/j.jclinepi.2020.10.011: Directly ties IPD retrieval to funding/sponsorship, which is the specific mechanism the entry asserts without citation..
+    Cites pmid:22214758: Names 'data availability bias' as a distinct threat in IPD meta-analysis and shows analysts mostly do not address it. Supports the 'cannot be checked from inside the analysis' framing..
+    Cites doi:10.1002/jrsm.1745: Senior evidence-synthesis methodologists state the access problem in print, which sources the entry's 'data-access process rather than a statistical nuisance' framing..
+    Cites doi:10.1093/bioinformatics/btae726: Partially deflates claim 6: federated IPD analysis is production infrastructure already used for one-stage IPD meta-analysis across cohorts, not a speculative response. It does not address sponsor-controlled participation..
+    Cites doi:10.1177/0272989X221117162: Partially realizes claim 7: population-adjustment assumptions are checked by comparing model predictions against the aggregate studies rather than against withheld IPD..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** Selective IPD access is a genuine transportability and sensitivity-analysis problem, but the statement overgeneralizes. C1 is false as a universal identification claim: inference conditional on a fixed set of studies does not require a stochastic IPD-availability model. Such a model becomes relevant when generalizing from the IPD subset or correcting selection, and nonignorable availability is not identified from observed data without restrictions or sensitivity parameters. C3 and C4 are technically sound. C2 is an unsupported frequency claim. C5 is feasible as a selection or sensitivity model, not an automatically identified correction. C6 can reduce data-sharing barriers but cannot correct refusal to participate. C7 requires the withheld study to disclose suitable aggregate outcomes or participate in independent or federated validation; completely withheld IPD cannot themselves be a validation set. The assertion that there is no configuration in which IPD-NMA works straightforwardly is false.
+
+Grok 4.5, recency lens
+:   **open / supported.** Inverted search treated availability bias and IPD-NMA identification as already solved. What exists documents the problem and gives partial workarounds, not a closed identification theory for sponsor-controlled IPD. Riley et al. (BMJ Evid Based Med 2022/2023) and the 2021 IPDMA handbook (Ch. 9.3) state that requested IPD are often unavailable and that availability bias must be examined, typically by comparing or combining IPD-based results with aggregate-data results from non-IPD trials. That is sensitivity to selective availability, not an explicit model of a commercial/legal availability mechanism inside IPD-NMA identification. Federated platforms (DataSHIELD and related 2022–2025 work) reduce the need to release IPD and are a real response to access barriers, but they do not identify effects when the set of contributing studies is non-ignorable by design, and they are not HTA-ITC-specific solutions for sponsor-owned IPD. Pattern-mixture work in meta-analysis targets missing outcomes within studies, not study-level IPD release. High-dimensional treatment-by-covariate interactions and within-study missing data remain widely acknowledged practical limits. Queries run: IPD-NMA availability mechanism/pattern mixture; availability bias Riley/Tierney/Ahmed; federated IPD meta-analysis/DataSHIELD; arXiv/medRxiv IPD-NMA selective availability; R packages multinma/maicplus/netmeta/crossnma for related PRs. Nothing retrieved closes the problem as stated.
+
+Decision path
+:   `R5:default-open → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [COV-06 — No causal forest aggregates to a target known only by marginals](COV-06-no-causal-forest-aggregates-to-a-target-known-only-by-margin.qmd)
+- [MIS-01 — Missing aggregate summaries and unavailable IPD have no remedy](MIS-01-missing-aggregate-summaries-and-unavailable-ipd-have-no-reme.qmd)
+:::
+
+## Source
+
+Derived from C:L187-188, C:L191, C:L214-215, C:L217 of the reviewed corpus.

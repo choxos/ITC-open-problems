@@ -1,0 +1,78 @@
+---
+title: "Optimal transport for distributional rather than moment balance"
+description: "Optimal-transport weighting for source-to-target distributional balance already exists in general causal inference: Dunipace (arXiv:2109.01991) builds weights by minimizing an optimal transport distance between a source and a target population, is semiparametrically efficient and model-free, and can impose moment constraints as well. It requires samples from both distributions, so the PAIC case that matters, a target described by a published table of marginals, is untouched. The overlap claim also needs narrowing: transport cost is a metric-, scaling- and regularization-dependent global discrepancy rather than a positivity measure, so a small cost does not rule out local support failure and a large cost can reflect benign displacement. A 2025 preprint (arXiv:2511.04658) does use an optimal transport distance as an operational shift measure for choosing study sites."
+pid: "ADJ-05"
+topic: "Adjacent-field methods"
+categories: ["Adjacent-field methods", "High priority", "Partially addressed"]
+priority: "High"
+prank: 2
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
+maturity: "Emerging"
+---
+::: {.problem-meta}
+[ADJ-05]{.problem-id}
+[Partially addressed]{.verdict .verdict-partially-addressed}
+[High priority]{.chip .chip-priority-high}
+[Emerging]{.chip .chip-maturity-emerging}
+:::
+## Statement
+
+Optimal-transport weighting for source-to-target distributional balance already exists in general causal inference: Dunipace (arXiv:2109.01991) builds weights by minimizing an optimal transport distance between a source and a target population, is semiparametrically efficient and model-free, and can impose moment constraints as well. It requires samples from both distributions, so the PAIC case that matters, a target described by a published table of marginals, is untouched. The overlap claim also needs narrowing: transport cost is a metric-, scaling- and regularization-dependent global discrepancy rather than a positivity measure, so a small cost does not rule out local support failure and a large cost can reflect benign displacement. A 2025 preprint (arXiv:2511.04658) does use an optimal transport distance as an operational shift measure for choosing study sites.
+
+## Why it is open
+
+Optimal transport rebalances existing mass and manufactures no observations where the source trial has none, so a coupling that moves covariate mass creates no outcome evidence and source-unit reweighting stays inside source support. Distributional matching needs a target joint distribution, and aggregate publications report marginals, which do not recover the dependence structure or the tails the method is supposed to balance. Matching a distribution better also leaves the causal assumptions untouched: neither conditional constancy nor transitivity becomes more plausible because the tails line up.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Dunipace, Optimal transport weights for causal inference (2021)](https://arxiv.org/abs/2109.01991) | Constructs weights by minimizing an optimal transport distance between any source and target population, semiparametrically efficient, model-free, with optional moment constraints. Requires samples from both distributions, so it leaves the aggregate-only-target PAIC case open. |
+| [Where to Experiment? Site Selection Under Distribution Shift via Optimal Transport and Wasserstein DRO (2025)](https://arxiv.org/abs/2511.04658) | Precedent for using an optimal transport distance as an operational shift measure when choosing study populations. |
+
+:::
+
+## Probable solution or research direction
+
+Adapt the existing optimal-transport weighting to the case PAIC actually faces, where the target is known only through published marginals, and state what a coupling can and cannot deliver when the joint law must be assumed. Report transport cost as a calibrated distributional discrepancy rather than as an overlap or positivity measure, and calibrate its scale against known-truth simulations. Keep the identification assumptions and support limits reported separately from the balance achieved.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Partially addressed. Part of this problem is addressed by existing work; the entry names which part.
+
+**The source said.** "Optimal transport is proposed as a replacement for moment balancing in PAIC, matching whole covariate distributions rather than a list of means and variances, with the transport cost doubling as an explicit overlap measure."
+
+**What was wrong with it.** The source proposed optimal-transport balancing for PAIC as though it did not exist; the literature auditor found it published for exactly the source-to-target case (arXiv:2109.01991), leaving the aggregate-only target as the open part. GPT-5.6 Sol separately rejected the claim that transport cost serves as an overlap measure, since it is a global distributional discrepancy and not a positivity diagnostic.
+
+Literature and prior-art check
+:   **partially-solved / supported-with-caveat.** The method the entry proposes already exists in general causal inference and the entry cites nothing. Dunipace, 'Optimal transport weights for causal inference' (arXiv:2109.01991) constructs weights by minimizing an optimal transport distance 'between treatment and control groups or, more generally, between any source and target population', is semiparametrically efficient, model-free, and can additionally impose moment constraints; it is evaluated against propensity-score and outcome-model competitors. That covers exactly the source-to-target distributional-balance case, but only when samples from both distributions are available. It does not cover the PAIC case that matters, where the target is described by published marginals and no target sample exists, which is the entry's own correct observation. The overlap-measure claim also has precedent: a 2025 preprint uses optimal transport distance plus Wasserstein DRO for site selection under distribution shift (arXiv:2511.04658). The two negative claims (OT creates no new support; OT leaves identification assumptions untouched) are correct and I found nothing contradicting them.
+    Cites arxiv:2109.01991: Covers the case where individual-level samples exist for both source and target: OT-based distributional balancing weights, evaluated, with optional moment constraints. Leaves open the PAIC case of an aggregate-only target..
+    Cites arxiv:2511.04658: Precedent for using an optimal transport distance as an operational overlap/shift measure for choosing study populations..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** C1-C2 require an observed or otherwise identified target joint distribution and a carefully defined weighting or mapping construction. Optimal transport can compare or couple empirical joint distributions, but published marginal summaries do not recover target dependence or tails. A coupling that moves covariate mass does not create corresponding outcome evidence, while source-unit reweighting remains confined to source support. C3 is materially overstated: transport cost is a metric-, scaling- and regularization-dependent global distributional discrepancy, not a direct positivity measure. A small cost need not exclude local support violations, and a large cost can reflect benign distributional displacement. C4-C5 are correct.
+
+Grok 4.5, recency lens
+:   **open / supported.** Optimal transport and higher-order balancing tools exist in general causal reweighting (and optweight documents MAIC-like population weighting), but no retrieved paper or CRAN/GitHub release replaces moment-MAIC in PAIC practice with OT-based full distributional matching, reports transport cost as a calibrated overlap diagnostic for HTA, and handles the usual AgD-only joint-target missingness. The problem's internal caveats are correct: OT rebalances existing mass, does not create support, and leaves conditional constancy/transitivity untouched. Proposal without PAIC evaluation remains open. Queries: optimal transport MAIC PAIC balancing; OT distributional balance trial transport; optweight MAIC; RSM/SiM OT indirect comparison 2024–2026.
+
+Decision path
+:   `R3:partially-solved(n=1) → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [CMP-15 — Target joint covariate distribution is only approximately known](CMP-15-target-joint-covariate-distribution-is-only-approximately-kn.qmd)
+- [COV-08 — Entropy balancing has no network extension or variance theory](COV-08-entropy-balancing-has-no-network-extension-or-variance-theor.qmd)
+- [DIA-02 — No agreed ESS definition and no support-geometry diagnostics](DIA-02-no-agreed-ess-definition-and-no-support-geometry-diagnostics.qmd)
+- [OVL-05 — Optimal transport for distributional balancing in PAIC](OVL-05-optimal-transport-for-distributional-balancing-in-paic.qmd)
+:::
+
+## Source
+
+Derived from C:L1646-1647, C:L1653 of the reviewed corpus.

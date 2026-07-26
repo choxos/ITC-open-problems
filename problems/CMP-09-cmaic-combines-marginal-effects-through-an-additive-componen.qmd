@@ -1,0 +1,74 @@
+---
+title: "cMAIC combines marginal effects through an additive component model"
+description: "Component MAIC reweights IPD edges to produce marginal effects and then feeds those marginal effects into an additive component model. On non-collapsible scales such as the odds ratio and hazard ratio, marginalization applies a nonlinear functional to each regimen's component sum, so marginal component effects are not generally additive even when conditional ones are, and the resulting error is structural rather than statistical: it does not shrink with perfect covariate matching or infinite sample size. The error is zero on collapsible scales and in special covariate and effect configurations, so its practical magnitude is context-dependent. Phillippo et al. 2025 sharpen the survival case: with covariates present, marginal hazard ratios are time-varying, so they cannot be a constant additive component parameter at all."
+pid: "CMP-09"
+topic: "Component methods (CNMA and component PAIC)"
+categories: ["Component methods (CNMA and component PAIC)", "Very high priority", "Confirmed open"]
+priority: "Very high"
+prank: 1
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[CMP-09]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[Very high priority]{.chip .chip-priority-very-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+## Statement
+
+Component MAIC reweights IPD edges to produce marginal effects and then feeds those marginal effects into an additive component model. On non-collapsible scales such as the odds ratio and hazard ratio, marginalization applies a nonlinear functional to each regimen's component sum, so marginal component effects are not generally additive even when conditional ones are, and the resulting error is structural rather than statistical: it does not shrink with perfect covariate matching or infinite sample size. The error is zero on collapsible scales and in special covariate and effect configurations, so its practical magnitude is context-dependent. Phillippo et al. 2025 sharpen the survival case: with covariates present, marginal hazard ratios are time-varying, so they cannot be a constant additive component parameter at all.
+
+## Why it is open
+
+Non-collapsibility means the marginal contrast is not the same functional of the component parameters as the conditional contrast, so an additivity structure holding conditionally does not carry over to the marginal scale. For time-to-event outcomes an arm-only weighted Cox coefficient is a particular marginal projection rather than a constant marginal hazard ratio, so the additive component model is being fitted to quantities that are not even stable over time. Removing the error requires either a collapsible estimand scale or reconstructing target-population arm outcomes and standardizing before forming component contrasts, both of which change what component MAIC is.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Phillippo et al. 2025](https://doi.org/10.1017/rsm.2025.2) | reviews marginal and conditional estimands under effect modification and non-collapsibility, shows the divergence can flip treatment rankings, and notes that marginal hazard ratios are time-varying when covariates are present |
+| maicplus | supplies the weighting engine used by the component MAIC route |
+| [cpaic 0.1.0 (development version, choxos/cpaic@9d150e9)](choxos/cpaic@9d150e9) | unreleased development R package on GitHub, not on CRAN; re-estimates weights, fits an arm-only weighted outcome model, replaces the IPD edge, and documents the irreducible cMAIC bias while recommending conditional routes where material |
+
+:::
+
+## Probable solution or research direction
+
+Restrict component MAIC claims to collapsible scales, offer collapsible estimands as the default, or reconstruct target-population arm outcomes and standardize them before forming component contrasts. Quantify when the structural error is material rather than treating it as uniformly fatal, since it vanishes on collapsible scales. The candor of existing documentation about the irreducible bias should be preserved rather than softened.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+
+**The source said.** "Component MAIC reweights IPD edges to produce marginal effects and then feeds those marginal effects into an additive component model. On non-collapsible scales such as the odds ratio and hazard ratio, marginal component effects are not generally additive even when conditional component effects are."
+
+**What was wrong with it.** Both auditors supported the claim; the corrections are scope and sourcing. GPT-5.6 Sol noted the error is zero on collapsible scales and in special configurations, so the asserted very high severity is not automatic, and the literature auditor supplied the missing reference establishing the premise and extending it to time-varying marginal hazard ratios, doi:10.1017/rsm.2025.2.
+
+**Dissent.** literature dissented (supported): The statistical content is correct and now heavily documented, though the entry cites none of it. Phillippo, Remiro-Azocar, Heath, Baio, Dias, Ades and Welton 2025 (Res Synth Methods 16:323-349) set out exactly why marginal and conditional estimands diverge under non-collapsibility plus effect modification, show that the divergence can flip treatment rankings, and note that 'For time-to-event outcomes, the presence of covariates implies that marginal hazard ratios are time-varying' - which sharpens the entry's point, because a time-varying marginal hazard ratio cannot be an additive component parameter at all. The structural, non-vanishing character of the error is right: it is a property of the estimand map, not a finite-sample bias. I found nothing that repairs additive combination of marginal component effects, so the problem is open. The claim about what cpaic's documentation says is unverifiable from public sources. maicplus is cited only as the weighting engine, which is fair but decorative for this specific claim.
+
+Literature and prior-art check
+:   **open / supported.** The statistical content is correct and now heavily documented, though the entry cites none of it. Phillippo, Remiro-Azocar, Heath, Baio, Dias, Ades and Welton 2025 (Res Synth Methods 16:323-349) set out exactly why marginal and conditional estimands diverge under non-collapsibility plus effect modification, show that the divergence can flip treatment rankings, and note that 'For time-to-event outcomes, the presence of covariates implies that marginal hazard ratios are time-varying' - which sharpens the entry's point, because a time-varying marginal hazard ratio cannot be an additive component parameter at all. The structural, non-vanishing character of the error is right: it is a property of the estimand map, not a finite-sample bias. I found nothing that repairs additive combination of marginal component effects, so the problem is open. The claim about what cpaic's documentation says is unverifiable from public sources. maicplus is cited only as the weighting engine, which is fair but decorative for this specific claim.
+    Cites doi:10.1017/rsm.2025.2: Does NOT solve the additive-combination problem, but is the missing citation that establishes the entry's premise and extends it to time-varying marginal hazard ratios..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / supported-with-caveat.** C1-C4 are supported. With a conditional additive predictor, marginalization applies a nonlinear functional to each regimen's component sum, so marginal log odds ratios generally fail component additivity. Marginal hazards are mixtures and may not even remain proportional, so an arm-only weighted Cox coefficient is a particular marginal Cox projection rather than a unique constant marginal hazard ratio. Perfect matching and infinite sample size remove estimation and transport error but not this structural projection error. The code re-estimates weights, fits an arm-only weighted outcome model, replaces the IPD edge, and passes the resulting contrast to cnma_bridge(); its documentation explicitly states the irreducible bias and recommends conditional routes where material. The caveat is that the error is zero on collapsible scales and in special covariate/effect configurations, and its practical magnitude is context-dependent, so the asserted very-high severity is not automatic.
+
+Decision path
+:   `R5:default-open → R11:caveated(n=1)`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [OUT-01 — Target-standardized marginal risks are not the HTA reporting default](OUT-01-target-standardized-marginal-risks-are-not-the-hta-reporting.qmd)
+:::
+
+## Source
+
+Derived from C:L1362, C:L1295-1299, C:L1235, scope:package-specific route resting on the field-level non-collapsibility problem of the reviewed corpus.

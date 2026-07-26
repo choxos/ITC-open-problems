@@ -1,0 +1,60 @@
+---
+title: "Reinforcement learning and dynamic regimes for adaptive sequences"
+description: "No method exists for indirectly comparing dynamic treatment regimes or adaptive sequences across studies. The estimand, however, is definable: a policy contrast is the target-population difference between the values of two well-specified policies, so what is missing is cross-study identification and data rather than the definition. Identification requires compatible policies, treatment histories and outcomes, plus consistency, positivity, suitable sequential randomization or exchangeability, and transportability; longitudinal histories are generally needed, though sequentially randomized designs carry different confounding assumptions and sufficiently detailed regime-level estimates could sometimes support a second-stage synthesis."
+pid: "ADJ-20"
+topic: "Adjacent-field methods"
+categories: ["Adjacent-field methods", "Medium priority", "Confirmed open"]
+priority: "Medium"
+prank: 4
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Speculative"
+---
+::: {.problem-meta}
+[ADJ-20]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[Medium priority]{.chip .chip-priority-medium}
+[Speculative]{.chip .chip-maturity-speculative}
+:::
+## Statement
+
+No method exists for indirectly comparing dynamic treatment regimes or adaptive sequences across studies. The estimand, however, is definable: a policy contrast is the target-population difference between the values of two well-specified policies, so what is missing is cross-study identification and data rather than the definition. Identification requires compatible policies, treatment histories and outcomes, plus consistency, positivity, suitable sequential randomization or exchangeability, and transportability; longitudinal histories are generally needed, though sequentially randomized designs carry different confounding assumptions and sufficiently detailed regime-level estimates could sometimes support a second-stage synthesis.
+
+## Why it is open
+
+Sequential decision estimands generally require longitudinal treatment and time-varying confounder data at the individual level, which trial publications and most shared individual data do not contain. Existing network structures encode fixed-regimen contrasts, so a policy contrast cannot simply be attached to them; prespecified policies could in principle enter as network nodes, but only once the transport and sequential exchangeability conditions are checked, and no convention exists for doing so. Reinforcement learning supplies neither identification nor the missing data.
+
+## What has been tried
+
+No prior work is identified for this problem in the reviewed sources.
+
+## Probable solution or research direction
+
+Treat sequential-regime comparison as a long-term program that starts from the policy-value contrast rather than from a new definition: specify which policies are being contrasted, in which population, and what compatibility across trials would require. Then specify the longitudinal treatment and confounder data such a comparison needs, and test whether prespecified policies can enter existing network structures as nodes before building bespoke estimators.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+
+**The source said.** "Reinforcement learning and dynamic treatment regime methods are proposed for comparing adaptive treatment sequences rather than fixed regimens across studies. The report labels this long-term research."
+
+**What was wrong with it.** The source said what an indirect comparison of two adaptive strategies even means has not been defined. GPT-5.6 Sol showed the estimand is already definable as a contrast of policy values in a target population, so the open work is cross-study identification, data and convention rather than the definition itself.
+
+Literature and prior-art check
+:   **open / supported.** I found no method for indirectly comparing dynamic treatment regimes or adaptive sequences across studies, and no definition of what such an estimand would be in an evidence network. Treatment sequences are modeled in HTA cost-effectiveness models, and dynamic treatment regimes are a mature single-study literature, but the two have not been joined for indirect comparison in anything I retrieved. The entry's diagnosis is correct on both counts I could check: sequential-regime estimands require longitudinal treatment and time-varying confounder data at the individual level, which trial publications do not contain, and the target of inference changes from a fixed-regimen contrast to a policy over time, so it cannot be attached to existing network structures. This is a negative search result rather than a positive finding, so confidence is moderate; but the claim being made here is weak and well hedged, which is the right posture for a 'long-term research' item.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** C1, C3, and C4 are supportable in qualified form. A policy contrast is already mathematically definable, for example as the target-population difference between V(pi1)=E[Y under pi1] and V(pi2)=E[Y under pi2]. The assertion that the target of inference has not been defined is therefore false as a general statement. Cross-study identification requires well-defined and compatible policies, treatment histories and outcomes, consistency, positivity, appropriate sequential randomization or exchangeability conditions, and transportability. C2 is also too absolute: longitudinal histories are generally needed for primary estimation, but sequentially randomized designs require different confounding assumptions, and sufficiently detailed regime-level estimates may sometimes support a second-stage synthesis. Existing network machinery could treat prespecified policies as treatment nodes when those conditions hold, although this would not be ordinary fixed-regimen ITC. Reinforcement learning supplies neither identification nor missing data. General PAIC methods remain a legitimate long-term research program, not a current decision-grade requirement.
+
+Grok 4.5, recency lens
+:   **open / supported.** No cited prior_work. Dynamic treatment regimes and clinical RL are large mature fields for single-source longitudinal IPD (reviews through 2025 on RL for DTRs in healthcare), but they do not define or implement an indirect comparison of adaptive policies across trials that publish only fixed-regimen contrasts and sparse IPD. Search for network meta-analysis / indirect comparison of dynamic treatment regimes or adaptive sequences found no standard estimand definition, required data structure for multi-study sequential comparison, or software path that reuses existing NMA graphs for policy-vs-policy contrasts. C1 remains a long-horizon possibility. C2–C3 correctly state that sequential-regime comparison needs longitudinal treatment and time-varying confounders and is not ordinary fixed-regimen ITC. C4 is a report label consistent with missing estimand and data. Queries: (dynamic treatment regime|adaptive treatment|reinforcement learning) + (network meta-analysis|indirect comparison|multi-study); sequential regime ITC 2023–2026.
+
+Decision path
+:   `R5:default-open → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Source
+
+Derived from C:L1646-1647, C:L1667 of the reviewed corpus.

@@ -1,0 +1,76 @@
+---
+title: "Causal meaning of a component effect is ambiguous"
+description: "The statistical estimand of a component model is well defined: implemented component ML-NMR states it as theta_t(x) = C_t'(beta + Gamma x), and row-space machinery determines which such functionals are identified. What is not defined is the causal reading of beta_c as the effect of adding component c, which additionally requires a well-defined and stable component intervention, consistency across component versions, no relevant interference, valid transport, and the assumed additivity or interaction structure. None of those conditions is formalized in any component PAIC implementation the auditors could read, and the auditors found no work connecting separable effects, component interventions, or interference to CNMA parameters."
+pid: "CMP-07"
+topic: "Component methods (CNMA and component PAIC)"
+categories: ["Component methods (CNMA and component PAIC)", "High priority", "Unverifiable"]
+priority: "High"
+prank: 2
+verdict: "Unverifiable"
+verdictslug: "unverifiable"
+maturity: "Emerging"
+---
+::: {.problem-meta}
+[CMP-07]{.problem-id}
+[Unverifiable]{.verdict .verdict-unverifiable}
+[High priority]{.chip .chip-priority-high}
+[Emerging]{.chip .chip-maturity-emerging}
+:::
+## Statement
+
+The statistical estimand of a component model is well defined: implemented component ML-NMR states it as theta_t(x) = C_t'(beta + Gamma x), and row-space machinery determines which such functionals are identified. What is not defined is the causal reading of beta_c as the effect of adding component c, which additionally requires a well-defined and stable component intervention, consistency across component versions, no relevant interference, valid transport, and the assumed additivity or interaction structure. None of those conditions is formalized in any component PAIC implementation the auditors could read, and the auditors found no work connecting separable effects, component interventions, or interference to CNMA parameters.
+
+## Why it is open
+
+Component coefficients are routinely read as the effect of adding or removing a component, but the conditions that would license that reading are not stated anywhere in the component synthesis literature or in the implementations. Multiple versions of the same nominal component exist and the model does not say which one a coefficient targets, so consistency is assumed rather than argued. The relevant causal machinery for separable effects, component interventions, and interference is mature outside evidence synthesis but has not been connected to component NMA parameters, so there is no formal statement of what a component parameter identifies.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [cpaic 0.1.0 (development version, choxos/cpaic@9d150e9)](choxos/cpaic@9d150e9) | unreleased development R package on GitHub, not on CRAN; defines the conditional statistical estimand theta_t(x) = C_t'(beta + Gamma x) and supplies no potential-outcomes definition, consistency statement for component versions, or interference model |
+
+:::
+
+## Probable solution or research direction
+
+Write the potential-outcomes definition for a component intervention, including treatment versions and consistency, and state the conditions under which the additive-model coefficient equals a causal separable or component effect. Distinguish in software and in reporting between the statistical contrast the model estimates and the causal manipulation a reader will assume, and flag when that manipulation is not clinically realizable. Where a decision estimand is a complete-regimen contrast rather than a component effect, say so, since the causal conditions needed are then much weaker.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Unverifiable. Auditors disagreed and the disagreement was evidence-bearing on both sides.
+
+**The source said.** "A component effect is treated as the change from removing or adding one component while holding the others fixed, but removing a component can change adherence, delivery, and the operation of the remaining components. The causal quantity a component coefficient targets is therefore not well defined."
+
+**What was wrong with it.** The source said the targeted quantity is not well defined and that no trial in the network randomizes single-component removal. GPT-5.6 Sol corrected both from choxos/cpaic@9d150e9: the statistical estimand is stated explicitly as theta_t(x) = C_t'(beta + Gamma x), and add-on and factorial trials do randomize component addition or removal, so what is open is the causal interpretation rather than the estimand. The literature auditor searched for separable-effects, potential-outcomes, and interference work applied to CNMA, found none, and also found no source asserting the absence, so the two auditors disagree on whether the gap is demonstrated or merely unretrieved.
+
+**Dissent.** codex dissented (overstated): The statistical estimand is not undefined: cpaic explicitly defines component and treatment contrasts through theta_t(x)=C_t'(beta+Gamma x), and its row-space machinery determines which such functionals are identified. That partially resolves the estimand question. C1 is valid only as a warning about causal interpretation: adding or removing a component may not define a stable intervention when it changes delivery, adherence, versions, or interactions. The cpaic-specific part of C2 is supported because the package supplies no potential-outcomes definition, consistency statement for component versions, or interference model. C3 is a literature-coverage claim outside this audit. The report's rationale is too broad in saying no trial randomizes component addition or removal: add-on and factorial trials can do exactly that, and direct single-component randomization is not necessary when a randomized contrast design identifies beta under a correctly specified additive model. A causal interpretation requires well-defined component interventions and versions, consistency, no relevant interference, valid transport, and the assumed additivity or interaction structure. This is high priority if component coefficients themselves are presented causally; it is less fundamental when the decision estimand is a well-defined complete-regimen contrast.
+
+Literature and prior-art check
+:   **open / unverifiable.** PubMed searches combining separable effects, potential outcomes, interference and treatment-version concepts with component network meta-analysis returned no hits. The separable-effects and treatment-version (multiple-versions-of-treatment) literature is well developed outside evidence synthesis, but I did not retrieve specific papers in this session and will not cite what I have not read. The three claims are all absence claims about a link that has not been made, and no source I found asserts that absence, so unverifiable is the honest support vote. Independent support for the underlying worry does exist in the CNMA literature: Petropoulou et al. 2023 declined to interpret their selected interactions clinically ('A clinical interpretation of the identified interactions was not the main focus of this work. We think that this would be futile...'), which is a published hint that component and interaction parameters lack a settled causal reading. The entry cites nothing at all; adding that reference would help.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / overstated.** The statistical estimand is not undefined: cpaic explicitly defines component and treatment contrasts through theta_t(x)=C_t'(beta+Gamma x), and its row-space machinery determines which such functionals are identified. That partially resolves the estimand question. C1 is valid only as a warning about causal interpretation: adding or removing a component may not define a stable intervention when it changes delivery, adherence, versions, or interactions. The cpaic-specific part of C2 is supported because the package supplies no potential-outcomes definition, consistency statement for component versions, or interference model. C3 is a literature-coverage claim outside this audit. The report's rationale is too broad in saying no trial randomizes component addition or removal: add-on and factorial trials can do exactly that, and direct single-component randomization is not necessary when a randomized contrast design identifies beta under a correctly specified additive model. A causal interpretation requires well-defined component interventions and versions, consistency, no relevant interference, valid transport, and the assumed additivity or interaction structure. This is high priority if component coefficients themselves are presented causally; it is less fundamental when the decision estimand is a well-defined complete-regimen contrast.
+    Cites choxos/cpaic@9d150e9: Defines the conditional statistical quantity represented by the component coefficients and target covariate profile, while leaving its causal intervention interpretation open..
+
+Grok 4.5, recency lens
+:   **open / supported.** Inverted prior: searched for separable-effects, component-intervention, or interference identification results that map CNMA beta parameters to explicit potential-outcomes estimands (what is held fixed when a component is added/removed; multiple versions of treatment). Separable-effects theory is mature for multicomponent interventions in general causal inference, but no paper was retrieved that formally connects those frameworks to component NMA parameters or to cross-subnetwork bridges. Wigle et al. 2026 discuss statistical estimability and ranking of component effects, not causal intervention versions. Veroniki et al. 2026 stress clinical meaningfulness of component definitions but do not give potential-outcomes definitions. Queries across SIM/RSM/JCE, arXiv, and medRxiv 2022–2026 for 'separable effects component network meta-analysis', 'potential outcomes CNMA', 'causal estimand component NMA' returned no resolving application. Claims C1–C3 therefore still describe an open mapping problem between CNMA coefficients and well-defined interventions.
+
+Decision path
+:   `R3:partially-solved(n=1) → R7:counter-and-support-both-present`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [ADJ-19 — Shapley attribution of regimen effects to treatment components](ADJ-19-shapley-attribution-of-regimen-effects-to-treatment-componen.qmd)
+- [IDN-02 — No assumption map spans identification, transport and consistency](IDN-02-no-assumption-map-spans-identification-transport-and-consist.qmd)
+:::
+
+## Source
+
+Derived from C:L1359, scope:field-level (causal-inference foundations of component methods) of the reviewed corpus.

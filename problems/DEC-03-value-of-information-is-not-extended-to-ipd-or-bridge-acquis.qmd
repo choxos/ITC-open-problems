@@ -1,0 +1,78 @@
+---
+title: "Value of information is not extended to IPD or bridge acquisition"
+description: "Value-of-information machinery for evidence-synthesis networks already exists: Jackson et al. 2019 (10.1080/01621459.2018.1562932) give EVPPI and EVSI for Bayesian evidence-synthesis models fitted by MCMC, compare the expected value of additional data from two candidate sources, and trade expected benefit against cost to choose a sample size. What it does not cover is what is specific to indirect comparison: the IPD-versus-aggregate distinction, propagation of structural bridge, transport and drift uncertainty, and the combinatorial question of which decision contrasts a new study would render estimable. EVSI is also a research-design and acquisition criterion, not a performance measure for ranking ITC estimators in a simulation study."
+pid: "DEC-03"
+topic: "Decision analysis, regulation & reporting"
+categories: ["Decision analysis, regulation & reporting", "High priority", "Overstated"]
+priority: "High"
+prank: 2
+verdict: "Overstated"
+verdictslug: "overstated"
+maturity: "Emerging"
+tractability: 3
+---
+::: {.problem-meta}
+[DEC-03]{.problem-id}
+[Overstated]{.verdict .verdict-overstated}
+[High priority]{.chip .chip-priority-high}
+[Emerging]{.chip .chip-maturity-emerging}
+[Tractability 3/5]{.chip}
+:::
+## Statement
+
+Value-of-information machinery for evidence-synthesis networks already exists: Jackson et al. 2019 (10.1080/01621459.2018.1562932) give EVPPI and EVSI for Bayesian evidence-synthesis models fitted by MCMC, compare the expected value of additional data from two candidate sources, and trade expected benefit against cost to choose a sample size. What it does not cover is what is specific to indirect comparison: the IPD-versus-aggregate distinction, propagation of structural bridge, transport and drift uncertainty, and the combinatorial question of which decision contrasts a new study would render estimable. EVSI is also a research-design and acquisition criterion, not a performance measure for ranking ITC estimators in a simulation study.
+
+## Why it is open
+
+Generic EVSI is well defined for a candidate design once the joint network, transport, decision and sampling model is fully specified, with network placement entering through the design-specific likelihood and structural uncertainty through a model indicator. The difficulty in indirect comparison is that bridge and transport uncertainty is often only partially identified, with no probability model, prior or bound, in which case EVSI is not unique; that is an incomplete specification rather than proof that no method exists. Which contrasts a new study renders estimable is a combinatorial design question on top of the variance calculation, and computation for realistic networks remains heavy.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Jackson, Presanis, Conti and De Angelis 2019](https://doi.org/10.1080/01621459.2018.1562932) | EVPPI and EVSI for multi-parameter Bayesian evidence-synthesis models fitted by MCMC; compares candidate new data sources and trades expected benefit against sampling cost to pick a design. |
+| [NICE DSU Technical Support Document 6 (2011)](choxos/NICE-DSU-TSD-RAG@75abcb9c226a9f8fa7a0a4ffeba42874f1712ecb) | Establishes the general route for propagating evidence-synthesis uncertainty through a probabilistic decision model and performing value-of-information analysis. Read by the code auditor from a document corpus at the given commit. |
+
+:::
+
+## Probable solution or research direction
+
+Extend the existing evidence-synthesis EVSI machinery rather than build a parallel one: add a design-specific likelihood that distinguishes IPD from aggregate data, represent structural bridge and transport uncertainty through a model indicator or an explicit partial-identification bound, and score candidate designs by which decision contrasts they render estimable. Address the computational cost of network-specific EVSI directly, since that is the practical obstacle. Report the result as a research-prioritization criterion for IPD acquisition and bridge-trial design, not as a simulation performance measure.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Overstated. 2 independent auditors judged the claim as stated too strong. Value-of-information machinery for evidence-synthesis networks exists and can already rank candidate data collections by expected value, but it has not been extended to the features specific to indirect treatment comparison: the IPD-versus-aggregate distinction, structural bridge and transport uncertainty, and which decision contrasts a new study would render estimable. EVSI is also not reported as a performance measure in ITC simulation studies.
+
+**The source titled this.** "No value-of-information basis for acquiring IPD or bridge trials" The title says no value-of-information basis exists, but EVPPI and EVSI for Bayesian evidence-synthesis networks were published in 2019 and can already rank candidate data collections.
+
+**The source said.** "There is no method or evidence to answer which new IPD study or which new comparison would have the greatest expected value for a given decision problem. Evidence acquisition and bridge-trial design therefore proceed on availability rather than on a value-of-information calculation."
+
+**What was wrong with it.** The source said there is no method for deciding which new IPD study or comparison has the greatest expected value. Such a method has existed since Jackson et al. 2019 (10.1080/01621459.2018.1562932), which does exactly that for evidence-synthesis networks, and the general route through probabilistic decision models was already in NICE DSU TSD 6; the residual gap is the ITC-specific features, and the proposal to report EVSI as a simulation performance measure was a misclassification.
+
+Literature and prior-art check
+:   **partially-solved / overstated.** I read the full text of Jackson, Presanis, Conti & De Angelis 2019 (JASA, doi 10.1080/01621459.2018.1562932). It builds an EVPPI/EVSI framework specifically for Bayesian evidence-synthesis models represented as DAGs and fitted by MCMC, generalizing Strong et al.'s regression method from finite-action decisions to point estimation and vector outputs. In their application they directly compare the expected value of additional data from two different sources (GUM Anon vs GMSHS) at a range of sample sizes, and compute the expected net benefit of sampling to pick an optimal sample size (166 participants). That is precisely 'which new study has greatest expected value in a network of evidence'. Welton et al.'s EVPPI research-prioritization work and Mohiuddin et al.'s review of VoI in 25 NIHR HTA reports predate it. What Jackson et al. do not cover, and what remains open, is the IPD-versus-aggregate distinction, propagation of structural bridge/transport/drift uncertainty, and the combinatorial question of which contrasts a new study renders estimable. 'There is no method' is therefore wrong as stated; 'no method for the PAIC-specific features' is defensible.
+    Cites 10.1080/01621459.2018.1562932: Provides EVPPI and EVSI methods for multi-parameter evidence-synthesis networks fitted by MCMC, compares candidate new data sources, and trades expected benefit against sampling cost to choose an optimal design..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / overstated.** C1 and the assertion that standard EVSI requires a single well-identified model are too strong. For candidate design s, EVSI can be defined as E_Z[max_d E{NB(d,theta)|Y,Z,s}] minus max_d E{NB(d,theta)|Y}. Network placement enters through the design-specific likelihood for Z; structural uncertainty can enter through a model indicator and its joint posterior. If bridge or transport uncertainty has no probability model, prior, or identified bound, EVSI is not unique, but that is an incomplete specification rather than proof that no method exists. C3 is correct because placement determines which parameters and contrasts receive information. C2 misclassifies EVSI: it is principally a research-design or acquisition criterion, not a generic performance measure for comparing ITC estimators. Network-specific computation and robust treatment of poorly identified structural uncertainty may remain open.
+    Cites choxos/NICE-DSU-TSD-RAG@75abcb9c226a9f8fa7a0a4ffeba42874f1712ecb: Establishes the general technical route for propagating evidence-synthesis uncertainty through a probabilistic decision model and performing value-of-information analysis..
+
+Decision path
+:   `R3:partially-solved(n=2) → R8:overstated-majority(n=2)`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [ADJ-12 — Routine NMA output omits graph diagnostics and value of information](ADJ-12-routine-nma-output-omits-graph-diagnostics-and-value-of-info.qmd)
+- [DIS-16 — No design method chooses which edge to add across a disconnected gap](DIS-16-no-design-method-chooses-which-edge-to-add-across-a-disconne.qmd)
+- [OVL-06 — No standardized sample-size planning guidance or software for PAIC](OVL-06-no-standardized-sample-size-planning-guidance-or-software-fo.qmd)
+:::
+
+## Source
+
+Derived from C:L1785, C:L2053, C:L2153 of the reviewed corpus.

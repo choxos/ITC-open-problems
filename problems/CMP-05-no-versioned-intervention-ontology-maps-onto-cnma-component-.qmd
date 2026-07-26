@@ -1,0 +1,96 @@
+---
+title: "No versioned intervention ontology maps onto CNMA component matrices"
+description: "No component ontology is wired into component NMA or component PAIC software. Versioned, machine-readable intervention ontologies built for evidence synthesis do exist and record dose, delivery, and setting: the Behaviour Change Intervention Ontology upper level specifies 42 entities, the Mode of Delivery Ontology gives 65 modes across 15 upper classes with measured inter-rater reliability, and the Intervention Setting Ontology adds 72 entities. Quantitative dose is also no longer always a silent string match, since dose-response NMA models dose continuously and ships on CRAN as netdose. What is missing is any mapping from these onto CNMA component matrices, and any hierarchical equivalence-class model that lets related component versions borrow strength without being forced to share a parameter."
+pid: "CMP-05"
+topic: "Component methods (CNMA and component PAIC)"
+categories: ["Component methods (CNMA and component PAIC)", "Very high priority", "Overstated"]
+priority: "Very high"
+prank: 1
+verdict: "Overstated"
+verdictslug: "overstated"
+maturity: "Emerging"
+---
+::: {.problem-meta}
+[CMP-05]{.problem-id}
+[Overstated]{.verdict .verdict-overstated}
+[Very high priority]{.chip .chip-priority-very-high}
+[Emerging]{.chip .chip-maturity-emerging}
+:::
+## Statement
+
+No component ontology is wired into component NMA or component PAIC software. Versioned, machine-readable intervention ontologies built for evidence synthesis do exist and record dose, delivery, and setting: the Behaviour Change Intervention Ontology upper level specifies 42 entities, the Mode of Delivery Ontology gives 65 modes across 15 upper classes with measured inter-rater reliability, and the Intervention Setting Ontology adds 72 entities. Quantitative dose is also no longer always a silent string match, since dose-response NMA models dose continuously and ships on CRAN as netdose. What is missing is any mapping from these onto CNMA component matrices, and any hierarchical equivalence-class model that lets related component versions borrow strength without being forced to share a parameter.
+
+## Why it is open
+
+The bridge rests on the claim that a component means the same thing in both subnetworks, and that claim is currently established by matching treatment-label strings rather than by linking to any of the existing structured standards. Published trial reports rarely record dose intensity, schedule, or delivery fidelity in a machine-comparable way, so even a careful analyst usually cannot verify component equivalence from the available evidence, and once two implementations share a label the model treats their effects as one parameter. Storing the component matrix makes a coding decision reproducible but does not make it justified, and no model exists that lets a version of a component share information with its siblings without being forced equal to them.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Behaviour Change Intervention Ontology, upper level, 2021](https://doi.org/10.12688/wellcomeopenres.15902.2) | a versioned, machine-readable OWL ontology of intervention components built for evidence synthesis, specifying 42 upper-level entities including intervention content and dose |
+| [Mode of Delivery Ontology 2021](https://doi.org/10.12688/wellcomeopenres.15906.2) | supplies the delivery, formulation, and device metadata layer in OWL, with 65 modes across 15 upper classes and tested inter-rater reliability |
+| [Intervention Setting Ontology 2020](https://doi.org/10.12688/wellcomeopenres.15904.1) | supplies the context and setting metadata layer, 72 entities structured hierarchically |
+| [Pedder et al. 2021](https://doi.org/10.1177/0272989X20983315) | shows dose-response NMA can link disconnected networks by treating dose as quantitative shared structure rather than a treatment label |
+| [Petropoulou, Rucker and Schwarzer 2026](https://doi.org/10.1186/s12874-025-02754-4) | introduces frequentist dose-response NMA with linear and nonlinear dose functions |
+| [netdose](https://cran.r-project.org/package=netdose) | released R package for dose-response NMA, covering the dose and intensity dimension of component version heterogeneity |
+| [cpaic 0.1.0 (development version, choxos/cpaic@9d150e9)](choxos/cpaic@9d150e9) | unreleased development R package on GitHub, not on CRAN; builds the component matrix by tokenizing treatment labels and stores that matrix in the fitted network object, with no structured dose, schedule, delivery, or equivalence metadata |
+
+:::
+
+## Probable solution or research direction
+
+Map the existing intervention ontologies onto CNMA component matrices rather than building a new ontology, so that dose, schedule, delivery, and setting attributes become the source of the component coding and the equivalence decisions become auditable data that can be rerun under alternative groupings. Use dose-response models where dose is the dimension that varies, since that machinery is released and validated. The genuinely new work is a hierarchical equivalence-class or embedding model in which related component versions borrow strength with a shrinkage parameter rather than being forced to share one.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Overstated. 2 independent auditors judged the claim as stated too strong. No component ontology is wired into component NMA or component PAIC software: existing versioned, machine-readable intervention ontologies (BCIO and its mode-of-delivery and setting modules) record dose, schedule and delivery, but nothing maps them onto CNMA component matrices, and no hierarchical equivalence-class model lets related component versions borrow strength without being forced to share a parameter.
+
+**The source titled this.** "Component ontology is label-based, not versioned or quantitative" The title says component ontology is not versioned or quantitative, but the audit found three published versioned OWL ontologies with dose and delivery metadata plus continuous dose modeling in netdose.
+
+**The source said.** "Components in current component NMA and component PAIC are defined by text labels. The same label can hide differences in dose, schedule, formulation, device, adherence, provider skill, and cointerventions, so two studies nominally sharing a component may not share a parameter."
+
+**What was wrong with it.** The source said no versioned component ontology with dose and intensity metadata exists and that equivalence decisions are analyst judgment buried in code. The literature auditor found three published, versioned OWL ontologies covering exactly that metadata (BCIO, Mode of Delivery, Intervention Setting); Grok 4.5 added that dose can be modeled continuously via dose-response NMA and the CRAN package netdose; and GPT-5.6 Sol found that choxos/cpaic@9d150e9 stores the chosen C.matrix in the fitted network object, so the coding is recorded and rerunnable even though no ontology backs it.
+
+**Dissent.** grok dissented (supported-with-caveat): Label-based component coding is still the default in CNMA practice (Veroniki et al. 2026 treat component definition/coding as a critical node-making decision and point to TIDieR for richer trial reporting, not a machine-versioned ontology). Partial prior art does exist on one dimension of versioning: quantitative dose. Pedder et al. 2021 show dose–response MBNMA can link disconnected networks via shared dose-response assumptions; Petropoulou, Rücker, and Schwarzer 2026 introduce frequentist DR-NMA with linear/nonlinear dose functions and ship the CRAN package netdose (2026). Watt et al. 2022 discuss hierarchical dose nodes. Wigle et al. arXiv:2605.15142 (2026) address estimability and ranking hierarchies of components/treatments, not versioned implementation attributes. No versioned component ontology covering dose, schedule, formulation, device, adherence, provider skill, and cointerventions with auditable equivalence classes was found for CNMA/PAIC. Hierarchical embeddings that share strength without forcing equality of versions were not found in CNMA software. Caveat: dose-response methods partially solve quantitative intensity; they do not close the broader ontology claim.
+
+Literature and prior-art check
+:   **partially-solved / overstated.** The claim 'No versioned component ontology with dose and intensity metadata currently exists' is false as a field-level statement. The Behaviour Change Intervention Ontology, built inside the Wellcome-funded Human Behaviour-Change Project explicitly for evidence synthesis, is a versioned, machine-readable OWL ontology whose upper level specifies 42 entities covering intervention content and delivery; intervention content is decomposed into behaviour change techniques plus dose, and the companion Mode of Delivery Ontology gives 65 modes across 15 upper classes with measured inter-rater reliability (kappa 0.80 for trained annotators), with a further Setting Ontology of 72 entities. The TIDieR reporting checklist independently mandates dose, schedule and delivery reporting (I did not retrieve it, so I give no locator). What is genuinely absent is any linkage of these ontologies to CNMA/CPAIC component coding, and any equivalence-class model that lets related component versions share a prior without being forced equal. The entry has zero prior_work, which is the more serious defect: this is an area with a decade of published ontology engineering.
+    Cites doi:10.12688/wellcomeopenres.15902.2: A versioned, machine-readable ontology of intervention components built for evidence synthesis already exists; it is not yet connected to CNMA..
+    Cites doi:10.12688/wellcomeopenres.15906.2: Supplies the 'delivery/formulation/device' metadata layer the entry says does not exist, in OWL, with tested inter-rater reliability..
+    Cites doi:10.12688/wellcomeopenres.15904.1: Context/setting metadata layer, same programme; further evidence the ontology infrastructure exists..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / overstated.** C1 is source-confirmed for cpaic, not a mathematical necessity of component NMA: build_C_matrix() splits treatment strings on sep.comps and creates a binary C matrix. C2 is technically correct. cpaic has no structured fields for dose, schedule, formulation, device, adherence, delivery, or hierarchical equivalence, supporting the package-specific versions of C3 and C4; software-wide claims are outside this audit. C5 applies when component coefficients receive a causal interpretation; purely statistical prediction requires the coding to support the assumed common additive surface, not necessarily a separately manipulable causal component. The report overstates that equivalence decisions cannot be recorded or audited: cpaic stores the treatment labels, component names, separator, and exact C.matrix in the network object, and these inputs can be version-controlled or rerun under alternative labels. Distinct versions can already be encoded as distinct component labels, albeit without structured metadata or borrowing. C6 is a reasonable data-governance direction. For C7, embeddings could support graded borrowing, but an embedding alone neither defines causal equivalence nor guarantees valid effect sharing.
+    Cites choxos/cpaic@9d150e9: The exact chosen component mapping is retained in the fitted network object, making the coding reproducible and auditable even though no formal ontology exists..
+
+Grok 4.5, recency lens
+:   **partially-solved / supported-with-caveat.** Label-based component coding is still the default in CNMA practice (Veroniki et al. 2026 treat component definition/coding as a critical node-making decision and point to TIDieR for richer trial reporting, not a machine-versioned ontology). Partial prior art does exist on one dimension of versioning: quantitative dose. Pedder et al. 2021 show dose–response MBNMA can link disconnected networks via shared dose-response assumptions; Petropoulou, Rücker, and Schwarzer 2026 introduce frequentist DR-NMA with linear/nonlinear dose functions and ship the CRAN package netdose (2026). Watt et al. 2022 discuss hierarchical dose nodes. Wigle et al. arXiv:2605.15142 (2026) address estimability and ranking hierarchies of components/treatments, not versioned implementation attributes. No versioned component ontology covering dose, schedule, formulation, device, adherence, provider skill, and cointerventions with auditable equivalence classes was found for CNMA/PAIC. Hierarchical embeddings that share strength without forcing equality of versions were not found in CNMA software. Caveat: dose-response methods partially solve quantitative intensity; they do not close the broader ontology claim.
+    Cites 10.1177/0272989X20983315: Shows dose–response modeling can reconnect or strengthen disconnected networks by treating dose as a quantitative shared structure rather than a pure treatment label..
+    Cites 10.1186/s12874-025-02754-4: Implements frequentist DR-NMA with multiple dose-response functions; associated CRAN package netdose makes quantitative dose modeling available for multi-intervention networks..
+    Cites cran/netdose: Released R software for dose-response NMA, addressing the dose/intensity dimension of component/version heterogeneity..
+
+Decision path
+:   `R3:partially-solved(n=3) → R8:overstated-majority(n=2)`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [COV-09 — Measurement non-equivalence of covariates across trials](COV-09-measurement-non-equivalence-of-covariates-across-trials.qmd)
+- [DIA-15 — Coding-error bias, rank reversal and drift calibration go unscored](DIA-15-coding-error-bias-rank-reversal-and-drift-calibration-go-uns.qmd)
+- [DIA-18 — Constancy assumptions are never tested across calendar time](DIA-18-constancy-assumptions-are-never-tested-across-calendar-time.qmd)
+- [DIS-04 — Dose-response bridges assume a curve that may not transport](DIS-04-dose-response-bridges-assume-a-curve-that-may-not-transport.qmd)
+- [DIS-05 — Class-effect bridges extrapolate to treatments with no randomized link](DIS-05-class-effect-bridges-extrapolate-to-treatments-with-no-rando.qmd)
+- [IDN-12 — Five mechanisms of cross-study effect variation are lumped together](IDN-12-five-mechanisms-of-cross-study-effect-variation-are-lumped-t.qmd)
+- [IDN-14 — Identification, estimation, computation and decision are conflated](IDN-14-identification-estimation-computation-and-decision-are-confl.qmd)
+- [QBA-12 — Treatment version, care context and subsequent-therapy drift](QBA-12-treatment-version-care-context-and-subsequent-therapy-drift.qmd)
+:::
+
+## Source
+
+Derived from C:L1358, C:L214-215, C:L239, scope:field-level (evidence-base construction for component methods) of the reviewed corpus.

@@ -1,0 +1,82 @@
+---
+title: "Anchored PAIC needs a second transport to the decision population"
+description: "A conventional anchored PAIC with IPD for A versus C and aggregate data for B versus C identifies an A versus B effect defined in the comparator-trial population, and applying that effect to the index-trial baseline or to a jurisdictional decision population is a second, distinct transport step. Chandler and Ishak (arxiv:2602.17041) state both points explicitly, and Jiang et al. 2025 (doi:10.1017/rsm.2025.10) independently confirm the comparator-population estimand. What is new is the explicit two-step framing rather than the identification condition: NICE DSU TSD18 (doi:10.1177/0272989X17725740) already invoked the shared effect modifier assumption to transport an indirect comparison into the decision target population, and Phillippo et al. 2021 (doi:10.1002/sim.8965) warned that MAIC and STC estimates may not represent that population. How often the second step is left implicit in published analyses and submissions is an empirical claim this audit did not establish."
+pid: "EST-02"
+topic: "Estimands & target populations"
+categories: ["Estimands & target populations", "Very high priority", "Unverifiable"]
+priority: "Very high"
+prank: 1
+verdict: "Unverifiable"
+verdictslug: "unverifiable"
+maturity: "Emerging"
+---
+::: {.problem-meta}
+[EST-02]{.problem-id}
+[Unverifiable]{.verdict .verdict-unverifiable}
+[Very high priority]{.chip .chip-priority-very-high}
+[Emerging]{.chip .chip-maturity-emerging}
+:::
+## Statement
+
+A conventional anchored PAIC with IPD for A versus C and aggregate data for B versus C identifies an A versus B effect defined in the comparator-trial population, and applying that effect to the index-trial baseline or to a jurisdictional decision population is a second, distinct transport step. Chandler and Ishak (arxiv:2602.17041) state both points explicitly, and Jiang et al. 2025 (doi:10.1017/rsm.2025.10) independently confirm the comparator-population estimand. What is new is the explicit two-step framing rather than the identification condition: NICE DSU TSD18 (doi:10.1177/0272989X17725740) already invoked the shared effect modifier assumption to transport an indirect comparison into the decision target population, and Phillippo et al. 2021 (doi:10.1002/sim.8965) warned that MAIC and STC estimates may not represent that population. How often the second step is left implicit in published analyses and submissions is an empirical claim this audit did not establish.
+
+## Why it is open
+
+The two transports are structurally different operations, but a standard PAIC workflow produces a single number that is then reused for whichever population the decision model needs. The first transport is performed by the estimator and the second by the economic modeler, so no one document states both sets of assumptions and the second is rarely assessed. On non-collapsible scales the second step changes the estimand rather than relabeling it, so the consequence is substantive rather than cosmetic. What is genuinely unsettled is not the identification theory, which is standard transport theory, but whether an analysis has the target covariate law, the covariate support, and an explicit second-stage model to carry the step out.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Chandler and Ishak 2026, Reframing Population-Adjusted Indirect Comparisons as a Transportability Problem: An Estimand-Based Perspective and Implications for Health Technology Assessment](https://arxiv.org/abs/2602.17041) | States that pairwise PAICs treat the index trial as source and the comparator trial as target, yielding effects defined in the comparator population, and that the Step 1 estimate is often applied to a different target without being formally identified as a second transport step. It makes the two-step structure explicit; it does not supply the reporting or software changes that would separate the steps in practice. |
+| [Jiang et al. 2025, A critical assessment of matching-adjusted indirect comparisons in relation to target populations, Research Synthesis Methods](https://doi.org/10.1017/rsm.2025.10) | Independently confirms that a pairwise MAIC estimand is defined in the comparator-trial population, and works through the consequences for target populations. |
+| [Phillippo, Ades, Dias, Palmer, Abrams and Welton 2018, Methods for Population-Adjusted Indirect Comparisons in Health Technology Appraisal, Medical Decision Making (NICE DSU TSD18)](https://doi.org/10.1177/0272989X17725740) | Already states the need to define the decision target and to generate population-adjusted effects for it, and invokes the shared effect modifier assumption precisely to transport an indirect comparison into the decision target population, so the identification condition for the second step predates the two-step framing. |
+| [Phillippo, Dias, Ades and Welton 2021, Target estimands for efficient decision making: Response to comments on Assessing the performance of population adjustment methods for anchored indirect comparisons: A simulation study, Statistics in Medicine](https://doi.org/10.1002/sim.8965) | Warns that MAIC and STC estimates may not be representative of the decision target population, and that marginal population-average effects depend more strongly on the population of interest than population-average conditional effects. |
+| [cpaic, unreleased development package on GitHub (not on CRAN), commit 9d150e9](https://github.com/choxos/cpaic) | For cML-NMR output it forces a target profile when effect modifiers are present and labels the returned estimand as conditional, stating that relative effects from a model with effect modifiers are population-specific so there is no population-free answer. This is estimand labeling in one unreleased package, not a general separation of first-stage and second-stage transport. |
+
+:::
+
+## Probable solution or research direction
+
+The identification conditions for each step follow from existing transport theory, so the work is to separate the two estimands in reporting, software output and appraisal templates rather than to derive new conditions. Require every reported contrast to name its source and target population, and make the second-stage transport an explicit modeled step with stated inputs instead of an assumption absorbed into an economic model. Some software already labels the estimand this way: in cpaic, an unreleased development package on GitHub that is not installable from CRAN, the cML-NMR path at commit 9d150e9 forces a target profile when effect modifiers are present and prints the result as a conditional effect, which is the pattern to generalize. Where the target covariate law is unavailable, report the comparator-population effect as what it is and give sensitivity analysis over plausible decision targets.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Unverifiable. Auditors disagreed and the disagreement was evidence-bearing on both sides.
+
+**The source titled this.** "The hidden second transport step in anchored PAIC" The title calls the second transport step hidden, but the audit could not establish how often it is left implicit and found its identification condition already in NICE DSU TSD 18.
+
+**The source said.** "A conventional anchored PAIC with IPD for A versus C and aggregate data for B versus C identifies an A versus B effect in the comparator-trial population, yet economic models routinely apply that effect to the index-trial baseline or to a jurisdictional decision population. That application is a second, distinct transport operation with its own identification requirements, and it is usually left implicit."
+
+**What was wrong with it.** The source presented the two-transport distinction as newly formalized and therefore unabsorbed by practice; the literature auditor confirmed the distinction verbatim in Chandler and Ishak (arxiv:2602.17041) but found the second step's identification condition already in NICE DSU TSD18 (doi:10.1177/0272989X17725740) and in Phillippo et al. 2021 (doi:10.1002/sim.8965), and the frequency claim about economic models unestablished. GPT-5.6 Sol judged the entry supported with caveats, holding that the identification conditions for a second transport are standard transport conditions and that moment balance alone does not identify the comparator population's full covariate law; the two auditors disagreed over whether this leaves the problem open or partly solved, and the disagreement stands.
+
+**Dissent.** codex dissented (supported-with-caveat): C1 is correct under anchoring, conditional-constancy or transportability, positivity, compatible effect-scale, and adequate balance assumptions. C2 is correct for a population-specific marginal effect: moving from the comparator-trial population to an index or jurisdictional population is a distinct transport. C3 and C4 are empirical frequency claims, not technical facts established here. C5 is faithful to the supplied source. C6-C8 overstate unresolvedness: identification conditions for a second transport are standard transport conditions, target choice is a design or policy decision, and non-collapsibility is a known property handled by target-specific standardization rather than a defect that can be eliminated. C9 is literally correct about balancing reported moments, but moment balance does not by itself identify the comparator population's full covariate law. The conceptual separation and some software labeling already exist; the remaining open issue is whether analyses actually have the target data, support, and explicit second-stage model.
+
+Literature and prior-art check
+:   **open / supported.** I retrieved the abstract and HTML body of arXiv:2602.17041 (Chandler & Ishak, v3, revised 6 July 2026). Every attributed claim is present verbatim: 'pairwise PAICs such as MAICs and STCs necessarily treat the index trial as the source population and the comparator trial as the target population, yielding relative treatment effect estimates defined in the comparator population'; and 'the adjusted effect estimate from Step 1 is often applied directly to a different target population - typically, the index trial, implicitly assuming direct transportability ... without being formally identified as a second transport step in practice.' Jiang et al. 2025 (full text read) independently confirms the comparator-population estimand. The citation is load-bearing, not decorative. One calibration note for the why_open, not the claims: the second step's identification condition is not new. Phillippo et al. 2018 already supplied the shared-effect-modifier assumption precisely to 'transport indirect comparisons into the target population for the decision', and Phillippo et al. 2021 warned that MAIC/STC estimates 'may not be representative of the decision target population'. Formalizing the two-step structure strengthens rather than closes the problem.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / supported-with-caveat.** C1 is correct under anchoring, conditional-constancy or transportability, positivity, compatible effect-scale, and adequate balance assumptions. C2 is correct for a population-specific marginal effect: moving from the comparator-trial population to an index or jurisdictional population is a distinct transport. C3 and C4 are empirical frequency claims, not technical facts established here. C5 is faithful to the supplied source. C6-C8 overstate unresolvedness: identification conditions for a second transport are standard transport conditions, target choice is a design or policy decision, and non-collapsibility is a known property handled by target-specific standardization rather than a defect that can be eliminated. C9 is literally correct about balancing reported moments, but moment balance does not by itself identify the comparator population's full covariate law. The conceptual separation and some software labeling already exist; the remaining open issue is whether analyses actually have the target data, support, and explicit second-stage model.
+    Cites arxiv:2602.17041: Explicitly separates the comparator-population PAIC estimand from a later decision-target transport..
+    Cites doi:10.1177/0272989X17725740: Already states the need to define the decision target and generate population-adjusted effects for it..
+    Cites choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca: For cML-NMR output, forces a target profile when effect modifiers are present and labels the returned estimand as conditional, preventing a population-free interpretation..
+
+Decision path
+:   `R3:partially-solved(n=1) → R7:counter-and-support-both-present`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [CMP-11 — Two-stage component PAIC adjusts only the IPD edges](CMP-11-two-stage-component-paic-adjusts-only-the-ipd-edges.qmd)
+- [OVL-01 — Weak overlap leaves target regions the source data cannot support](OVL-01-weak-overlap-leaves-target-regions-the-source-data-cannot-su.qmd)
+- [QBA-14 — Sensitivity parameters carry their own identification problem](QBA-14-sensitivity-parameters-carry-their-own-identification-proble.qmd)
+:::
+
+## Source
+
+Derived from C:L287-298, C:L46, C:L219, C:L187-188, C:L192 of the reviewed corpus.

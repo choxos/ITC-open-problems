@@ -1,0 +1,73 @@
+---
+title: "Propagating every uncertainty layer without prohibitive cost"
+description: "A decision-grade unanchored PAIC QBA should inventory and propagate the material data and model uncertainties, state which sensitivity assumptions are held fixed and which are probabilistic, and separately quantify numerical integration and Monte Carlo error rather than folding them into inferential uncertainty as if they were random scientific parameters. The source's count of eleven layers is not defensible: read literally the list names thirteen entities and about ten categories when paired items are grouped, and it conflates sampling uncertainty, model uncertainty, nonidentified sensitivity assumptions, deterministic numerical error, Monte Carlo estimation error and downstream decision-model uncertainty. Nested resampling and a fully joint Bayesian model are two important options but not the only credible ones, since sandwich or estimating-equation variance, the delta method, multiple imputation, modular Monte Carlo schemes, parametric bootstrap and hybrids also apply, and only the resampling route has a failed-replicate problem at all."
+pid: "QBA-23"
+topic: "Quantitative bias analysis for unanchored PAIC"
+categories: ["Quantitative bias analysis for unanchored PAIC", "Very high priority", "Partially addressed"]
+priority: "Very high"
+prank: 1
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
+maturity: "Emerging"
+---
+::: {.problem-meta}
+[QBA-23]{.problem-id}
+[Partially addressed]{.verdict .verdict-partially-addressed}
+[Very high priority]{.chip .chip-priority-very-high}
+[Emerging]{.chip .chip-maturity-emerging}
+:::
+## Statement
+
+A decision-grade unanchored PAIC QBA should inventory and propagate the material data and model uncertainties, state which sensitivity assumptions are held fixed and which are probabilistic, and separately quantify numerical integration and Monte Carlo error rather than folding them into inferential uncertainty as if they were random scientific parameters. The source's count of eleven layers is not defensible: read literally the list names thirteen entities and about ten categories when paired items are grouped, and it conflates sampling uncertainty, model uncertainty, nonidentified sensitivity assumptions, deterministic numerical error, Monte Carlo estimation error and downstream decision-model uncertainty. Nested resampling and a fully joint Bayesian model are two important options but not the only credible ones, since sandwich or estimating-equation variance, the delta method, multiple imputation, modular Monte Carlo schemes, parametric bootstrap and hybrids also apply, and only the resampling route has a failed-replicate problem at all.
+
+## Why it is open
+
+Several uncertainty sources are produced by different teams in different software and delivered only as summary numbers, so there is no object in which they can be combined and completeness is determined by what the software happens to support. Pseudo-IPD reconstruction error, and integration and Monte Carlo error for the fits that do not report them, are conventionally treated as negligible without ever being quantified. Nested bootstrap cost is multiplicative in replicates, grid points and model fits wherever every outer replicate must re-solve the calibration or refit outcome models at each bias-grid point, though it depends on which quantities must be refitted and which computations can be reused or approximated. Where failed replicates are dropped the reported interval is conditional on the weighting having succeeded, which understates exactly the positivity problem the sensitivity analysis was meant to expose, and there is no accepted way to represent failures inside an interval.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [cpaic, unreleased development package on GitHub (not on CRAN), commit 9d150e9, cmaic() and plot_integration_error()](choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca) | The stratified bootstrap in cmaic() re-estimates weights and refits the outcome model, propagating weighting and outcome-model uncertainty jointly, and fails closed below a minimum successful-replicate fraction rather than silently keeping an arbitrary subset. plot_integration_error() reports quasi-Monte-Carlo integration convergence for non-survival cML-NMR fits but not for survival fits. It propagates only part of the list. |
+
+:::
+
+## Probable solution or research direction
+
+Specify one propagation scheme appropriate to the estimator, whether nested resampling, a joint Bayesian model, sandwich or delta-method variance, multiple imputation or a hybrid, and require the analysis to state which layers were propagated and which were held fixed. Report numerical integration and Monte Carlo error as computational diagnostics next to the statistical uncertainty rather than inside it, extending the integration-convergence diagnostic that already exists for non-survival fits to survival fits. Report the failure map alongside the effect surface and develop resampling schemes that bound the contribution of failed replicates or return an identified set instead of an interval when a nonnegligible fraction fail, reducing cost with warm starts, surrogate models over the bias grid or analytic approximations validated against the full nested computation.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Partially addressed. Part of this problem is addressed by existing work; the entry names which part.
+
+**The source said.** "A complete unanchored PAIC QBA may need to propagate eleven distinct uncertainty layers, from IPD outcome-model and aggregate-outcome uncertainty through estimated weights, target moments, sensitivity parameters, measurement-error validation data, censoring models, pseudo-IPD reconstruction, numerical integration and Monte Carlo error, component and bridge drift, to economic-model uncertainty. The two credible implementations, nested resampling and a fully joint Bayesian model, are respectively prohibitively expensive and prone to conditioning on the replicates that happened to succeed."
+
+**What was wrong with it.** GPT-5.6 Sol found the eleven-layer count incoherent and the two-implementation dichotomy false, and noted that a fully joint Bayesian fit has no bootstrap replicates, so the entry's paired criticism was category-confused. It also read cpaic at commit 9d150e9 and found that cmaic() already re-estimates weights and refits the outcome model in one stratified bootstrap, propagating both sources together, that plot_integration_error() reports quasi-Monte-Carlo integration convergence for non-survival fits, and that failed resamples are not silently accepted, because the package rejects an edge below an 80% success threshold, although above that threshold the standard deviation is still conditional on success.
+
+**Dissent.** codex dissented (overstated): C1's exact count is not coherent: read literally, the list names 13 entities; with the paired items grouped, it names about 10 categories. More importantly, it conflates sampling uncertainty, model uncertainty, nonidentified sensitivity assumptions, deterministic numerical error, Monte Carlo estimation error, and downstream decision-model uncertainty. For C2, numerical integration error and Monte Carlo standard error should be checked, reduced, and reported, but ordinarily should not be folded into inferential uncertainty as if they were random scientific parameters. C3 applies only when the economic model is part of the target decision analysis. C4 is an unverified universal absence claim; cpaic already propagates weight-estimation and outcome-model uncertainty together in cmaic(), but not the full list. C5 is possible, not inherent: cost depends on which quantities must be refitted and which grid calculations can be reused or approximated. C6 is correct if failed replicates are silently omitted. cpaic does omit failed resamples when computing the successful-replicate SD, but rejects the entire edge below an 80% success threshold, so it does not silently accept an arbitrarily selected subset; above the threshold, the SD is still conditional on success. C7 is false: estimating-equation or sandwich methods, the delta method, multiple-imputation or modular Monte Carlo schemes, parametric bootstrap, and hybrids are credible alternatives. A fully joint Bayesian fit also has no bootstrap replicates, so the statement's 'respectively prone to conditioning on successful replicates' is category-confused.
+
+Literature and prior-art check
+:   **open / unverifiable.** No prior_work, and the load-bearing claims are enumerations internal to the source report (claim 1's eleven layers) or no-implementation-exists assertions (claim 4). Claims 5 and 6 are the substantive and checkable part, and both are consistent with what I retrieved: Ren et al. 2025 use a non-parametric bootstrap with 10,000 replications for a single deterministic grid, which makes the multiplicative cost of nesting that inside a probabilistic bias-parameter layer immediately apparent, and they note MAIC extensions 'may even fail to produce feasible weights', which is exactly the failed-replicate selection problem in claim 6. But neither the eleven-layer enumeration nor claim 4 can be adjudicated against literature, and I found no PAIC paper that quantifies pseudo-IPD reconstruction, numerical integration or Monte Carlo error as propagated layers. Claim 7 (nested resampling and fully joint Bayesian modelling are the two broad credible implementations) is a taxonomy statement rather than a finding. I vote unverifiable on support.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / overstated.** C1's exact count is not coherent: read literally, the list names 13 entities; with the paired items grouped, it names about 10 categories. More importantly, it conflates sampling uncertainty, model uncertainty, nonidentified sensitivity assumptions, deterministic numerical error, Monte Carlo estimation error, and downstream decision-model uncertainty. For C2, numerical integration error and Monte Carlo standard error should be checked, reduced, and reported, but ordinarily should not be folded into inferential uncertainty as if they were random scientific parameters. C3 applies only when the economic model is part of the target decision analysis. C4 is an unverified universal absence claim; cpaic already propagates weight-estimation and outcome-model uncertainty together in cmaic(), but not the full list. C5 is possible, not inherent: cost depends on which quantities must be refitted and which grid calculations can be reused or approximated. C6 is correct if failed replicates are silently omitted. cpaic does omit failed resamples when computing the successful-replicate SD, but rejects the entire edge below an 80% success threshold, so it does not silently accept an arbitrarily selected subset; above the threshold, the SD is still conditional on success. C7 is false: estimating-equation or sandwich methods, the delta method, multiple-imputation or modular Monte Carlo schemes, parametric bootstrap, and hybrids are credible alternatives. A fully joint Bayesian fit also has no bootstrap replicates, so the statement's 'respectively prone to conditioning on successful replicates' is category-confused.
+    Cites choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca: The bootstrap re-estimates MAIC weights and refits the outcome model, jointly propagating those two uncertainty sources, and it enforces a minimum successful-replicate fraction..
+    Cites choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca: For nonsurvival cML-NMR, the package reports quasi-Monte-Carlo integration convergence rather than assuming the approximation is exact; it does not provide this diagnostic for survival fits..
+
+Decision path
+:   `R3:partially-solved(n=1) → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [CMP-17 — Survival pseudo-IPD reconstruction uncertainty is not propagated](CMP-17-survival-pseudo-ipd-reconstruction-uncertainty-is-not-propag.qmd)
+:::
+
+## Source
+
+Derived from C:L727-741, C:L743-748 of the reviewed corpus.

@@ -1,0 +1,97 @@
+---
+title: "maicplus variance, trimming and estimand disclosure gaps"
+description: "maicplus 0.1.2 still needs a joint sandwich estimator covering the outcome and weight-estimation equations (#111), parallel bootstrap (#148), explicit estimand metadata and ATT reporting (#142), alternative weight scaling (#178), reporting expansion (#154) and principled trimming or truncation that discloses the lost calibration and changed target (#141). Several disclosures the source asked for already exist in the release: the bootstrap re-estimates weights inside each IPD resample, the anchored path perturbs the published comparator effect by its standard error, scaled and unscaled weights are exposed, the survival effect is labeled as a hazard ratio, and the unanchored bootstrap documents that it assumes no uncertainty in the comparator trial population. The claim about propagating aggregate-data uncertainty in the bootstrap has no matching open issue, the nearest being #143 on pinning down the anchored bootstrap, although target covariate summaries do remain fixed. Treating estimated weights as fixed also does not invariably understate variance, and simple trimming changes calibration and the effective target without producing a clean ATT estimand."
+pid: "SFW-10"
+topic: "Software, benchmarks & interface standards"
+categories: ["Software, benchmarks & interface standards", "Very high priority", "Partially addressed"]
+priority: "Very high"
+prank: 1
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
+maturity: "Established"
+---
+::: {.problem-meta}
+[SFW-10]{.problem-id}
+[Partially addressed]{.verdict .verdict-partially-addressed}
+[Very high priority]{.chip .chip-priority-very-high}
+[Established]{.chip .chip-maturity-established}
+[Implementation-specific]{.chip}
+:::
+::: {.source-unsourced}
+**Source note.** This entry derives in part from a source document whose inline citations
+were ChatGPT interface tokens rather than references, and so resolve to nothing. Claims
+below are attributed to that document and were checked independently where possible;
+anything that could not be independently sourced is marked in the verification trail.
+:::
+
+::: {.callout-note appearance="simple"}
+## Scope
+
+This entry describes a limitation of a specific implementation rather than of the field.
+It is catalogued because the underlying methodological problem is general, and because a
+reference implementation is where such problems become concrete and checkable.
+:::
+
+## Statement
+
+maicplus 0.1.2 still needs a joint sandwich estimator covering the outcome and weight-estimation equations (#111), parallel bootstrap (#148), explicit estimand metadata and ATT reporting (#142), alternative weight scaling (#178), reporting expansion (#154) and principled trimming or truncation that discloses the lost calibration and changed target (#141). Several disclosures the source asked for already exist in the release: the bootstrap re-estimates weights inside each IPD resample, the anchored path perturbs the published comparator effect by its standard error, scaled and unscaled weights are exposed, the survival effect is labeled as a hazard ratio, and the unanchored bootstrap documents that it assumes no uncertainty in the comparator trial population. The claim about propagating aggregate-data uncertainty in the bootstrap has no matching open issue, the nearest being #143 on pinning down the anchored bootstrap, although target covariate summaries do remain fixed. Treating estimated weights as fixed also does not invariably understate variance, and simple trimming changes calibration and the effective target without producing a clean ATT estimand.
+
+## Why it is open
+
+MAIC weights are estimated, so a variance that ignores the weight-estimation step is wrong in a direction that depends on the design rather than always downward, and no released estimator stacks the outcome and weighting estimating equations even though the comparative evidence on which variance families behave well is published. Trimming or truncating weights changes the calibration and the population actually being estimated, and no agreed rule exists to implement, so an actively maintained package has nothing to adopt. Whether the published target summaries should carry uncertainty depends on the inferential framework, and the package conditions on them without saying that this is a choice. The remaining disclosure gaps are structural rather than technical: defaults produce valid-looking output, so an omitted estimand declaration is invisible downstream, which is how such errors reach submissions.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [maicplus 0.1.2 (CRAN, published 21 Feb 2025)](https://cran.r-project.org/package=maicplus) | implements MAIC weighting, variance and reporting utilities whose open issues include weight-estimation-aware variance, trimming and estimand metadata; the report proposes it should evolve into a reference implementation |
+| [hta-pharma/maicplus (GitHub)](https://github.com/hta-pharma/maicplus) | maintained open MAIC workflow repository, successor to older Roche MAIC tooling; open issues verified in the audit are #111 sandwich estimator for derived weights, #141 trimming and truncation, #142 ATT reporting, #148 parallel bootstrap, #178 alternative weight scaling, #154 reporting functions and #143 on pinning down the anchored bootstrap |
+| [maicplus 0.1.2 bootstrap and reporting implementation, hta-pharma/maicplus@aabcaf8](https://github.com/hta-pharma/maicplus/commit/aabcaf8e2edcdc021a903bc602876ccd64c580f4) | shows the bootstrap re-estimates weights within each IPD resample rather than treating them as fixed, the anchored path perturbs the published comparator effect by its standard error, scaled and unscaled weights are exposed, and the unanchored bootstrap documents its assumption of no uncertainty in the comparator trial population |
+| [Chandler and Proskorovsky 2024, Uncertain about uncertainty in matching-adjusted indirect comparisons? A simulation study to compare methods for variance estimation, Res Synth Methods 15(6):1094-1110](https://doi.org/10.1002/jrsm.1759) | compares conventional raw-weight, ESS-rescaled, sandwich and bootstrap variance estimators across 108 scenarios and finds sandwich estimators downward-biased at small ESS with finite-sample adjustment markedly improving them; concrete guidance the variance work can be calibrated against |
+| [Remiro-Azocar 2022 (two-stage MAIC)](https://doi.org/10.1186/s12874-022-01692-9) | quantifies the trade-off from weight truncation, finding substantial precision and efficiency gains but considerable induced bias, and states that truncation shifts the target population or estimand definition; the evidence a trimming implementation should surface |
+| [Jiang et al. 2025 (the MAIC paradox)](https://doi.org/10.1017/rsm.2025.10) | shows with synthetic data that different entities can reach opposing conclusions from the same data when the target population is not clearly defined, sourcing the estimand-disclosure argument this entry makes |
+| [Ishak et al. 2025, A Framework for Reliable, Transparent, and Reproducible Population-Adjusted Indirect Comparisons, PharmacoEconomics](https://doi.org/10.1007/s40273-025-01503-1) | published PAIC reporting and risk-of-bias framework whose elements a reference MAIC workflow can implement structurally instead of designing disclosure requirements from scratch |
+
+:::
+
+## Probable solution or research direction
+
+Implement the joint sandwich estimator over the outcome and weight-estimation equations, calibrated against the published comparison of variance families rather than derived in isolation, and add parallel bootstrap so the recommended sensitivity analyses fit submission timelines. Add trimming and truncation that report the calibration lost and the target actually estimated, using the published quantification of the bias and precision trade-off as the default warning. Attach explicit estimand metadata to the fitted object and expand reporting against the existing PAIC reporting framework (Ishak et al., doi:10.1007/s40273-025-01503-1) so the estimand, weight construction, variance method, any trimming-induced change of target and the survival effect measure are structurally disclosed. Decide separately whether target-summary uncertainty is propagated, and state which inferential framework the package assumes.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Partially addressed. Part of this problem is addressed by existing work; the entry names which part.
+
+**The source said.** "Open maicplus issues include sandwich variance accounting for estimated weights, propagating aggregate-data uncertainty in the bootstrap, parallel bootstrap, alternative weight scaling, weight trimming and truncation, explicit ATT reporting and reporting expansion. The report argues a reference MAIC workflow should eventually make the estimand, the weight construction, the variance method, the trimming-induced target change and the survival measure impossible to overlook."
+
+**What was wrong with it.** The literature auditor verified issues #111, #141, #142, #148, #178 and #154 but found no issue on propagating aggregate-data uncertainty in the bootstrap, and GPT-5.6 Sol found in the 0.1.2 source (hta-pharma/maicplus@aabcaf8) that the bootstrap already re-estimates weights, the anchored path already propagates comparator-effect uncertainty, and several scaling and effect-measure disclosures already exist. The premise that these gaps persist because the methods are unsettled fails for variance and trimming, where Chandler and Proskorovsky (doi:10.1002/jrsm.1759) give concrete guidance across 108 scenarios and Remiro-Azocar (doi:10.1186/s12874-022-01692-9) quantifies the bias cost of truncation; the claim was unattributed in the source and is now sourced, with Jiang et al. (doi:10.1017/rsm.2025.10) supplying the MAIC paradox evidence behind the estimand-disclosure argument.
+
+**Dissent.** literature dissented (open): Nearly every issue claim verifies verbatim in the open maicplus tracker: #111 sandwich estimator accounting for derived weights, #141 trimming and truncation, #142 ATT reporting, #148 parallel bootstrap, #178 alternative weight scaling, #154 reporting functions. One claim I could not confirm: 'propagating aggregate-data uncertainty in the bootstrap' has no matching issue; the nearest open item is #143 'pin down the implementation of bootstrap in anchored case', and #182/#28 on bootstrapping are closed. The why_open framing that these gaps persist because the methods are unsettled is too strong for variance: Chandler & Proskorovsky (2024) evaluated four variance families over 108 scenarios and give concrete guidance, and Remiro-Azocar (2022) quantified the bias cost of truncation. The estimand-disclosure argument gains a real citation from Jiang et al. (2025) on the MAIC paradox and target-population definition, which the entry does not cite. codex dissented (overstated): C1 is an empty placeholder. Version 0.1.2 lacks a joint sandwich estimator for outcome and weight-estimation equations, parallel bootstrap, trimming or truncation controls, and explicit estimand metadata. However, its bootstrap re-estimates weights within IPD resamples, and the anchored bootstrap perturbs the published comparator effect using its standard error. Target covariate summaries remain fixed. The package already exposes scaled and unscaled weights, labels the survival effect as HR, and explicitly discloses the unanchored bootstrap's conditioning assumption. Treating estimated weights as fixed can increase or decrease variance error, not invariably understate variance. Simple trimming changes calibration and the effective target but does not necessarily create a clean ATT estimand.
+
+Literature and prior-art check
+:   **open / supported-with-caveat.** Nearly every issue claim verifies verbatim in the open maicplus tracker: #111 sandwich estimator accounting for derived weights, #141 trimming and truncation, #142 ATT reporting, #148 parallel bootstrap, #178 alternative weight scaling, #154 reporting functions. One claim I could not confirm: 'propagating aggregate-data uncertainty in the bootstrap' has no matching issue; the nearest open item is #143 'pin down the implementation of bootstrap in anchored case', and #182/#28 on bootstrapping are closed. The why_open framing that these gaps persist because the methods are unsettled is too strong for variance: Chandler & Proskorovsky (2024) evaluated four variance families over 108 scenarios and give concrete guidance, and Remiro-Azocar (2022) quantified the bias cost of truncation. The estimand-disclosure argument gains a real citation from Jiang et al. (2025) on the MAIC paradox and target-population definition, which the entry does not cite.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / overstated.** C1 is an empty placeholder. Version 0.1.2 lacks a joint sandwich estimator for outcome and weight-estimation equations, parallel bootstrap, trimming or truncation controls, and explicit estimand metadata. However, its bootstrap re-estimates weights within IPD resamples, and the anchored bootstrap perturbs the published comparator effect using its standard error. Target covariate summaries remain fixed. The package already exposes scaled and unscaled weights, labels the survival effect as HR, and explicitly discloses the unanchored bootstrap's conditioning assumption. Treating estimated weights as fixed can increase or decrease variance error, not invariably understate variance. Simple trimming changes calibration and the effective target but does not necessarily create a clean ATT estimand.
+    Cites hta-pharma/maicplus@aabcaf8e2edcdc021a903bc602876ccd64c580f4: Shows that bootstrap inference can re-estimate weights rather than universally treating them as fixed; the release also exposes scaled weights and effect-measure labels..
+
+Decision path
+:   `R3:partially-solved(n=1) → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [DEC-04 — No PAIC-specific reporting standard or credibility appraisal tool](DEC-04-no-paic-specific-reporting-standard-or-credibility-appraisal.qmd)
+- [DIA-02 — No agreed ESS definition and no support-geometry diagnostics](DIA-02-no-agreed-ess-definition-and-no-support-geometry-diagnostics.qmd)
+- [OVL-01 — Weak overlap leaves target regions the source data cannot support](OVL-01-weak-overlap-leaves-target-regions-the-source-data-cannot-su.qmd)
+- [OVL-04 — Weight trimming silently changes the estimand](OVL-04-weight-trimming-silently-changes-the-estimand.qmd)
+:::
+
+## Source
+
+Derived from A:L11, A:L106, C:L2247, C:L2275-2289, C:L2275-2290, C:L2290 of the reviewed corpus.

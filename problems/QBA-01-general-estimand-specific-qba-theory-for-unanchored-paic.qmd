@@ -1,0 +1,81 @@
+---
+title: "General estimand-specific QBA theory for unanchored PAIC"
+description: "Quantitative bias analysis for unanchored population-adjusted indirect comparison is fragmented rather than absent: the published methods are each tied to one estimator, one outcome type or one bias mechanism, and they share no common notation, no benchmark and no rule for choosing among them. Generic summary-level bias formulas can already be applied to a MAIC or STC estimate, as Ren et al. 2025 (doi:10.1017/rsm.2025.13) state directly, so what is missing is a unified estimand-explicit parameterization and selection guidance, not a usable formula. The mathematics is narrower than the source claimed: under an additive identity-link conditional-mean model with a constant arm-specific coefficient for the omitted factor, arm-mean bias equals that coefficient times the difference in the omitted-factor prevalence the standardization actually uses, and on nonlinear or non-collapsible scales the correction requires integrating the conditional mean over the target covariate law, which finite summation, analytic formulas or quadrature can do exactly."
+pid: "QBA-01"
+topic: "Quantitative bias analysis for unanchored PAIC"
+categories: ["Quantitative bias analysis for unanchored PAIC", "Very high priority", "Confirmed open"]
+priority: "Very high"
+prank: 1
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Emerging"
+tractability: 4
+---
+::: {.problem-meta}
+[QBA-01]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[Very high priority]{.chip .chip-priority-very-high}
+[Emerging]{.chip .chip-maturity-emerging}
+[Tractability 4/5]{.chip}
+:::
+## Statement
+
+Quantitative bias analysis for unanchored population-adjusted indirect comparison is fragmented rather than absent: the published methods are each tied to one estimator, one outcome type or one bias mechanism, and they share no common notation, no benchmark and no rule for choosing among them. Generic summary-level bias formulas can already be applied to a MAIC or STC estimate, as Ren et al. 2025 (doi:10.1017/rsm.2025.13) state directly, so what is missing is a unified estimand-explicit parameterization and selection guidance, not a usable formula. The mathematics is narrower than the source claimed: under an additive identity-link conditional-mean model with a constant arm-specific coefficient for the omitted factor, arm-mean bias equals that coefficient times the difference in the omitted-factor prevalence the standardization actually uses, and on nonlinear or non-collapsible scales the correction requires integrating the conditional mean over the target covariate law, which finite summation, analytic formulas or quadrature can do exactly.
+
+## Why it is open
+
+In an unanchored comparison treatment and study are the same unit, so any cross-study difference can contaminate the contrast, yet no shared parameterization links weighting, outcome-regression and one-stage estimators to a common bias object. A bias specified on a conditional linear predictor does not transfer mechanically to a marginal effect on a non-collapsible scale, so each estimand needs its own analytic summation, quadrature or simulation over the target covariate law, and corrections computed by different families are not comparable. Because the families return different kinds of object (a corrected point estimate, a distribution, or a set), an analyst can choose the one that yields the most convenient answer, and no published benchmark compares them on shared PAIC scenarios with known truth.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Ren et al. 2025, Quantitative bias analysis for unmeasured confounding in unanchored population-adjusted indirect comparisons, Research Synthesis Methods](https://doi.org/10.1017/rsm.2025.13) | Extends unanchored STC by simulating important covariates unreported in the comparator study; also states that the general class of bias formulas for mean difference, risk ratio and odds ratio can be applied directly to a MAIC or STC estimate as a sensitivity analysis for unmeasured confounding. |
+| [Soutar et al. 2025, Flexible quantitative bias analysis for unmeasured confounding in subject-level indirect treatment comparisons with proportional hazards violation, BMC Medical Research Methodology](https://doi.org/10.1186/s12874-025-02551-z) | Bayesian data-augmentation QBA for subject-level indirect comparisons using the RMST difference under non-proportional hazards. Estimator-, outcome- and mechanism-specific. |
+| [Gray et al. 2024, Pharmacoepidemiology and Drug Safety](https://doi.org/10.1002/pds.5796) | Illustrates QBA for external controls across three separately run scenarios: missing confounder, misclassification of exposure, and outcome evaluation. The literature auditor corrected the entry's description of the second scenario as index-date error. |
+| [Nourredine et al. 2025, Statistics in Medicine](https://doi.org/10.1002/sim.70236) | Likelihood correction and validation-informed likelihood for misclassified binary outcomes in unanchored external-control comparisons, in an unweighted design with no population adjustment. |
+| [Shi et al. 2024, Journal of Clinical Epidemiology](https://doi.org/10.1016/j.jclinepi.2024.111507) | Systematic review counting 57 summary-level QBA methods, 53 designed for observational studies and 4 for meta-analyses. It never mentions indirect comparison, MAIC, STC, transportability or PAIC, so it cannot support a claim about PAIC frameworks specifically. |
+| [Leahy et al. 2023, International Journal of Technology Assessment in Health Care](https://doi.org/10.1017/S0266462323002702) | HTA expert workshop recommending QBA to quantify magnitude, direction and uncertainty of residual bias, with ten recommendations on sourcing, transparency and use. |
+| [Chandler and Ishak 2026, Anchors Away: Navigating Unanchored Indirect Comparisons with Multilevel Unanchored Meta-Regression (ML-UMR)](https://arxiv.org/abs/2606.20341) | Supplies the ML-UMR estimator a general framework would have to cover, and asserts the gap: QBA could be adapted for ML-UMR by incorporating bias parameters or simulated unmeasured covariates into the outcome regression and standardization steps, meaning it has not been. |
+
+:::
+
+## Probable solution or research direction
+
+Build one estimand-explicit notation covering MAIC, STC and ML-UMR with marginal and conditional estimands and named target populations, and state for each estimand whether the correction is available in closed form, by finite summation or quadrature, or only by simulation, rather than letting collapsibility decide. Cover the ML-UMR estimator of Chandler and Ishak (arXiv:2606.20341), whose authors say QBA has yet to be adapted to it. Benchmark the families against one another on shared PAIC scenarios with known truth and publish selection guidance keyed to bias mechanism, available information, estimand and decision context, treating the QBA output as a decision object propagated into the economic model rather than an appendix table.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+
+**The source said.** "Quantitative bias analysis for unanchored population-adjusted indirect comparisons has no unified estimand-specific theory: the conventional primary analysis sets residual confounding, selection, measurement and design bias to exactly zero, and the few existing methods are each tied to one estimator, one outcome type or one bias mechanism. Six recognisable QBA families exist but share no notation, no common benchmark, and no rule for choosing among them."
+
+**What was wrong with it.** GPT-5.6 Sol found the mathematical claims overstated against Ren et al. 2025 (doi:10.1017/rsm.2025.13): covariate dependence does not break the additive decomposition, arm-specific coefficients already accommodate treatment interaction, exact correction needs only the conditional mean integrated over the target covariate law rather than simulation of the full outcome distribution, and collapsibility is neither sufficient nor necessary for a closed form. The literature auditor verified the Shi et al. 2024 counts (57 summary-level QBA methods, 4 designed for meta-analysis, doi:10.1016/j.jclinepi.2024.111507) but found the review never mentions indirect comparison, MAIC, STC, transportability or PAIC, so it cannot testify that none of the 57 is a mature PAIC framework.
+
+**Dissent.** codex dissented (overstated): The core need for estimand-specific sensitivity analysis remains real, but C15 and C17-C19 overstate the mathematics. The identity-link formula is exact only under an additive conditional-mean model with a constant arm-specific U coefficient and when p_S denotes the U prevalence actually induced by the standardization, not necessarily the raw source prevalence. Covariate dependence does not itself break that decomposition, and treatment interaction is already accommodated by using beta_U,a separately by arm, contrary to C18. For nonlinear or non-collapsible estimands, direct subtraction of a link-scale scalar is generally invalid, but one need only integrate the conditional mean over the target covariate law, not the full outcome distribution. Finite summation, analytic bias formulas, or quadrature may be exact; simulation is not required. Collapsibility is neither sufficient for a closed form nor necessary for exact calculation. C20 is a useful but overlapping, non-exhaustive taxonomy. At cpaic commit 9d150e9, NAMESPACE exposes bridge_fragility() for one bias mechanism but no general qba() interface, so the unification problem remains open. Publication-sparsity and no-framework claims were not used because literature coverage is outside this audit lens.
+
+Literature and prior-art check
+:   **open / supported-with-caveat.** Retrieved Shi et al. 2024 (PMID 39197688) in full: 'Of the 57 QBA methods, 53 (93%) were explicitly designed for observational studies, and 4 (7%) for meta-analyses.' Claims 6 and 7 match exactly. Claim 8 is an inference from silence: the review never mentions indirect comparison, MAIC, STC, transportability or PAIC anywhere, so it cannot itself testify that none of the 57 is a mature PAIC framework; the citation is decorative for that specific claim. Claim 4 is independently corroborated by a source asserting the absence: Chandler and Ishak's ML-UMR paper says QBA 'could be adapted for ML-UMR by incorporating bias parameters or simulated unmeasured covariates into the outcome regression modelling and standardization steps' (i.e. not yet done). Retrieved Ren 2025, Soutar 2025, Nourredine 2025, Gray 2024, Leahy 2023: each is estimator-, outcome- or mechanism-specific, consistent with the statement. One misdescription: Gray et al. 2024's three biases are 'missing confounder, misclassification of exposure, and outcome evaluation', not index-date error (see QBA-08).
+    Cites arxiv:2606.20341: Does not solve the problem; it is a same-authors 2026 source asserting the gap in claim 4, and supplies the ML-UMR estimator the framework would need to cover. Should be cited..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** The core need for estimand-specific sensitivity analysis remains real, but C15 and C17-C19 overstate the mathematics. The identity-link formula is exact only under an additive conditional-mean model with a constant arm-specific U coefficient and when p_S denotes the U prevalence actually induced by the standardization, not necessarily the raw source prevalence. Covariate dependence does not itself break that decomposition, and treatment interaction is already accommodated by using beta_U,a separately by arm, contrary to C18. For nonlinear or non-collapsible estimands, direct subtraction of a link-scale scalar is generally invalid, but one need only integrate the conditional mean over the target covariate law, not the full outcome distribution. Finite summation, analytic bias formulas, or quadrature may be exact; simulation is not required. Collapsibility is neither sufficient for a closed form nor necessary for exact calculation. C20 is a useful but overlapping, non-exhaustive taxonomy. At cpaic commit 9d150e9, NAMESPACE exposes bridge_fragility() for one bias mechanism but no general qba() interface, so the unification problem remains open. Publication-sparsity and no-framework claims were not used because literature coverage is outside this audit lens.
+
+Decision path
+:   `R5:default-open → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [SFW-05 — No coherent QBA software object for population-adjusted comparison](SFW-05-no-coherent-qba-software-object-for-population-adjusted-comp.qmd)
+- [SFW-13 — cpaic and mlumr are unreleased and independently unvalidated](SFW-13-cpaic-and-mlumr-are-unreleased-and-independently-unvalidated.qmd)
+:::
+
+## Source
+
+Derived from C:L214-215, C:L225, C:L410-414, C:L436-442, C:L454-472, C:L523-532, C:L800-802, C:L802, C:L2144 of the reviewed corpus.

@@ -1,0 +1,92 @@
+---
+title: "No cross-package benchmark or reference pipeline for ITC software"
+description: "No cross-package agreement harness, containerized reference pipeline, or published benchmark output with expected values exists for ITC and PAIC methods, so a third party cannot re-run a submitted analysis and compare it against a reference result. Individual packages are further along than 'method demonstration' implies: multinma ships more than thirty testthat files including snapshot tests plus vignettes that reproduce the published NICE TSD analyses, and maicplus is maintained by the hta-pharma consortium with continuous integration and was presented as a package to support analysis and reporting of MAIC for HTA dossiers (doi:10.1016/j.jval.2023.09.2992). cpaic, an unreleased development package on GitHub that is not on CRAN, has seeded analyses, expected-value regression tests, rendered end-to-end vignettes, multi-platform R CMD check, a smoke test comparing its rstan and cmdstanr backends, and one narrow numerical agreement test against multinma, while lacking a dependency lock file, a container specification, and a publicly tracked simulation-validation pipeline."
+pid: "CMU-08"
+topic: "Computation & reproducibility"
+categories: ["Computation & reproducibility", "Very high priority", "Overstated"]
+priority: "Very high"
+prank: 1
+verdict: "Overstated"
+verdictslug: "overstated"
+maturity: "Emerging"
+---
+::: {.problem-meta}
+[CMU-08]{.problem-id}
+[Overstated]{.verdict .verdict-overstated}
+[Very high priority]{.chip .chip-priority-very-high}
+[Emerging]{.chip .chip-maturity-emerging}
+:::
+::: {.source-unsourced}
+**Source note.** This entry derives in part from a source document whose inline citations
+were ChatGPT interface tokens rather than references, and so resolve to nothing. Claims
+below are attributed to that document and were checked independently where possible;
+anything that could not be independently sourced is marked in the verification trail.
+:::
+
+## Statement
+
+No cross-package agreement harness, containerized reference pipeline, or published benchmark output with expected values exists for ITC and PAIC methods, so a third party cannot re-run a submitted analysis and compare it against a reference result. Individual packages are further along than 'method demonstration' implies: multinma ships more than thirty testthat files including snapshot tests plus vignettes that reproduce the published NICE TSD analyses, and maicplus is maintained by the hta-pharma consortium with continuous integration and was presented as a package to support analysis and reporting of MAIC for HTA dossiers (doi:10.1016/j.jval.2023.09.2992). cpaic, an unreleased development package on GitHub that is not on CRAN, has seeded analyses, expected-value regression tests, rendered end-to-end vignettes, multi-platform R CMD check, a smoke test comparing its rstan and cmdstanr backends, and one narrow numerical agreement test against multinma, while lacking a dependency lock file, a container specification, and a publicly tracked simulation-validation pipeline.
+
+## Why it is open
+
+Packages are funded and published on the criterion that the method runs on a worked example, so nothing in the incentive structure asks whether an outside analyst can regenerate a submission, and no single maintainer is rewarded for manifests, expected outputs, container images or cross-package agreement tests that only pay off across the ecosystem. Cross-package agreement is also a weaker check than it sounds: one comparison of four MAIC packages on a shared unanchored simulation, cited by the recency auditor without a locator (Taylor and Hatswell, Value in Health 2025), found identical weights, effective sample sizes and outcomes because the packages reuse the same NICE DSU TSD 18 code, so agreement can reflect shared lineage rather than independent verification. And reproducibility infrastructure buys computational auditability only: it can expose an implementation error but it does not repair non-identification, estimand mismatch, non-collapsibility or an untestable bridging assumption, so the claim that it would materially improve decisions holds only conditionally.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Chen et al. 2023, maicplus: an R package to support analysis and reporting of matching-adjusted indirect treatment comparisons for HTA dossiers, Value in Health (abstract)](https://doi.org/10.1016/j.jval.2023.09.2992) | presents maicplus as a consortium-maintained package aimed at analysis and reporting for HTA dossiers, which is a reporting-workflow aim rather than a method demonstration |
+| [multinma R package](https://cran.r-project.org/package=multinma) | ships more than thirty testthat files including snapshot tests and vignettes that reproduce the published NICE TSD analyses, so reference examples with expected outputs already exist for at least one package |
+| [cpaic, unreleased development package on GitHub (not on CRAN), commit 9d150e9](https://github.com/choxos/cpaic) | carries seeded analyses that record an unset seed so an unseeded fit reproduces, expected-value regression tests, precompiled end-to-end vignettes keyed to a digest of source and installed package, a CI smoke fit checking cmdstanr against rstan, and one agreement test against multinma::RE_cor; it has no lock file, container, or public simulation-validation pipeline |
+
+:::
+
+## Probable solution or research direction
+
+Build the ecosystem-level artifacts that no single package has an incentive to build: published benchmark datasets with expected outputs, a containerized reference pipeline, and an agreement harness across implementations. Design the agreement tests to compare implementations with independent lineage, since packages descended from the same TSD 18 code will agree without verifying anything. Add the cheap per-package pieces where they are missing, namely dependency lock files, container specifications, and publicly tracked simulation-validation pipelines. Claim the benefit as computational auditability rather than as better decisions, because the assumptions that drive a population-adjusted estimate are untouched by reproducibility.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Overstated. 2 independent auditors judged the claim as stated too strong. No cross-package agreement tests, containerized reference pipelines, or published benchmark outputs with expected values exist for ITC and PAIC methods, so a submitted analysis cannot be independently re-run and compared against a reference result; individual packages such as multinma and maicplus do already ship test suites, reproducible vignettes and HTA-reporting-oriented documentation.
+
+**The source titled this.** "ITC and PAIC software are method demos, not reference workflows" The title calls the whole software ecosystem method demonstrations, which the audit contradicted with multinma's snapshot tests and TSD-reproducing vignettes and maicplus's HTA reporting remit.
+
+**The source said.** "ITC and PAIC packages are built and published as demonstrations that a method runs on an example, not as reference implementations with which a third party can reproduce a submitted analysis end to end. The report ranks moving the ecosystem from method demonstrations to reference-grade reproducible workflows as its fourth most consequential open question."
+
+**What was wrong with it.** The source called the whole ecosystem method demonstrations and cited nothing for it; the entry was flagged source_unsourced. Auditors found multinma's snapshot tests and NICE TSD-reproducing vignettes and maicplus's HTA-reporting remit (doi:10.1016/j.jval.2023.09.2992) contradict the categorical framing, and the original second sentence, which ranked the problem fourth most consequential in the source report, was cut as an unverifiable self-reference. What survives is the ecosystem-level absence.
+
+**Dissent.** literature dissented (open): This entry is source_unsourced and its second sentence ('the report ranks ... as its fourth most consequential open question') is a self-reference to a document with no retrievable citation, so it is unverifiable and should be cut or reworded. On the substance I inspected the artifacts rather than searching for opinions. multinma's repository contains 30+ testthat files including snapshot tests and vignettes that reproduce the published NICE TSD analyses, i.e. reference examples with expected outputs already exist for at least one package. maicplus is maintained by the hta-pharma consortium with CI, coverage reporting and a package website, and was presented as a package 'to Support Analysis and Reporting of Matching Adjusted Indirect Treatment Comparisons (MAIC) for HTA Dossiers' (Chen et al., Value in Health 2023, doi 10.1016/j.jval.2023.09.2992), which is a reporting-workflow aim, not a method demo. What I could not find any instance of is the ecosystem-level element: cross-package agreement tests, containerized reference pipelines, or published benchmark outputs against which a submitted analysis could be re-run. That narrower claim is defensible and still open.
+
+Literature and prior-art check
+:   **open / overstated.** This entry is source_unsourced and its second sentence ('the report ranks ... as its fourth most consequential open question') is a self-reference to a document with no retrievable citation, so it is unverifiable and should be cut or reworded. On the substance I inspected the artifacts rather than searching for opinions. multinma's repository contains 30+ testthat files including snapshot tests and vignettes that reproduce the published NICE TSD analyses, i.e. reference examples with expected outputs already exist for at least one package. maicplus is maintained by the hta-pharma consortium with CI, coverage reporting and a package website, and was presented as a package 'to Support Analysis and Reporting of Matching Adjusted Indirect Treatment Comparisons (MAIC) for HTA Dossiers' (Chen et al., Value in Health 2023, doi 10.1016/j.jval.2023.09.2992), which is a reporting-workflow aim, not a method demo. What I could not find any instance of is the ecosystem-level element: cross-package agreement tests, containerized reference pipelines, or published benchmark outputs against which a submitted analysis could be re-run. That narrower claim is defensible and still open.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / overstated.** C1 is confirmed: the report supplies no source for its ecosystem-wide and incentive-structure assertions. C2 is not established for ITC/PAIC software generally, and cpaic@9d150e9 is material counter-evidence to the categorical method-demo framing: it has seeded analyses, expected-value regression tests, rendered end-to-end vignettes, multi-platform R CMD check, an installed-package smoke fit comparing rstan with cmdstanr, and a narrow agreement test against multinma. The remaining gap is real but narrower: cpaic calls itself research software, has no dependency lockfile or container specification, and explicitly says its simulation-validation code is not in the public repository. C3 holds only conditionally. Reproducible workflows improve computational auditability and can expose implementation errors, but they do not repair non-identification, estimand mismatch, non-collapsibility, extrapolation, or an untestable bridging assumption; cross-implementation agreement also does not establish statistical validity when implementations share assumptions or defects. C4 is a comparative literature-coverage claim, outside the specified technical/source-code lens, and cannot be inferred from one repository or from the absence of cited evidence. Accordingly, the workflow work is valuable quality infrastructure, but the asserted ecosystem prevalence, guaranteed material effect on decision quality, estimator-versus-implementation shortage, and very-high ranking are inflated. The checkout itself was at aaa76c9, two commits beyond the supplied revision; all quoted evidence was read from the exact 9d150e9 Git object.
+    Cites choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca: Partially implements an automated, installed-package, end-to-end reference check and compares the two supported Stan backends..
+    Cites choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca: Provides executable vignette sources, self-contained rendered outputs, installed-source freshness checks, and cache keys tied to the analysis and package inputs..
+    Cites choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca: Implements one narrow cross-package numerical agreement test, though not full independent-method validation..
+    Cites choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca: Records random seeds as fit provenance, covering one reproducibility requirement identified by the report..
+
+Grok 4.5, recency lens
+:   **open / supported-with-caveat.** Inverted prior: treated the gap as closed if any released package ecosystem or guidance had delivered reference-grade, third-party-rerunnable ITC/PAIC workflows (manifests, fixed seeds, expected benchmark outputs, containers, and sustained cross-package agreement tests for submitted analyses). Nothing retrieved does that. (1) No prior_work was listed on the problem, so search went straight to packages and 2024–2026 literature. (2) Taylor & Hatswell (Value in Health 2025; ISPOR Europe 2024 SA88) is the highest-yield hit: they compared maic, MAIC, maicplus, and maicChecks on a shared unanchored simulation and found identical weights/ESS/outcomes because all reuse NICE DSU TSD 18 code; maicChecks is the only partial alternative. That is diagnostic work exposing shared demo lineage and optimizer sensitivity, not an installed reference pipeline. Their conclusion still calls for comparative studies of weight methods. (3) New or maturing packages (outstandR, arXiv:2601.07532 / CRAN 2026; drMAIC CRAN 2026 with “submission-ready” reporting language; ongoing maicplus / multinma / netmeta / gemtc vignette+testthat culture) remain method-and-dossier tools with synthetic or example vignettes. outstandR’s own paper frames use as “illustrative examples using synthetic datasets,” which is the method-demo pattern the claim describes. (4) No CRAN NEWS or GitHub signal was found for dockerized reference pipelines, published expected-output gold files for third-party re-run of HTA submissions, or continuous cross-package agreement harnesses across MAIC/NMA stacks. (5) NHS Open Analytics RAP material (2026) and ISPOR HARPER/ICH M14 reproducibility templates target general analytics or RWE protocols, not ITC/PAIC estimator agreement or re-execution of PAIC submissions. NICE DSU TSD 18 remains the 2016 methods/code anchor; no 2025–2026 DSU/EUnetHTA revision establishing reference software workflows was found. Caveats on support: C2 and C4 are faithful as of mid-2026 (estimators and packages proliferate; reference-grade end-to-end auditability does not). C3 (material decision-quality gain from reference workflows) is a priority/impact judgment, not something the literature has established as an empirical result; treat that sub-claim as aspirational. C1 correctly flags the problem statement as unsourced. Status remains open: partial packaging and one-off package-comparison studies do not solve incentive-structure or reference-workflow gaps.
+
+Decision path
+:   `R3:partially-solved(n=1) → R8:overstated-majority(n=2)`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [DEC-13 — Published PAIC analyses cannot be reconstructed from the record](DEC-13-published-paic-analyses-cannot-be-reconstructed-from-the-rec.qmd)
+- [SFW-01 — No package unifies PAIC, transport, estimands and reporting](SFW-01-no-package-unifies-paic-transport-estimands-and-reporting.qmd)
+- [SFW-04 — No neutral cross-package benchmark suite for PAIC implementations](SFW-04-no-neutral-cross-package-benchmark-suite-for-paic-implementa.qmd)
+- [SFW-11 — Archived MAIC packages leave no maintained CRAN installation path](SFW-11-archived-maic-packages-leave-no-maintained-cran-installation.qmd)
+:::
+
+## Source
+
+Derived from A:L223, A:L225 of the reviewed corpus.

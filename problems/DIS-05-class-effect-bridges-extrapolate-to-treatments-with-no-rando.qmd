@@ -1,0 +1,72 @@
+---
+title: "Class-effect bridges extrapolate to treatments with no randomized link"
+description: "Hierarchical class models group treatments into classes and borrow strength across them, and can stabilize sparse or disconnected evidence where a network is disconnected at the treatment level but connected at the class level, as Perren et al. 2026 state in their practical guide and four-step model-selection algorithm. Class definitions are contestable and can hide genuine between-treatment heterogeneity. Observed class members can inform and sometimes challenge the hierarchy: Perren et al. assess it by comparing model fit statistics and between-study and between-treatment standard deviations, and advise looking for alternative methods when the class assumption is not supported. What cannot be validated is extrapolation of that learned relationship to a treatment whose cross-gap effect has no independent randomized identification."
+pid: "DIS-05"
+topic: "Disconnected networks & bridges"
+categories: ["Disconnected networks & bridges", "High priority", "Confirmed open"]
+priority: "High"
+prank: 2
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[DIS-05]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[High priority]{.chip .chip-priority-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+## Statement
+
+Hierarchical class models group treatments into classes and borrow strength across them, and can stabilize sparse or disconnected evidence where a network is disconnected at the treatment level but connected at the class level, as Perren et al. 2026 state in their practical guide and four-step model-selection algorithm. Class definitions are contestable and can hide genuine between-treatment heterogeneity. Observed class members can inform and sometimes challenge the hierarchy: Perren et al. assess it by comparing model fit statistics and between-study and between-treatment standard deviations, and advise looking for alternative methods when the class assumption is not supported. What cannot be validated is extrapolation of that learned relationship to a treatment whose cross-gap effect has no independent randomized identification.
+
+## Why it is open
+
+The class mean and variance supply the cross-gap information, so a treatment on the far side of the gap is assigned an effect largely by its class membership rather than by evidence about it. The class partition is an analyst input, several plausible partitions are compatible with the same fit statistics, and a class variance driven small imposes similarity the data never demonstrated, with the resulting shrinkage read as precision. Model selection that optimizes fit inside the observed evidence does not test whether borrowing extrapolates to a held-out treatment, and leave-one-treatment-out validation works only when the held-out effect remains independently identifiable after deletion, which is exactly what fails across a gap.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Perren et al. 2026](https://doi.org/10.1177/0272989X251389887) | publishes a practical class-effects guide and four-step model-selection algorithm, states that class effect models can estimate relative effects in networks disconnected at the treatment level but connected at the class level, and documents the implementation of class effects in multinma |
+
+:::
+
+## Probable solution or research direction
+
+Let clinically prespecified classes constrain the candidate structures and use transparent algorithmic comparison and sensitivity analysis to choose among them, rather than treating either alone as sufficient. Extend the assessment step in Perren et al. toward held-out validation wherever a treatment can be deleted from a connected part of a network and its effect still identified, since that is the only setting in which class borrowing can be scored against something it did not see. Use structured heterogeneity with class-specific variance components, robust priors, and multivariate random effects so similarity is estimated rather than imposed, and report how much of the target contrast the class bridge contributed through shrinkage.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+
+**The source titled this.** "Class-effect bridges rest on untestable class exchangeability" The title calls class exchangeability untestable, but the audit found observed class members can inform and challenge the hierarchy through fit and variance comparisons.
+
+**The source said.** "Hierarchical class models group treatments into classes, borrow strength across them, and can stabilize sparse or disconnected evidence under exchangeability within classes and a correctly specified class variance; a practical class-effects guide with a model-selection algorithm was published in 2026. Class definitions are contestable, may hide genuine heterogeneity, and class exchangeability cannot be tested from the disconnected data."
+
+**What was wrong with it.** The source said class exchangeability cannot be tested from the disconnected data; GPT-5.6 Sol narrowed this to the extrapolation, since with several observed treatments per class the data can inform class means, between-treatment variance, outliers, and the relative fit of candidate hierarchies, and since class variance is normally estimated with uncertainty rather than fixed at a supposedly correct value. The literature auditor confirmed doi:10.1177/0272989X251389887 and noted that leave-one-treatment-out validation, class-outlier probability, and the preference for clinical over algorithmic class definition are the catalog's own proposals rather than findings of that paper; class effects also already ship in multinma 0.8.0.
+
+Literature and prior-art check
+:   **open / supported-with-caveat.** I read the Perren et al. 2026 open-access text. The citation is accurate: it is a practical guide with a four-step model-selection algorithm, and it does claim disconnected-network utility: 'In some cases, class effect models can also facilitate the estimation of relative effects in evidence networks that are disconnected at the treatment level, as long as they are connected at the class level.' Two caveats. First, the entry's claim that class exchangeability 'cannot be tested from the disconnected evidence itself' is the entry's own inference, not Perren's; Perren instead offers assessment by comparing model fit statistics and between-study/between-treatment standard deviations, and warns that 'if the network is disconnected at the treatment level but a class model assumption is not supported, we may need to look for alternative methods'. Second, the paper does not prescribe algorithmic versus clinical class definition, so claim 9 is the entry's recommendation, not a finding. Neither leave-one-treatment-out validation nor a class-outlier probability appears in Perren. Class effects shipped in multinma 0.8.0, which the entry does not note.
+    Cites 10.1177/0272989X251389887: Confirms the citation and supplies the disconnected-network caveat the entry paraphrases; also documents implementation of class effects in multinma.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** C2, C4, C6, and C7 are broadly correct: hierarchical class models borrow through a distributional similarity assumption, and poorly justified classes can hide genuine treatment heterogeneity. C3 is too absolute. With several observed treatments per class, the data can inform class means, between-treatment variance, outliers, and relative fit of candidate hierarchies. What remains untestable is extrapolation of that learned relationship to the particular treatment or cross-gap contrast lacking independent identification. C5 is imprecise because class variance may be estimated with uncertainty rather than fixed at a supposedly correct value. C8 works only when the held-out treatment effect remains independently identifiable after deletion; otherwise the validation target is unavailable. C9 is overly categorical: clinical prespecification should constrain the candidate structures, but transparent algorithmic comparison and sensitivity analysis can supplement it. C1 is a publication-attribution claim outside this lens. The residual transport problem remains open and important when class borrowing determines the decision.
+
+Decision path
+:   `R5:default-open → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [CMP-05 — No versioned intervention ontology maps onto CNMA component matrices](CMP-05-no-versioned-intervention-ontology-maps-onto-cnma-component-.qmd)
+:::
+
+## Source
+
+Derived from C:L187-188, C:L199, C:L1118-1120 of the reviewed corpus.

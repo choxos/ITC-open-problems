@@ -1,0 +1,74 @@
+---
+title: "Predictive criteria and population comparison cannot validate a bridge"
+description: "Predictive criteria computed on observed within-subnetwork units compare models but cannot establish the correctness of an unobserved cross-gap extrapolation, and leave-one-out cross-validation will still return a winner when every candidate shares a false bridge assumption. The qualifier matters: predictive checks can falsify observable restrictions, and validation using external cross-gap evidence or synthetic deletion of a link from a connected network does have leverage. Population comparison is a useful screening diagnostic for bridges that require population exchangeability, but it is computed over reported covariates while the bridge requires exchangeability with respect to every variable creating cross-study outcome differences, so it cannot rule out unmeasured prognostic or design differences; it is not logically required for component, class, or mechanistic bridges. Both checks are shipping alongside disconnected-network fits: multinma pull request #68 lists LOO-PSIS cross-validation and compare_populations() under testing."
+pid: "DIS-11"
+topic: "Disconnected networks & bridges"
+categories: ["Disconnected networks & bridges", "Very high priority", "Partially addressed"]
+priority: "Very high"
+prank: 1
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
+maturity: "Established"
+---
+::: {.problem-meta}
+[DIS-11]{.problem-id}
+[Partially addressed]{.verdict .verdict-partially-addressed}
+[Very high priority]{.chip .chip-priority-very-high}
+[Established]{.chip .chip-maturity-established}
+:::
+## Statement
+
+Predictive criteria computed on observed within-subnetwork units compare models but cannot establish the correctness of an unobserved cross-gap extrapolation, and leave-one-out cross-validation will still return a winner when every candidate shares a false bridge assumption. The qualifier matters: predictive checks can falsify observable restrictions, and validation using external cross-gap evidence or synthetic deletion of a link from a connected network does have leverage. Population comparison is a useful screening diagnostic for bridges that require population exchangeability, but it is computed over reported covariates while the bridge requires exchangeability with respect to every variable creating cross-study outcome differences, so it cannot rule out unmeasured prognostic or design differences; it is not logically required for component, class, or mechanistic bridges. Both checks are shipping alongside disconnected-network fits: multinma pull request #68 lists LOO-PSIS cross-validation and compare_populations() under testing.
+
+## Why it is open
+
+Predictive scores measure fit to observed data while the bridge governs an extrapolation to a contrast that is unobserved by construction, so an ordinary within-subnetwork leave-one-out score has no leverage on it, and a ranking reads as validation to a user who does not check what was held out. The prediction unit is usually left implicit in software output, so reported criteria may not answer a consistent question across models, and grouped validation at the study or subnetwork level, which would come closer to the cross-gap question, is unimplemented in the tools the auditors inspected. A favorable similarity table over reported covariates is easy to produce and looks like evidence, so it is presented as justification even for bridges whose assumption is not about population overlap at all.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [multinma pull request #68](https://github.com/dmphillippo/multinma/pull/68) | ships LOO-PSIS cross-validation and compare_populations() as the tests accompanying disconnected-network fits, corroborating that these are the checks offered as validation in the leading implementation |
+| [cpaic 0.1.0 (development version, choxos/cpaic@9d150e9)](https://github.com/choxos/cpaic/commit/9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca) | unreleased development R package on GitHub, not on CRAN; declares its observation-level LOO prediction unit and warns that it does not validate cross-gap prediction for a new study, a held-out treatment contrast, or a held-out subnetwork, while leave-one-study and leave-one-subnetwork validation remain unimplemented |
+
+:::
+
+## Probable solution or research direction
+
+Declare the prediction unit explicitly (participant, arm, study, or subnetwork), implement leave-one-study and leave-one-subnetwork validation matched to the cross-gap question, and keep ordinary predictive criteria labeled as model comparison. Where a connected network can be thinned into a disconnected one, use synthetic bridge deletion as the validation with actual leverage, and use external cross-gap evidence where any exists. Present population comparison as a screening step for bridges that assume population exchangeability, paired with sensitivity analysis for unmeasured prognostic and design differences, negative-control or falsification checks, and a stated bridge assumption, rather than as evidence the bridge holds.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Partially addressed. Part of this problem is addressed by existing work; the entry names which part.
+
+**The source said.** "The two checks routinely offered as validation of a disconnected analysis do not test the bridge. Predictive model-comparison criteria rank models without validating the bridge, and leave-one-out cross-validation can select the best predictor among a set of wrong bridge models; comparing the populations of the subnetworks is necessary but cannot rule out unmeasured prognostic or design differences."
+
+**What was wrong with it.** The source said predictive criteria never validate the bridge and that population comparison is necessary but not sufficient. GPT-5.6 Sol narrowed both: the first holds when the prediction unit contains no bridge-relevant observation, and the second applies only to bridges that assume population exchangeability. Sol also found the cpaic development package already declares its observation-level LOO prediction unit and warns that it does not validate cross-gap prediction for a new study, a held-out treatment contrast, or a held-out subnetwork, so the reporting gap is partial; the literature auditor noted the prediction-unit argument is standard Bayesian cross-validation reasoning rather than a citation-backed NMA finding.
+
+**Dissent.** literature dissented (open): prior_work is empty and I found no paper asserting these propositions for disconnected networks, so on the support axis this is partly unverifiable; but the claims are individually defensible and one is corroborated by an unexpected source. The multinma disconnected-networks pull request lists exactly the two checks the entry criticizes, LOO-PSIS cross-validation and compare_populations(), under 'testing', which is direct evidence that predictive criteria and population comparison are being offered as validation of a bridge in the leading implementation. The claim that measured similarity cannot rule out unmeasured prognostic or design differences is the same logic Phillippo et al. 2018 use to call unanchored comparisons 'widely regarded as infeasible'. The prediction-unit claim is standard Bayesian cross-validation reasoning rather than a documented NMA finding; I could not source it to an NMA-specific paper, so it should be presented as an argument, not a citation-backed result. codex dissented (overstated): C1 and C3-C5 are correct. C2 requires the condition that the prediction unit contains no bridge-relevant observation: predictive checks may falsify observable restrictions, and validation using external cross-gap evidence or synthetic deletion from a connected network can have leverage, even though ordinary within-subnetwork LOO cannot establish the missing extrapolation. C6 is not universally necessary; population comparison is relevant to bridges requiring population exchangeability, but not logically required for every component, class, or mechanistic bridge. cpaic already makes the observation-level prediction unit explicit and warns that it does not validate the gap, while grouped validation remains unimplemented.
+
+Literature and prior-art check
+:   **open / supported-with-caveat.** prior_work is empty and I found no paper asserting these propositions for disconnected networks, so on the support axis this is partly unverifiable; but the claims are individually defensible and one is corroborated by an unexpected source. The multinma disconnected-networks pull request lists exactly the two checks the entry criticizes, LOO-PSIS cross-validation and compare_populations(), under 'testing', which is direct evidence that predictive criteria and population comparison are being offered as validation of a bridge in the leading implementation. The claim that measured similarity cannot rule out unmeasured prognostic or design differences is the same logic Phillippo et al. 2018 use to call unanchored comparisons 'widely regarded as infeasible'. The prediction-unit claim is standard Bayesian cross-validation reasoning rather than a documented NMA finding; I could not source it to an NMA-specific paper, so it should be presented as an argument, not a citation-backed result.
+    Cites https://github.com/dmphillippo/multinma/pull/68: Corroborates that LOO-PSIS cross-validation and population comparison are the checks actually being shipped alongside disconnected-network fits.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / overstated.** C1 and C3-C5 are correct. C2 requires the condition that the prediction unit contains no bridge-relevant observation: predictive checks may falsify observable restrictions, and validation using external cross-gap evidence or synthetic deletion from a connected network can have leverage, even though ordinary within-subnetwork LOO cannot establish the missing extrapolation. C6 is not universally necessary; population comparison is relevant to bridges requiring population exchangeability, but not logically required for every component, class, or mechanistic bridge. cpaic already makes the observation-level prediction unit explicit and warns that it does not validate the gap, while grouped validation remains unimplemented.
+    Cites choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca: The software explicitly declares its LOO prediction unit and warns against interpreting it as cross-gap validation. Leave-one-study or leave-one-subnetwork validation remains absent..
+
+Decision path
+:   `R3:partially-solved(n=1) → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [DIA-03 — PAIC diagnostics are not evaluated as classifiers of realized error](DIA-03-paic-diagnostics-are-not-evaluated-as-classifiers-of-realize.qmd)
+:::
+
+## Source
+
+Derived from C:L1162, C:L1163 of the reviewed corpus.

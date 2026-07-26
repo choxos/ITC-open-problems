@@ -1,0 +1,87 @@
+---
+title: "multinma's baseline-synthesis bridge is an unmerged pull request"
+description: "As inspected on 25 July 2026, dmphillippo/multinma pull request #68, titled 'Feature/disconnected_networks', was open rather than merged, with head branch sjperren:feature/baseline2 into dmphillippo:develop and last activity on 4 July 2026. Its code adds fixed and random baseline connections, baseline_synthesis(), compare_populations(), individual-level predictive criteria, and mixed IPD/AgD and single-arm handling; the pull request calls the mechanism baseline bridges, and 'connection functions' is the catalog's phrase rather than the pull request's. multinma 0.9.1 will already run a disconnected network, and neither the release nor the development NEWS lists disconnected networks, baseline synthesis, single-arm studies, or connection functions; what the release lacks is the pull request's explicit baseline-synthesis bridge, so cross-subnetwork effects there are supplied by the prior instead. An open pull request is not a stable released method, and baseline synthesis is an assumption-bearing bridge either way."
+pid: "DIS-10"
+topic: "Disconnected networks & bridges"
+categories: ["Disconnected networks & bridges", "High priority", "Confirmed open"]
+priority: "High"
+prank: 2
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Emerging"
+---
+::: {.problem-meta}
+[DIS-10]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[High priority]{.chip .chip-priority-high}
+[Emerging]{.chip .chip-maturity-emerging}
+[Implementation-specific]{.chip}
+:::
+::: {.callout-note appearance="simple"}
+## Scope
+
+This entry describes a limitation of a specific implementation rather than of the field.
+It is catalogued because the underlying methodological problem is general, and because a
+reference implementation is where such problems become concrete and checkable.
+:::
+
+## Statement
+
+As inspected on 25 July 2026, dmphillippo/multinma pull request #68, titled 'Feature/disconnected_networks', was open rather than merged, with head branch sjperren:feature/baseline2 into dmphillippo:develop and last activity on 4 July 2026. Its code adds fixed and random baseline connections, baseline_synthesis(), compare_populations(), individual-level predictive criteria, and mixed IPD/AgD and single-arm handling; the pull request calls the mechanism baseline bridges, and 'connection functions' is the catalog's phrase rather than the pull request's. multinma 0.9.1 will already run a disconnected network, and neither the release nor the development NEWS lists disconnected networks, baseline synthesis, single-arm studies, or connection functions; what the release lacks is the pull request's explicit baseline-synthesis bridge, so cross-subnetwork effects there are supplied by the prior instead. An open pull request is not a stable released method, and baseline synthesis is an assumption-bearing bridge either way.
+
+## Why it is open
+
+Interface, defaults, theory, and validation of an open pull request can all change before merge, so applied analyses built on it are building on a moving target. More fundamentally the feature supplies the cross-gap link through baseline synthesis, so a connected posterior is produced by assumption rather than by randomization, and the released version reaches a similar-looking result from the prior alone. Because the software output looks identical to a connected-network fit in both cases, users cannot see from the result whether identification came from the baseline model, from the prior, or from randomized evidence.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [multinma pull request #68](https://github.com/dmphillippo/multinma/pull/68) | proposes disconnected-network support in multinma through fixed and random baseline bridges, baseline_synthesis(), compare_populations(), predictive criteria, and mixed IPD/AgD and single-arm structures; open, not merged, as inspected on 25 July 2026 |
+| [multinma (dmphillippo/multinma@4fe8a6e)](https://github.com/dmphillippo/multinma/commit/4fe8a6e9977b7ba6ef93822dda43b617b256587a) | the released package, which documents that models will still run with disconnected networks; cross-subnetwork effects there are supplied by the prior rather than by an explicit baseline bridge |
+
+:::
+
+## Probable solution or research direction
+
+Treat the pull request as important in-progress development rather than a reference implementation: track interface and default changes, and require any analysis using it to state the baseline-synthesis assumptions as identifying assumptions. Validate the baseline bridge against alternative bridges on shared data-generating mechanisms before treating it as settled. Separately, make the released version's behavior visible in reporting, since multinma 0.9.1 will fit a disconnected network and return a result whose cross-subnetwork part comes from the prior.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+
+**The source titled this.** "multinma disconnected-network support is an unmerged pull request" The title says disconnected-network support is unmerged, but released multinma already runs disconnected networks; what the pull request adds is the data-informed baseline bridge.
+
+**The source said.** "As inspected on 25 July 2026, dmphillippo/multinma pull request #68, titled 'Feature/disconnected_networks', was open rather than merged; it proposes disconnected-network support through fixed or random baseline synthesis, connection functions, population comparisons, predictive criteria, and mixed IPD/AgD or single-arm structures. An open pull request is not a stable released method, and baseline synthesis is an assumption-bearing bridge."
+
+**What was wrong with it.** The source claimed the CRAN release does not include disconnected-network support; GPT-5.6 Sol found that too broad, quoting multinma at dmphillippo/multinma@4fe8a6e, 'Models will still run with disconnected networks', so the accurate claim is that cross-subnetwork effects in the release are prior-driven rather than carried by the pull request's baseline bridge. Sol could not confirm the pull request's open state or title from offline Git objects, so those rest on the literature auditor's direct inspection of the pull request page, which also established the head branch, commit count, and last activity date.
+
+**Dissent.** codex dissented (overstated): The inspected PR ref contains fixed and random baseline connections, baseline_synthesis(), compare_populations(), individual-level predictive criteria, and mixed IPD/AgD and single-arm changes, supporting C3. The ref is not merged into the inspected development ref, but offline Git objects cannot independently establish the GitHub PR's open state or title on 25 July, so C1-C2 remain partly metadata-dependent. C4 is correct. C5 is literally too broad: multinma 0.9.1 intentionally runs disconnected networks, but cross-subnetwork effects are prior-driven; what it lacks is the PR's explicit baseline-synthesis bridge.
+
+Literature and prior-art check
+:   **open / supported-with-caveat.** I opened the pull request. Title 'Feature/disconnected_networks', state open, head branch sjperren:feature/baseline2 into dmphillippo:develop, 96 commits, last activity 4 July 2026. The description matches the entry: support for disconnected networks via baseline bridges with fixed and random options, compare_populations(), cross-validation (LOO-PSIS) and Bayesian R-squared, mixed IPD/AgD studies, single-arm studies. I also checked NEWS.md on the develop branch: neither 0.9.1 nor the 0.9.1.9000 development version lists disconnected networks, baseline synthesis, single-arm studies or connection functions, confirming claim 5. One wording caveat: the PR calls the mechanism 'baseline bridges'; 'connection functions' is the entry's phrase, not the PR's. Useful context the entry omits: the PR author is Sam Perren, whose 2024 Bristol Compass post describes the programme ('Very strong assumptions are required to make comparisons in a disconnected network'), and whose class-effects work already shipped in multinma 0.8.0.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** The inspected PR ref contains fixed and random baseline connections, baseline_synthesis(), compare_populations(), individual-level predictive criteria, and mixed IPD/AgD and single-arm changes, supporting C3. The ref is not merged into the inspected development ref, but offline Git objects cannot independently establish the GitHub PR's open state or title on 25 July, so C1-C2 remain partly metadata-dependent. C4 is correct. C5 is literally too broad: multinma 0.9.1 intentionally runs disconnected networks, but cross-subnetwork effects are prior-driven; what it lacks is the PR's explicit baseline-synthesis bridge.
+
+Decision path
+:   `R5:default-open → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [ADJ-12 — Routine NMA output omits graph diagnostics and value of information](ADJ-12-routine-nma-output-omits-graph-diagnostics-and-value-of-info.qmd)
+- [ADJ-13 — Topology-only graph neural network output cannot identify effects](ADJ-13-topology-only-graph-neural-network-output-cannot-identify-ef.qmd)
+- [ADJ-18 — Simulation-based inference for mechanistic and pharmacometric bridges](ADJ-18-simulation-based-inference-for-mechanistic-and-pharmacometri.qmd)
+- [SFW-03 — No minimum validation standard for ITC and PAIC packages](SFW-03-no-minimum-validation-standard-for-itc-and-paic-packages.qmd)
+- [SFW-16 — MBNMAdose and crossnma bridges are unidentified across a disconnection](SFW-16-mbnmadose-and-crossnma-bridges-are-unidentified-across-a-dis.qmd)
+:::
+
+## Source
+
+Derived from C:L9, C:L1154-1161, C:L2246, C:L2739 of the reviewed corpus.

@@ -1,0 +1,76 @@
+---
+title: "No convention for reading divergence between estimand rungs"
+description: "Reporting a single pooled effect hides population dependence, scale dependence and identification fragility, and the source's response is a ladder of estimands whose divergence is read as informative. The lower rungs are already obtainable from one fitted model: multinma returns study-specific conditional effects, population-average marginal effects and predictions in an arbitrary target through newdata, and Phillippo et al. 2025 (doi:10.1017/rsm.2025.2) recommend comparing conditional and marginal estimates in the decision target population, calling multilevel network meta-regression the only population-adjustment method able to produce both in any target. An overlap-population rung has a dedicated method in arbitrated indirect comparisons (arxiv:2510.18071). What does not exist is the top rung and the packaging: no software produces partially identified bounds under unmeasured effect modification as routine PAIC output, and there is no accepted convention for reading divergence between rungs."
+pid: "EST-09"
+topic: "Estimands & target populations"
+categories: ["Estimands & target populations", "High priority", "Partially addressed"]
+priority: "High"
+prank: 2
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
+maturity: "Emerging"
+---
+::: {.problem-meta}
+[EST-09]{.problem-id}
+[Partially addressed]{.verdict .verdict-partially-addressed}
+[High priority]{.chip .chip-priority-high}
+[Emerging]{.chip .chip-maturity-emerging}
+:::
+## Statement
+
+Reporting a single pooled effect hides population dependence, scale dependence and identification fragility, and the source's response is a ladder of estimands whose divergence is read as informative. The lower rungs are already obtainable from one fitted model: multinma returns study-specific conditional effects, population-average marginal effects and predictions in an arbitrary target through newdata, and Phillippo et al. 2025 (doi:10.1017/rsm.2025.2) recommend comparing conditional and marginal estimates in the decision target population, calling multilevel network meta-regression the only population-adjustment method able to produce both in any target. An overlap-population rung has a dedicated method in arbitrated indirect comparisons (arxiv:2510.18071). What does not exist is the top rung and the packaging: no software produces partially identified bounds under unmeasured effect modification as routine PAIC output, and there is no accepted convention for reading divergence between rungs.
+
+## Why it is open
+
+A single number conflates population dependence, scale dependence and identification fragility, and none of the three can be recovered from it afterwards. The rungs that exist are not assembled: they come from different functions, papers and packages, and no output presents them together with each one labeled by its population, so the comparison Phillippo et al. recommend is not what the reader of a submission actually sees. The partially identified rung needs bias-function machinery that is not integrated with PAIC estimators, and bounds are informative only when a defensible sensitivity model and range are specified, otherwise they are vacuous. There is also no convention for how a committee should read divergence between rungs, so an analyst who reports one invites the charge of indecisiveness, which removes the incentive to produce it.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Phillippo, Remiro-Azocar, Heath, Baio, Dias, Ades and Welton 2025, Effect modification and non-collapsibility together may lead to conflicting treatment decisions, Research Synthesis Methods](https://doi.org/10.1017/rsm.2025.2) | Establishes that multilevel network meta-regression can deliver conditional and marginal estimands in any decision target population from one model, which covers the lower rungs jointly, and supplies the published justification for reading their divergence rather than treating it as failure. |
+| [multinma: Bayesian Network Meta-Analysis of Individual and Aggregate Data (R package)](https://cran.r-project.org/package=multinma) | Implements relative_effects(), predict() and marginal_effects() from a single fitted model, each targetable at an arbitrary population through newdata, so the conditional, trial-population marginal and target-population marginal rungs are already computable together. |
+| [Fang and He 2026, Arbitrated Indirect Treatment Comparisons](https://arxiv.org/abs/2510.18071) | Supplies the overlap-population rung as a dedicated method that fixes a single common overlap target. |
+| [cpaic, unreleased development package on GitHub (not on CRAN), commit 9d150e9](https://github.com/choxos/cpaic) | At commit 9d150e9 its namespace exposes no ladder, overlap-target or partial-identification bound interface, and cML-NMR lacks marginal standardization, so cSTC and cMAIC supply separate conditional and marginal analyses rather than an integrated ladder. |
+
+:::
+
+## Probable solution or research direction
+
+Assemble rather than invent: wire the conditional, trial-population marginal, target-population marginal and overlap rungs into one labeled output built on the estimators that already produce them. Fix the number and content of rungs to the decision at hand rather than to a list of five, since marginal effects in each trial population multiply with the network and the rungs are different kinds of object. Develop the partial-identification rung as declared sensitivity models with defensible ranges, and report model and overlap diagnostics alongside each rung so divergence can be attributed to population dependence rather than to misspecification or positivity failure. In cpaic, an unreleased development package on GitHub that is not installable from CRAN, none of this is exposed at commit 9d150e9, so the ladder is a concrete build there rather than a research question.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Partially addressed. Part of this problem is addressed by existing work; the entry names which part.
+
+**The source titled this.** "No estimand ladder: analyses report a single pooled effect" The title says there is no estimand ladder, but the lower rungs are already obtainable from a single multinma fit and an overlap-population method exists.
+
+**The source said.** "Direction C proposes that each analysis estimate a ladder of estimands rather than one effect: a conditional effect at a clinically interpretable profile, marginal effects in each trial population, the marginal effect in the policy target, an overlap-population effect, and partially identified bounds under plausible unmeasured effect modification. Divergence between rungs is treated as scientifically informative rather than as analytic failure."
+
+**What was wrong with it.** The source said no standard workflow or software computes the rungs jointly; the literature auditor found the first three obtainable from a single multinma fit and the fourth addressed by arbitrated indirect comparisons (arxiv:2510.18071), and found the justification for treating divergence as informative already published in Phillippo et al. 2025 (doi:10.1017/rsm.2025.2). GPT-5.6 Sol rejected the count of exactly five rungs, noted that divergence can also come from misspecification, positivity failure or numerical error, and held that partial-identification bounds are informative only under a specified sensitivity model rather than as routine output.
+
+Literature and prior-art check
+:   **partially-solved / supported-with-caveat.** I found no published or implemented five-rung estimand ladder, so the packaged proposal is genuinely new. But the why_open claim that 'no standard workflow or software computes the rungs jointly' is too strong for the first three rungs. From one fitted multinma model, relative_effects() returns study-population-specific (conditional) effects, marginal_effects() returns population-average marginal effects on difference, ratio or link scales, and both accept newdata for an arbitrary policy target - and Phillippo et al. (Res Synth Methods 2025) both recommend comparing conditional and marginal estimates in the decision target population and state that 'multilevel network meta-regression is the only population-adjustment method capable of producing both conditional and marginal estimates, in any decision target population'. That same paper also supplies the missing justification for the entry's claim that divergence between rungs is informative rather than a defect. Rung 4 has a dedicated method (overlap-population targeting, arXiv:2510.18071). Rung 5 is closest to open: Ren et al. (Res Synth Methods 2025) give quantitative bias analysis with code for unmeasured confounding in unanchored PAIC, but that is sensitivity analysis, not partial identification, and does not restore identification.
+    Cites doi:10.1017/rsm.2025.2: Establishes ML-NMR as able to deliver conditional and marginal estimands in any decision target population from one model, i.e. rungs 1-3 jointly, and recommends reading their divergence..
+    Cites cran:multinma: Implements relative_effects(), predict() and marginal_effects() from a single fitted model, each targetable at an arbitrary population via newdata..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** C1 has no basis for exactly five rungs: “marginal effect in each trial population” generates as many estimands as there are trial populations, and a conditional profile effect, population-marginal effects, an overlap effect, and a partial-identification set are different kinds of objects. C2 is conditional: divergence can reveal population dependence or non-collapsibility when every rung is correctly defined and estimated, but it can also reflect model misspecification, positivity failure, or numerical error. C3 is generally right under effect heterogeneity or non-collapsibility, although a single effect explicitly labeled for the decision target is not intrinsically defective. C4 is false as a routine claim: informative bounds require a specified sensitivity model, defensible ranges for unmeasured modification, adequate target information, and support; otherwise bounds may be vacuous. At cpaic 9d150e9, NAMESPACE exposes no ladder, overlap-target, or partial-identification-bound API, and cML-NMR explicitly lacks marginal standardization; cSTC and cMAIC instead provide separate conditional and marginal analyses. Thus the integrated ladder remains open in cpaic. C5 is supported for cpaic but unverifiable as a universal statement about all ITC/PAIC software under this audit's no-literature constraint.
+
+Decision path
+:   `R3:partially-solved(n=1) → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [ADJ-07 — Partial identification bounds under drift or omitted modifiers](ADJ-07-partial-identification-bounds-under-drift-or-omitted-modifie.qmd)
+:::
+
+## Source
+
+Derived from C:L337-347 of the reviewed corpus.

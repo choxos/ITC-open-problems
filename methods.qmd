@@ -1,0 +1,164 @@
+---
+title: "How this was verified"
+subtitle: "Provenance, audit protocol, and what the verdicts do and do not mean"
+---
+
+## Where this material came from
+
+This catalog is derived from a set of deep-research documents produced by a large language
+model (ChatGPT deep research) in July 2026, covering open methodological problems in indirect
+treatment comparisons, population-adjusted indirect comparisons, component methods, and
+quantitative bias analysis.
+
+That origin is the reason this page exists. A machine-generated research agenda is a
+plausible-sounding artifact whether or not it is correct, and publishing one as settled fact
+would be a disservice. **Nothing from the source documents appears on this site without a
+verification verdict attached**, and the evidence behind each verdict is shown on the entry
+itself.
+
+The source documents are kept as working material and are not published here.
+
+## What was checked mechanically
+
+Before any of the substantive audit, every resolvable identifier in the corpus was checked
+against its registry.
+
+| Check | Method | Result |
+|---|---|---|
+| Digital object identifiers | CrossRef API, matching first author, year, and title | 64 of 64 resolved correctly |
+| Preprints | arXiv metadata | Both resolved with matching titles |
+| PubMed identifiers | NCBI E-utilities | All resolved with matching titles |
+| R package versions and publication dates | CRAN database | All exact, including four packages released in 2026 |
+| Open-source development claims | GitHub API | Verified, including a pull request correctly described as open and unmerged |
+| Numeric claims spot-checked against abstracts | PubMed | Exact, including a three-figure bias-reduction sequence |
+
+The conclusion from that pass shaped everything after it. **Fabricated citations are not the
+failure mode of this corpus.** The claims are attached to real papers with real numbers. The
+risks that remained were subtler: a real paper cited for a claim it does not quite make, a
+problem described as open that the literature has partly closed, a severity claim pitched too
+strong, and claims about a software package that had moved on since the report was written.
+
+## The audit
+
+Every problem carries a set of atomic, falsifiable claims extracted from the source. Those
+claims, not the prose around them, are what was tested.
+
+### Literature verification
+
+For each problem, an agent with web and PubMed access checked that each cited work actually
+supports the claim attributed to it, and searched for later work that would resolve or narrow
+the problem.
+
+### Adversarial refutation
+
+A second agent was instructed to *refute* the proposition that the problem is open, and to
+default to "not open" when uncertain. Asking an agent to confirm a claim and asking it to
+break the claim produce different results; only the second is informative.
+
+### Independent external auditors
+
+Two frontier models outside this system were given the same claims, blind to each other and
+to the verdicts above:
+
+- **GPT-5.6 Sol** at maximum reasoning effort, via the `codex` CLI
+- **Grok 4.5** at high reasoning effort, via the `grok` CLI
+
+Both were constrained to answer from their own knowledge of the evidence-synthesis and causal
+inference literature, and asked to return a graded verdict, a reason, and any counterevidence.
+
+**Coverage was not equal, and that matters.** Grok's usage balance was exhausted partway
+through the run, so it reached only a fraction of the catalog. Entries it never saw carry two
+independent opinions rather than three. This is recorded rather than smoothed over, because an
+entry judged by two auditors is weaker evidence than one judged by three.
+
+| Auditor | Entries covered |
+|---|---|
+| Literature and prior-art check (Claude) | 232 of 232 |
+| GPT-5.6 Sol, technical and source-code lens | 232 of 232 |
+| Grok 4.5, recency lens | 47 of 232 |
+
+### Checking the auditors
+
+An audit is only worth what its auditors are worth, so their own load-bearing claims were
+spot-checked by hand against primary sources. Every checked claim held: `marginal_effects()`
+does exist in `multinma` 0.7.0, `nmathresh` is on CRAN, the Behaviour Change Intervention
+Ontology papers resolve, and Ishak et al. 2025 in *PharmacoEconomics* is real. No invented
+locator, version number, or function name was found.
+
+One auditor finding is worth stating on its own, because it changed several entries: the
+source report proposes a reporting and credibility standard for population-adjusted indirect
+comparisons without citing
+[Ishak et al. 2025](https://doi.org/10.1007/s40273-025-01503-1), which published one.
+
+Using two auditors rather than one is the point. On a pilot run they agreed that a claim about
+the emptiness of the quantitative bias analysis literature was overstated, both citing the
+mature epidemiological bias-analysis toolkit. On a different claim, about whether
+cross-subnetwork component constancy is testable at all, **they disagreed** — and the
+disagreement was substantive rather than noise. Where auditors disagree, this site shows the
+disagreement rather than resolving it silently.
+
+### Code verification
+
+Problems that describe limitations of a specific software implementation were re-checked
+against that package's current source, not against the report's description of it. Some had
+already been fixed; those are marked as resolved rather than deleted, because the underlying
+methodological problem is still worth recording.
+
+### Adjudication
+
+Verdicts follow a fixed rule, applied to the evidence gathered above:
+
+| Condition | Verdict |
+|---|---|
+| Later work resolves it, in the literature or in code | [Resolved since report]{.verdict .verdict-resolved-since-report} |
+| At least two of the three independent checks call it overstated | [Overstated]{.verdict .verdict-overstated} |
+| All checks agree it is open and no counterevidence surfaced | [Confirmed open]{.verdict .verdict-confirmed-open} |
+| Existing work covers part of it | [Partially addressed]{.verdict .verdict-partially-addressed} |
+| Checks disagree, or evidence is insufficient | [Unverifiable]{.verdict .verdict-unverifiable}, with the dissent shown |
+| No support could be found | [Not supported]{.verdict .verdict-not-supported} |
+
+## Which fields are audited, and which are editorial
+
+Not everything on an entry page is a verified claim, and the difference matters.
+
+**Audited.** The statement, the reasons the problem is open, the cited prior work, and every
+claim extracted from them. These went through the process above and carry the verdict.
+
+**Editorial.** Maturity and tractability are *not* stated anywhere in the source material.
+The source has no such fields; these values are a classification applied during extraction to
+make the catalog browsable. They are one reader's judgment, they were not audited, and they
+should not be cited as findings.
+
+**Deliberately rebuilt.** Priority is not carried over from the source either. The source's own
+master matrix grades 30 of its 46 rows "Very high" and 15 "High", which is under half a bit of
+information and not usable as a ranking. Priority here reflects three observable things
+instead: whether the problem blocks a decision-grade estimand, whether any method addresses it
+at all, and whether any software implements it.
+
+## What the verdicts do not mean
+
+A verdict of [Confirmed open]{.verdict .verdict-confirmed-open} means the claim survived the
+checks described above. It does not mean the problem is provably unsolved. Absence of
+counterevidence in a targeted search is weaker evidence than a systematic review, and this was
+not a systematic review: there was no protocol registration, no duplicate screening, and no
+formal risk-of-bias assessment.
+
+A verdict of [Overstated]{.verdict .verdict-overstated} is a refinement, not a dismissal. In
+almost every case the underlying problem is real and the correction concerns how strongly it
+was stated.
+
+Model-based auditors have their own failure modes. They can be confidently wrong, they share
+training data with the system that produced the source documents, and their knowledge has a
+cutoff. They were used because two independent expert opinions are better than none, not
+because they are authoritative.
+
+**Where an entry matters to a decision, read the cited primary sources.** This catalog is a map
+of where the problems are, and a record of how hard each claim was pushed on. It is not a
+substitute for the literature it points to.
+
+## Reproducing this
+
+The site source, the build script, and the workflow definitions are in the
+[repository](https://github.com/choxos/ITC-open-problems). Entry pages are generated from a
+structured registry rather than hand-written, so the audit metadata on each page is the same
+data the adjudication used.

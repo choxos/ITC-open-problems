@@ -1,0 +1,86 @@
+---
+title: "Trials combined under one outcome label are not one estimand"
+description: "Trials grouped under one outcome label may estimate non-equivalent quantities because they differ in follow-up, endpoint definition, analysis population or intercurrent-event handling; simulation of treatment switching in oncology shows that pooling estimates targeting different estimands yields a pooled estimator that targets no estimand of interest, even under a random-effects model (Metcalfe et al. 2025, doi:10.1017/rsm.2025.10039). Estimand mapping is the response and it is no longer a proposal: it has been argued into the evidence-synthesis literature (doi:10.1002/jrsm.1741), given a pragmatic framework with a worked NMA case study varying intercurrent-event strategies (arxiv:2510.15762), and codified as step 1 of a population-adjusted indirect comparison framework (doi:10.1007/s40273-025-01503-1). What remains open is per-trial estimand mapping from published reports, where the needed detail is often not reported, and structured encoding of intercurrent-event handling and analysis population."
+pid: "EVB-03"
+topic: "Evidence-base construction & data access"
+categories: ["Evidence-base construction & data access", "Very high priority", "Partially addressed"]
+priority: "Very high"
+prank: 1
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[EVB-03]{.problem-id}
+[Partially addressed]{.verdict .verdict-partially-addressed}
+[Very high priority]{.chip .chip-priority-very-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+## Statement
+
+Trials grouped under one outcome label may estimate non-equivalent quantities because they differ in follow-up, endpoint definition, analysis population or intercurrent-event handling; simulation of treatment switching in oncology shows that pooling estimates targeting different estimands yields a pooled estimator that targets no estimand of interest, even under a random-effects model (Metcalfe et al. 2025, doi:10.1017/rsm.2025.10039). Estimand mapping is the response and it is no longer a proposal: it has been argued into the evidence-synthesis literature (doi:10.1002/jrsm.1741), given a pragmatic framework with a worked NMA case study varying intercurrent-event strategies (arxiv:2510.15762), and codified as step 1 of a population-adjusted indirect comparison framework (doi:10.1007/s40273-025-01503-1). What remains open is per-trial estimand mapping from published reports, where the needed detail is often not reported, and structured encoding of intercurrent-event handling and analysis population.
+
+## Why it is open
+
+Indirect comparison arithmetic assumes the contrasts refer to a common estimand, but conformity is usually checked at the level of the outcome label rather than the outcome definition. Differences in intercurrent-event strategy and analysis population change the causal question each trial answers, and no covariate adjustment repairs that mismatch. Published reports frequently do not carry the detail needed to do the mapping trial by trial, and uptake of estimand-aware synthesis remains modest, particularly without IPD. An outcome taxonomy exists for classifying outcomes, but nothing machine-readable encodes intercurrent-event strategy or analysis population.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Metcalfe et al. 2025, Research Synthesis Methods](https://doi.org/10.1017/rsm.2025.10039) | Simulation of treatment switching in oncology showing that pooling treatment-policy and hypothetical estimands produces a pooled estimator targeting no estimand of interest, and that this can mislead even under random effects. |
+| [Remiro-Azocar and Gorst-Rasmussen 2024, Research Synthesis Methods](https://doi.org/10.1002/jrsm.1741) | Position paper arguing that the language of estimands belongs in network meta-analysis and HTA, especially under the narrow treatment and target-population perspective HTA takes. |
+| [Remiro-Azocar et al., Incorporating estimands into meta-analyses of clinical trials (preprint)](https://arxiv.org/abs/2510.15762) | Pragmatic framework for estimands in meta-analysis and NMA for HTA, applied to an NMA of semaglutide versus dulaglutide contrasting treatment-policy and hypothetical strategies for discontinuation and rescue. |
+| [Ishak et al. 2025, PharmacoEconomics](https://doi.org/10.1007/s40273-025-01503-1) | Six-element framework for reliable, transparent and reproducible population-adjusted indirect comparisons in which definition of the comparison as an estimand is element 1. |
+| [Ades et al. 2024, Research Synthesis Methods](https://doi.org/10.1002/jrsm.1745) | Names integration of the estimand framework with evidence synthesis as an explicit agenda item of the core NMA methods group. |
+| [Analysis of opinions from studies citing the COMET outcomes taxonomy, 2025](https://pubmed.ncbi.nlm.nih.gov/40754038/) | Shows an outcome taxonomy for evidence synthesis already exists and is widely cited, narrowing the gap to estimand-level, machine-readable detail rather than outcome classification as such. |
+
+:::
+
+## Probable solution or research direction
+
+The direction is to make the existing estimand frameworks routine rather than to invent them: apply the published meta-analysis and PAIC estimand frameworks to each contributing trial and report the mapping alongside the synthesis, so mismatches are visible before pooling rather than after. Extend outcome taxonomies such as COMET beyond outcome classification to encode intercurrent-event strategy and analysis population in structured form. Latent harmonization and multivariate endpoint models are appropriate only where a defensible linking model connects the endpoints and the available data identify its parameters; they cannot generally reconcile different treatment-policy questions, intercurrent-event strategies, populations or time points.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Partially addressed. Part of this problem is addressed by existing work; the entry names which part.
+
+**The source said.** "Trials in the same comparison differ in follow-up duration, endpoint definitions, handling of intercurrent events, and analysis populations, so the quantities being combined are not the same estimand even before population adjustment."
+
+**What was wrong with it.** The source presented ICH E9(R1)-style estimand mapping and outcome ontologies as promising future directions; the literature auditor and Grok both found an active published programme already doing the mapping (doi:10.1002/jrsm.1741, arxiv:2510.15762, doi:10.1007/s40273-025-01503-1) and a widely used outcome taxonomy already in routine use (COMET, pmid:40754038). GPT-5.6 Sol rejected the claim that endpoint definitions live in prose no tool can read: the obstacle is incomplete reporting and unreliable structured interpretation, not literal unreadability.
+
+Literature and prior-art check
+:   **partially-solved / supported-with-caveat.** prior_work is empty, yet an active published programme addresses exactly claim 2. Metcalfe et al. 2025 Res Synth Methods simulated pooling of treatment-policy and hypothetical estimands across oncology RCTs allowing treatment switching, and showed the pooled estimator targets nothing of interest; that converts the entry's assertion from conjecture into a quantified result. Remiro-Azocar and Gorst-Rasmussen 2024 RSM argue the estimand language belongs in NMA and HTA; Ades et al. 2024 RSM call for integration of the estimand framework with evidence synthesis; Ishak et al. 2025 PharmacoEconomics already makes estimand definition element 1 of a six-element PAIC framework. Claim 1 is uncontroversial and is documented by the COMET outcome-heterogeneity literature. Claim 3 needs softening: the COMET outcome taxonomy exists and is in routine use for classifying trial outcomes, so an outcome classification standard is not absent, though I found nothing machine-readable that encodes intercurrent-event handling or analysis population. Claim 4 I could not verify with a retrieved source this session. Status is partially-solved: the diagnosis and the framework are published; per-trial estimand mapping from published reports is not.
+    Cites doi:10.1017/rsm.2025.10039: Quantifies the bias from combining trials whose estimands differ, which the entry states only qualitatively. Also confirms the gap is real..
+    Cites doi:10.1002/jrsm.1741: Claim 2 is already a published position paper in the NMA/HTA literature, not a novel proposed direction..
+    Cites doi:10.1002/jrsm.1745: Establishes that estimand-framework integration is an explicitly stated agenda item of the core NMA methods group..
+    Cites doi:10.1007/s40273-025-01503-1: Shows estimand-first definition is already codified as step 1 of a PAIC analysis framework, so the ITC-specific version of claim 2 is partly operationalized..
+    Cites pmid:40754038: Narrows claim 3: an outcome taxonomy for evidence synthesis already exists and is widely cited, so what is missing is estimand-level, machine-readable detail rather than outcome classification as such..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** The central estimand warning is correct and can be decision-critical. Differences in follow-up, outcome variable, analysis population, summary measure, or intercurrent-event strategy produce different estimands when they change the causal quantity being estimated; a common outcome label is insufficient. C2 is technically sound because structured estimand mapping exposes these differences before synthesis. C3 describes useful infrastructure, not a mathematical necessity for valid ITC. C4 holds only when a defensible measurement or linking model connects the endpoints and the available data identify its parameters. Latent or multivariate models cannot generally reconcile different treatment-policy questions, intercurrent-event strategies, populations, or time points. The assertion that no tool can read endpoint definitions in prose is false; the problem is incomplete reporting and unreliable structured interpretation, not literal unreadability.
+
+Grok 4.5, recency lens
+:   **partially-solved / supported-with-caveat.** That trials sharing an outcome label often target different estimands (follow-up, endpoint definition, intercurrent events, analysis population) remains correct and is now a central theme in synthesis methodology rather than a neglected gap. Remiro-Azócar and Gorst-Rasmussen (2024) argue for estimand thinking as a parallel to narrow research questions in evidence synthesis. Remiro-Azócar et al. (arXiv:2510.15762, versions through 2026) propose a pragmatic framework for estimands in meta-analyses for HTA, apply it to an NMA of semaglutide versus dulaglutide, and contrast treatment-policy versus hypothetical strategies for discontinuation/rescue. EU HTA quantitative evidence-synthesis guidance (2024) also stresses that a common estimand should apply across studies in a synthesis. These works partially resolve C2: ICH E9(R1)-style mapping is no longer only a vague proposal; it is formalized for synthesis and illustrated. They do not close the problem: authors still note modest uptake, difficulty without IPD, and residual cross-trial misalignment. C3 (machine-readable outcome ontology standards for ITC evidence bases) and C4 (latent outcome harmonization models as deployed standards) were not found as solved; semantic-variability/LLM and specialized outcome ontologies exist outside routine ITC pipelines. Mismatched estimands therefore remain open as an operational constraint; the mapping response is partially developed.
+    Cites doi:10.1002/jrsm.1741: Places estimands at the center of evidence-synthesis question formulation; partially resolves the claim that estimand mapping is only aspirational (C2)..
+    Cites arxiv:2510.15762: Provides a pragmatic estimand framework for meta-analysis/NMA in HTA and a worked NMA case study varying intercurrent-event strategies; partially operationalizes ICH E9(R1)-style mapping for synthesis (C2)..
+
+Decision path
+:   `R3:partially-solved(n=2) → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [CMP-19 — Competing risks and recurrent events are absent from component PAIC](CMP-19-competing-risks-and-recurrent-events-are-absent-from-compone.qmd)
+- [COV-09 — Measurement non-equivalence of covariates across trials](COV-09-measurement-non-equivalence-of-covariates-across-trials.qmd)
+- [HET-01 — Design and conduct differences survive baseline covariate balancing](HET-01-design-and-conduct-differences-survive-baseline-covariate-ba.qmd)
+:::
+
+## Source
+
+Derived from C:L214-215, C:L218 of the reviewed corpus.

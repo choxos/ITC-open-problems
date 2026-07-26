@@ -1,0 +1,91 @@
+---
+title: "Unreleased cpaic has no tracked simulation benchmark or replication"
+description: "cpaic is an unreleased development R package on GitHub (choxos/cpaic@9d150e9) that a reader cannot install from CRAN, and its evidence base is a local, gitignored factorial simulation over synthetic examples whose summaries omit Monte Carlo standard errors, with no real full-IPD benchmark in the repository and no evidence of independent replication. The repository is not bare: it contains tracked analytic, adversarial, and recovery unit tests and a continuous integration workflow that checks agreement between its two Stan backends. The report's ten-item minimum validation standard is internally consistent as a list, but several items restate the established ADEMP standard for simulation studies rather than being bespoke requirements, and a public factorial CNMA simulation benchmark already exists for the non-adjusted case."
+pid: "CMP-26"
+topic: "Component methods (CNMA and component PAIC)"
+categories: ["Component methods (CNMA and component PAIC)", "Very high priority", "Partially addressed"]
+priority: "Very high"
+prank: 1
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
+maturity: "Established"
+---
+::: {.problem-meta}
+[CMP-26]{.problem-id}
+[Partially addressed]{.verdict .verdict-partially-addressed}
+[Very high priority]{.chip .chip-priority-very-high}
+[Established]{.chip .chip-maturity-established}
+[Implementation-specific]{.chip}
+:::
+::: {.callout-note appearance="simple"}
+## Scope
+
+This entry describes a limitation of a specific implementation rather than of the field.
+It is catalogued because the underlying methodological problem is general, and because a
+reference implementation is where such problems become concrete and checkable.
+:::
+
+## Statement
+
+cpaic is an unreleased development R package on GitHub (choxos/cpaic@9d150e9) that a reader cannot install from CRAN, and its evidence base is a local, gitignored factorial simulation over synthetic examples whose summaries omit Monte Carlo standard errors, with no real full-IPD benchmark in the repository and no evidence of independent replication. The repository is not bare: it contains tracked analytic, adversarial, and recovery unit tests and a continuous integration workflow that checks agreement between its two Stan backends. The report's ten-item minimum validation standard is internally consistent as a list, but several items restate the established ADEMP standard for simulation studies rather than being bespoke requirements, and a public factorial CNMA simulation benchmark already exists for the non-adjusted case.
+
+## Why it is open
+
+Synthetic data generated from the model family the estimator assumes can confirm that the code implements the model, not that the model recovers truth under realistic violations, and when the author of the theory writes the only implementation, agreement between theory and program is guaranteed rather than informative. Without committed generators, scenario manifests, seeds, raw outputs, and Monte Carlo standard errors, a reported operating characteristic cannot be checked, rerun, or extended by anyone else. Several validation items require resources the author cannot unilaterally obtain, including full-IPD gold standards, connected empirical networks suitable for bridge deletion, and independent replication, and adversarial scenario design is itself an open task because it requires knowing which violations matter most, which is what the validation is supposed to reveal.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Morris, White and Crowther 2019](https://doi.org/10.1002/sim.8086) | codifies the ADEMP standard for planning and reporting simulation studies, including predeclared estimands, data-generating mechanisms, comparison methods, performance measures, and Monte Carlo error |
+| [Petropoulou et al. 2023](https://doi.org/10.1186/s12874-023-01959-9) | provides a public factorial CNMA simulation benchmark with disconnection-construction scripts for connected and disconnected networks, though not for population-adjusted component models |
+| netmeta | provides the frequentist component NMA engine cpaic depends on |
+| maicplus | provides the weighting engine cpaic depends on |
+| cmdstanr | optional Stan backend; the Stan models are implemented inside cpaic and fitted with rstan by default, so cmdstanr is not the Bayesian engine |
+| [cpaic 0.1.0 (development version, choxos/cpaic@9d150e9)](choxos/cpaic@9d150e9) | unreleased development R package on GitHub, not on CRAN; ships synthetic examples, keeps its principal factorial simulation and raw outputs in a gitignored local tree without Monte Carlo standard errors, and provides tracked analytic, adversarial, and recovery tests plus a CI workflow comparing its cmdstanr and rstan backends |
+
+:::
+
+## Probable solution or research direction
+
+Move the existing local factorial simulation into a public version-controlled repository under continuous integration, with generators, manifests, seeds, and raw outputs, and report Monte Carlo standard errors with predeclared estimands, following the ADEMP structure rather than presenting these as bespoke requirements. Extend the existing public CNMA simulation benchmark to the population-adjusted component case with adversarial scenarios that violate additivity, interactions, the target distribution, overlap, and the bridge, and compare against NMA, CNMA, MAIC, g-computation, ML-NMR, unanchored, and partial-identification alternatives. Validate against full-IPD gold standards and by empirical bridge deletion in connected networks, and obtain independent review and replication, treating the ten items as a strong evidence agenda rather than as individually non-waivable preconditions, since equivalent analytic or external validation can sometimes substitute.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Partially addressed. Part of this problem is addressed by existing work; the entry names which part.
+
+**The source titled this.** "cpaic lacks validation, reproducible simulations, and replication" The title says the package lacks validation and implies an installable release, but the audit found tracked analytic, adversarial, recovery and cross-backend tests plus CI in a GitHub-only package.
+
+**The source said.** "Component PAIC's current evidence base consists of synthetic examples produced by local, untracked simulation code inside a single codebase with no independent implementation or replication. The report sets a ten-item minimum validation standard spanning a public version-controlled simulation repository, Monte Carlo standard errors and predeclared estimands, adversarial scenarios, comparison against competing methods, simulation-based calibration, bridge-deletion validation, a real full-IPD example, independent review and replication, computational-failure and prior-sensitivity reporting, and an embedded reporting checklist, none of which may be skipped before a decision-grade claim."
+
+**What was wrong with it.** The source described the codebase as having no tracked validation and listed cmdstanr as the Bayesian engine; GPT-5.6 Sol found tracked analytic, adversarial, recovery, and cross-backend tests plus a CI stan-smoke workflow at choxos/cpaic@9d150e9, and confirmed the Stan models live inside cpaic and are fitted with rstan by default, with cmdstanr optional. The literature auditor added that several of the ten items restate the ADEMP standard (doi:10.1002/sim.8086) and that a public factorial CNMA simulation benchmark already exists (doi:10.1186/s12874-023-01959-9), and both auditors flagged that the claims of no independent implementation and no public benchmark are external negatives the source code cannot establish.
+
+**Dissent.** literature dissented (open): I checked the arithmetic claim first: the statement lists exactly ten validation items (public simulation repository; Monte Carlo standard errors and predeclared estimands; adversarial scenarios; comparison against competitors; simulation-based calibration; bridge-deletion validation; a real full-IPD example; independent review and replication; computational-failure and prior-sensitivity reporting; an embedded reporting checklist), so 'exactly ten' is internally consistent. Caveat: several items are not new requirements but restatements of an existing standard the entry does not cite. Morris, White and Crowther 2019 already codify predeclared estimands, data-generating mechanisms, comparison methods and performance measures with Monte Carlo error under the ADEMP structure, and were written precisely because 'simulation studies are often poorly designed, analyzed, and reported'. Also, 'No public factorial benchmark for component PAIC methods currently exists' is narrowly true, but a public factorial CNMA simulation benchmark does exist (Petropoulou et al. 2023, with disconnection-construction scripts). The claims about cpaic's untracked simulation code are unverifiable: cpaic is not on CRAN and I found no public repository. codex dissented (overstated): C1, C2, C6, C7, and C8 are supported: shipped examples are synthetic, the principal factorial simulation and raw outputs are in a gitignored local documentation tree, and its summaries omit Monte Carlo standard errors. The repository contains no real full-IPD gold-standard example, supporting C3 at repository scope. C4, C5, and C9 are external universal negatives that cannot be established from this source tree without literature or web investigation; the repository merely supplies no evidence of them. C10 identifies a real shared-error risk, but internal agreement is not guaranteed and analytic, regression, and cross-backend checks remain informative for nonshared implementation errors. C11 is materially stale: netmeta and maicplus are dependencies, but the Stan models are implemented inside cpaic and fitted through rstan by default; cmdstanr is optional. C13 is arithmetically correct because the stated list groups exactly ten requirements. C12 and C14 through C17 are defensible aspirations but overstated as individually nonwaivable prerequisites: SBC, empirical bridge deletion, a real full-IPD example, and independent replication are strong evidence sources, yet equivalent analytic, computational, or external validation can sometimes substitute. Substantially stronger transparent and independent validation is nevertheless required before broad decision-grade claims, making C18 a sound priority.
+
+Literature and prior-art check
+:   **open / supported-with-caveat.** I checked the arithmetic claim first: the statement lists exactly ten validation items (public simulation repository; Monte Carlo standard errors and predeclared estimands; adversarial scenarios; comparison against competitors; simulation-based calibration; bridge-deletion validation; a real full-IPD example; independent review and replication; computational-failure and prior-sensitivity reporting; an embedded reporting checklist), so 'exactly ten' is internally consistent. Caveat: several items are not new requirements but restatements of an existing standard the entry does not cite. Morris, White and Crowther 2019 already codify predeclared estimands, data-generating mechanisms, comparison methods and performance measures with Monte Carlo error under the ADEMP structure, and were written precisely because 'simulation studies are often poorly designed, analyzed, and reported'. Also, 'No public factorial benchmark for component PAIC methods currently exists' is narrowly true, but a public factorial CNMA simulation benchmark does exist (Petropoulou et al. 2023, with disconnection-construction scripts). The claims about cpaic's untracked simulation code are unverifiable: cpaic is not on CRAN and I found no public repository.
+    Cites doi:10.1002/sim.8086: Supplies the established ADEMP standard behind several of the ten items (predeclared estimands, performance measures, Monte Carlo error, reporting structure); the entry should cite it rather than present these as bespoke requirements..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / overstated.** C1, C2, C6, C7, and C8 are supported: shipped examples are synthetic, the principal factorial simulation and raw outputs are in a gitignored local documentation tree, and its summaries omit Monte Carlo standard errors. The repository contains no real full-IPD gold-standard example, supporting C3 at repository scope. C4, C5, and C9 are external universal negatives that cannot be established from this source tree without literature or web investigation; the repository merely supplies no evidence of them. C10 identifies a real shared-error risk, but internal agreement is not guaranteed and analytic, regression, and cross-backend checks remain informative for nonshared implementation errors. C11 is materially stale: netmeta and maicplus are dependencies, but the Stan models are implemented inside cpaic and fitted through rstan by default; cmdstanr is optional. C13 is arithmetically correct because the stated list groups exactly ten requirements. C12 and C14 through C17 are defensible aspirations but overstated as individually nonwaivable prerequisites: SBC, empirical bridge deletion, a real full-IPD example, and independent replication are strong evidence sources, yet equivalent analytic, computational, or external validation can sometimes substitute. Substantially stronger transparent and independent validation is nevertheless required before broad decision-grade claims, making C18 a sound priority.
+    Cites choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca: Documents that a factorial cross-gap simulation has been conducted while candidly limiting its reproducibility claim..
+    Cites choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca: Provides analytic unit checks for exact survival-likelihood contributions and integration behavior..
+    Cites choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca: Provides a tracked end-to-end comparison between the two supported Stan interfaces, though not an independent model implementation..
+
+Decision path
+:   `R3:partially-solved(n=1) → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [SFW-03 — No minimum validation standard for ITC and PAIC packages](SFW-03-no-minimum-validation-standard-for-itc-and-paic-packages.qmd)
+:::
+
+## Source
+
+Derived from C:L1385, C:L1495-1510, C:L1386, C:L1499-1500, C:L1389, C:L1239, scope:package-specific, scope:package-specific (single codebase) with field-level software-standards implications, scope:package-specific standard with field-level relevance to all PAIC software of the reviewed corpus.

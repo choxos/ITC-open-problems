@@ -1,0 +1,78 @@
+---
+title: "Estimand, effect scale and absolute target outcomes go undeclared"
+description: "ITC and PAIC reports commonly do not declare the estimand: whether it is conditional, marginal, overlap-population or partially identified, which population it refers to, the intercurrent-event strategy and horizon, or the treatment versions compared; and they usually report relative effects without target-standardized absolute arm outcomes. The vocabulary and much of the requirement already exist: Remiro-Azocar et al. 2021 (10.1002/jrsm.1511) show that the typical usage of STC targets a conditional effect where the target is marginal and that the resulting incompatibility biases the indirect comparison on a non-collapsible scale, NICE DSU TSD 18 says population-adjusted absolute and relative effects should be constructed for the target decision population, and TSD 7 asks reviewers whether the absolute effects used in the economic model are reported. What is missing is a requirement that a submission declare these things, not the concepts to declare. Collapsibility should not be reported as the test of transportability: a collapsible effect can still vary through effect modification, and a conditional non-collapsible parameter can be transported under appropriate structural assumptions."
+pid: "DEC-07"
+topic: "Decision analysis, regulation & reporting"
+categories: ["Decision analysis, regulation & reporting", "Very high priority", "Partially addressed"]
+priority: "Very high"
+prank: 1
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[DEC-07]{.problem-id}
+[Partially addressed]{.verdict .verdict-partially-addressed}
+[Very high priority]{.chip .chip-priority-very-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+## Statement
+
+ITC and PAIC reports commonly do not declare the estimand: whether it is conditional, marginal, overlap-population or partially identified, which population it refers to, the intercurrent-event strategy and horizon, or the treatment versions compared; and they usually report relative effects without target-standardized absolute arm outcomes. The vocabulary and much of the requirement already exist: Remiro-Azocar et al. 2021 (10.1002/jrsm.1511) show that the typical usage of STC targets a conditional effect where the target is marginal and that the resulting incompatibility biases the indirect comparison on a non-collapsible scale, NICE DSU TSD 18 says population-adjusted absolute and relative effects should be constructed for the target decision population, and TSD 7 asks reviewers whether the absolute effects used in the economic model are reported. What is missing is a requirement that a submission declare these things, not the concepts to declare. Collapsibility should not be reported as the test of transportability: a collapsible effect can still vary through effect modification, and a conditional non-collapsible parameter can be transported under appropriate structural assumptions.
+
+## Why it is open
+
+The estimand framework entered practice through trial analysis, so ITC reporting templates predate it and have no field for intercurrent-event strategy or population labeling even where the underlying requirement exists in guidance. Because different methods inside one submission return conditional and marginal quantities on non-collapsible scales, omitting the declaration lets incompatible numbers be combined without anyone noticing. Synthesis models are parameterized in relative effects and most software returns those, so target-standardized absolute outcomes take an extra step; the economic modeler then supplies a baseline from a different source and the mismatch is never displayed. Stating the estimand precisely also makes visible that the analysis targets a comparator-trial population rather than the decision population.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Remiro-Azocar, Heath and Baio 2021](https://doi.org/10.1002/jrsm.1511) | Review and simulation study built on the marginal-versus-conditional distinction; shows that the typical usage of STC targets a conditional effect where a marginal one is required and that non-collapsibility makes the combined estimates incompatible. |
+| [Target estimands for population-adjusted indirect comparisons (arXiv preprint)](https://arxiv.org/abs/2112.08023) | Develops the taxonomy of target estimands for population-adjusted indirect comparisons; named by the literature auditor as the same author's follow-up to the 2021 review. |
+| [Jiang et al. 2025](https://doi.org/10.1017/rsm.2025.10) | Shows the indirect comparison result is valid only for the population represented by the aggregate-data trial, which may differ from the sponsor's or the decision population, sourcing the requirement to name populations separately. |
+| [NICE DSU Technical Support Document 7 (2012)](choxos/NICE-DSU-TSD-RAG@75abcb9c226a9f8fa7a0a4ffeba42874f1712ecb) | Asks reviewers to assess target population, treatment definition, outcome and synthesis scale, and whether the absolute effects used in the cost-effectiveness analysis are reported. Read by the code auditor from a document corpus at the given commit. |
+
+:::
+
+## Probable solution or research direction
+
+Turn the existing guidance into an explicit declaration: require every report to name the treatments with their versions, doses and schedules, the outcome, horizon, intercurrent-event strategy and effect measure, the source, comparator-trial and decision populations separately, and the estimand type. Require target-standardized absolute arm outcomes alongside relative effects wherever they are identifiable, which TSD 18 already recommends, so the baseline used by the economic model matches the population in which the effect was estimated. Justify the effect scale on clinical and modeling grounds and state the standardization performed, rather than treating collapsibility as a license to transport.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Partially addressed. Part of this problem is addressed by existing work; the entry names which part.
+
+**The source said.** "ITC and PAIC reports do not state what is being estimated: intervention versions, doses, schedules and strategies; outcome, time horizon, intercurrent-event strategy and effect measure; the source, comparator-trial and final decision populations named separately; whether the estimand is conditional, marginal, overlap-population or partially identified; and whether the chosen effect scale is collapsible. They also report relative effects alone, without the target-standardized absolute arm outcomes that the decision and the economic model require."
+
+**What was wrong with it.** The source said ITC reporting conventions have no slot for these declarations and that collapsibility determines whether an effect is transportable. GPT-5.6 Sol found TSD 18 and TSD 7 already ask for target-population absolute and relative effects, and that collapsibility is neither necessary nor sufficient for transportability; the literature auditor added that the marginal-versus-conditional taxonomy has been developed since 2021 (10.1002/jrsm.1511, arXiv:2112.08023).
+
+**Dissent.** literature dissented (open): The reporting gap is real, but the why_open framing that ITC 'has no slot' for the estimand framework materially understates a well-developed 2021-2022 methodological literature. Remiro-Azocar, Heath & Baio 2021 (Res Synth Methods, doi 10.1002/jrsm.1511) is explicitly built on the marginal-versus-conditional distinction and demonstrates the exact failure the entry describes: 'The typical usage of STC produces bias because it targets a conditional treatment effect where the target estimand should be a marginal treatment effect. The incompatibility of estimates in the indirect comparison leads to bias as the measure of effect is non-collapsible.' That directly supports the entry's claims about collapsibility and about incompatible quantities being combined unnoticed. The same author's follow-up 'Target estimands for population-adjusted indirect comparisons' (arXiv:2112.08023) develops the taxonomy further. Jiang et al. 2025 supports naming source, comparator-trial and decision populations separately. So the concepts and the vocabulary exist; what does not exist is a requirement that a submission declare them. I could not verify the sub-claim about absolute target-standardized arm outcomes being outside every default workflow, since I did not check what current software returns. codex dissented (overstated): The reporting proposal has a strong technical core, but its absolute claims and collapsibility argument are incorrect. Existing ITC and PAIC guidance already asks for treatment definition, target population, effect scale, and absolute treatment effects, so the claim that reporting conventions have no such slots is false. C2, C5, C6, and C7 are technically sound. For C3, time horizon and an applicable intercurrent-event strategy belong in the estimand, but frequent nonreporting is an empirical claim. C4 is false: collapsibility is neither necessary nor sufficient for transportability. A collapsible effect can vary through effect modification, while a conditional non-collapsible parameter can be transported under appropriate structural assumptions. C8 is correct for a marginal effect naively combined with an aggregate baseline from another population, but too broad for conditional models. Non-collapsibility means that marginal effects depend on the covariate distribution even without conditional effect modification; valid target standardization, rather than a blanket prohibition, is the remedy.
+
+Literature and prior-art check
+:   **open / supported-with-caveat.** The reporting gap is real, but the why_open framing that ITC 'has no slot' for the estimand framework materially understates a well-developed 2021-2022 methodological literature. Remiro-Azocar, Heath & Baio 2021 (Res Synth Methods, doi 10.1002/jrsm.1511) is explicitly built on the marginal-versus-conditional distinction and demonstrates the exact failure the entry describes: 'The typical usage of STC produces bias because it targets a conditional treatment effect where the target estimand should be a marginal treatment effect. The incompatibility of estimates in the indirect comparison leads to bias as the measure of effect is non-collapsible.' That directly supports the entry's claims about collapsibility and about incompatible quantities being combined unnoticed. The same author's follow-up 'Target estimands for population-adjusted indirect comparisons' (arXiv:2112.08023) develops the taxonomy further. Jiang et al. 2025 supports naming source, comparator-trial and decision populations separately. So the concepts and the vocabulary exist; what does not exist is a requirement that a submission declare them. I could not verify the sub-claim about absolute target-standardized arm outcomes being outside every default workflow, since I did not check what current software returns.
+    Cites 10.1002/jrsm.1511: Sources the collapsibility and conditional-vs-marginal claims, and shows the concrete harm from failing to declare which is targeted..
+    Cites 10.1017/rsm.2025.10: Sources the requirement to name the source, comparator-trial and decision populations separately..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / overstated.** The reporting proposal has a strong technical core, but its absolute claims and collapsibility argument are incorrect. Existing ITC and PAIC guidance already asks for treatment definition, target population, effect scale, and absolute treatment effects, so the claim that reporting conventions have no such slots is false. C2, C5, C6, and C7 are technically sound. For C3, time horizon and an applicable intercurrent-event strategy belong in the estimand, but frequent nonreporting is an empirical claim. C4 is false: collapsibility is neither necessary nor sufficient for transportability. A collapsible effect can vary through effect modification, while a conditional non-collapsible parameter can be transported under appropriate structural assumptions. C8 is correct for a marginal effect naively combined with an aggregate baseline from another population, but too broad for conditional models. Non-collapsibility means that marginal effects depend on the covariate distribution even without conditional effect modification; valid target standardization, rather than a blanket prohibition, is the remedy.
+    Cites choxos/NICE-DSU-TSD-RAG@75abcb9c226a9f8fa7a0a4ffeba42874f1712ecb: Already asks reviewers to assess the target population, treatment definition, outcome and synthesis scale, and absolute treatment effects used by the economic model..
+    Cites choxos/NICE-DSU-TSD-RAG@75abcb9c226a9f8fa7a0a4ffeba42874f1712ecb: Explicitly recommends constructing both absolute and relative population-adjusted effects for the target decision population..
+
+Decision path
+:   `R3:partially-solved(n=1) → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [COV-02 — No evidence on how the modifier set changes across effect scales](COV-02-no-evidence-on-how-the-modifier-set-changes-across-effect-sc.qmd)
+:::
+
+## Source
+
+Derived from C:L2365-2371, C:L2372 of the reviewed corpus.

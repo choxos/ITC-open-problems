@@ -1,0 +1,80 @@
+---
+title: "Adjusted component bridges need interaction constancy across the gap"
+description: "Once population adjustment is added to a component bridge, cross-subnetwork constancy is required for the interaction projection that loads the requested contrast, not only for component main effects: for a target profile x, the quantity (C_t - C_u)' Gamma x must be stable in addition to the corresponding main-effect projection. The assumption count grows with adjusted covariates but is smaller than the number of interaction terms, because zero target values, zero component loadings, and interactions supported by covariate variation in two subnetworks all reduce it. The combined assumption set is strictly stronger than main-effect constancy only when a nonzero relevant interaction is present. Phillippo et al. 2022 show that in a connected network the shared-effect-modifier assumption can be examined and relaxed one covariate at a time; that machinery has no analogue across a disconnection."
+pid: "CMP-02"
+topic: "Component methods (CNMA and component PAIC)"
+categories: ["Component methods (CNMA and component PAIC)", "Very high priority", "Confirmed open"]
+priority: "Very high"
+prank: 1
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Emerging"
+---
+::: {.problem-meta}
+[CMP-02]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[Very high priority]{.chip .chip-priority-very-high}
+[Emerging]{.chip .chip-maturity-emerging}
+:::
+## Statement
+
+Once population adjustment is added to a component bridge, cross-subnetwork constancy is required for the interaction projection that loads the requested contrast, not only for component main effects: for a target profile x, the quantity (C_t - C_u)' Gamma x must be stable in addition to the corresponding main-effect projection. The assumption count grows with adjusted covariates but is smaller than the number of interaction terms, because zero target values, zero component loadings, and interactions supported by covariate variation in two subnetworks all reduce it. The combined assumption set is strictly stronger than main-effect constancy only when a nonzero relevant interaction is present. Phillippo et al. 2022 show that in a connected network the shared-effect-modifier assumption can be examined and relaxed one covariate at a time; that machinery has no analogue across a disconnection.
+
+## Why it is open
+
+Interaction parameters are estimated from less information than the corresponding main effects, so requiring the target-relevant projection of them to be stable across a gap that carries no evidence compounds an already weak identification problem. Component cML-NMR as implemented uses a single shared interaction matrix with no subnetwork index and no hierarchical alternative, so a drifting interaction has nowhere to go except into the shared parameter. No published diagnostic distinguishes a genuinely shared interaction from one whose apparent stability is an artifact of shrinkage or of limited covariate range within each subnetwork, and no target-specific interaction-drift tipping surface exists in any component PAIC software found by the auditors.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Phillippo et al. 2022](https://doi.org/10.1177/0272989X221117162) | assesses and relaxes the shared effect modifier assumption one covariate at a time in a connected ML-NMR network; no analogue exists across a disconnection |
+| [cpaic 0.1.0 (development version, choxos/cpaic@9d150e9)](choxos/cpaic@9d150e9) | unreleased development R package on GitHub, not on CRAN; fits one global component-by-modifier interaction matrix shared across all subnetworks in cML-NMR, with no subnetwork-specific drift and no interaction tipping surfaces |
+
+:::
+
+## Probable solution or research direction
+
+Fit hierarchical subnetwork-specific interaction matrices Gamma_s that shrink toward a common value rather than being forced equal, with reference or zero-mean constraints so Gamma and the drift blocks are separately defined. Add interaction-drift sensitivity expressed on the projection that loads the requested contrast, with target-specific tipping surfaces showing which covariate values make the conclusion fragile. Report, for each requested contrast, which interaction directions are supported by covariate variation in more than one subnetwork, since those are the only ones with any cross-gap evidence.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+
+**The source titled this.** "Component-by-modifier constancy is a strictly stronger assumption" The title asserts the assumption is strictly stronger unconditionally, but the audit restricted that to cases where a nonzero relevant interaction is present.
+
+**The source said.** "Once population adjustment is added to a component bridge, cross-subnetwork constancy is needed not only for component main effects but for every relevant component-by-effect-modifier interaction, so the untestable surface grows with the number of adjusted covariates. Component ML-NMR therefore stacks CNMA assumptions on top of transportability, an integration distribution, and stable component-by-modifier interactions."
+
+**What was wrong with it.** The source said every component-by-modifier interaction must be constant and that disconnection makes each one unverifiable. GPT-5.6 Sol restricted this to the interaction projection (C_t - C_u)' Gamma x that loads the requested target, noted that interactions supported by covariate variation in two subnetworks can be compared, and confirmed at choxos/cpaic@9d150e9 that the package fits one global gamma[C,Q] with no subnetwork index; the literature auditor added Phillippo et al. 2022 (doi:10.1177/0272989X221117162), which shows the connected-network analogue is assessable.
+
+Literature and prior-art check
+:   **open / supported-with-caveat.** I searched PubMed, arXiv and the netmeta/multinma literature for any published component + population-adjustment model; the closest published object is Rucker/Schmitz/Schwarzer 2021, which compares CNMA against a matching method but does not fit component-by-modifier interactions. I found no paper that formalises or tests cross-subnetwork constancy of interaction matrices, so the problem is open. The core claim ('interaction constancy is strictly stronger than main-effect constancy') is a logical containment, not an empirical finding, and is defensible as stated. Supporting context the entry omits: Phillippo et al. 2022 (Med Decis Making) report that in a CONNECTED network the shared-effect-modifier assumption can be assessed and relaxed one covariate at a time ('A shared effect modifier assumption may also be necessary for identifiability'; they 'relax the shared effect modifier assumption for each covariate in turn'). That machinery has no analogue across a disconnection, which strengthens rather than weakens the entry. The claims naming cpaic's internals are unverifiable from literature: cpaic is not on CRAN and I found no public repository.
+    Cites doi:10.1177/0272989X221117162: Does NOT solve it. Supplies the missing citation showing shared-effect-modifier assumptions ARE assessable in connected networks, sharpening the claim that they are not across a gap..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** At choxos/cpaic@9d150e9, C5 is source-confirmed: .cpaic_fixed_design() creates one global component-by-modifier block, and each Stan model has one matrix gamma[C,Q] with no subnetwork index or hierarchical gamma_s. Interaction-drift tipping surfaces are absent, and bridge_fragility() expressly excludes Lambda, supporting the cpaic-specific part of C6. C9 and C10 are also correct: reported effects are conditional contrasts (C_t-C_u)'(beta+Gamma x), while aggregate likelihoods integrate over study covariate distributions. C1-C4 and C11 nevertheless need rank and estimand qualifications. Only the projection (C_t-C_u)'Lambda_s x relevant to the requested target must be stable; zero target values, zero component loadings, and estimable linear combinations reduce the assumption count. Interactions supported by covariate variation in multiple subnetworks can be compared, so disconnection does not make every interaction unverifiable. The combined main-effect-plus-interaction assumption set is strictly stronger only when a nonzero relevant interaction is introduced. For C8, the integration distribution is required for aggregate-study likelihood construction, but cpaic has no marginal target-standardization path and needs only a covariate profile for its reported target contrast. Software-wide nonexistence in C6 is outside this audit.
+
+Grok 4.5, recency lens
+:   **open / supported.** Sought component-by-effect-modifier interactions that vary by subnetwork, hierarchical Gamma_s, interaction-drift tipping surfaces, or component ML-NMR software beyond a shared interaction matrix. Public search found no CRAN package named cpaic (404 on cran.r-project.org/package=cpaic) and no published component-ML-NMR with hierarchical subnetwork-specific interaction matrices or target-specific interaction-drift fragility tools. Multinma and related PAIC/ML-NMR work address population adjustment for whole treatments, not the stacked CNMA-plus-modifier-constancy surface described here. Veroniki et al. 2026 and Rücker et al. 2020 discuss interaction CNMA for component–component terms, not component-by-covariate constancy across a disconnection. Queries covering Research Synthesis Methods, Statistics in Medicine, arXiv, and package ecosystems (multinma, maicplus, netmeta, gemtc, MBNMAdose, crossnma) through 2026 returned no evaluation that identifies or bounds Lambda^(s) from disconnected evidence. Claims that population adjustment multiplies untestable cross-gap stability assumptions (C1–C4, C8–C11) remain faithful; software claims about cpaic (C5–C6) are consistent with the absence of a public package implementing hierarchical interaction drift, but cpaic itself was not independently retrievable. Interaction-drift fragility (C7) is still only a proposal.
+
+Decision path
+:   `R5:default-open → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [COV-04 — Selection uncertainty in PAIC interaction shrinkage is uncalibrated](COV-04-selection-uncertainty-in-paic-interaction-shrinkage-is-uncal.qmd)
+- [IDN-05 — The shared effect modifier check has low and uncalibrated power](IDN-05-the-shared-effect-modifier-check-has-low-and-uncalibrated-po.qmd)
+- [MOD-03 — Ecological versus within-study effect modification](MOD-03-ecological-versus-within-study-effect-modification.qmd)
+- [MOD-08 — Cross-fitting folds and rate conditions undefined for PAIC](MOD-08-cross-fitting-folds-and-rate-conditions-undefined-for-paic.qmd)
+- [QBA-20 — Component PAIC needs joint population-and-bridge bias analysis](QBA-20-component-paic-needs-joint-population-and-bridge-bias-analys.qmd)
+:::
+
+## Source
+
+Derived from C:L1356, C:L1343-1347, C:L214-215, C:L243, C:L187-188, C:L201, scope:field-level (applies to any component PAIC with effect modification) of the reviewed corpus.

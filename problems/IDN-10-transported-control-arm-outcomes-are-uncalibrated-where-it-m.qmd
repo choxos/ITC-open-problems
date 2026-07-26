@@ -1,0 +1,73 @@
+---
+title: "Transported control-arm outcomes are uncalibrated where it matters"
+description: "Comparing transported control-arm outcomes with observed ones tests the absolute-outcome transport model rather than only the relative effect, and it is available wherever a suitable validation control outcome exists, which can come from a masked or external validation dataset rather than from the target analysis itself. It is unavailable in the single-arm comparator case that motivates much unanchored population adjustment, although unanchored means only that there is no common randomized anchor and does not by itself imply single-arm evidence. Gupta et al. (doi:10.1001/jamanetworkopen.2025.2152) show that a hidden-randomized-truth benchmark is feasible, setting aside the randomized control arms of 14 advanced non-small-cell lung cancer trials, substituting Flatiron Health external controls, and reporting mean absolute log hazard ratio differences of 0.247 unadjusted, 0.139 after measured-confounder adjustment and 0.098 after external adjustment for unmeasured confounding. That design is retrospective and benchmarks relative effects, so it does not calibrate transported absolute control-arm outcomes and does not establish transfer to control-free targets."
+pid: "IDN-10"
+topic: "Identification, transitivity & conditional constancy"
+categories: ["Identification, transitivity & conditional constancy", "Very high priority", "Partially addressed"]
+priority: "Very high"
+prank: 1
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[IDN-10]{.problem-id}
+[Partially addressed]{.verdict .verdict-partially-addressed}
+[Very high priority]{.chip .chip-priority-very-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+## Statement
+
+Comparing transported control-arm outcomes with observed ones tests the absolute-outcome transport model rather than only the relative effect, and it is available wherever a suitable validation control outcome exists, which can come from a masked or external validation dataset rather than from the target analysis itself. It is unavailable in the single-arm comparator case that motivates much unanchored population adjustment, although unanchored means only that there is no common randomized anchor and does not by itself imply single-arm evidence. Gupta et al. (doi:10.1001/jamanetworkopen.2025.2152) show that a hidden-randomized-truth benchmark is feasible, setting aside the randomized control arms of 14 advanced non-small-cell lung cancer trials, substituting Flatiron Health external controls, and reporting mean absolute log hazard ratio differences of 0.247 unadjusted, 0.139 after measured-confounder adjustment and 0.098 after external adjustment for unmeasured confounding. That design is retrospective and benchmarks relative effects, so it does not calibrate transported absolute control-arm outcomes and does not establish transfer to control-free targets.
+
+## Why it is open
+
+Where the check is possible, agreement of absolute control-arm outcomes conflates prognostic transport, outcome definition, follow-up length, censoring and care context, so a pass can arise from offsetting errors across several mechanisms, and agreement is neither necessary nor sufficient for an unbiased relative effect. No accepted tolerance states how close a transported control outcome must be before the transport model is accepted. The arm-level quantities the check needs are usually not published, because analyses report relative effects, and extrapolating a favorable verdict from settings that have a control arm to the control-free comparisons that need it remains an untested assumption.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Gupta et al. 2025, Quantitative Bias Analysis for Single-Arm Trials With External Control Arms, JAMA Network Open](https://doi.org/10.1001/jamanetworkopen.2025.2152) | sets aside the randomized control arms of 14 advanced non-small-cell lung cancer trials (15 experimental arms), substitutes Flatiron Health external controls, and benchmarks against the randomized answer: mean absolute log hazard ratio difference 0.247 unadjusted, 0.139 after measured-confounder adjustment, 0.098 after external adjustment for unmeasured confounding. It is retrospective and compares relative effects, not transported versus observed absolute control-arm outcomes |
+
+:::
+
+## Probable solution or research direction
+
+Extend the existing hidden-truth benchmark rather than propose it: run it beyond one disease area and outcome, across data sources and bias mechanisms, and add the absolute control-arm comparison the published example did not make. Masked or external validation control outcomes suffice, so prospective withholding is not a precondition and should not gate the work. Require reporting of bias-adjusted arm-level outcomes alongside relative effects so the check is possible at all, and extend it from point outcomes to survival curves and restricted mean survival time.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Partially addressed. Part of this problem is addressed by existing work; the entry names which part.
+
+**The source said.** "Comparing transported (predicted) control-arm outcomes with observed control-arm outcomes tests the absolute-outcome transport model rather than only the relative effect. The check is available only where a randomized control arm exists, which is precisely not the single-arm setting in which unanchored PAIC is used."
+
+**What was wrong with it.** The entry attached Gupta et al. 2025 to a check the paper does not perform. Both auditors found it a retrospective benchmark of relative effects with quantitative bias analysis rather than the prospective withholding the entry described or a comparison of transported against observed absolute control-arm outcomes, and the source-code auditor also rejected the equation of unanchored population adjustment with single-arm evidence.
+
+**Dissent.** codex dissented (overstated): C1 is correct for the literal observed-versus-predicted check, but the observed validation outcome need not come from the target analysis itself; masked or external validation datasets suffice. C2 is false as a definition: unanchored means no common randomized anchor, not necessarily single-arm evidence, although the common high-risk single-arm use case lacks a target control outcome. C3 is correct. Absolute-outcome agreement is neither sufficient nor necessary for an unbiased relative treatment effect because offsetting prognostic, measurement, follow-up, and censoring errors can coexist with treatment-effect misspecification. C4 is a reasonable validation program, but prospective hiding is not essential. C5 supports feasibility of a hidden-randomized-truth benchmark for external-control relative-effect and QBA analyses; it does not directly establish calibration of transported absolute control-arm outcomes.
+
+Literature and prior-art check
+:   **open / supported-with-caveat.** I retrieved the cited paper. DOI 10.1001/jamanetworkopen.2025.2152 is Gupta et al., 'Quantitative Bias Analysis for Single-Arm Trials With External Control Arms' (JAMA Netw Open 2025). The design description in prior_work is broadly fair but misstates the paper's contribution and its temporal design. The paper set aside the randomized control arms of 14 Roche-sponsored advanced NSCLC RCTs (15 experimental arms), substituted Flatiron Health external controls (43,302 patients), and benchmarked against the randomized answer; but that benchmarking design is the vehicle, not the finding. The finding is that QBA for residual confounding is feasible and moves estimates toward the randomized truth (mean absolute log hazard ratio difference 0.247 unadjusted, 0.139 after measured-confounder adjustment, 0.098 after external adjustment for simulated unmeasured confounders). It is retrospective benchmarking, not the prospective withholding the proposed_direction describes, and it compares relative effects, not transported versus observed absolute control-arm outcomes, which is the check this entry is actually about. So the citation is one step removed from the claim it is attached to. The underlying problem is open.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / overstated.** C1 is correct for the literal observed-versus-predicted check, but the observed validation outcome need not come from the target analysis itself; masked or external validation datasets suffice. C2 is false as a definition: unanchored means no common randomized anchor, not necessarily single-arm evidence, although the common high-risk single-arm use case lacks a target control outcome. C3 is correct. Absolute-outcome agreement is neither sufficient nor necessary for an unbiased relative treatment effect because offsetting prognostic, measurement, follow-up, and censoring errors can coexist with treatment-effect misspecification. C4 is a reasonable validation program, but prospective hiding is not essential. C5 supports feasibility of a hidden-randomized-truth benchmark for external-control relative-effect and QBA analyses; it does not directly establish calibration of transported absolute control-arm outcomes.
+    Cites 10.1001/jamanetworkopen.2025.2152: Demonstrates a retrospective hidden-randomized-truth benchmark using external controls, resolving feasibility of that calibration design; it does not validate absolute transported control-arm outcomes or transfer to control-free target analyses..
+
+Decision path
+:   `R3:partially-solved(n=1) → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [DIS-03 — Baseline risk is not a neutral anchor for disconnected evidence](DIS-03-baseline-risk-is-not-a-neutral-anchor-for-disconnected-evide.qmd)
+- [QBA-02 — No prospectively blinded calibration program for PAIC and QBA](QBA-02-no-prospectively-blinded-calibration-program-for-paic-and-qb.qmd)
+:::
+
+## Source
+
+Derived from C:L402, C:L416, C:L828 of the reviewed corpus.

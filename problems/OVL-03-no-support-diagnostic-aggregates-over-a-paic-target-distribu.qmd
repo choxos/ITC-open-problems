@@ -1,0 +1,77 @@
+---
+title: "No support diagnostic aggregates over a PAIC target distribution"
+description: "Outcome-regression PAIC such as STC, ML-NMR and parametric g-computation can rely on predictions at target covariate profiles that are sparsely represented or unsupported in the source data, and weight-concentration summaries such as ESS do not diagnose that reliance. General support diagnostics do exist and can be applied to a regression: covariate distance, convex-hull membership, density, prediction variance and classical leverage all flag risk, though none certifies that a transported causal effect is identified. What is missing is the PAIC-specific layer: aggregating those measures over a target distribution that is often known only as published moments, reporting them for a target-standardized marginal contrast rather than for a single prediction, and calibrating rules that map a flag to abstention, an explicit sensitivity model, or target redefinition. Two auditors searched and found no application of conformal prediction or representation-space out-of-distribution scoring to STC, ML-NMR or g-computation-based population adjustment; that is a negative search result rather than a verified absence."
+pid: "OVL-03"
+topic: "Positivity, overlap & extrapolation"
+categories: ["Positivity, overlap & extrapolation", "High priority", "Confirmed open"]
+priority: "High"
+prank: 2
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Emerging"
+---
+::: {.problem-meta}
+[OVL-03]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[High priority]{.chip .chip-priority-high}
+[Emerging]{.chip .chip-maturity-emerging}
+:::
+## Statement
+
+Outcome-regression PAIC such as STC, ML-NMR and parametric g-computation can rely on predictions at target covariate profiles that are sparsely represented or unsupported in the source data, and weight-concentration summaries such as ESS do not diagnose that reliance. General support diagnostics do exist and can be applied to a regression: covariate distance, convex-hull membership, density, prediction variance and classical leverage all flag risk, though none certifies that a transported causal effect is identified. What is missing is the PAIC-specific layer: aggregating those measures over a target distribution that is often known only as published moments, reporting them for a target-standardized marginal contrast rather than for a single prediction, and calibrating rules that map a flag to abstention, an explicit sensitivity model, or target redefinition. Two auditors searched and found no application of conformal prediction or representation-space out-of-distribution scoring to STC, ML-NMR or g-computation-based population adjustment; that is a negative search result rather than a verified absence.
+
+## Why it is open
+
+A regression has no weights to inspect, so a positivity violation shows up as a numerically well-behaved prediction rather than as an extreme weight, and while prediction variance does rise with leverage in linear and generalized linear models, no model-based interval represents misspecification or nonidentification. The general geometric and leverage diagnostics that could flag the risk do not aggregate cleanly to the quantity a PAIC reports, which is a target-standardized marginal contrast integrated over a target distribution known only through published marginals, in a hierarchical network where the relevant covariate joint distribution must be assumed rather than observed. Conformal and out-of-distribution scores inherit exchangeability-type assumptions that fail precisely under the unsupported covariate shift they are meant to detect, and in any case deliver predictive coverage or novelty rather than identification of a causal contrast. There is no established mapping from any of these scores to a decision, and interval widening is not one, because widening without an explicit sensitivity model, bound or prior does not repair nonidentification.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Remiro-Azocar, Heath and Baio 2022, Parametric G-computation for compatible indirect treatment comparisons with limited individual patient data](https://doi.org/10.1002/jrsm.1565) | counterweight to the entry's framing of extrapolation as pure hazard: reports that parametric G-computation achieves more precise and more accurate estimates than MAIC particularly when covariate overlap is poor, and yields unbiased marginal treatment effect estimates under no failures of assumptions |
+| [cpaic, unreleased development package on GitHub (not on CRAN), commit 9d150e9, plot_leverage()](https://github.com/choxos/cpaic) | provides plot_leverage(), which is DIC point leverage based on posterior deviance variance; it is a model-fit diagnostic and not the covariate-support or extrapolation-leverage diagnostic this entry proposes |
+
+:::
+
+## Probable solution or research direction
+
+Start from the support diagnostics that already exist for regression, namely covariate distance, convex-hull membership, density ratios, prediction variance and classical leverage, and solve the PAIC-specific problem, which is aggregating them over a target distribution reconstructed from published marginals and reporting them for a target-standardized marginal contrast rather than for a single prediction. Note that plot_leverage() in cpaic (https://github.com/choxos/cpaic, commit 9d150e9, an unreleased development package that cannot be installed from CRAN) is DIC point leverage computed from posterior deviance variance, so it is a model-fit diagnostic and not the covariate-support diagnostic proposed here; building the latter is genuinely new work. Treat conformal and out-of-distribution tools as candidates for the flagging step only in their weighted or anomaly-score forms, since ordinary conformal prediction carries no guarantee under the shift being diagnosed. Tie every flag to a stated response, whether abstention, target redefinition, or an explicit sensitivity model with declared bounds, rather than to ad hoc interval widening, and frame the whole battery as diagnostic so that a passing score is never read as certifying extrapolation.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+
+**The source titled this.** "No support diagnostics for outcome-regression population adjustment" The title claims no support diagnostics exist for outcome-regression PAIC, which the audit judged overstated since distance, convex-hull, density, prediction-variance and leverage measures all apply.
+
+**The source said.** "Weight-based overlap diagnostics do not transfer to outcome-regression PAIC such as STC, ML-NMR and g-computation, where an outcome model silently produces predictions at target covariate profiles with no empirical support. The report calls for extrapolation-leverage diagnostics and treats conformal prediction and representation-space out-of-distribution scores as speculative but useful flags whose role is abstention, never certification of extrapolation."
+
+**What was wrong with it.** The source's title and framing claimed that no support diagnostics exist for outcome-regression PAIC; GPT-5.6 Sol judged that overstated, since covariate-distance, convex-hull, density, prediction-variance and classical leverage diagnostics can all be applied, and since model-based standard errors are not necessarily narrow outside support because prediction variance rises with leverage, and it also struck the claim that conformal prediction flags unsupported profiles, because under unsupported covariate shift ordinary conformal prediction loses its exchangeability guarantee and need not flag the profile at all. The literature auditor recorded the load-bearing absence claim as unverifiable rather than verified, and noted that Remiro-Azocar, Heath and Baio 2022 (doi:10.1002/jrsm.1565) treat extrapolation as the capability that lets regression outperform MAIC exactly where overlap is worst.
+
+Literature and prior-art check
+:   **open / supported-with-caveat.** I searched arXiv (full-text and abstract queries pairing conformal/out-of-distribution with transportability, generalizability and external validity) and PubMed, and found no application of conformal prediction or representation-space OOD scoring to STC, ML-NMR or g-computation-based population adjustment, and no extrapolation-leverage diagnostic for outcome-regression PAIC. So the entry's own hedge that these tools are 'speculative rather than established' matches what I could retrieve, and the problem is open. Two caveats. First, the load-bearing negative claim (no support diagnostics exist for outcome-regression PAIC) is an absence claim and no source I retrieved asserts it, so it is unverifiable rather than verified. Second, the entry's framing of extrapolation as pure hazard is one-sided: Remiro-Azocar et al. 2022 present extrapolation as the capability that lets regression-based adjustment beat MAIC exactly where overlap is worst, reporting that parametric G-computation is 'more precise and more accurate than MAIC, particularly when covariate overlap is poor.' The diagnostic gap is real; the implied verdict on outcome regression is not established.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** C1, the qualified form of C2, C6, and C8 are correct: weight-concentration diagnostics do not diagnose an outcome model, predictions can be computed outside empirical support, and neither conformal nor OOD scoring identifies a causal effect or validates extrapolation. The title and rationale nevertheless overstate the absence of diagnostics. Covariate-distance, convex-hull, density, prediction-variance, and classical leverage diagnostics can be applied to outcome regression, although none certifies causal transport. Model-based standard errors are not necessarily narrow outside support; linear and generalized regression prediction uncertainty can increase with leverage, while still failing to represent model misspecification or nonidentification. C4 is not true of ordinary conformal prediction: under unsupported covariate shift its exchangeability guarantee fails, and a conventional conformal interval need not flag the profile. Specialized conformal anomaly scores or weighted conformal procedures can be heuristic flags under additional assumptions. Representation-space OOD scores are likewise model-dependent heuristics. C7 is incomplete because ad hoc interval widening does not repair nonidentification; widening requires an explicit sensitivity model, bound, or prior. At cpaic@9d150e9, plot_leverage() is DIC point leverage based on posterior deviance variance, not the proposed covariate-support diagnostic. PAIC-specific aggregation of support diagnostics and calibrated abstention rules remains open, but general support diagnostics do exist.
+
+Decision path
+:   `R5:default-open → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [ADJ-04 — Flexible outcome surfaces and support diagnostics in standardization](ADJ-04-flexible-outcome-surfaces-and-support-diagnostics-in-standar.qmd)
+- [COV-05 — Legitimate versus dangerous roles for flexible learners](COV-05-legitimate-versus-dangerous-roles-for-flexible-learners.qmd)
+- [DEC-10 — Trimming redefines the target population without naming it](DEC-10-trimming-redefines-the-target-population-without-naming-it.qmd)
+- [DIA-06 — Failure signatures across PAIC estimator families are uncharacterized](DIA-06-failure-signatures-across-paic-estimator-families-are-unchar.qmd)
+- [MOD-01 — Conventional STC reports a conditional effect at target means](MOD-01-conventional-stc-reports-a-conditional-effect-at-target-mean.qmd)
+- [OUT-12 — Survival extrapolation is unidentified beyond the observed follow-up](OUT-12-survival-extrapolation-is-unidentified-beyond-the-observed-f.qmd)
+:::
+
+## Source
+
+Derived from C:L884, C:L908-910, C:L956-958 of the reviewed corpus.

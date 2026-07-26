@@ -1,0 +1,80 @@
+---
+title: "Total bias is non-additive, so one-at-a-time analyses mislead"
+description: "Bias mechanisms interact on nonlinear estimand scales, so total bias need not equal the sum of population, bridge and measurement bias, and a set of one-at-a-time curves cannot establish joint robustness, though surviving each curve does not prove that cancellation is what saved the estimate. This now has direct evidence in the external-control setting: Ackerman et al. 2024 (doi:10.3389/fdsfr.2024.1423493) show that misclassified progression events and irregular assessment times occurring together may generate bias greater than the sum of their parts. Joint multiple-bias machinery also already exists outside population adjustment: Brendel, Torres and Arah (doi:10.1093/ije/dyad001) adjust uncontrolled confounding, selection bias and misclassification simultaneously via imputation and regression weighting, with a CRAN implementation, so the PAIC-specific gap is composition of those bias models with the population-adjustment step rather than multiple-bias composition itself."
+pid: "QBA-22"
+topic: "Quantitative bias analysis for unanchored PAIC"
+categories: ["Quantitative bias analysis for unanchored PAIC", "Very high priority", "Confirmed open"]
+priority: "Very high"
+prank: 1
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Emerging"
+tractability: 4
+---
+::: {.problem-meta}
+[QBA-22]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[Very high priority]{.chip .chip-priority-very-high}
+[Emerging]{.chip .chip-maturity-emerging}
+[Tractability 4/5]{.chip}
+:::
+## Statement
+
+Bias mechanisms interact on nonlinear estimand scales, so total bias need not equal the sum of population, bridge and measurement bias, and a set of one-at-a-time curves cannot establish joint robustness, though surviving each curve does not prove that cancellation is what saved the estimate. This now has direct evidence in the external-control setting: Ackerman et al. 2024 (doi:10.3389/fdsfr.2024.1423493) show that misclassified progression events and irregular assessment times occurring together may generate bias greater than the sum of their parts. Joint multiple-bias machinery also already exists outside population adjustment: Brendel, Torres and Arah (doi:10.1093/ije/dyad001) adjust uncontrolled confounding, selection bias and misclassification simultaneously via imputation and regression weighting, with a CRAN implementation, so the PAIC-specific gap is composition of those bias models with the population-adjustment step rather than multiple-bias composition itself.
+
+## Why it is open
+
+Nonlinear link functions and marginalization make the map from bias parameters to the marginal estimand non-additive, so single-parameter curves do not span the joint bias surface, and cancellation is invisible by construction because each curve is computed with the other mechanisms held at their assumed null. Sequential corrections are order-dependent when mechanisms interact, so the output of one correction is not a valid input to the next, yet sequential correction is what current practice does. A joint bias model composed with the population-adjustment step requires a dependence structure among nonidentified parameters that neither the source IPD nor the aggregate comparator can inform, so that specification lands entirely on elicitation, and computing a joint surface costs far more than one-at-a-time curves. Attribution shares inherit the nonidentification of their inputs and describe a chosen model rather than recovering an underlying quantity.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Brendel, Torres and Arah 2023, Simultaneous adjustment of uncontrolled confounding, selection bias and misclassification in multiple-bias modelling, International Journal of Epidemiology 52:1220-1230](https://doi.org/10.1093/ije/dyad001) | Provides the joint, non-sequential multiple-bias machinery this entry asks for, adjusting uncontrolled confounding, selection bias and misclassification simultaneously via imputation and regression weighting as an alternative to one-bias-at-a-time adjustment. It has no population-adjustment step. |
+| [multibias R package (CRAN)](https://cran.r-project.org/package=multibias) | CRAN implementation of the simultaneous multiple-bias adjustment above, cited by the literature auditor as counter-evidence to the claim that no software composes several bias models jointly. |
+| [Ackerman et al. 2024, Measurement error and bias in real-world oncology endpoints when constructing external control arms, Frontiers in Drug Safety and Regulation](https://doi.org/10.3389/fdsfr.2024.1423493) | Measures non-additive interaction between two bias mechanisms in an external control arm, converting the entry's non-additivity assertion into evidence. |
+| [cpaic, unreleased development package on GitHub (not on CRAN), commit 9d150e9](choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca) | Varies one common bound on component main-effect drift in bridge_fragility(), explicitly excluding interaction drift, and refits prior scales in prior_sensitivity(). It exports no general joint-bias QBA surface, so the entry's request for a joint surface in this package is a roadmap feature rather than a defect. |
+
+:::
+
+## Probable solution or research direction
+
+Compose the existing joint multiple-bias machinery with the population-adjustment step rather than reinventing it: take simultaneous imputation and weighting adjustment for confounding, selection and misclassification and make it operate on a weighted or standardized PAIC estimator, computed from an explicitly defined ideal target trial, a decision estimand and a causal diagram for each departure. Report joint and mechanism-specific results together so reinforcement and cancellation are visible, and state the dependence assumption used, including independence where that is the intended scenario. Present order-robust or Shapley-style summaries as descriptive allocations conditional on the assumed bias model, stating the fixed parameter vector or the joint distribution they average over.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+
+**The source said.** "Total bias does not in general equal the sum of population, bridge and measurement bias: mechanisms interact and can cancel, so an estimate that survives every one-at-a-time sensitivity curve may be robust only by accident. A multiple-bias analysis must specify one joint bias model with preserved parameter dependence rather than independent after-the-fact corrections, and order-robust or Shapley-style attribution of total bias is description, not identification."
+
+**What was wrong with it.** The literature auditor found the claim that no software composes several bias models jointly wrong as written: the multibias package on CRAN implements simultaneous adjustment of three bias mechanisms (doi:10.1093/ije/dyad001), and what is missing is composition with the population-adjustment step. GPT-5.6 Sol narrowed three further claims: one-at-a-time analysis cannot establish joint robustness rather than proving cancellation, a multiple-bias analysis should state and explore dependence rather than preserve an unknown dependence (independence is a legitimate scenario and a deterministic grid needs no joint distribution), and Shapley attribution requires a joint parameter distribution only for expected or conditional summaries, not at a fixed bias-parameter vector.
+
+**Dissent.** literature dissented (supported): Claims 1, 3, 4, 7 and 8 gain a real empirical citation the entry lacks: Ackerman et al. 2024 show, in exactly the external-control setting, that 'When misclassified progression events and irregular assessment times occur simultaneously, they may generate bias that is greater than the sum of their parts'. That is a directly measured demonstration of non-additivity between two bias mechanisms in an ECA, and converts the entry's assertion from theory to evidence. Claim 17 ('No software composes several bias models jointly with the population-adjustment step') survives, but should be worded precisely, because software that composes several bias models jointly does exist: the multibias R package on CRAN implements Brendel, Torres and Arah's simultaneous adjustment of uncontrolled confounding, selection bias and misclassification via imputation and regression weighting (Int J Epidemiol 2023;52:1220-1230), explicitly as an alternative to sequential one-at-a-time correction. What is missing is composition with the population-adjustment step, not multiple-bias composition itself. Claims 15 and 16 (Shapley-style attribution is description, not identification) are correct.
+
+Literature and prior-art check
+:   **open / supported.** Claims 1, 3, 4, 7 and 8 gain a real empirical citation the entry lacks: Ackerman et al. 2024 show, in exactly the external-control setting, that 'When misclassified progression events and irregular assessment times occur simultaneously, they may generate bias that is greater than the sum of their parts'. That is a directly measured demonstration of non-additivity between two bias mechanisms in an ECA, and converts the entry's assertion from theory to evidence. Claim 17 ('No software composes several bias models jointly with the population-adjustment step') survives, but should be worded precisely, because software that composes several bias models jointly does exist: the multibias R package on CRAN implements Brendel, Torres and Arah's simultaneous adjustment of uncontrolled confounding, selection bias and misclassification via imputation and regression weighting (Int J Epidemiol 2023;52:1220-1230), explicitly as an alternative to sequential one-at-a-time correction. What is missing is composition with the population-adjustment step, not multiple-bias composition itself. Claims 15 and 16 (Shapley-style attribution is description, not identification) are correct.
+    Cites 10.1093/ije/dyad001: Provides the joint (non-sequential) multiple-bias machinery and CRAN implementation (multibias) that claim 11 asks for, but without any population-adjustment step, so the PAIC-specific gap in claim 17 stands..
+    Cites 10.3389/fdsfr.2024.1423493: Empirical demonstration of non-additive interaction between two bias mechanisms in an external control arm; supports claims 1, 3, 4 and 7 with evidence rather than assertion..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** C1-C4, C6, C8-C11, and C13 are correct as possibility or conditional claims: if B(eta)=T(eta)-T(0), isolated mechanism biases need not sum unless T is additive, while a first-order Taylor expansion gives C2. C7 should say that one-at-a-time analysis cannot establish joint robustness, not that cancellation logically explains survival of each isolated curve. C12 should require stating and exploring dependence, not preserving an unknown dependence: independence can be a legitimate scenario, and a deterministic grid needs no joint distribution. C14 is strong causal-analysis practice, not a mathematical necessity. C15 is correct that Shapley allocation does not identify bias from data, but Shapley values exactly decompose a chosen model-based total. C16 is false in general: at a fixed bias-parameter vector, coalition values and an ordering average suffice; a joint distribution is needed only for expected or conditional Shapley summaries. C17 is a field-wide absence claim that cpaic source cannot establish. At cpaic 9d150e9, bridge_fragility() varies one scalar box bound on component main-effect drift and explicitly excludes interaction drift, while prior_sensitivity() only refits prior scales; there is no general joint-bias QBA export. Thus the cpaic gap is open, but C5 describes a roadmap feature rather than a correctness defect and the overall very-high-priority framing is inflated.
+
+Decision path
+:   `R5:default-open → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [ADJ-19 — Shapley attribution of regimen effects to treatment components](ADJ-19-shapley-attribution-of-regimen-effects-to-treatment-componen.qmd)
+- [DEC-11 — Intervals omit selection, reconstruction and target-summary error](DEC-11-intervals-omit-selection-reconstruction-and-target-summary-e.qmd)
+- [DIA-13 — QBA bias mechanisms are not crossed with the primary factors](DIA-13-qba-bias-mechanisms-are-not-crossed-with-the-primary-factors.qmd)
+:::
+
+## Source
+
+Derived from C:L635-643, C:L782-784, C:L786-794, C:L2144 of the reviewed corpus.

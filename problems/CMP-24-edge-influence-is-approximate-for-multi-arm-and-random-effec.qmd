@@ -1,0 +1,87 @@
+---
+title: "Edge influence is approximate for multi-arm and random effects"
+description: "edge_influence() in cpaic, an unreleased development R package on GitHub (choxos/cpaic@9d150e9) that a reader cannot install from CRAN, asks whether a given IPD edge contributes to a requested target contrast. Its diagonal-weight calculation is exact for two-arm common-effect models with fixed weights and approximate for multi-arm studies, because the underlying frequentist CNMA fit uses within-study covariance; under random effects the fitted tau-squared is included in the weights, so the residual approximation comes from not re-estimating tau under perturbation rather than from ignoring shrinkage. Exact contribution machinery already exists for CNMA component effects and for study importance in NMA; what those do not cover is contribution to a target-specific, population-adjusted cross-gap contrast."
+pid: "CMP-24"
+topic: "Component methods (CNMA and component PAIC)"
+categories: ["Component methods (CNMA and component PAIC)", "Medium priority", "Partially addressed"]
+priority: "Medium"
+prank: 4
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[CMP-24]{.problem-id}
+[Partially addressed]{.verdict .verdict-partially-addressed}
+[Medium priority]{.chip .chip-priority-medium}
+[Promising]{.chip .chip-maturity-promising}
+[Implementation-specific]{.chip}
+:::
+::: {.callout-note appearance="simple"}
+## Scope
+
+This entry describes a limitation of a specific implementation rather than of the field.
+It is catalogued because the underlying methodological problem is general, and because a
+reference implementation is where such problems become concrete and checkable.
+:::
+
+## Statement
+
+edge_influence() in cpaic, an unreleased development R package on GitHub (choxos/cpaic@9d150e9) that a reader cannot install from CRAN, asks whether a given IPD edge contributes to a requested target contrast. Its diagonal-weight calculation is exact for two-arm common-effect models with fixed weights and approximate for multi-arm studies, because the underlying frequentist CNMA fit uses within-study covariance; under random effects the fitted tau-squared is included in the weights, so the residual approximation comes from not re-estimating tau under perturbation rather than from ignoring shrinkage. Exact contribution machinery already exists for CNMA component effects and for study importance in NMA; what those do not cover is contribution to a target-specific, population-adjusted cross-gap contrast.
+
+## Why it is open
+
+The approximation drops the correlation structure introduced by multi-arm trials and the re-estimation of heterogeneity under perturbation, both of which redistribute information across edges in ways a first-order calculation misses, and either can change an influence ranking. The diagnostic matters precisely because it exposes edges with excellent effective sample size that nonetheless carry no weight for the cross-gap contrast, a question standard MAIC overlap and weight diagnostics cannot answer, so an incorrect ranking undermines the one tool that answers it. The published exact decompositions operate on component effects in an unadjusted CNMA, not on a target-specific population-adjusted contrast, so they cannot simply be called.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Yang et al. 2026](https://doi.org/10.1186/s12874-026-02766-8) | gives an exact decomposition of which studies and comparisons contribute to each component effect in CNMA using pseudo-paths and the component-level hat matrix; does not cover population-adjusted target-specific contrasts |
+| [Rucker et al. 2020, study importance](https://doi.org/10.1186/s12874-020-01075-y) | defines an exact, uniquely defined per-study influence measure for a specified NMA estimate as the reduction in that estimate's variance when the study is added, for one-stage and two-stage models |
+| [Papakonstantinou et al. 2018](https://doi.org/10.12688/f1000research.14770.3) | establishes the flow-network proportion-contribution matrix showing how much each direct treatment effect contributes to each NMA estimate |
+| [cpaic 0.1.0 (development version, choxos/cpaic@9d150e9)](choxos/cpaic@9d150e9) | unreleased development R package on GitHub, not on CRAN; provides edge_influence() to test whether an IPD edge contributes to a requested target contrast, using inverse-variance weights that include the fitted tau-squared and are approximate for multi-arm studies |
+
+:::
+
+## Probable solution or research direction
+
+Extend the existing exact contribution machinery, the flow and pseudo-path decomposition for component effects and the variance-reduction definition of study importance, to a target-specific population-adjusted contrast, rather than deriving a new influence measure from scratch. Where an exact extension is not available, compute influence from the model Jacobian and Hessian or by posterior perturbation of the observed edge, including re-estimation of heterogeneity. Report the approximation status alongside each ranking, since the diagnostic is already exact in the two-arm common-effect case.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Partially addressed. Part of this problem is addressed by existing work; the entry names which part.
+
+**The source said.** "cpaic's edge_influence() diagnostic asks whether a given IPD edge actually contributes to the requested target contrast, but its computation is approximate in multi-arm and random-effects settings, so influence rankings may not match exact fitted influence."
+
+**What was wrong with it.** The source treated edge influence as a novel diagnostic with no prior art and said random-effects shrinkage is ignored. The literature auditor found three established exact methods, including a component-level decomposition whose flow-weighted sum matches the CNMA component estimate within numerical tolerance (doi:10.1186/s12874-026-02766-8; doi:10.1186/s12874-020-01075-y; doi:10.12688/f1000research.14770.3); GPT-5.6 Sol found that the implementation does include the fitted tau-squared in its weights and is exact for two-arm common-effect models.
+
+**Dissent.** codex dissented (open): C1 and C2 are correct with qualification. The source explicitly describes the diagonal-W calculation as approximate for multi-arm studies because discomb() uses within-study covariance. For two-arm common-effect models with W fixed, the displayed linear influence is exact. Under random effects, cpaic does include the fitted tau-squared in W; remaining approximation arises if exact perturbation influence is defined to include re-estimation of tau, not because random-effects weighting is ignored. Such omissions can change rankings. C3 is algebraically possible and is demonstrated by the package tests: ESS measures within-edge weight dispersion, whereas target influence is a network-design leverage quantity and can be zero. C4 is correct because ordinary MAIC overlap and weight diagnostics do not evaluate downstream leverage for a requested cross-gap contrast. This is a useful diagnostic refinement, but not a defect in the fitted estimator itself.
+
+Literature and prior-art check
+:   **partially-solved / supported-with-caveat.** The claim 'Standard MAIC diagnostics do not answer whether an adjusted edge contributes to the requested target contrast' is correct - effective sample size says nothing about network position. But the entry treats edge influence as a novel diagnostic and cites no prior art, and there is a lot. Rucker et al. 2020 define study importance exactly, not approximately, as the variance reduction from adding a study, 'uniquely defined, easily calculated', for both one-stage and two-stage NMA; Papakonstantinou et al. 2018 give the flow-decomposition proportion-contribution matrix; and, most directly, Yang et al. 2026 extend contribution analysis to component NMA using pseudo-paths and the component-level hat matrix, reporting that 'The flow-weighted sum of pseudo-path-derived estimates matched exactly (within numerical tolerance) the overall component effect estimated by the CNMA model'. So exact evidence-contribution decomposition for component effects exists as of January 2026. What is not solved is contribution to a target-specific, population-adjusted cross-gap contrast. The approximation claim about cpaic itself is a code question.
+    Cites doi:10.1186/s12874-026-02766-8: Provides an exact decomposition of which studies and comparisons contribute to each component effect in CNMA; does not cover population-adjusted, target-specific contrasts..
+    Cites doi:10.1186/s12874-020-01075-y: Gives an exact, uniquely defined per-study influence measure for a specified NMA estimate, defined for one-stage and two-stage models..
+    Cites doi:10.12688/f1000research.14770.3: The established flow-network proportion-contribution machinery that the component version generalises..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / supported-with-caveat.** C1 and C2 are correct with qualification. The source explicitly describes the diagonal-W calculation as approximate for multi-arm studies because discomb() uses within-study covariance. For two-arm common-effect models with W fixed, the displayed linear influence is exact. Under random effects, cpaic does include the fitted tau-squared in W; remaining approximation arises if exact perturbation influence is defined to include re-estimation of tau, not because random-effects weighting is ignored. Such omissions can change rankings. C3 is algebraically possible and is demonstrated by the package tests: ESS measures within-edge weight dispersion, whereas target influence is a network-design leverage quantity and can be zero. C4 is correct because ordinary MAIC overlap and weight diagnostics do not evaluate downstream leverage for a requested cross-gap contrast. This is a useful diagnostic refinement, but not a defect in the fitted estimator itself.
+
+Decision path
+:   `R3:partially-solved(n=1) → R11:caveated(n=2)`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [OVL-01 — Weak overlap leaves target regions the source data cannot support](OVL-01-weak-overlap-leaves-target-regions-the-source-data-cannot-su.qmd)
+- [OVL-02 — ESS is an insufficient overlap diagnostic and no battery is agreed](OVL-02-ess-is-an-insufficient-overlap-diagnostic-and-no-battery-is-.qmd)
+:::
+
+## Source
+
+Derived from C:L1383, C:L1287-1289, scope:package-specific diagnostic of the reviewed corpus.

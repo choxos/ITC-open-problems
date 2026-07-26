@@ -1,0 +1,80 @@
+---
+title: "No causal forest aggregates to a target known only by marginals"
+description: "Causal forests give a principled framework for heterogeneous treatment effects (Wager and Athey 2018), and the study-aware half of the PAIC adaptation is largely off the shelf: grf performs subsampling and honest splitting on whole clusters when clusters are declared (github.com/grf-labs/grf), and study-aware multi-trial CATE estimation has been developed and simulated (Brantner et al. 2024, doi:10.1002/sim.9955; Venkatasubramaniam and Wolfson 2025, arxiv:2502.02110). What none of that covers is the case that defines PAIC: a target population known only through published marginal summaries, and the variance of averaging individual-level effects over it. The requirements are also narrower than the source states, since whole-trial splitting matters when the trial is the sampling unit or when trial-level generalization is the goal rather than always, and target-aware aggregation is needed for a marginal target-population effect but not for a conditional effect at a fixed covariate profile."
+pid: "COV-06"
+topic: "Covariates: selection, target moments, measurement"
+categories: ["Covariates: selection, target moments, measurement", "Medium-high priority", "Partially addressed"]
+priority: "Medium-high"
+prank: 3
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
+maturity: "Emerging"
+---
+::: {.problem-meta}
+[COV-06]{.problem-id}
+[Partially addressed]{.verdict .verdict-partially-addressed}
+[Medium-high priority]{.chip .chip-priority-medium-high}
+[Emerging]{.chip .chip-maturity-emerging}
+:::
+## Statement
+
+Causal forests give a principled framework for heterogeneous treatment effects (Wager and Athey 2018), and the study-aware half of the PAIC adaptation is largely off the shelf: grf performs subsampling and honest splitting on whole clusters when clusters are declared (github.com/grf-labs/grf), and study-aware multi-trial CATE estimation has been developed and simulated (Brantner et al. 2024, doi:10.1002/sim.9955; Venkatasubramaniam and Wolfson 2025, arxiv:2502.02110). What none of that covers is the case that defines PAIC: a target population known only through published marginal summaries, and the variance of averaging individual-level effects over it. The requirements are also narrower than the source states, since whole-trial splitting matters when the trial is the sampling unit or when trial-level generalization is the goal rather than always, and target-aware aggregation is needed for a marginal target-population effect but not for a conditional effect at a fixed covariate profile.
+
+## Why it is open
+
+The remaining gap is the aggregate-data target: individual-level effects have to be averaged over a distribution known only through published summaries, so the aggregation can be unidentified before it is estimated, and the variance of the two-stage procedure has not been worked out. Trial clustering and non-random IPD availability still matter when the trial is the sampling unit or when the estimand is trial-level generalization, and the existing cluster machinery handles the splitting but not the transport. Validation against held-out trials tests across-study generalization but does not establish identification, and it is unstable when the number of trials is small.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Wager & Athey, 2018](https://doi.org/10.1080/01621459.2017.1319839) | provides a principled framework and asymptotic theory for estimating heterogeneous treatment effects with causal forests |
+| [Brantner et al., 2024](https://doi.org/10.1002/sim.9955) | Compares S-learner, X-learner and causal forest for estimating heterogeneous treatment effects across multiple randomized trials by simulation; covers the multi-IPD-trial case but not an aggregate-data target. |
+| [Venkatasubramaniam and Wolfson, 2025](https://arxiv.org/abs/2502.02110) | Multi-Study Causal Forest: a causal forest adapted to between-study heterogeneity and varying treatment allocation across studies. |
+| [grf: Generalized Random Forests](https://github.com/grf-labs/grf) | Implements cluster-level honest splitting already: when clustering is enabled, all subsampling operates on entire clusters rather than individual examples, which is the study-aware splitting the source says must be built. |
+
+:::
+
+## Probable solution or research direction
+
+Use the cluster-level honest splitting grf already provides and the multi-study forest work that exists, and put the research effort into target-aware aggregation: state when averaging conditional effects over a target known only through published marginal summaries is identified, and derive uncertainty that propagates through both the forest and the aggregation. Where identification fails, report bounds or sensitivity over the target distribution rather than a point estimate. Held-out-trial validation is worth running but should be read as a generalization check rather than as evidence of identification, with its instability under few trials reported.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Partially addressed. Part of this problem is addressed by existing work; the entry names which part.
+
+**The source titled this.** "Study-aware and target-aware causal forests for PAIC" The title names study-aware causal forests as undeveloped, but cluster-level honest splitting ships in grf and study-aware multi-trial causal forests are already published.
+
+**The source said.** "Causal forests give a principled framework for heterogeneous treatment effects, but their adaptation to PAIC is unsolved because it requires study-aware sample splitting and target-aware aggregation rather than the standard single-sample procedures."
+
+**What was wrong with it.** The source said both study-aware sample splitting and target-aware aggregation still have to be developed. Cluster-level honest splitting already ships in grf and study-aware multi-trial causal forests already exist (doi:10.1002/sim.9955, arxiv:2502.02110), per the literature auditor; the code auditor added that forest honesty does not by itself require leaving whole trials out, that study is not a confounder of randomized treatment within a trial, and that with a target known only through marginal summaries the aggregation step may not be identified at all.
+
+Literature and prior-art check
+:   **partially-solved / supported-with-caveat.** The prior_work citation is accurate: Wager & Athey 2018 is exactly the principled framework with asymptotic theory the entry attributes to it. But the study-aware half of the stated gap is available off the shelf. grf's documentation states that with clusters specified, 'all subsampling procedures operate on entire clusters as opposed to individual examples', and honest splitting 'split[s] these cluster IDs in half' — cluster-level honest splitting, which is what trial clustering requires. Multi-trial CATE estimation with study structure has also been developed and simulated: Brantner et al. 2024 compares S-learner, X-learner and causal forest across trials and finds that methods allowing cross-trial heterogeneity perform better; Venkatasubramaniam & Wolfson 2025 give a Multi-Study Causal Forest for between-study heterogeneity. What none of these cover is the PAIC-defining case: a target population known only through published marginal summaries, and the variance of aggregating individual effects over it. Claim 4 as written is an unverifiable absence claim; narrowed to the aggregate-data target it is defensible.
+    Cites doi:10.1002/sim.9955: Study-aware multi-trial CATE estimation including causal forests, evaluated by simulation; covers the multi-IPD-trial case, not the aggregate-data-target case.
+    Cites arxiv:2502.02110: Causal forest adapted to between-study heterogeneity and varying treatment allocation across studies.
+    Cites repo:github.com/grf-labs/grf: Cluster-level honest sample splitting already implemented, which is the study-aware splitting the entry says must be developed.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** C1 is supported by the cited Wager-Athey work. C2 is required only when within-study dependence, clustered sampling, or trial-level generalization makes the trial the sampling unit; forest honesty means separating split selection from estimation and does not by itself require leaving whole trials out. Study is not a confounder of randomized treatment within a trial, although study selection and treatment-effect heterogeneity matter for transport. C3 is required for a marginal target-population effect, but not for a conditional effect at a fixed covariate profile. If the target is available only through marginal summaries, target averaging may itself be unidentified. C4 is a literature-existence claim and cannot be verified under this audit lens. Consequently an off-the-shelf forest does not automatically violate two universal requirements; the needed splitting and aggregation depend on the data structure and estimand. Held-out-trial validation tests across-study generalization but does not establish identification and can be unstable with few trials.
+
+Decision path
+:   `R3:partially-solved(n=1) → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [ADJ-10 — Data-driven modifier and causal-structure discovery with few trials](ADJ-10-data-driven-modifier-and-causal-structure-discovery-with-few.qmd)
+- [EVB-01 — Selective IPD availability threatens transport across the network](EVB-01-selective-ipd-availability-threatens-transport-across-the-ne.qmd)
+- [MOD-08 — Cross-fitting folds and rate conditions undefined for PAIC](MOD-08-cross-fitting-folds-and-rate-conditions-undefined-for-paic.qmd)
+- [MOD-10 — Flexible interaction surfaces inside network evidence synthesis](MOD-10-flexible-interaction-surfaces-inside-network-evidence-synthe.qmd)
+:::
+
+## Source
+
+Derived from C:L961 of the reviewed corpus.

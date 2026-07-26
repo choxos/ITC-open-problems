@@ -1,0 +1,81 @@
+---
+title: "Convenience functional forms and untested flexible alternatives"
+description: "Functional form and interaction structure in population-adjusted outcome models are chosen for convenience, and conventional STC can be biased when that structure is wrong, particularly where transport requires extrapolation; unanchored MAIC can be biased when important adjustment variables are omitted from the matching. The simulation evidence the source invoked does not say what the source said. Hatswell, Freemantle and Baio (doi:10.1016/j.jval.2020.02.008) evaluated unanchored MAIC only and never STC, and found MAIC unbiased across a range of misspecification scenarios, biased only when important characteristics were left out of the matching and degraded when matched characteristics had low explanatory power or overlap was poor. The defensible open part is that flexible outcome models such as splines, BART, Gaussian processes, causal forests, super learner and TMLE have not been benchmarked against parametric baselines in PAIC under adversarial data-generating mechanisms."
+pid: "MOD-02"
+topic: "Model specification, double robustness & targeted learning"
+categories: ["Model specification, double robustness & targeted learning", "Very high priority", "Not supported"]
+priority: "Very high"
+prank: 1
+verdict: "Not supported"
+verdictslug: "not-supported"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[MOD-02]{.problem-id}
+[Not supported]{.verdict .verdict-not-supported}
+[Very high priority]{.chip .chip-priority-very-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+::: {.source-unsourced}
+**Source note.** This entry derives in part from a source document whose inline citations
+were ChatGPT interface tokens rather than references, and so resolve to nothing. Claims
+below are attributed to that document and were checked independently where possible;
+anything that could not be independently sourced is marked in the verification trail.
+:::
+
+## Statement
+
+Functional form and interaction structure in population-adjusted outcome models are chosen for convenience, and conventional STC can be biased when that structure is wrong, particularly where transport requires extrapolation; unanchored MAIC can be biased when important adjustment variables are omitted from the matching. The simulation evidence the source invoked does not say what the source said. Hatswell, Freemantle and Baio (doi:10.1016/j.jval.2020.02.008) evaluated unanchored MAIC only and never STC, and found MAIC unbiased across a range of misspecification scenarios, biased only when important characteristics were left out of the matching and degraded when matched characteristics had low explanatory power or overlap was poor. The defensible open part is that flexible outcome models such as splines, BART, Gaussian processes, causal forests, super learner and TMLE have not been benchmarked against parametric baselines in PAIC under adversarial data-generating mechanisms.
+
+## Why it is open
+
+Extrapolation to a target population probes the outcome model where the source data are sparse, which is where a wrong functional form does the most damage and where residual diagnostics have the least power, so poor overlap and misspecification compound. Not every omission bites: a common prognostic nonlinearity or covariate-covariate interaction need not bias a randomized identity-link treatment contrast, although it can bias nonlinear-link or standardized predictions. Flexible alternatives need an explicit route to valid inference and enough events to estimate an interaction surface, and single HTA-scale trials rarely have either, so flexibility can trade transparent misspecification for opaque misspecification. With no shared adversarial benchmark, each paper defines its own comparison and the interpretability cost of flexible models has no offsetting evidence.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Hatswell, Freemantle & Baio 2020, The Effects of Model Misspecification in Unanchored Matching-Adjusted Indirect Comparison: Results of a Simulation Study, Value in Health (PMID 32540233)](https://doi.org/10.1016/j.jval.2020.02.008) | The study the source cited without a locator. Simulates unanchored MAIC against propensity score weighting and finds MAIC unbiased under a variety of misspecification scenarios, biased only when important characteristics are omitted from the matching. STC is not evaluated. |
+| [Phillippo et al. 2020, Statistics in Medicine (PMID 33015906)](https://doi.org/10.1002/sim.8759) | Large anchored simulation study in which ML-NMR and STC eliminated bias when the requisite assumptions were met, while MAIC performed poorly in nearly all scenarios. Cuts against the source's 'especially in STC' framing. |
+
+:::
+
+## Probable solution or research direction
+
+Run head-to-head comparisons of parametric STC, flexible STC, BART and TMLE-style hybrids and doubly robust estimators on adversarial data-generating mechanisms containing splines, thresholds, nonlinear effect modification and covariate-covariate interaction, reporting misspecification robustness, calibration and the interpretability trade-off rather than friendly-mechanism performance. Pair any flexible fit with an explicit route to valid inference, but do not state cross-fitting as a universal requirement: parametric or Donsker nuisance classes, valid selective inference, debiasing and resampling that repeats the full tuning procedure are alternatives with their own conditions. Treat a flexible fit as a nuisance estimator with causal structure imposed rather than learned, never as a source of causal effect-modifier claims.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Not supported. No accessible source substantiates the claim as stated.
+
+**The source said.** "Population-adjusted outcome models typically assume linear prognostic terms and a small set of simple treatment-by-covariate interactions, which are convenience assumptions rather than scientific claims, and the transported effect inherits whatever form is imposed. Omitted treatment interactions, nonlinear prognostic effects, nonlinear effect modification, covariate-covariate interactions, non-proportional hazards, and an incorrect target joint distribution are distinct routes by which the convenience model biases the answer, and simulation evidence indicates unanchored MAIC and STC are highly vulnerable when the model is wrong."
+
+**What was wrong with it.** The source said simulation evidence indicates unanchored MAIC and STC are highly vulnerable to misspecification, attributing it to 'Hatswell and colleagues' with no locator. Both auditors judged it misattributed: the study is doi:10.1016/j.jval.2020.02.008, it evaluates MAIC and not STC, and its conclusion is that MAIC performed well; the largest anchored simulation study (doi:10.1002/sim.8759) likewise found that STC and ML-NMR eliminated bias when assumptions held and reserved its concerns for MAIC. The claim was unattributed in the source and is now sourced.
+
+Literature and prior-art check
+:   **open / misattributed.** Retrieved the only Hatswell paper matching the description: Hatswell, Freemantle & Baio, 'The Effects of Model Misspecification in Unanchored Matching-Adjusted Indirect Comparison: Results of a Simulation Study', Value Health 2020 (PMID 32540233). Two problems. First, it studies unanchored MAIC only, against propensity score weighting; STC is not evaluated anywhere in it, so attributing an STC vulnerability finding to it is wrong. Second, its headline conclusion is the opposite of 'highly vulnerable': MAIC was unbiased across a variety of misspecification scenarios and only became biased when important characteristics were omitted from the matching. Separately, the largest anchored simulation study in the field (Phillippo et al. 2020, Stat Med) found STC and ML-NMR eliminated bias when assumptions held and reserved its 'serious concerns' for MAIC, which cuts directly against 'especially in STC'. The flexible-model claim (BART/causal forests/TMLE not systematically benchmarked against parametric baselines in PAIC under adversarial DGMs) I could not falsify and vote open.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / misattributed.** C1 is a provenance placeholder, not a technical claim. C2 is misattributed and conflates models: standard unanchored MAIC is a weighting estimator, not an outcome model, and the cited Hatswell study is about unanchored MAIC rather than STC. C3-C4, C6, C8, C10, C17-C19 describe real conditional risks, especially when extrapolation is material. C7 and C9 are only potential bias routes: omitted common prognostic nonlinearity or covariate interactions need not bias a randomized identity-link treatment contrast, although they can bias nonlinear-link or standardized predictions. C11 concerns marginally standardized outcome regression, not the conventional mean-centered STC estimand itself. C16 is false as an absolute: cross-fitting relaxes overfitting and empirical-process conditions, but valid inference can instead rest on parametric or Donsker nuisance classes, external training, selective inference, valid debiasing, or resampling that repeats the full tuning procedure. C12-C15 and the claim that existing comparisons are uniformly friendly are literature and priority assertions outside this audit lens. Functional-form risk remains open, but very-high severity is analysis-specific rather than universal.
+
+Decision path
+:   `R5:default-open → R6:counter-quote-uncontested`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [COV-01 — Deciding which covariates are true effect modifiers](COV-01-deciding-which-covariates-are-true-effect-modifiers.qmd)
+- [COV-05 — Legitimate versus dangerous roles for flexible learners](COV-05-legitimate-versus-dangerous-roles-for-flexible-learners.qmd)
+- [COV-07 — Unknown target joint covariate distribution](COV-07-unknown-target-joint-covariate-distribution.qmd)
+- [DEC-09 — Modifier selection and target moments reported without provenance](DEC-09-modifier-selection-and-target-moments-reported-without-prove.qmd)
+- [OUT-11 — Non-proportional hazards and the transported hazard ratio](OUT-11-non-proportional-hazards-and-the-transported-hazard-ratio.qmd)
+:::
+
+## Source
+
+Derived from A:L46, A:L64, A:L158, A:L178, A:L219, C:L214-215, C:L231, C:L947-961, C:L1009-1020 of the reviewed corpus.

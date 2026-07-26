@@ -1,0 +1,80 @@
+---
+title: "Computational diagnostics and Monte Carlo error go unreported"
+description: "Simulation studies frequently publish performance summaries without the computational context that produced them or the Monte Carlo standard errors of the summaries themselves, but the measured base rates come from outside this field: a review of 321 psychology articles, 100 of them with simulation studies, found that 77% did not report the uncertainty of performance measures, 19% reported convergence, and 2% gave full computational-environment information. No equivalent review of ITC or PAIC simulation studies was found, so the field-specific version of the claim is an extrapolation. The prescription and the tooling are in any case solved: Siepe et al. (doi:10.1037/met0000695) supply an ADEMP-based reporting and preregistration template with MCSE formulae and a repetition-count calculation, and SimDesign on CRAN already re-simulates non-convergent replicates, captures errors and warnings, and records the session environment. Within ML-NMR the integration-error component is no longer unaddressed, since multinma's int_check has been on by default since 0.6.0."
+pid: "CMU-04"
+topic: "Computation & reproducibility"
+categories: ["Computation & reproducibility", "High priority", "Partially addressed"]
+priority: "High"
+prank: 2
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
+maturity: "Established"
+---
+::: {.problem-meta}
+[CMU-04]{.problem-id}
+[Partially addressed]{.verdict .verdict-partially-addressed}
+[High priority]{.chip .chip-priority-high}
+[Established]{.chip .chip-maturity-established}
+:::
+## Statement
+
+Simulation studies frequently publish performance summaries without the computational context that produced them or the Monte Carlo standard errors of the summaries themselves, but the measured base rates come from outside this field: a review of 321 psychology articles, 100 of them with simulation studies, found that 77% did not report the uncertainty of performance measures, 19% reported convergence, and 2% gave full computational-environment information. No equivalent review of ITC or PAIC simulation studies was found, so the field-specific version of the claim is an extrapolation. The prescription and the tooling are in any case solved: Siepe et al. (doi:10.1037/met0000695) supply an ADEMP-based reporting and preregistration template with MCSE formulae and a repetition-count calculation, and SimDesign on CRAN already re-simulates non-convergent replicates, captures errors and warnings, and records the session environment. Within ML-NMR the integration-error component is no longer unaddressed, since multinma's int_check has been on by default since 0.6.0.
+
+## Why it is open
+
+Computational diagnostics are treated as workflow hygiene rather than as study results, so they are inspected privately and dropped from the write-up and a reader cannot tell whether a reported bias or coverage figure came from converged fits. Performance measures are themselves estimates, and without the MCSE of the difference between two methods an apparent ranking cannot be separated from replicate noise, while the replicate-level output that would let a reader recompute a different measure is discarded once the summary table exists, even though storing it is cheap. Failures and integration error concentrate in the hardest cells, so per-scenario reporting matters more than an average and the missing numbers flatter methods exactly where they are stressed. The residual problem is adoption in this field: templates, MCSE formulae and simulation frameworks that capture all of this are available and unused.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Siepe, Bartos, Morris, Boulesteix, Heck and Pawel 2024, Simulation studies for methodological research in psychology: a standardized template for planning, preregistration, and reporting, Psychological Methods](https://doi.org/10.1037/met0000695) | reviews 321 articles (100 with simulation studies) and reports that 77% did not report uncertainty of performance measures, convergence was reported in 19%, and full computational-environment information in 2%; supplies MCSE formulae, a repetition-count calculation and a full reporting and preregistration template |
+| [SimDesign 2.25.5, Structure for Organizing Monte Carlo Simulation Designs](https://cran.r-project.org/package=SimDesign) | automatically re-simulates non-convergent results, catches error and warning messages during execution, supports parallel processing with high-quality random number generation, and records session information |
+| [multinma R package, int_check since version 0.6.0](https://cran.r-project.org/package=multinma) | checks numerical integration accuracy by default in ML-NMR fits and attributes R-hat or ESS warnings to either sampler non-convergence or insufficient integration points, covering the integration-error component of this entry |
+| [cpaic, unreleased development package on GitHub (not on CRAN), commit 9d150e9](https://github.com/choxos/cpaic) | checks divergences, tree depth, E-BFMI, R-hat and ESS across every sampled parameter block at the fitted-model level; it supplies no simulation-level runtime, memory, failure aggregation, performance-measure MCSE, or replicate archive |
+
+:::
+
+## Probable solution or research direction
+
+Adopt the existing template rather than write a new one: ADEMP-style preregistration and reporting as specified by Siepe et al., run through a framework such as SimDesign that already captures errors, re-simulates non-convergent replicates, and records the session environment. Report diagnostics and failure counts per scenario cell rather than averaged, and report the MCSE of each performance measure and of the paired differences that carry a ranking; treat seed and initialization sensitivity as a diagnostic of an unstable fit rather than as a separate performance estimand. Publish replicate-level outputs including truths, estimates and failure indicators so new measures can be computed without rerunning the study. A review of what ITC and PAIC simulation studies actually report would put a number on the field-specific gap that is currently assumed.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Partially addressed. Part of this problem is addressed by existing work; the entry names which part.
+
+**The source said.** "Simulation studies in this field publish performance summaries without the computational context that produced them or the precision of the summaries themselves: runtime and memory, optimizer and sampler failure rates, divergent transitions and maximum tree depth, R-hat and bulk/tail effective sample size, numerical integration error, sensitivity to initialization and seed, replicate-level outputs, and the Monte Carlo standard error of each reported performance measure are all routinely absent."
+
+**What was wrong with it.** The source presented this as an unmet methodological need. The literature auditor found the reporting standard and the tooling already exist (Siepe et al. 2024, doi:10.1037/met0000695; SimDesign on CRAN), so the gap is adoption rather than invention, and noted that the prevalence figures are from psychology because no ITC or PAIC specific review has been done. The source-code auditor narrowed the ranking claim: separating two methods needs the MCSE of their paired difference, and a close ranking is not automatically indeterminate.
+
+**Dissent.** codex dissented (overstated): C1 and C6 are empirical prevalence claims not established by the supplied evidence. C2 is correct whenever numerical integration is approximate. C3 is correct: diagnostic failure rates should be stratified by scenario rather than hidden in an average. C4 is useful when optimization or sampling is initialization-sensitive, but seed sensitivity is not automatically a separate method-performance estimand; ordinary simulation variation should instead be quantified by MCSE. C5 is plausible under informative failure but is not a theorem. C7 is too absolute: if replicate counts or raw outputs are available, uncertainty can sometimes be derived or bounded, and method rankings require the MCSE of paired differences rather than merely separate MCSEs. C8 is correct when raw outputs include truths, estimates, and failure indicators. cpaic now records fit-level divergences, tree-depth saturation, E-BFMI, R-hat, and ESS, but supplies no simulation-level runtime, memory, failure aggregation, performance-measure MCSE, or replicate archive.
+
+Literature and prior-art check
+:   **partially-solved / supported-with-caveat.** I retrieved Siepe, Bartos, Morris, Boulesteix, Heck & Pawel (2024, Psychological Methods, doi 10.1037/met0000695, PMID 39541533; full text PMC7616844). It reviewed 321 articles, 100 of which report a simulation study, and reports: 77% did not report uncertainty of performance measures; convergence reported in 19%; full computational-environment information in 2%; code unavailable for 64%. That is direct empirical support for the general claims, and the same paper supplies MCSE formulae and a repetition-count calculation, so the methodological prescription is solved and packaged (ADEMP-PreReg, building on Morris/White/Crowther's ADEMP). SimDesign (CRAN 2.25.5) already catches errors and warnings, re-simulates non-convergent results, and records sessioninfo. Caveat, and it is the material one: none of this evidence is field-specific. I found no review of ITC, PAIC or ML-NMR simulation studies quantifying failure-rate, divergence, R-hat or MCSE reporting, so every claim qualified 'in PAIC and ML-NMR simulation studies' is an extrapolation from psychology and general biostatistics. Separately, the integration-error sub-claim is now automated by multinma int_check (default TRUE since 0.6.0).
+    Cites doi:10.1037/met0000695: Supplies the empirical rates of non-reporting and a complete reporting/preregistration template with MCSE formulae and repetition-count calculation; solves the prescription, not the field's adoption..
+    Cites cran:SimDesign 2.25.5: Provides the infrastructure for automatic re-simulation of non-convergent results, error/warning capture, and high-quality parallel RNG..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / overstated.** C1 and C6 are empirical prevalence claims not established by the supplied evidence. C2 is correct whenever numerical integration is approximate. C3 is correct: diagnostic failure rates should be stratified by scenario rather than hidden in an average. C4 is useful when optimization or sampling is initialization-sensitive, but seed sensitivity is not automatically a separate method-performance estimand; ordinary simulation variation should instead be quantified by MCSE. C5 is plausible under informative failure but is not a theorem. C7 is too absolute: if replicate counts or raw outputs are available, uncertainty can sometimes be derived or bounded, and method rankings require the MCSE of paired differences rather than merely separate MCSEs. C8 is correct when raw outputs include truths, estimates, and failure indicators. cpaic now records fit-level divergences, tree-depth saturation, E-BFMI, R-hat, and ESS, but supplies no simulation-level runtime, memory, failure aggregation, performance-measure MCSE, or replicate archive.
+    Cites choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca: Automates collection and warning for the main HMC convergence and geometry diagnostics at the fitted-model level..
+
+Grok 4.5, recency lens
+:   **open / supported-with-caveat.** General simulation-study methodology has long required Monte Carlo standard errors and computational transparency (White 2010; Morris, White & Crowther 2019 ADEMP tutorial; Williams et al. 2024 TRISS checklist for reporting MCSE). Those works propose standards; they do not show that PAIC/ML-NMR simulation papers now report optimizer/sampler failure rates, divergences, tree-depth, R-hat, bulk/tail ESS, integration error, seed/init sensitivity, or MCSE of performance measures per scenario severity. Field-focused searches (RSM, SiM, Pharm Stats, Value in Health, 2024–2026; multinma/maicplus simulation vignettes) did not surface a convention shift that would close C1, C3, C5–C7 as practice claims. C2 remains tied to ML-NMR (integration vs MC error), where multinma diagnostics help applied fits more than published simulation tables. C8 (share replicate-level outputs) is technically trivial and still uncommon. Problem remains open as an ITC/PAIC reporting practice gap, not as absence of general methodology.
+
+Decision path
+:   `R3:partially-solved(n=2) → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [OVL-06 — No standardized sample-size planning guidance or software for PAIC](OVL-06-no-standardized-sample-size-planning-guidance-or-software-fo.qmd)
+:::
+
+## Source
+
+Derived from C:L2055-2063, C:L2063, C:L2124-2125 of the reviewed corpus.

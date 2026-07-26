@@ -1,0 +1,85 @@
+---
+title: "Federated ML-NMR and federated model checking do not exist"
+description: "Federated individual-data synthesis is not prospective. DataSHIELD has run privacy-preserving individual-data meta-analysis for years, including federated Cox models for survival (PMC9166323); Bayesian Federated Inference reconstructs what a pooled Bayesian analysis would have found from local posterior summaries (doi:10.1002/sim.10072; doi:10.1017/rsm.2025.6; arXiv:2402.02898; CRAN package BFI); and federated target-trial emulation is published and validated across 192 hospitals and five health systems (doi:10.1038/s41746-025-01803-y), which confirms the source's own claim that federated target-trial methods are appearing in clinical research. What is unsolved is the specific object: federated Bayesian ML-NMR, where each posterior draw needs numerical integration over covariate distributions held by different custodians, together with federated posterior predictive checking and characterized approximation error. The ranking claim, that asymmetric individual-data access is the biggest practical limitation in PAIC, is unsupported; it is one major limitation."
+pid: "ADJ-14"
+topic: "Adjacent-field methods"
+categories: ["Adjacent-field methods", "Very high priority", "Partially addressed"]
+priority: "Very high"
+prank: 1
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[ADJ-14]{.problem-id}
+[Partially addressed]{.verdict .verdict-partially-addressed}
+[Very high priority]{.chip .chip-priority-very-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+## Statement
+
+Federated individual-data synthesis is not prospective. DataSHIELD has run privacy-preserving individual-data meta-analysis for years, including federated Cox models for survival (PMC9166323); Bayesian Federated Inference reconstructs what a pooled Bayesian analysis would have found from local posterior summaries (doi:10.1002/sim.10072; doi:10.1017/rsm.2025.6; arXiv:2402.02898; CRAN package BFI); and federated target-trial emulation is published and validated across 192 hospitals and five health systems (doi:10.1038/s41746-025-01803-y), which confirms the source's own claim that federated target-trial methods are appearing in clinical research. What is unsolved is the specific object: federated Bayesian ML-NMR, where each posterior draw needs numerical integration over covariate distributions held by different custodians, together with federated posterior predictive checking and characterized approximation error. The ranking claim, that asymmetric individual-data access is the biggest practical limitation in PAIC, is unsupported; it is one major limitation.
+
+## Why it is open
+
+Bayesian ML-NMR requires repeated evaluation of a joint likelihood with numerical integration over covariate distributions, and splitting that across custodians who cannot exchange records forces a choice between exact protocols whose cost compounds per sampling iteration and approximations whose posterior error is uncharacterized; general nonlinear ML-NMR also has no finite sufficient statistic to aggregate, so secure exactness is relative to a specified finite-precision computation and threat model. Model checking compounds the problem, because posterior predictive checks normally need the data being predicted and the analyst never sees it. Federation does not remove the reasons the data differ: site heterogeneity in measurement, case mix and definitions persists and is now harder to inspect, and no shared standard supplies harmonized component and outcome definitions. Every participant must also run compatible infrastructure under an agreed protocol, which is an organizational problem before it is a statistical one.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Li et al., Federated target trial emulation using distributed observational data for treatment effect estimation, npj Digital Medicine 2025](https://doi.org/10.1038/s41746-025-01803-y) | Federated protocol design, federated inverse-probability weighting and federated Cox models across 192 hospitals and five health systems; the reference for the entry's claim that federated target-trial methods are already appearing. |
+| [dsSurvival: Privacy preserving survival models for federated individual patient meta-analysis in DataSHIELD (2022)](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9166323/) | Federated individual-data meta-analysis for survival outcomes without pooling records. Does not cover ML-NMR's integration over covariate distributions or federated posterior predictive checks. |
+| [Jonker, Pazira & Coolen, Bayesian federated inference for estimating statistical models based on non-shared multicenter data sets, Stat Med 2024](https://doi.org/10.1002/sim.10072) | Reconstructs what a pooled Bayesian analysis would have found from local posterior summaries, without sharing patient-level records. |
+| [Bayesian Federated Inference for regression models based on non-shared medical center data, Res Synth Methods 2025](https://doi.org/10.1017/rsm.2025.6) | Extends Bayesian federated inference to regression models under heterogeneous populations. |
+| [Bayesian Federated Inference for regression models based on non-shared multicenter data sets from heterogeneous populations (preprint, 2024)](https://arxiv.org/abs/2402.02898) | Preprint with details of the federated regression construction and package illustration. |
+| [BFI (R package)](https://cran.r-project.org/package=BFI) | Shipped implementation of Bayesian federated inference, so the machinery is available rather than prospective. |
+
+:::
+
+## Probable solution or research direction
+
+Adapt the federated Bayesian machinery that exists rather than building federation from scratch: apply Bayesian Federated Inference and DataSHIELD-style protocols to ML-NMR's integration step, and characterize exact versus approximate distributed computation so the approximation error is known rather than assumed small. Define federated posterior predictive checks, handle site-specific missingness and measurement, harmonize component and outcome definitions, and quantify secure-computation cost against the analytic gain. Treat asymmetric individual-data access as one major constraint among several rather than as the ranking premise for the program.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Partially addressed. Part of this problem is addressed by existing work; the entry names which part.
+
+**The source titled this.** "Federated and secure computation for multi-sponsor IPD synthesis" The title treats federated computation for multi-sponsor IPD synthesis as prospective, but the audit found federated Bayesian inference, survival meta-analysis and target-trial emulation already published.
+
+**The source said.** "Asymmetric IPD access is named the biggest practical limitation in PAIC. Federated learning and secure multiparty computation are proposed so that trial custodians contribute gradients, likelihood summaries or exact secure sufficient statistics instead of row-level records, letting ML-NMR and other IPD models be fitted across sponsors and jurisdictions."
+
+**What was wrong with it.** The source described federated learning and secure computation as proposals and called asymmetric individual-data access the biggest practical limitation in PAIC. Auditors found federated Bayesian inference, federated survival meta-analysis and federated target-trial emulation already published, and GPT-5.6 Sol rejected the superlative as an uncited comparative claim; what remains open is federated ML-NMR and federated model checking.
+
+Literature and prior-art check
+:   **partially-solved / supported-with-caveat.** Federated IPD evidence synthesis is not prospective: DataSHIELD has run privacy-preserving IPD meta-analysis across sites for years, including federated Cox models for survival IPD meta-analysis (dsSurvival, PMC9166323), where 'the individual-level data remain within each site and only non-disclosive aggregated data are shared'. The entry's claim that federated target-trial methods 'are already appearing in clinical research' is confirmable and should be cited: 'Federated target trial emulation using distributed observational data for treatment effect estimation' (npj Digital Medicine 2025, doi:10.1038/s41746-025-01803-y), validated across 192 hospitals (eICU/MIMIC-IV) and five NYC health systems. What is genuinely unsolved is the specific object: federated Bayesian ML-NMR, where each posterior draw requires numerical integration over covariate distributions held at different custodians, and federated posterior predictive checking. The caveat is the superlative 'Asymmetric IPD access is the biggest practical limitation in PAIC', which I could not verify against any source that ranks limitations.
+    Cites doi:10.1038/s41746-025-01803-y: Supplies a real reference for the entry's claim that federated target-trial methods are already appearing; federated protocol design, federated IPTW and federated Cox across 192 hospitals..
+    Cites pmc:PMC9166323: Covers federated IPD meta-analysis for survival outcomes without pooling records. Does not cover ML-NMR's integration over covariate distributions or federated posterior predictive checks..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** C1 is an unsupported comparative superlative; asymmetric IPD access is a major limitation, not demonstrably the biggest. C2 and C7 are feasible when site likelihoods decompose and custodians agree on a common model and protocol. C13 needs qualification: general nonlinear ML-NMR has no universal finite sufficient statistic, and SMPC exactness is relative to the specified finite-precision computation and threat model, although secure aggregation of local likelihood or gradient evaluations is possible. C3 describes facilitation, not access itself. C4 through C6 and the qualified forms of C14 and C15 are sound. C8 through C10 are too broad as open theoretical claims: exact distributed likelihood evaluation, local posterior-predictive discrepancies, and missing-data models are conceptually available, while model-specific approximation error, privacy-preserving checks, measurement harmonization, and implementation remain open. C11 is an uncited literature-state claim outside this audit's permitted evidence, C12 is promotional, and C16 accurately reports the labels. Federated ML-NMR adaptation remains open and potentially high-value, but Very high is a roadmap priority rather than a demonstrated decision-grade severity.
+
+Grok 4.5, recency lens
+:   **partially-solved / supported-with-caveat.** Federated Bayesian analysis of non-pooled multi-center IPD is no longer only speculative: Bayesian Federated Inference (BFI) reconstructs what a pooled Bayesian analysis would have found from local posterior summaries without sharing records (Jonker, Pazira, Coolen, Statistics in Medicine 2024; Research Synthesis Methods 2025 regression extension; CRAN package BFI; survival extension 2025). Federated target-trial emulation for distributed observational treatment-effect estimation is also published (Li et al., npj Digital Medicine 2025), confirming the report’s claim that federated target-trial methods are already appearing in clinical research. These works partially resolve C2, C3, C11, and parts of C7/C14 for multi-center regression-style and TTE analyses. They do not close federated ML-NMR: repeated joint likelihood evaluation with numerical integration over covariate distributions, characterized exact-vs-approximate distributed Bayesian error, federated posterior predictive checks when the analyst never sees the data, harmonized component/outcome definitions, or SMPC cost characterization specific to evidence-synthesis MCMC. Site heterogeneity and governance remain unsolved by federation itself (C4–C6 still hold). Asymmetric IPD access remains a dominant practical PAIC constraint; calling it the single biggest limitation is slightly absolute but directionally supported.
+    Cites 10.1002/sim.10072: Establishes BFI so multi-center Bayesian models can be combined from local inferences without sharing patient-level data..
+    Cites 10.1017/rsm.2025.6: Extends BFI to regression models under heterogeneous populations; CRAN BFI software..
+    Cites arXiv:2402.02898: Preprint/details for BFI regression and package illustration..
+    Cites 10.1038/s41746-025-01803-y: Demonstrates federated target-trial methods in clinical research, as the report claims..
+
+Decision path
+:   `R3:partially-solved(n=2) → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [SFW-06 — ML-NMR runtime can constrain repeated sensitivity analyses at scale](SFW-06-ml-nmr-runtime-can-constrain-repeated-sensitivity-analyses-a.qmd)
+:::
+
+## Source
+
+Derived from C:L1646-1647, C:L1663, C:L1664, C:L1728-1734, C:L1737-1739 of the reviewed corpus.

@@ -1,0 +1,72 @@
+---
+title: "Time, geography and setting are confounded in non-crossed evidence"
+description: "When calendar period, geography and care setting are each constant within each of two non-crossed studies, all three are affine functions of the binary study indicator, so only one composite between-study difference is identified and a failed transport check cannot be attributed to a dimension. This is a property of non-crossed evidence rather than of indirect comparison as a whole: once a network carries crossed structure, network meta-regression and multilevel network meta-regression can carry region, period or setting as study-level covariates, which multinma supports. Separating the dimensions therefore requires crossed variation, external information or explicit identifying restrictions, and no estimator can do it by computation alone."
+pid: "IDN-13"
+topic: "Identification, transitivity & conditional constancy"
+categories: ["Identification, transitivity & conditional constancy", "High priority", "Confirmed open"]
+priority: "High"
+prank: 2
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Emerging"
+---
+::: {.problem-meta}
+[IDN-13]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[High priority]{.chip .chip-priority-high}
+[Emerging]{.chip .chip-maturity-emerging}
+:::
+## Statement
+
+When calendar period, geography and care setting are each constant within each of two non-crossed studies, all three are affine functions of the binary study indicator, so only one composite between-study difference is identified and a failed transport check cannot be attributed to a dimension. This is a property of non-crossed evidence rather than of indirect comparison as a whole: once a network carries crossed structure, network meta-regression and multilevel network meta-regression can carry region, period or setting as study-level covariates, which multinma supports. Separating the dimensions therefore requires crossed variation, external information or explicit identifying restrictions, and no estimator can do it by computation alone.
+
+## Why it is open
+
+Assembling evidence with crossed structure, such as multi-regional or multi-period trials and registries spanning more than one care setting, is rarely done for an indirect comparison, so the standard two-study case carries the collinearity by construction. Without separation a failed transport check yields no targeted remedy, and a bias parameter elicited for undifferentiated study differences mixes mechanisms whose plausible magnitudes and directions differ, which degrades both elicitation and sensitivity analysis. The remedy is evidence design, measurement and explicit restriction rather than a better estimator, and tooling reflects that: in cpaic, an unreleased development package on GitHub that is not on CRAN, study intercepts and generic covariates are available but no calendar-time, geography or setting specific transport diagnostics are exported.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [multinma R package](https://cran.r-project.org/package=multinma) | supports network meta-regression on study-level terms, including baseline risk, so region, period or setting can be carried as covariates once the network has enough crossed structure |
+| [cpaic, unreleased development package on GitHub (not on CRAN), commit 9d150e9](https://github.com/choxos/cpaic) | exposes study intercepts and generic covariates but exports no calendar-time, geography or care-setting specific transport diagnostics |
+
+:::
+
+## Probable solution or research direction
+
+Design evidence sets with separately indexed transport dimensions, using multi-regional and multi-period trials plus real-world data to estimate dimension-specific drift, and report dimension-specific transport diagnostics so that failures are attributable. Where crossed structure is unavailable, state the identifying restriction that assigns the composite difference to a dimension instead of leaving it implicit, and elicit separate bias parameters for period, region and setting rather than one undifferentiated study effect. Since study-level regression already exists in released software, the work is assembling the crossed evidence and the diagnostics on top of it, not building a new estimator.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+
+**The source titled this.** "Calendar time, geography and setting are not separately identified" The title states the non-identification as a general fact, but both auditors narrowed it to non-crossed evidence, since crossed networks can carry these as study-level covariates.
+
+**The source said.** "Transportability should be tested separately across calendar time, geography and care setting rather than conflated into a single study or source indicator, but standard practice indexes everything by a study identifier so these dimensions cannot be separated."
+
+**What was wrong with it.** The source stated the non-identification as a fact about ITC and PAIC practice in general. Both auditors narrowed it to non-crossed evidence in which each dimension is constant within a study, and the literature auditor noted that regression on study-level terms such as region or period is already available in multinma, so the missing qualifier belongs in the statement.
+
+Literature and prior-art check
+:   **open / supported-with-caveat.** I found no work resolving this and no work asserting the absence, so I am judging the claims on their merits. The load-bearing claim, that in a two-study indirect comparison calendar time, geography and care setting are not separately identified, is a straightforward collinearity fact: with two studies the study indicator is binary and every study-level covariate is a deterministic function of it, so no contrast can attribute a discrepancy to a dimension. That is defensible without citation. The caveat is scope. The title generalizes to ITC/PAIC as a whole, but the identification failure is specific to two-study (and more generally to non-crossed) evidence structures; network meta-regression and ML-NMR can and do carry study-level covariates such as region or period once the network has enough crossed structure, and multinma supports regression on study-level terms including baseline risk. The entry's own why_open concedes this ('separating them requires evidence with crossed structure'), so the fix is to move that qualifier into the title and statement rather than to change the vote. The remaining claims are descriptive of practice and I found nothing contradicting them.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** C1 and C4 are sound when all three dimensions are relevant to the target decision. C3 is a rank statement only under the missing qualifier that each dimension is constant within each of two studies: then every dimension is an affine function of the binary study indicator, so the design identifies at most one composite between-study contrast, not three dimension-specific effects. A two-study label alone does not imply failure if multiregional, multiperiod, site-level, or registry data provide crossed variation. C2 is a broad practice claim, not a mathematical necessity. At cpaic@9d150e9, study intercepts and generic covariates are available but no separate calendar-time, geography, or setting transport diagnostics are exported. No estimator can solve perfect collinearity without external restrictions; the open task is evidence design, measurement, and sensitivity analysis rather than computation. The asserted high severity is context-dependent.
+
+Decision path
+:   `R5:default-open → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [DIA-18 — Constancy assumptions are never tested across calendar time](DIA-18-constancy-assumptions-are-never-tested-across-calendar-time.qmd)
+:::
+
+## Source
+
+Derived from C:L226, C:L404 of the reviewed corpus.

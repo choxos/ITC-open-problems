@@ -1,0 +1,77 @@
+---
+title: "Nothing propagates sampling error in reported target moments"
+description: "Published aggregate-data means and standard deviations are estimates when they are sample summaries of a superpopulation, yet population-adjustment estimators condition on them as fixed and no study has quantified the coverage that costs. The weight-estimation half of the problem is settled: sandwich, ESS-rescaled, and bootstrap variance estimators exist, are implemented in maicplus, and were benchmarked across 108 scenarios by Chandler and Proskorovsky (2024, doi:10.1002/jrsm.1759), who found the fixed-weight conventional estimator materially anticonservative only under poor or moderate overlap and all methods valid under strong overlap. G-MAIC (doi:10.1017/rsm.2025.10021) propagates population-adjustment uncertainty by Bayesian bootstrap, and cmaic() in the unreleased cpaic development package on GitHub re-estimates weights inside a stratified bootstrap. None of these resamples the target moments."
+pid: "MIS-03"
+topic: "Missing data & uncertainty propagation"
+categories: ["Missing data & uncertainty propagation", "Very high priority", "Overstated"]
+priority: "Very high"
+prank: 1
+verdict: "Overstated"
+verdictslug: "overstated"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[MIS-03]{.problem-id}
+[Overstated]{.verdict .verdict-overstated}
+[Very high priority]{.chip .chip-priority-very-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+## Statement
+
+Published aggregate-data means and standard deviations are estimates when they are sample summaries of a superpopulation, yet population-adjustment estimators condition on them as fixed and no study has quantified the coverage that costs. The weight-estimation half of the problem is settled: sandwich, ESS-rescaled, and bootstrap variance estimators exist, are implemented in maicplus, and were benchmarked across 108 scenarios by Chandler and Proskorovsky (2024, doi:10.1002/jrsm.1759), who found the fixed-weight conventional estimator materially anticonservative only under poor or moderate overlap and all methods valid under strong overlap. G-MAIC (doi:10.1017/rsm.2025.10021) propagates population-adjustment uncertainty by Bayesian bootstrap, and cmaic() in the unreleased cpaic development package on GitHub re-estimates weights inside a stratified bootstrap. None of these resamples the target moments.
+
+## Why it is open
+
+Weights are functions of estimated parameters and of published target moments, and only the first part has been addressed. Sandwich, ESS-rescaled, bootstrap, and Bayesian-bootstrap estimators now cover weight estimation, and the correction matters mainly when overlap is poor or moderate. The published-moment part is untouched because a table of means and standard deviations arrives without the covariance among those moments or a sampling model for them, so there is nothing to resample and no nuisance equation to stack. The gap bites only when the estimand is a superpopulation quantity; where the supplied summaries define the target by construction, or are exact administrative counts, conditioning on them is the correct thing to do.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Chandler and Proskorovsky 2024, Uncertain about uncertainty in matching-adjusted indirect comparisons? A simulation study to compare methods for variance estimation, Res Synth Methods 15(6):1094-1110](https://doi.org/10.1002/jrsm.1759) | compares conventional estimators on raw weights, conventional estimators on ESS-rescaled weights, robust sandwich estimators, and bootstrapping across 108 scenarios, anchored and unanchored, for binary and time-to-event outcomes; finds variability underestimated by conventional estimators with raw weights when population overlap is poor or moderate, and all methods producing valid coverage probabilities and standard errors under strong overlap |
+| [Gao, Heath and Baio 2025, Regression augmented weighting adjustment for indirect comparisons in health decision modelling](https://doi.org/10.1017/rsm.2025.10021) | G-MAIC employs a Bayesian bootstrap to propagate the uncertainty of population-adjusted estimates rather than conditioning on estimated weights |
+| [cpaic, unreleased development package on GitHub (not on CRAN), commit 9d150e9](https://github.com/choxos/cpaic) | cmaic() runs a stratified-by-arm bootstrap that resamples the IPD, re-estimates the MAIC weights, and refits the outcome model, so weight-estimation uncertainty enters the interval; target means and standard deviations are held fixed throughout that bootstrap, and cstc() and cmlnmr() likewise condition on the supplied target summaries |
+
+:::
+
+## Probable solution or research direction
+
+Do not rebuild weight-estimation variance; it exists, is implemented, and is benchmarked. The open work is a sampling model for the published target moments, either deriving their covariance from reported sample sizes and design or a Bayesian formulation that places a distribution over the target covariate law and integrates the treatment effect over posterior draws. With such a model, resampling the moments alongside the individual data, or stacking a moment-estimation equation into the estimating system, becomes well defined; without one, a bootstrap over target summaries is not identified. Then run the simulation the source proposed, restricted to the part nobody has done: how much coverage is lost by conditioning on target moments at realistic aggregate-data sample sizes.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Overstated. 2 independent auditors judged the claim as stated too strong. Published aggregate-data means and standard deviations are estimates, yet every population-adjustment estimator I could find conditions on them as fixed, and no study has quantified the resulting coverage loss. Uncertainty from weight estimation itself is a different matter: sandwich, ESS-rescaled and bootstrap estimators exist, are implemented in maicplus, and were benchmarked across 108 scenarios by Chandler & Proskorovsky (2024), who found the fixed-weight conventional estimator is only materially anticonservative under poor or moderate overlap.
+
+**The source titled this.** "Weights and reported target moments are treated as known constants" The title says estimated weights are treated as known constants, but weight-estimation variance is solved, benchmarked across 108 scenarios and implemented in maicplus.
+
+**The source said.** "Many population-adjusted analyses condition on estimated weights and on published aggregate-data moments as if both were fixed inputs, so the reported uncertainty omits weight-estimation and target-summary variability."
+
+**What was wrong with it.** The source said reported uncertainty omits both weight-estimation and target-summary variability, and that the omission is directional so intervals come out systematically too narrow. Both auditors judged that overstated: the weight-estimation half was benchmarked across 108 scenarios by Chandler and Proskorovsky (2024, doi:10.1002/jrsm.1759) and is shipped in maicplus, in G-MAIC (doi:10.1017/rsm.2025.10021), and in the cmaic() bootstrap of cpaic at commit 9d150e9, and the direction is not guaranteed, since estimating calibration weights can raise or lower variance and fixed-weight sandwich calculations can be conservative; only the target-moment half survives.
+
+Literature and prior-art check
+:   **partially-solved / overstated.** The weight-estimation half of this entry has already been done, including the simulation the proposed direction asks for. Chandler & Proskorovsky (2024), Res Synth Methods 15(6):1094-1110: 'One of the primary challenges in MAIC is the need to properly account for the additional uncertainty introduced by the matching process... we conducted a comprehensive Monte Carlo simulation study to evaluate the performance of different statistical methods across 108 scenarios. Four general approaches for variance estimation were compared in both anchored and unanchored MAICs of binary and time-to-event outcomes: (1) conventional estimators (CE) using raw weights; (2) CE using weights rescaled to the effective sample size (ESS); (3) robust sandwich estimators; and (4) bootstrapping.' Their finding narrows the entry materially: undercoverage from treating weights as fixed appears only under poor or moderate overlap, and 'All methods produced valid coverage probabilities and standard errors in cases of strong population overlap.' The tooling is shipped: maicplus 0.1.2 imports both sandwich and boot, and G-MAIC (Gao, Heath & Baio 2025) 'employs Bayesian bootstrap to propagate the uncertainty of population-adjusted estimates.' The target-moment half is where I found nothing: no method propagating sampling error in published aggregate means and SDs.
+    Cites doi:10.1002/jrsm.1759: Executes the entry's proposed simulation for the weight-estimation component: 108 scenarios, four variance approaches, anchored and unanchored, binary and time-to-event, reporting empirical coverage..
+    Cites doi:10.1017/rsm.2025.10021: G-MAIC uses Bayesian bootstrap to propagate population-adjustment uncertainty rather than conditioning on estimated weights..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / overstated.** C1 and C2 are unsourced prevalence claims, although the corresponding conditional analyses certainly occur. C3 is true when published means and SDs are sample estimates of superpopulation moments, but not when they are exact administrative quantities, user-defined targets, or the supplied summaries define a conditional finite-population estimand. C4 is correct only conditionally: stacked equations must include every relevant nuisance equation and cross-covariance, while a bootstrap must resample both data sources at their actual sampling units. Published moments alone usually do not permit such a bootstrap without their covariance or an additional sampling model. Most importantly, omission is not directionally guaranteed to make intervals narrower; estimating calibration weights can increase or decrease variance, and fixed-weight sandwich calculations may be conservative in some settings. cpaic partially resolves C1: cmaic() stratified-bootstraps the IPD, re-estimates the weights, and refits the outcome model. It nevertheless holds target means and SDs fixed throughout that bootstrap; cstc() and cmlnmr() likewise condition on supplied target summaries. The remaining target-summary component can matter with small target samples or unstable overlap but is not universally a very-high-severity defect.
+    Cites choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca: The cmaic() bootstrap resamples IPD within treatment arms, re-estimates MAIC weights, and refits the outcome model, resolving the weight-estimation component for that estimator. Target moments remain fixed..
+
+Decision path
+:   `R3:partially-solved(n=2) → R8:overstated-majority(n=2)`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [HET-02 — Multi-arm covariance is lost when contrasts are adjusted pairwise](HET-02-multi-arm-covariance-is-lost-when-contrasts-are-adjusted-pai.qmd)
+- [QBA-10 — Target population and joint-distribution uncertainty](QBA-10-target-population-and-joint-distribution-uncertainty.qmd)
+:::
+
+## Source
+
+Derived from C:L214-215, C:L251 of the reviewed corpus.

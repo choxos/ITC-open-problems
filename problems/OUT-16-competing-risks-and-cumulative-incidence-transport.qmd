@@ -1,0 +1,76 @@
+---
+title: "Competing risks and cumulative incidence transport"
+description: "A treatment may reduce progression while increasing competing mortality, and where the analysis collapses to a single endpoint that trade-off is not visible; a composite endpoint may still reflect the net first-event effect while obscuring which cause moved. The mathematical core holds: the cumulative incidence for a cause integrates that cause-specific hazard against event-free survival, which depends on the cumulative hazards of every cause, so transporting one cause-specific effect cannot determine target absolute risk without target-standardized baseline hazards for all causes. The converse is the qualification the source omitted, since transporting the complete set of cause-specific hazards does determine the cumulative incidence. Neither auditor found any population-adjusted method for competing risks or cumulative incidence, and the general causal literature makes the same transportability point (doi:10.1002/bimj.70153)."
+pid: "OUT-16"
+topic: "Outcome-specific problems"
+categories: ["Outcome-specific problems", "High priority", "Confirmed open"]
+priority: "High"
+prank: 2
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Emerging"
+tractability: 2
+---
+::: {.problem-meta}
+[OUT-16]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[High priority]{.chip .chip-priority-high}
+[Emerging]{.chip .chip-maturity-emerging}
+[Tractability 2/5]{.chip}
+:::
+## Statement
+
+A treatment may reduce progression while increasing competing mortality, and where the analysis collapses to a single endpoint that trade-off is not visible; a composite endpoint may still reflect the net first-event effect while obscuring which cause moved. The mathematical core holds: the cumulative incidence for a cause integrates that cause-specific hazard against event-free survival, which depends on the cumulative hazards of every cause, so transporting one cause-specific effect cannot determine target absolute risk without target-standardized baseline hazards for all causes. The converse is the qualification the source omitted, since transporting the complete set of cause-specific hazards does determine the cumulative incidence. Neither auditor found any population-adjusted method for competing risks or cumulative incidence, and the general causal literature makes the same transportability point (doi:10.1002/bimj.70153).
+
+## Why it is open
+
+Cause-specific hazards and cumulative incidence functions answer different questions, and population adjustment changes the competing-risk mix because the target population has different background mortality, so the direction of net benefit can flip between populations. Aggregate-data publications typically report a single composite or a single cause without the competing-event information needed to reconstruct cumulative incidence, so the full set of cause-specific hazards is unavailable on the comparator side. A composite, an all-cause first event, a cause-specific hazard and a cumulative incidence are distinct estimands, so collapsing to one endpoint changes the question rather than simplifying the answer. The mechanism is well understood outside evidence synthesis and simply has not been composed with population adjustment.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Gorfine 2026, Censoring, Competing Events, and Multistate Models: Comment on Beyersmann et al., Biometrical Journal](https://doi.org/10.1002/bimj.70153) | argues that in competing-risks settings limits on transportability and generalizability arise not only from differing censoring mechanisms but from differing hazards of the competing events across populations; it does not provide a transport estimator for cumulative incidence |
+
+:::
+
+## Probable solution or research direction
+
+Develop transport methods defined for the full set of cause-specific hazards, so that both the cause of interest and the competing causes are standardized to the target population and the cumulative incidence follows from them. Report target-standardized cumulative incidence rather than a single transported cause-specific effect wherever absolute cause-specific risk drives the decision. State what competing-event information the comparator publication actually supplies, since a cumulative-incidence target is unidentified without it.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+
+**The source said.** "A treatment may reduce progression while increasing competing mortality, but most population-adjusted implementations collapse the disease process to a single endpoint and there is no established way to transport a cause-specific hazard or a cumulative incidence function to a new population."
+
+**What was wrong with it.** The source said cause-specific transport does not determine transported cumulative incidence; the code auditor supplied the missing condition, that transporting all cause-specific hazards does determine it, so the obstacle is the incompleteness of what gets transported rather than a property of cause-specific hazards. The same auditor declined to endorse the claim that most PAIC implementations reduce disease processes to a single endpoint, which a technical audit cannot establish, though it confirmed that cpaic, an unreleased development package on GitHub that is not installable from CRAN, is single-event at commit 9d150e9, with status codes distinguishing censoring types rather than event causes.
+
+**Dissent.** literature dissented (supported): I searched specifically for population-adjusted or indirect-comparison methods for competing risks and cumulative incidence and found none; multinma's survival likelihoods are single-event, and the maicplus vignettes cover binary and time-to-event endpoints only. The general causal literature supports the mechanism the entry describes: a 2026 Biometrical Journal commentary by Gorfine (doi 10.1002/bimj.70153) on hazards as key quantities argues that in competing-risks settings limits on transportability and generalisability arise not only from differing censoring mechanisms but from differing hazards of the competing events across populations, which is exactly the entry's point that transporting one cause-specific effect does not determine transported absolute risk. The claim that cumulative incidence for one cause depends on all cause-specific hazards is a mathematical identity and needs no source. This entry is one of the cleanest 'genuinely open' items in the batch: the mechanism is well understood outside evidence synthesis and simply has not been composed with population adjustment.
+
+Literature and prior-art check
+:   **open / supported.** I searched specifically for population-adjusted or indirect-comparison methods for competing risks and cumulative incidence and found none; multinma's survival likelihoods are single-event, and the maicplus vignettes cover binary and time-to-event endpoints only. The general causal literature supports the mechanism the entry describes: a 2026 Biometrical Journal commentary by Gorfine (doi 10.1002/bimj.70153) on hazards as key quantities argues that in competing-risks settings limits on transportability and generalisability arise not only from differing censoring mechanisms but from differing hazards of the competing events across populations, which is exactly the entry's point that transporting one cause-specific effect does not determine transported absolute risk. The claim that cumulative incidence for one cause depends on all cause-specific hazards is a mathematical identity and needs no source. This entry is one of the cleanest 'genuinely open' items in the batch: the mechanism is well understood outside evidence synthesis and simply has not been composed with population adjustment.
+    Cites doi:10.1002/bimj.70153: Sources the claim that differing competing-event hazards across populations limit transportability of hazard-based estimands; it does not provide a transport estimator for cumulative incidence..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / supported-with-caveat.** The mathematical core is correct. For cause k, the cumulative incidence is an integral of the cause-specific hazard multiplied by event-free survival, and that survival depends on the cumulative hazards of every cause. Transporting one cause-specific effect therefore cannot determine target absolute risk without target-standardized baseline hazards for all causes. Conversely, transporting the complete set of cause-specific hazards does determine the cumulative incidence, which is the needed qualification to C3. C2 is invisible only when the selected endpoint discards event type; a composite endpoint may reflect the net first-event effect while still obscuring the progression-versus-mortality trade-off. C4 is correct because a composite, all-cause first event, cause-specific hazard, and cumulative incidence are distinct estimands. C1's majority claim is not established by a technical audit, although cpaic@9d150e9 is a concrete single-event implementation: its status codes distinguish censoring types, not event causes, and it has no multistate or competing-risk family. The gap is high priority when absolute cause-specific risk drives the decision.
+
+Decision path
+:   `R5:default-open → R11:caveated(n=1)`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [OUT-08 — Overdispersed counts and recurrent events as total disease burden](OUT-08-overdispersed-counts-and-recurrent-events-as-total-disease-b.qmd)
+- [OUT-19 — No multivariate population-adjusted model for correlated outcomes](OUT-19-no-multivariate-population-adjusted-model-for-correlated-out.qmd)
+- [OUT-20 — No PAIC workflow carries dependence through transport to net benefit](OUT-20-no-paic-workflow-carries-dependence-through-transport-to-net.qmd)
+:::
+
+## Source
+
+Derived from C:L214-215, C:L246, C:L1608-1610 of the reviewed corpus.

@@ -1,0 +1,77 @@
+---
+title: "Bridge-ensemble weights cannot be learned for cross-gap accuracy"
+description: "Using several imperfect bridges at once is a reasonable response to bridge-choice uncertainty, but the aggregation rule is the problem: if candidate bridges induce the same observed-data distribution within the components and differ only across the unobserved gap, the data cannot update weights for cross-gap correctness. Weights can still be estimated against an observed predictive objective; that objective simply need not track cross-gap accuracy. Two of the listed constructions are established rather than novel: a mixture prior spanning commensurate to noncommensurate states is the robust meta-analytic-predictive prior of Schmidli et al. 2014, and ensembling over a bridge's admissible configurations was done in a real disconnected network by Schmitz et al. 2018, who propagated uncertainty by analyzing the space of possible matches. What has not been done is averaging across distinct bridge families in a disconnected network, where the weights are unidentified."
+pid: "DIS-13"
+topic: "Disconnected networks & bridges"
+categories: ["Disconnected networks & bridges", "Very high priority", "Confirmed open"]
+priority: "Very high"
+prank: 1
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Speculative"
+tractability: 2
+---
+::: {.problem-meta}
+[DIS-13]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[Very high priority]{.chip .chip-priority-very-high}
+[Speculative]{.chip .chip-maturity-speculative}
+[Tractability 2/5]{.chip}
+:::
+## Statement
+
+Using several imperfect bridges at once is a reasonable response to bridge-choice uncertainty, but the aggregation rule is the problem: if candidate bridges induce the same observed-data distribution within the components and differ only across the unobserved gap, the data cannot update weights for cross-gap correctness. Weights can still be estimated against an observed predictive objective; that objective simply need not track cross-gap accuracy. Two of the listed constructions are established rather than novel: a mixture prior spanning commensurate to noncommensurate states is the robust meta-analytic-predictive prior of Schmidli et al. 2014, and ensembling over a bridge's admissible configurations was done in a real disconnected network by Schmitz et al. 2018, who propagated uncertainty by analyzing the space of possible matches. What has not been done is averaging across distinct bridge families in a disconnected network, where the weights are unidentified.
+
+## Why it is open
+
+Ensemble weights are learned from fit inside the connected components while the quantity at stake is a functional of the extrapolation across the gap, and nothing in the data-generating structure forces the two to agree, so a bridge that fits the observed subnetworks best can extrapolate worst. Model averaging cannot bear on any assumption every member shares, so an ensemble whose families all assume, say, population exchangeability inherits that assumption intact while looking like a hedge. Averaging across families is also incoherent when the members target different estimands, and none of these constructions has been developed or validated for a disconnected network; the catalog's own portfolio rates the direction at tractability 2 of 5 because validation is difficult.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Schmidli et al. 2014](https://doi.org/10.1111/biom.12242) | establishes the two- and three-component mixture prior spanning commensurate to noncommensurate states, so that construction is validated prior art rather than a new direction |
+| [Schmitz et al. 2018](https://doi.org/10.1186/s12874-018-0509-7) | ensembles over the admissible configurations of a single bridge in a genuinely disconnected network by analyzing the space of possible matches |
+
+:::
+
+## Probable solution or research direction
+
+Adapt the existing constructions rather than inventing them: robust mixture priors and match-space ensembling already work within a bridge, and the open step is extending them across families with weights that are declared rather than estimated, or with bridge-specific bias parameters shrunk toward zero. Score any proposal on synthetic bridge-deletion experiments, where a connected network is thinned so the cross-gap answer is known, since that is the only setting where ensemble weights can be checked against extrapolation accuracy. Never treat model averaging as validation: pair it with structural sensitivity analysis over the assumptions the members share, and report intersection or union bounds so disagreement between bridges is visible rather than absorbed into a single interval.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+
+**The source titled this.** "Multi-bridge ensembles need weights that cannot be learned" The title says the weights cannot be learned at all, but the audit noted weights can be estimated against an observed predictive objective that simply need not track cross-gap accuracy.
+
+**The source said.** "A novel direction is to use several imperfect bridges simultaneously without pretending any one is certainly valid, via Bayesian model averaging over bridge families, stacking on leave-one-study or synthetic bridge-deletion prediction, robust Bayes with neighborhoods around each bridge, intersection or union bounds, a mixture prior spanning commensurate to noncommensurate states, or bridge-specific bias parameters shrunk toward zero. Predictive performance within observed subnetworks may not identify which bridge extrapolates correctly across the gap, so the aggregation rule itself is not identified."
+
+**What was wrong with it.** The source described mixture priors, robust Bayes, and bridge ensembles as undeveloped; the literature auditor identified doi:10.1111/biom.12242 and doi:10.1186/s12874-018-0509-7 as existing validated constructions, so the novelty claim narrows to averaging across distinct bridge families. GPT-5.6 Sol corrected the claim that averaging narrows intervals relative to any single model, which is false in general because a mixture variance contains both within-model and between-model components, and noted that a single model can include an explicit bridge-discrepancy term, so selecting one model does not always understate uncertainty.
+
+Literature and prior-art check
+:   **open / supported-with-caveat.** The central claim, that ensemble weights learned inside connected components need not identify which bridge extrapolates across a gap, is correct and I found nothing that solves it. But two of the listed constructions are presented as novel when they are established methods in adjacent literatures, and the entry should say so. A 'mixture prior containing commensurate, partially commensurate, and noncommensurate states' is the robust meta-analytic-predictive prior of Schmidli et al. 2014, a validated construction with a large downstream literature on external and historical controls; robust Bayes over neighbourhoods likewise. Ensembling over a bridge's admissible configurations has already been done in a real disconnected network: Schmitz et al. 2018 propagate uncertainty by analysing the space of possible matches. So the accurate framing is not that these constructions are undeveloped, but that they have never been developed for averaging across distinct bridge families in a disconnected network, where the weights are unidentified. Claim 5 is self-referential to the source report and unauditable.
+    Cites 10.1111/biom.12242: Shows the proposed commensurate-to-noncommensurate mixture prior is an established validated construction, not a new direction.
+    Cites 10.1186/s12874-018-0509-7: Prior instance of ensembling over admissible bridge configurations in a genuinely disconnected network.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** C6 captures the real problem when candidate bridges are observationally equivalent on the observed subnetworks and differ only in their cross-gap extrapolations. Otherwise, ensemble weights can be learned for an observed-data predictive objective, although that objective need not track cross-gap accuracy. C1 is not universal because a single model can explicitly include bridge discrepancy or conservative bounds. The claim that averaging narrows intervals relative to any single model is mathematically false in general: mixture variance contains both within-model and between-model components and may increase or decrease interval width relative to particular members. C3-C4 are coherent constructions, but they do not solve the relevance of the weighting objective. C2 is a literature-status claim outside this audit, while C5 is confirmed only as a self-description of the local report.
+
+Decision path
+:   `R5:default-open → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [DEC-11 — Intervals omit selection, reconstruction and target-summary error](DEC-11-intervals-omit-selection-reconstruction-and-target-summary-e.qmd)
+- [MOD-12 — Mixture-weight calibration is unvalidated for subnetwork bridges](MOD-12-mixture-weight-calibration-is-unvalidated-for-subnetwork-bri.qmd)
+:::
+
+## Source
+
+Derived from C:L252, C:L1182-1192, C:L1193, C:L2158 of the reviewed corpus.

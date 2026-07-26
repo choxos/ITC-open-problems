@@ -1,0 +1,76 @@
+---
+title: "Outcome ascertainment and the observation process in external data"
+description: "Protocol-driven trial assessment and routine-care capture detect the same events at different times and with different completeness, so using detection time as event time can make progression curves depend on the assessment grid, and baseline covariate balancing generally cannot remove a residual study-specific observation process. Ackerman et al. 2024 (doi:10.3389/fdsfr.2024.1423493) quantify this for external control arms, simulating bias from misclassified progression events and irregular assessment timing and showing that together they may generate bias greater than the sum of their parts, but they measure the problem rather than correct it. The sub-mechanisms need different parameters and not all are always required: sensitivity and specificity address event classification, lag and interval endpoints address timing, linkage completeness addresses missing capture, and visit-process association parameters are needed only when observation is informative. Where visit times are noninformative given modeled covariates and the event is known to lie between visits, an interval-censored likelihood already accommodates different grids without an extra bias parameter, and cpaic (choxos/cpaic@9d150e9, an unreleased development package on GitHub, not installable from CRAN) implements exactly that."
+pid: "QBA-07"
+topic: "Quantitative bias analysis for unanchored PAIC"
+categories: ["Quantitative bias analysis for unanchored PAIC", "High priority", "Unverifiable"]
+priority: "High"
+prank: 2
+verdict: "Unverifiable"
+verdictslug: "unverifiable"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[QBA-07]{.problem-id}
+[Unverifiable]{.verdict .verdict-unverifiable}
+[High priority]{.chip .chip-priority-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+## Statement
+
+Protocol-driven trial assessment and routine-care capture detect the same events at different times and with different completeness, so using detection time as event time can make progression curves depend on the assessment grid, and baseline covariate balancing generally cannot remove a residual study-specific observation process. Ackerman et al. 2024 (doi:10.3389/fdsfr.2024.1423493) quantify this for external control arms, simulating bias from misclassified progression events and irregular assessment timing and showing that together they may generate bias greater than the sum of their parts, but they measure the problem rather than correct it. The sub-mechanisms need different parameters and not all are always required: sensitivity and specificity address event classification, lag and interval endpoints address timing, linkage completeness addresses missing capture, and visit-process association parameters are needed only when observation is informative. Where visit times are noninformative given modeled covariates and the event is known to lie between visits, an interval-censored likelihood already accommodates different grids without an extra bias parameter, and cpaic (choxos/cpaic@9d150e9, an unreleased development package on GitHub, not installable from CRAN) implements exactly that.
+
+## Why it is open
+
+The event time recorded in an external data source is a function of the observation process as well as the underlying event, and that process differs systematically between a protocol-driven trial and routine care. Ascertainment parameters cannot be estimated from the comparison data because the true event process is never observed in either source, and assessment schedules and linkage completeness are rarely reported in enough detail in an aggregate publication to be bounded from protocol information. Missed events, informative visit intensity, death-recording lag and incomplete linkage each require their own sensitivity parameters or an explicit observation-process model, which sits outside the covariate-balancing toolkit and which no PAIC implementation attempts.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Gray et al. 2024, Pharmacoepidemiology and Drug Safety](https://doi.org/10.1002/pds.5796) | Illustrates QBA for external controls including an outcome-evaluation scenario, that is misclassification of survival, which matches the ascertainment element of this entry. |
+| [Ackerman et al. 2024, Measurement error and bias in real-world oncology endpoints when constructing external control arms, Frontiers in Drug Safety and Regulation](https://doi.org/10.3389/fdsfr.2024.1423493) | Simulates and quantifies bias from misclassified progression events and irregular assessment timing in external control arms, with disease-specific magnitudes, and shows the two mechanisms interact non-additively. A quantification and planning tool, not a correction framework, and not integrated with weighting or standardization. |
+| [cpaic, unreleased development package on GitHub (not on CRAN), commit 9d150e9](choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca) | cmlnmr() implements exact likelihood contributions for observed events, right, left and interval censoring and delayed entry, which handles differing assessment grids when the observation process is conditionally noninformative. It does not model missed events, sensitivity, specificity, informative visit intensity, death-recording lag or incomplete linkage. |
+
+:::
+
+## Probable solution or research direction
+
+Build on the interval-censored likelihood that already exists for the noninformative case and add what it does not cover: event misclassification through sensitivity and specificity, informative visiting through a joint visit-outcome or inverse-intensity model, recording lag through a lag distribution, and incomplete linkage through a capture parameter, invoking the parameters the setting actually warrants rather than all of them by default. Integrate the correction with the weighting or standardization step rather than treating it as a separate appendix analysis, and report the sensitivity surface jointly with the confounding and censoring parameters. Require reporting of assessment schedules and linkage completeness in both studies so the parameters can be bounded.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Unverifiable. Auditors disagreed and the disagreement was evidence-bearing on both sides.
+
+**The source said.** "Protocol-driven trial assessment (imaging schedules, active follow-up) and routine-care capture (EHR-recorded progression, registry death recording, incomplete linkage) detect the same events at different times and with different completeness, producing ascertainment bias that covariate balancing cannot touch. Sensitivity analysis requires sensitivity, specificity, lag-distribution, linkage-completeness and visit-process association parameters inside an outcome-process or joint observation model."
+
+**What was wrong with it.** The auditors disagreed and both brought evidence. GPT-5.6 Sol read cpaic at commit 9d150e9 and found exact likelihood contributions for right, left and interval censoring plus delayed entry, which covers the noninformative interval-censoring case the entry treated as unaddressed, and objected that the entry requires every listed parameter in every analysis. The literature auditor kept the problem open and supplied Ackerman et al. 2024 (doi:10.3389/fdsfr.2024.1423493), which the entry did not cite and which quantifies the bias without modeling the visit process, supplying lag or linkage models, or integrating with a weighting or standardization step.
+
+**Dissent.** literature dissented (open): Claims 1, 4, 5 and 7 are supported by a substantial paper the entry does not cite: Ackerman et al. 2024 in Frontiers in Drug Safety and Regulation, 'Measurement error and bias in real-world oncology endpoints when constructing external control arms', which simulates and quantifies bias from misclassified progression events and from irregular assessment timing in ECAs, with disease-specific magnitudes (for example roughly 13 months of bias at 50% sensitivity). Critically it also states that these mechanisms interact rather than add. It is a quantification and planning tool, not a correction framework: it does not model the visit process jointly with the outcome, nor supply lag-distribution or linkage-completeness bias models, and it does not integrate with a weighting or standardization step. So the problem stands as open and the entry's characterisation is accurate, but its sole citation (Gray et al. 2024) understates the existing literature. Gray et al. 2024's third scenario is 'outcome evaluation' / misclassification of survival, which does match claim 3's ascertainment element. codex dissented (overstated): The core claim is correct: using detection time as event time can make progression curves depend on the assessment grid, and baseline covariate balancing generally cannot remove a residual study-specific observation process. C2 nevertheless conflates distinct submechanisms. Sensitivity and specificity address event classification; lag and interval endpoints address timing; linkage completeness addresses missing capture; visit-process association parameters are needed when observation is informative. Not every analysis requires all of them. C4 is also too absolute. If visit times are noninformative conditional on modeled covariates and the event is known to lie between visits, an interval-censored likelihood can account for different grids without an additional bias parameter. A joint visit-outcome model or inverse-intensity method becomes necessary when visiting is informative. At cpaic 9d150e9, cmlnmr() implements exact likelihood contributions for right, left, and interval censoring plus delayed entry, materially addressing the noninformative interval-censoring subproblem. It does not model missed events, sensitivity, specificity, informative visit intensity, death-recording lag, or incomplete linkage. The broader observation-process QBA therefore remains only partially solved and is critical mainly for endpoints and data sources where ascertainment differences are plausible.
+
+Literature and prior-art check
+:   **open / supported.** Claims 1, 4, 5 and 7 are supported by a substantial paper the entry does not cite: Ackerman et al. 2024 in Frontiers in Drug Safety and Regulation, 'Measurement error and bias in real-world oncology endpoints when constructing external control arms', which simulates and quantifies bias from misclassified progression events and from irregular assessment timing in ECAs, with disease-specific magnitudes (for example roughly 13 months of bias at 50% sensitivity). Critically it also states that these mechanisms interact rather than add. It is a quantification and planning tool, not a correction framework: it does not model the visit process jointly with the outcome, nor supply lag-distribution or linkage-completeness bias models, and it does not integrate with a weighting or standardization step. So the problem stands as open and the entry's characterisation is accurate, but its sole citation (Gray et al. 2024) understates the existing literature. Gray et al. 2024's third scenario is 'outcome evaluation' / misclassification of survival, which does match claim 3's ascertainment element.
+    Cites 10.3389/fdsfr.2024.1423493: Quantifies (does not correct) ascertainment bias from progression misclassification and irregular assessment timing in external control arms, and shows the two mechanisms interact non-additively. Relevant prior work the entry omits; it strengthens rather than closes the problem..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / overstated.** The core claim is correct: using detection time as event time can make progression curves depend on the assessment grid, and baseline covariate balancing generally cannot remove a residual study-specific observation process. C2 nevertheless conflates distinct submechanisms. Sensitivity and specificity address event classification; lag and interval endpoints address timing; linkage completeness addresses missing capture; visit-process association parameters are needed when observation is informative. Not every analysis requires all of them. C4 is also too absolute. If visit times are noninformative conditional on modeled covariates and the event is known to lie between visits, an interval-censored likelihood can account for different grids without an additional bias parameter. A joint visit-outcome model or inverse-intensity method becomes necessary when visiting is informative. At cpaic 9d150e9, cmlnmr() implements exact likelihood contributions for right, left, and interval censoring plus delayed entry, materially addressing the noninformative interval-censoring subproblem. It does not model missed events, sensitivity, specificity, informative visit intensity, death-recording lag, or incomplete linkage. The broader observation-process QBA therefore remains only partially solved and is critical mainly for endpoints and data sources where ascertainment differences are plausible.
+    Cites choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca: Handles the subcase in which differing assessment grids produce known censoring intervals and the observation process is conditionally noninformative; it does not resolve informative visiting or misclassification..
+
+Decision path
+:   `R3:partially-solved(n=1) → R7:counter-and-support-both-present`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [OUT-03 — Outcome misclassification in binary indirect comparisons](OUT-03-outcome-misclassification-in-binary-indirect-comparisons.qmd)
+- [OUT-14 — Pseudo-IPD cannot express delayed entry or assessment windows](OUT-14-pseudo-ipd-cannot-express-delayed-entry-or-assessment-window.qmd)
+:::
+
+## Source
+
+Derived from C:L412, C:L484, C:L770-780, C:L796 of the reviewed corpus.

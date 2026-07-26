@@ -1,0 +1,78 @@
+---
+title: "Selection uncertainty in PAIC interaction shrinkage is uncalibrated"
+description: "Shrinkage on treatment-by-covariate interactions in place of stepwise selection is already a benchmarked recommendation in evidence synthesis: LASSO, ridge, adaptive LASSO, Bayesian LASSO and stochastic search variable selection were compared against stepwise regression and the all-interactions model for IPD meta-analysis, with shrinkage recommended and stepwise regression advised against (Seo et al. 2021, doi:10.1002/sim.8859), and Bayesian variable selection has been carried into component network meta-analysis combining aggregate data and IPD (Efthimiou et al. 2022, doi:10.1002/sim.9372). What survives as open is the honest-uncertainty half: neither evaluation covers the regularized horseshoe, heredity constraints or projection-predictive selection, and both report mean squared error rather than interval coverage with the selection step included. A posterior interval reported conditional on a data-selected model, with the selection event ignored, is not automatically honest, and that calibration has not been checked for decision-grade PAIC use."
+pid: "COV-04"
+topic: "Covariates: selection, target moments, measurement"
+categories: ["Covariates: selection, target moments, measurement", "High priority", "Partially addressed"]
+priority: "High"
+prank: 2
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[COV-04]{.problem-id}
+[Partially addressed]{.verdict .verdict-partially-addressed}
+[High priority]{.chip .chip-priority-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+## Statement
+
+Shrinkage on treatment-by-covariate interactions in place of stepwise selection is already a benchmarked recommendation in evidence synthesis: LASSO, ridge, adaptive LASSO, Bayesian LASSO and stochastic search variable selection were compared against stepwise regression and the all-interactions model for IPD meta-analysis, with shrinkage recommended and stepwise regression advised against (Seo et al. 2021, doi:10.1002/sim.8859), and Bayesian variable selection has been carried into component network meta-analysis combining aggregate data and IPD (Efthimiou et al. 2022, doi:10.1002/sim.9372). What survives as open is the honest-uncertainty half: neither evaluation covers the regularized horseshoe, heredity constraints or projection-predictive selection, and both report mean squared error rather than interval coverage with the selection step included. A posterior interval reported conditional on a data-selected model, with the selection event ignored, is not automatically honest, and that calibration has not been checked for decision-grade PAIC use.
+
+## Why it is open
+
+The number of candidate treatment-by-covariate interactions grows with covariates times treatments or components while a sparse network holds little information to estimate them, so some restriction is unavoidable, although prespecification or dimension reduction can substitute for shrinkage. The priors and selection rules on offer differ in how hard they shrink and how wide the resulting intervals are, and those properties have not been characterized for PAIC. Reporting an interval from a model chosen on the same data leaves nominal coverage unguaranteed unless the inference accounts for the procedure as a whole, and multi-task shrinkage across treatment classes and components adds a layer whose calibration in decision-grade use is untested.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Seo et al., 2021](https://doi.org/10.1002/sim.8859) | Compares LASSO, ridge, adaptive LASSO, Bayesian LASSO and stochastic search variable selection against stepwise regression and the all-interactions model for treatment-covariate interactions in IPD meta-analysis, and recommends shrinkage over stepwise regression. |
+| [Efthimiou et al., 2022](https://doi.org/10.1002/sim.9372) | Bayesian models for aggregate and individual patient data component network meta-analysis using stochastic search variable selection and the Bayesian LASSO, with prior information about important interactions; the component-level shrinkage the source proposes. |
+
+:::
+
+## Probable solution or research direction
+
+Extend the existing benchmarks rather than repeat them: add the regularized horseshoe, hierarchy-respecting group lasso and spike-and-slab priors, heredity constraints that require inclusion of the main-effect term, projection-predictive selection from a rich reference model, and treatment-class or component-level multi-task shrinkage to the comparisons already run in doi:10.1002/sim.8859 and doi:10.1002/sim.9372. Report interval coverage for the whole procedure with the selection step included, not mean squared error conditional on the selected model. Coherent Bayesian model averaging over scientifically plausible modifier sets is one way to make the interval account for selection; sample splitting and resampling the entire procedure are others.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Partially addressed. Part of this problem is addressed by existing work; the entry names which part.
+
+**The source titled this.** "Hierarchical sparse interaction models with honest uncertainty" The title presents hierarchical sparse interaction models as the open object, but the audit found shrinkage already benchmarked and recommended for IPD meta-analysis and built into component NMA.
+
+**The source said.** "High-dimensional effect modification should be handled by structured regularization rather than stepwise selection, using shrinkage priors and hierarchy constraints on treatment-by-covariate interactions. The resulting coverage must incorporate selection uncertainty, because a posterior interval from a model selected on the same data is not automatically honest."
+
+**What was wrong with it.** The source framed 'structured regularization rather than stepwise selection' as open; the literature auditor found it benchmarked and recommended (doi:10.1002/sim.8859) and component-level Bayesian variable selection already built (doi:10.1002/sim.9372), so only the coverage claim survives. The code auditor corrected two side claims: shrinkage changes the estimator and its prior sensitivity rather than the causal estimand, and heredity should require that the main-effect term be included, not that its coefficient be nonzero, because an interaction can exist with a zero main effect.
+
+Literature and prior-art check
+:   **partially-solved / supported-with-caveat.** The headline claim, 'structured regularization rather than stepwise selection', is not an open question in evidence synthesis; it is a benchmarked recommendation. Seo et al. 2021 (Stat Med) simulated LASSO, ridge, adaptive LASSO, Bayesian LASSO and stochastic search variable selection against the all-interactions model and stepwise regression for treatment-covariate interactions in IPD meta-analysis and concluded: 'We recommend that future IPD meta-analysis that aim to estimate patient-specific treatment effects using multiple effect modifiers should use shrinkage methods, whereas stepwise regression should be avoided.' Efthimiou et al. 2022 carries Bayesian variable selection (SSVS, Bayesian LASSO) into component network meta-analysis combining aggregate data and IPD, with priors on which interactions matter. What is genuinely undone in these papers: the regularized horseshoe specifically was not among the evaluated priors, heredity constraints and projection-predictive selection were not assessed, and both papers report MSE rather than interval coverage with the selection step included. The honest-coverage element of the entry survives; claim 1 does not.
+    Cites doi:10.1002/sim.8859: Benchmarks shrinkage on treatment-covariate interactions against stepwise selection in evidence synthesis, settling the entry's first claim.
+    Cites doi:10.1002/sim.9372: Component-level Bayesian variable selection for interactions in a network combining aggregate data and IPD, the multi-task/component shrinkage the entry proposes.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / supported-with-caveat.** C1 is a reasonable high-dimensional default, not a theorem: some restriction is needed when interactions exceed information, but prespecification or dimension reduction can also be defensible. C2 is suitable only when approximate sparsity and prior scaling are credible. C3, C5, and C6 are legitimate constructions, but none automatically supplies PAIC identification or calibrated intervals. C4 is a useful hierarchy convention, not a causal law; an interaction can exist with a zero prognostic main effect, and hierarchy should usually require inclusion of the main-effect term rather than force a nonzero coefficient. C7-C8 are correct when an interval is reported conditional on a data-selected model while the selection event is ignored; coherent model averaging or inference for the entire procedure can account for it. Shrinkage generally changes the estimator and prior sensitivity, not the causal estimand itself. cpaic@9d150e9 offers only global normal or Student-t priors for interaction coefficients and a cSTC inclusion hierarchy, not horseshoe, group-lasso, spike-and-slab, projection-predictive, or model-averaged PAIC. The decision-grade calibration problem remains open, but it is high priority only when the analysis is genuinely high-dimensional.
+
+Decision path
+:   `R3:partially-solved(n=1) → R11:caveated(n=2)`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [CMP-02 — Adjusted component bridges need interaction constancy across the gap](CMP-02-adjusted-component-bridges-need-interaction-constancy-across.qmd)
+- [MIS-04 — Model and bridge selection uncertainty never enters the interval](MIS-04-model-and-bridge-selection-uncertainty-never-enters-the-inte.qmd)
+- [MOD-04 — No post-selection inference for model choice in population adjustment](MOD-04-no-post-selection-inference-for-model-choice-in-population-a.qmd)
+- [MOD-10 — Flexible interaction surfaces inside network evidence synthesis](MOD-10-flexible-interaction-surfaces-inside-network-evidence-synthe.qmd)
+- [QBA-15 — Multiple correlated omitted variables and their dependence structure](QBA-15-multiple-correlated-omitted-variables-and-their-dependence-s.qmd)
+:::
+
+## Source
+
+Derived from C:L932-943 of the reviewed corpus.

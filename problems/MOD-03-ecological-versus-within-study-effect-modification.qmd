@@ -1,0 +1,86 @@
+---
+title: "Ecological versus within-study effect modification"
+description: "Aggregate study means inform between-study associations, not individual-level treatment-by-covariate interactions, so meta-regression on study means can misattribute an ecological association to individual effect modification and then transport it to a target population. This is established rather than new: it is Berlin et al. 2002 (doi:10.1002/sim.1023), and the remedy the entry proposes, separating within-trial from across-trial information by trial-mean centering, was formalized, simulated and demonstrated by Hua et al. 2017 (doi:10.1002/sim.7171). The auditors split on ML-NMR (doi:10.1111/rssa.12579): the literature auditor read it as avoiding the ecological bias of aggregate-data network meta-regression, while GPT-5.6 Sol held that it avoids mean plug-in aggregation but that an interaction informed only by aggregate arms stays ecological unless within-study information or an identifying restriction separates the coefficients, pointing to a development implementation that fits one interaction matrix for IPD covariates and aggregate means and thereby imposes equality of the two (choxos/cpaic@9d150e9). What remains open is aggregate-only interaction identification and a formal ecological-bias sensitivity analysis over the gap between the coefficients, since an IPD-informed prior transfers information under exchangeability but does not create likelihood identification."
+pid: "MOD-03"
+topic: "Model specification, double robustness & targeted learning"
+categories: ["Model specification, double robustness & targeted learning", "Very high priority", "Unverifiable"]
+priority: "Very high"
+prank: 1
+verdict: "Unverifiable"
+verdictslug: "unverifiable"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[MOD-03]{.problem-id}
+[Unverifiable]{.verdict .verdict-unverifiable}
+[Very high priority]{.chip .chip-priority-very-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+## Statement
+
+Aggregate study means inform between-study associations, not individual-level treatment-by-covariate interactions, so meta-regression on study means can misattribute an ecological association to individual effect modification and then transport it to a target population. This is established rather than new: it is Berlin et al. 2002 (doi:10.1002/sim.1023), and the remedy the entry proposes, separating within-trial from across-trial information by trial-mean centering, was formalized, simulated and demonstrated by Hua et al. 2017 (doi:10.1002/sim.7171). The auditors split on ML-NMR (doi:10.1111/rssa.12579): the literature auditor read it as avoiding the ecological bias of aggregate-data network meta-regression, while GPT-5.6 Sol held that it avoids mean plug-in aggregation but that an interaction informed only by aggregate arms stays ecological unless within-study information or an identifying restriction separates the coefficients, pointing to a development implementation that fits one interaction matrix for IPD covariates and aggregate means and thereby imposes equality of the two (choxos/cpaic@9d150e9). What remains open is aggregate-only interaction identification and a formal ecological-bias sensitivity analysis over the gap between the coefficients, since an IPD-informed prior transfers information under exchangeability but does not create likelihood identification.
+
+## Why it is open
+
+In an aggregate-data study the covariate takes a single value per arm, so no within-study contrast exists to identify the individual-level interaction and the fitted coefficient is a between-study slope confounded with everything else that varies across studies. The two coefficients coincide only under an assumption the aggregate data cannot check, and because the regression is well behaved either way the substitution leaves no signature in fit statistics. Where IPD supply within-study variation the remedy is known and validated, so the residual problem is specifically the aggregate-only case, in which the identifying restriction is imposed by the model rather than tested by the data.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Berlin et al. 2002, Individual patient- versus group-level data meta-regressions for the investigation of treatment effect modifiers: ecological bias rears its ugly head, Statistics in Medicine (PMID 11813224)](https://doi.org/10.1002/sim.1023) | Original source for the entry's central claim that group-level meta-regression can substitute an ecological association for an individual-level interaction. |
+| [Hua, Burke, Crowther, Ensor, Tudur Smith & Riley 2017, One-stage individual participant data meta-analysis models: estimation of treatment-covariate interactions must avoid ecological bias by separating out within-trial and across-trial information, Statistics in Medicine (PMID 27910122)](https://doi.org/10.1002/sim.7171) | Formalizes and validates the entry's proposed remedy, showing by simulation and an applied epilepsy example that trial-mean centering separates within-trial from across-trial information and that failing to do so distorts interaction estimates. |
+| [Phillippo et al. 2020, Multilevel network meta-regression for population-adjusted treatment comparisons, JRSS-A (PMID 32684669)](https://doi.org/10.1111/rssa.12579) | Integrates an individual-level model over the aggregate covariate distribution rather than plugging in means, removing the aggregation bias of standard aggregate-data meta-regression. Whether that also removes ecological bias in an aggregate-only interaction is what the two auditors disputed. |
+| [cpaic development source at commit 9d150e9 (choxos/cpaic)](choxos/cpaic@9d150e9) | Source-code evidence cited by GPT-5.6 Sol that fitting one interaction matrix across IPD covariates and aggregate means imposes equality of the within-study and between-study interaction. cpaic is an unreleased development package on GitHub; an auditor confirmed it is not on CRAN and cannot be installed from there. |
+
+:::
+
+## Probable solution or research direction
+
+Use the established remedy wherever IPD allow it: separate within-study and between-study coefficients by trial-mean centering, and integrate an individual-level model over the aggregate covariate distribution rather than plugging in means. The work genuinely left is the aggregate-only case: report which coefficient a transported effect relies on, and run an explicit ecological-bias sensitivity analysis over the gap between the within-study and between-study coefficients rather than assuming it is zero. IPD-informed priors on the individual-level interaction can regularize a posterior and should be reported as an assumption, not as identification.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Unverifiable. Auditors disagreed and the disagreement was evidence-bearing on both sides.
+
+**The source said.** "Aggregate-data study means identify between-study gradients rather than individual-level treatment-by-covariate interactions, so meta-regression on study means can misattribute an ecological association to individual effect modification and then transport it to a target population."
+
+**What was wrong with it.** The source stated a result established in 2002 with an empty prior_work list; the literature auditor sourced it to Berlin et al. 2002 (doi:10.1002/sim.1023) and its proposed remedy to Hua et al. 2017 (doi:10.1002/sim.7171), so the claim is now sourced. The two auditors disagreed about how much ML-NMR (doi:10.1111/rssa.12579) resolves, and both readings are kept above.
+
+**Dissent.** literature dissented (supported): prior_work is empty, but every substantive claim here is established literature I retrieved. The problem statement is Berlin et al. 2002, Stat Med 21:371-387 (PMID 11813224), whose title is literally 'ecological bias rears its ugly head'. The entry's own proposed remedy (separating within-study and between-study coefficients by mean-centering) was formalized, simulated and empirically demonstrated by Hua, Burke, Crowther, Ensor, Tudur Smith & Riley, Stat Med 2017 (PMID 27910122), which reports the epilepsy example where the age interaction moves from -0.011 (95% CI -0.019 to -0.003, p=0.004) when within- and across-trial information are amalgamated to -0.007 (95% CI -0.019 to 0.005, p=0.22) when they are separated. The ML-NMR claim is directly supported by Phillippo et al. 2020 JRSS-A. So claims 1-3 are solved and established, not 'Promising'. What remains open is claim 4 (IPD-informed priors on the individual-level interaction) and formal ecological-bias sensitivity analysis over the within/between gap; I found no PAIC-specific treatment of either. Maturity rating 'Promising' understates a 2002-2017 established literature. codex dissented (overstated): C1 is correct if 'identify' means estimate a study-level association: aggregate means contain no within-study covariate contrast and cannot data-identify an individual treatment-by-covariate interaction. C2 is the standard remedy when IPD provide within-study variation. C3 is only conditionally true. ML-NMR avoids mean plug-in aggregation by integrating an individual-level model, but an interaction informed only by aggregate arms remains ecological unless within-study information or an identifying restriction separates the coefficients. cpaic ground truth is explicit: cmlnmr() uses one Gamma for IPD covariates and aggregate means and therefore imposes equality of within-study and between-study interactions. C4 is also too strong: an IPD-informed prior can transfer information under exchangeability assumptions and regularize a posterior, but a prior does not create likelihood identification. The broad ecological-bias problem and its main remedy are established; aggregate-only interaction identification remains structurally unresolved and decision-critical when a transported contrast relies on it.
+
+Literature and prior-art check
+:   **partially-solved / supported.** prior_work is empty, but every substantive claim here is established literature I retrieved. The problem statement is Berlin et al. 2002, Stat Med 21:371-387 (PMID 11813224), whose title is literally 'ecological bias rears its ugly head'. The entry's own proposed remedy (separating within-study and between-study coefficients by mean-centering) was formalized, simulated and empirically demonstrated by Hua, Burke, Crowther, Ensor, Tudur Smith & Riley, Stat Med 2017 (PMID 27910122), which reports the epilepsy example where the age interaction moves from -0.011 (95% CI -0.019 to -0.003, p=0.004) when within- and across-trial information are amalgamated to -0.007 (95% CI -0.019 to 0.005, p=0.22) when they are separated. The ML-NMR claim is directly supported by Phillippo et al. 2020 JRSS-A. So claims 1-3 are solved and established, not 'Promising'. What remains open is claim 4 (IPD-informed priors on the individual-level interaction) and formal ecological-bias sensitivity analysis over the within/between gap; I found no PAIC-specific treatment of either. Maturity rating 'Promising' understates a 2002-2017 established literature.
+    Cites doi:10.1002/sim.7171 (PMID 27910122): Establishes and validates the entry's proposed remedy (separate within-study and between-study coefficients via trial-mean centering) with simulation and an applied demonstration..
+    Cites doi:10.1111/rssa.12579 (PMID 32684669): Confirms claim 3: ML-NMR avoids the aggregation/ecological bias of aggregate-data network meta-regression by integrating an individual-level model over the aggregate covariate distribution..
+    Cites doi:10.1002/sim.1023 (PMID 11813224): Original source for claim 1; the entry states a 24-year-old established result with no citation..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / overstated.** C1 is correct if 'identify' means estimate a study-level association: aggregate means contain no within-study covariate contrast and cannot data-identify an individual treatment-by-covariate interaction. C2 is the standard remedy when IPD provide within-study variation. C3 is only conditionally true. ML-NMR avoids mean plug-in aggregation by integrating an individual-level model, but an interaction informed only by aggregate arms remains ecological unless within-study information or an identifying restriction separates the coefficients. cpaic ground truth is explicit: cmlnmr() uses one Gamma for IPD covariates and aggregate means and therefore imposes equality of within-study and between-study interactions. C4 is also too strong: an IPD-informed prior can transfer information under exchangeability assumptions and regularize a posterior, but a prior does not create likelihood identification. The broad ecological-bias problem and its main remedy are established; aggregate-only interaction identification remains structurally unresolved and decision-critical when a transported contrast relies on it.
+    Cites doi:10.1002/sim.7171: Develops the within-study centering and separate within-trial versus across-trial coefficients proposed as the main remedy..
+    Cites doi:10.1111/rssa.12579: Provides ML-NMR integration of an individual-level outcome model over aggregate-study covariate distributions, addressing mean plug-in aggregation while retaining the need for interaction identification..
+
+Decision path
+:   `R3:partially-solved(n=2) → R7:counter-and-support-both-present`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [CMP-02 — Adjusted component bridges need interaction constancy across the gap](CMP-02-adjusted-component-bridges-need-interaction-constancy-across.qmd)
+- [CMP-13 — Shared Gamma conflates within- and between-study modification](CMP-13-shared-gamma-conflates-within-and-between-study-modification.qmd)
+- [DEC-09 — Modifier selection and target moments reported without provenance](DEC-09-modifier-selection-and-target-moments-reported-without-prove.qmd)
+- [DEC-11 — Intervals omit selection, reconstruction and target-summary error](DEC-11-intervals-omit-selection-reconstruction-and-target-summary-e.qmd)
+- [DIA-08 — PAIC simulations generate only shared, linear effect modification](DIA-08-paic-simulations-generate-only-shared-linear-effect-modifica.qmd)
+- [EST-10 — Bucher ITC and aggregate-data NMA name no target population](EST-10-bucher-itc-and-aggregate-data-nma-name-no-target-population.qmd)
+- [IDN-05 — The shared effect modifier check has low and uncalibrated power](IDN-05-the-shared-effect-modifier-check-has-low-and-uncalibrated-po.qmd)
+- [IDN-06 — ML-NMR interactions can rest solely on aggregate-data variation](IDN-06-ml-nmr-interactions-can-rest-solely-on-aggregate-data-variat.qmd)
+:::
+
+## Source
+
+Derived from C:L214-215, C:L232 of the reviewed corpus.

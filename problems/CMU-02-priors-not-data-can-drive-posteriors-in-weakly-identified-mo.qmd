@@ -1,0 +1,79 @@
+---
+title: "Priors, not data, can drive posteriors in weakly identified models"
+description: "In population-adjusted network and bridge models a proper prior with a finite, positive marginal likelihood yields a proper posterior even along directions the likelihood cannot identify, so a narrow credible interval can reflect the prior rather than the evidence, and a clean R-hat does not rule that out. The diagnostics that would expose it already exist as general Bayesian workflow tools: power-scaling sensitivity (Kallioinen et al., arXiv:2107.14054, with the priorsense package on CRAN) and multinma's plot_prior_posterior(), shipped since version 0.1.0. What is missing is their application here: the literature and recency auditors found no power-scaling or per-parameter contraction analysis of PAIC bridge or disconnected-network models, and no released ITC package computes a contraction measure or benchmarks a decision contrast against a prior-only fit."
+pid: "CMU-02"
+topic: "Computation & reproducibility"
+categories: ["Computation & reproducibility", "Very high priority", "Partially addressed"]
+priority: "Very high"
+prank: 1
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[CMU-02]{.problem-id}
+[Partially addressed]{.verdict .verdict-partially-addressed}
+[Very high priority]{.chip .chip-priority-very-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+## Statement
+
+In population-adjusted network and bridge models a proper prior with a finite, positive marginal likelihood yields a proper posterior even along directions the likelihood cannot identify, so a narrow credible interval can reflect the prior rather than the evidence, and a clean R-hat does not rule that out. The diagnostics that would expose it already exist as general Bayesian workflow tools: power-scaling sensitivity (Kallioinen et al., arXiv:2107.14054, with the priorsense package on CRAN) and multinma's plot_prior_posterior(), shipped since version 0.1.0. What is missing is their application here: the literature and recency auditors found no power-scaling or per-parameter contraction analysis of PAIC bridge or disconnected-network models, and no released ITC package computes a contraction measure or benchmarks a decision contrast against a prior-only fit.
+
+## Why it is open
+
+The posterior blends prior and likelihood and nothing in a printed interval separates them, so a well-behaved posterior for a cross-gap contrast or an aggregate-only interaction is formatted exactly like an evidence-based estimate. Convergence diagnostics interrogate the sampler rather than the likelihood's contribution, though the exemption is not total: Kallioinen et al. note that a case with both an uninformative prior and a noninformative likelihood will usually announce itself through fitting problems. The gap is wiring and practice rather than method: no released ITC package computes power scaling or prior-to-posterior contraction, so running either on a bridge model is bespoke work, and because prior dominance grows with scenario severity a single check on one benign dataset says nothing about the cases that matter.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Kallioinen, Paananen, Burkner and Vehtari 2024, power-scaling sensitivity for priors and likelihoods, Statistics and Computing (arXiv:2107.14054)](https://arxiv.org/abs/2107.14054) | defines power-scaling sensitivity: prior sensitivity with little or no likelihood sensitivity is the signature of a likelihood that is noninformative relative to the prior; notes that a jointly uninformative prior and likelihood usually shows up as fitting problems instead |
+| [priorsense R package](https://cran.r-project.org/package=priorsense) | implements power-scaling prior and likelihood sensitivity diagnostics for fitted Bayesian models; named by the recency auditor as available but not wired into ITC packages |
+| [multinma R package, plot_prior_posterior() since version 0.1.0](https://cran.r-project.org/package=multinma) | plots prior against posterior for model parameters, a partial prior-versus-posterior facility that stops short of a numerical contraction measure or power scaling |
+| [cpaic, unreleased development package on GitHub (not on CRAN), commits 7563a64 and a99b718](https://github.com/choxos/cpaic) | returns NA instead of a finite summary for contrasts the component design does not identify, and adds prior predictive checks plus refits under tighter and looser prior scales as an empirical identification diagnostic; it implements no formal power scaling, no numerical contraction measure, and no prior-only benchmark fit |
+
+:::
+
+## Probable solution or research direction
+
+Apply the existing tools rather than build new ones. Run power-scaling sensitivity and per-parameter prior-to-posterior contraction on PAIC bridge, component and disconnected-network models, benchmark each decision contrast against a prior-only fit, and report contraction for the contrasts that carry the decision and not only for model parameters, since contraction is parameterization-dependent. Wire these into released packages so they stop being bespoke scripts, and evaluate them conditional on scenario severity rather than at one benign scenario.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Partially addressed. Part of this problem is addressed by existing work; the entry names which part.
+
+**The source said.** "In population-adjusted network and bridge models a proper prior guarantees a proper posterior even for contrasts the likelihood cannot identify, so a narrow credible interval can reflect the prior rather than evidence. Prior predictive checks, power-scaling sensitivity, and per-parameter prior-to-posterior contraction are not routinely reported, so a reader cannot tell which quantities the data actually informed."
+
+**What was wrong with it.** The source implied the diagnostics themselves were absent. Power scaling (Kallioinen et al. 2024, arXiv:2107.14054; priorsense on CRAN) and multinma's plot_prior_posterior() have existed for years, and the source-code auditor found that cpaic, an unreleased development package on GitHub and not on CRAN, already returns NA for structurally non-identified contrasts and ships prior predictive checks and tight/loose prior refits; the other two auditors found nothing equivalent in released ITC packages, and that disagreement stands. The propriety claim was also narrowed: a proper prior gives a proper posterior when the marginal likelihood is finite and positive, not unconditionally.
+
+**Dissent.** literature dissented (open): I read the power-scaling paper in full (arXiv 2107.14054; Kallioinen, Paananen, Burkner, Vehtari, Stat Comput 2024) and the SBC test-quantities paper (arXiv 2211.02383). Kallioinen supports the diagnostic claim directly: prior sensitivity with little or no likelihood sensitivity is the signature of a likelihood that is noninformative relative to the prior. Modrak et al. independently corroborate the core worry: standard rank-based SBC 'could never detect ... when the posterior is equal to the prior'. Both are generic Bayesian-workflow tools, not ITC methods. I found no application of priorsense or power-scaling to PAIC bridge or disconnected-network models; PubMed returns nothing, and multinma's R/ directory and NEWS contain no priorsense or power-scaling entry, so the tooling is genuinely not wired in. Caveats: (i) the absence claim cannot be verified, only unrefuted; (ii) 'convergence diagnostics do not detect weak identification' holds for a proper informative prior but not universally, since Kallioinen notes fully uninformative cases 'will likely be detectable from model fitting issues'; (iii) multinma has shipped plot_prior_posterior() since v0.1.0, a partial prior-vs-posterior facility. codex dissented (overstated): C1-C3 are correct for ordinary Bayesian models with a finite, positive marginal likelihood: a proper prior can regularize a likelihood-null direction and produce finite credible intervals. A proper prior alone is not an unrestricted mathematical guarantee of posterior propriety. C4 is correct in the important one-way sense that good convergence does not establish identification, although weak identification can sometimes cause poor geometry. C5 is useful but contraction is parameterization-dependent and should also be assessed for decision contrasts. C6 measures sensitivity to power perturbations; it is not a definitive identification test. C7 is an unsubstantiated literature-practice claim and is stale as a package-capability claim because cpaic wires in related diagnostics. C8 and C9 are reasonable. At 9d150e9, cpaic returns NA for design-nonidentified contrasts, offers per-contrast tight/loose-prior refits, prior predictive fitting, and per-parameter prior/posterior plots. It does not implement formal prior or likelihood power scaling, a numerical contraction measure, or a benchmark against a separate prior-only fit for every contrast.
+
+Literature and prior-art check
+:   **open / supported-with-caveat.** I read the power-scaling paper in full (arXiv 2107.14054; Kallioinen, Paananen, Burkner, Vehtari, Stat Comput 2024) and the SBC test-quantities paper (arXiv 2211.02383). Kallioinen supports the diagnostic claim directly: prior sensitivity with little or no likelihood sensitivity is the signature of a likelihood that is noninformative relative to the prior. Modrak et al. independently corroborate the core worry: standard rank-based SBC 'could never detect ... when the posterior is equal to the prior'. Both are generic Bayesian-workflow tools, not ITC methods. I found no application of priorsense or power-scaling to PAIC bridge or disconnected-network models; PubMed returns nothing, and multinma's R/ directory and NEWS contain no priorsense or power-scaling entry, so the tooling is genuinely not wired in. Caveats: (i) the absence claim cannot be verified, only unrefuted; (ii) 'convergence diagnostics do not detect weak identification' holds for a proper informative prior but not universally, since Kallioinen notes fully uninformative cases 'will likely be detectable from model fitting issues'; (iii) multinma has shipped plot_prior_posterior() since v0.1.0, a partial prior-vs-posterior facility.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / overstated.** C1-C3 are correct for ordinary Bayesian models with a finite, positive marginal likelihood: a proper prior can regularize a likelihood-null direction and produce finite credible intervals. A proper prior alone is not an unrestricted mathematical guarantee of posterior propriety. C4 is correct in the important one-way sense that good convergence does not establish identification, although weak identification can sometimes cause poor geometry. C5 is useful but contraction is parameterization-dependent and should also be assessed for decision contrasts. C6 measures sensitivity to power perturbations; it is not a definitive identification test. C7 is an unsubstantiated literature-practice claim and is stale as a package-capability claim because cpaic wires in related diagnostics. C8 and C9 are reasonable. At 9d150e9, cpaic returns NA for design-nonidentified contrasts, offers per-contrast tight/loose-prior refits, prior predictive fitting, and per-parameter prior/posterior plots. It does not implement formal prior or likelihood power scaling, a numerical contraction measure, or a benchmark against a separate prior-only fit for every contrast.
+    Cites choxos/cpaic@7563a6429c93f97120a9ae8107c3a62f6c9382e7: Prevents a finite posterior summary from being reported for a contrast that the component design does not identify..
+    Cites choxos/cpaic@a99b718a79eda5937dc0734cddfbe632022e277e: Adds prior predictive checks and refitting under tighter and looser prior scales for target contrasts..
+
+Grok 4.5, recency lens
+:   **open / supported-with-caveat.** The identification and presentation claims (proper priors yield finite posteriors without likelihood information; disconnected-network contrasts can be prior-driven; posteriors alone do not show estimability; R-hat does not detect weak identification) remain standard Bayesian results and were not overturned by 2024–2026 ITC literature. Power-scaling sensitivity (Kallioinen et al. 2024; R package priorsense on CRAN) and prior-to-posterior tools (including multinma plot_prior_posterior) exist as general Bayesian workflow pieces, so C5–C6 and C8 are methodologically available rather than uninvented. What the agenda correctly flags as open is routine application and package wiring for weakly identified PAIC/bridge/disconnected models, and evaluation conditional on scenario severity: searches across RSM/SiM/MDM/Value in Health, arXiv stat.ME, and maicplus/multinma/gemtc docs found no standard PAIC reporting of per-parameter contraction, power-scaling, or prior-only benchmarks for decision contrasts. Proposal of diagnostics is not solution of the ITC practice gap.
+
+Decision path
+:   `R3:partially-solved(n=1) → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [OUT-02 — Rare events, separation, and zero-event studies in weighted synthesis](OUT-02-rare-events-separation-and-zero-event-studies-in-weighted-sy.qmd)
+:::
+
+## Source
+
+Derived from C:L214-215, C:L257, C:L1822, C:L1988, C:L2086-2089 of the reviewed corpus.

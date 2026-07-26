@@ -1,0 +1,82 @@
+---
+title: "MBNMAdose and crossnma bridges are unidentified across a disconnection"
+description: "MBNMAdose fits model-based dose-response network meta-analysis, and in a truly disconnected network the assumed dose-response form is not identified by the data being combined, so results can be highly sensitive when dose support is sparse or non-overlapping. That form is not beyond checking, however: randomized dose-level evidence still estimates the curve parameters and supports goodness-of-fit checks and comparison among curve families, and Pedder et al. (doi:10.1177/0272989X20983315) ran the deletion experiment, finding MBNMA estimates on disconnected networks consistent with NMA on augmented networks in 15 of 18 datasets, with the three failures needing a richer dose-response form. crossnma is also broader than the source described: its CRAN title is Cross-Design and Cross-Format Network Meta-Analysis and Regression and it handles individual participant data, aggregate data and mixtures of both with meta-regression on up to three covariates, while its cross-design bias-adjustment parameter remains unidentified by the outcomes being combined. Neither package standardizes to an external target covariate distribution."
+pid: "SFW-16"
+topic: "Software, benchmarks & interface standards"
+categories: ["Software, benchmarks & interface standards", "Medium-high priority", "Overstated"]
+priority: "Medium-high"
+prank: 3
+verdict: "Overstated"
+verdictslug: "overstated"
+maturity: "Established"
+---
+::: {.problem-meta}
+[SFW-16]{.problem-id}
+[Overstated]{.verdict .verdict-overstated}
+[Medium-high priority]{.chip .chip-priority-medium-high}
+[Established]{.chip .chip-maturity-established}
+[Implementation-specific]{.chip}
+:::
+::: {.callout-note appearance="simple"}
+## Scope
+
+This entry describes a limitation of a specific implementation rather than of the field.
+It is catalogued because the underlying methodological problem is general, and because a
+reference implementation is where such problems become concrete and checkable.
+:::
+
+## Statement
+
+MBNMAdose fits model-based dose-response network meta-analysis, and in a truly disconnected network the assumed dose-response form is not identified by the data being combined, so results can be highly sensitive when dose support is sparse or non-overlapping. That form is not beyond checking, however: randomized dose-level evidence still estimates the curve parameters and supports goodness-of-fit checks and comparison among curve families, and Pedder et al. (doi:10.1177/0272989X20983315) ran the deletion experiment, finding MBNMA estimates on disconnected networks consistent with NMA on augmented networks in 15 of 18 datasets, with the three failures needing a richer dose-response form. crossnma is also broader than the source described: its CRAN title is Cross-Design and Cross-Format Network Meta-Analysis and Regression and it handles individual participant data, aggregate data and mixtures of both with meta-regression on up to three covariates, while its cross-design bias-adjustment parameter remains unidentified by the outcomes being combined. Neither package standardizes to an external target covariate distribution.
+
+## Why it is open
+
+In a disconnected network the shared dose-response or class structure supplies the identification that randomization does not, so the comparison depends on a functional form the analyst chose, and a fitted curve returns a smooth plausible estimate at any dose without showing how much of the comparison the curve contributed. Deletion validation shows the assumption can hold in practice, but it was run on datasets where the connected answer was known, which is exactly what a genuinely disconnected application lacks. For crossnma, the parameter expressing how far nonrandomized evidence is down-weighted is not identified by the outcomes being combined, so residual confounding passes into the pooled estimate scaled by an assumed factor. Neither package carries a target covariate distribution, so combining doses or designs does not address who the estimate applies to.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [MBNMAdose (CRAN)](https://cran.r-project.org/package=MBNMAdose) | fits model-based dose-response network meta-analysis linking treatments and doses through a shared dose axis, which can connect otherwise disconnected networks under the assumed curve and class structure |
+| [crossnma (CRAN)](https://cran.r-project.org/package=crossnma) | cross-design and cross-format network meta-analysis and regression for individual participant data, aggregate data and mixtures of both using a three-level hierarchical model, with meta-regression on up to three covariates and explicit modeling of design bias; performs no standardization to an external target population |
+| [Pedder, Dias, Bennetts, Boucher and Welton 2021](https://doi.org/10.1177/0272989X20983315) | deletes studies and treatments from a triptans network and compares MBNMA estimates on the resulting disconnected networks against NMA on augmented networks, agreeing in 15 of 18 datasets with the remaining 3 needing a more complex dose-response relationship; the validation evidence the entry omitted |
+
+:::
+
+## Probable solution or research direction
+
+When dose-response models bridge disconnected evidence, report how much of the comparison is driven by the curve and class assumptions, and check them the way they can be checked: alternative curve families, goodness of fit against the dose-level randomized evidence, and deletion validation of the kind Pedder et al. performed. When designs are combined, treat cross-design exchangeability and residual confounding as explicit sensitivity parameters rather than fixed inputs, and exploit overlapping designs where they exist. In both cases obtain population adjustment and target transport from separate tooling rather than assuming the synthesis has supplied it.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Overstated. 2 independent auditors judged the claim as stated too strong. MBNMAdose can bridge otherwise disconnected treatments through an assumed dose-response form, and in a truly disconnected network that form is not identified by the data being combined, although Pedder et al. (2021) validated it by deletion in 15 of 18 semi-synthetic datasets; crossnma combines randomized and nonrandomized evidence and individual with aggregate data, and its cross-design bias-adjustment parameter is not identified by the data being combined. Neither package standardises to an external target covariate distribution.
+
+**The source titled this.** "MBNMAdose and crossnma bridge on assumptions data cannot check" The title says the bridging assumptions cannot be checked, but randomized dose-level evidence supports fit and curve-family comparison and MBNMA was validated by deletion in 15 of 18 datasets.
+
+**The source said.** "MBNMAdose is an active dose-response NMA ecosystem that connects treatments and doses mechanistically, and crossnma combines randomized and nonrandomized evidence with bias considerations. In both, the assumption that creates the link (the dose-response curve and class structure; cross-design exchangeability) can dominate the resulting comparison, and neither performs population adjustment or automatic target transport."
+
+**What was wrong with it.** Both auditors called the title claim too strong. The literature auditor supplied the paper the entry omitted, Pedder et al. (doi:10.1177/0272989X20983315), which validated MBNMA by deletion in 15 of 18 semi-synthetic datasets, and corrected the description of crossnma, which handles individual, aggregate and mixed-format data rather than only randomized plus nonrandomized evidence; GPT-5.6 Sol added that curve assumptions are partly checkable through fit and curve-family comparison and that mechanistic overstates what is model-based or semi-mechanistic dose-response modeling.
+
+Literature and prior-art check
+:   **open / overstated.** The title claim 'assumptions data cannot check' is too strong for MBNMAdose, and the entry omits the paper that shows why. Pedder, Dias, Bennetts, Boucher and Welton (2021) ran exactly the bridge-deletion experiment the agenda asks for elsewhere: they deleted studies and treatments from a triptans NMA and compared MBNMA estimates on the resulting disconnected networks against NMA on augmented networks, finding agreement in 15 of 18 datasets and identifying the three failures as needing a richer dose-response form. That paper sits in the catalog's own documentation/refs folder yet SFW-16 cites only the CRAN page. Separately, crossnma is described too narrowly. Its CRAN title is 'Cross-Design & Cross-Format Network Meta-Analysis and Regression' and it handles individual participant data, aggregate data and mixtures of both with meta-regression on up to three covariates, so it is not merely an RCT-plus-observational combiner; the accurate residual claim is that it performs no standardisation to an external target population.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** C3, C4, and C6 are sound: MBNMAdose is not general population-adjustment software, crossnma combines randomized and nonrandomized evidence with bias modeling, and neither automatically standardizes to an external target population. C2 is sound only conditionally: in a disconnected comparison, shared curve or class structure can supply the otherwise missing identification. But randomized dose-level evidence still estimates the curve parameters and can support goodness-of-fit checks, comparisons among curve families, and bridge-deletion validation. The statements that the comparison is determined by functional form rather than randomized evidence and that the curve contribution cannot be seen are therefore too strong. C1 also uses 'mechanistic' too broadly for what is generally model-based or semi-mechanistic dose-response modeling. C5 is correct only as a causal-identification limitation: cross-design exchangeability and absence of residual confounding cannot be established from the combined outcomes alone, although crossnma can explicitly model design bias and exploit overlapping designs. The remaining transport and sensitivity-analysis gaps are open, but they are decision-critical only when disconnected or nonrandomized evidence is load-bearing; otherwise they are roadmap items.
+
+Decision path
+:   `R5:default-open → R8:overstated-majority(n=2)`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [DIS-10 — multinma's baseline-synthesis bridge is an unmerged pull request](DIS-10-multinma-s-baseline-synthesis-bridge-is-an-unmerged-pull-req.qmd)
+:::
+
+## Source
+
+Derived from C:L2256, C:L2257 of the reviewed corpus.

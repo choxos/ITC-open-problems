@@ -1,0 +1,73 @@
+---
+title: "Outcome-model misspecification and doubly robust QBA"
+description: "A linear STC applied where thresholds, splines or interactions operate produces outcome-model misspecification bias, and QBA for an omitted covariate holds the outcome model fixed, so it does not repair it. Double robustness is a property of the measured-data layer only: Campbell and Remiro-Azocar (doi:10.1017/rsm.2026.10106) place externally controlled single-arm trials and unanchored ITCs in one causal framework and augment entropy-balancing MAIC with a conditional outcome model, giving robustness to misspecification of one of the two measured-data nuisance models, while identification still rests on conditional data-source ignorability and positivity with no bias-parameter indexing. No published unanchored-PAIC estimator is simultaneously doubly robust and indexed by explicit residual-bias parameters; drMAIC on CRAN offers doubly robust MAIC with E-values, weight trimming and variable-exclusion analyses, which is a generic screen rather than such an estimator."
+pid: "QBA-11"
+topic: "Quantitative bias analysis for unanchored PAIC"
+categories: ["Quantitative bias analysis for unanchored PAIC", "Very high priority", "Confirmed open"]
+priority: "Very high"
+prank: 1
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Promising"
+tractability: 2
+---
+::: {.problem-meta}
+[QBA-11]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[Very high priority]{.chip .chip-priority-very-high}
+[Promising]{.chip .chip-maturity-promising}
+[Tractability 2/5]{.chip}
+:::
+## Statement
+
+A linear STC applied where thresholds, splines or interactions operate produces outcome-model misspecification bias, and QBA for an omitted covariate holds the outcome model fixed, so it does not repair it. Double robustness is a property of the measured-data layer only: Campbell and Remiro-Azocar (doi:10.1017/rsm.2026.10106) place externally controlled single-arm trials and unanchored ITCs in one causal framework and augment entropy-balancing MAIC with a conditional outcome model, giving robustness to misspecification of one of the two measured-data nuisance models, while identification still rests on conditional data-source ignorability and positivity with no bias-parameter indexing. No published unanchored-PAIC estimator is simultaneously doubly robust and indexed by explicit residual-bias parameters; drMAIC on CRAN offers doubly robust MAIC with E-values, weight trimming and variable-exclusion analyses, which is a generic screen rather than such an estimator.
+
+## Why it is open
+
+Sensitivity analysis for an omitted variable holds the outcome model fixed, so misspecification of the retained model propagates untouched into every scenario on the grid, and model-form error is not a scalar that can be indexed by a prevalence or an association. Double robustness is silent about omitted variables, selection on unmeasured prognosis, outcome misclassification, target-distribution error and bridge drift, but the guarantee sounds strong enough to be read as protection against residual bias in general and to remove the perceived need for sensitivity analysis. Constructing an estimator that is doubly robust and indexed by explicit bias parameters requires the influence-function theory to be redone under a perturbed identification condition, which has not been done for population-adjusted transport, and flexible learners would need cross-fitting and extrapolation-aware prediction intervals that no current PAIC implementation supplies.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Campbell and Remiro-Azocar 2026, Doubly robust augmented weighting estimators for the analysis of externally controlled single-arm trials and unanchored indirect treatment comparisons, Research Synthesis Methods](https://doi.org/10.1017/rsm.2026.10106) | Unifies externally controlled single-arm trials and unanchored ITCs in one causal framework and augments entropy-balancing MAIC with a model for the conditional outcome expectation, giving double robustness against misspecification of the measured-data weighting or outcome model. Identification rests on conditional data-source ignorability and positivity; it contains no sensitivity analysis and no bias-parameter indexing. |
+| [Campbell and Remiro-Azocar, preprint of the same work (2025)](https://arxiv.org/abs/2505.00113) | Preprint version of the doubly robust augmented weighting estimator for externally controlled single-arm trials and unanchored indirect treatment comparisons. |
+| [drMAIC 0.1.0 (CRAN)](https://cran.r-project.org/package=drMAIC) | Provides doubly robust MAIC with E-values, weight trimming and variable-exclusion analyses. A generic robustness screen rather than an estimator indexed by explicit residual-bias parameters, so it does not close the gap. |
+
+:::
+
+## Probable solution or research direction
+
+Take the doubly robust augmented MAIC that already exists and index it by bias parameters with cross-fitting, so the estimate is computed at every point of the sensitivity region and the measured-confounding layer and the residual-bias layer are reported separately, or apply bias functions and bounds to the existing doubly robust functional where that suffices. Publish an explicit demonstration of which failures double robustness does and does not cover. Treat unsupported target profiles as a positivity problem calling for support restrictions, bounds or stated extrapolation assumptions, and use flexible learner multiverses, residual-bias functions, model averaging across plausible forms and calibration against held-out trials as optional tools for functional-form error rather than as remedies for nonidentification.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+
+**The source said.** "A linear STC applied where thresholds, splines or interactions operate produces outcome-model misspecification bias with its own sensitivity parameters, and QBA for an omitted covariate does not repair it. Doubly robust estimators protect only against misspecification of one of two measured-data nuisance models under the identifying assumptions, so the correct research target is an AIPW or TMLE family indexed by bias parameters, not a claim that double robustness makes QBA unnecessary."
+
+**What was wrong with it.** GPT-5.6 Sol narrowed what the entry demands: a functional-form class is a model set rather than a sensitivity parameter, unsupported target profiles are positivity and extrapolation failures that flexible learners and cross-fitting cannot repair, and a bias-indexed AIPW or TMLE is one coherent construction rather than the uniquely correct target, since bias functions or bounds can sometimes be applied to an existing doubly robust functional without redoing the influence-function theory.
+
+Literature and prior-art check
+:   **open / supported.** Retrieved Campbell and Remiro-Azocar 2026 (Research Synthesis Methods, 10.1017/rsm.2026.10106; preprint arXiv 2505.00113), title 'Doubly robust augmented weighting estimators for the analysis of externally controlled single-arm trials and unanchored indirect treatment comparisons'. Claims 8 and 9 verified: it presents a unified causal inference framework for both designs and 'develop[s] an estimator that augments a popular weighting approach based on entropy balancing - matching-adjusted indirect comparison (MAIC) - by fitting a model for the conditional outcome expectation', which is 'doubly robust (DR), providing increased robustness against model misspecification'. Claim 10 is supported by the same retrieval: the paper's identification rests on conditional data-source ignorability and positivity and contains no sensitivity analysis or bias-parameter indexing for unmeasured confounding. drMAIC 0.1.0 on CRAN provides doubly robust MAIC with 'E-values, weight trimming, and variable exclusion analyses', which is a generic screen rather than an estimator indexed by residual-bias parameters, so it does not falsify claim 10 either. Claims 5 to 7 are standard semiparametric facts and are correct.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** C1 and C5-C9 are technically correct: double robustness concerns the measured-data outcome and selection or weighting models while identification, consistency, positivity, correct measurement, and the target law remain assumed. It does not protect against omitted confounding or the other listed violations. C2 nevertheless overstates what is required: a functional-form class is a model set, not a sensitivity parameter, and omitted interaction size covers only one misspecification. Unsupported target profiles are positivity or extrapolation failures, not merely outcome-model misspecification; flexible learners and cross-fitting cannot identify unsupported counterfactuals. C3-C4 list useful tools but not sufficient or mandatory remedies. Bias-indexed AIPW or TMLE is one coherent construction, not the uniquely correct one; bias functions or bounds can sometimes be applied to an existing doubly robust functional without rebuilding all influence-function theory. C10 and claims that research is still needed are literature-exhaustiveness claims outside this audit lens. At cpaic@9d150e9, no QBA, AIPW, TMLE, or cross-fitting API exists. The integrated residual-bias layer remains open, but its necessity and proposed implementation are inflated.
+
+Decision path
+:   `R5:default-open → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [MOD-05 — No doubly robust PAIC estimator is indexed by bias parameters](MOD-05-no-doubly-robust-paic-estimator-is-indexed-by-bias-parameter.qmd)
+:::
+
+## Source
+
+Derived from C:L488, C:L511, C:L570-576, C:L593-601, C:L800-806, C:L806, C:L2149 of the reviewed corpus.

@@ -1,0 +1,78 @@
+---
+title: "ML-NMR integration cost is unaddressed for flexible survival models"
+description: "Multilevel network meta-regression integrates the individual-level model over each aggregate study's covariate distribution, and that integration error is now quantified and separated from Markov chain Monte Carlo error rather than left unmanaged: multinma has checked it automatically since version 0.6.0 (2024-01-24), running half the chains at n_int and half at n_int/2 so an R-hat failure can be ascribed either to the sampler or to too few integration points, an algorithm formalized in Phillippo et al. (doi:10.1093/jrsssa/qnaf169). What is not resolved is cost and coverage. For general likelihoods, and flexible survival models in particular, each aggregate-study individual carries its own integral, cumulative integration-error plots are unsupported there, and adaptive integration, calibrated variational approximation, GPU or parallel Stan, and likelihood emulation have never been evaluated for ML-NMR. No single reported summary covers sampler convergence, integration accuracy, hierarchical shrinkage, and population-specific predictive accuracy at once."
+pid: "CMU-01"
+topic: "Computation & reproducibility"
+categories: ["Computation & reproducibility", "Medium-high priority", "Overstated"]
+priority: "Medium-high"
+prank: 3
+verdict: "Overstated"
+verdictslug: "overstated"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[CMU-01]{.problem-id}
+[Overstated]{.verdict .verdict-overstated}
+[Medium-high priority]{.chip .chip-priority-medium-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+## Statement
+
+Multilevel network meta-regression integrates the individual-level model over each aggregate study's covariate distribution, and that integration error is now quantified and separated from Markov chain Monte Carlo error rather than left unmanaged: multinma has checked it automatically since version 0.6.0 (2024-01-24), running half the chains at n_int and half at n_int/2 so an R-hat failure can be ascribed either to the sampler or to too few integration points, an algorithm formalized in Phillippo et al. (doi:10.1093/jrsssa/qnaf169). What is not resolved is cost and coverage. For general likelihoods, and flexible survival models in particular, each aggregate-study individual carries its own integral, cumulative integration-error plots are unsupported there, and adaptive integration, calibrated variational approximation, GPU or parallel Stan, and likelihood emulation have never been evaluated for ML-NMR. No single reported summary covers sampler convergence, integration accuracy, hierarchical shrinkage, and population-specific predictive accuracy at once.
+
+## Why it is open
+
+Cost is driven by likelihood and gradient evaluations rather than by the number of saved draws, and it grows with integration points, studies, covariates, and the flexibility of the outcome model, so analysts cut integration points and convert a visible runtime cost into an invisible bias in the likelihood. The premise that the aggregate-data likelihood never has a closed form is false for Gaussian identity-link models; the burden is real for the non-Gaussian and survival cases. The diagnostics that do exist are layer-specific: sampler checks interrogate the chains, int_check interrogates the grid, and neither speaks to hierarchical shrinkage or to whether population-specific predictions are accurate, so a reviewer must assemble several checks and no software assembles them. In cpaic, an unreleased development package on GitHub that is not on CRAN, the integration diagnostic compares quasi-Monte Carlo prefixes against the same finite grid, is unavailable for survival, and does not quantify residual full-grid error or runtime.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Phillippo et al. 2020, Multilevel network meta-regression for population-adjusted treatment comparisons, JRSS-A](https://doi.org/10.1111/rssa.12579) | defines ML-NMR with quasi-Monte Carlo integration, reports empirical integration-error rates of order N^-1 over the whole posterior, and reports runtime of around 5 minutes for the plaque psoriasis example |
+| [Phillippo et al. 2025, Multilevel network meta-regression for general likelihoods (arXiv:2401.12640), JRSS-A](https://doi.org/10.1093/jrsssa/qnaf169) | gives the split-chain algorithm that separates numerical integration non-convergence from MCMC non-convergence when per-individual aggregate-data integrals make cumulative-error plots infeasible, and documents its implementation in multinma |
+| [multinma 0.6.0 release notes (2024-01-24), commit dmphillippo/multinma@6be4758](https://cran.r-project.org/package=multinma) | adds int_check, enabled by default, which runs half the chains at n_int and half at n_int/2 and ascribes R-hat or ESS warnings to either sampler non-convergence or insufficient integration accuracy; lowers the default to 64 points and stops saving cumulative integration points by default |
+| [cpaic, unreleased development package on GitHub (not on CRAN), commit 9d150e9](https://github.com/choxos/cpaic) | implements a quasi-Monte Carlo stability plot (estimate at the first N points minus the estimate at all points) for non-survival models and automatic checks of divergences, tree depth, E-BFMI, R-hat and ESS across every sampled parameter block |
+
+:::
+
+## Probable solution or research direction
+
+The integration-error diagnostic exists, so the work is to lower the cost it prices and to widen the checks it does not cover. Benchmark adaptive integration, calibrated variational approximation, GPU and parallel Stan backends, and likelihood emulation against exact ML-NMR fits, since none has been evaluated in this setting. Extend cumulative integration-error reporting to general likelihoods and survival models, where it is currently unsupported, and report runtime next to residual integration error so the trade-off is made knowingly. Add hierarchical cross-validation and level-specific PSIS diagnostics for the shrinkage and population-prediction layers that no current check reaches.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Overstated. 3 independent auditors judged the claim as stated too strong. For flexible survival ML-NMR with one integral per aggregate-study individual, runtime is a real burden and methods to reduce it (adaptive integration, calibrated variational approximation, GPU/parallel Stan, emulation) have not been evaluated; and no single reported summary simultaneously covers sampler convergence, integration accuracy, hierarchical shrinkage, and population-specific prediction accuracy.
+
+**The source titled this.** "ML-NMR integration cost and integration error are unquantified" The title says integration error is unquantified, but multinma has separated integration error from Monte Carlo error by default since version 0.6.0.
+
+**The source said.** "Fitting multilevel network meta-regression requires numerical integration of the individual-level model over the covariate distribution of every aggregate study, which makes the model expensive and introduces an integration error that is distinct from Monte Carlo sampling error. Neither the runtime nor the integration error is routinely managed or quantified, and no single diagnostic covers the several layers on which such a fit can go wrong."
+
+**What was wrong with it.** The source said integration error is neither routinely managed nor quantified nor separable from Monte Carlo error. All three auditors found that outdated: multinma has made exactly that separation by default since 0.6.0 (2024-01-24, the int_check argument), and Phillippo et al. 2020 (doi:10.1111/rssa.12579) already reported empirical integration-error rates over the whole posterior and a runtime of about 5 minutes for its worked example.
+
+Literature and prior-art check
+:   **partially-solved / overstated.** I read the full text of Phillippo et al. 2020 (Europe PMC PMC7362893) and the general-likelihoods ML-NMR preprint PDF (arXiv 2401.12640, now JRSS-A 10.1093/jrsssa/qnaf169). Both contradict the framing. The 2020 paper states the QMC error rate, demonstrates empirical integration error over the whole posterior, and reports runtime ('around 5 min'; 'not markedly increased over an equivalent full IPD network meta-regression'). The general-likelihoods paper has a dedicated section 2.3 'Assessing integration error' giving an algorithm that splits chains across n_int and n_int/2 and uses R-hat to separate MCMC non-convergence from integration non-convergence, and states multinma implements it. multinma NEWS 0.6.0 (2024-01-24) confirms this is on by default via int_check, and plot_integration_error() exists (test-plot_integration_error.R in the repo). So integration error is quantified, separated from MC error, and automated. Genuinely open: runtime reduction (adaptive integration, calibrated variational approximation, GPU/parallel Stan, emulation) for which I found no ML-NMR evaluation, and coverage of hierarchical shrinkage and population-specific prediction in one diagnostic.
+    Cites arxiv:2401.12640: Provides an operational diagnostic that separates numerical integration error from MCMC error and is implemented by default in multinma; also published as JRSS-A doi 10.1093/jrsssa/qnaf169..
+    Cites cran:multinma NEWS 0.6.0 (2024-01-24): Integration-accuracy checking is automatic and enabled by default, and attributes warnings to either sampler non-convergence or insufficient integration accuracy..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / overstated.** C1 is correct subject to identification, correct model specification, and adequate AgD covariate distributions. C2 is conditional: integrating an individual-level model avoids the usual aggregate plug-in bias, but AgD-only interaction information can remain ecological. C3 inflates severity because identification and transportability may be more fundamental than computation. C4-C6 are correct for non-Gaussian and flexible survival paths. C5 correctly distinguishes error in the approximated posterior target from MCMC error conditional on that target. C7 is defensible only as saying no single scalar validates every layer; a dashboard can summarize multiple diagnostics. C8 is plausible but workload-dependent. The universal no-closed-form premise is false for Gaussian identity models and some analytic moments, and cost scales with likelihood and gradient evaluations rather than saved draws. At 9d150e9, cpaic already exposes integration and sampler diagnostics. Its integration plot compares QMC prefixes with the same finite full grid at fixed posterior draws, is unavailable for survival, and does not quantify residual full-grid posterior error or runtime.
+    Cites choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca: Provides an implemented diagnostic for stability as the number of Sobol integration points increases, partially resolving the claim that integration accuracy is wholly unmanaged..
+    Cites choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca: Automatically checks and stores several major sampler diagnostics across all sampled parameter blocks..
+
+Grok 4.5, recency lens
+:   **partially-solved / overstated.** The core claim that ML-NMR integration error is neither managed nor separable from MCMC error is outdated for the multinma implementation path. Since multinma 0.6.0 (CRAN 2024-01-24), default int_check runs half the chains at n_int and half at n_int/2 and ascribes R-hat/ESS failures either to MCMC non-convergence or to insufficient integration points; plot_integration_error already existed for cumulative QMC error. Phillippo (2025/2026 JRSSA general-likelihoods paper, section 3.3) formalizes this split-R-hat algorithm, notes the older cumulative-error plots become untenable for per-individual AgD integrals, defaults n_int=64, and documents multinma warnings when N-tilde is insufficient. Claims that ML-NMR yields population-specific effects and avoids ecological bias remain faithful to Phillippo et al. 2020. What remains open is not basic integration-error diagnostics but: (i) a single review-facing summary that also covers hierarchical shrinkage and population-specific predictive accuracy; (ii) adaptive integration, variational approximations with calibration, GPU/parallel Stan, likelihood emulation, and sparse designs as routine cost reducers; (iii) survival models, where cumulative integration points are not saved and plot_integration_error is unsupported. Searches of arXiv/medRxiv and multinma NEWS through 2026 found no shipped adaptive/VI/GPU ML-NMR solver.
+    Cites dmphillippo/multinma@6be475898729f1ccdf88e275c99bbd1f9a143e81: Ships default automatic separation of integration insufficiency from MCMC non-convergence via split n_int vs n_int/2 chains and R-hat/ESS warnings; lowers default n_int to 64; disables cumulative integration saving by default..
+    Cites doi:10.1093/jrsssa/qnaf169: Formalizes assessing integration error with a split-chain R-hat algorithm when per-individual AgD integrals make cumulative-error plots infeasible; documents multinma implementation..
+    Cites doi:10.1111/rssa.12579: Defines ML-NMR as hierarchical IPD+AgD synthesis with QMC integration; earlier source for empirical integration-error plots and for C1–C2 method claims..
+
+Decision path
+:   `R3:partially-solved(n=3) → R8:overstated-majority(n=3)`
+
+:::
+
+## Source
+
+Derived from C:L187-188, C:L195, C:L214-215, C:L256 of the reviewed corpus.

@@ -1,0 +1,86 @@
+---
+title: "No reporting convention exposes prior-dominated contrasts in PAIC"
+description: "Posterior means, credible intervals, convergence diagnostics and ordinary fit diagnostics do not establish likelihood identification, and a proper prior yields a proper posterior for a contrast the likelihood does not touch. The tooling to expose this is not missing. Power-scaling sensitivity analysis (doi:10.1007/s11222-023-10366-5), shipped in the CRAN package priorsense and working with rstan, cmdstanr and brms, gives a diagnostic that indicates prior-data conflict or likelihood non-informativity and attaches to Stan-based models such as multinma with no new theory, and the development source cpaic already returns NA for contrasts its component design cannot uniquely identify, labels the information basis, refits under tighter and looser priors and plots prior against posterior (choxos/cpaic@9d150e9; an unreleased development package on GitHub that an auditor confirmed is not on CRAN). What is open is an ITC and PAIC reporting convention that makes this routine, plus exact identification diagnostics for nonlinear and aggregate-data likelihoods; GPT-5.6 Sol also notes the phenomenon is better named prior-dominated inference for a nonidentified contrast than prior-driven identification."
+pid: "MOD-13"
+topic: "Model specification, double robustness & targeted learning"
+categories: ["Model specification, double robustness & targeted learning", "Very high priority", "Partially addressed"]
+priority: "Very high"
+prank: 1
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
+maturity: "Emerging"
+---
+::: {.problem-meta}
+[MOD-13]{.problem-id}
+[Partially addressed]{.verdict .verdict-partially-addressed}
+[Very high priority]{.chip .chip-priority-very-high}
+[Emerging]{.chip .chip-maturity-emerging}
+:::
+## Statement
+
+Posterior means, credible intervals, convergence diagnostics and ordinary fit diagnostics do not establish likelihood identification, and a proper prior yields a proper posterior for a contrast the likelihood does not touch. The tooling to expose this is not missing. Power-scaling sensitivity analysis (doi:10.1007/s11222-023-10366-5), shipped in the CRAN package priorsense and working with rstan, cmdstanr and brms, gives a diagnostic that indicates prior-data conflict or likelihood non-informativity and attaches to Stan-based models such as multinma with no new theory, and the development source cpaic already returns NA for contrasts its component design cannot uniquely identify, labels the information basis, refits under tighter and looser priors and plots prior against posterior (choxos/cpaic@9d150e9; an unreleased development package on GitHub that an auditor confirmed is not on CRAN). What is open is an ITC and PAIC reporting convention that makes this routine, plus exact identification diagnostics for nonlinear and aggregate-data likelihoods; GPT-5.6 Sol also notes the phenomenon is better named prior-dominated inference for a nonidentified contrast than prior-driven identification.
+
+## Why it is open
+
+A proper prior always produces a finite posterior for a nonidentified contrast, so a posterior mean plus credible interval cannot by itself separate an answer supplied by the data from one supplied by the prior, and routine convergence and fit diagnostics do not test whether the likelihood is flat in the specific contrast a decision depends on. The diagnostics that would catch the substitution exist but are requested by no reporting template, so nothing in the workflow forces their use. Every flexible direction proposed for this setting, including nonparametric mixtures, Gaussian processes, BART, commensurate and robust priors and generalized Bayes, adds prior structure, so the exposure problem grows as the models improve, and exact identification diagnostics for nonlinear or aggregate-data likelihoods are still missing.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Kallioinen, Paananen, Burkner & Vehtari 2024, Detecting and diagnosing prior and likelihood sensitivity with power-scaling, Statistics and Computing 34:57](https://doi.org/10.1007/s11222-023-10366-5) | Importance-sampling power-scaling of the prior and the likelihood, yielding a diagnostic that indicates prior-data conflict or likelihood non-informativity. This is the machinery the entry's proposed direction asks for. |
+| [priorsense R package](https://cran.r-project.org/package=priorsense) | Released implementation of power-scaling sensitivity analysis, working directly with rstan, cmdstanr and brms, so it attaches to Stan-based evidence-synthesis models such as multinma without new theory. |
+| [cpaic development source at commit 9d150e9 (choxos/cpaic)](choxos/cpaic@9d150e9) | Returns NA for relative effects the component design cannot uniquely identify rather than pseudoinverse or prior-driven artifacts, labels the information basis, refits under tighter and looser priors, and compares prior with posterior. cpaic is an unreleased development package on GitHub; an auditor confirmed it is not on CRAN. |
+
+:::
+
+## Probable solution or research direction
+
+Make the existing diagnostics routine rather than proposing new ones: require Bayesian ITC and PAIC analyses to run power-scaling or an equivalent prior and likelihood sensitivity check on each cross-gap or transported contrast, and to label parameters identified, partially identified or nonidentified. Use prior classes instead of one arbitrary prior, consider modular or cut-feedback models so outcome data do not spuriously update elicited sensitivity distributions, and report deterministic parameter grids alongside posterior mixtures. The research work left is exact identification diagnostics for nonlinear and aggregate-data likelihoods, plus bridge-deletion demonstrations.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Partially addressed. Part of this problem is addressed by existing work; the entry names which part.
+
+**The source titled this.** "Bayesian PAIC output does not expose prior-driven identification" The title says Bayesian output does not expose prior-driven identification, but power-scaling sensitivity ships on CRAN and prior-posterior comparison is already implemented.
+
+**The source said.** "The report's key requirement for Bayesian nonparametric and robust-Bayes methods in ITC and PAIC is that the model must expose prior-driven identification, because posterior precision is not data information when the likelihood is flat in the relevant contrast. Standard output does not distinguish the two."
+
+**What was wrong with it.** The source said standard output does not distinguish prior information from data information, with no prior work cited. The literature auditor supplied a packaged diagnostic that does exactly this (doi:10.1007/s11222-023-10366-5, CRAN package priorsense), and GPT-5.6 Sol found the universal output claim stale against choxos/cpaic@9d150e9, which already returns NA for non-identified contrasts and refits under alternative priors; cpaic is an unreleased development package on GitHub and is not installable from CRAN.
+
+**Dissent.** codex dissented (overstated): C1, C3 and C4 are substantially correct for a well-defined posterior. If a likelihood is flat in a contrast and the prior factorizes, its posterior equals its prior; with prior dependence, data may move the contrast only through prior coupling to identified parameters, which is still not direct likelihood identification. A proper prior does not guarantee that a posterior mean exists or that the resulting interval is apparently precise, so 'prior-driven identification' is better called prior-dominated inference for a nonidentified contrast. The universal output claim is also stale at cpaic 9d150e9. relative_effects() returns NA for contrasts outside the relevant row space, estimable_effects_at() labels the information basis, prior_sensitivity() refits under tighter and looser priors, and plot_prior_posterior() compares prior and posterior distributions. These features partially expose the substitution already. Broader default reporting, exact nonlinear identification diagnostics and systematic prior-information decompositions remain open. The issue is decision-critical when a conclusion depends on a likelihood-null contrast, but not for every flexible Bayesian model.
+
+Literature and prior-art check
+:   **partially-solved / supported-with-caveat.** The four claims are true: a proper prior yields a proper posterior for a nonidentified contrast, and standard convergence and fit diagnostics do not test likelihood flatness in a specific contrast. But the entry states this as if no tooling existed, and prior_work is empty. Kallioinen, Paananen, Burkner & Vehtari, 'Detecting and diagnosing prior and likelihood sensitivity with power-scaling', Statistics and Computing 2024;34:57 (doi 10.1007/s11222-023-10366-5) supplies exactly the diagnostic the proposed_direction asks for: importance-sampling-based power-scaling of the prior and the likelihood, yielding a diagnostic that indicates prior-data conflict OR likelihood non-informativity, implemented in the CRAN package priorsense and working directly with rstan, cmdstanr and brms, i.e. attachable to multinma-style Stan models with no new theory. The broader partial-identification framing (a proper prior concentrating inside an identification region purely by prior structure) is also long-established in the Bayesian partial-identification literature. What is genuinely open is the ITC/PAIC-specific reporting convention: labeling parameters identified, partially identified or nonidentified, and reporting prior-to-posterior movement per cross-gap contrast. That is a guidance gap, not a methods gap.
+    Cites doi:10.1007/s11222-023-10366-5 (cran:priorsense): Provides a ready, packaged diagnostic that detects likelihood non-informativity and prior-driven posteriors via power-scaling, covering the power-scaling and prior-to-posterior movement elements of the entry's proposed_direction..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / overstated.** C1, C3 and C4 are substantially correct for a well-defined posterior. If a likelihood is flat in a contrast and the prior factorizes, its posterior equals its prior; with prior dependence, data may move the contrast only through prior coupling to identified parameters, which is still not direct likelihood identification. A proper prior does not guarantee that a posterior mean exists or that the resulting interval is apparently precise, so 'prior-driven identification' is better called prior-dominated inference for a nonidentified contrast. The universal output claim is also stale at cpaic 9d150e9. relative_effects() returns NA for contrasts outside the relevant row space, estimable_effects_at() labels the information basis, prior_sensitivity() refits under tighter and looser priors, and plot_prior_posterior() compares prior and posterior distributions. These features partially expose the substitution already. Broader default reporting, exact nonlinear identification diagnostics and systematic prior-information decompositions remain open. The issue is decision-critical when a conclusion depends on a likelihood-null contrast, but not for every flexible Bayesian model.
+    Cites choxos/cpaic@9d150e9: Prevents a posterior interval from being reported for a contrast failing the implemented row-space identification check and marks the remaining basis as exact or first-order only..
+    Cites choxos/cpaic@9d150e9: Provides explicit contrast-level refitting under tighter and looser priors to reveal prior-dominated movement..
+
+Decision path
+:   `R3:partially-solved(n=2) → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [CMP-08 — Identification beyond row-space screens in nonlinear component ML-NMR](CMP-08-identification-beyond-row-space-screens-in-nonlinear-compone.qmd)
+- [CMP-14 — Aggregate-data-only interactions may be prior-driven](CMP-14-aggregate-data-only-interactions-may-be-prior-driven.qmd)
+- [DEC-11 — Intervals omit selection, reconstruction and target-summary error](DEC-11-intervals-omit-selection-reconstruction-and-target-summary-e.qmd)
+- [DIA-11 — No scenario library or performance measures for estimability failure](DIA-11-no-scenario-library-or-performance-measures-for-estimability.qmd)
+- [DIS-09 — Structured elicitation is not applied to the cross-gap contrast](DIS-09-structured-elicitation-is-not-applied-to-the-cross-gap-contr.qmd)
+- [QBA-03 — QBA modes and interval semantics are routinely conflated](QBA-03-qba-modes-and-interval-semantics-are-routinely-conflated.qmd)
+- [QBA-16 — Probabilistic QBA needs elicited and validated bias distributions](QBA-16-probabilistic-qba-needs-elicited-and-validated-bias-distribu.qmd)
+- [QBA-19 — Latent-U Bayesian QBA hides nonidentification behind a proper prior](QBA-19-latent-u-bayesian-qba-hides-nonidentification-behind-a-prope.qmd)
+- [SFW-08 — No agreed leave-one-out unit for mixed IPD and aggregate likelihoods](SFW-08-no-agreed-leave-one-out-unit-for-mixed-ipd-and-aggregate-lik.qmd)
+:::
+
+## Source
+
+Derived from C:L586-591, C:L1073, C:L2172 of the reviewed corpus.

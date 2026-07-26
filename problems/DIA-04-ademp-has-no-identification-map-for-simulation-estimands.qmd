@@ -1,0 +1,74 @@
+---
+title: "ADEMP has no identification map for simulation estimands"
+description: "ADEMP already requires estimands to be defined and instructs analysts to consider whether each method is appropriate for the estimand identified, and Section 3.4 of Morris et al. 2019 (doi:10.1002/sim.8086) works through the marginal-versus-conditional example that produces exactly the spurious bias this entry describes. What ADEMP does not provide is a structured per-scenario identification map recording which estimands are identified under the data-generating mechanism and under each fitted method's own assumptions, and no journal or software requirement enforces one, so PAIC simulations routinely omit it. The underlying dispute has already been argued in public in this field, in the exchange over the anchored population-adjustment simulation and the reply on target estimands for efficient decision making (doi:10.1002/sim.8965), so reviewers do have ground on which to demand the mapping."
+pid: "DIA-04"
+topic: "Diagnostics & empirical validation"
+categories: ["Diagnostics & empirical validation", "Very high priority", "Overstated"]
+priority: "Very high"
+prank: 1
+verdict: "Overstated"
+verdictslug: "overstated"
+maturity: "Emerging"
+---
+::: {.problem-meta}
+[DIA-04]{.problem-id}
+[Overstated]{.verdict .verdict-overstated}
+[Very high priority]{.chip .chip-priority-very-high}
+[Emerging]{.chip .chip-maturity-emerging}
+:::
+## Statement
+
+ADEMP already requires estimands to be defined and instructs analysts to consider whether each method is appropriate for the estimand identified, and Section 3.4 of Morris et al. 2019 (doi:10.1002/sim.8086) works through the marginal-versus-conditional example that produces exactly the spurious bias this entry describes. What ADEMP does not provide is a structured per-scenario identification map recording which estimands are identified under the data-generating mechanism and under each fitted method's own assumptions, and no journal or software requirement enforces one, so PAIC simulations routinely omit it. The underlying dispute has already been argued in public in this field, in the exchange over the anchored population-adjustment simulation and the reply on target estimands for efficient decision making (doi:10.1002/sim.8965), so reviewers do have ground on which to demand the mapping.
+
+## Why it is open
+
+In PAIC the compared estimators target different populations (index trial, comparator trial, decision target) and different conditional or marginal contrasts, so a single scalar true value is ambiguous and non-identification can be reported as estimator bias. ADEMP's instruction to check method-to-estimand compatibility is prose guidance rather than a required per-scenario artifact, so it is easy to skip and reviewers have nothing concrete to insist on. What is actually needed is a way to distinguish four things that all surface as bias: estimand mismatch, non-identification under the generating mechanism, model misspecification, and finite-sample bias.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Morris et al. 2019, Using simulation studies to evaluate statistical methods](https://doi.org/10.1002/sim.8086) | Defines the ADEMP framework; its Methods element already instructs investigators to consider whether each method is appropriate for the estimand or target identified, and Section 3.4 works the marginal-versus-conditional example that produces spurious bias. It does not formalize a per-scenario identification map. |
+| [Target estimands for efficient decision making: Response to comments on Assessing the performance of population adjustment methods for anchored indirect comparisons: A simulation study, 2021](https://doi.org/10.1002/sim.8965) | A published exchange in the PAIC literature about which estimand a simulation's true value refers to and whether the compared methods target it, showing the dispute is already live rather than unrecognized. |
+
+:::
+
+## Probable solution or research direction
+
+Write a PAIC-specific extension of ADEMP rather than a competing framework: a per-scenario identification table stating, for each method, which estimand it targets and whether that estimand is identified under the data-generating mechanism, so that every reported bias is labeled as estimand mismatch, non-identification, misspecification or finite-sample bias. Do not restrict bias reporting to estimands a method claims to identify, since robustness simulations legitimately score every method against the policy-relevant estimand under deliberate assumption violation; label the cell rather than remove it. Attach the table to the simulation protocol so that journals and reviewers have something specific to require.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Overstated. 2 independent auditors judged the claim as stated too strong. ADEMP tells analysts to consider whether each method is appropriate for the stated estimand, but provides no structured per-scenario identification map recording which estimands are identified under the data-generating mechanism and under each method's assumptions; no journal or software requirement enforces such a map, and PAIC simulations routinely omit it.
+
+**The source said.** "Simulation studies of ITC and PAIC follow ADEMP, but no element of ADEMP forces the analyst to state which estimands are identified under the generating assumptions and which are identified under each fitted method's own assumptions. Bias is therefore computed against a truth some compared methods never claimed to estimate."
+
+**What was wrong with it.** The source said no element of ADEMP forces the analyst to check whether a method can recover the stated estimand; both auditors found this false, since Table 1 of Morris et al. 2019 (doi:10.1002/sim.8086) instructs investigators to identify methods and consider whether they are appropriate for the estimand or target identified, and Section 3.4 uses the conditional-versus-marginal case as its worked example. What is missing is a formalized per-scenario identification map, not the underlying instruction.
+
+Literature and prior-art check
+:   **partially-solved / overstated.** I read the full text of Morris, White & Crowther 2019. The five-element claim is right (element three is 'Estimands and other targets', slightly broader than 'Estimands'). But the central claim, that no element of ADEMP forces the analyst to consider whether each fitted method can recover the stated estimand, is contradicted by the paper itself. Table 1 lists under Methods: 'Identify methods to be evaluated and consider whether they are appropriate for estimand/target identified.' Section 3.4 devotes a passage to precisely the PAIC failure mode described, using the marginal-versus-conditional logistic regression example, i.e. non-collapsibility. Further, the specific dispute has already been litigated in the PAIC literature: Remiro-Azocar, Heath & Baio's comment on Phillippo et al.'s simulation and Phillippo et al.'s reply, 'Target estimands for efficient decision making', are an explicit argument about bias being computed against a truth a compared method did not target. Reviewers therefore do have ground to demand the mapping. What is genuinely missing is a formalized per-scenario identification map as a required reporting element.
+    Cites 10.1002/sim.8086: The ADEMP Methods element and Table 1 already instruct analysts to check method-estimand compatibility, and Section 3.4 works the exact marginal-vs-conditional example that produces spurious bias in PAIC..
+    Cites 10.1002/sim.8965: Demonstrates that the PAIC field has already had a public, published argument about which estimand a simulation's true value refers to and whether competing methods target it..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / overstated.** C1 is correct, and ADEMP does not prescribe a formal per-scenario identification matrix. The report nevertheless overlooks that Morris et al. already require explicit estimands, require methods to be assessed for compatibility with those estimands, and use conditional versus marginal odds ratios as the exact example of a misleading bias comparison. The proposed rule that bias be computed only for estimands a method claims to identify is also too restrictive: robustness simulations legitimately evaluate a method against the policy-relevant estimand under deliberate assumption violation. The necessary distinction is among estimand mismatch, nonidentification, misspecification, and finite-sample bias. A PAIC-specific identification table would improve reporting, but this is a partially addressed reporting extension rather than an unrecognized very-high-priority barrier.
+    Cites doi:10.1002/sim.8086: ADEMP defines the five stated elements and already instructs investigators to check whether each method is appropriate for the chosen estimand, including explicit treatment of conditional-versus-marginal mismatch. It does not formalize a PAIC-specific identification matrix..
+
+Decision path
+:   `R3:partially-solved(n=2) → R8:overstated-majority(n=2)`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [DEC-01 — Method evaluations score estimator error, not decision error](DEC-01-method-evaluations-score-estimator-error-not-decision-error.qmd)
+- [OVL-06 — No standardized sample-size planning guidance or software for PAIC](OVL-06-no-standardized-sample-size-planning-guidance-or-software-fo.qmd)
+:::
+
+## Source
+
+Derived from C:L1762-1771, C:L1766 of the reviewed corpus.

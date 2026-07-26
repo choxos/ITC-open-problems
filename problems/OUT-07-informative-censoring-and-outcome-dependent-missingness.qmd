@@ -1,0 +1,72 @@
+---
+title: "Informative censoring and outcome-dependent missingness"
+description: "Continuous outcomes go missing and time-to-event outcomes are censored for reasons related to the outcome itself, and the source and comparator trials can have different mechanisms, so the biases do not cancel in an indirect comparison. Dependence between the dropout process and the outcome after dropout is not identified from observed event and censoring data alone without auxiliary information or restrictions, though observable censoring patterns and some model implications can still be examined, so the untestability is specific rather than total. Baseline covariate adjustment cannot correct selection driven by unobserved post-baseline outcomes, but correction is not ruled out in principle: baseline covariates may suffice under conditional independent censoring, and time-varying inverse probability of censoring weighting, congenial imputation or joint models can identify effects under further assumptions. Externally controlled comparisons are where the asymmetry bites hardest, and censoring there is documented to be often informative because it reflects discontinuation for toxicity, patient preference or early switch to alternative therapies."
+pid: "OUT-07"
+topic: "Outcome-specific problems"
+categories: ["Outcome-specific problems", "Very high priority", "Confirmed open"]
+priority: "Very high"
+prank: 1
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[OUT-07]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[Very high priority]{.chip .chip-priority-very-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+## Statement
+
+Continuous outcomes go missing and time-to-event outcomes are censored for reasons related to the outcome itself, and the source and comparator trials can have different mechanisms, so the biases do not cancel in an indirect comparison. Dependence between the dropout process and the outcome after dropout is not identified from observed event and censoring data alone without auxiliary information or restrictions, though observable censoring patterns and some model implications can still be examined, so the untestability is specific rather than total. Baseline covariate adjustment cannot correct selection driven by unobserved post-baseline outcomes, but correction is not ruled out in principle: baseline covariates may suffice under conditional independent censoring, and time-varying inverse probability of censoring weighting, congenial imputation or joint models can identify effects under further assumptions. Externally controlled comparisons are where the asymmetry bites hardest, and censoring there is documented to be often informative because it reflects discontinuation for toxicity, patient preference or early switch to alternative therapies.
+
+## Why it is open
+
+Ignorable missingness and non-informative censoring fail exactly where dropout is caused by toxicity or worsening disease, and the mechanisms can differ between the two trials, so the errors do not offset. Aggregate-data publications report at-risk tables rather than censoring reasons and give neither the missingness pattern nor the reasons in usable detail, so a missing-not-at-random sensitivity analysis has no anchor on the comparator side. Generic and calibrated inverse probability of censoring weighting adjust within a study rather than across the transport step, and the literature auditor found no method that makes such a sensitivity analysis compatible with a transport model. At commit 9d150e9, cpaic, the unreleased development package on GitHub that is not installable from CRAN, handles right, left and interval censoring and delayed entry but models the outcome conditional on the supplied rows and has no censoring-process, dropout or informative-censoring sensitivity model.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Informative censoring in externally controlled clinical trials: a potential source of bias, ESMO Open 2024](https://www.esmoopen.com/article/S2059-7029(24)01864-7/fulltext) | asserts in the externally controlled comparison setting that censoring is often informative because it reflects discontinuation due to toxicity, preference or early switch to alternative therapies, and that this can bias progression-free survival comparisons; it does not supply a transport-compatible correction |
+
+:::
+
+## Probable solution or research direction
+
+Build multiple imputation and inverse probability of censoring weighting that are congenial with the transport model rather than only with the within-study analysis, together with joint models of the outcome and the dropout or censoring process. Make missing-not-at-random and informative-censoring sensitivity analysis explicit, reporting how much outcome dependence would be needed to change the decision rather than assuming the mechanism away. State which features of the censoring process are being assumed and which are examinable, since observed censoring patterns can be inspected even though post-dropout dependence cannot.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+
+**The source said.** "Continuous outcomes go missing and time-to-event outcomes get censored for reasons related to the outcome itself, such as lack of efficacy or toxicity, yet population-adjusted analyses assume ignorable missingness and non-informative censoring."
+
+**What was wrong with it.** The claim that non-informative censoring is simply untestable was narrowed by the code auditor to dependence between censoring and the unobserved post-dropout outcome, and the claim that population adjustment cannot correct such selection was narrowed to baseline weighting alone, since time-varying inverse probability of censoring weighting, congenial imputation and joint models can identify effects under further assumptions. The literature auditor supplied a real source for the asymmetry in the indirect-comparison setting, an ESMO Open 2024 article on informative censoring in externally controlled trials, and voted the entry supported rather than caveated; the weaker caveated reading is used here and the disagreement stays in the audit record.
+
+**Dissent.** literature dissented (supported): The core claim is structurally untestable and therefore cannot be closed by any paper: non-informative censoring and ignorable missingness are assumptions about the joint outcome-dropout distribution, so per the audit calibration this stays open regardless of how much sensitivity-analysis literature exists. I did retrieve a real source that asserts the problem specifically in the indirect-comparison setting rather than in trials generally: 'Informative censoring in externally controlled clinical trials: a potential source of bias' (ESMO Open 2024), which notes censoring is often informative because it reflects discontinuation due to toxicity, preference, or early switch to alternative therapies, and that this can bias progression-free survival comparisons. This supports the asymmetry claim, since external-control and unanchored ITC designs are exactly where the two sides have different censoring processes. I found no method that makes MNAR or informative-censoring sensitivity analysis compatible with a transport model, so the proposed direction is genuinely unbuilt. Generic IPCW and calibrated-IPCW sensitivity analyses exist but adjust within a study, not across the transport step.
+
+Literature and prior-art check
+:   **open / supported.** The core claim is structurally untestable and therefore cannot be closed by any paper: non-informative censoring and ignorable missingness are assumptions about the joint outcome-dropout distribution, so per the audit calibration this stays open regardless of how much sensitivity-analysis literature exists. I did retrieve a real source that asserts the problem specifically in the indirect-comparison setting rather than in trials generally: 'Informative censoring in externally controlled clinical trials: a potential source of bias' (ESMO Open 2024), which notes censoring is often informative because it reflects discontinuation due to toxicity, preference, or early switch to alternative therapies, and that this can bias progression-free survival comparisons. This supports the asymmetry claim, since external-control and unanchored ITC designs are exactly where the two sides have different censoring processes. I found no method that makes MNAR or informative-censoring sensitivity analysis compatible with a transport model, so the proposed direction is genuinely unbuilt. Generic IPCW and calibrated-IPCW sensitivity analyses exist but adjust within a study, not across the transport step.
+    Cites https://www.esmoopen.com/article/S2059-7029(24)01864-7/fulltext: Provides a real, ITC-adjacent source asserting that censoring in externally controlled comparisons is often informative and can bias the comparison; converts the entry's assertion into a sourced one without solving it..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / supported-with-caveat.** C1, C2, C5, and C6 are technically sound. C3 needs a precise boundary: dependence between censoring or dropout and the unobserved outcome after dropout is not testable or identified from observed event and censoring data alone without auxiliary information or restrictions. Observable censoring patterns and some model implications can still be examined, so not every relevant feature is untestable. C4 is correct for baseline PAIC weighting alone when censoring depends on unobserved post-baseline outcomes. It is too broad if read as ruling out correction: baseline covariates may suffice under conditional independent censoring, and time-varying IPCW, compatible imputation, or joint models can identify effects under additional assumptions. At commit 9d150e9, cpaic handles right, left, and interval censoring and delayed entry, but models the outcome likelihood conditional on supplied rows and has no censoring-process, dropout, MNAR, or informative-censoring sensitivity model. The stated issue therefore remains open. Very high priority is proportionate when dropout is plausibly outcome-related and differs across trials, but is context-dependent rather than intrinsic to every PAIC.
+
+Decision path
+:   `R5:default-open → R11:caveated(n=1)`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [QBA-05 — Transport bias functions are not adapted to aggregate-data PAIC](QBA-05-transport-bias-functions-are-not-adapted-to-aggregate-data-p.qmd)
+:::
+
+## Source
+
+Derived from C:L1537-1546, C:L1578-1590, C:L250 of the reviewed corpus.

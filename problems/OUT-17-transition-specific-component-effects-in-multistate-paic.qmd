@@ -1,0 +1,74 @@
+---
+title: "Transition-specific component effects in multistate PAIC"
+description: "A multistate component PAIC would treat ordinal categories as states and place additive component effects on the intensities of transitions between them, giving every transition its own component design and effect-modifier requirements. In sparse networks many transition-by-component-by-modifier coefficients will be weakly identified or nonidentified: a single occupancy vector at one time does not identify a transition generator, and different generators can produce the same vector. Hierarchical shrinkage cannot create likelihood identification; it regularizes by adding exchangeability assumptions, so it is useful rather than mathematically essential where the transition-specific designs already identify the parameters. No multistate extension of ML-NMR, transition-specific component model or bridge between ordinal synthesis and multistate models exists in the population-adjusted setting."
+pid: "OUT-17"
+topic: "Outcome-specific problems"
+categories: ["Outcome-specific problems", "High priority", "Confirmed open"]
+priority: "High"
+prank: 2
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Speculative"
+tractability: 2
+---
+::: {.problem-meta}
+[OUT-17]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[High priority]{.chip .chip-priority-high}
+[Speculative]{.chip .chip-maturity-speculative}
+[Tractability 2/5]{.chip}
+:::
+## Statement
+
+A multistate component PAIC would treat ordinal categories as states and place additive component effects on the intensities of transitions between them, giving every transition its own component design and effect-modifier requirements. In sparse networks many transition-by-component-by-modifier coefficients will be weakly identified or nonidentified: a single occupancy vector at one time does not identify a transition generator, and different generators can produce the same vector. Hierarchical shrinkage cannot create likelihood identification; it regularizes by adding exchangeability assumptions, so it is useful rather than mathematically essential where the transition-specific designs already identify the parameters. No multistate extension of ML-NMR, transition-specific component model or bridge between ordinal synthesis and multistate models exists in the population-adjusted setting.
+
+## Why it is open
+
+Networks contain few studies and even fewer reporting transition-level data, so most transition-specific component and interaction parameters have no direct evidence and are determined by the prior. Trials report the ordinal distribution or state occupancy at fixed timepoints rather than transition counts, so transition intensities are not identified from published data. Component additivity would have to hold separately for each transition under the proposed parameterization, which is a stronger assumption than single-endpoint additivity. The nearest existing machinery stops short: multinma's likelihood list has no multistate family and its class-effect machinery is single-endpoint, and netmeta's component network meta-analysis is additive on a single contrast scale with no time dimension.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [multinma (CRAN), class effects since 0.8.0](https://cran.r-project.org/package=multinma) | the literature auditor verified that its likelihood list contains no multistate family and that its component and class-effect machinery, including class effects added in 0.8.0, is single-endpoint, so it is the nearest existing machinery rather than a solution |
+| [netmeta (CRAN), component network meta-analysis](https://cran.r-project.org/package=netmeta) | implements component network meta-analysis additive on a single contrast scale with no time dimension and no transition structure, confirming that the component half of the proposal also stops at a single endpoint |
+
+:::
+
+## Probable solution or research direction
+
+Develop multistate extensions of population-adjusted synthesis in which ordinal categories are states and treatment effects are transition-specific, and be explicit that shrinkage and clinically structured constraints buy regularization under exchangeability rather than identification. Establish which transition-specific parameters the available transition-level evidence identifies before adding priors, and report the remainder as prior-determined. Treat this as a low-tractability research program rather than a requirement for every ordinal analysis.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+
+**The source said.** "A multistate component PAIC would let each treatment component act on each disease transition through a transition-specific main effect and a component-by-covariate interaction matrix, and would reinterpret ordinal categories as disease states; both create many parameters and severe identifiability challenges."
+
+**What was wrong with it.** The source said hierarchical shrinkage and clinically structured component effects will be essential; the code auditor corrected this to regularization under added exchangeability assumptions rather than a cure for non-identification, and noted that although the parameter count is proportional to transitions times components times one plus the number of modifiers, the evidence can still grow through observed transition events, so it is not literally fixed. The same auditor flagged that the source conflated categories with transitions, since ordinal categories are states while transitions are changes between states, and that transition-wise component additivity is a property of the proposed parameterization rather than of every multistate component model; the literature auditor separately noted that three of the entry's eight claims are internal agenda bookkeeping rather than literature claims.
+
+**Dissent.** codex dissented (overstated): C1, C7, and C8 are correct in the stated sparse-data setting. Each transition has its own component design and modifier-information requirements; a single occupancy vector at one time does not identify a transition generator, and different generators can yield the same vector. The parameter count is proportional to transitions times components times one plus the number of modifiers, but evidence can grow through observed transition events, so it is not literally fixed. Hierarchical shrinkage cannot create likelihood identification; it regularizes by adding exchangeability assumptions and is useful, not mathematically essential, when transition-specific designs already identify the parameters. C4 holds only for the proposed transition-wise additive parameterization, not for every multistate component model. The agenda scores in C3 are accurate, and it proposes multistate component PAIC, although the matrix does not explicitly say ML-NMR. C6 is mathematically wrong: ordinal categories are states, while transitions are changes between states. cpaic@9d150e9 has no multistate family. This remains an open, low-tractability program rather than an automatically critical requirement for every analysis.
+
+Literature and prior-art check
+:   **open / supported-with-caveat.** I found no multistate extension of ML-NMR, no transition-specific component model, and no bridge between ordinal synthesis and multistate models in a population-adjusted setting; multinma's likelihood list contains no multistate family and its component/class machinery (class effects added in 0.8.0) is single-endpoint. So the problem is unaddressed. Two caveats on the support axis. First, three of the eight claims are internal bookkeeping rather than literature claims: the impact/novelty/tractability ratings and 'the report states these will be essential' are self-referential to the agenda and cannot be audited against any source. Second, the identifiability claims are analytic rather than empirical (parameter count grows with transitions times components times covariates; a single-timepoint cross-sectional category distribution does not identify transition intensities), and these are correct as stated but are arguments, not findings. Per the audit calibration, a formalisation of severe identifiability problems strengthens rather than weakens the case that this is open, so the status vote is secure even though the sourcing is thin.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** C1, C7, and C8 are correct in the stated sparse-data setting. Each transition has its own component design and modifier-information requirements; a single occupancy vector at one time does not identify a transition generator, and different generators can yield the same vector. The parameter count is proportional to transitions times components times one plus the number of modifiers, but evidence can grow through observed transition events, so it is not literally fixed. Hierarchical shrinkage cannot create likelihood identification; it regularizes by adding exchangeability assumptions and is useful, not mathematically essential, when transition-specific designs already identify the parameters. C4 holds only for the proposed transition-wise additive parameterization, not for every multistate component model. The agenda scores in C3 are accurate, and it proposes multistate component PAIC, although the matrix does not explicitly say ML-NMR. C6 is mathematically wrong: ordinal categories are states, while transitions are changes between states. cpaic@9d150e9 has no multistate family. This remains an open, low-tractability program rather than an automatically critical requirement for every analysis.
+
+Decision path
+:   `R5:default-open → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [CMP-19 — Competing risks and recurrent events are absent from component PAIC](CMP-19-competing-risks-and-recurrent-events-are-absent-from-compone.qmd)
+:::
+
+## Source
+
+Derived from C:L214-215, C:L246, C:L1568-1576, C:L1608-1618, C:L2157 of the reviewed corpus.

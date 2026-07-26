@@ -1,0 +1,73 @@
+---
+title: "No simulation crosses target choice with second-stage transport error"
+description: "No published PAIC simulation crosses a full menu of target-population choices with correct versus incorrect second-stage transport and with uncertainty in the reported target moments, and a simulation that defines truth by the estimator's own implicit target makes target-mismatch error invisible. The blanket version of the claim is false: Chandler and Ishak's ML-UMR simulation (arxiv:2606.20341) treats the target population as a design factor over index and comparator populations, crosses it with effect-modification strength, overlap and covariate dependence including a misspecified between-population correlation, uses two effect measures, and scores bias and coverage against true marginal effects computed externally from simulated populations of ten million. The count of eight factors is also not defensible as exact or orthogonal, since target choice, overlap and distributional difference cannot always be varied independently, and dimensions such as network geometry, baseline risk and censoring are equally material."
+pid: "EST-11"
+topic: "Estimands & target populations"
+categories: ["Estimands & target populations", "High priority", "Overstated"]
+priority: "High"
+prank: 2
+verdict: "Overstated"
+verdictslug: "overstated"
+maturity: "Emerging"
+---
+::: {.problem-meta}
+[EST-11]{.problem-id}
+[Overstated]{.verdict .verdict-overstated}
+[High priority]{.chip .chip-priority-high}
+[Emerging]{.chip .chip-maturity-emerging}
+:::
+## Statement
+
+No published PAIC simulation crosses a full menu of target-population choices with correct versus incorrect second-stage transport and with uncertainty in the reported target moments, and a simulation that defines truth by the estimator's own implicit target makes target-mismatch error invisible. The blanket version of the claim is false: Chandler and Ishak's ML-UMR simulation (arxiv:2606.20341) treats the target population as a design factor over index and comparator populations, crosses it with effect-modification strength, overlap and covariate dependence including a misspecified between-population correlation, uses two effect measures, and scores bias and coverage against true marginal effects computed externally from simulated populations of ten million. The count of eight factors is also not defensible as exact or orthogonal, since target choice, overlap and distributional difference cannot always be varied independently, and dimensions such as network geometry, baseline risk and censoring are equally material.
+
+## Why it is open
+
+What has not been mapped is the interaction between a full menu of target choices, including pooled, registry and overlap populations, and the correctness of the second-stage transport; no study varies uncertainty in the reported target moments at all. Judging bias against an externally declared decision estimand presupposes the target-declaration discipline the field does not enforce, so simulations keep inheriting the estimator's implicit target as truth, and an estimator that answers the wrong question scores as unbiased. The full crossed design is large and expensive to summarize, and because comparative simulations are the main evidence used to recommend methods, the metric propagates directly into method-selection guidance.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Chandler and Ishak 2026, Anchors Away: Navigating Unanchored Indirect Comparisons with Multilevel Unanchored Meta-Regression (ML-UMR)](https://arxiv.org/abs/2606.20341) | Runs a 24-scenario factorial simulation at 500 replications that treats the target population as a design factor over index and comparator populations, crosses effect modification, population imbalance and covariate dependence including a misspecified between-population correlation, uses two effect scales, and computes true marginal effects externally from populations of ten million rather than from any estimator's implicit target. It does not vary a five-level target menu, second-stage transport correctness, or target-moment uncertainty. |
+
+:::
+
+## Probable solution or research direction
+
+Extend the existing design rather than start one: Chandler and Ishak's simulation already varies the target population and defines truth externally, so the increment is a wider target menu including pooled, registry and overlap populations, a correct versus incorrect second-stage transport factor, and target-moment uncertainty, run as a coherent fractional-factorial design rather than a full crossing of eight nominally independent factors. Separate the effect-modification factor into functional form and whether modification is shared or treatment-specific, instead of treating four levels as mutually exclusive. Report bias, RMSE and coverage against the declared decision estimand for every method, and report each estimator's error for its own native estimand separately, so target-mismatch error and estimation error can be read apart.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Overstated. 2 independent auditors judged the claim as stated too strong. No published PAIC simulation crosses a full menu of target-population choices with second-stage transport correctness and target-moment uncertainty, although at least one 2026 study (Chandler & Ishak's ML-UMR simulation) does treat target population as a design factor, uses two effect measures, and scores bias and coverage against an externally defined target estimand rather than the estimator's implicit target.
+
+**The source titled this.** "No factorial simulation of target choice, judged against the target" The title says no factorial simulation of target choice exists, but a 2026 ML-UMR simulation treats target population as a design factor and scores against externally computed truth.
+
+**The source said.** "Section 5.4 specifies a target-population simulation program crossing eight factors (target choice; effect measure; effect-modification structure; prognostic effect strength; overlap; covariate-distribution difference; target-moment uncertainty; and correct versus incorrect second-stage transport), and no such crossed study is reported as existing. Its principal outcome should be bias relative to the declared target estimand, not bias relative to whichever population the estimator implicitly targets."
+
+**What was wrong with it.** The source stated that no crossed study exists and that existing PAIC simulations judge bias against the estimator's implicit target; the literature auditor falsified the blanket version with Chandler and Ishak's ML-UMR simulation (arxiv:2606.20341), which varies the target population as a design factor and evaluates against externally computed true marginal effects. GPT-5.6 Sol rejected the fixed count of eight factors as neither exhaustive nor orthogonal and abstained on how much published simulation coverage exists, holding that question outside a technical audit's reach.
+
+Literature and prior-art check
+:   **partially-solved / overstated.** The two blanket negative claims are falsified by a 2026 preprint from the same authors the neighbouring EST entries already cite. Chandler & Ishak's ML-UMR paper (arXiv:2606.20341, 18 June 2026) runs a factorial simulation that treats the target population as a design factor - the methods section states 'For a target population P in {index, comparator}' and reports bias and coverage in both - and defines truth externally rather than by any estimator's implicit target: 'True marginal treatment effects were computed for each scenario using large simulated populations (N = 10,000,000) to approximate the data-generating distributions', on two effect scales (log odds ratio and log risk ratio). Its Table C.1 crosses effect modification (none / weak / strong), population imbalance (moderate / high overlap), covariate dependence including a misspecified between-population correlation, and sample size, for 24 scenarios at 500 replications. So target choice has been crossed with effect measure, effect-modification structure and overlap. What survives is narrower: no study crosses a five-level target choice (IPD trial, AgD trial, pooled, registry, overlap) with correct-versus-incorrect second-stage transport, and no study varies target-moment uncertainty.
+    Cites arxiv:2606.20341: Demonstrates a PAIC simulation that varies the target population as a design factor, crosses it with effect-modification strength, overlap and covariate dependence, uses two effect measures, and evaluates bias against externally computed true marginal effects..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **abstain / overstated.** C1 is not defensible as “exactly eight.” The dimensions are sensible but neither exhaustive nor orthogonal: nonlinear effect modification can also be shared or treatment-specific, and target choice, overlap, and distributional difference cannot always be varied independently. Other potentially material dimensions include network geometry, sample size, baseline risk, censoring, measurement error, and outcome-model misspecification. C4 and C5 are useful simulation dimensions when defined coherently. C6 should separate functional form from whether modification is shared or treatment-specific rather than treating them as four mutually exclusive levels. C7 is correct for decision-focused method comparison, although native-estimand estimation error should be reported separately from target-mismatch error. C9 follows directly: an estimator unbiased for θ(P) has bias θ(P)-θ(Q) for decision target Q. C10 is correct because precision conditional on an estimand cannot validate that estimand's policy relevance. C2, C3, and C8 are claims about published simulation coverage, explicitly outside this audit's lens and unsupported by cited works here; therefore the open-status vote is an abstention rather than an inference from absence.
+
+Decision path
+:   `R3:partially-solved(n=1) → R8:overstated-majority(n=2)`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [DEC-02 — No factorial study ranks which choice most often flips a decision](DEC-02-no-factorial-study-ranks-which-choice-most-often-flips-a-dec.qmd)
+- [OVL-01 — Weak overlap leaves target regions the source data cannot support](OVL-01-weak-overlap-leaves-target-regions-the-source-data-cannot-su.qmd)
+:::
+
+## Source
+
+Derived from C:L362-373, C:L375, C:L272 of the reviewed corpus.

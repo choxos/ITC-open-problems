@@ -1,0 +1,72 @@
+---
+title: "Multiple correlated omitted variables and their dependence structure"
+description: "Multiple omitted variables need a joint sensitivity specification whenever their dependence can affect the bias, and each may require its source and target distribution, its outcome association under each treatment, and its dependence with measured covariates and with the other omitted variables; the entry's five-quantity list double-counts, since source and target joint distributions determine the association with study membership and treatment-specific coefficients already encode effect modification. The two usual escapes are unvalidated here: independent variation can understate joint extremes when bias contributions are positively dependent and directionally aligned, though it can overstate them under negative dependence, and a scalar composite U is exact only when it is a sufficient index for selection and for every treatment-specific outcome regression, which nobody has characterized for unanchored PAIC. Ren et al. 2025 (doi:10.1017/rsm.2025.13) handle several omitted covariates and flag the problem their own elicitation route creates, noting that eliciting a distribution for each separately would ignore the correlation structure between them."
+pid: "QBA-15"
+topic: "Quantitative bias analysis for unanchored PAIC"
+categories: ["Quantitative bias analysis for unanchored PAIC", "Very high priority", "Confirmed open"]
+priority: "Very high"
+prank: 1
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Emerging"
+---
+::: {.problem-meta}
+[QBA-15]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[Very high priority]{.chip .chip-priority-very-high}
+[Emerging]{.chip .chip-maturity-emerging}
+:::
+## Statement
+
+Multiple omitted variables need a joint sensitivity specification whenever their dependence can affect the bias, and each may require its source and target distribution, its outcome association under each treatment, and its dependence with measured covariates and with the other omitted variables; the entry's five-quantity list double-counts, since source and target joint distributions determine the association with study membership and treatment-specific coefficients already encode effect modification. The two usual escapes are unvalidated here: independent variation can understate joint extremes when bias contributions are positively dependent and directionally aligned, though it can overstate them under negative dependence, and a scalar composite U is exact only when it is a sufficient index for selection and for every treatment-specific outcome regression, which nobody has characterized for unanchored PAIC. Ren et al. 2025 (doi:10.1017/rsm.2025.13) handle several omitted covariates and flag the problem their own elicitation route creates, noting that eliciting a distribution for each separately would ignore the correlation structure between them.
+
+## Why it is open
+
+None of the parameters is identified by the data, so the specification burden grows with the number of omitted variables while no compensating information arrives, and a tensor grid over p axes at k levels needs k to the power p evaluations, which makes joint deterministic exploration expensive. Independence is assumed because independent priors and independent grid axes are convenient to specify and sample, but the decision-relevant region is often the tail where several parameters are jointly extreme and aligned, which is exactly what independence suppresses. Whether a scalar composite is conservative depends on whether it is a sufficient index for the selection and treatment-specific outcome models, and no accepted parameterization for dependence among several omitted variables exists in a population-adjustment setting.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Ren et al. 2025, Research Synthesis Methods](https://doi.org/10.1017/rsm.2025.13) | Handles more than one omitted covariate and flags the dependence problem its own elicitation route creates: eliciting a distribution for each unmeasured quantity separately would ignore the correlation structure between them, pointing readers to multivariate elicitation methods. |
+
+:::
+
+## Probable solution or research direction
+
+Develop copula, latent-factor and robust moment-set specifications so dependence can be varied as part of the sensitivity region, and characterize the conditions under which a single composite index is sufficient rather than assuming the reduction is conservative. Require every QBA to state a non-redundant parameter set per omitted variable together with the assumed dependence, using treatment-specific outcome coefficients where interaction is in play and a common coefficient only under an explicit no-interaction assumption. Report how the tail of the joint distribution moves when independence is relaxed in both directions, since dependence can widen or narrow the decision-relevant region.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+
+**The source said.** "Each omitted variable requires at least five quantities (its source and target distribution, its association with study membership, its outcome association under each treatment, its treatment-effect modification, and its dependence with measured covariates and with other omitted variables), so a high-dimensional collection of omitted variables produces a sensitivity-parameter explosion. Varying each variable independently and collapsing everything into one composite U are the two usual escapes, and neither has been validated."
+
+**What was wrong with it.** GPT-5.6 Sol found several claims too broad: the five quantities double-count, specifying a common outcome coefficient is sufficient under an explicit no-interaction assumption rather than being an error, independence understates tail scenarios only under positive and directionally aligned dependence, and the cost objection confuses parameter count, which grows roughly linearly (or quadratically for an unrestricted covariance), with grid size, which grows as k to the power p. The entry cited nothing; the literature auditor supplied Ren et al. 2025 (doi:10.1017/rsm.2025.13), which raises the same dependence problem in the PAIC setting.
+
+Literature and prior-art check
+:   **open / supported.** No prior_work and no citations, but the substantive claims survive scrutiny. Ren et al. 2025 explicitly handle multiple omitted covariates (their L can exceed 1) and explicitly flag the dependence problem their own elicitation route creates: 'It may be easier to elicit a distribution for each U_i separately. However, this would ignore the correlation structure between the uncertain quantities U_i', pointing readers to multivariate elicitation methods. That is direct support for claims 1 and 3 in the PAIC setting and should be cited. Claim 5 (treatment-specific outcome associations) is consistent with the unanchored identification problem. Claims 6 and 7 (the single-composite-U reduction has not been validated against copula or latent-factor alternatives for unanchored PAIC) are no-work-exists claims; I found no such validation and no PAIC copula or latent-factor sensitivity specification, but absence of a finding is not proof, so I do not treat them as verified. The general single-U-versus-multiple-confounder literature outside PAIC does exist and the entry would be stronger if it engaged with it.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** The joint-dependence problem is technically real, but several claims are too broad. C1 is valid when independent variation substitutes for a joint analysis, although one-at-a-time variation remains useful diagnostically. C2 is correct for tensor grids, but the report confuses parameter count with grid size: p axes with k levels require k^p evaluations, while parameter count generally grows linearly, or quadratically for an unrestricted covariance. C3 is not universal. Independence understates joint extremes when bias contributions are positively dependent and directionally aligned, but may overstate them under negative dependence. Independence among sensitivity parameters is also distinct from independence among omitted variables. C4 double-counts quantities: source and target joint distributions can determine the study-membership association, while treatment-specific outcome coefficients already encode effect modification. C5 is false as a necessity because a common coefficient is sufficient under an explicit no-U-by-treatment-interaction assumption; a main effect plus interaction is equivalent to treatment-specific coefficients. C6-C7 are literature-validation claims that this technical audit cannot establish. A scalar composite can be exact when it is sufficient for both selection and every treatment-specific outcome regression. C8 identifies reasonable candidate approaches. The issue is decision-critical when several omitted variables plausibly contribute jointly, not automatically in every PAIC.
+
+Decision path
+:   `R5:default-open → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [ADJ-06 — Distributionally robust bounds over compatible target laws](ADJ-06-distributionally-robust-bounds-over-compatible-target-laws.qmd)
+- [ADJ-11 — No proximal ITC method works with an aggregate-only comparator](ADJ-11-no-proximal-itc-method-works-with-an-aggregate-only-comparat.qmd)
+- [COV-04 — Selection uncertainty in PAIC interaction shrinkage is uncalibrated](COV-04-selection-uncertainty-in-paic-interaction-shrinkage-is-uncal.qmd)
+- [COV-07 — Unknown target joint covariate distribution](COV-07-unknown-target-joint-covariate-distribution.qmd)
+:::
+
+## Source
+
+Derived from C:L516, C:L570, C:L697-705, C:L800-804, C:L804 of the reviewed corpus.

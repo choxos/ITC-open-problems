@@ -1,0 +1,77 @@
+---
+title: "No criterion says when ML-NMR should be preferred to MAIC or STC"
+description: "ML-NMR combines IPD and aggregate data in one model and avoids the aggregation bias of aggregate-data meta-regression (doi:10.1111/rssa.12579), now extends to general likelihoods including time-to-event outcomes (doi:10.1093/jrsssa/qnaf169), and allows key assumptions to be assessed but not eliminated, as the 2023 psoriasis application showed (PMID 35997006), while practice remains dominated by MAIC and STC (doi:10.1016/j.jclinepi.2023.09.004). The auditors split on the recommendation that follows. The literature auditor verified every checkable claim and read the adoption gap as open; GPT-5.6 Sol held that partial IPD plus suspected effect-modifier imbalance is not sufficient to declare ML-NMR the default, because method choice also depends on the estimand, network structure, target-distribution information, overlap and model credibility, and that the absence of a designated default is not itself an unresolved methodological problem. The premise that ML-NMR is harder to specify, fit, diagnose and explain is plausible and widely repeated but unmeasured; neither auditor found a study of it."
+pid: "MOD-09"
+topic: "Model specification, double robustness & targeted learning"
+categories: ["Model specification, double robustness & targeted learning", "Very high priority", "Confirmed open"]
+priority: "Very high"
+prank: 1
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Established"
+---
+::: {.problem-meta}
+[MOD-09]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[Very high priority]{.chip .chip-priority-very-high}
+[Established]{.chip .chip-maturity-established}
+:::
+::: {.source-unsourced}
+**Source note.** This entry derives in part from a source document whose inline citations
+were ChatGPT interface tokens rather than references, and so resolve to nothing. Claims
+below are attributed to that document and were checked independently where possible;
+anything that could not be independently sourced is marked in the verification trail.
+:::
+
+## Statement
+
+ML-NMR combines IPD and aggregate data in one model and avoids the aggregation bias of aggregate-data meta-regression (doi:10.1111/rssa.12579), now extends to general likelihoods including time-to-event outcomes (doi:10.1093/jrsssa/qnaf169), and allows key assumptions to be assessed but not eliminated, as the 2023 psoriasis application showed (PMID 35997006), while practice remains dominated by MAIC and STC (doi:10.1016/j.jclinepi.2023.09.004). The auditors split on the recommendation that follows. The literature auditor verified every checkable claim and read the adoption gap as open; GPT-5.6 Sol held that partial IPD plus suspected effect-modifier imbalance is not sufficient to declare ML-NMR the default, because method choice also depends on the estimand, network structure, target-distribution information, overlap and model credibility, and that the absence of a designated default is not itself an unresolved methodological problem. The premise that ML-NMR is harder to specify, fit, diagnose and explain is plausible and widely repeated but unmeasured; neither auditor found a study of it.
+
+## Why it is open
+
+ML-NMR is harder to specify, fit, diagnose and explain than MAIC or STC, so the barrier to adoption is practical rather than theoretical and default behavior has not shifted. Conditional constancy, shared effect-modifier assumptions, overlap and target-population relevance remain only partially testable inside ML-NMR, so switching buys coherence rather than assumption relief and the case for the extra effort is not self-evident to analysts or reviewers. On the weaker reading the missing thing is not a default but the material that would let an analyst make the comparison at all: diagnostics, training and reporting templates that state what has and has not been relieved.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [dmphillippo/multinma](https://github.com/dmphillippo/multinma) | R package implementing Bayesian NMA, NMR and ML-NMR with IPD plus aggregate data, time-to-event support, integration checks and target-population prediction. |
+| [Phillippo et al. 2020, Multilevel network meta-regression for population-adjusted treatment comparisons, JRSS-A (PMID 32684669)](https://doi.org/10.1111/rssa.12579) | Defines ML-NMR: an individual-level regression model whose aggregate data are fitted by integrating over the covariate distribution, avoiding the aggregation bias of standard meta-regression. |
+| [Phillippo, Dias, Ades & Welton 2025, JRSS-A (preprint arXiv:2401.12640)](https://doi.org/10.1093/jrsssa/qnaf169) | Removes the requirement that the aggregate-level likelihood have a known closed form, which had prevented application to time-to-event outcomes. This is the general-likelihood and survival support the entry claims. |
+| [Phillippo et al. 2023, psoriasis application, Medical Decision Making 43(1):53-67 (PMID 35997006)](https://pubmed.ncbi.nlm.nih.gov/35997006/) | Demonstrates for the first time how ML-NMR allows key assumptions to be assessed, finding little evidence that conditional constancy or shared effect-modifier assumptions were invalid. Assumptions were assessed, not eliminated. |
+| [Serret-Larmande et al. 2023, Journal of Clinical Epidemiology (PMID 37717707)](https://doi.org/10.1016/j.jclinepi.2023.09.004) | Methodological review of published PAIC analyses, overwhelmingly MAIC and STC, which is the evidence that practice has not moved to ML-NMR. |
+| [NICE quizartinib appraisal (PMID 39627603)](https://pubmed.ncbi.nlm.nih.gov/39627603/) | Cited by the literature auditor as one of the isolated applied appraisals using ML-NMR, consistent with adoption being sparse rather than absent. |
+
+:::
+
+## Probable solution or research direction
+
+Build the operational layer rather than legislating a default: standardized integration and fit diagnostics, worked training material, and reporting templates that state which assumptions ML-NMR has and has not relieved. Set out explicit criteria for when ML-NMR is preferable and when it is infeasible, expressed in terms of estimand, network structure, available target-distribution information, overlap and model credibility, so the method choice is argued rather than asserted. Measuring the specification, fitting and communication burden against MAIC and STC would also convert the entry's central unsourced premise into evidence.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+
+**The source titled this.** "ML-NMR is not the default despite being the most coherent framework" The title declares ML-NMR the most coherent framework and presumptive default, which the audit rejected since method choice also depends on estimand, network structure and overlap.
+
+**The source said.** "The report recommends making ML-NMR the default upgrade path when IPD exist for a subset of trials in a connected network and clinically meaningful effect-modifier imbalance is suspected, because it is the most coherent framework currently available and now has survival and general-likelihood support. Practice has not moved, and the report is explicit that ML-NMR does not solve the underlying scientific problem."
+
+**What was wrong with it.** The source made a default-method recommendation with nothing cited. The literature auditor sourced each factual component (doi:10.1111/rssa.12579, doi:10.1093/jrsssa/qnaf169, PMID 35997006, doi:10.1016/j.jclinepi.2023.09.004), so the claim is now sourced, and voted the entry open; GPT-5.6 Sol voted it not a problem, because no universal default follows from partial IPD plus suspected imbalance. Both readings are kept above.
+
+Literature and prior-art check
+:   **open / supported.** Every checkable claim verified against retrieved sources. 'Extends to general likelihoods including survival': Phillippo, Dias, Ades & Welton, JRSS-A 2025 (doi 10.1093/jrsssa/qnaf169, arXiv:2401.12640) states that ML-NMR 'currently requires the aggregate-level likelihood to have a known closed form. Notably, this prevents application to time-to-event outcomes' and then removes that restriction. 'Integrates IPD and AgD and avoids aggregation bias': Phillippo et al. 2020 JRSS-A and the 2023 Med Decis Making psoriasis paper, which says ML-NMR 'coherently synthesizes evidence from IPD and AgD studies in networks of any size while avoiding aggregation bias and noncollapsibility bias'. The '2023 psoriasis application' claim is exactly right: Phillippo et al., Med Decis Making 2023;43(1):53-67 (PMID 35997006) demonstrates 'for the first time how ML-NMR allows key assumptions to be assessed' and found 'little evidence that the conditional constancy or shared effect modifier assumptions were invalid' - assessed, not eliminated. 'Practice has not moved' is consistent with Serret-Larmande et al. 2023 (288 PAICs, overwhelmingly MAIC/STC) and with only isolated NICE applications such as the quizartinib appraisal (PMID 39627603). The one unsourced claim is that ML-NMR is harder to specify, fit, diagnose and explain; plausible and widely echoed, but I found no study measuring it.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **not-a-problem / overstated.** C3 through C5 are broadly correct with important conditions. ML-NMR combines IPD and AgD coherently and can avoid conventional aggregation and non-collapsibility errors by integrating an individual-level model, but only when the outcome model, modifier structure, covariate distributions and numerical integration are adequate. It does not remove overlap, transportability or shared-modifier assumptions. C2 and C6 are comparative judgments rather than statistical results, and C1 is not a substantive claim. The presence of some IPD plus plausible modifier imbalance is insufficient to declare ML-NMR the default: method choice also depends on the estimand, network structure, target-distribution information, overlap and model credibility. C7 is a paper-specific claim outside this technical and cpaic-source audit. Training and implementation guidance may be useful, but failure to designate a universally preferred default is not an unresolved methodological problem, and the asserted very-high priority is inflated.
+
+Decision path
+:   `R5:default-open → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Source
+
+Derived from A:L9, A:L47, A:L215 of the reviewed corpus.

@@ -1,0 +1,76 @@
+---
+title: "No post-selection inference for model choice in population adjustment"
+description: "When an ITC or PAIC model is chosen or tuned adaptively and the reported interval conditions on that choice, unconditional coverage can be understated, and no post-selection or shrinkage-propagation machinery has been adapted to population adjustment; both auditors searched and found nothing PAIC-specific. The stronger form does not hold, because regularization is not the same as omitted uncertainty: a Bayesian fit that carries posterior draws through to the transported effect does propagate shrinkage, as the development source choxos/cpaic@9d150e9 does, so what is actually omitted is discrete model-selection uncertainty and the choice of prior scale. The word 'commonly' is an empirical claim the source did not support; the nearest evidence is a methodological review of PAIC publications finding that key methodological aspects were reported inconsistently, with appropriate uncertainty measures among the less-followed recommendations (doi:10.1016/j.jclinepi.2023.09.004)."
+pid: "MOD-04"
+topic: "Model specification, double robustness & targeted learning"
+categories: ["Model specification, double robustness & targeted learning", "High priority", "Confirmed open"]
+priority: "High"
+prank: 2
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[MOD-04]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[High priority]{.chip .chip-priority-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+## Statement
+
+When an ITC or PAIC model is chosen or tuned adaptively and the reported interval conditions on that choice, unconditional coverage can be understated, and no post-selection or shrinkage-propagation machinery has been adapted to population adjustment; both auditors searched and found nothing PAIC-specific. The stronger form does not hold, because regularization is not the same as omitted uncertainty: a Bayesian fit that carries posterior draws through to the transported effect does propagate shrinkage, as the development source choxos/cpaic@9d150e9 does, so what is actually omitted is discrete model-selection uncertainty and the choice of prior scale. The word 'commonly' is an empirical claim the source did not support; the nearest evidence is a methodological review of PAIC publications finding that key methodological aspects were reported inconsistently, with appropriate uncertainty measures among the less-followed recommendations (doi:10.1016/j.jclinepi.2023.09.004).
+
+## Why it is open
+
+Post-selection inference and honest sample splitting exist in general statistics but have not been adapted to population adjustment, where selection happens in the IPD trial while the estimand lives in a different population and further uncertainty enters through estimated weights and reported target moments. Splitting a single HTA-scale trial to buy honest inference costs precision these analyses cannot spare, so the same data keep being used for discovery, tuning, estimation and uncertainty. Bayesian implementations are not automatically safe either: carrying posterior draws through covers shrinkage under a fixed prior, but not the discrete model choice or the prior scale that was itself selected.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Serret-Larmande et al. 2023, Journal of Clinical Epidemiology (PMID 37717707)](https://doi.org/10.1016/j.jclinepi.2023.09.004) | Methodological review of published PAIC analyses reporting that key methodological aspects were reported inconsistently, with only three articles adequately reporting all aspects and appropriate uncertainty measures among the less-followed recommendations. This is the closest real evidence for the source's unsourced 'commonly'. |
+| [cpaic development source at commit 9d150e9 (choxos/cpaic)](choxos/cpaic@9d150e9) | Source-code counter-evidence cited by GPT-5.6 Sol: regularizing interaction priors are recorded in the fitted object and posterior draws are carried through to target-population effects and quantiles, so shrinkage uncertainty does reach the transported effect. cpaic is an unreleased development package on GitHub, not installable from CRAN. |
+
+:::
+
+## Probable solution or research direction
+
+Port existing machinery instead of inventing it: stacking or model averaging over scientifically plausible modifier sets, projection-predictive selection from a rich reference model, shrinkage priors with the full posterior carried into the transported effect, and honest splitting or cross-fitting where sample size permits. Do not present cross-fitting as the only valid route, since valid selective inference, resampling that repeats the selection step, debiasing and full Bayesian model averaging are alternatives with their own conditions. The PAIC-specific gap is that no coverage assessment of an effect-modifier selection procedure has been run with the selection step included, which is where the work should start.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+
+**The source titled this.** "Selection and shrinkage uncertainty absent from transported effects" The title says shrinkage uncertainty is absent from transported effects, which the audit rejected since a Bayesian fit carrying posterior draws through does propagate shrinkage.
+
+**The source said.** "When a population-adjustment outcome model is chosen by variable selection or fitted with regularization, the reported standard errors and intervals condition on the selected model, so shrinkage and selection uncertainty never reach the transported effect. The report lists regularization or selection not reflected in uncertainty as a distinct STC bias source."
+
+**What was wrong with it.** The source said shrinkage and selection uncertainty 'never reach the transported effect'. GPT-5.6 Sol found that false for a full Bayesian fit that carries posterior draws through to the target effect (choxos/cpaic@9d150e9, an unreleased development package on GitHub that an auditor confirmed is not on CRAN), and the literature auditor could not verify the word 'commonly', pointing instead to doi:10.1016/j.jclinepi.2023.09.004 on inconsistent uncertainty reporting in PAIC.
+
+**Dissent.** codex dissented (overstated): C2-C3 are correct for unconditional coverage of an adaptive procedure. C1 and C5 are correct only when model, modifier, or tuning selection is performed and the reported interval conditions on that choice; the word 'commonly' is an empirical claim not established here. Regularization is not synonymous with omitted uncertainty. At cpaic@9d150e9, cmlnmr() uses explicitly regularizing interaction priors and relative_effects.cpaic_mlnmr() carries posterior draws through target effects and quantiles, directly refuting the claim that shrinkage uncertainty never reaches a transported effect. Prior-scale choice or discrete model-selection uncertainty can still be omitted. C4 is also too absolute: reusing data without cross-fitting is not inherently invalid under parametric or Donsker conditions, selective-inference or debiasing theory, full Bayesian model averaging, or a bootstrap that repeats selection. The PAIC-specific practice and coverage problem remains open, but it is high priority only for analyses that actually select or tune adaptively and then ignore that process.
+
+Literature and prior-art check
+:   **open / supported-with-caveat.** Searched PubMed and the web for post-selection or shrinkage-uncertainty propagation adapted to population adjustment and found nothing PAIC-specific, so the core 'not adapted to population adjustment' claim survives. But two caveats. First, the empirical claim that conventional STC analyses 'commonly' fail to reflect selection uncertainty is not sourced anywhere in the entry and I could not verify the word 'commonly'; the nearest real evidence is Serret-Larmande et al. 2023 (PMID 37717707), which found that across 133 PAIC publications 'Key methodological aspects were reported inconsistently, with only three articles adequately reporting all aspects' and that appropriate uncertainty measures were among the less-followed recommendations. Second, prior_work is empty although the entry's whole proposed_direction (stacking, projection-predictive selection, horseshoe and spike-and-slab priors, honest splitting, cross-fitting) is off-the-shelf general Bayesian methodology with mature software; nothing in the entry acknowledges that the machinery exists and only the adaptation is missing. Claims 2 and 3 are uncontested general statistical facts.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** C2-C3 are correct for unconditional coverage of an adaptive procedure. C1 and C5 are correct only when model, modifier, or tuning selection is performed and the reported interval conditions on that choice; the word 'commonly' is an empirical claim not established here. Regularization is not synonymous with omitted uncertainty. At cpaic@9d150e9, cmlnmr() uses explicitly regularizing interaction priors and relative_effects.cpaic_mlnmr() carries posterior draws through target effects and quantiles, directly refuting the claim that shrinkage uncertainty never reaches a transported effect. Prior-scale choice or discrete model-selection uncertainty can still be omitted. C4 is also too absolute: reusing data without cross-fitting is not inherently invalid under parametric or Donsker conditions, selective-inference or debiasing theory, full Bayesian model averaging, or a bootstrap that repeats selection. The PAIC-specific practice and coverage problem remains open, but it is high priority only for analyses that actually select or tune adaptively and then ignore that process.
+
+Decision path
+:   `R5:default-open → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [COV-04 — Selection uncertainty in PAIC interaction shrinkage is uncalibrated](COV-04-selection-uncertainty-in-paic-interaction-shrinkage-is-uncal.qmd)
+- [DEC-09 — Modifier selection and target moments reported without provenance](DEC-09-modifier-selection-and-target-moments-reported-without-prove.qmd)
+- [DEC-11 — Intervals omit selection, reconstruction and target-summary error](DEC-11-intervals-omit-selection-reconstruction-and-target-summary-e.qmd)
+:::
+
+## Source
+
+Derived from C:L252, C:L943, C:L959, C:L1018 of the reviewed corpus.

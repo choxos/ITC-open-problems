@@ -1,0 +1,77 @@
+---
+title: "PAIC diagnostics are not evaluated as classifiers of realized error"
+description: "Apart from isolated work relating low effective sample size to error, PAIC diagnostics have not been evaluated as classifiers of realized error with reported discrimination and calibration. Two exceptions exist: a simulation reported at ISPOR Europe 2024 (abstract MSR65) found bias in unanchored MAIC once absolute ESS fell below roughly 30 to 35, and Remiro-Azocar et al. 2021 (doi:10.1002/jrsm.1511) reports that the robust sandwich variance estimator underestimates variability where effective sample sizes are small. Cross-validation is also still reported at a hierarchical level that does not match the prediction task; in cpaic at commit 9d150e9, PSIS-LOO is observation-level and documented as incapable of validating cross-gap prediction, and grouped study-level leave-one-out is not implemented."
+pid: "DIA-03"
+topic: "Diagnostics & empirical validation"
+categories: ["Diagnostics & empirical validation", "Very high priority", "Overstated"]
+priority: "Very high"
+prank: 1
+verdict: "Overstated"
+verdictslug: "overstated"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[DIA-03]{.problem-id}
+[Overstated]{.verdict .verdict-overstated}
+[Very high priority]{.chip .chip-priority-very-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+## Statement
+
+Apart from isolated work relating low effective sample size to error, PAIC diagnostics have not been evaluated as classifiers of realized error with reported discrimination and calibration. Two exceptions exist: a simulation reported at ISPOR Europe 2024 (abstract MSR65) found bias in unanchored MAIC once absolute ESS fell below roughly 30 to 35, and Remiro-Azocar et al. 2021 (doi:10.1002/jrsm.1511) reports that the robust sandwich variance estimator underestimates variability where effective sample sizes are small. Cross-validation is also still reported at a hierarchical level that does not match the prediction task; in cpaic at commit 9d150e9, PSIS-LOO is observation-level and documented as incapable of validating cross-gap prediction, and grouped study-level leave-one-out is not implemented.
+
+## Why it is open
+
+Diagnostics are computed from the same data and model that produced the estimate, which does not logically prevent them from predicting error but does mean the predictive value has to be demonstrated rather than assumed. Sensitivity, specificity and calibration are not intrinsic properties of a diagnostic; they are defined only relative to a specified distribution of scenarios and a prespecified threshold for material error, so establishing them requires a simulation program with an agreed scenario set, which the field has not built. Patient-level cross-validation measures within-study accuracy dominated by information the target task does not have, while the decision quantity is a prediction for a new population or study, and importance-sampling diagnostics behave differently at each hierarchical level and are rarely reported per level.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [MSR65 Can Low Effective Sample Size in Matching-Adjusted Indirect Comparisons (MAICs) Lead to Bias? Findings From a Simulation Study, ISPOR Europe 2024 / Value in Health abstract](https://www.valueinhealthjournal.com/article/S1098-3015(24)05162-3/fulltext) | Simulates unanchored MAICs across sample size, event rate and overlap and reports bias once absolute ESS falls below roughly 30 to 35; quantifies one standard diagnostic against realized error. Conference abstract, retrieved at abstract level only. |
+| [Remiro-Azocar et al. 2021, Methods for population adjustment with limited access to individual patient data: A review and simulation study](https://doi.org/10.1002/jrsm.1511) | Links a diagnostic quantity (small effective sample size) to a documented inferential failure, namely underestimation of variability by the robust sandwich variance estimator. |
+| [cpaic (development version), commit 9d150e9](https://github.com/choxos/cpaic/commit/9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca) | Unreleased development package on GitHub, not available from CRAN. Its PSIS-LOO is observation-level and documented as incapable of validating cross-gap prediction; grouped study-level leave-one-out is not implemented, which is the mismatch the entry describes. |
+
+:::
+
+## Probable solution or research direction
+
+Specify a scenario distribution and a material-error threshold first, then score each diagnostic as a predictor of realized error against known truth and report its discrimination and calibration, taking the published ESS-to-bias findings as the starting calibration point rather than the endpoint. Separate descriptive from error-predictive diagnostics in reporting guidance and retain only the latter as evidence. Aggregate log-likelihood contributions at the deployment-relevant unit by adding grouped study-level, comparison-level and subnetwork-level leave-one-out to the observation-level PSIS-LOO that implementations currently provide, and report the diagnostics separately by level.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Overstated. 2 independent auditors judged the claim as stated too strong. Apart from isolated work relating low effective sample size to bias, PAIC diagnostics have not been evaluated as classifiers of realized error with reported discrimination and calibration, and cross-validation for PAIC is not routinely performed at the hierarchical level matching the prediction task.
+
+**The source titled this.** "PAIC diagnostics are never scored on whether they predict error" The title says diagnostics are never scored on predicting error, but the audit found two exceptions relating low effective sample size to bias and to variance underestimation.
+
+**The source said.** "Whether the diagnostics used in PAIC (ESS, balance, overlap, influence, fit statistics) actually predict the error of the resulting estimate, or only describe the fitted model, has never been quantified. Relatedly, cross-validation is reported at a hierarchical level that often does not match the prediction the analysis is making, so a good statistic can accompany a failed transport."
+
+**What was wrong with it.** The source said predictive validity has never been quantified; the literature auditor found an ISPOR Europe 2024 simulation abstract identifying an ESS threshold below which bias appears, and Remiro-Azocar et al. 2021 (doi:10.1002/jrsm.1511) tying small ESS to sandwich-variance underestimation. Neither treats a diagnostic as a classifier with discrimination and calibration against known truth, so the narrowed claim stands.
+
+Literature and prior-art check
+:   **open / overstated.** The blanket 'has never been quantified' fails for at least one diagnostic. An ISPOR Europe 2024 / Value in Health simulation abstract (MSR65, 'Can Low Effective Sample Size in Matching-Adjusted Indirect Comparisons (MAICs) Lead to Bias?') simulated unanchored MAICs of time-to-event and binary outcomes across sample size, event rate and overlap and reported bias when absolute ESS fell below roughly 30-35, irrespective of whether the low ESS came from small n or poor overlap. That is a diagnostic evaluated against realized error with a threshold. Remiro-Azocar et al. 2021 similarly ties a diagnostic to a performance failure, reporting that the robust sandwich variance estimator underestimates variability where ESS is small. Neither treats a diagnostic as a classifier with discrimination and calibration against known truth, and I found nothing on hierarchical-level-matched cross-validation or per-level PSIS reporting for PAIC, so the substantive gap stands. I read only abstract-level material for the ISPOR item, hence the low confidence.
+    Cites https://www.valueinhealthjournal.com/article/S1098-3015(24)05162-3/fulltext: Quantifies, in simulation with known truth, whether a standard PAIC diagnostic (ESS) predicts bias, identifying an approximate ESS threshold below which bias appears. Conference abstract; I retrieved title and venue plus a summary of findings, not the full text..
+    Cites 10.1002/jrsm.1511: Links a diagnostic quantity (small ESS) to a documented inferential failure (sandwich variance underestimation), i.e. a diagnostic with demonstrated predictive content for one error mode..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** C2, C4, and C5 are technically correct: descriptive fit is not automatically error-predictive, and patient-level versus study-level validation target different deployments. But computing a diagnostic from fitted data does not logically prevent it from predicting error. Sensitivity, specificity, ROC curves, and calibration are defined only relative to a specified distribution of scenarios and a prespecified material-error threshold; they are not intrinsic properties of a diagnostic. At cpaic commit 9d150e9, PSIS-LOO is explicitly observation-level and documented as incapable of validating cross-gap prediction, while grouped study-level LOO is not implemented. The field-wide claims that predictive validity has "never" been quantified are unsourced. A systematic evaluation remains an open research task, but the report overstates what follows from same-data computation.
+
+Decision path
+:   `R5:default-open → R8:overstated-majority(n=2)`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [ADJ-04 — Flexible outcome surfaces and support diagnostics in standardization](ADJ-04-flexible-outcome-surfaces-and-support-diagnostics-in-standar.qmd)
+- [DEC-11 — Intervals omit selection, reconstruction and target-summary error](DEC-11-intervals-omit-selection-reconstruction-and-target-summary-e.qmd)
+- [DIS-11 — Predictive criteria and population comparison cannot validate a bridge](DIS-11-predictive-criteria-and-population-comparison-cannot-validat.qmd)
+:::
+
+## Source
+
+Derived from C:L214-215, C:L255, C:L1783 of the reviewed corpus.

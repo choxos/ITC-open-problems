@@ -1,0 +1,71 @@
+---
+title: "Negative controls for ITC lack catalogues, power and calibration"
+description: "Prespecified negative-control outcomes and negative-control covariates can provide qualitative falsification for indirect comparisons under explicit null-effect, shared-bias and estimand-scale conditions, and a calibrated signal is evidence against a joint set of assumptions rather than a measurement of bias in the primary contrast. The calibration machinery the source treats as nonexistent does exist outside this setting: control outcome calibration corrects estimates for unobserved confounding using control outcomes and comes with a sensitivity analysis for its own identifying assumption (doi:10.1093/aje/kwt303), and empirical calibration of confidence intervals from banks of negative and synthesized positive controls is routine in OHDSI network studies (doi:10.1073/pnas.1708282114, cran:EmpiricalCalibration). Both were built for unmeasured confounding within observational data and have not been adapted to cross-study transport, and for indirect comparisons specifically there are no disease-area catalogues of design-sensitive control outcomes, no power or specificity characterization under correlated baseline covariates and non-collapsible scales, and no validated mapping from a control signal to a bias parameter for the primary contrast."
+pid: "IDN-09"
+topic: "Identification, transitivity & conditional constancy"
+categories: ["Identification, transitivity & conditional constancy", "Very high priority", "Overstated"]
+priority: "Very high"
+prank: 1
+verdict: "Overstated"
+verdictslug: "overstated"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[IDN-09]{.problem-id}
+[Overstated]{.verdict .verdict-overstated}
+[Very high priority]{.chip .chip-priority-very-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+## Statement
+
+Prespecified negative-control outcomes and negative-control covariates can provide qualitative falsification for indirect comparisons under explicit null-effect, shared-bias and estimand-scale conditions, and a calibrated signal is evidence against a joint set of assumptions rather than a measurement of bias in the primary contrast. The calibration machinery the source treats as nonexistent does exist outside this setting: control outcome calibration corrects estimates for unobserved confounding using control outcomes and comes with a sensitivity analysis for its own identifying assumption (doi:10.1093/aje/kwt303), and empirical calibration of confidence intervals from banks of negative and synthesized positive controls is routine in OHDSI network studies (doi:10.1073/pnas.1708282114, cran:EmpiricalCalibration). Both were built for unmeasured confounding within observational data and have not been adapted to cross-study transport, and for indirect comparisons specifically there are no disease-area catalogues of design-sensitive control outcomes, no power or specificity characterization under correlated baseline covariates and non-collapsible scales, and no validated mapping from a control signal to a bias parameter for the primary contrast.
+
+## Why it is open
+
+A valid negative-control outcome must have no causal treatment effect on the specified scale while sharing the confounding, selection, measurement and follow-up pathways of the primary outcome, and a valid negative-control covariate must be known not to modify the effect, which is exactly the knowledge that is incomplete and that data-driven modifier selection cannot supply. The data are usually absent as well, since control outcomes are rarely reported in the aggregate publications indirect comparisons rely on, which is where the check is most needed. With few trials and correlated baseline covariates an apparent placebo interaction can reflect collinearity with a true modifier, a scale artifact or multiplicity, so specificity is unknown. The existing calibration methods assume a confounding structure within one data source rather than a transport gap between two, so importing them is real work rather than a citation.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Tchetgen Tchetgen, the control outcome calibration approach, American Journal of Epidemiology](https://doi.org/10.1093/aje/kwt303) | goes beyond using control outcomes for detection and corrects causal effect estimates for bias due to unobserved confounding, with a sensitivity analysis for its identifying assumption; developed for observational confounding, not cross-study transport |
+| [Schuemie et al. 2018, empirical calibration of confidence intervals from negative and synthesized positive controls, PNAS](https://doi.org/10.1073/pnas.1708282114) | calibrates confidence intervals using banks of negative and synthesized positive controls, the calibration step the source says does not exist, again for observational confounding rather than for transport across studies |
+| [EmpiricalCalibration R package](https://cran.r-project.org/package=EmpiricalCalibration) | ships the empirical calibration procedure used routinely in OHDSI network studies, along with the negative-control concept sets that are the kind of catalogue the source says is absent, in a neighboring field |
+
+:::
+
+## Probable solution or research direction
+
+Adapt rather than invent: take control outcome calibration and empirical calibration from the observational-confounding setting and re-derive what they require when the bias is cross-study transport instead of within-source confounding. Build disease-area catalogues of candidate control outcomes and prespecified control-covariate lists elicited from clinicians, and require their reporting in trial publications and submissions so comparator studies can be checked at all. Characterize the power and specificity of placebo-covariate tests under realistic covariate correlation and non-collapsible scales, and wire a positive test into modifier selection so it forces respecification rather than being reported as an incidental finding.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Overstated. 2 independent auditors judged the claim as stated too strong. Negative-control outcomes and negative-control covariates have no disease-area catalogues, no power or specificity characterization, and no calibration mapping validated for the cross-study transport bias that indirect comparisons face; calibration machinery that converts negative-control signals into bias corrections does exist (control outcome calibration, empirical calibration of confidence intervals) but has been developed for unmeasured confounding in observational data and not adapted to ITC/PAIC.
+
+**The source said.** "Two negative-control devices are proposed for indirect comparisons: outcomes unlikely to be modified by treatment but sensitive to design differences, whose nonzero apparent contrast signals residual cross-study bias, and covariates that should not modify the treatment effect, whose apparent interaction falsifies the effect-modification model. Neither has the catalogues, operating characteristics or calibration needed to be used as evidence."
+
+**What was wrong with it.** The source said no accepted transfer function converts a negative-control discrepancy into a bias magnitude and that neither device can be used as evidence at all. The literature auditor found that machinery in use since 2013 and 2018 for unmeasured confounding in observational data (doi:10.1093/aje/kwt303, doi:10.1073/pnas.1708282114 with cran:EmpiricalCalibration), so the correct claim is that it has not been adapted to indirect comparison, and the source-code auditor added that negative controls already carry qualitative evidence.
+
+Literature and prior-art check
+:   **open / overstated.** The ITC-specific problem is real and I found nothing that solves it: no disease-area catalogue of design-sensitive negative-control outcomes for indirect comparisons, and no power or specificity study under correlated baseline covariates and non-collapsible scales. But why_open's assertion that 'no accepted transfer function converts an observed negative-control discrepancy into a bias magnitude' is wrong as stated. Tchetgen Tchetgen's control outcome calibration approach does exactly that and has done since 2013, with an accompanying sensitivity analysis for its identifying assumption; and Schuemie et al. (PNAS 2018, 10.1073/pnas.1708282114) calibrate confidence intervals from banks of negative and synthesized positive controls, shipped as the CRAN package EmpiricalCalibration and used routinely in OHDSI network studies. Both live in the confounding-in-observational-data setting, not the cross-study transport setting, so importing them is a genuine open task; but the entry should say 'not yet adapted to ITC' rather than 'does not exist'. Note also that OHDSI-style negative-control concept sets are precisely the kind of catalogue the entry says is absent, in a neighbouring field.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** C1-C2 require a sharper negative-control null: no causal treatment effect on the control outcome on the specified estimand scale, plus sufficiently shared bias pathways. An outcome that is merely unlikely to be affected and sensitive to design is not enough, and a discrepancy rejects a joint set of assumptions rather than transportability alone. C4 is correct. For C5-C6, a prespecified covariate null can be a placebo check, but a nonzero point estimate is expected under sampling and can arise from proxy correlation with a true modifier, scale or non-collapsibility, omitted modifiers, or multiplicity; only calibrated incompatibility with the null falsifies the joint model. C7 is substantially correct because the structural null needs external or design knowledge, whereas C8's instability claim is not universal. C3 is an empirical prevalence claim outside this audit. Negative controls can already contribute qualitative evidence, so saying that calibration is required before they can be used as evidence inflates the gap; quantitative mapping to primary-outcome bias remains open.
+
+Decision path
+:   `R5:default-open → R8:overstated-majority(n=2)`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [DEC-09 — Modifier selection and target moments reported without provenance](DEC-09-modifier-selection-and-target-moments-reported-without-prove.qmd)
+:::
+
+## Source
+
+Derived from C:L228, C:L396, C:L400, C:L401 of the reviewed corpus.

@@ -1,0 +1,85 @@
+---
+title: "No scenario library or performance measures for estimability failure"
+description: "Estimability in component networks is neither unstudied nor unimplemented: Petropoulou et al. 2023 (doi:10.1186/s12874-023-01959-9) implements a screen for inestimable interactions and reports inestimable cross-subnetwork contrasts in both simulation and a real Cochrane network, Rucker et al. 2019 (doi:10.1002/bimj.201800167) formalizes the design as the product of the comparison design matrix and the treatment-by-component matrix, Mao et al. 2025 (doi:10.1186/s12874-025-02619-w) identifies comparisons whose removal destroys component identifiability, and cpaic, an unreleased development package on GitHub that is not on CRAN, implements target-dependent augmented row-space screening that labels contrasts exact, first-order or not identified and suppresses nonidentified estimates. What does not exist is a canonical published scenario library spanning the five estimability classes with target-dependent estimability, and the identification-focused performance measures: true and false estimability classification rates, false finite-estimate rate, smallest singular value of the design or information matrix, prior-only versus likelihood-informed posterior contraction, and target mass outside source support. The design claim also needs precision: a contrast is structurally estimable when its contrast vector lies in the row space of the relevant design, and rank and nullity counts alone give dimensions rather than saying which contrasts qualify."
+pid: "DIA-11"
+topic: "Diagnostics & empirical validation"
+categories: ["Diagnostics & empirical validation", "Very high priority", "Partially addressed"]
+priority: "Very high"
+prank: 1
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
+maturity: "Emerging"
+---
+::: {.problem-meta}
+[DIA-11]{.problem-id}
+[Partially addressed]{.verdict .verdict-partially-addressed}
+[Very high priority]{.chip .chip-priority-very-high}
+[Emerging]{.chip .chip-maturity-emerging}
+:::
+## Statement
+
+Estimability in component networks is neither unstudied nor unimplemented: Petropoulou et al. 2023 (doi:10.1186/s12874-023-01959-9) implements a screen for inestimable interactions and reports inestimable cross-subnetwork contrasts in both simulation and a real Cochrane network, Rucker et al. 2019 (doi:10.1002/bimj.201800167) formalizes the design as the product of the comparison design matrix and the treatment-by-component matrix, Mao et al. 2025 (doi:10.1186/s12874-025-02619-w) identifies comparisons whose removal destroys component identifiability, and cpaic, an unreleased development package on GitHub that is not on CRAN, implements target-dependent augmented row-space screening that labels contrasts exact, first-order or not identified and suppresses nonidentified estimates. What does not exist is a canonical published scenario library spanning the five estimability classes with target-dependent estimability, and the identification-focused performance measures: true and false estimability classification rates, false finite-estimate rate, smallest singular value of the design or information matrix, prior-only versus likelihood-informed posterior contraction, and target mass outside source support. The design claim also needs precision: a contrast is structurally estimable when its contrast vector lies in the row space of the relevant design, and rank and nullity counts alone give dimensions rather than saying which contrasts qualify.
+
+## Why it is open
+
+Estimability in component models is a property of a design matrix crossed with a target covariate value, not of data volume, so it cannot be discovered by running more replicates and has to be constructed deliberately. The dangerous cases are the ones that produce output: a proper prior yields a finite posterior for a direction the likelihood does not inform, and a first-order rank-based screen can pass while the nonlinear aggregate-data likelihood remains weakly identified. Bias, coverage and RMSE can reveal poor behavior for particular truths but cannot certify structural identification or say whether a method should have abstained, so nothing in the standard performance set penalizes software that silently reports prior-driven answers, and without a scenario library there is nothing to test screens against.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Petropoulou et al. 2023, Model selection for component network meta-analysis in connected and disconnected networks: a simulation study](https://doi.org/10.1186/s12874-023-01959-9) | Implements an algorithm to identify inestimable interactions and reports inestimable cross-subnetwork contrasts in simulation and in a real Cochrane network, where eleven combinations of two interventions yield only ten estimable two-way interactions. |
+| [Mao et al. 2025, A leave-one-out algorithm for contribution analysis in component network meta-analysis](https://doi.org/10.1186/s12874-025-02619-w) | Identifies which direct comparisons are essential for component identifiability and defines behavior when their removal makes a component unidentifiable. |
+| [Rucker et al. 2019, Network meta-analysis of multicomponent interventions](https://doi.org/10.1002/bimj.201800167) | Formalizes the component design as the product of the comparison design matrix and the treatment-by-component combination matrix, the structure the entry's rank and nullity claim refers to. |
+| [Graphical evaluation of evidence structure within a component network meta-analysis, 2023](https://doi.org/10.1002/jrsm.1623) | Addresses evidence structure and component identifiability in component network meta-analysis. The literature auditor could not retrieve the full text and relied on title and venue only, so no claim is made about its exact content. |
+| [cpaic (development version), commit 9d150e9](https://github.com/choxos/cpaic/commit/9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca) | Unreleased development package on GitHub, not available from CRAN. Implements target-dependent augmented row-space estimability classification with exact, first-order and not-identified labels, suppresses nonidentified contrasts rather than reporting finite posterior summaries, and refits under tighter and looser priors as an identification diagnostic. It does not supply the five-class scenario library or the identification performance measures. |
+
+:::
+
+## Probable solution or research direction
+
+Build the canonical scenario library with known ground truth over the five estimability classes, including cases where estimability changes with the target covariate value and where a first-order screen passes while the nonlinear likelihood stays weakly identified, and validate the screens that already exist, in component network meta-analysis and in cpaic, against it rather than writing new ones. Add identification measures to the standard performance set: true and false estimability classification rates, false finite-estimate rate, prior-only versus likelihood-informed posterior contraction, and target mass outside source support. Report the smallest singular value only with the weighting and parameter scaling made explicit, since it is not scale-free, and score error on estimable row-space contrasts and predictions rather than on arbitrary generalized-inverse coefficients.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Partially addressed. Part of this problem is addressed by existing work; the entry names which part.
+
+**The source titled this.** "Estimability failure is neither simulated nor measured" The title says estimability failure is neither simulated nor measured, but published screens report inestimable cross-subnetwork contrasts in simulation and in a real network.
+
+**The source said.** "No published library of simulation scenarios spans component-network estimability (rank and nullity of the treatment-by-component matrix X = BC, contrasts inside versus outside its row space, subnetwork-unique and duplicated components, coding errors, higher-order and antagonistic interactions, and the five estimability classes), and performance measurement stops at bias, coverage and RMSE with no measures for identification. True and false estimability classification, the false finite-estimate rate for non-estimable contrasts, the smallest singular value of the design or information matrix, prior-only versus likelihood-informed posterior contraction, and the proportion of target mass outside source support are not reported."
+
+**What was wrong with it.** The source framed estimability failure as neither simulated nor measured; the literature auditor found published estimability screens and reported inestimable contrasts in component network meta-analysis (doi:10.1186/s12874-023-01959-9, doi:10.1186/s12874-025-02619-w), and GPT-5.6 Sol found target-dependent row-space screening and prior-sensitivity refits already implemented in cpaic at commit 9d150e9, a GitHub development package that is not on CRAN. The scenario library and the identification performance measures remain missing.
+
+**Dissent.** codex dissented (overstated): Structural estimability is genuinely critical, and C2, C3, C6, C9, and C12 are technically defensible. C4 is sloppy: scalar rank and nullity give dimensions, but the orientation of the row or null space determines which particular contrasts are estimable. C1 is true only for a functional lying wholly in a likelihood-null direction; a generally non-estimable contrast can contain a data-informed row-space projection plus a prior-determined null-space projection. C7 is also too absolute: bias, RMSE, and coverage can reveal poor behavior for selected simulation truths, but they cannot certify structural identification or whether a method should abstain. A smallest singular value is informative only after specifying weighting and parameter scaling, and prior-to-posterior contraction is a useful diagnostic rather than a proof of identification. At cpaic 9d150e9, the blanket title is already stale: the package implements target-dependent augmented row-space screening, labels results as exact, first-order screen, or not identified, suppresses nonidentified estimates, provides prior-sensitivity refits, and tests several structural scenarios. It does not yet provide the proposed canonical five-class simulation library or the full performance-measure suite. Literature-existence claims C5 and C8 were not adjudicated.
+
+Literature and prior-art check
+:   **partially-solved / supported-with-caveat.** I read Petropoulou et al. 2023 in full. Estimability in component networks is neither unstudied nor unimplemented: the paper states 'we describe an algorithm to identify inestimable interactions in the supplement as only estimable interactions should be considered in interaction CNMA models', and in the Cochrane application reports 'The network has eleven combinations of two interventions, however, only ten 2-way interactions are estimable', with specific cross-subnetwork contrasts reported as inestimable in the simulated and applied disconnected networks. Rucker et al. 2019 gives the B and C design matrices whose product defines the CNMA design, so the rank/nullity claim is correct and already formalized. Mao et al. 2025 adds explicit redistribution rules for the case where removing a comparison renders a component unidentifiable. What genuinely remains open is a canonical, published scenario library spanning the five estimability classes with target-dependent estimability, and the identification-focused performance measures (false finite-estimate rate, smallest singular value, prior-only versus likelihood-informed contraction, target mass outside support), none of which I found reported anywhere.
+    Cites 10.1186/s12874-023-01959-9: Demonstrates an implemented estimability screen for component interactions and reports inestimable cross-subnetwork contrasts in both simulation and a real Cochrane network..
+    Cites 10.1186/s12874-025-02619-w: Identifies which direct comparisons are essential for component identifiability and defines behavior when their removal makes a component unidentifiable..
+    Cites 10.1002/bimj.201800167: Formalizes the CNMA design as the product of the comparison design matrix and the treatment-by-component combination matrix, which is the structure the entry's rank/nullity claim refers to..
+    Cites 10.1002/jrsm.1623: Addresses evidence structure and component identifiability in CNMA. I could not retrieve the full text (paywalled), so I rely on title and venue only and make no claim about its exact content..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / overstated.** Structural estimability is genuinely critical, and C2, C3, C6, C9, and C12 are technically defensible. C4 is sloppy: scalar rank and nullity give dimensions, but the orientation of the row or null space determines which particular contrasts are estimable. C1 is true only for a functional lying wholly in a likelihood-null direction; a generally non-estimable contrast can contain a data-informed row-space projection plus a prior-determined null-space projection. C7 is also too absolute: bias, RMSE, and coverage can reveal poor behavior for selected simulation truths, but they cannot certify structural identification or whether a method should abstain. A smallest singular value is informative only after specifying weighting and parameter scaling, and prior-to-posterior contraction is a useful diagnostic rather than a proof of identification. At cpaic 9d150e9, the blanket title is already stale: the package implements target-dependent augmented row-space screening, labels results as exact, first-order screen, or not identified, suppresses nonidentified estimates, provides prior-sensitivity refits, and tests several structural scenarios. It does not yet provide the proposed canonical five-class simulation library or the full performance-measure suite. Literature-existence claims C5 and C8 were not adjudicated.
+    Cites choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca: R/estimability.R and tests/testthat/test-estimability.R implement and exercise augmented row-space classification, including rank-deficient decision contrasts, covariate-support restrictions, and target-dependent estimability. Nonidentified effects are suppressed rather than reported as finite posterior summaries..
+    Cites choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca: R/bayesian_diagnostics.R refits cML-NMR under tighter and looser priors and reports contrast movement, providing a direct diagnostic for prior dependence..
+
+Decision path
+:   `R3:partially-solved(n=2) → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [CMP-14 — Aggregate-data-only interactions may be prior-driven](CMP-14-aggregate-data-only-interactions-may-be-prior-driven.qmd)
+- [MOD-13 — No reporting convention exposes prior-dominated contrasts in PAIC](MOD-13-no-reporting-convention-exposes-prior-dominated-contrasts-in.qmd)
+- [QBA-19 — Latent-U Bayesian QBA hides nonidentification behind a proper prior](QBA-19-latent-u-bayesian-qba-hides-nonidentification-behind-a-prope.qmd)
+:::
+
+## Source
+
+Derived from C:L1781, C:L1803-1824, C:L1981-1989 of the reviewed corpus.

@@ -1,0 +1,84 @@
+---
+title: "Target joint covariate distribution is only approximately known"
+description: "Component ML-NMR reconstructs each aggregate arm's joint effect-modifier distribution from marginal summaries using parametric margins, quasi-Monte Carlo points, and a Gaussian copula, and then treats those margins and that correlation as fixed. This is inherited ML-NMR practice rather than a component-specific choice, and part of it has been addressed upstream: multinma 0.6.0 adjusts the correlation matrix used to generate integration points to the underlying Gaussian copula so output correlations better match the requested inputs. What remains open is that reconstruction uncertainty is not propagated into reported intervals in any implementation, and that a Gaussian copula imposes symmetric, tail-independent dependence which may be wrong however well the correlation is calibrated; vine copulas are not implemented."
+pid: "CMP-15"
+topic: "Component methods (CNMA and component PAIC)"
+categories: ["Component methods (CNMA and component PAIC)", "High priority", "Unverifiable"]
+priority: "High"
+prank: 2
+verdict: "Unverifiable"
+verdictslug: "unverifiable"
+maturity: "Emerging"
+---
+::: {.problem-meta}
+[CMP-15]{.problem-id}
+[Unverifiable]{.verdict .verdict-unverifiable}
+[High priority]{.chip .chip-priority-high}
+[Emerging]{.chip .chip-maturity-emerging}
+:::
+## Statement
+
+Component ML-NMR reconstructs each aggregate arm's joint effect-modifier distribution from marginal summaries using parametric margins, quasi-Monte Carlo points, and a Gaussian copula, and then treats those margins and that correlation as fixed. This is inherited ML-NMR practice rather than a component-specific choice, and part of it has been addressed upstream: multinma 0.6.0 adjusts the correlation matrix used to generate integration points to the underlying Gaussian copula so output correlations better match the requested inputs. What remains open is that reconstruction uncertainty is not propagated into reported intervals in any implementation, and that a Gaussian copula imposes symmetric, tail-independent dependence which may be wrong however well the correlation is calibrated; vine copulas are not implemented.
+
+## Why it is open
+
+Published target and aggregate summaries almost never include a joint distribution, so the joint must be assembled from marginals and assumed dependence, and because the outcome model is integrated over that joint through a nonlinear inverse link, errors in dependence and tails propagate directly into standardized outcomes with no target IPD to check against. The latent-to-observed correlation transformation has a closed form only for special margin combinations, so mixed and discrete margins require numerical inversion that component implementations currently approximate. Neither the component implementation nor multinma represents the reconstruction itself as a source of uncertainty in reported intervals.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [multinma 0.6.0 NEWS, add_integration()](https://cran.r-project.org/package=multinma) | adjusts the correlation matrix for generating ML-NMR integration points to the underlying Gaussian copula so output correlations better match the requested input correlations |
+| [Phillippo et al. 2020](https://doi.org/10.1111/rssa.12579) | establishes copula-based joint covariate reconstruction with quasi-Monte Carlo integration as the published ML-NMR approach |
+| [cpaic 0.1.0 (development version, choxos/cpaic@9d150e9)](choxos/cpaic@9d150e9) | unreleased development R package on GitHub, not on CRAN; builds each aggregate arm's integration distribution from parametric margins, Sobol points, and a Gaussian copula, treats margins and correlation as fixed, approximates non-normal observed-to-latent correlations with a warning, defaults binary covariates to Bernoulli, and implements no vine copula |
+
+:::
+
+## Probable solution or research direction
+
+Adopt the upstream correlation calibration rather than re-deriving it, and extend it with numerical inversion for arbitrary margin combinations including mixed and discrete margins. Offer vine copulas for asymmetric and tail-dependent dependence and report sensitivity envelopes across dependence specifications, since a single Gaussian copula cannot be checked against anything. Represent target-distribution uncertainty explicitly in the posterior, use robust moment classes that bound the estimand over families of joints consistent with the reported margins, and validate against target IPD wherever it exists.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Unverifiable. Auditors disagreed and the disagreement was evidence-bearing on both sides.
+
+**The source said.** "Component PAIC reconstructs the target joint covariate distribution from marginal summaries plus an assumed dependence structure, currently a Gaussian copula. Nonlinear outcome models depend on correlations, tails, and mixed margin types rather than on marginal means alone, and the mapping from a reported observed correlation to the latent Gaussian correlation is only approximate when margins are non-normal."
+
+**What was wrong with it.** The auditors split on the latent-correlation half: the literature auditor found it already corrected upstream in multinma 0.6.0's add_integration(), while GPT-5.6 Sol confirmed the component implementation at choxos/cpaic@9d150e9 still approximates it, so the text keeps the weaker claim and scopes the open part to uncertainty propagation and non-Gaussian dependence. GPT-5.6 Sol also found the source's warning claim partly false: binary IPD covariates default to Bernoulli, but an explicit normal-margin override for a binary covariate is accepted without the claimed warning, and the issue belongs to the aggregate-data integration path rather than to the package generally.
+
+**Dissent.** literature dissented (supported-with-caveat): The Gaussian-copula reconstruction is not a cpaic design choice but the published ML-NMR standard: Phillippo et al. 2020 state 'Covariate correlation structures are accounted for by using copulas.' More importantly, the latent-to-observed correlation problem the entry raises has an implemented upstream fix. multinma 0.6.0 NEWS: 'The correlation matrix for generating integration points with add_integration() for ML-NMR models is now adjusted to the underlying Gaussian copula, so that the output correlations of the integration points better match the requested input correlations.' The corresponding numerical problem - matching a target Pearson correlation through a Gaussian copula with arbitrary or discrete margins - is a solved one in the NORTA simulation literature via root-finding on the latent correlation (I did not retrieve a specific paper and give no locator). What remains genuinely open is propagating reconstruction uncertainty into reported intervals (also absent from multinma) and non-Gaussian, tail-dependent dependence such as vine copulas. Scope the entry to those two. codex dissented (open): The requested 9d150e9 source is behaviorally identical here to live aaa76c9; the later changes affect only src/Makevars.win. C1-C4, C6, and C7 are supported specifically for cmlnmr(): it constructs each AgD arm's integration distribution using parametric margins, Sobol points, and a Gaussian copula; treats the resulting margins and correlation as fixed; approximates non-normal observed-to-latent correlations; and has no vine-copula implementation. For nonlinear inverse links, the integrated outcome generally depends on the distribution of the linear predictor, including relevant dependence and tail behavior. C5 is false in part: 0/1 IPD covariates default to Bernoulli, and gamma/lognormal/beta correlation approximations trigger a warning, but a user can explicitly override a binary covariate to a normal margin without the claimed warning. The report also generalizes a cmlnmr AgD-integration feature to cpaic generally. This is high severity only when the nonlinear estimand is materially sensitive to the unspecified dependence or tails.
+
+Literature and prior-art check
+:   **partially-solved / supported-with-caveat.** The Gaussian-copula reconstruction is not a cpaic design choice but the published ML-NMR standard: Phillippo et al. 2020 state 'Covariate correlation structures are accounted for by using copulas.' More importantly, the latent-to-observed correlation problem the entry raises has an implemented upstream fix. multinma 0.6.0 NEWS: 'The correlation matrix for generating integration points with add_integration() for ML-NMR models is now adjusted to the underlying Gaussian copula, so that the output correlations of the integration points better match the requested input correlations.' The corresponding numerical problem - matching a target Pearson correlation through a Gaussian copula with arbitrary or discrete margins - is a solved one in the NORTA simulation literature via root-finding on the latent correlation (I did not retrieve a specific paper and give no locator). What remains genuinely open is propagating reconstruction uncertainty into reported intervals (also absent from multinma) and non-Gaussian, tail-dependent dependence such as vine copulas. Scope the entry to those two.
+    Cites cran:multinma 0.6.0 NEWS, add_integration(): The latent-versus-observed correlation mismatch under a Gaussian copula is already corrected upstream when generating ML-NMR integration points..
+    Cites doi:10.1111/rssa.12579: Establishes copula-based joint-covariate reconstruction plus quasi-Monte Carlo integration as the published ML-NMR approach, so this is inherited field-level practice rather than a cpaic-specific choice..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** The requested 9d150e9 source is behaviorally identical here to live aaa76c9; the later changes affect only src/Makevars.win. C1-C4, C6, and C7 are supported specifically for cmlnmr(): it constructs each AgD arm's integration distribution using parametric margins, Sobol points, and a Gaussian copula; treats the resulting margins and correlation as fixed; approximates non-normal observed-to-latent correlations; and has no vine-copula implementation. For nonlinear inverse links, the integrated outcome generally depends on the distribution of the linear predictor, including relevant dependence and tail behavior. C5 is false in part: 0/1 IPD covariates default to Bernoulli, and gamma/lognormal/beta correlation approximations trigger a warning, but a user can explicitly override a binary covariate to a normal margin without the claimed warning. The report also generalizes a cmlnmr AgD-integration feature to cpaic generally. This is high severity only when the nonlinear estimand is materially sensitive to the unspecified dependence or tails.
+
+Grok 4.5, recency lens
+:   **open / supported.** Inverted prior search did not find a PAIC/ML-NMR or component-PAIC method that replaces approximate Gaussian-copula joint reconstruction with calibrated arbitrary-margin latent correlations, vine copulas, or posterior propagation of target-joint uncertainty. Prior art remains the same stack the problem cites: Phillippo ML-NMR/multinma use Sobol' QMC with a Gaussian copula and document approximate latent correlations for non-normal margins; cpaic 0.1.0 reimplements that pattern and documents the same approximations and warnings. Robust moment-class bounds over joints consistent with reported margins, multi-copula sensitivity envelopes, and vine-copula dependence for target AgD covariates were not found as evaluated, released software for component PAIC. Queries: cpaic CRAN/GitHub; multinma copula correlation; vine copula ML-NMR/MAIC/STC 2024–2026; Research Synthesis Methods / SiM / Value in Health population-adjustment joint distribution; arXiv stat.ME copula covariate reconstruction PAIC. C1–C7 match package docs and established nonlinear standardization theory; none is closed by a resolving implementation.
+
+Decision path
+:   `R3:partially-solved(n=1) → R7:counter-and-support-both-present`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [ADJ-02 — No general-purpose transport library plugs into the NMA stack](ADJ-02-no-general-purpose-transport-library-plugs-into-the-nma-stac.qmd)
+- [ADJ-05 — Optimal transport for distributional rather than moment balance](ADJ-05-optimal-transport-for-distributional-rather-than-moment-bala.qmd)
+- [ADJ-06 — Distributionally robust bounds over compatible target laws](ADJ-06-distributionally-robust-bounds-over-compatible-target-laws.qmd)
+- [ADJ-15 — Privacy guarantees and governance for shared trial-level data](ADJ-15-privacy-guarantees-and-governance-for-shared-trial-level-dat.qmd)
+- [COV-07 — Unknown target joint covariate distribution](COV-07-unknown-target-joint-covariate-distribution.qmd)
+- [DEC-09 — Modifier selection and target moments reported without provenance](DEC-09-modifier-selection-and-target-moments-reported-without-prove.qmd)
+- [SFW-12 — outstandR is pairwise only with no network or disconnected validation](SFW-12-outstandr-is-pairwise-only-with-no-network-or-disconnected-v.qmd)
+:::
+
+## Source
+
+Derived from C:L1369, C:L1370, C:L1305-1307, scope:field-level (all ML-NMR/transport; implemented approximately in cpaic), scope:package-specific implementation of a field-level dependence-modeling problem of the reviewed corpus.

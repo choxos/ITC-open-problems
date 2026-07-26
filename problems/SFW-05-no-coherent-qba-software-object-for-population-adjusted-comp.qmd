@@ -1,0 +1,75 @@
+---
+title: "No coherent QBA software object for population-adjusted comparison"
+description: "Generic quantitative bias analysis packages implement algebraic confounding, misclassification or selection analyses, and survival tools such as survSens address adjacent observational settings, but none provides a coherent PAIC object holding the source, comparator and decision targets together with all three adjustment families, omitted-variable and target-distribution bias, outcome, measurement and censoring bias, overlap and ESS surfaces, multiple-bias simulation, target-standardized survival and RMST, bridge drift and machine-readable reporting. The one direct implementation, QBA-UM-STC, is supplementary research code for Ren et al. 2025 (doi:10.1017/rsm.2025.13), tied to unanchored STC, with no licence, test suite or interface contract. The gap is in built-in abstractions and workflows rather than in method: transport-specific sensitivity analysis has been developed, including Nguyen et al. 2017 (doi:10.1214/16-AOAS1001) on bias functions for effect modifiers not observed in the target and Dahabreh et al. 2026 (doi:10.1002/sim.70083) on global sensitivity analysis for extending inferences, and generic bias algebra can be adapted to encode target-distribution bias even though no package represents it natively."
+pid: "SFW-05"
+topic: "Software, benchmarks & interface standards"
+categories: ["Software, benchmarks & interface standards", "Very high priority", "Confirmed open"]
+priority: "Very high"
+prank: 1
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Emerging"
+---
+::: {.problem-meta}
+[SFW-05]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[Very high priority]{.chip .chip-priority-very-high}
+[Emerging]{.chip .chip-maturity-emerging}
+:::
+## Statement
+
+Generic quantitative bias analysis packages implement algebraic confounding, misclassification or selection analyses, and survival tools such as survSens address adjacent observational settings, but none provides a coherent PAIC object holding the source, comparator and decision targets together with all three adjustment families, omitted-variable and target-distribution bias, outcome, measurement and censoring bias, overlap and ESS surfaces, multiple-bias simulation, target-standardized survival and RMST, bridge drift and machine-readable reporting. The one direct implementation, QBA-UM-STC, is supplementary research code for Ren et al. 2025 (doi:10.1017/rsm.2025.13), tied to unanchored STC, with no licence, test suite or interface contract. The gap is in built-in abstractions and workflows rather than in method: transport-specific sensitivity analysis has been developed, including Nguyen et al. 2017 (doi:10.1214/16-AOAS1001) on bias functions for effect modifiers not observed in the target and Dahabreh et al. 2026 (doi:10.1002/sim.70083) on global sensitivity analysis for extending inferences, and generic bias algebra can be adapted to encode target-distribution bias even though no package represents it natively.
+
+## Why it is open
+
+A PAIC bias-analysis object has to carry the estimand, the source and target populations, the adjustment method and the bridge at the same time, and no existing software abstraction represents that combination, so the published transport sensitivity methods have no implementation route into a PAIC workflow. Research scripts accompanying a paper encode that paper's data structures and assumptions and carry no tests, versioning or interface contract, so another analysis cannot reuse them. Because the one implementation is tied to STC, the same bias model cannot be applied to unanchored MAIC or ML-UMR without a rewrite, so sensitivity analysis for unanchored PAIC is done ad hoc if at all. A sensitivity tool also cannot resolve an identification problem, so the object has to make the unidentified assumption visible rather than dissolve it.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Ren et al. 2025 (QBA-UM-STC repository)](https://github.com/SRenScharr/QBA-UM-STC) | supplementary research code implementing quantitative bias analysis for unmeasured or unreported covariates in limited-aggregate-data unanchored STC, with deterministic and probabilistic scenario analysis and graphical output; no licence, tests or interface contract, and it is STC-specific |
+| [Ren, Ren, Welton and Strong 2025, Quantitative bias analysis for unmeasured confounding in unanchored population-adjusted indirect comparisons, Res Synth Methods 16(3):509-527](https://doi.org/10.1017/rsm.2025.13) | the paper the QBA-UM-STC code accompanies; proposes simulation of unreported comparator covariates with deterministic and probabilistic sensitivity analysis for unanchored STC, demonstrated on a case study |
+| [survSens (CRAN)](https://cran.r-project.org/package=survSens) | sensitivity analysis for unmeasured confounding in observational survival and competing-risks studies; an adjacent observational setting rather than a transport or PAIC setting |
+| [Nguyen et al. 2017](https://doi.org/10.1214/16-AOAS1001) | sensitivity analysis for generalizing trial results using bias functions, covering effect modifiers not observed in the target population; shows transport-specific sensitivity methodology exists even though no package implements it as a PAIC object |
+| [Dahabreh et al. 2026](https://doi.org/10.1002/sim.70083) | global sensitivity analysis framework for studies extending inferences from a trial to a target population; further transport-specific methodology available to a PAIC bias-analysis implementation |
+
+:::
+
+## Probable solution or research direction
+
+Build the reference package around a coherent object holding source, comparator and decision targets, all three adjustment families, and the bias, overlap, drift and reporting layers, implementing the transport sensitivity methods that already exist, such as bias functions and global sensitivity analysis, rather than inventing new ones. Generalize QBA-UM-STC from unanchored STC to a common interface covering MAIC and ML-UMR, and give it the licence, tests, versioning and automated validation that research code lacks. Design the output so the bias model, sensitivity-parameter provenance, support failures and decision consequences cannot be omitted, and do not settle for wrapping E-values.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+
+**The source said.** "The report states the QBA software gap is more severe than the estimator gap: generic QBA packages implement algebraic confounding, misclassification or selection analyses and survival packages such as survSens address adjacent observational settings, but none provides a coherent PAIC object combining explicit source, comparator and decision targets, MAIC plus STC/g-computation plus ML-UMR, omitted-variable and target-distribution QBA, outcome, measurement and censoring bias, overlap and ESS surfaces, multiple-bias simulation, target-standardized survival and RMST, bridge drift for disconnected and component networks, economic-decision propagation and machine-readable reporting. The only direct implementation, QBA-UM-STC, is supplementary research code for one paper."
+
+**What was wrong with it.** The entry's premise that existing bias-analysis tools were built for observational epidemiology and not for transport is too strong at method level: the literature auditor named Nguyen et al. 2017 (doi:10.1214/16-AOAS1001) and Dahabreh et al. 2026 (doi:10.1002/sim.70083) on sensitivity analysis for transport and for effect modifiers unobserved in the target, and GPT-5.6 Sol added that generic bias algebra can be adapted to transport even though no package represents it natively. The unverifiable priority claim that QBA-UM-STC is the first such public implementation has been dropped, and its paper is now cited (doi:10.1017/rsm.2025.13).
+
+Literature and prior-art check
+:   **open / supported-with-caveat.** Both citations check out. The QBA-UM-STC repository (created 2025-02-10, last pushed 2025-02-11, two items, no licence) states 'This provides supplementary R code for the paper, Ren S, Ren S, Welton NJ, Strong M...', confirming research-code status; the paper is Res Synth Methods 16(3):509-527, doi 10.1017/rsm.2025.13, and its abstract confirms STC-specificity and unmeasured/unreported covariates. survSens is correctly characterised: its CRAN description is confounding sensitivity analysis in observational survival/competing-risks studies. The coherent-object gap is real and, per calibration, a sensitivity-analysis tool cannot resolve an identification problem anyway. Two caveats. 'First public implementation' is a priority claim neither the paper nor the repo makes. And the why_open assertion that existing QBA tools were built for observational epidemiology 'not for transport' is too strong at method level: the catalog's own reference folder holds Nguyen (2017, 2018) on sensitivity analysis for effect modifiers not observed in the target population and Dahabreh (2026) on global sensitivity analysis for studies extending inferences.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / supported-with-caveat.** The proposed coherent object is technically well motivated because PAIC sensitivity analysis must jointly track the estimand, source and target populations, support, adjustment method, bridge assumptions, and bias-parameter provenance. C4 and C6-C8 are proportionate. C3 is correct only as a statement about built-in abstractions and workflows: generic QBA algebra can be adapted to encode transport or target-distribution bias, even if existing generic packages do not represent it natively. C1 is a subjective comparison of two software gaps, and C2 is an exhaustive package-landscape assertion rather than a mathematical conclusion. C9 is a priority or novelty claim outside this audit lens. Under the no-web constraint, C10-C13 could not be independently audited against the QBA-UM-STC source tree. The high severity is justified when an unanchored decision-grade analysis lacks defensible sensitivity analysis, but absence of a unified software object is itself primarily a roadmap and reproducibility problem.
+
+Decision path
+:   `R5:default-open → R11:caveated(n=2)`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [QBA-01 — General estimand-specific QBA theory for unanchored PAIC](QBA-01-general-estimand-specific-qba-theory-for-unanchored-paic.qmd)
+- [QBA-03 — QBA modes and interval semantics are routinely conflated](QBA-03-qba-modes-and-interval-semantics-are-routinely-conflated.qmd)
+- [QBA-28 — Reference QBA software and a minimum reporting standard](QBA-28-reference-qba-software-and-a-minimum-reporting-standard.qmd)
+:::
+
+## Source
+
+Derived from C:L2229-2233, C:L2249, C:L2292-2294, C:L2292-2307 of the reviewed corpus.

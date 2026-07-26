@@ -1,0 +1,71 @@
+---
+title: "Simulated-covariate QBA is an STC route, not a general solution"
+description: "Ren et al. 2025 (doi:10.1017/rsm.2025.13) extend the NORTA-based marginal unanchored STC of Ren et al. 2024 (doi:10.1002/jrsm.1718) by simulating an assumed synthetic joint distribution for covariates measured in the IPD but unreported in the comparator publication, averaging individual predictions on the natural outcome scale before transforming to the log odds scale, and presenting deterministic sensitivity curves with bootstrap confidence intervals; they do not present tipping-point plots, and the case study instead reads a significance-crossing value off the curve. This is the beginning of formal QBA for limited-aggregate-data PAIC rather than a completed solution: the workflow is implemented only for STC, and the authors restrict it there because a MAIC extension would suffer extreme effective-sample-size loss and might fail to produce feasible weights. Their statement that no additional assumptions are required cannot be read literally, since target marginals, dependence, source-to-target outcome associations, copula form and regression form are all assumed."
+pid: "QBA-13"
+topic: "Quantitative bias analysis for unanchored PAIC"
+categories: ["Quantitative bias analysis for unanchored PAIC", "Very high priority", "Confirmed open"]
+priority: "Very high"
+prank: 1
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[QBA-13]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[Very high priority]{.chip .chip-priority-very-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+## Statement
+
+Ren et al. 2025 (doi:10.1017/rsm.2025.13) extend the NORTA-based marginal unanchored STC of Ren et al. 2024 (doi:10.1002/jrsm.1718) by simulating an assumed synthetic joint distribution for covariates measured in the IPD but unreported in the comparator publication, averaging individual predictions on the natural outcome scale before transforming to the log odds scale, and presenting deterministic sensitivity curves with bootstrap confidence intervals; they do not present tipping-point plots, and the case study instead reads a significance-crossing value off the curve. This is the beginning of formal QBA for limited-aggregate-data PAIC rather than a completed solution: the workflow is implemented only for STC, and the authors restrict it there because a MAIC extension would suffer extreme effective-sample-size loss and might fail to produce feasible weights. Their statement that no additional assumptions are required cannot be read literally, since target marginals, dependence, source-to-target outcome associations, copula form and regression form are all assumed.
+
+## Why it is open
+
+The workflow is embedded in an STC and g-computation route, so it does not transfer to weighting, one-stage or network estimators, and the authors themselves rule out the direct MAIC extension on effective-sample-size and feasibility grounds. Its inputs, the outcome association of the omitted variable and its dependence with measured covariates, are estimated in the source study and assumed to hold in the target, which cannot be checked against the published comparator data. It also inherits the requirements of the underlying estimator, a sufficiently correct outcome model and adequate overlap, neither of which a covariate-omission sensitivity analysis can repair.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Ren et al. 2025, Research Synthesis Methods](https://doi.org/10.1017/rsm.2025.13) | Simulated-covariate QBA extending unanchored STC for covariates unreported in the comparator study, with deterministic sensitivity curves and bootstrap confidence intervals. Restricted to STC because a MAIC extension would suffer extreme effective-sample-size loss and may fail to produce feasible weights. |
+| [Ren et al. 2024, Research Synthesis Methods (formerly Journal of Research Synthesis Methods)](https://doi.org/10.1002/jrsm.1718) | NORTA (Gaussian copula) based marginal unanchored STC implementation evaluated by simulation, the estimator the 2025 QBA extends. |
+
+:::
+
+## Probable solution or research direction
+
+Treat the simulated-covariate route as one family within a broader QBA framework, extend it to multiple correlated omitted variables and treatment-specific associations, and state its assumptions about target distributions, correlations, outcome associations, copula form and model form explicitly rather than describing it as assumption-free. Develop parallel routes for weighting and one-stage estimators so the same sensitivity question can be asked of any PAIC estimator, addressing the feasibility and effective-sample-size loss that led the authors to restrict the published version to STC. Report the sensitivity curve against a clinical or decision threshold rather than reading it off a significance boundary.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+
+**The source said.** "Ren et al. (2025) extend a NORTA-based marginal unanchored STC by simulating covariates measured in the IPD but unreported in the comparator publication, then marginalizing predictions and presenting tipping plots. The report judges this the beginning of formal QBA for limited-AgD PAIC rather than a completed solution."
+
+**What was wrong with it.** Both auditors found the entry's description of tipping plots inaccurate: Ren et al. 2025 (doi:10.1017/rsm.2025.13) present deterministic sensitivity curves with bootstrap confidence intervals and read a significance-crossing point off them, and the phrase tipping point appears only in background prose about QBA modes. GPT-5.6 Sol also corrected the claim that the method simulates the comparator population's full covariate distribution; it simulates an assumed synthetic joint distribution.
+
+Literature and prior-art check
+:   **open / supported-with-caveat.** Read the Ren et al. 2025 full text. Claims 1 to 6 and 8 verified verbatim. NORTA/Gaussian copula: 'Ren et al. (2024) developed a novel way to implement unanchored STC by incorporating marginalisation and the NORmal To Anything (NORTA) algorithm (also is known as a Gaussian copula method)'. STC-only: 'MAIC approach would suffer an extreme reduction of the effect sample size and may even fail to produce feasible weights. Hence, we will only present the QBA for the STC approach.' Marginal estimand preserved: prediction is done 'based on the natural scale ... and then transformed to the log odds scale for the indirect comparison step'. Overlap and model requirements are stated verbatim in the discussion. Claim 7's target text is real: 'No additional assumptions are required for our approach.' Caveat on the entry's statement (not a numbered claim): the paper presents no tipping plots. 'Tipping point' appears once, in background prose describing QBA modes generally; the case study presents deterministic sensitivity curves with bootstrap CIs, from which the authors read off a significance-crossing point ('If the proportion is greater than 28%, then the treatment effect becomes statistically significant'), which is the p=0.05-anchored reading QBA-25 criticises.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / supported-with-caveat.** The locally available full text supports C1-C8. Ren et al. follow the 2024 NORTA or Gaussian-copula STC, average individual predictions on the natural outcome scale before transforming, restrict the implemented QBA to STC, require correct outcome-model specification and overlap, rely on important omitted covariates being measured in the IPD source, and warn of severe MAIC effective-sample-size loss. The report is also correct that the paper's statement that no additional assumptions are required cannot be literal: target marginals, dependence, source-to-target outcome associations, copula form, and regression form are assumed. Two caveats remain. C2 should say the method simulates an assumed synthetic joint distribution, not the comparator population's known full distribution. The entry's statement that the paper presents tipping plots is inaccurate; it presents deterministic sensitivity curves and significance-crossing interpretations rather than formal tipping plots. The broader estimator-general QBA problem remains open.
+
+Decision path
+:   `R5:default-open → R11:caveated(n=2)`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [COV-07 — Unknown target joint covariate distribution](COV-07-unknown-target-joint-covariate-distribution.qmd)
+- [MOD-01 — Conventional STC reports a conditional effect at target means](MOD-01-conventional-stc-reports-a-conditional-effect-at-target-mean.qmd)
+:::
+
+## Source
+
+Derived from C:L494-521 of the reviewed corpus.

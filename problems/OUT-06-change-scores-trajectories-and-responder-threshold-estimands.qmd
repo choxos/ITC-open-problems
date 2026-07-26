@@ -1,0 +1,69 @@
+---
+title: "Change scores, trajectories, and responder-threshold estimands"
+description: "Mixing endpoint and change-score results in a population-adjusted comparison is an estimand and variance-handling choice rather than an unprincipled conversion: the change-score treatment contrast equals the endpoint contrast minus the baseline contrast, and the baseline-endpoint correlation is required for the variance of a change score, not for its mean contrast. Under randomization the baseline contrast is zero in expectation, so endpoint and change analyses can target the same follow-up effect, and meta-epidemiological work across 21 meta-analyses, 189 trials and 41,256 patients found combining them in conventional meta-analysis generally valid, with a mean difference in standardized mean differences of -0.04 (95% CI -0.13 to 0.06) (pmid:23747228). What remains unresolved is the adjustment step: baseline severity is often itself an effect modifier and regression to the mean acts differently in populations with different baseline distributions, and neither target-standardized mean trajectories nor latent-model responder probabilities has an established population-adjusted formulation."
+pid: "OUT-06"
+topic: "Outcome-specific problems"
+categories: ["Outcome-specific problems", "Medium-high priority", "Overstated"]
+priority: "Medium-high"
+prank: 3
+verdict: "Overstated"
+verdictslug: "overstated"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[OUT-06]{.problem-id}
+[Overstated]{.verdict .verdict-overstated}
+[Medium-high priority]{.chip .chip-priority-medium-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+## Statement
+
+Mixing endpoint and change-score results in a population-adjusted comparison is an estimand and variance-handling choice rather than an unprincipled conversion: the change-score treatment contrast equals the endpoint contrast minus the baseline contrast, and the baseline-endpoint correlation is required for the variance of a change score, not for its mean contrast. Under randomization the baseline contrast is zero in expectation, so endpoint and change analyses can target the same follow-up effect, and meta-epidemiological work across 21 meta-analyses, 189 trials and 41,256 patients found combining them in conventional meta-analysis generally valid, with a mean difference in standardized mean differences of -0.04 (95% CI -0.13 to 0.06) (pmid:23747228). What remains unresolved is the adjustment step: baseline severity is often itself an effect modifier and regression to the mean acts differently in populations with different baseline distributions, and neither target-standardized mean trajectories nor latent-model responder probabilities has an established population-adjusted formulation.
+
+## Why it is open
+
+The unresolved part is the population-adjustment step rather than the combination itself: where baseline severity modifies the effect, change and endpoint analyses can imply different effect-modification structures, so the representation interacts with the adjustment instead of being a fixed offset. Trials measure the outcome repeatedly and on several scales, and joint repeated-measures models need compatible time definitions and within-trial covariances that aggregate publications do not report. Target-standardized trajectories and model-derived responder probabilities are optional estimands with no established formulation under population adjustment, and dichotomizing a reported mean remains invalid without the outcome distribution. cpaic, the unreleased development package on GitHub that is not installable from CRAN, models one Gaussian outcome and a raw mean difference with no trajectory or responder path.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [da Costa et al. 2013, Combining follow-up and change data is valid in meta-analyses of continuous outcomes: a meta-epidemiological study, Journal of Clinical Epidemiology (PMID 23747228)](https://doi.org/10.1016/j.jclinepi.2013.03.009) | 21 meta-analyses, 189 trials and 41,256 patients; finds no relevant difference between follow-up and change standardized mean differences and concludes that combining them in meta-analysis is generally valid, with the choice prespecified in the protocol; it does not address population adjustment |
+
+:::
+
+## Probable solution or research direction
+
+Prespecify whether the analysis uses change or endpoint data, following the meta-epidemiological guidance, and handle the variance correctly rather than converting between representations by ad hoc rescaling. Where baseline severity is a plausible effect modifier or more than one timepoint matters, model baseline and follow-up jointly so the adjustment and the estimand stay consistent. Treat target-standardized trajectories and responder probabilities as declared optional estimands, deriving responder probabilities from directly standardized individual-level indicators where individual patient data allow it and from a latent model only where they do not, and keep a prespecified decision-relevant timepoint alongside any trajectory.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Overstated. 2 independent auditors judged the claim as stated too strong. In population-adjusted comparisons the change-versus-endpoint representation is an estimand choice that interacts with baseline severity as an effect modifier, and neither target-standardised mean trajectories nor latent-model responder probabilities have an established formulation; empirical meta-epidemiological work finds that simply combining change and follow-up estimates in conventional meta-analysis is generally valid, so the unresolved part is the adjustment step, not the combination itself.
+
+**The source said.** "Continuous outcomes in population-adjusted comparisons are reduced to a single-timepoint summary that is sometimes a change from baseline and sometimes an endpoint value, combined without a principled conversion. The report instead calls for target-standardized mean trajectories, multivariate models for repeated measures and multiple scales, and responder probabilities derived from a latent outcome model."
+
+**What was wrong with it.** The source treated change-versus-endpoint combination as unresolved and said conversion between them requires the baseline-endpoint correlation; the literature auditor produced da Costa et al. (pmid:23747228, doi:10.1016/j.jclinepi.2013.03.009), which finds combining them generally valid and recommends prespecifying which is used, and the code auditor showed the correlation claim is mathematically wrong as written, since the correlation governs the variance rather than the mean contrast. The code auditor also rejected the claim that responder probabilities must come from a latent continuous model, because with individual patient data responder indicators can be formed and standardized directly.
+
+Literature and prior-art check
+:   **open / overstated.** Retrieved da Costa et al., 'Combining follow-up and change data is valid in meta-analyses of continuous outcomes: a meta-epidemiological study' (J Clin Epidemiol 2013; PMID 23747228; doi 10.1016/j.jclinepi.2013.03.009), 21 meta-analyses, 189 trials, 41,256 patients. It directly addresses the change-versus-endpoint question the entry frames as unresolved and concludes combining them is generally valid, with a mean difference in SMDs of only -0.04 (95% CI -0.13 to 0.06). The entry's framing that the two are 'combined without a principled conversion' therefore overstates the problem for conventional synthesis; the empirically supported guidance is to prespecify which is used. What remains genuinely open is the population-adjustment-specific part: baseline severity as an effect modifier, regression to the mean differing across covariate distributions, and target-standardised mean trajectories or latent-model responder probabilities, none of which da Costa addresses and for which I found no PAIC literature.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** C2 is mathematically wrong as written. The treatment contrast in change is the endpoint contrast minus the baseline contrast; baseline-endpoint correlation is required to recover the variance or standard error of a change score, not its mean contrast. Under randomization the baseline contrast is zero in expectation, so endpoint and change analyses can target the same follow-up treatment effect, although finite-sample imbalance, baseline adjustment, and effect modification can matter in PAIC. C3 is therefore possible rather than inevitable. C4 and C6 are reasonable research outputs, but trajectories need not replace a prespecified decision-relevant timepoint and multivariate models require compatible time definitions and covariance information. C5 is right that a reported mean cannot be dichotomized into a responder probability, but a latent continuous model is not the only valid route: with IPD, responder indicators can be formed and standardized directly, while a latent-tail calculation adds distributional assumptions. cpaic currently models one Gaussian outcome and raw MD, with no trajectory or responder path. The unresolved PAIC-specific extensions are real, but the change-versus-endpoint issue and the Medium-high severity are overstated as universal problems.
+
+Decision path
+:   `R5:default-open → R8:overstated-majority(n=2)`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [CMP-10 — Component PAIC lacks a marginal target-standardized estimand path](CMP-10-component-paic-lacks-a-marginal-target-standardized-estimand.qmd)
+:::
+
+## Source
+
+Derived from C:L1537-1545, C:L1548-1555 of the reviewed corpus.

@@ -1,0 +1,75 @@
+---
+title: "Measurement error and component misclassification are ignored"
+description: "Component PAIC as implemented takes covariates as observed values with no calibration or latent measurement-error model, and derives the component matrix by deterministically parsing treatment labels with no probability model for component assignment. Because a bridge exists exactly when two subnetworks share a component, a coding error can change the design matrix, its rank, and its row space, and so can create or remove shared-component paths rather than merely perturbing a coefficient. Not every miscoding changes connectivity, and measurement error in a variable that is not an effect modifier need not bias the estimand, so the concern is conditional on which covariate or component is uncertain."
+pid: "CMP-06"
+topic: "Component methods (CNMA and component PAIC)"
+categories: ["Component methods (CNMA and component PAIC)", "High priority", "Confirmed open"]
+priority: "High"
+prank: 2
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Emerging"
+---
+::: {.problem-meta}
+[CMP-06]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[High priority]{.chip .chip-priority-high}
+[Emerging]{.chip .chip-maturity-emerging}
+:::
+## Statement
+
+Component PAIC as implemented takes covariates as observed values with no calibration or latent measurement-error model, and derives the component matrix by deterministically parsing treatment labels with no probability model for component assignment. Because a bridge exists exactly when two subnetworks share a component, a coding error can change the design matrix, its rank, and its row space, and so can create or remove shared-component paths rather than merely perturbing a coefficient. Not every miscoding changes connectivity, and measurement error in a variable that is not an effect modifier need not bias the estimand, so the concern is conditional on which covariate or component is uncertain.
+
+## Why it is open
+
+Component coding is currently a deterministic analyst decision with no uncertainty attached, so the network topology is treated as known when it is inferred from trial reports. Covariate measurement error additionally biases the weighting step and attenuates the interaction terms that carry effect modification, and the direction depends on the unknown error structure, so a post hoc correction has nothing to key on. The mature general machinery for this problem, regression calibration, SIMEX, and Bayesian measurement-error and misclassification models, has not been applied to population-adjusted or component synthesis in any work the auditors could retrieve.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [cpaic 0.1.0 (development version, choxos/cpaic@9d150e9)](choxos/cpaic@9d150e9) | unreleased development R package on GitHub, not on CRAN; takes covariates as observed with no calibration or latent measurement-error model, and builds the component matrix by deterministic label parsing with no probability model for assignment |
+
+:::
+
+## Probable solution or research direction
+
+Introduce probabilistic component coding so that assignment uncertainty propagates into the design matrix, the row space, and therefore the estimand, and report how often the cross-gap contrast becomes non-estimable under plausible codings. Add covariate calibration models for effect modifiers using existing measurement-error machinery, prioritizing the modifiers that actually load the requested contrast. Because the concern is conditional, the first deliverable is a diagnostic that identifies which coding and measurement uncertainties would matter for a given target contrast.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+
+**The source said.** "Component methods ignore measurement error in covariates and misclassification in how interventions are coded into components. Component misclassification can create an apparent bridge between subnetworks where none exists, or destroy a real one."
+
+**What was wrong with it.** The source stated the absence at field level and implied any miscoding changes the bridge. GPT-5.6 Sol confirmed the absence at choxos/cpaic@9d150e9 but scoped it to that package, and qualified the mechanism: not every miscoding changes connectivity, and measurement error does not bias every estimand; the literature auditor searched and found no measurement-error or misclassification method for MAIC, STC, ML-NMR, or CNMA and no source asserting the absence, so recorded it as unverifiable at field level.
+
+Literature and prior-art check
+:   **open / unverifiable.** I searched PubMed and the web for measurement error or misclassification methods in MAIC, STC, ML-NMR or CNMA and found nothing that models covariate measurement error in the weighting step or treats component coding probabilistically. The general statistical machinery (regression calibration, SIMEX, Bayesian measurement-error models, misclassification priors) is of course mature, but I retrieved no application to population-adjusted or component synthesis, so I cannot supply a locator. The claim is a 'no method exists' claim and no source I found asserts the absence, so per calibration it is unverifiable rather than supported. The substantive observation that misclassifying a component changes network topology rather than a coefficient is a genuine and, as far as I can tell, unpublished point; it is the strongest part of the entry. Entry has no prior_work at all, which is a presentation weakness rather than a factual error.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / supported-with-caveat.** C1 is source-confirmed at 9d150e9. Covariates enter cMAIC, cSTC, and cML-NMR as observed values without a calibration or latent measurement-error model, while build_C_matrix() deterministically parses the supplied labels with no probability model for component assignment. C2 is correct: changing a component assignment changes C and can consequently create or remove shared-component paths, alter rank, or change the row space, although not every miscoding changes connectivity. The cpaic-specific part of C3 is supported; the claim about every existing component NMA/PAIC package is outside this audit. Measurement error is not guaranteed to bias every estimand, for example when the mismeasured variable is not an effect modifier, but it can attenuate interaction estimates, leave true imbalance after weighting, and invalidate transport. This is decision-critical when coding or modifier measurement is genuinely uncertain; for carefully curated, effectively error-free inputs it is a lower-priority roadmap item.
+
+Grok 4.5, recency lens
+:   **open / supported.** Searched for probabilistic component coding, misclassification models that randomize the CNMA design/combination matrix, and covariate measurement-error correction inside component NMA/PAIC. General measurement-error and exposure-misclassification methods exist for meta-analysis and IPD (e.g., Jrsm work on misclassification adjustment), but none were found that (a) treat component assignment as uncertain topology or (b) ship in netmeta, multinma, gemtc, MBNMAdose, or a public cpaic. Queries: 'component network meta-analysis misclassification', 'probabilistic component coding NMA', 'measurement error effect modifiers PAIC CNMA', plus 2024–2026 journal and package scans. No merged PR or CRAN release notes close this gap. C1–C3 therefore remain open as stated; confidence is moderate because absence-of-evidence for a niche software feature is harder to prove exhaustively than a positive locator.
+
+Decision path
+:   `R5:default-open → R11:caveated(n=1)`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [COV-09 — Measurement non-equivalence of covariates across trials](COV-09-measurement-non-equivalence-of-covariates-across-trials.qmd)
+- [DIA-15 — Coding-error bias, rank reversal and drift calibration go unscored](DIA-15-coding-error-bias-rank-reversal-and-drift-calibration-go-uns.qmd)
+- [OUT-03 — Outcome misclassification in binary indirect comparisons](OUT-03-outcome-misclassification-in-binary-indirect-comparisons.qmd)
+- [QBA-06 — Measurement and misclassification QBA under population adjustment](QBA-06-measurement-and-misclassification-qba-under-population-adjus.qmd)
+:::
+
+## Source
+
+Derived from C:L1380, scope:field-level (component coding and covariate measurement); not addressed in cpaic of the reviewed corpus.

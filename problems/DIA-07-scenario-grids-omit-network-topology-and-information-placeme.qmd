@@ -1,0 +1,72 @@
+---
+title: "Scenario grids omit network topology and information placement"
+description: "PAIC simulations are built on two-trial or three-treatment templates with no topology factor and index information by participants per arm, so their results cannot be extrapolated to the networks that submissions actually contain. A topology scenario generator does already exist in the wider network meta-analysis literature: Petropoulou et al. 2023 (doi:10.1186/s12874-023-01959-9) publishes a procedure with R code that builds families of connected and disconnected topologies from a seed network, but it has not been wired to PAIC estimators. Two of the entry's design prescriptions need narrowing: information for binary and survival outcomes depends on events plus non-events, allocation, baseline risk, risk sets, censoring and timing rather than on events per contrast alone, and post-weighting effective sample size is a method-dependent output that can be a calibration target but cannot be crossed as an independent data-generating factor."
+pid: "DIA-07"
+topic: "Diagnostics & empirical validation"
+categories: ["Diagnostics & empirical validation", "High priority", "Confirmed open"]
+priority: "High"
+prank: 2
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[DIA-07]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[High priority]{.chip .chip-priority-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+## Statement
+
+PAIC simulations are built on two-trial or three-treatment templates with no topology factor and index information by participants per arm, so their results cannot be extrapolated to the networks that submissions actually contain. A topology scenario generator does already exist in the wider network meta-analysis literature: Petropoulou et al. 2023 (doi:10.1186/s12874-023-01959-9) publishes a procedure with R code that builds families of connected and disconnected topologies from a seed network, but it has not been wired to PAIC estimators. Two of the entry's design prescriptions need narrowing: information for binary and survival outcomes depends on events plus non-events, allocation, baseline risk, risk sets, censoring and timing rather than on events per contrast alone, and post-weighting effective sample size is a method-dependent output that can be a calibration target but cannot be crossed as an independent data-generating factor.
+
+## Why it is open
+
+The one-IPD-trial, one-AgD-trial template has no topology at all, and topology acts through the design matrix, its row space and the contrast-specific information matrix to determine which contrasts are identified and where information flows, so an estimator that behaves well on a single indirect comparison can fail on a loop-rich or hub-and-spoke network with articulation edges. Two networks with identical total sample size can differ entirely in the estimability of the decision contrast depending on where the IPD sit. Building larger networks and keeping track of information per contrast requires a generator wired to PAIC estimators, and the one generator that exists was written for component model selection instead.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Petropoulou et al. 2023, Model selection for component network meta-analysis in connected and disconnected networks: a simulation study](https://doi.org/10.1186/s12874-023-01959-9) | Provides a reusable procedure and R code for generating families of distinct network topologies, connected and disconnected with differing subnetwork composition, from a seed network; the topology scenario generator the source says no platform provides, though it is not wired to PAIC estimators. |
+
+:::
+
+## Probable solution or research direction
+
+Adapt the published topology generator to drive PAIC and component-PAIC estimators rather than writing a new one, and report performance conditional on topology rather than averaged over it, treating articulation edges and articulation treatments as explicit fragility factors because they control the fragility of indirect paths. Index information with outcome-appropriate measures (events and non-events, allocation and baseline risk for binary outcomes; event counts, risk sets, censoring and timing for survival) and calibrate scenarios to a target ESS range instead of crossing achieved ESS as an input. Treat integration points as a numerical-convergence check for models that require numerical integration, and prior informativeness as a Bayesian sensitivity factor, rather than as mandatory factors in every design.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+
+**The source said.** "Simulation designs are built on the two-trial anchored template and index information by participants per arm, so they span neither the topologies HTA networks actually have (3 to 20 treatments, varying trial density, two-arm versus multi-arm trials, connected, weakly connected and disconnected graphs, 2 to 4 subnetworks, star, chain, loop-rich and hub-and-spoke shapes, articulation edges and treatments, unequal allocation, classes and doses) nor the quantities that actually carry information (events per contrast, studies per component, post-weighting ESS, IPD study placement, AgD precision, integration points and prior informativeness)."
+
+**What was wrong with it.** The source said no shared platform provides a topology scenario generator; the literature auditor found one already published with code in the component network meta-analysis literature (Petropoulou et al. 2023, doi:10.1186/s12874-023-01959-9), which is simply not connected to PAIC estimators. GPT-5.6 Sol corrected the information index for binary and survival outcomes and the treatment of post-weighting ESS as a crossable design factor.
+
+**Dissent.** codex dissented (overstated): Topology and information placement matter through the design matrix, its row space, and the contrast-specific information matrix, so C4, C5, and C7 are sound. Articulation edges and treatments are reasonable fragility factors, but the specific treatment counts and two-to-four-subnetwork grid are not universal requirements. C6 is too strong: binary-outcome information depends on both events and non-events, allocation, and baseline risk; survival information depends on event counts plus risk sets, censoring, timing, and allocation. Post-weighting ESS is endogenous and method-specific, so it cannot generally be crossed as an independent data-generating factor, although scenarios can be calibrated to target an ESS range. Integration points are a numerical-convergence factor only for models requiring numerical integration, and prior informativeness is relevant when Bayesian robustness is an aim, not a mandatory factor in every simulation. Field-wide claims that particular grids or articulation effects have never been evaluated are unsupported here.
+
+Literature and prior-art check
+:   **open / supported-with-caveat.** The gap is real for PAIC specifically: the retrieved PAIC simulations (Phillippo 2020, Remiro-Azocar 2021, Hatswell 2020, Liu 2025, Serret-Larmande 2025) are all built on two-trial or three-treatment templates with no topology factor and index information by participants. But the entry's framing ignores that the broader NMA simulation literature already varies topology deliberately: Kiefer, Sturtz & Bender's simulation spans networks with several interventions and inconsistency structures, degree-irregularity work simulates multiple network geometries and scores rank-probability bias, and Petropoulou et al. 2023 build an explicit generator that constructs many distinct connected and disconnected topologies from one seed network under a retain-all-interventions constraint. So a scenario generator over topology exists, just not one wired to PAIC estimators. Most remaining sub-claims ('a comprehensive program must vary...', 'ESS should be a controlled design factor') are normative design assertions rather than checkable facts, and the integration-points and prior-informativeness claims I could not verify.
+    Cites 10.1186/s12874-023-01959-9: Provides a reusable algorithm and R code for generating families of distinct network topologies (connected, and disconnected with differing subnetwork composition) from a seed network, i.e. the topology scenario generator the entry says no platform provides..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** Topology and information placement matter through the design matrix, its row space, and the contrast-specific information matrix, so C4, C5, and C7 are sound. Articulation edges and treatments are reasonable fragility factors, but the specific treatment counts and two-to-four-subnetwork grid are not universal requirements. C6 is too strong: binary-outcome information depends on both events and non-events, allocation, and baseline risk; survival information depends on event counts plus risk sets, censoring, timing, and allocation. Post-weighting ESS is endogenous and method-specific, so it cannot generally be crossed as an independent data-generating factor, although scenarios can be calibrated to target an ESS range. Integration points are a numerical-convergence factor only for models requiring numerical integration, and prior informativeness is relevant when Bayesian robustness is an aim, not a mandatory factor in every simulation. Field-wide claims that particular grids or articulation effects have never been evaluated are unsupported here.
+
+Decision path
+:   `R5:default-open → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [OVL-06 — No standardized sample-size planning guidance or software for PAIC](OVL-06-no-standardized-sample-size-planning-guidance-or-software-fo.qmd)
+:::
+
+## Source
+
+Derived from C:L1787-1801, C:L1910-1921 of the reviewed corpus.

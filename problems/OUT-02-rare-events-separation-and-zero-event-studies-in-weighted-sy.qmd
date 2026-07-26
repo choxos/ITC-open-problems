@@ -1,0 +1,87 @@
+---
+title: "Rare events, separation, and zero-event studies in weighted synthesis"
+description: "Rare events and concentrated weights leave the binary likelihood weakly informative, so estimates can separate and become strongly sensitive to the prior or penalty that is then doing the identification work. The failure is narrower than the source said: a contrast-level log-odds estimate is infinite or undefined with a zero cell, but zero counts can enter an arm-based binomial, Bayesian or penalized likelihood without a continuity correction, and a double-zero study carries no conditional odds-ratio information that any likelihood choice can recover. Rare-event machinery does exist in the unweighted network meta-analysis literature, specifically penalized likelihood regression (Evrenoglou et al., arxiv:2109.10221, PMC9805041), which the source asserted without citing. Weight diagnostics still report a patient effective sample size that says nothing about how many events support the contrast, and no effective event sample size convention has been implemented."
+pid: "OUT-02"
+topic: "Outcome-specific problems"
+categories: ["Outcome-specific problems", "High priority", "Partially addressed"]
+priority: "High"
+prank: 2
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[OUT-02]{.problem-id}
+[Partially addressed]{.verdict .verdict-partially-addressed}
+[High priority]{.chip .chip-priority-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+::: {.source-unsourced}
+**Source note.** This entry derives in part from a source document whose inline citations
+were ChatGPT interface tokens rather than references, and so resolve to nothing. Claims
+below are attributed to that document and were checked independently where possible;
+anything that could not be independently sourced is marked in the verification trail.
+:::
+
+## Statement
+
+Rare events and concentrated weights leave the binary likelihood weakly informative, so estimates can separate and become strongly sensitive to the prior or penalty that is then doing the identification work. The failure is narrower than the source said: a contrast-level log-odds estimate is infinite or undefined with a zero cell, but zero counts can enter an arm-based binomial, Bayesian or penalized likelihood without a continuity correction, and a double-zero study carries no conditional odds-ratio information that any likelihood choice can recover. Rare-event machinery does exist in the unweighted network meta-analysis literature, specifically penalized likelihood regression (Evrenoglou et al., arxiv:2109.10221, PMC9805041), which the source asserted without citing. Weight diagnostics still report a patient effective sample size that says nothing about how many events support the contrast, and no effective event sample size convention has been implemented.
+
+## Why it is open
+
+Reweighting concentrates the effective sample on few individuals without reducing the number of covariates, so the weighted binary likelihood can flatten exactly where population adjustment is most needed. Where the prior or penalty supplies the identification, the resulting interval is still finite and reads as evidence, and there is no accepted way to report how much of the answer came from the data rather than the penalty. Effective sample size is computed from the weights alone and ignores the outcome, so it cannot detect that the weights landed on patients who contribute no events, and neither an effective event sample size nor a rare-event-plus-overlap workflow has been implemented anywhere the auditors looked. The literature auditor searched for any composition of rare-event likelihoods with MAIC weighting, STC or ML-NMR integration and found none, an absence they could not confirm from a source, so that part is recorded as unverified rather than established.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Evrenoglou, White, Afach, Mavridis and Chaimani, Network meta-analysis of rare events using penalized likelihood regression, Statistics in Medicine (PMC9805041)](https://arxiv.org/abs/2109.10221) | penalized-likelihood machinery for rare-event network meta-analysis that avoids continuity corrections and handles zero-event arms; it does not touch population adjustment, so it is the unweighted half the entry said already exists |
+| [cpaic, unreleased development package on GitHub (not on CRAN), commit 9d150e9, inst/stan/cpaic_binomial.stan, R/fit_checks.R, R/bayesian_diagnostics.R](https://github.com/choxos/cpaic) | accepts zero-count aggregate arms in the Bayesian population-adjusted binomial likelihood, rejects two-stage cSTC and cMAIC fits showing separation or non-identification rather than returning a misleading finite contrast, reports entropy, weight concentration and residual balance alongside ESS, and refits under tighter and looser priors as an identification diagnostic; it has no effective event sample size |
+
+:::
+
+## Probable solution or research direction
+
+Compose the existing penalized and Bayesian rare-event likelihoods with the weighting and integration steps that population adjustment adds, and report the prior or penalty contribution explicitly instead of only a finite interval. Define and report an effective event sample size alongside the weighted patient effective sample size, paired with local ESS, leverage, influence and density-ratio diagnostics, since the diagnostics that already exist stop at the weights and do not reach the outcome. Drop the expectation that a beta-binomial or noncentral hypergeometric likelihood rescues individual-level separation or double-zero studies, and benchmark the remaining candidates in a simulation that varies event risk independently of nominal sample size, includes single-zero and double-zero studies, and reports type I error, coverage and prior dominance.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Partially addressed. Part of this problem is addressed by existing work; the entry names which part.
+
+**The source said.** "With rare events, weighting estimators and generalized linear models become unstable and can separate, zero-event and double-zero studies cannot enter a standard log-odds likelihood, and priors or penalties rather than data determine the answer. Diagnostics report a weighted patient effective sample size that can look adequate while the effective number of events is negligible, and no simulation program benchmarks the competing rare-event remedies in this regime."
+
+**What was wrong with it.** The claim that rare-event NMA methods already exist was unattributed in the source and is now sourced to Evrenoglou, White, Afach, Mavridis and Chaimani, penalized likelihood regression for rare-event NMA (arxiv:2109.10221, PMC9805041), supplied by the literature auditor. The code auditor found several mechanisms overstated at commit 9d150e9 of cpaic, an unreleased development package on GitHub that is not installable from CRAN: zero-event aggregate arms already enter its Bayesian binomial likelihood, two-stage fits fail closed on separation, weight diagnostics already report entropy, concentration and residual balance beyond ESS, and prior-sensitivity refits already expose weak identification; the same auditor rejected the beta-binomial remedy for individual-level separation and the noncentral hypergeometric remedy for double-zero studies.
+
+**Dissent.** literature dissented (open): This is a source_unsourced entry. I can source the claim 'rare-event NMA methods already exist': Evrenoglou, White, Afach, Mavridis and Chaimani, 'Network meta-analysis of rare events using penalized likelihood regression' (Stat Med; PMC9805041, arXiv 2109.10221), which is exactly the penalised-likelihood machinery the entry says exists in the unweighted NMA literature. I searched for any composition of rare-event likelihoods with MAIC weighting, STC or ML-NMR integration and found none; per the audit rules an absence claim cannot be confirmed by not finding anything, so 'no settled rare-event likelihood has been integrated with population-adjustment machinery', 'no PAIC method combines rare-event likelihoods with overlap-aware diagnostics', 'no standard effective-event-sample-size convention', and 'no existing simulation study varies event risk independently of nominal sample size' are all unverifiable rather than verified. The mechanistic claims (weighting concentrates mass, ESS ignores the outcome) are sound but I retrieved no paper demonstrating MAIC-induced separation empirically. The internal priority claim is not a literature claim. codex dissented (overstated): C2, C4, C5, C11 through C13, and the broad simulation recommendation in C16 are technically sound. C3 overstates prior or penalty influence as exclusive determination by the prior rather than joint influence from a weak or monotone likelihood. A zero cell makes a standalone saturated contrast-level log-odds estimate infinite or undefined, but zero counts can enter an arm-based binomial likelihood, and one zero cell need not make a shared multi-study effect's MLE infinite. A double-zero study has no conditional odds-ratio information, so a noncentral hypergeometric likelihood cannot make it informative merely by avoiding a continuity correction. C9 conflates remedies for separation with models for overdispersion or sparse counts; a beta-binomial model does not itself cure individual-level separation. C6 through C8, C14, C15, and C18 are literature-absence or practice claims outside this audit lens. C17 is not an exhaustive operating-characteristic set, and C19 merely reproduces the agenda's priority label. At the audited cpaic commit, Bayesian cML-NMR accepts zero-event aggregate arms, two-stage methods fail closed on separation, weight diagnostics go beyond ESS, and prior-sensitivity refits expose weak identification. No effective-event ESS or specialized rare-event-plus-overlap workflow is implemented, so the problem is only partially addressed.
+
+Literature and prior-art check
+:   **open / supported-with-caveat.** This is a source_unsourced entry. I can source the claim 'rare-event NMA methods already exist': Evrenoglou, White, Afach, Mavridis and Chaimani, 'Network meta-analysis of rare events using penalized likelihood regression' (Stat Med; PMC9805041, arXiv 2109.10221), which is exactly the penalised-likelihood machinery the entry says exists in the unweighted NMA literature. I searched for any composition of rare-event likelihoods with MAIC weighting, STC or ML-NMR integration and found none; per the audit rules an absence claim cannot be confirmed by not finding anything, so 'no settled rare-event likelihood has been integrated with population-adjustment machinery', 'no PAIC method combines rare-event likelihoods with overlap-aware diagnostics', 'no standard effective-event-sample-size convention', and 'no existing simulation study varies event risk independently of nominal sample size' are all unverifiable rather than verified. The mechanistic claims (weighting concentrates mass, ESS ignores the outcome) are sound but I retrieved no paper demonstrating MAIC-induced separation empirically. The internal priority claim is not a literature claim.
+    Cites arxiv:2109.10221: Sources the unsourced claim that rare-event NMA methods already exist (penalised likelihood avoiding continuity corrections and handling zero-event arms); it does not touch population adjustment..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / overstated.** C2, C4, C5, C11 through C13, and the broad simulation recommendation in C16 are technically sound. C3 overstates prior or penalty influence as exclusive determination by the prior rather than joint influence from a weak or monotone likelihood. A zero cell makes a standalone saturated contrast-level log-odds estimate infinite or undefined, but zero counts can enter an arm-based binomial likelihood, and one zero cell need not make a shared multi-study effect's MLE infinite. A double-zero study has no conditional odds-ratio information, so a noncentral hypergeometric likelihood cannot make it informative merely by avoiding a continuity correction. C9 conflates remedies for separation with models for overdispersion or sparse counts; a beta-binomial model does not itself cure individual-level separation. C6 through C8, C14, C15, and C18 are literature-absence or practice claims outside this audit lens. C17 is not an exhaustive operating-characteristic set, and C19 merely reproduces the agenda's priority label. At the audited cpaic commit, Bayesian cML-NMR accepts zero-event aggregate arms, two-stage methods fail closed on separation, weight diagnostics go beyond ESS, and prior-sensitivity refits expose weak identification. No effective-event ESS or specialized rare-event-plus-overlap workflow is implemented, so the problem is only partially addressed.
+    Cites choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca:inst/stan/cpaic_binomial.stan#L19-L20: The Bayesian population-adjusted arm likelihood permits an aggregate arm with zero observed events without a continuity correction..
+    Cites choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca:R/fit_checks.R#L1-L14: Two-stage cSTC and cMAIC fits with separation or non-identification are rejected instead of yielding a misleading finite contrast..
+    Cites choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca:R/fit_checks.R#L128-L152: The package reports entropy, weight concentration, and residual balance in addition to ESS, although it still lacks an event-information ESS..
+    Cites choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca:R/bayesian_diagnostics.R#L141-L157: The package provides an empirical check for whether weakly identified contrasts move materially under tighter or looser priors..
+
+Decision path
+:   `R3:partially-solved(n=1) → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [CMP-12 — No two-stage adjusted estimator carries multi-arm covariance](CMP-12-no-two-stage-adjusted-estimator-carries-multi-arm-covariance.qmd)
+- [CMU-02 — Priors, not data, can drive posteriors in weakly identified models](CMU-02-priors-not-data-can-drive-posteriors-in-weakly-identified-mo.qmd)
+- [HET-02 — Multi-arm covariance is lost when contrasts are adjusted pairwise](HET-02-multi-arm-covariance-is-lost-when-contrasts-are-adjusted-pai.qmd)
+- [OVL-06 — No standardized sample-size planning guidance or software for PAIC](OVL-06-no-standardized-sample-size-planning-guidance-or-software-fo.qmd)
+:::
+
+## Source
+
+Derived from A:L72, A:L180, C:L214-215, C:L248, C:L254, C:L1517-1518, C:L1517-1519, C:L1526-1529, C:L1526-1530, C:L1526-1533, C:L1535 of the reviewed corpus.

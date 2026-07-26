@@ -1,0 +1,75 @@
+---
+title: "Proportional odds, category probabilities, and ordinal utilities"
+description: "Population-adjusted ordinal synthesis already exists and target-standardized category probabilities are already produced: multinma ships ordered multinomial models through the multi() helper, and its predict() method averages over the target population by integrating over the joint covariate distribution or by averaging predictions for a sample of individuals. This is not hypothetical; Phillippo et al. (doi:10.1177/0272989X221117162) fit ordered PASI 75, 90 and 100 outcomes by ML-NMR and report the estimated percentage achieving each endpoint on each treatment in external target populations, under proportional odds. What remains undeveloped is the relaxation half, namely partial proportional odds, adjacent-category and continuation-ratio models in a population-adjusted network, and decision analyses that combine joint category-probability draws with explicitly specified and possibly uncertain utilities."
+pid: "OUT-10"
+topic: "Outcome-specific problems"
+categories: ["Outcome-specific problems", "High priority", "Overstated"]
+priority: "High"
+prank: 2
+verdict: "Overstated"
+verdictslug: "overstated"
+maturity: "Emerging"
+---
+::: {.problem-meta}
+[OUT-10]{.problem-id}
+[Overstated]{.verdict .verdict-overstated}
+[High priority]{.chip .chip-priority-high}
+[Emerging]{.chip .chip-maturity-emerging}
+:::
+## Statement
+
+Population-adjusted ordinal synthesis already exists and target-standardized category probabilities are already produced: multinma ships ordered multinomial models through the multi() helper, and its predict() method averages over the target population by integrating over the joint covariate distribution or by averaging predictions for a sample of individuals. This is not hypothetical; Phillippo et al. (doi:10.1177/0272989X221117162) fit ordered PASI 75, 90 and 100 outcomes by ML-NMR and report the estimated percentage achieving each endpoint on each treatment in external target populations, under proportional odds. What remains undeveloped is the relaxation half, namely partial proportional odds, adjacent-category and continuation-ratio models in a population-adjusted network, and decision analyses that combine joint category-probability draws with explicitly specified and possibly uncertain utilities.
+
+## Why it is open
+
+Proportional odds imposes one treatment coefficient across all cut-points, and a treatment may shift patients out of the worst category without changing the top of the scale; threshold-specific conditional effects can differ, and even a conditional proportional-odds model yields population-dependent marginal odds ratios through non-collapsibility. Aggregate-data publications often report a dichotomized version or a single ordinal odds ratio, so the cut-point-specific pattern needed to test the assumption is unavailable. Utility weights usually come from a preference source outside the trials, though they can also be elicited within a trial, and their uncertainty and cross-population variation add a second transport problem on top of estimation uncertainty. cpaic, the unreleased development package on GitHub that is not installable from CRAN, has no ordinal family at all, so non-proportional ordinal component PAIC is unavailable there.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Phillippo et al. 2023, Validating the Assumptions of Population Adjustment: Application of Multilevel Network Meta-regression to a Network of Treatments for Plaque Psoriasis, Medical Decision Making (PMID 35997006)](https://doi.org/10.1177/0272989X221117162) | published ML-NMR with an ordered multinomial outcome producing category probabilities standardized to external target populations, contradicting the claim that no established PAIC implementation returns them; it assumes proportional odds |
+| [multinma (CRAN), ordered multinomial models via multi() and predict.stan_nma](https://cran.r-project.org/package=multinma) | implements ordered multinomial outcomes through the multi() helper, and its predict.stan_nma reference page states that predictions are averaged over the target population, either by numerical integration over the joint covariate distribution or by averaging predictions for a sample of individuals; the literature auditor dates the feature to the 0.6.0 release notes and the code auditor to 0.2.0 |
+
+:::
+
+## Probable solution or research direction
+
+Build partial proportional odds, adjacent-category and continuation-ratio models for population-adjusted ordinal synthesis on top of the ordered multinomial machinery that already works, rather than rebuilding target-standardized category probabilities. Because joint posterior category probabilities already exist, utility-weighted estimands are largely posterior post-processing, so the work is in specifying and propagating preference uncertainty and in handling preference transport between source and target populations. Add an ordinal family to component PAIC implementations that lack one.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Overstated. 2 independent auditors judged the claim as stated too strong. Population-adjusted ordinal synthesis exists and target-standardised category probabilities are already produced by multinma and reported in the published plaque-psoriasis ML-NMR application, but that work assumes proportional odds; relaxations that let cut-point-specific and treatment-specific departures be represented, and utility-weighted ordinal estimands with utility uncertainty propagated, remain undeveloped.
+
+**The source said.** "Ordinal endpoints are common in trials but underdeveloped in population-adjusted comparison: proportional odds can fail differently by treatment and by population, results are reported as a single transported ordinal odds ratio rather than as target-standardized category probabilities, and no framework attaches explicit category utilities to produce a decision-relevant scalar."
+
+**What was wrong with it.** The source claimed no established PAIC implementation returns target-standardized ordinal category probabilities; both auditors found this false, citing multinma's ordered multinomial models with the multi() helper and the published plaque-psoriasis ML-NMR application (doi:10.1177/0272989X221117162, PMID 35997006). The auditors dated the multinma feature differently, the literature auditor to the 0.6.0 release notes and the code auditor to 0.2.0, and that discrepancy is left standing; the code auditor also corrected two side claims, that an ordinal odds ratio plus the target covariate distribution still does not identify absolute category probabilities without comparator cut-points or baseline category probabilities, and that not every scalar summary implies fixed implicit category utilities, since medians, cumulative odds ratios and probabilities of superiority are nonlinear functionals.
+
+Literature and prior-art check
+:   **partially-solved / overstated.** The claim 'No established PAIC implementation currently returns target-standardized ordinal category probabilities' is false. multinma NEWS 0.6.0 (2024-01-24) added ordered multinomial models via the multi() helper, and predict.stan_nma produces absolute predictions 'averaged over the target population (i.e. standardised/marginalised), either by (numerical) integration over the joint covariate distribution or by averaging predictions for a sample of individuals'. This capability is not hypothetical: Phillippo et al., 'Validating the Assumptions of Population Adjustment: Application of Multilevel Network Meta-regression to a Network of Treatments for Plaque Psoriasis' (Med Decis Making 2023, doi 10.1177/0272989X221117162, PMID 35997006) fits ordered PASI 75/90/100 outcomes by ML-NMR and reports the estimated percentage achieving each PASI endpoint on each treatment in external target populations. What remains genuinely open is the model-relaxation half (partial proportional odds, adjacent-category, continuation-ratio in a population-adjusted network) and utility-weighted ordinal estimands with propagated utility uncertainty; I found nothing on either.
+    Cites doi:10.1177/0272989X221117162: Published ML-NMR with an ordered multinomial outcome producing category probabilities standardised to external target populations, contradicting the claim that no established PAIC implementation returns them..
+    Cites repo:dmphillippo/multinma NEWS 0.6.0 (2024-01-24): Ships ordered multinomial ML-NMR with the multi() helper; predict() marginalises over the target covariate distribution..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / overstated.** C2-C3 are defensible after distinguishing conditional from marginal proportional odds: threshold-specific conditional effects may differ, while even a conditional proportional-odds model can yield population-dependent marginal odds ratios through non-collapsibility. C6 is incomplete because an ordinal odds ratio plus the target covariate distribution still does not identify absolute category probabilities without comparator cut-points or baseline category probabilities. C7 is false: ordered multinomial ML-NMR and target-standardized category predictions already exist in multinma and have been used in the cited psoriasis application. C9 is mathematically sloppy. An expected-utility estimand uses explicit category weights, but medians, cumulative odds ratios, and probabilities of superiority are nonlinear scalar functionals rather than fixed implicit utility weights. C10 is also too categorical because utilities can be elicited within a trial. Once joint posterior category probabilities exist, utility-weighted outcomes are straightforward posterior post-processing, although preference uncertainty and transport may still matter. cpaic itself has no ordinal family, so non-proportional ordinal component PAIC remains open there.
+    Cites doi:10.1177/0272989X221117162: Demonstrates ordered-outcome ML-NMR with estimated category-specific response percentages in external target populations..
+    Cites CRAN:multinma@0.2.0: Implements ordered multinomial outcomes through multi(), contradicting the claimed absence of an established ordinal PAIC implementation..
+
+Decision path
+:   `R3:partially-solved(n=2) → R8:overstated-majority(n=2)`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [CMP-10 — Component PAIC lacks a marginal target-standardized estimand path](CMP-10-component-paic-lacks-a-marginal-target-standardized-estimand.qmd)
+- [OUT-20 — No PAIC workflow carries dependence through transport to net benefit](OUT-20-no-paic-workflow-carries-dependence-through-transport-to-net.qmd)
+:::
+
+## Source
+
+Derived from C:L1568-1573, C:L1568-1574, C:L1568-1575, C:L1620-1638 of the reviewed corpus.

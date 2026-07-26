@@ -1,0 +1,76 @@
+---
+title: "No influence-function theory for mixed-granularity multi-arm networks"
+description: "No efficient influence function or TMLE is established for a mixed-IPD and aggregate-data, multi-arm network that transports arm-level potential outcomes to one declared population while retaining shared-arm covariance. The claim needs that narrowing, because adjacent problems are solved: Schnitzer et al. 2016 (doi:10.1515/jci-2016-0014) adapt doubly robust locally efficient TMLE to network meta-analysis with individual data, Dahabreh et al. (arXiv:1908.09230) build efficient robust transport estimators across multiple randomized trials, Su et al. (arXiv:2405.10769) derive the semiparametric efficiency bound of the transported average treatment effect from multi-source data, and Le et al. (arXiv:2408.04854) mix aggregate and individual data, though by M-estimation, without double robustness, and for two-arm binary treatment only. Two of the entry's requirements also overreach: an aggregate study need not enter through a full aggregate likelihood, since summary-estimate covariance, calibration constraints or estimating equations can carry it, and small-study uncertainty is difficult rather than universally unsolved."
+pid: "MOD-07"
+topic: "Model specification, double robustness & targeted learning"
+categories: ["Model specification, double robustness & targeted learning", "Very high priority", "Confirmed open"]
+priority: "Very high"
+prank: 1
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Promising"
+tractability: 2
+---
+::: {.problem-meta}
+[MOD-07]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[Very high priority]{.chip .chip-priority-very-high}
+[Promising]{.chip .chip-maturity-promising}
+[Tractability 2/5]{.chip}
+:::
+## Statement
+
+No efficient influence function or TMLE is established for a mixed-IPD and aggregate-data, multi-arm network that transports arm-level potential outcomes to one declared population while retaining shared-arm covariance. The claim needs that narrowing, because adjacent problems are solved: Schnitzer et al. 2016 (doi:10.1515/jci-2016-0014) adapt doubly robust locally efficient TMLE to network meta-analysis with individual data, Dahabreh et al. (arXiv:1908.09230) build efficient robust transport estimators across multiple randomized trials, Su et al. (arXiv:2405.10769) derive the semiparametric efficiency bound of the transported average treatment effect from multi-source data, and Le et al. (arXiv:2408.04854) mix aggregate and individual data, though by M-estimation, without double robustness, and for two-arm binary treatment only. Two of the entry's requirements also overreach: an aggregate study need not enter through a full aggregate likelihood, since summary-estimate covariance, calibration constraints or estimating equations can carry it, and small-study uncertainty is difficult rather than universally unsolved.
+
+## Why it is open
+
+Standard semiparametric transport theory assumes one source sample and one target sample, whereas a network has many source studies with heterogeneous data granularity, multi-arm covariance and randomization inside each study that must survive estimation. Fluctuating or pooling an outcome model across studies can destroy the within-study randomization that supplies the network's identification, and the usual workaround of replacing contrasts pairwise loses exactly the joint covariance the network needs. A network estimand is a vector of correlated contrasts rather than a scalar, so both a multivariate fluctuation and an influence function combining outcome models, study-participation models and aggregate contributions would have to be derived, and valid uncertainty would then have to come from a handful of studies where asymptotics in the number of studies are unavailable.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Schnitzer, Steele, Bally & Shrier 2016, A Causal Inference Approach to Network Meta-Analysis, Journal of Causal Inference](https://doi.org/10.1515/jci-2016-0014) | Adapts single-study causal estimators, including doubly robust semiparametric locally efficient TMLE, to network meta-analysis. Requires individual data throughout. |
+| [Dahabreh, Robertson, Petito, Hernan & Steingrimsson, Efficient and robust transport estimators across multiple randomized trials](https://arxiv.org/abs/1908.09230) | Builds efficient and robust estimators for transporting effects from multiple randomized trials to a target population. Requires IPD from every source. |
+| [Su, Rytgaard, Ravn & Eriksson, semiparametric efficiency for the transported average treatment effect from multi-source data](https://arxiv.org/abs/2405.10769) | Derives the semiparametric efficiency bound of the transported average treatment effect and characterizes a class of doubly robust asymptotically linear estimators. Requires IPD from every source. |
+| [Le, Beclin, Afach & Vo, combining aggregate and individual data](https://arxiv.org/abs/2408.04854) | Mixes aggregate and individual data, the granularity the entry cares about, but uses M-estimation, is not doubly robust, and covers binary treatment in two-arm trials only. |
+
+:::
+
+## Probable solution or research direction
+
+Derive the efficient influence function for a connected network with IPD in a subset of studies and a declared target population, starting from the multi-trial transport and NMA-TMLE results that already exist rather than from first principles, with an estimator that respects within-study randomization, accounts for multi-arm covariance, targets arm-level potential outcomes in one population and permits cross-fitting by study. Let the aggregate studies enter through whichever coherent device fits the model, whether a likelihood contribution, a summary-estimate covariance or a calibration constraint, rather than assuming a full aggregate likelihood is required, and validate on multi-arm networks where the correct joint covariance is known by construction. A component extension replaces treatment indicators with component and interaction design vectors, which is valid only once component additivity and the interaction structure are assumed.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+
+**The source titled this.** "No network efficient influence function or network TMLE exists" The title says no network efficient influence function or TMLE exists, but TMLE for network meta-analysis with individual data and multi-trial transport estimators are published.
+
+**The source said.** "The report asks whether a network-level efficient influence function can be derived for evidence in which some studies contribute IPD and others contribute only aggregate data, and makes such an estimator the core of a proposed doubly robust network transport project. Its targeted counterpart, a network TMLE that preserves randomized within-study contrasts and multi-arm covariance while transporting to a declared population, is likewise stated not to exist."
+
+**What was wrong with it.** The source said no network-level efficient influence function has been derived, with an empty prior_work list; the literature auditor supplied four adjacent results (doi:10.1515/jci-2016-0014, arXiv:1908.09230, arXiv:2405.10769, arXiv:2408.04854) that narrow the novelty to the mixed-granularity multi-arm case. GPT-5.6 Sol rejected the requirement that aggregate studies must enter through a likelihood and the blanket claim that small-study uncertainty is unsolved.
+
+Literature and prior-art check
+:   **open / supported-with-caveat.** Searched for a network-level efficient influence function and a network TMLE over mixed IPD and aggregate-data evidence and found nothing matching. The nearest prior art, all of which the entry omits (prior_work is empty), narrows the novelty claim considerably. Schnitzer, Steele, Bally & Shrier, 'A Causal Inference Approach to Network Meta-Analysis', J Causal Inference 2016 (doi 10.1515/jci-2016-0014) already adapts single-study causal estimators including a doubly robust semiparametric locally efficient TMLE to network meta-analysis, but with individual data. Dahabreh, Robertson, Petito, Hernan & Steingrimsson (arXiv:1908.09230) build efficient and robust transport estimators across MULTIPLE randomized trials to a target population, and Su, Rytgaard, Ravn & Eriksson (arXiv:2405.10769) 'derive the semiparametric efficiency bound of the TATE' from multi-source data; both need IPD from every source. Le, Beclin, Afach & Vo (arXiv:2408.04854) mix aggregate and individual data but use M-estimation, are not doubly robust, and cover binary treatment in two-arm trials only. So the genuinely open part is the mixed-granularity, multi-arm-covariance-preserving network version, which is a narrower and more defensible claim than 'no network-level EIF has been derived'. The scoring claim (impact 5, novelty 5, tractability 2) is self-referential to the source report and unverifiable externally.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** At cpaic@9d150e9, cmlnmr() is a Bayesian mixed-IPD/aggregate network model, but NAMESPACE contains no EIF, AIPW, or TMLE estimator, so cpaic does not resolve C1-C2. Those absence claims are defensible only for the exact class specified: a target-transporting, mixed-granularity, multi-arm network estimator retaining shared-arm covariance. Absence is not a mathematical consequence and cannot be generalized to all network EIF or TMLE work. C3-C4 are valid design requirements in substance, although a valid joint arm-level model may respect randomization without literally preserving precomputed contrasts. C5 is false as a necessity: aggregate studies may enter through likelihoods, summary-estimate covariance, calibration constraints, or estimating equations. C6 is correct when pairwise replacement discards shared-arm covariance. C7 is too broad because small-study inference depends on the asymptotic regime and can use small-sample or Bayesian methods, although it remains difficult for the proposed semiparametric estimator. C8 works only after assuming component additivity and specified component interactions. C9 is a self-reported score, not technical evidence. The narrow mixed-granularity network target remains open, but the title and several 'must' or 'unsolved' formulations overreach.
+
+Decision path
+:   `R5:default-open → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [CMP-12 — No two-stage adjusted estimator carries multi-arm covariance](CMP-12-no-two-stage-adjusted-estimator-carries-multi-arm-covariance.qmd)
+:::
+
+## Source
+
+Derived from C:L202, C:L249, C:L1054, C:L1060, C:L1674-1686, C:L1676-1684, C:L2149 of the reviewed corpus.

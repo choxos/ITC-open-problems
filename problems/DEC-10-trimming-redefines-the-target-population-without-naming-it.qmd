@@ -1,0 +1,82 @@
+---
+title: "Trimming redefines the target population without naming it"
+description: "Weight truncation and trimming shift the target population and therefore the estimand, and no reporting convention requires the resulting population to be named; Remiro-Azocar 2022 (10.1186/s12874-022-01692-9) states this for both and adds that the cutoffs are ad hoc. Reporting effective sample size alone is insufficient, and part of the remedy exists in prototype: cpaic reports weight entropy, coefficient of variation, maximum normalized weight, top-5-percent weight mass and residual balance alongside ESS, plus contrast-specific edge influence that its own source calls approximate for multi-arm trials; cpaic is an unreleased development package on GitHub and is not on CRAN. What remains missing is local support, out-of-distribution diagnostics for outcome-model methods, an explicit definition of the population created by trimming, and exact leave-one-study-out influence. The proportion of target mass outside source support is identifiable only where the target joint distribution and an operational definition of support are available, which published marginal summaries alone do not supply."
+pid: "DEC-10"
+topic: "Decision analysis, regulation & reporting"
+categories: ["Decision analysis, regulation & reporting", "Very high priority", "Unverifiable"]
+priority: "Very high"
+prank: 1
+verdict: "Unverifiable"
+verdictslug: "unverifiable"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[DEC-10]{.problem-id}
+[Unverifiable]{.verdict .verdict-unverifiable}
+[Very high priority]{.chip .chip-priority-very-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+## Statement
+
+Weight truncation and trimming shift the target population and therefore the estimand, and no reporting convention requires the resulting population to be named; Remiro-Azocar 2022 (10.1186/s12874-022-01692-9) states this for both and adds that the cutoffs are ad hoc. Reporting effective sample size alone is insufficient, and part of the remedy exists in prototype: cpaic reports weight entropy, coefficient of variation, maximum normalized weight, top-5-percent weight mass and residual balance alongside ESS, plus contrast-specific edge influence that its own source calls approximate for multi-arm trials; cpaic is an unreleased development package on GitHub and is not on CRAN. What remains missing is local support, out-of-distribution diagnostics for outcome-model methods, an explicit definition of the population created by trimming, and exact leave-one-study-out influence. The proportion of target mass outside source support is identifiable only where the target joint distribution and an operational definition of support are available, which published marginal summaries alone do not supply.
+
+## Why it is open
+
+Trimming is presented as a technical stabilization step, so the population it creates is never named, and normalized truncated weights converge to an altered weighted distribution that may be data-adaptive and lack a simple population interpretation; truncation that vanishes with sample size is better read as finite-sample regularization for the original estimand. Support failure is a property of a region of covariate space whereas ESS is a scalar, so a report can satisfy the conventional diagnostic while the decision-relevant region of the target is unsupported. The diagnostics that do exist sit in an unreleased development package rather than in a reporting requirement, so they are absent from reports by default.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Remiro-Azocar 2022 (two-stage MAIC)](https://doi.org/10.1186/s12874-022-01692-9) | States that weight truncation shifts the target population or estimand definition and requires ad hoc cutoffs, that trimming changes the target population further, and that weight-dispersion displays are needed beyond ESS. |
+| [Serret-Larmande et al. 2025](https://arxiv.org/abs/2507.12241) | Simulation study of covariate-distribution and positivity violations in weighting-based indirect comparisons; finds first-moment MAIC robust to moderate positivity violations while MAIC-2 and propensity-score weighting are more sensitive. |
+| [cpaic (development package, audited at commit 9d150e9)](choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca) | Unreleased development package on GitHub, confirmed by an auditor not to be on CRAN. Computes ESS with entropy, coefficient of variation, maximum normalized weight, top-5-percent weight mass and residual balance per IPD study, and returns an influence weight for every study edge for a requested contrast, described in its own source as a screening approximation for multi-arm trials. |
+
+:::
+
+## Probable solution or research direction
+
+Require weight concentration, local support and balance to be reported alongside ESS, extrapolation and out-of-distribution diagnostics for outcome-model methods, and an explicitly redefined target population whenever trimming or truncation is applied. Because the concentration diagnostics and contrast-specific edge influence already exist in prototype, the work is to release, validate and standardize them, and to replace the approximate edge influence with exact leave-one-study-out influence for decision-critical contrasts. Report target mass outside support only where the target joint distribution and an operational support definition make it identifiable, and state what was assumed when they do not.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Unverifiable. Auditors disagreed and the disagreement was evidence-bearing on both sides.
+
+**The source titled this.** "Trimming silently redefines the target and ESS stands alone" The title says effective sample size stands alone, but the audit found weight entropy, concentration, residual balance and contrast-specific edge influence already implemented alongside it.
+
+**The source said.** "Overlap reporting is incomplete: effective sample size is reported without weight concentration, local support or balance, extrapolation and out-of-distribution diagnostics are absent for outcome-model methods, the amount of target mass lying outside source support is not stated, the changed target population created by trimming is not defined, and study or edge influence on each decision-critical contrast is not reported."
+
+**What was wrong with it.** The source said study and edge influence on a decision contrast is not produced by standard software and that ESS stands alone in reports. GPT-5.6 Sol found weight-concentration diagnostics and contrast-specific edge influence already implemented in cpaic, an unreleased GitHub package that is not on CRAN, with the influence explicitly labeled approximate, and narrowed the target-mass claim to cases where the target joint distribution and a support definition are available.
+
+**Dissent.** literature dissented (open): The load-bearing claim is directly sourceable and I retrieved the verbatim text. Remiro-Azocar 2022 (BMC Med Res Methodol, doi 10.1186/s12874-022-01692-9, PMID 35941551; full text read) states of MAIC weights: 'Limitations of weight truncation are that it shifts the target population or estimand definition, and that it requires arbitrary ad hoc decisions on cutoff thresholds', and of trimming: 'It involves excluding the subjects with outlying weights, thereby sharing many of the limitations of truncation: setting arbitrary cutoff points, and changing the target population even further.' The same paper also supports the 'ESS is not enough' claim: 'Density plots are likely helpful to assess the dispersion of the weights and identify an optimal cutoff point.' Serret-Larmande et al. 2025 (arXiv:2507.12241) is a recent simulation study of exactly the positivity/overlap violations the entry says are undiagnosed, and finds MAIC-2 and propensity-score weighting more sensitive to positivity violations than first-moment MAIC. So the methodological claims are established; what is open is that none of this is a required reporting element, and that study/edge influence on a specific decision contrast is not standard PAIC output. codex dissented (supported-with-caveat): C1 is broadly correct for fixed trimming or weight truncation: normalized truncated weights converge to an altered weighted distribution, although that distribution may be data-adaptive and may lack a simple population interpretation. Vanishing truncation can instead be viewed as finite-sample regularization for the original estimand. C2 is important but the exact target mass outside support is identifiable only when the target joint distribution and an operational definition of support are available; marginal summaries alone generally cannot supply it. C3 and C5 are technically sound. C4 is useful for decision-critical contrasts, but influence should distinguish exact leave-one-study-out changes from linearized edge weights. At the requested commit, cpaic already reports ESS with entropy, coefficient of variation, maximum normalized weight, top-5-percent weight mass, and residual balance. It also emits contrast-specific edge influence, although the source explicitly calls it approximate for multi-arm trials. Local support, target mass, trimming-induced estimands, outcome-model OOD diagnostics, and exact study-deletion influence remain open.
+
+Literature and prior-art check
+:   **open / supported.** The load-bearing claim is directly sourceable and I retrieved the verbatim text. Remiro-Azocar 2022 (BMC Med Res Methodol, doi 10.1186/s12874-022-01692-9, PMID 35941551; full text read) states of MAIC weights: 'Limitations of weight truncation are that it shifts the target population or estimand definition, and that it requires arbitrary ad hoc decisions on cutoff thresholds', and of trimming: 'It involves excluding the subjects with outlying weights, thereby sharing many of the limitations of truncation: setting arbitrary cutoff points, and changing the target population even further.' The same paper also supports the 'ESS is not enough' claim: 'Density plots are likely helpful to assess the dispersion of the weights and identify an optimal cutoff point.' Serret-Larmande et al. 2025 (arXiv:2507.12241) is a recent simulation study of exactly the positivity/overlap violations the entry says are undiagnosed, and finds MAIC-2 and propensity-score weighting more sensitive to positivity violations than first-moment MAIC. So the methodological claims are established; what is open is that none of this is a required reporting element, and that study/edge influence on a specific decision contrast is not standard PAIC output.
+    Cites 10.1186/s12874-022-01692-9: Sources the entry's central claim that trimming/truncation changes the target population and hence the estimand, and supports reporting weight dispersion alongside ESS..
+    Cites arXiv:2507.12241: Recent evaluation of overlap and positivity violations in MAIC, relevant to the entry's call for support and out-of-distribution diagnostics..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / supported-with-caveat.** C1 is broadly correct for fixed trimming or weight truncation: normalized truncated weights converge to an altered weighted distribution, although that distribution may be data-adaptive and may lack a simple population interpretation. Vanishing truncation can instead be viewed as finite-sample regularization for the original estimand. C2 is important but the exact target mass outside support is identifiable only when the target joint distribution and an operational definition of support are available; marginal summaries alone generally cannot supply it. C3 and C5 are technically sound. C4 is useful for decision-critical contrasts, but influence should distinguish exact leave-one-study-out changes from linearized edge weights. At the requested commit, cpaic already reports ESS with entropy, coefficient of variation, maximum normalized weight, top-5-percent weight mass, and residual balance. It also emits contrast-specific edge influence, although the source explicitly calls it approximate for multi-arm trials. Local support, target mass, trimming-induced estimands, outcome-model OOD diagnostics, and exact study-deletion influence remain open.
+    Cites choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca: Resolves the ESS-alone portion of C3 by computing weight concentration, entropy, coefficient of variation, and residual balance for each IPD study..
+    Cites choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca: Partially resolves C4 by returning an influence weight for every study edge for a requested contrast. It is a screening approximation rather than exact multi-arm or deletion influence..
+
+Decision path
+:   `R3:partially-solved(n=1) → R7:counter-and-support-both-present`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [OVL-01 — Weak overlap leaves target regions the source data cannot support](OVL-01-weak-overlap-leaves-target-regions-the-source-data-cannot-su.qmd)
+- [OVL-02 — ESS is an insufficient overlap diagnostic and no battery is agreed](OVL-02-ess-is-an-insufficient-overlap-diagnostic-and-no-battery-is-.qmd)
+- [OVL-03 — No support diagnostic aggregates over a PAIC target distribution](OVL-03-no-support-diagnostic-aggregates-over-a-paic-target-distribu.qmd)
+- [OVL-04 — Weight trimming silently changes the estimand](OVL-04-weight-trimming-silently-changes-the-estimand.qmd)
+:::
+
+## Source
+
+Derived from C:L2391-2397 of the reviewed corpus.

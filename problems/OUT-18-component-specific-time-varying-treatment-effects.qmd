@@ -1,0 +1,74 @@
+---
+title: "Component-specific time-varying treatment effects"
+description: "In component-based survival models each component may have a time-varying effect with a different profile, and no implementation the auditors examined estimates component-specific time-varying effects: cpaic's survival Stan models use time-invariant component main effects and component-by-covariate interactions and its vignette says so explicitly, multinma handles non-proportionality by stratifying spline coefficients by treatment and study or through aux_regression without decomposing the effect across components, and netmeta's component machinery is additive on a single contrast scale with no time dimension. The universal form of the claim, that no current method estimates them, is not established, and a time-basis component model is mathematically well defined whenever the component-by-time design is identified. Allowing component-specific time variation does turn additivity into a time-indexed assumption on a specified scale, and additivity of hazard-scale functions does not imply additivity of restricted-mean-survival-time effects."
+pid: "OUT-18"
+topic: "Outcome-specific problems"
+categories: ["Outcome-specific problems", "High priority", "Confirmed open"]
+priority: "High"
+prank: 2
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Emerging"
+tractability: 3
+---
+::: {.problem-meta}
+[OUT-18]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[High priority]{.chip .chip-priority-high}
+[Emerging]{.chip .chip-maturity-emerging}
+[Tractability 3/5]{.chip}
+:::
+## Statement
+
+In component-based survival models each component may have a time-varying effect with a different profile, and no implementation the auditors examined estimates component-specific time-varying effects: cpaic's survival Stan models use time-invariant component main effects and component-by-covariate interactions and its vignette says so explicitly, multinma handles non-proportionality by stratifying spline coefficients by treatment and study or through aux_regression without decomposing the effect across components, and netmeta's component machinery is additive on a single contrast scale with no time dimension. The universal form of the claim, that no current method estimates them, is not established, and a time-basis component model is mathematically well defined whenever the component-by-time design is identified. Allowing component-specific time variation does turn additivity into a time-indexed assumption on a specified scale, and additivity of hazard-scale functions does not imply additivity of restricted-mean-survival-time effects.
+
+## Why it is open
+
+Allowing each component its own time-varying profile multiplies the parameter space by the number of time basis functions, and networks rarely contain the component contrasts over follow-up needed to separate one component's time profile from another's, so the coefficients are weakly identified. Aggregate-data trials report survival curves rather than component-resolved hazards, so the information needed to disentangle the profiles is largely absent from the published record. Baseline flexibility does not substitute, since study-specific piecewise or spline baselines change the shape of the baseline hazard rather than the time course of the treatment effect. How much this matters depends on whether component-specific non-proportionality materially affects the target estimand and the decision.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [cpaic, unreleased development package on GitHub (not on CRAN), commit 9d150e9](https://github.com/choxos/cpaic) | its survival Stan models use time-invariant component main effects and component-by-covariate interactions; piecewise and M-spline study-specific baselines provide baseline-hazard flexibility but not time-varying treatment effects, and the vignette states that it does not currently fit them |
+| [multinma (CRAN), aux_by and aux_regression, class effects since 0.8.0](https://cran.r-project.org/package=multinma) | handles non-proportional hazards by stratifying M-spline coefficients by study and treatment or by regressing auxiliary parameters, and offers class effects, none of which decomposes a time-varying effect across treatment components |
+| [netmeta (CRAN), component network meta-analysis](https://cran.r-project.org/package=netmeta) | additive component network meta-analysis on a single contrast scale with no time dimension, so it cannot express a component-specific time profile |
+
+:::
+
+## Probable solution or research direction
+
+Build component ML-NMR with component-by-time basis coefficients, structured or shrunk time bases, and explicit regularization or structural constraints where the component-by-time design is weakly identified. Check first which component-by-time coefficients the available contrasts over follow-up identify, and report the rest as prior-determined rather than estimated. Pair the estimator with RMST-based reporting and survival-specific quantitative bias analysis, and state the scale on which additivity is being assumed, since hazard-scale additivity does not carry over to RMST.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+
+**The source said.** "In component-based survival models, individual treatment components may have effects that vary over time in different ways, and no current method estimates component-specific time-varying effects."
+
+**What was wrong with it.** The source said no current method estimates component-specific time-varying effects; the literature auditor classified this as an unverifiable absence claim and asked for it to be phrased as what the auditors are not aware of, and the code auditor called it an unjustified universal claim that source inspection can establish only as a capability gap in one package. That package, cpaic, is an unreleased development package on GitHub and is not installable from CRAN, so the gap is in software a reader cannot install rather than in a released tool.
+
+Literature and prior-art check
+:   **open / unverifiable.** The load-bearing claim is 'No current method estimates component-specific time-varying treatment effects', which is a pure absence claim; I found no source that itself asserts the absence, so per the audit rules it cannot be verified by my failing to find a method. What I can confirm is consistent with it: multinma supports component-flavoured structure only through class effects (added 0.8.0, 2025-03-25) and handles non-proportionality by stratifying M-spline coefficients by treatment arm and study (aux_by = c(.study, .trt)) or by aux_regression, none of which decomposes a time-varying effect across treatment components; and netmeta's component NMA machinery is additive on a single contrast scale with no time dimension. The fourth claim, that allowing component-specific time variation turns additivity into a time-indexed assumption, is analytically correct. The rating claim ('impact 5, novelty 4, tractability 3 in this agenda') is internal and outside my remit. I would publish this as open but phrase the absence claim as 'we are not aware of' rather than 'no current method'.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** C1 is supported for the audited package. At cpaic@9d150e9, the survival Stan models use time-invariant component main effects and component-by-covariate interactions. Piecewise and M-spline study-specific baselines provide baseline-hazard flexibility but do not produce time-varying treatment effects; the vignette explicitly says cpaic does not currently fit them. C4 is correct on a specified scale: a model with component functions d_c(t) asserts additivity at every time, or equivalently across all time-basis coefficients. Additivity of hazard-scale functions does not imply additivity of RMST effects. The impact, novelty, and tractability scores in C3 are accurately reproduced. C2 is nevertheless an unjustified universal absence claim: cpaic source establishes only a cpaic capability gap, and a time-basis component model is mathematically well defined whenever the component-by-time design is identified. Severity is high only when component-specific nonproportionality materially affects the target estimand or decision.
+
+Decision path
+:   `R5:default-open → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [CMP-18 — Proportional or time-constant component effects may fail](CMP-18-proportional-or-time-constant-component-effects-may-fail.qmd)
+- [MIS-02 — No robustness theory for censoring-weighted survival transport](MIS-02-no-robustness-theory-for-censoring-weighted-survival-transpo.qmd)
+:::
+
+## Source
+
+Derived from C:L1578-1587, C:L2152 of the reviewed corpus.

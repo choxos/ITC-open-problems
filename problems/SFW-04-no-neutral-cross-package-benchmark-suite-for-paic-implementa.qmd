@@ -1,0 +1,86 @@
+---
+title: "No neutral cross-package benchmark suite for PAIC implementations"
+description: "No neutral field-wide benchmark exists that compares baseline connection, CNMA, component PAIC, reference prediction, dose-response models, class effects and partial identification under shared disconnected-network data-generating mechanisms, with public seeds, versioned expected outputs and analytic-truth unit tests. Package-local infrastructure of that kind does exist: at commit 9d150e9 cpaic, an unreleased development package on GitHub that is not on CRAN, ships seeded disconnected-network fixtures with known truth, analytic estimability and likelihood tests, deliberate non-estimability tests, multi-arm tests and cross-package equivalence checks against maicplus. Independent comparative simulation also exists for parts of the field: Chandler and Proskorovsky (doi:10.1002/jrsm.1759) compared four families of MAIC variance estimator across 108 scenarios, and Liu et al. (doi:10.1007/s40258-025-00952-1) ran a 729-scenario full-factorial comparison of unanchored MAIC against naive indirect comparison, neither promoting a method of its own. What is missing is the neutral, maintained, cross-package suite that any implementation can be run against."
+pid: "SFW-04"
+topic: "Software, benchmarks & interface standards"
+categories: ["Software, benchmarks & interface standards", "Very high priority", "Partially addressed"]
+priority: "Very high"
+prank: 1
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
+maturity: "Emerging"
+tractability: 5
+---
+::: {.problem-meta}
+[SFW-04]{.problem-id}
+[Partially addressed]{.verdict .verdict-partially-addressed}
+[Very high priority]{.chip .chip-priority-very-high}
+[Emerging]{.chip .chip-maturity-emerging}
+[Tractability 5/5]{.chip}
+:::
+::: {.source-unsourced}
+**Source note.** This entry derives in part from a source document whose inline citations
+were ChatGPT interface tokens rather than references, and so resolve to nothing. Claims
+below are attributed to that document and were checked independently where possible;
+anything that could not be independently sourced is marked in the verification trail.
+:::
+
+## Statement
+
+No neutral field-wide benchmark exists that compares baseline connection, CNMA, component PAIC, reference prediction, dose-response models, class effects and partial identification under shared disconnected-network data-generating mechanisms, with public seeds, versioned expected outputs and analytic-truth unit tests. Package-local infrastructure of that kind does exist: at commit 9d150e9 cpaic, an unreleased development package on GitHub that is not on CRAN, ships seeded disconnected-network fixtures with known truth, analytic estimability and likelihood tests, deliberate non-estimability tests, multi-arm tests and cross-package equivalence checks against maicplus. Independent comparative simulation also exists for parts of the field: Chandler and Proskorovsky (doi:10.1002/jrsm.1759) compared four families of MAIC variance estimator across 108 scenarios, and Liu et al. (doi:10.1007/s40258-025-00952-1) ran a 729-scenario full-factorial comparison of unanchored MAIC against naive indirect comparison, neither promoting a method of its own. What is missing is the neutral, maintained, cross-package suite that any implementation can be run against.
+
+## Why it is open
+
+Cross-package validation needs an agreed estimand and input format, neither of which exists, so outside a single package's own fixtures there is nothing for expected outputs to be expected against. The independent simulation studies that do exist each answer one question and were not built to be re-run by others, so they are evidence rather than infrastructure: no seeds, manifests or reference implementations survive for the next comparison. The mechanisms that would actually discriminate between bridges, namely bridge violation, component drift, unmeasured modifiers and design differences, are still rarely simulated by anyone. Benchmarks are maintenance work with no publication reward and need cross-group coordination nobody owns, so discrepancies surface only in appraisals, where they are attributed to analyst choice rather than to software behavior.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [cpaic, unreleased development package on GitHub (not on CRAN), commit 9d150e9](https://github.com/choxos/cpaic) | provides seeded disconnected-network data with known truth, analytic estimability and likelihood tests, deliberate non-estimability tests, multi-arm tests and cross-package equivalence tests against maicplus; package-local validation infrastructure that partially resolves the analytic-truth half of the claim but does not replace an independent benchmark |
+| [Chandler and Proskorovsky 2024, Uncertain about uncertainty in matching-adjusted indirect comparisons? A simulation study to compare methods for variance estimation, Res Synth Methods 15(6):1094-1110](https://doi.org/10.1002/jrsm.1759) | compares four families of MAIC variance estimator across 108 anchored and unanchored scenarios for binary and time-to-event outcomes, with no method of its own to promote; author-neutral comparative evidence for one part of the field, but not re-runnable infrastructure |
+| [Liu et al. 2025, Is the Use of Unanchored Matching-Adjusted Indirect Comparison Always Superior to Naive Indirect Comparison on Survival Outcomes? A Simulation Study](https://doi.org/10.1007/s40258-025-00952-1) | runs a 729-scenario three-level full factorial over IPD and aggregate sample size, covariate strength, correlation, overlap and effect size, identifying where unanchored MAIC is more biased than naive indirect comparison; again author-neutral evidence rather than a maintained benchmark |
+
+:::
+
+## Probable solution or research direction
+
+Generalize what already exists rather than starting over: promote cpaic's seeded known-truth fixtures and cross-package equivalence tests into a package-independent repository, and re-express the published author-neutral simulations as re-runnable scenarios with seeds and manifests. Add the adversarial data-generating mechanisms nobody currently simulates, including bridge violation, component drift, unmeasured modifiers and design difference, and declare an estimand and decision-relevant performance measures for each. Ship versioned expected outputs, analytic-truth unit tests and reference implementations with containerized workflows so any ITC or PAIC package can be run against them and discrepancies are attributable to software rather than to analyst choice.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Partially addressed. Part of this problem is addressed by existing work; the entry names which part.
+
+**The source titled this.** "No neutral benchmark suite or analytic-truth tests for PAIC code" The title says analytic-truth tests do not exist, but seeded known-truth fixtures, analytic and non-estimability tests and cross-package equivalence checks were found.
+
+**The source said.** "There is no open benchmark suite for ITC, PAIC, disconnected-network, component and QBA methods with synthetic and real exemplars, public seeds, expected outputs, analytic-truth unit tests and cross-package validation, and no shared set of disconnected-network data-generating mechanisms under which baseline connection, CNMA, cpaic, reference prediction, dose-response models, class effects and partial identification can be compared. The report argues such a neutral comparison is a publication in its own right and may have more practical influence than another estimator paper."
+
+**What was wrong with it.** The source claimed PAIC software is not routinely unit tested against analytic truth and that no benchmark datasets or cross-package tests exist; GPT-5.6 Sol found seeded known-truth fixtures, analytic and deliberate non-estimability tests and cross-package equivalence checks already in cpaic at commit 9d150e9, and the literature auditor rejected the premise that comparative evidence comes mostly from the authors of the method being promoted, naming two author-neutral simulation studies (doi:10.1002/jrsm.1759, doi:10.1007/s40258-025-00952-1). The claim was unattributed in the source and is now sourced; the field-wide benchmark gap survives.
+
+**Dissent.** literature dissented (open): Source-document checks pass exactly: line 2147 rates 'Public adversarial benchmark and empirical bridge-deletion suite' Impact 5, Novelty 3, Tractability 5, so the 'tractability 5 out of 5' figure is right; line 2233 states verbatim that the paper 'may have more practical influence than another estimator paper because the field lacks trusted comparative benchmarks and has almost no reference-grade QBA software for limited-AgD unanchored PAIC'; line 1165 matches the disconnected-network benchmark claim. No maintained neutral suite with public seeds, versioned expected outputs and analytic-truth unit tests exists, so the core claim stands. The caveat is the why_open assertion that comparative evidence 'comes mostly from simulations run by the authors of the method being promoted'. Two counterexamples: Chandler & Proskorovsky (2024) ran 108 scenarios comparing four MAIC variance families with no method to promote, and Liu et al. (2025) ran a 729-scenario full-factorial MAIC versus naive comparison. Wigle & Beliveau (2022) likewise report the first simulation comparison of CNMA models. codex dissented (overstated): The inspected sources do not contain a neutral field-wide suite comparing every named method under common disconnected-network data-generating mechanisms, so the central benchmark problem remains. However, C2, C4, and C6 are too categorical: cpaic already contains a seeded disconnected-network fixture with known truth, analytic estimability and likelihood tests, deliberate non-estimability tests, multi-arm tests, and cross-package equivalence checks. C5 is technically correct. C8 is defensible only for the full all-method comparison. C7 is a QBA software-coverage claim rather than a mathematical result. C9 is a prediction, C10 merely reports the agenda's own rating, and C11 is an unquantified ecosystem judgment. Existing package-local tests partially solve implementation verification but do not replace an independent benchmark.
+
+Literature and prior-art check
+:   **open / supported-with-caveat.** Source-document checks pass exactly: line 2147 rates 'Public adversarial benchmark and empirical bridge-deletion suite' Impact 5, Novelty 3, Tractability 5, so the 'tractability 5 out of 5' figure is right; line 2233 states verbatim that the paper 'may have more practical influence than another estimator paper because the field lacks trusted comparative benchmarks and has almost no reference-grade QBA software for limited-AgD unanchored PAIC'; line 1165 matches the disconnected-network benchmark claim. No maintained neutral suite with public seeds, versioned expected outputs and analytic-truth unit tests exists, so the core claim stands. The caveat is the why_open assertion that comparative evidence 'comes mostly from simulations run by the authors of the method being promoted'. Two counterexamples: Chandler & Proskorovsky (2024) ran 108 scenarios comparing four MAIC variance families with no method to promote, and Liu et al. (2025) ran a 729-scenario full-factorial MAIC versus naive comparison. Wigle & Beliveau (2022) likewise report the first simulation comparison of CNMA models.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / overstated.** The inspected sources do not contain a neutral field-wide suite comparing every named method under common disconnected-network data-generating mechanisms, so the central benchmark problem remains. However, C2, C4, and C6 are too categorical: cpaic already contains a seeded disconnected-network fixture with known truth, analytic estimability and likelihood tests, deliberate non-estimability tests, multi-arm tests, and cross-package equivalence checks. C5 is technically correct. C8 is defensible only for the full all-method comparison. C7 is a QBA software-coverage claim rather than a mathematical result. C9 is a prediction, C10 merely reports the agenda's own rating, and C11 is an unquantified ecosystem judgment. Existing package-local tests partially solve implementation verification but do not replace an independent benchmark.
+    Cites choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca: Provides seeded disconnected-network known-truth data, analytic estimability and likelihood tests, multi-arm tests, and cross-package equivalence tests, partially resolving the claimed absence of analytic-truth and validation infrastructure..
+
+Decision path
+:   `R3:partially-solved(n=1) → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [CMU-07 — Published PAIC analyses do not record the choices that drive them](CMU-07-published-paic-analyses-do-not-record-the-choices-that-drive.qmd)
+- [CMU-08 — No cross-package benchmark or reference pipeline for ITC software](CMU-08-no-cross-package-benchmark-or-reference-pipeline-for-itc-sof.qmd)
+:::
+
+## Source
+
+Derived from A:L167, A:L220, C:L214-215, C:L258, C:L1165, C:L2147, C:L2229-2233, C:L2236-2240, C:L2493 of the reviewed corpus.

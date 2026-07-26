@@ -1,0 +1,73 @@
+---
+title: "No agreed criterion for when a held-out-trial discrepancy falsifies"
+description: "Refitting an ITC or PAIC model with one connected trial withheld and comparing the predicted contrast with the observed one is a coherent falsification design, but only if removing the trial leaves the required contrast identifiable and the withheld population's target covariate distribution can be specified without using its outcome contrast. We are not aware of a standardized protocol saying how to run it or when a discrepancy counts as falsifying, and neither auditor could certify that absence: the literature auditor found no source asserting it, and the source-code auditor treated a literature-wide absence claim as outside the technical lens. The nearest work found is adjacent rather than on point, namely leave-one-trial-out influence and outlier diagnostics for network meta-analysis (arXiv:1910.13080) and formal falsification tests for external validity with defined test statistics and error control from outside the ITC literature (Hussain et al., AISTATS 2023). The two secondary claims survive: study-level held-out prediction and patient-level cross-validation answer different questions, and withholding a trial changes the evidence base and can change the implied target population, though not when the target is externally prespecified."
+pid: "IDN-07"
+topic: "Identification, transitivity & conditional constancy"
+categories: ["Identification, transitivity & conditional constancy", "Very high priority", "Unverifiable"]
+priority: "Very high"
+prank: 1
+verdict: "Unverifiable"
+verdictslug: "unverifiable"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[IDN-07]{.problem-id}
+[Unverifiable]{.verdict .verdict-unverifiable}
+[Very high priority]{.chip .chip-priority-very-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+## Statement
+
+Refitting an ITC or PAIC model with one connected trial withheld and comparing the predicted contrast with the observed one is a coherent falsification design, but only if removing the trial leaves the required contrast identifiable and the withheld population's target covariate distribution can be specified without using its outcome contrast. We are not aware of a standardized protocol saying how to run it or when a discrepancy counts as falsifying, and neither auditor could certify that absence: the literature auditor found no source asserting it, and the source-code auditor treated a literature-wide absence claim as outside the technical lens. The nearest work found is adjacent rather than on point, namely leave-one-trial-out influence and outlier diagnostics for network meta-analysis (arXiv:1910.13080) and formal falsification tests for external validity with defined test statistics and error control from outside the ITC literature (Hussain et al., AISTATS 2023). The two secondary claims survive: study-level held-out prediction and patient-level cross-validation answer different questions, and withholding a trial changes the evidence base and can change the implied target population, though not when the target is externally prespecified.
+
+## Why it is open
+
+There is no agreed pass or fail rule: the predictive interval has to absorb weight estimation, target-moment uncertainty and between-study heterogeneity, and neither the discrepancy metric nor a calibration threshold is defined. Networks contain few trials, so the check has low power and its verdict depends heavily on which trial is withheld. Because predicted and observed contrasts can refer to different populations once the evidence base changes, a discrepancy is ambiguous between an estimand mismatch and a genuine transport failure, and current practice further conflates study-level held-out prediction with patient-level cross-validation, which answers a different question.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [arXiv:1910.13080, leave-one-trial-out influence and outlier diagnostics for network meta-analysis](https://arxiv.org/abs/1910.13080) | study-level leave-one-out diagnostics for network meta-analysis aimed at influence and outlier detection, not at falsifying a predicted treatment contrast against an observed one with prespecified thresholds |
+| [Hussain et al. 2023, Falsification of Internal and External Validity in Observational Studies via Conditional Moment Restrictions, AISTATS, PMLR volume 206](https://proceedings.mlr.press/v206/) | formal falsification tests for external validity with defined test statistics and error control, developed outside the ITC literature and not specialized to held-out-trial prediction in an evidence network |
+
+:::
+
+## Probable solution or research direction
+
+Write the protocol rather than the method: specify the identifiability precondition for removal, a target-standardized comparison of predicted and observed contrasts, a discrepancy metric, prespecified failure thresholds, and full propagation of weight and target-moment uncertainty. Calibrate it where held-out truth is available so the threshold has known operating characteristics instead of being asserted, and keep it explicitly distinct from patient-level cross-validation in reporting. The conditional-moment falsification machinery developed for external validity is the closest formal template and is worth adapting rather than reinventing.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Unverifiable. Auditors disagreed and the disagreement was evidence-bearing on both sides.
+
+**The source titled this.** "No protocol for held-out-trial falsification of predicted contrasts" The title asserts flatly that no protocol exists, an absence neither auditor could certify, so the entry now says only that it is not aware of one.
+
+**The source said.** "An ITC/PAIC method can be refit with one connected trial withheld and used to predict that trial's treatment contrast, which is then compared with the observed contrast. No standardized protocol defines how such a leave-one-trial-out emulation should be conducted or when a discrepancy should count as falsifying the analysis."
+
+**What was wrong with it.** The source asserted flatly that no standardized protocol exists. Neither auditor could verify a literature-wide absence, so the claim is now stated as one we are not aware of, and the nearest work is named: arXiv:1910.13080, an ISPOR 2024 abstract on predictive cross-validation for network meta-analysis that the literature auditor could not retrieve in full (Value in Health, PII S1098-3015(24)05231-8), and Hussain et al. 2023 on falsification of external validity via conditional moment restrictions.
+
+Literature and prior-art check
+:   **open / unverifiable.** The headline claim is an absence claim ('no standardized protocol defines how leave-one-trial-out emulation should be conducted or when a discrepancy counts as falsifying'), and I found no source that asserts that absence, so by the audit's own rule this is unverifiable rather than supported. I searched PubMed and the web and found only adjacent work, none of which is an ITC/PAIC held-out-trial falsification protocol with prespecified thresholds: leave-one-trial-out influence and outlier diagnostics for NMA (arXiv 1910.13080); an ISPOR 2024 conference abstract on predictive cross-validation for NMA that I could not retrieve in full (Value in Health S1098-3015(24)05231-8); and, outside the ITC literature, formal falsification tests for external validity with defined test statistics and error control (Hussain et al., 'Falsification of Internal and External Validity in Observational Studies via Conditional Moment Restrictions', PMLR v206, AISTATS 2023). The two secondary claims are sound: study-level held-out prediction and patient-level LOO-CV do answer different questions, and in ML-NMR the target population is study-indexed, so withholding a trial does change the implied estimand. Publish the sub-claims; soften the absence claim to 'we are not aware of'.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **abstain / unverifiable.** The technically assessable subclaims need conditions. A held-out-trial prediction is feasible only if removal leaves the required contrasts identifiable and the withheld population's target distribution is specified without using its outcome contrast. Study-level prediction and patient-level cross-validation do answer different questions. Withholding changes the evidence base, but it need not change the target population when that target is externally prespecified; C4 correctly says only that it can. The headline assertion that no standardized protocol currently exists is a literature-wide absence claim. Verifying it would require the novelty and literature review that this audit was expressly instructed not to perform, so neither openness nor support for that central claim can be established under the assigned lens.
+
+Decision path
+:   `R5:default-open → R10:no-accessible-source`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [DIA-01 — No diagnostic can falsify unmeasured effect modification in PAIC](DIA-01-no-diagnostic-can-falsify-unmeasured-effect-modification-in-.qmd)
+- [QBA-26 — Benchmarking and negative controls as data-based calibration](QBA-26-benchmarking-and-negative-controls-as-data-based-calibration.qmd)
+:::
+
+## Source
+
+Derived from C:L253, C:L255, C:L396, C:L398 of the reviewed corpus.

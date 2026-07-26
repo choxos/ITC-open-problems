@@ -1,0 +1,80 @@
+---
+title: "Published PAIC analyses cannot be reconstructed from the record"
+description: "Published PAIC analyses cannot be reconstructed from the record: 78% of 117 oncology MAICs did not report the source of the individual patient data and 66% conducted no systematic review to select the compared trials (10.1016/j.vhri.2025.101088), and outcome-model fitting results were adequately reported in 3 of 18 analyses that required a model (10.1002/jrsm.1653). Independent verification does not require public release, though: secure reviewer access to the protocol, inputs, code and environment would support replication, so the requirement is auditability rather than publication. Whether a public protocol or statistical analysis plan is required in most HTA settings was checked by no auditor and is not asserted here. Machine-readable provenance is partly demonstrated rather than absent: the component ML-NMR path in cpaic, an unreleased GitHub development package that is not on CRAN, stores engine and package versions, a Stan-source hash, the seed, the integration count, assumptions and priors in the fit object, while no path in it records a git commit, a dependency lock, an extraction audit trail or a failed-model history."
+pid: "DEC-13"
+topic: "Decision analysis, regulation & reporting"
+categories: ["Decision analysis, regulation & reporting", "High priority", "Partially addressed"]
+priority: "High"
+prank: 2
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[DEC-13]{.problem-id}
+[Partially addressed]{.verdict .verdict-partially-addressed}
+[High priority]{.chip .chip-priority-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+## Statement
+
+Published PAIC analyses cannot be reconstructed from the record: 78% of 117 oncology MAICs did not report the source of the individual patient data and 66% conducted no systematic review to select the compared trials (10.1016/j.vhri.2025.101088), and outcome-model fitting results were adequately reported in 3 of 18 analyses that required a model (10.1002/jrsm.1653). Independent verification does not require public release, though: secure reviewer access to the protocol, inputs, code and environment would support replication, so the requirement is auditability rather than publication. Whether a public protocol or statistical analysis plan is required in most HTA settings was checked by no auditor and is not asserted here. Machine-readable provenance is partly demonstrated rather than absent: the component ML-NMR path in cpaic, an unreleased GitHub development package that is not on CRAN, stores engine and package versions, a Stan-source hash, the seed, the integration count, assumptions and priors in the fit object, while no path in it records a git commit, a dependency lock, an extraction audit trail or a failed-model history.
+
+## Why it is open
+
+Submission dossiers are confidential and prepared under commercial pressure, so a prespecified protocol would fix analytic choices before the results are known and remove flexibility that currently exists. Extraction of aggregate data from publications is manual and its audit trail is rarely retained, so the inputs cannot be verified independently even in principle. Reporting failed models exposes what was tried and rejected, which is precisely what a reviewer needs and a submitter would rather omit, and no agency asks for it. The provenance that software does capture is uneven within a single package, so a reader cannot rely on its being present.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Farinasso et al. 2025](https://doi.org/10.1016/j.vhri.2025.101088) | Sources the data-provenance component with measured figures: 69% of 117 oncology MAICs used pseudo-IPD, 78% did not report the source of the IPD, and 66% conducted no systematic review to select trials. |
+| [Truong et al. 2023](https://doi.org/10.1002/jrsm.1653) | Sources the claim that model specification is not reported in enough detail to be reproduced or checked: results of the model-fitting procedure were adequately reported in 3 of 18 analyses (16.7%). |
+| [cpaic (development package, audited at commit 9d150e9)](choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca) | Unreleased development package on GitHub, confirmed by an auditor not to be on CRAN. Its component ML-NMR fit objects store engine and package versions, a Stan-source hash, the seed, the numerical-integration count, assumptions, priors and refit arguments, partially implementing a machine-readable manifest; its MAIC path does not retain target standard deviations, seed or successful-bootstrap counts, and no path records a git commit, dependency lock, extraction audit trail or failed-model history. |
+
+:::
+
+## Probable solution or research direction
+
+Require what makes independent verification possible under confidentiality: reviewer access to the protocol or statistical analysis plan, a documented extraction audit trail, executable code with the environment, versions and seeds, and disclosure of prespecified or materially different model attempts, convergence failures and exclusion rules with counts. Treat the machine-readable manifest as a convenience rather than a prerequisite, since executable code plus a locked environment is the authoritative specification and a separate manifest can drift; where one is used, make it package-wide instead of confined to a single analysis path. Reserve independent replication for high-stakes submissions.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Partially addressed. Part of this problem is addressed by existing work; the entry names which part.
+
+**The source titled this.** "ITC submissions are not reproducible or independently checkable" The title asserts submissions are not independently checkable, which the audit rejected as too absolute since secure reviewer access supports replication without public release.
+
+**The source said.** "Decision-grade ITC submissions cannot be reproduced or independently verified: a public protocol or statistical analysis plan, a data provenance and extraction audit trail, code with package versions, commit hashes, seeds and a lock file, a machine-readable model manifest, disclosure of all failed models and excluded simulation replicates, and independent review or replication for high-stakes submissions are all absent from standard practice."
+
+**What was wrong with it.** The source said decision-grade ITC submissions cannot be reproduced or independently verified and that a machine-readable model manifest is absent from practice. GPT-5.6 Sol found the absolute framing wrong, since secure reviewer access supports replication without public release, and found a partial manifest already implemented in cpaic; the literature auditor could not verify the claim that a public protocol is not required in most HTA settings, so it has been dropped rather than repeated.
+
+**Dissent.** literature dissented (open): The data-provenance component is directly sourceable: Farinasso et al. 2025 found that 78% of 117 oncology MAICs did not report the source of the individual patient data, and 66% conducted no systematic review to select the trials being compared, so the inputs cannot be reconstructed from the published record. Truong et al. 2023 adds that model-fitting results were adequately reported in only 3 of 18 analyses requiring an outcome model. Caveat, and the reason my confidence is moderate: I could not verify the claim that a public protocol or statistical analysis plan 'is not currently required for ITC submissions in most HTA settings'. That is a jurisdiction-by-jurisdiction regulatory fact and I checked no agency methods guides; per the standing rule on absence claims it is unverifiable as written. I also found no ITC-specific work on machine-readable model manifests. An adjacent literature on open-source health economic models exists (an ISPOR special interest group review in Value in Health 2025 identified 213 such models and flagged documentation gaps), but I did not retrieve its full text and it concerns economic models, not ITC submissions. codex dissented (overstated): The opening claim that decision-grade ITCs cannot be reproduced or independently verified is too absolute. Public access is not logically required; secure access to the protocol, data, code, and environment can support independent replication. C1's most-settings frequency is not established here, and a public protocol primarily addresses selective analysis rather than computational reproducibility. C2 and C4 are sound. C3 should cover all prespecified or substantively material model attempts, convergence failures, exclusions, and reasons, not every debugging failure. Simulation and bootstrap exclusions should be reported with rules and counts. C5 is useful but not necessary when executable code and a locked environment already provide the authoritative specification; a separate manifest can itself drift. At the requested commit, cML-NMR fit objects already store package and engine versions, Stan-source MD5, seed, integration count, assumptions, priors, and refit arguments, partially implementing a machine-readable manifest. This is not package-wide: cMAIC does not retain target_sd, seed, or successful-bootstrap counts, and no path records a git commit, full dependency lock, extraction audit trail, or failed model history.
+
+Literature and prior-art check
+:   **open / supported-with-caveat.** The data-provenance component is directly sourceable: Farinasso et al. 2025 found that 78% of 117 oncology MAICs did not report the source of the individual patient data, and 66% conducted no systematic review to select the trials being compared, so the inputs cannot be reconstructed from the published record. Truong et al. 2023 adds that model-fitting results were adequately reported in only 3 of 18 analyses requiring an outcome model. Caveat, and the reason my confidence is moderate: I could not verify the claim that a public protocol or statistical analysis plan 'is not currently required for ITC submissions in most HTA settings'. That is a jurisdiction-by-jurisdiction regulatory fact and I checked no agency methods guides; per the standing rule on absence claims it is unverifiable as written. I also found no ITC-specific work on machine-readable model manifests. An adjacent literature on open-source health economic models exists (an ISPOR special interest group review in Value in Health 2025 identified 213 such models and flagged documentation gaps), but I did not retrieve its full text and it concerns economic models, not ITC submissions.
+    Cites 10.1016/j.vhri.2025.101088: Sources the data-provenance and independent-checkability component with measured figures across 117 studies..
+    Cites 10.1002/jrsm.1653: Sources the claim that model specification is not reported in enough detail to be reproduced or checked..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / overstated.** The opening claim that decision-grade ITCs cannot be reproduced or independently verified is too absolute. Public access is not logically required; secure access to the protocol, data, code, and environment can support independent replication. C1's most-settings frequency is not established here, and a public protocol primarily addresses selective analysis rather than computational reproducibility. C2 and C4 are sound. C3 should cover all prespecified or substantively material model attempts, convergence failures, exclusions, and reasons, not every debugging failure. Simulation and bootstrap exclusions should be reported with rules and counts. C5 is useful but not necessary when executable code and a locked environment already provide the authoritative specification; a separate manifest can itself drift. At the requested commit, cML-NMR fit objects already store package and engine versions, Stan-source MD5, seed, integration count, assumptions, priors, and refit arguments, partially implementing a machine-readable manifest. This is not package-wide: cMAIC does not retain target_sd, seed, or successful-bootstrap counts, and no path records a git commit, full dependency lock, extraction audit trail, or failed model history.
+    Cites choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca: Partially resolves C5 and the code-provenance portion of the statement for cML-NMR by storing engine and package versions, Stan-source hash, seed, numerical-integration count, assumptions, priors, and refit arguments in the fit object..
+
+Decision path
+:   `R3:partially-solved(n=1) → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [CMU-05 — Failed fits are deleted rather than classified and reported](CMU-05-failed-fits-are-deleted-rather-than-classified-and-reported.qmd)
+- [CMU-08 — No cross-package benchmark or reference pipeline for ITC software](CMU-08-no-cross-package-benchmark-or-reference-pipeline-for-itc-sof.qmd)
+- [SFW-02 — No machine-readable specification standard for ITC analyses](SFW-02-no-machine-readable-specification-standard-for-itc-analyses.qmd)
+:::
+
+## Source
+
+Derived from C:L2441-2448 of the reviewed corpus.

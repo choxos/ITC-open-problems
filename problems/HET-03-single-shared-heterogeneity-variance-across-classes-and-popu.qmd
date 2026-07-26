@@ -1,0 +1,73 @@
+---
+title: "Single shared heterogeneity variance across classes and populations"
+description: "Network models in current software default to a single between-study heterogeneity variance shared across the whole network, adopted for estimability rather than for plausibility: multinma's tau is one network-wide scalar, as is the common tau recorded by cMLNMR in cpaic, an unreleased development package on GitHub that is not on CRAN. The structured alternatives are not open research. Thorlund et al. 2013 (pmid:23311298) state the problem and build and compare four replacements for the homogeneous-variance assumption, empirically derived heterogeneity priors exist for 80 settings (Turner et al. 2015, doi:10.1002/sim.6381) and weakly informative ones for the very-few-studies case (Rover et al. 2021, doi:10.1002/jrsm.1475), and class-specific variance components with sharing across sparse classes ship in multinma via class_sd since 0.8.0 (Perren et al. 2025, doi:10.1177/0272989X251389887), although that is a within-class treatment standard deviation rather than tau. What has not been done is establishing how large a network must be before the competing variance structures are distinguishable, and no structure indexes heterogeneity by target population; nor is the direction of the error fixed, since a shared variance can overstate uncertainty in a sparse stratum as readily as understate it, depending on which strata are more heterogeneous."
+pid: "HET-03"
+topic: "Heterogeneity, consistency & multi-arm structure"
+categories: ["Heterogeneity, consistency & multi-arm structure", "High priority", "Partially addressed"]
+priority: "High"
+prank: 2
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[HET-03]{.problem-id}
+[Partially addressed]{.verdict .verdict-partially-addressed}
+[High priority]{.chip .chip-priority-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+## Statement
+
+Network models in current software default to a single between-study heterogeneity variance shared across the whole network, adopted for estimability rather than for plausibility: multinma's tau is one network-wide scalar, as is the common tau recorded by cMLNMR in cpaic, an unreleased development package on GitHub that is not on CRAN. The structured alternatives are not open research. Thorlund et al. 2013 (pmid:23311298) state the problem and build and compare four replacements for the homogeneous-variance assumption, empirically derived heterogeneity priors exist for 80 settings (Turner et al. 2015, doi:10.1002/sim.6381) and weakly informative ones for the very-few-studies case (Rover et al. 2021, doi:10.1002/jrsm.1475), and class-specific variance components with sharing across sparse classes ship in multinma via class_sd since 0.8.0 (Perren et al. 2025, doi:10.1177/0272989X251389887), although that is a within-class treatment standard deviation rather than tau. What has not been done is establishing how large a network must be before the competing variance structures are distinguishable, and no structure indexes heterogeneity by target population; nor is the direction of the error fixed, since a shared variance can overstate uncertainty in a sparse stratum as readily as understate it, depending on which strata are more heterogeneous.
+
+## Why it is open
+
+Networks rarely contain enough studies per class or component to estimate separate variances, so a separate-variance model is often only nominally identified and its posterior is driven by the prior rather than by the data. Model comparison statistics have little power to distinguish competing variance structures at realistic network sizes, and no one has established the size at which they become distinguishable, so the default is neither tested nor visibly violated. Component-specific variances need further assumptions about the covariance among component deviations, and any structured alternative must keep the random-effects covariance positive semidefinite, which is why the existing proposals have not displaced the default in software. Population-indexed heterogeneity has no implementation at all: the software parameter is a single network-wide scalar, so the question of whether tau should differ by target population cannot currently be asked.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Thorlund, Thabane and Mills, 2013, Modelling heterogeneity variances in multiple treatment comparison meta-analysis, BMC Medical Research Methodology 13:2](https://pubmed.ncbi.nlm.nih.gov/23311298/) | States the entry's problem (the homogeneous variance assumption is unrealistic and can severely bias variance estimates, so credible intervals may lose nominal coverage and rank probabilities may be distorted) and builds and compares four alternatives: exchangeable variances, consistency-constrained variances, and two informative variance-prior schemes. |
+| [Turner et al., 2015, Predictive distributions for between-study heterogeneity and simple methods for their application in Bayesian meta-analysis](https://doi.org/10.1002/sim.6381) | Derives empirically based predictive distributions for heterogeneity in 80 settings defined by outcome and comparison type, usable directly as heterogeneity priors; this is the robust-prior component the source lists as needed. |
+| [Rover et al., 2021, On weakly informative prior distributions for the heterogeneity parameter in Bayesian random-effects meta-analysis](https://doi.org/10.1002/jrsm.1475) | Guidance on heterogeneity priors when very few studies contribute, which is the sparse-stratum case the entry names. |
+| [Perren, Pedder, Welton and Phillippo, 2025, Network Meta-Analysis with Class Effects: A Practical Guide and Model Selection Algorithm](https://doi.org/10.1177/0272989X251389887) | Class-specific variance components with sharing of the standard deviation across groups of classes when a class has too few treatments to estimate its own, implemented in multinma as class_sd since 0.8.0, plus a model selection algorithm; note this is a within-class treatment standard deviation, not the between-study heterogeneity variance. |
+| [cpaic, unreleased development package on GitHub (not on CRAN), commit 9d150e9](https://github.com/choxos/cpaic) | cMLNMR records a single common tau and offers half-normal and half-Student-t priors for it, with no class-specific or component-specific heterogeneity structure; the source-code auditor used this to confirm that the software default persists. |
+
+:::
+
+## Probable solution or research direction
+
+The modeling work is largely done, so the useful contributions are evaluation and porting rather than invention. Run the distinguishability simulation the field lacks: how many studies per class or component are needed before exchangeable, consistency-constrained and separate-variance structures can be told apart, so a default can be defended or abandoned on the basis of network size rather than convention. Carry the existing structures and the empirically derived heterogeneity priors into population-adjusted network models, where the heterogeneity parameter is still a single scalar, and report prior sensitivity rather than claiming any prior is universally robust. The genuinely new case is heterogeneity indexed by target population, which none of the existing work addresses.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Partially addressed. Part of this problem is addressed by existing work; the entry names which part.
+
+**The source said.** "Network models default to one common between-study heterogeneity variance even when the network spans treatment classes, components, and populations for which a shared value is implausible. The default is adopted for estimability rather than for plausibility."
+
+**What was wrong with it.** The source presented structured heterogeneity models and robust heterogeneity priors as work still to be developed; the literature auditor found them published and evaluated years ago (Thorlund et al. 2013, pmid:23311298; Turner et al. 2015, doi:10.1002/sim.6381; Rover et al. 2021, doi:10.1002/jrsm.1475; class-specific variances in multinma since 0.8.0, doi:10.1177/0272989X251389887), so the residual gap is adoption plus the population-indexed case. The two auditors split on whether the entry is open or partly solved, and the code auditor added that 'often unrealistic' is an unsupported prevalence claim and that a shared variance does not automatically understate uncertainty where a new treatment sits; the entry is published at the weaker claim.
+
+**Dissent.** literature dissented (overstated): Retrieved Thorlund, Thabane & Mills (2013), BMC Med Res Methodol 13:2, which is the entry's problem and much of its proposed direction, already executed. Verbatim: 'Random-effects MTCs have commonly modeled heterogeneity under the assumption that the between-trial variance for all involved treatment comparisons are equal... The homogeneous variance assumption, however, is unrealistic and can severely bias variance estimates. Consequently 95% credible intervals may not retain nominal coverage, and treatment rank probabilities may become distorted.' They build and compare four alternatives (exchangeable variances, consistency-constrained variances, two informative variance-prior schemes) and conclude 'All four approaches should be viable candidates for replacing or supplementing the conventional homogeneous variance MTC model.' The 'robust priors for sparse strata' claim is likewise delivered rather than open: Turner et al. (2015) empirical predictive distributions for tau, Rover et al. (2021) weakly informative heterogeneity priors, Lilienthal et al. (2024) empirical HTA priors. Class-specific variance components with sharing across sparse classes are implemented in multinma 0.8.0+ via class_sd, though that is the within-class treatment SD, not between-study tau; multinma's tau remains a single network-wide scalar, so the software-default half stands. Genuinely open: population-indexed heterogeneity, and the distinguishability simulation (Thorlund used two illustrative datasets).
+
+Literature and prior-art check
+:   **partially-solved / overstated.** Retrieved Thorlund, Thabane & Mills (2013), BMC Med Res Methodol 13:2, which is the entry's problem and much of its proposed direction, already executed. Verbatim: 'Random-effects MTCs have commonly modeled heterogeneity under the assumption that the between-trial variance for all involved treatment comparisons are equal... The homogeneous variance assumption, however, is unrealistic and can severely bias variance estimates. Consequently 95% credible intervals may not retain nominal coverage, and treatment rank probabilities may become distorted.' They build and compare four alternatives (exchangeable variances, consistency-constrained variances, two informative variance-prior schemes) and conclude 'All four approaches should be viable candidates for replacing or supplementing the conventional homogeneous variance MTC model.' The 'robust priors for sparse strata' claim is likewise delivered rather than open: Turner et al. (2015) empirical predictive distributions for tau, Rover et al. (2021) weakly informative heterogeneity priors, Lilienthal et al. (2024) empirical HTA priors. Class-specific variance components with sharing across sparse classes are implemented in multinma 0.8.0+ via class_sd, though that is the within-class treatment SD, not between-study tau; multinma's tau remains a single network-wide scalar, so the software-default half stands. Genuinely open: population-indexed heterogeneity, and the distinguishability simulation (Thorlund used two illustrative datasets).
+    Cites pmid:23311298: Already states the problem and supplies four evaluated alternatives to a single shared heterogeneity variance..
+    Cites doi:10.1002/sim.6381: Supplies empirically derived heterogeneity priors for 80 settings, the 'robust priors for sparse strata' the entry lists as needed..
+    Cites doi:10.1002/jrsm.1475: Guidance on robust heterogeneity priors when very few studies contribute, the sparse-stratum case the entry names..
+    Cites doi:10.1177/0272989X251389887: Class-specific variance components with sharing across sparse classes, implemented in multinma (class_sd argument, since 0.8.0), plus a model-selection algorithm..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / supported-with-caveat.** C1 is technically plausible but context-dependent; the word often is an unsupported prevalence claim. A common heterogeneity variance can be implausible across distinct classes or populations, but it can either understate or overstate uncertainty depending on which strata are more heterogeneous. Understatement near a new treatment is not automatic. C2 is a valid modeling direction only if the resulting random-effects covariance is positive semidefinite and the network supplies enough replication. Component-specific variances also require assumptions about covariance among component deviations. In sparse strata, separate variances may be practically unidentified and dominated by priors. C3 is too categorical: proper regularization, hierarchical pooling, and prior-sensitivity analysis are advisable, but there is no universally robust prior that is always required. At cpaic 9d150e9, cMLNMR explicitly records a single common tau. It offers half-normal and half-Student-t priors but no class-specific or component-specific heterogeneity structure, so the core package limitation remains open. This is a potentially material sensitivity issue, not automatically a high-severity defect in every network.
+
+Decision path
+:   `R3:partially-solved(n=1) → R9:substantiated-single-overstatement:literature`
+
+:::
+
+## Source
+
+Derived from C:L214-215, C:L234 of the reviewed corpus.

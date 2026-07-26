@@ -1,0 +1,83 @@
+---
+title: "Unreleased cpaic has no QBA interface beyond box-bounded drift"
+description: "cpaic is an unreleased development package on GitHub (choxos/cpaic@9d150e9); it is not on CRAN and a reader cannot install it. Its bridge_fragility() is stronger than the entry described: for each posterior draw it computes the absolute distance between the contrast and the decision threshold divided by the sum of the absolute component loadings, which is the smallest common absolute bound under which some component-specific drift vector could push a link-scale contrast to the decision boundary, so it is an adversarial worst case over an L-infinity box rather than a same-sign uniform scalar drift or a one-dimensional slice, and no correlated same-bound main-effect vector can reverse a draw it labels robust. What it does not cover is unequal component-specific bounds, a stochastic dependence model, component-by-modifier drift, omitted target variables, outcome measurement and censoring bias, joint bias interactions and marginal natural-scale standardization, and the package exports no qba() interface."
+pid: "QBA-21"
+topic: "Quantitative bias analysis for unanchored PAIC"
+categories: ["Quantitative bias analysis for unanchored PAIC", "High priority", "Partially addressed"]
+priority: "High"
+prank: 2
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[QBA-21]{.problem-id}
+[Partially addressed]{.verdict .verdict-partially-addressed}
+[High priority]{.chip .chip-priority-high}
+[Promising]{.chip .chip-maturity-promising}
+[Implementation-specific]{.chip}
+:::
+::: {.callout-note appearance="simple"}
+## Scope
+
+This entry describes a limitation of a specific implementation rather than of the field.
+It is catalogued because the underlying methodological problem is general, and because a
+reference implementation is where such problems become concrete and checkable.
+:::
+
+## Statement
+
+cpaic is an unreleased development package on GitHub (choxos/cpaic@9d150e9); it is not on CRAN and a reader cannot install it. Its bridge_fragility() is stronger than the entry described: for each posterior draw it computes the absolute distance between the contrast and the decision threshold divided by the sum of the absolute component loadings, which is the smallest common absolute bound under which some component-specific drift vector could push a link-scale contrast to the decision boundary, so it is an adversarial worst case over an L-infinity box rather than a same-sign uniform scalar drift or a one-dimensional slice, and no correlated same-bound main-effect vector can reverse a draw it labels robust. What it does not cover is unequal component-specific bounds, a stochastic dependence model, component-by-modifier drift, omitted target variables, outcome measurement and censoring bias, joint bias interactions and marginal natural-scale standardization, and the package exports no qba() interface.
+
+## Why it is open
+
+The fragility number is a single common bound on absolute component main-effect drift, so it says nothing about drift that is unequal across components, about component-by-modifier drift, or about omitted variables and measurement and censoring bias, any of which can reverse a decision the diagnostic reports as robust. It is computed on the link scale, so under non-collapsibility it does not translate into the marginal natural-scale effects that drive decisions. Extending it requires specifying a drift dependence structure and integrating over the target distribution, which multiplies both the elicitation burden and the computation. The result object it would need involves design decisions nobody has fixed, such as what counts as a feasible scenario, how to summarize a decision-reversal surface and what attribution rule assigns dominance to a bias layer, so QBA remains bespoke scripting whose assumptions are invisible to reviewers.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [cpaic, unreleased development package on GitHub (not on CRAN), commit 9d150e9, R/sensitivity.R](choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca) | bridge_fragility() implements a worst-case L-infinity-bounded vector perturbation over component main effects, computing per draw the smallest common absolute bound at which an adversarial component-specific drift vector reaches the link-scale decision boundary, and checks estimability before reporting. It has no unequal component bounds, no probabilistic dependence model, no interaction-drift, omitted-variable, measurement or censoring perturbation, no marginal natural-scale standardization and no qba() interface. |
+
+:::
+
+## Probable solution or research direction
+
+Extend the fragility diagnostic from a single common bound to unequal component-specific bounds and an explicit dependence or covariance model, and add component-by-modifier drift, omitted target variables and measurement and censoring bias, reporting fragility on the marginal natural outcome scale as well as the link scale. Implement a qba() interface accepting population-bias and bridge-bias specifications in grid, probabilistic or bounds mode with an explicit decision threshold, returning identified versus sensitivity-specified quantities, the target and effect scale, feasible versus unsupported scenarios, effective sample size and edge influence under every weighting scenario, treatment-effect and decision-reversal surfaces, partial-identification bounds, and a dominant-layer and cancellation summary under a stated attribution rule. Report the proportion of a sensitivity region favoring each decision only alongside the measure that defines it, since a grid fraction is not a probability, and release the package so a reader can install and check it.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Partially addressed. Part of this problem is addressed by existing work; the entry names which part.
+
+**The source titled this.** "cpaic covers only uniform bridge drift and has no QBA interface" The title says the package covers only uniform bridge drift and implies an installable release, but its fragility measure is an adversarial worst case over a box of component-specific drift vectors.
+
+**The source said.** "The cpaic package's bridge_fragility() computes the smallest uniform per-component main-effect drift that would move a link-scale contrast across a decision threshold, and covers nothing else: no component-specific or correlated drift, no component-by-modifier drift, no omitted target variables, no outcome measurement or censoring bias, no nonlinearity of marginal natural-scale effects and no joint bias interactions. No PAIC or component-PAIC package exposes a joint population-and-bridge QBA interface."
+
+**What was wrong with it.** GPT-5.6 Sol read the source at commit 9d150e9 and found the characterization of bridge_fragility() as a uniform scalar drift and a one-dimensional slice wrong: the diagnostic is a worst case over a common-bound box of component-specific drift vectors, so the claim that it ignores component-specific and correlated drift is overstated. It also flagged the proposed output of a probability or proportion of the sensitivity region favoring each decision as unsafe, because a grid fraction is not a probability without a prespecified measure and changes with grid design, and confirmed the absence of a qba() interface only for cpaic, not for every package. The literature auditor could find no published or archived package named cpaic anywhere, independently confirming that it is not installable from CRAN.
+
+**Dissent.** codex dissented (overstated): The exact requested snapshot 9d150e9 was inspected. The live checkout is now d281149, but the only intervening file change is src/Makevars.win, so the relevant R implementation and NAMESPACE are unchanged. NAMESPACE exports bridge_fragility() and no qba() interface. C1 is correct only if uniform means a common L-infinity bound on absolute component drifts. For each posterior draw, the function calculates d* = |D - tau| / sum_c |m_c|, the smallest common bound that permits an adversarial component-specific drift vector to reach the link-scale boundary. It is not a same-sign uniform scalar drift or a one-dimensional slice. Consequently C2 is overstated: the function cannot accept unequal component-specific bounds or a stochastic covariance model, but its worst-case guarantee already covers every component-specific drift realization inside the common-bound box. A correlated same-bound main-effect vector cannot reverse a draw that the diagnostic labels robust. C3 and C4 correctly identify omitted capabilities. The fitted Gamma times x term enters the baseline contrast, but no sensitivity perturbation of Gamma is modeled. C5 is correct for nonlinear or noncollapsible marginal estimands, with identity-link and other directly transformable conditional cases as exceptions. C6 is confirmed for cpaic but remains an unverified universal claim about every other package. C7 is useful only with a defined attribution rule, and C8 applies only to weighting scenarios. C9 is mathematically unsafe: a grid fraction is not a probability without a prespecified measure over the sensitivity region and changes with grid design. C10 is a roadmap characterization rather than a technical result. The broader QBA interface remains open, but the current fragility method is materially stronger than the report's one-dimensional characterization.
+
+Literature and prior-art check
+:   **abstain / unverifiable.** Every substantive claim in this entry is about the behaviour of a specific software function, bridge_fragility() in a package called cpaic. I searched CRAN, GitHub-facing indexes and the general literature and found no published or archived package named cpaic and no function bridge_fragility(). It is not on CRAN alongside multinma, maicplus, netmeta, drMAIC, outstandR, gemtc, MBNMAdose or crossnma. As the literature auditor I have no basis to verify or refute claims 1 to 4 and 10, which describe what the function does and does not compute; this belongs to the source-code auditor. Claim 5 (a link-scale fragility threshold does not translate directly into a marginal natural-scale effect) is generically true under non-collapsibility and is independently supported by Chandler and Ishak (arXiv 2602.17041) on the population-dependence of non-collapsible marginal effects. Claim 6 ('No current PAIC or component PAIC package provides a joint population-and-bridge QBA interface') is consistent with everything I could inspect. Claims 7 to 9 are specifications for a future object. I abstain rather than guess.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / overstated.** The exact requested snapshot 9d150e9 was inspected. The live checkout is now d281149, but the only intervening file change is src/Makevars.win, so the relevant R implementation and NAMESPACE are unchanged. NAMESPACE exports bridge_fragility() and no qba() interface. C1 is correct only if uniform means a common L-infinity bound on absolute component drifts. For each posterior draw, the function calculates d* = |D - tau| / sum_c |m_c|, the smallest common bound that permits an adversarial component-specific drift vector to reach the link-scale boundary. It is not a same-sign uniform scalar drift or a one-dimensional slice. Consequently C2 is overstated: the function cannot accept unequal component-specific bounds or a stochastic covariance model, but its worst-case guarantee already covers every component-specific drift realization inside the common-bound box. A correlated same-bound main-effect vector cannot reverse a draw that the diagnostic labels robust. C3 and C4 correctly identify omitted capabilities. The fitted Gamma times x term enters the baseline contrast, but no sensitivity perturbation of Gamma is modeled. C5 is correct for nonlinear or noncollapsible marginal estimands, with identity-link and other directly transformable conditional cases as exceptions. C6 is confirmed for cpaic but remains an unverified universal claim about every other package. C7 is useful only with a defined attribution rule, and C8 applies only to weighting scenarios. C9 is mathematically unsafe: a grid fraction is not a probability without a prespecified measure over the sensitivity region and changes with grid design. C10 is a roadmap characterization rather than a technical result. The broader QBA interface remains open, but the current fragility method is materially stronger than the report's one-dimensional characterization.
+    Cites choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca: R/sensitivity.R implements a worst-case L-infinity-bounded vector perturbation over component main effects and checks estimability before reporting fragility. This partially resolves component-specific main-effect sensitivity, while leaving the broader joint-QBA capabilities absent..
+
+Decision path
+:   `R3:partially-solved(n=1) → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [CMP-23 — Bridge fragility ignores interaction and correlated component drift](CMP-23-bridge-fragility-ignores-interaction-and-correlated-componen.qmd)
+:::
+
+## Source
+
+Derived from C:L625-633, C:L645-681, C:L813 of the reviewed corpus.

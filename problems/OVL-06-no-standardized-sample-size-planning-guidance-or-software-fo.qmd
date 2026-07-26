@@ -1,0 +1,87 @@
+---
+title: "No standardized sample-size planning guidance or software for PAIC"
+description: "Nominal sample size alone does not determine the precision of a population-adjusted indirect comparison, although it remains an important determinant: information also depends on anticipated overlap, the balancing constraints, the outcome distribution, treatment allocation and the estimator's own influence function, and for survival outcomes on weighted risk-set and event information rather than on patient counts. No universal effective-sample-size threshold is defensible, and the Kish ESS is not an exact information measure in any case, since Phillippo et al. 2018 note it 'is likely to be an underestimation of the true ESS' when the weights are estimated and correlated with the outcome (doi:10.1177/0272989X17725740). What is missing is standardized PAIC-specific planning guidance and software, not the possibility of information-based planning: scenario-based planning that posits source and target distributions, derives the anticipated weights and uses influence-function or simulation calculations is already feasible. Simulation design is also not starting from nothing, since the 162-scenario anchored study of Remiro-Azocar, Heath and Baio 2021 (doi:10.1002/jrsm.1511) and a 2025 study indexed on positivity-violation severity (arxiv:2507.12241) are the de facto templates the field reuses."
+pid: "OVL-06"
+topic: "Positivity, overlap & extrapolation"
+categories: ["Positivity, overlap & extrapolation", "High priority", "Confirmed open"]
+priority: "High"
+prank: 2
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Emerging"
+---
+::: {.problem-meta}
+[OVL-06]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[High priority]{.chip .chip-priority-high}
+[Emerging]{.chip .chip-maturity-emerging}
+:::
+::: {.source-unsourced}
+**Source note.** This entry derives in part from a source document whose inline citations
+were ChatGPT interface tokens rather than references, and so resolve to nothing. Claims
+below are attributed to that document and were checked independently where possible;
+anything that could not be independently sourced is marked in the verification trail.
+:::
+
+## Statement
+
+Nominal sample size alone does not determine the precision of a population-adjusted indirect comparison, although it remains an important determinant: information also depends on anticipated overlap, the balancing constraints, the outcome distribution, treatment allocation and the estimator's own influence function, and for survival outcomes on weighted risk-set and event information rather than on patient counts. No universal effective-sample-size threshold is defensible, and the Kish ESS is not an exact information measure in any case, since Phillippo et al. 2018 note it 'is likely to be an underestimation of the true ESS' when the weights are estimated and correlated with the outcome (doi:10.1177/0272989X17725740). What is missing is standardized PAIC-specific planning guidance and software, not the possibility of information-based planning: scenario-based planning that posits source and target distributions, derives the anticipated weights and uses influence-function or simulation calculations is already feasible. Simulation design is also not starting from nothing, since the 162-scenario anchored study of Remiro-Azocar, Heath and Baio 2021 (doi:10.1002/jrsm.1511) and a 2025 study indexed on positivity-violation severity (arxiv:2507.12241) are the de facto templates the field reuses.
+
+## Why it is open
+
+The information remaining after weighting depends on the mismatch with a target that is not fixed until the comparator population is chosen, so no pre-study calculation expressed in nominal n alone can be binding, and any calculation stated in Kish ESS inherits a quantity that understates the true effective sample size and ignores arm allocation, outcome variance and nuisance-parameter estimation. For survival outcomes the relevant unit is events rather than patients, and even total events and censoring fractions are insufficient without timing, allocation, risk-set composition and the censoring mechanism, so a single grid cannot serve both outcome types. Unanchored designs carry a strictly stronger identification burden, conditional constancy of absolute rather than relative effects, and omitted prognostic structure creates structural bias that a larger sample does not cure, so the harsher grid needed there is about misspecification and confounding scenarios rather than simply larger n. The gap is therefore in standardization and tooling: nothing prevents a design-specific information calculation, but there is no accepted PAIC procedure, no software, and no agreed reporting of what was assumed.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Remiro-Azocar, Heath and Baio 2021, Methods for population adjustment with limited access to individual patient data: a review and simulation study](https://doi.org/10.1002/jrsm.1511) | sources the claim that effective sample size rather than nominal size governs precision in weighting-based PAIC, reporting that the robust sandwich variance estimator underestimates variability where effective sample sizes are small; its 162-scenario survival simulation grid is close to the design grid this entry proposes building |
+| [Phillippo et al. 2018, Medical Decision Making](https://doi.org/10.1177/0272989X17725740) | sources the harsher requirements for unanchored comparisons, which assume conditional constancy of absolute effects and require all prognostic variables as well as all effect modifiers; also records that the standard Kish ESS is likely an underestimate of the true ESS, so planning guidance stated in ESS inherits a biased quantity |
+| [Serret-Larmande et al. 2025, Assessing the Impact of Covariate Distribution and Positivity Violation on Weighting-Based Indirect Comparisons: a Simulation Study](https://arxiv.org/abs/2507.12241) | simulation study explicitly designed around positivity-violation severity and non-normal covariates, supporting the proposal to index design grids on overlap severity rather than on nominal sample size |
+
+:::
+
+## Probable solution or research direction
+
+Build scenario-based planning rather than a threshold rule: posit source and target covariate distributions, derive the anticipated weights and their dispersion, and compute precision from the estimator's influence function or by simulation, reporting weighted event and risk-set information for survival outcomes and stating the assumed overlap explicitly. Extend the existing simulation templates instead of duplicating them, since the 162-scenario anchored study (doi:10.1002/jrsm.1511) already varies overlap, imbalance and sample size and the 2025 positivity study (arxiv:2507.12241) already indexes on violation severity; what is added is unanchored scenarios with omitted prognostic variables and misspecification, not merely larger n. Where planning is reported in effective sample size, state that the Kish approximation understates the true ESS and that no threshold on it certifies validity (doi:10.1177/0272989X17725740). Package the result as software so that a planning calculation can be reproduced and audited rather than asserted.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+
+**The source titled this.** "No sample-size or information-planning framework for PAIC" The title says no planning framework exists, which the audit called a non sequitur since scenario-based influence-function and simulation planning is already feasible.
+
+**The source said.** "Nominal sample size is not the operative information metric for population-adjusted indirect comparisons: information content is driven by effective sample size after reweighting and by event information in the weighted pseudo-population. The report offers proposed design grids while explicitly declining to claim any universal threshold, so there is no framework for planning a PAIC or a PAIC simulation in information terms."
+
+**What was wrong with it.** The source moved from 'no universal threshold' to 'no planning framework', which GPT-5.6 Sol judged a non sequitur, since scenario-based planning conditional on anticipated overlap and estimator-specific influence is already possible and what is missing is standardized guidance and software; it also narrowed 'nominal n is not the operative metric' to the weaker claim that nominal n alone is insufficient. The claim was unattributed in the source and is now sourced: the literature auditor supplied Remiro-Azocar, Heath and Baio 2021 (doi:10.1002/jrsm.1511), whose 162-scenario simulation substantially overlaps the grid the source proposed building, Phillippo et al. 2018 (doi:10.1177/0272989X17725740) for the stronger unanchored assumptions and for the fact that the ESS such guidance would be stated in is itself a biased approximation, and Serret-Larmande et al. 2025 (arxiv:2507.12241) for a simulation already indexed on positivity-violation severity.
+
+Literature and prior-art check
+:   **open / supported-with-caveat.** PubMed searches for sample-size, power or information planning tied to MAIC, PAIC and external-control weighting returned nothing; I found no planning framework, so the entry's central claim stands and the problem is open. Because the entry is source_unsourced I supply sources below. Two caveats. First, the entry's own instrument undermines it: Phillippo et al. 2018 state the standard ESS 'is likely to be an underestimation of the true ESS' because the weights are estimated and correlated with the outcome, so planning guidance 'stated in effective sample size' inherits a known-biased quantity, which the entry does not acknowledge. Second, 'no framework for planning a PAIC simulation' is narrower than stated: Remiro-Azocar et al. 2021 already provide a 162-scenario survival-outcome simulation design varying covariate overlap, imbalance and sample size, which is the de facto template the field uses. It is not a planning framework in information terms, but it is not nothing, and the entry's proposed grid overlaps with it substantially. The harsher-grid-for-unanchored claim is well supported by the assumption hierarchy in Phillippo et al.
+    Cites doi:10.1002/jrsm.1511: Sources the claim that effective sample size, not nominal size, governs precision in weighting-based PAIC, and supplies the existing 162-scenario survival simulation grid the entry proposes to build..
+    Cites doi:10.1177/0272989X17725740: Sources the harsher-requirements-for-unanchored claim: unanchored comparisons assume conditional constancy of absolute effects and require all prognostic variables as well as all effect modifiers..
+    Cites arXiv:2507.12241: A recent simulation study explicitly designed around positivity violation severity, supporting the entry's proposal to index design grids on overlap severity rather than nominal n..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** C2 is too absolute: nominal n remains an important information determinant, but it is insufficient by itself. C3 is directionally correct, yet Kish ESS is not an exact information measure for estimated weights, heterogeneous outcomes, treatment contrasts, or survival estimators. Precision is governed by the estimator's influence function or information matrix, including arm allocation, outcome variance, nuisance-parameter estimation, weighted events, and risk-set composition. C4 faithfully describes the report's refusal to impose a universal threshold, which is appropriate. C5 is sound because patient counts alone are inadequate for survival designs, although total events and censoring fractions are also insufficient without timing, allocation, risk sets, and censoring mechanisms. C6 correctly recognizes the stronger identification burden of unanchored comparisons, but omitted prognostic structure creates structural bias that a larger sample does not cure; simulations need broader misspecification and confounding scenarios, not necessarily merely larger n values. The logical step from no universal threshold to no planning framework is false. Design-specific planning can posit source and target distributions, derive anticipated weights, and use influence-function calculations or simulation. What remains open is standardized PAIC-specific guidance and software, not the possibility of information-based planning itself. This is primarily a design-roadmap gap rather than a universal validity defect in completed analyses.
+
+Decision path
+:   `R5:default-open → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [CMU-04 — Computational diagnostics and Monte Carlo error go unreported](CMU-04-computational-diagnostics-and-monte-carlo-error-go-unreporte.qmd)
+- [DEC-03 — Value of information is not extended to IPD or bridge acquisition](DEC-03-value-of-information-is-not-extended-to-ipd-or-bridge-acquis.qmd)
+- [DIA-04 — ADEMP has no identification map for simulation estimands](DIA-04-ademp-has-no-identification-map-for-simulation-estimands.qmd)
+- [DIA-07 — Scenario grids omit network topology and information placement](DIA-07-scenario-grids-omit-network-topology-and-information-placeme.qmd)
+- [OUT-02 — Rare events, separation, and zero-event studies in weighted synthesis](OUT-02-rare-events-separation-and-zero-event-studies-in-weighted-sy.qmd)
+:::
+
+## Source
+
+Derived from A:L200-204 of the reviewed corpus.

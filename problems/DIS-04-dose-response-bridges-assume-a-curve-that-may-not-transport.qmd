@@ -1,0 +1,73 @@
+---
+title: "Dose-response bridges assume a curve that may not transport"
+description: "Model-based NMA links treatments across a gap through a shared dose or exposure response function, which is strong when pharmacology supports the curve and exposure scales are comparable; overlapping nominal doses are not sufficient on their own, because overlap helps only on a scientifically comparable exposure scale under a transportable response model. The bridge weakens when nominal dose does not reflect exposure, when formulations, dose intensity, or adherence differ, or when effect modifiers change the curve so that one shared curve becomes a family of population-specific curves, and a wrong curve can produce a precise but artificial link. Pedder et al. 2021 is the canonical treatment: MBNMA supplied estimates for all treatments where NMA could not, and those estimates were consistent with NMA on augmented networks for 15 of 18 datasets, failing in 3 where a more complex dose-response relationship was needed than the available evidence could fit. MBNMA does not necessarily impose one common curve on every treatment, and forcing distinct mechanisms into a single class makes a common curve scientifically doubtful rather than mathematically invalid."
+pid: "DIS-04"
+topic: "Disconnected networks & bridges"
+categories: ["Disconnected networks & bridges", "High priority", "Confirmed open"]
+priority: "High"
+prank: 2
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[DIS-04]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[High priority]{.chip .chip-priority-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+## Statement
+
+Model-based NMA links treatments across a gap through a shared dose or exposure response function, which is strong when pharmacology supports the curve and exposure scales are comparable; overlapping nominal doses are not sufficient on their own, because overlap helps only on a scientifically comparable exposure scale under a transportable response model. The bridge weakens when nominal dose does not reflect exposure, when formulations, dose intensity, or adherence differ, or when effect modifiers change the curve so that one shared curve becomes a family of population-specific curves, and a wrong curve can produce a precise but artificial link. Pedder et al. 2021 is the canonical treatment: MBNMA supplied estimates for all treatments where NMA could not, and those estimates were consistent with NMA on augmented networks for 15 of 18 datasets, failing in 3 where a more complex dose-response relationship was needed than the available evidence could fit. MBNMA does not necessarily impose one common curve on every treatment, and forcing distinct mechanisms into a single class makes a common curve scientifically doubtful rather than mathematically invalid.
+
+## Why it is open
+
+Where doses do not overlap on a comparable exposure scale, the assumed shape of the curve does the identification work rather than summarizing data, so the resulting narrow interval reflects the rigidity of the parametric family and curve misspecification appears as precision rather than as uncertainty. Within-range residual checks and comparisons across alternative curves assess parts of the model, and Pedder et al. showed the bridge can be validated against an augmented network where one can be constructed, but neither reaches the extrapolation across a genuine gap. Effect modification that changes the curve turns a single shared curve into a family of population-specific curves that the standard model does not represent, and there is no internal test distinguishing a genuinely shared pharmacologic curve from a convenient parametric family.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Pedder et al. 2021](https://doi.org/10.1177/0272989X20983315) | develops the dose-response MBNMA bridge for disconnected networks, fits competing dose-response forms, and benchmarks disconnected estimates against NMA on augmented networks, agreeing in 15 of 18 datasets |
+
+:::
+
+## Probable solution or research direction
+
+Follow Pedder et al.'s practice rather than proposing it as new: fit alternative monotonic, Emax, spline, and class-specific curves, report how the cross-gap contrast moves across them, and where a connected analogue can be constructed, validate by deleting the link and comparing against the augmented-network NMA. Model exposure rather than nominal dose where formulations, intensity, or adherence differ, and state the mechanistic argument explicitly when treatments with different mechanisms are given a shared curve rather than treating that as automatically disqualifying. Where the decision warrants it, design a bridging trial with overlapping doses.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+
+**The source said.** "Model-based NMA links treatments across a gap through a shared dose or exposure response function, which is strong when pharmacology supports the curve and exposure scales are comparable. It is weak when nominal dose does not reflect exposure, when formulations, dose intensity or adherence differ, when effect modifiers change the curve, or when treatments with distinct mechanisms are forced into one class, and a wrong curve can produce a precise but artificial link."
+
+**What was wrong with it.** The source claimed dose-response bridges are not routinely stress-tested against alternative curves, and cited nothing; the literature auditor supplied doi:10.1177/0272989X20983315, in which Pedder et al. fit MBNMA models with different dose-response relationships and benchmark disconnected-network estimates against NMA on augmented networks, which is both a stress test and a bridge-deletion validation. GPT-5.6 Sol softened two categorical claims: dose overlap alone is not enough without a comparable exposure scale, and MBNMA need not force a single common curve on all treatments.
+
+Literature and prior-art check
+:   **open / supported-with-caveat.** prior_work is empty, yet the canonical paper on exactly this bridge exists and is missing: Pedder, Dias, Bennetts, Boucher and Welton 2021, 'Joining the Dots', Medical Decision Making. It supports most of the entry's claims verbatim ('MBNMA relies on correct specification of the dose-response relationship, which requires sufficient data at different doses to allow reliable estimation'). But it contradicts claim 9, that dose-response bridges are not routinely stress-tested against alternative curves: the authors 'fitted MBNMA models with different dose-response relationships', compared exponential and Emax forms, and benchmarked disconnected-network estimates against NMA on augmented networks, agreeing in 15 of 18 datasets and failing in 3 where a more complex curve was needed. That is both a stress test and a bridge-deletion validation. The underlying problem, that the assumed curve does the identification work and cannot be tested across a genuine gap, stands. The entry should cite Pedder 2021; publishing this gap without it will read as unfamiliarity with the field.
+    Cites 10.1177/0272989X20983315: Missing canonical citation; supplies the source for the entry's assumption claims and empirically validates the dose-response bridge against augmented-network NMA.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / supported-with-caveat.** C1 and C4-C6 are technically correct with the stated conditions. A disconnected dose-response bridge is identified through parameters shared across the gap, and nonoverlap turns it into extrapolation. Nominal dose may be a poor exposure scale when bioavailability, formulation, adherence, or intensity differ; population effect modification can also make the curve population-specific. C2 needs more than overlapping doses: overlap is useful only on a scientifically comparable exposure scale under a transportable response model. C3 is too broad because MBNMA need not impose one common curve across every treatment; agent-specific curves linked by shared or hierarchical parameters are possible. C7 is also categorical: distinct mechanisms make a common curve scientifically doubtful, but do not mathematically invalidate it if a justified common exposure-response parameterization exists. Within-range residual checks and alternative-curve comparisons can assess parts of the model, but cannot validate the unobserved cross-gap extrapolation. C8 is correct. C9 is a practice-frequency claim outside this audit. The risk is decision-critical when the curve is the identifying bridge; the particular menu of sensitivity models is roadmap implementation.
+
+Decision path
+:   `R5:default-open → R11:caveated(n=2)`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [ADJ-04 — Flexible outcome surfaces and support diagnostics in standardization](ADJ-04-flexible-outcome-surfaces-and-support-diagnostics-in-standar.qmd)
+- [ADJ-18 — Simulation-based inference for mechanistic and pharmacometric bridges](ADJ-18-simulation-based-inference-for-mechanistic-and-pharmacometri.qmd)
+- [CMP-05 — No versioned intervention ontology maps onto CNMA component matrices](CMP-05-no-versioned-intervention-ontology-maps-onto-cnma-component-.qmd)
+- [QBA-12 — Treatment version, care context and subsequent-therapy drift](QBA-12-treatment-version-care-context-and-subsequent-therapy-drift.qmd)
+:::
+
+## Source
+
+Derived from C:L187-188, C:L198, C:L1106-1116 of the reviewed corpus.

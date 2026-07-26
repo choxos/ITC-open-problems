@@ -1,0 +1,93 @@
+---
+title: "cpaic and mlumr are unreleased and independently unvalidated"
+description: "cpaic and mlumr are young single-maintainer research packages on GitHub, neither released to CRAN and neither installable from it, that need independent benchmarking and external validation of the strong structural and unanchored assumptions they rely on. At commit 9d150e9 cpaic implements every capability the source listed, namely estimability, cMAIC, cSTC, cML-NMR, edge influence, bridge fragility and binary, continuous, count and time-to-event outcomes, along with estimability, influence, fragility, prior, MCMC and model-comparison diagnostics; what it still lacks is marginal standardization on the cML-NMR path, which returns a conditional profile contrast. mlumr is at version 0.2.0 and remains limited to one pairwise IPD-versus-aggregate contrast, but it already supports arbitrary target populations by Bayesian g-computation, prior sensitivity, MCMC and integration diagnostics, model comparison, several outcome families and worked case-study vignettes, and it is adapted from multinma concepts rather than running on multinma. Readers should also know that both packages are authored by this catalog's own byline holder, which is why independent replication matters more here than usual."
+pid: "SFW-13"
+topic: "Software, benchmarks & interface standards"
+categories: ["Software, benchmarks & interface standards", "High priority", "Partially addressed"]
+priority: "High"
+prank: 2
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
+maturity: "Emerging"
+---
+::: {.problem-meta}
+[SFW-13]{.problem-id}
+[Partially addressed]{.verdict .verdict-partially-addressed}
+[High priority]{.chip .chip-priority-high}
+[Emerging]{.chip .chip-maturity-emerging}
+[Implementation-specific]{.chip}
+:::
+::: {.source-unsourced}
+**Source note.** This entry derives in part from a source document whose inline citations
+were ChatGPT interface tokens rather than references, and so resolve to nothing. Claims
+below are attributed to that document and were checked independently where possible;
+anything that could not be independently sourced is marked in the verification trail.
+:::
+
+::: {.callout-note appearance="simple"}
+## Scope
+
+This entry describes a limitation of a specific implementation rather than of the field.
+It is catalogued because the underlying methodological problem is general, and because a
+reference implementation is where such problems become concrete and checkable.
+:::
+
+## Statement
+
+cpaic and mlumr are young single-maintainer research packages on GitHub, neither released to CRAN and neither installable from it, that need independent benchmarking and external validation of the strong structural and unanchored assumptions they rely on. At commit 9d150e9 cpaic implements every capability the source listed, namely estimability, cMAIC, cSTC, cML-NMR, edge influence, bridge fragility and binary, continuous, count and time-to-event outcomes, along with estimability, influence, fragility, prior, MCMC and model-comparison diagnostics; what it still lacks is marginal standardization on the cML-NMR path, which returns a conditional profile contrast. mlumr is at version 0.2.0 and remains limited to one pairwise IPD-versus-aggregate contrast, but it already supports arbitrary target populations by Bayesian g-computation, prior sensitivity, MCMC and integration diagnostics, model comparison, several outcome families and worked case-study vignettes, and it is adapted from multinma concepts rather than running on multinma. Readers should also know that both packages are authored by this catalog's own byline holder, which is why independent replication matters more here than usual.
+
+## Why it is open
+
+Component PAIC rests on component additivity and bridge assumptions the evidence generally cannot check, and unanchored comparison requires conditional exchangeability of absolute outcomes given adjusted covariates, which is untestable from the data at hand; software can make these assumptions explicit but cannot test them. Being first integrated implementations, there is no second implementation to compare against, so numerical equivalence testing is largely unavailable and validation depends on case studies and independent replication that do not exist yet. Extending unanchored work beyond two treatments means deciding how unanchored links compose across a network, which is a methodological question rather than an implementation task. Single-maintainer packages written by the same person who wrote the agenda have no independent user base to generate the validation evidence.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [cpaic 0.1.0, unreleased development package on GitHub (not on CRAN), commit 9d150e9](https://github.com/choxos/cpaic) | integrates component-PAIC estimability, cMAIC, cSTC and cML-NMR with edge influence, bridge fragility and binary, continuous, count and time-to-event outcomes, plus estimability, influence, fragility, prior, MCMC and model-comparison diagnostics; the cML-NMR path returns a conditional profile contrast rather than a marginal standardized effect |
+| [mlumr 0.2.0, unreleased development package on GitHub (not on CRAN), commit b2e24ce](https://github.com/choxos/mlumr) | implements Bayesian multilevel unanchored meta-regression with STC and naive comparators, transporting treatment effects and absolute outcomes to an arbitrary target population by Bayesian g-computation, with automatic MCMC diagnostics, prior sensitivity, model comparison, several outcome families and worked case-study vignettes; still limited to one pairwise IPD-versus-aggregate contrast, and adapted from multinma concepts rather than running on multinma |
+
+:::
+
+## Probable solution or research direction
+
+The construction work is largely done, so the priority is external evidence: independent benchmarking against the adversarial suite proposed elsewhere in this catalog, replication by someone unconnected to the packages, and quantitative bias analysis attached to every unanchored estimate. The concrete remaining build in cpaic is marginal standardization on the cML-NMR path, which currently returns a conditional profile contrast; in mlumr it is extension beyond one pairwise contrast, which requires first settling how unanchored links compose across a network. Both should state the structural and unanchored assumptions they rely on in their own output, and neither should be described as installable from CRAN, because they are not.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Partially addressed. Part of this problem is addressed by existing work; the entry names which part.
+
+**The source titled this.** "cpaic and mlumr are early-stage with no external validation" The title calls both packages early-stage, which the audit found stale since each already implements its listed capabilities and diagnostics.
+
+**The source said.** "The two packages implementing the newest PAIC methods are early-stage GitHub development packages: cpaic 0.1.0, described as the first integrated component-PAIC platform known to this review, covering estimability, cMAIC, cSTC, cML-NMR, edge influence, bridge fragility and multiple outcomes; and mlumr, implementing Bayesian unanchored ML-UMR plus STC and naive comparators on multinma machinery. Both lack mature external validation, rely on strong structural or unanchored assumptions, and leave marginal standardization, complex-data modules, wider treatment scope, diagnostics and HTA case studies open."
+
+**What was wrong with it.** GPT-5.6 Sol found the immaturity claims stale in two places: at commit 9d150e9 cpaic implements all the listed capabilities plus extensive diagnostics, and mlumr 0.2.0 already provides target-population standardization, diagnostics, prior sensitivity, model comparison and worked examples, so the claim that it still needs target and diagnostic development no longer holds, and mlumr is adapted from multinma concepts rather than built on multinma machinery. The literature auditor confirmed both repositories, flagged first and most promising as unverifiable priority claims, and disclosed that both packages are authored by the catalog's own byline holder; the claim was unattributed in the source and is now sourced to the repositories.
+
+**Dissent.** codex dissented (overstated): C1 is an empty placeholder. At the specified cpaic commit, every named capability is exported and implemented, including estimability, cMAIC, cSTC, cML-NMR, edge influence, bridge fragility, and multiple outcome families. Strong additivity, bridge, and unanchored assumptions and the absence of mature independent validation remain legitimate concerns. The cML-NMR path still returns a conditional profile contrast rather than a marginal standardized effect. Conversely, cpaic already has substantial estimability, influence, fragility, prior, MCMC, and model-comparison diagnostics. mlumr 0.2.0 remains limited to one pairwise IPD-versus-AgD contrast, but it already supports arbitrary target populations by g-computation, prior sensitivity, MCMC and integration diagnostics, model comparison, several outcome families, and worked case-study vignettes. It is adapted from multinma concepts rather than using multinma as its runtime engine. Claims that it still lacks target and diagnostic development are stale; 'first' and 'most promising' are novelty or subjective claims outside this audit lens.
+
+Literature and prior-art check
+:   **open / supported-with-caveat.** Both repositories exist and match their descriptions: cpaic DESCRIPTION is version 0.1.0, extends cNMA to PAIC via netmeta and maicplus with anchored STC/MAIC/ML-NMR and binary, continuous, count and time-to-event outcomes; mlumr was created 2026-03-10. Source line 2253 matches the mlumr row verbatim. The immaturity claims are true by construction: cpaic was created 2026-06-26, weeks before the audit date, neither package has releases or a second maintainer. Searching PubMed for component NMA crossed with MAIC, population-adjusted or ML-NMR returns nothing relevant, so the 'first integrated component-PAIC platform' claim is not contradicted, but it is a priority claim I cannot verify. Two things a reader would want disclosed. Both packages are authored by the catalog's own byline holder (cpaic DESCRIPTION lists Ahmad Sofi-Mahmudi as sole aut/cre), and mlumr is simultaneously rated 'the most promising early-stage package for unanchored work'. Also, Wigle & Beliveau (2022) use 'unanchored' for a weaker CNMA additivity assumption, a terminology collision worth avoiding.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / overstated.** C1 is an empty placeholder. At the specified cpaic commit, every named capability is exported and implemented, including estimability, cMAIC, cSTC, cML-NMR, edge influence, bridge fragility, and multiple outcome families. Strong additivity, bridge, and unanchored assumptions and the absence of mature independent validation remain legitimate concerns. The cML-NMR path still returns a conditional profile contrast rather than a marginal standardized effect. Conversely, cpaic already has substantial estimability, influence, fragility, prior, MCMC, and model-comparison diagnostics. mlumr 0.2.0 remains limited to one pairwise IPD-versus-AgD contrast, but it already supports arbitrary target populations by g-computation, prior sensitivity, MCMC and integration diagnostics, model comparison, several outcome families, and worked case-study vignettes. It is adapted from multinma concepts rather than using multinma as its runtime engine. Claims that it still lacks target and diagnostic development are stale; 'first' and 'most promising' are novelty or subjective claims outside this audit lens.
+    Cites choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca: Implements the named component-PAIC methods and multiple outcome families, while leaving the cML-NMR marginal standardization gap open..
+    Cites choxos/mlumr@b2e24ceed0edf166fd10f985c38b5784c7f08056: Provides arbitrary-target g-computation, diagnostics, sensitivity analysis, model comparison, and worked examples; wider treatment-network scope remains open..
+
+Decision path
+:   `R3:partially-solved(n=1) → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [CMP-23 — Bridge fragility ignores interaction and correlated component drift](CMP-23-bridge-fragility-ignores-interaction-and-correlated-componen.qmd)
+- [QBA-01 — General estimand-specific QBA theory for unanchored PAIC](QBA-01-general-estimand-specific-qba-theory-for-unanchored-paic.qmd)
+:::
+
+## Source
+
+Derived from A:L11, A:L107, A:L122, C:L2252, C:L2253 of the reviewed corpus.

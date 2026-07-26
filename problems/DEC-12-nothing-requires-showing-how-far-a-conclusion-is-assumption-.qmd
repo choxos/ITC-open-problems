@@ -1,0 +1,78 @@
+---
+title: "Nothing requires showing how far a conclusion is assumption-driven"
+description: "No rule requires a formal quantitative bias analysis or a minimum stress-test set for a decision-grade unanchored analysis, and there is no agreed minimum set, so any single sensitivity analysis can be presented as sufficient. The methods themselves are largely available: decision tipping points are computable and on CRAN (nmathresh, implementing 10.1111/rssa.12341), quantitative bias analysis for unmeasured confounding in unanchored PAIC was published in 2025 (10.1017/rsm.2025.13) with deterministic, probabilistic and tipping-point variants, and component-drift tipping plus prior sensitivity are implemented in cpaic, an unreleased development package on GitHub that is not on CRAN. What is not computable from current tools is support and effective sample size across a whole bias region, joint evaluation of multiple interacting biases, and interaction-level drift sensitivity. A probability of recommendation reversal also requires a defensible joint distribution for the bias parameters and a fully specified decision rule before it can be reported."
+pid: "DEC-12"
+topic: "Decision analysis, regulation & reporting"
+categories: ["Decision analysis, regulation & reporting", "Very high priority", "Overstated"]
+priority: "Very high"
+prank: 1
+verdict: "Overstated"
+verdictslug: "overstated"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[DEC-12]{.problem-id}
+[Overstated]{.verdict .verdict-overstated}
+[Very high priority]{.chip .chip-priority-very-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+## Statement
+
+No rule requires a formal quantitative bias analysis or a minimum stress-test set for a decision-grade unanchored analysis, and there is no agreed minimum set, so any single sensitivity analysis can be presented as sufficient. The methods themselves are largely available: decision tipping points are computable and on CRAN (nmathresh, implementing 10.1111/rssa.12341), quantitative bias analysis for unmeasured confounding in unanchored PAIC was published in 2025 (10.1017/rsm.2025.13) with deterministic, probabilistic and tipping-point variants, and component-drift tipping plus prior sensitivity are implemented in cpaic, an unreleased development package on GitHub that is not on CRAN. What is not computable from current tools is support and effective sample size across a whole bias region, joint evaluation of multiple interacting biases, and interaction-level drift sensitivity. A probability of recommendation reversal also requires a defensible joint distribution for the bias parameters and a fully specified decision rule before it can be reported.
+
+## Why it is open
+
+Stress tests and bias analyses can only weaken a submission's apparent strength, so a submitting party has no incentive to run them unless they are required, and appraisal templates ask for scenario analyses of economic inputs rather than of synthesis assumptions. Because there is no agreed minimum set, any single sensitivity analysis can be presented as sufficient, and the tools that exist are scattered across a CRAN package for network meta-analysis, a 2025 PAIC method paper and an unreleased development package rather than assembled into a standard. Support and effective sample size across a bias region and joint evaluation of interacting biases remain genuinely uncomputed, though support and ESS need re-evaluation only for scenarios that change the target distribution or the weighting problem.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Phillippo et al. 2018](https://doi.org/10.1111/rssa.12341) | Derives decision-invariant bias-adjustment thresholds, the smallest changes to the data that change the treatment decision, which is the tipping-point computation the source described as unavailable. |
+| [nmathresh 0.1.6 (R package)](https://cran.r-project.org/package=nmathresh) | Released CRAN implementation of decision-invariant bias-adjustment thresholds and invariant intervals for network meta-analysis, showing tipping-point computation is standard software rather than custom work. |
+| [Ren et al. 2025](https://doi.org/10.1017/rsm.2025.13) | Quantitative bias analysis for unmeasured confounding in unanchored population-adjusted indirect comparisons, with deterministic and probabilistic variants and tipping-point analysis. |
+| [Phillippo et al. 2019 (threshold analysis for guideline developers)](https://doi.org/10.7326/M18-3542) | Presents threshold analysis to decision makers and guideline developers as a direct statement of how robust a treatment recommendation is to plausible changes in the evidence. |
+| [cpaic (development package, audited at commit 9d150e9)](choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca) | Unreleased development package on GitHub, confirmed by an auditor not to be on CRAN. Its bridge_fragility() computes the component-main-effect drift needed to cross a specified decision threshold, with an optional posterior robustness probability, and it provides tighter and looser prior refits reporting contrast movement; it excludes interaction drift, joint biases, general quantitative bias analysis and reversal probability. |
+
+:::
+
+## Probable solution or research direction
+
+Define a minimum stress-test set for decision-grade ITC and assemble it from existing components: threshold analysis for the decision tipping point, the published unanchored-PAIC quantitative bias analysis for unmeasured confounding, and drift sensitivity for cross-subnetwork bridges. Require the disclosures that accompany a bias analysis, namely separated bias mechanisms, stated bias parameters with ranges and evidence sources, dependence assumptions, deterministic scenarios alongside probabilistic ones, and labeling of which quantities are data-identified, externally informed, elicited or purely bounded. Develop what is genuinely missing: joint evaluation of interacting biases, interaction-level drift, and support and ESS re-evaluated for the scenarios that change the weighting problem.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Overstated. 2 independent auditors judged the claim as stated too strong. No rule requires a formal quantitative bias analysis or a minimum stress-test set for a decision-grade unanchored analysis, and there is no agreed minimum set, so any single sensitivity analysis can be presented as sufficient. The methods themselves are not all missing: decision tipping points are computable and on CRAN for network meta-analysis (nmathresh), and quantitative bias analysis for unmeasured confounding in unanchored PAIC was published in 2025. What remains uncomputed is support and effective sample size across an entire bias region, joint evaluation of multiple interacting biases, and cross-subnetwork drift sensitivity.
+
+**The source said.** "The analyses that would show how much of a conclusion rests on assumptions are optional: omitted modifier and prognostic sensitivity, cross-subnetwork drift, component-interaction and target-distribution sensitivity, MNAR missingness, alternative outcome and effect-scale analyses, bridge-deletion or held-out validation, and the decision tipping point with the probability of recommendation reversal. No rule requires a formal quantitative bias analysis for a decision-grade unanchored analysis, nor the disclosures that accompany one: separated bias mechanisms, stated bias parameters with ranges, dependence assumptions and evidence sources, deterministic scenarios alongside probabilistic ones, support, feasibility and ESS across the whole bias region, joint evaluation of multiple biases, tipping surfaces, and labeling of which quantities are data-identified, externally informed, elicited or purely bounded."
+
+**What was wrong with it.** The source said tipping surfaces and drift sensitivity do not exist as standard software features. Tipping-point computation has been on CRAN since nmathresh 0.1.6 (2020) and quantitative bias analysis for unanchored PAIC was published in 2025 (10.1017/rsm.2025.13); GPT-5.6 Sol found component-drift tipping already implemented in cpaic and rejected the claim that omitting a bias analysis asserts residual bias is exactly zero, since it only leaves inference conditional on assumptions that fix modeled residual bias at zero.
+
+Literature and prior-art check
+:   **partially-solved / overstated.** The why_open text asserts that 'several of the required computations do not exist as standard software features, including ... tipping surfaces', and that any single sensitivity analysis can be presented as sufficient. The first half is wrong. Phillippo et al. 2018 (doi 10.1111/rssa.12341) derive decision-invariant bias-adjustment thresholds, 'the smallest changes to the data that result in a change of treatment decision', shipped as the CRAN package nmathresh 0.1.6 (2020-06-11): 'Calculation and presentation of decision-invariant bias adjustment thresholds and intervals for Network Meta-Analysis'. Phillippo et al. 2019 (doi 10.7326/M18-3542) proposed it to NICE guideline developers as an alternative to GRADE, and Holper 2020 (doi 10.1002/jrsm.1393) applied it with GRADE to 21 antidepressants. Separately, Ren et al. 2025 (doi 10.1017/rsm.2025.13, full text read) supplies formal QBA for unmeasured confounding in unanchored PAIC, covering multiple unmeasured covariates, deterministic and probabilistic variants, and tipping-point analysis. What is genuinely open: an agreed minimum stress-test set for PAIC, support and ESS evaluated across a whole QBA region, and joint evaluation of multiple biases.
+    Cites 10.1111/rssa.12341: Provides decision tipping points and the revised recommendation, the exact computation the entry says is unavailable..
+    Cites cran:nmathresh 0.1.6: Shows tipping-point computation is a released, standard software feature, not custom work..
+    Cites 10.1017/rsm.2025.13: Supplies a published QBA method specific to unanchored PAIC, with deterministic and probabilistic variants and tipping-point analysis, and argues such analysis is necessary..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / overstated.** C1-C2 are empirical practice claims not established by the supplied material. C3 is only partly right: tipping points are broadly interpretable, but a probability of recommendation reversal is unidentified without a defensible joint distribution for bias parameters and a fully specified decision rule. C4 requires care because changing effect scale generally changes the estimand; alternatives should be clinically meaningful, not presented as interchangeable answers. C5 is useful where deletion leaves the target contrast estimable, but held-out performance cannot validate an unobserved cross-gap assumption. C6 is proportionate for genuinely unanchored decision-grade analyses. C7 is too strong: omitting QBA leaves inference conditional on identifying assumptions that fix modeled residual bias at zero; it does not logically assert that actual residual bias is zero. C8-C10, C13, and C14 are sound transparency requirements. C11 is a category error for bias parameters that do not alter target moments or weights, because support and ESS then do not vary. C12 also overreaches: validation-data uncertainty may already be incorporated into sensitivity-parameter uncertainty, while numerical error should usually be bounded and reduced rather than probabilistically propagated. cpaic already implements component-main-effect drift tipping through bridge_fragility() and prior sensitivity, contradicting the claimed complete absence of drift sensitivity. It does not implement a general QBA, interaction drift, joint biases, or recommendation-reversal probability.
+    Cites choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca: Partially resolves cross-subnetwork drift sensitivity and decision tipping by calculating the component-main-effect drift needed to cross a specified decision threshold, with an optional posterior robustness probability at a fixed drift bound. It excludes interaction drift and is not a general QBA..
+    Cites choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca: Provides tighter and looser prior refits and reports contrast movement, partially addressing assumption-driven conclusions and prior dependence..
+
+Decision path
+:   `R3:partially-solved(n=2) → R8:overstated-majority(n=2)`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [QBA-28 — Reference QBA software and a minimum reporting standard](QBA-28-reference-qba-software-and-a-minimum-reporting-standard.qmd)
+:::
+
+## Source
+
+Derived from C:L2417-2426, C:L2428-2439 of the reviewed corpus.

@@ -1,0 +1,84 @@
+---
+title: "Entropy balancing has no network extension or variance theory"
+description: "Entropy balancing with target summary information supplies a causal-generalization framework when consistency, exchangeability, positivity and sufficient calibration hold, and in indirect comparisons the machinery is not new: standard MAIC weights already are entropy-balancing weights, on any suitable scale such as log odds ratios, log hazard ratios or mean differences (doi:10.1002/jrsm.1416). The nonlinear-outcome extension exists for the single-source pairwise case: an augmented, doubly robust entropy-balancing estimator with a conditional outcome model has been developed and simulated with binary outcomes and a logistic outcome model (Campbell and Remiro-Azocar 2025, arxiv:2505.00113) and ships as drMAIC for binary and time-to-event outcomes (cran:drMAIC), while MAIC read as calibration estimation supplies a model-independent standard error (Wang 2021, arxiv:2107.11687). What remains undeveloped is the network case: multiple sources, multiple adjusted edges, consistency constraints across contrasts, and a variance theory that jointly accounts for estimated weights, shared estimated target summaries and network structure."
+pid: "COV-08"
+topic: "Covariates: selection, target moments, measurement"
+categories: ["Covariates: selection, target moments, measurement", "High priority", "Overstated"]
+priority: "High"
+prank: 2
+verdict: "Overstated"
+verdictslug: "overstated"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[COV-08]{.problem-id}
+[Overstated]{.verdict .verdict-overstated}
+[High priority]{.chip .chip-priority-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+## Statement
+
+Entropy balancing with target summary information supplies a causal-generalization framework when consistency, exchangeability, positivity and sufficient calibration hold, and in indirect comparisons the machinery is not new: standard MAIC weights already are entropy-balancing weights, on any suitable scale such as log odds ratios, log hazard ratios or mean differences (doi:10.1002/jrsm.1416). The nonlinear-outcome extension exists for the single-source pairwise case: an augmented, doubly robust entropy-balancing estimator with a conditional outcome model has been developed and simulated with binary outcomes and a logistic outcome model (Campbell and Remiro-Azocar 2025, arxiv:2505.00113) and ships as drMAIC for binary and time-to-event outcomes (cran:drMAIC), while MAIC read as calibration estimation supplies a model-independent standard error (Wang 2021, arxiv:2107.11687). What remains undeveloped is the network case: multiple sources, multiple adjusted edges, consistency constraints across contrasts, and a variance theory that jointly accounts for estimated weights, shared estimated target summaries and network structure.
+
+## Why it is open
+
+A network involves several sources calibrated to one target, several adjusted edges and consistency constraints across contrasts, and the covariance induced by sharing the same estimated target summaries across edges is not handled by single-source estimating equations. The identification limit is separate from the software limit: balancing a finite set of target moments does not identify a nonlinear marginal estimand unless the relevant conditional response lies in the span of the balanced functions, which bites hardest for non-collapsible estimands where arm-specific outcomes must be marginalized before being contrasted. The network gap is an implementation and packaging gap rather than an impossibility, since trial-specific calibrations to a common target can be stacked and sandwich or bootstrap methods can propagate weight and shared-target uncertainty; until that is assembled, network applications lean on justification derived for the single-source case.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Chen et al., 2023](https://doi.org/10.1111/biom.13825) | establishes entropy balancing with target summary information as a causal-generalization method, for a single source sample generalized to one target described by moments, subject to its identification and calibration conditions |
+| [Campbell and Remiro-Azocar, 2025](https://arxiv.org/abs/2505.00113) | Augments entropy-balancing MAIC with a conditional outcome model to give a doubly robust estimator, simulated with binary outcomes and a logistic outcome model; the nonlinear-outcome extension for the single-source unanchored case. |
+| [drMAIC (R package, version 0.1.0)](https://cran.r-project.org/package=drMAIC) | Shipped implementation of standard MAIC by entropy balancing plus augmented weighting with outcome regression, for binary and time-to-event outcomes. |
+| [Wang, 2021](https://arxiv.org/abs/2107.11687) | Places MAIC inside calibration estimation and proposes a model-independent standard error estimator, a partial answer to the variance-theory gap. |
+| [Equivalence of entropy balancing and the method of moments for MAIC, 2020](https://doi.org/10.1002/jrsm.1416) | Shows that the field's standard MAIC weights already are entropy-balancing weights and that weighted outcomes are contrasted on a suitable scale such as log odds ratios, log hazard ratios or mean differences, so the foundation is neither new to indirect comparisons nor restricted to linear outcomes. |
+
+:::
+
+## Probable solution or research direction
+
+Assemble the network estimator from parts that exist: stack trial-specific calibrations to a common target, impose the consistency constraints, and propagate weight and shared-target uncertainty with a joint sandwich or bootstrap, rather than developing nonlinear-outcome entropy balancing that is already available in the pairwise case. State the conditions under which the balanced moment set identifies the nonlinear marginal estimand, and report sensitivity or bounds when it does not. Benchmark the result against MAIC and ML-NMR on the same networks so the gain from distributional balancing over moment matching is measured rather than asserted.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Overstated. 2 independent auditors judged the claim as stated too strong. Entropy balancing with target summary information has been extended to non-linear outcome models only in the single-source, pairwise (externally-controlled or unanchored) case, where doubly robust augmented estimators with logistic outcome models exist and are implemented. Extension to evidence networks with multiple sources, multiple adjusted edges and consistency constraints, together with a variance theory that jointly accounts for estimated weights, estimated target moments and network structure, remains undeveloped.
+
+**The source titled this.** "Entropy balancing extensions to networks and nonlinear outcomes" The title names the nonlinear-outcome extension as open, but the audit found a doubly robust augmented estimator with a logistic outcome model already published and shipping as drMAIC.
+
+**The source said.** "Entropy balancing with target summary information already supplies a causal-generalization foundation for adjusting an IPD sample to published target moments, but its extensions to evidence networks and to nonlinear outcome models remain underdeveloped."
+
+**What was wrong with it.** The source said extensions of entropy balancing to nonlinear outcome models remain underdeveloped; both auditors disagreed for the single-source case, where a doubly robust augmented estimator with a logistic outcome model exists and ships as drMAIC (arxiv:2505.00113, cran:drMAIC) and a model-independent standard error is available (arxiv:2107.11687). The code auditor added that entropy balancing is outcome-agnostic calibration weighting rather than a linear-outcome method (doi:10.1002/jrsm.1416), and that with finitely many target moments a nonlinear marginal estimand is identified only if the relevant conditional response lies in the span of the balanced functions or the target law is identified some other way.
+
+Literature and prior-art check
+:   **partially-solved / overstated.** The prior_work citation is accurate: Chen, Chen & Yu 2023 is 'Entropy Balancing for Causal Generalization with Target Sample Summary Information', and it is indeed a single-source-to-one-target method. The network half of the claim holds. The nonlinear-outcome half does not. Campbell & Remiro-Azocar 2025 (Research Synthesis Methods) augments entropy-balancing MAIC with a conditional outcome model and demonstrates it 'in a simulation study with binary outcomes and a logistic outcome model', reporting the doubly robust property; the method ships as drMAIC 0.1.0, whose description states it provides 'standard MAIC via entropy balancing / exponential tilting' alongside augmented IPW-plus-outcome-regression, for binary and time-to-event outcomes. Partial variance theory also exists: Wang 2021 treats MAIC as calibration estimation and proposes 'a model-independent SE estimator'. What remains genuinely undeveloped is the network case with multiple sources, multiple adjusted edges and consistency constraints, plus a variance theory covering estimated weights, estimated target moments and network structure jointly.
+    Cites arxiv:2505.00113: The nonlinear-outcome extension of entropy-balancing weighting with target summary information, for the single-source unanchored case.
+    Cites cran:drMAIC: Shipped software implementing entropy-balancing MAIC augmented with outcome regression for binary and time-to-event outcomes.
+    Cites arxiv:2107.11687: Places MAIC inside calibration estimation and supplies a model-independent standard error estimator, a partial answer to the variance-theory gap.
+    Cites doi:10.1002/jrsm.1416: Establishes that the field's standard MAIC weights already are entropy balancing weights, so the 'foundation' is not new to ITC.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / overstated.** C1 is correct only under consistency, source treatment exchangeability, sampling exchangeability, positivity, and sufficient calibration or a correctly specified target-to-source density ratio. C3 is misframed: entropy balancing is an outcome-agnostic calibration-weighting method, not inherently a linear-outcome estimator. If its weights recover the density ratio, weighted standardization can transport arbitrary integrable potential-outcome means. With only finitely many target moments, however, a nonlinear marginal quantity is not generally identified unless the relevant conditional response lies in the span of the balanced functions or the target joint distribution is otherwise identified. This is especially important for non-collapsible estimands, which require marginalizing arm-specific outcomes before contrasting them. C2 describes a plausible implementation gap, but not a mathematical impossibility: separate trials can be calibrated to one common target and their estimating equations stacked. Generic joint sandwich or bootstrap methods can propagate weight and shared-target uncertainty when the required influence information or target microdata exist. Intervals that explicitly condition on published target summaries are not automatically unjustified. The genuinely incomplete part is a coherent, readily usable network implementation under limited aggregate target information. Its severity is high only for analyses that actually depend on such network-wide calibration or nonlinear marginal estimands.
+    Cites 10.1111/biom.13825: Establishes the single-source causal-generalization foundation using target summary moments, resolving C1 subject to its identification and model conditions..
+    Cites 10.1002/jrsm.1416: Establishes entropy balancing as the standard MAIC moment-weighting solution and places weighted treatment outcomes on general link scales, contradicting an inherent restriction to identity-scale linear outcomes. It does not resolve joint network calibration or finite-moment identification..
+
+Decision path
+:   `R3:partially-solved(n=2) → R8:overstated-majority(n=2)`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [ADJ-02 — No general-purpose transport library plugs into the NMA stack](ADJ-02-no-general-purpose-transport-library-plugs-into-the-nma-stac.qmd)
+- [ADJ-05 — Optimal transport for distributional rather than moment balance](ADJ-05-optimal-transport-for-distributional-rather-than-moment-bala.qmd)
+- [EST-07 — Reported target moments are treated as known constants](EST-07-reported-target-moments-are-treated-as-known-constants.qmd)
+- [OVL-05 — Optimal transport for distributional balancing in PAIC](OVL-05-optimal-transport-for-distributional-balancing-in-paic.qmd)
+:::
+
+## Source
+
+Derived from C:L976 of the reviewed corpus.

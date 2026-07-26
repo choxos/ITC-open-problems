@@ -1,0 +1,77 @@
+---
+title: "Identification beyond row-space screens in nonlinear component ML-NMR"
+description: "For linear observed-contrast models, target estimability is characterized exactly by row-space membership of the target-specific contrast vector v(m,x) = (1, x') Kronecker m with m = C_t - C_u. Implemented component PAIC applies an augmented target-dependent row-space diagnostic that is exact for specified non-survival IPD regressions and only a first-order design screen for aggregate-data and survival likelihoods, and it labels which verdict is which. Once a nonlinear inverse link is integrated over a covariate distribution, no published conditions characterize local or global identification by outcome family and integration structure, so a target functional can pass the screen and still be unidentified."
+pid: "CMP-08"
+topic: "Component methods (CNMA and component PAIC)"
+categories: ["Component methods (CNMA and component PAIC)", "Very high priority", "Partially addressed"]
+priority: "Very high"
+prank: 1
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
+maturity: "Emerging"
+---
+::: {.problem-meta}
+[CMP-08]{.problem-id}
+[Partially addressed]{.verdict .verdict-partially-addressed}
+[Very high priority]{.chip .chip-priority-very-high}
+[Emerging]{.chip .chip-maturity-emerging}
+:::
+## Statement
+
+For linear observed-contrast models, target estimability is characterized exactly by row-space membership of the target-specific contrast vector v(m,x) = (1, x') Kronecker m with m = C_t - C_u. Implemented component PAIC applies an augmented target-dependent row-space diagnostic that is exact for specified non-survival IPD regressions and only a first-order design screen for aggregate-data and survival likelihoods, and it labels which verdict is which. Once a nonlinear inverse link is integrated over a covariate distribution, no published conditions characterize local or global identification by outcome family and integration structure, so a target functional can pass the screen and still be unidentified.
+
+## Why it is open
+
+Once the inverse link is nonlinear and integrated over a covariate distribution, the map from parameters to the observed-data distribution is not linear in the parameters, so a design-based row-space criterion no longer characterizes identification. Deriving conditions requires analyzing the observed-data information of an integrated aggregate likelihood, which depends on the outcome family, the covariate distribution, and the integration scheme, so results must be stated case by case rather than once. The complementary numerical diagnostics that would substitute in the interim, singular values of the observed-information matrix and likelihood or posterior profiles for a requested contrast, are not computed by any component PAIC implementation the auditors read.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Petropoulou et al. 2023](https://doi.org/10.1186/s12874-023-01959-9) | describes an algorithm to identify inestimable interactions in CNMA so that only estimable interactions are fitted, a precedent for the structural and first-order levels of the hierarchy |
+| [cpaic 0.1.0 (development version, choxos/cpaic@9d150e9)](choxos/cpaic@9d150e9) | unreleased development R package on GitHub, not on CRAN; constructs the within-study component design X = BC, applies a target-dependent row-space estimability screen that labels exact versus first-order verdicts, returns NA for non-estimable effects, and documents that full column rank is sufficient but not necessary |
+
+:::
+
+## Probable solution or research direction
+
+A methodological paper should derive local and global identification conditions for nonlinear component ML-NMR by outcome family and integration structure, since that is the part with no results. In the interim, supplement the row-space screen with Jacobian and Fisher-information rank diagnostics, observed-information singular values, and likelihood or posterior profiles for each requested target contrast, together with prior-data conflict diagnostics that detect when the prior rather than the data supplies the answer. The precedent for the design-level screens already exists in frequentist CNMA, where an algorithm identifies inestimable interactions so that only estimable ones enter interaction models.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Partially addressed. Part of this problem is addressed by existing work; the entry names which part.
+
+**The source said.** "Component estimability is currently screened by asking whether a target-specific contrast vector v(m,x) = (1, x')(Kronecker)m, with m = C_t - C_u, lies in the row space of a joint first-order design, but row-space conditions are exact only for linear identity-link contrast models. The four-level identification hierarchy (structural estimability, first-order target estimability, local likelihood identification, global identification) has no results at levels three and four for nonlinear integrated likelihoods, and the package's own documentation and code disagree about whether full column rank is necessary."
+
+**What was wrong with it.** The source said the package documentation and code disagree about whether full column rank is necessary, and that the screen is undifferentiated. Neither holds at choxos/cpaic@9d150e9, which GPT-5.6 Sol read: the README states 'Full column rank of X is sufficient but not necessary, so a rank-deficient network can still identify useful cross-sub-network contrasts', and estimable_effects_at() already separates exact IPD identification from aggregate-data and survival first-order screens; what remains open is identification theory for nonlinear integrated aggregate likelihoods.
+
+**Dissent.** codex dissented (overstated): C1-C3 are correct when the observed-data map is linear and its nuisance structure is included; identity link alone is insufficient if aggregate arms have different covariate distributions. C5-C6, C9, C11-C13, and C16-C19 are mathematically or source-code supported. C10 is also source-confirmed: cpaic has no observed-information singular-value or contrast-profile diagnostic. C4 and C8 are too broad because estimable_effects_at() classifies non-survival IPD contrasts as exact, while aggregate-data and survival results are labeled first-order screens. C15 is false at 9d150e9: the documentation expressly says full rank is sufficient, not necessary. C7 and C14 are literature-status claims outside this audit's assigned lens and were not used to support the verdict. Generic local and global identification for nonlinear integrated aggregate likelihoods remains open, but the documentation disagreement and undifferentiated-screen claims are already fixed.
+
+Literature and prior-art check
+:   **open / unverifiable.** The mathematical premise (row-space/estimability conditions are exact for linear contrast models and do not transfer to nonlinear integrated likelihoods) is standard linear-model estimability theory and I accept it, but the entry's decisive claims are about cpaic internals and about the absence of published identification theorems. cpaic is not on CRAN and I found no public repository, so the code and documentation claims belong to the source-code auditor, not to me. On the literature side I found no published local or global identification results for target contrasts in nonlinear ML-NMR by outcome family and integration scheme; the nearest published statement is qualitative (Phillippo et al. 2022: 'A shared effect modifier assumption may also be necessary for identifiability'). Missing prior work worth adding: estimability screening for component and interaction effects already exists in the frequentist CNMA line - Petropoulou et al. 2023 note 'we describe an algorithm to identify inestimable interactions in the supplement as only estimable interactions should be considered in interaction CNMA models', which is precedent for levels one and two of the entry's hierarchy.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / overstated.** C1-C3 are correct when the observed-data map is linear and its nuisance structure is included; identity link alone is insufficient if aggregate arms have different covariate distributions. C5-C6, C9, C11-C13, and C16-C19 are mathematically or source-code supported. C10 is also source-confirmed: cpaic has no observed-information singular-value or contrast-profile diagnostic. C4 and C8 are too broad because estimable_effects_at() classifies non-survival IPD contrasts as exact, while aggregate-data and survival results are labeled first-order screens. C15 is false at 9d150e9: the documentation expressly says full rank is sufficient, not necessary. C7 and C14 are literature-status claims outside this audit's assigned lens and were not used to support the verdict. Generic local and global identification for nonlinear integrated aggregate likelihoods remains open, but the documentation disagreement and undifferentiated-screen claims are already fixed.
+    Cites choxos/cpaic@9d150e9: Corrects the alleged documentation implication that full column rank is necessary..
+    Cites choxos/cpaic@9d150e9: Separates exact IPD identification from aggregate-data and survival first-order screens and labels the strength of each verdict..
+
+Decision path
+:   `R3:partially-solved(n=1) → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [ADJ-03 — Efficient influence-function transport estimators for ITC networks](ADJ-03-efficient-influence-function-transport-estimators-for-itc-ne.qmd)
+- [ADJ-12 — Routine NMA output omits graph diagnostics and value of information](ADJ-12-routine-nma-output-omits-graph-diagnostics-and-value-of-info.qmd)
+- [ADJ-19 — Shapley attribution of regimen effects to treatment components](ADJ-19-shapley-attribution-of-regimen-effects-to-treatment-componen.qmd)
+- [MOD-13 — No reporting convention exposes prior-dominated contrasts in PAIC](MOD-13-no-reporting-convention-exposes-prior-dominated-contrasts-in.qmd)
+:::
+
+## Source
+
+Derived from C:L1360, C:L1265-1281, C:L1447-1456, C:L1361, C:L1259-1263, C:L214-215, C:L241, scope:package-specific screen resting on a field-level identification gap, scope:field-level theory gap; limits the cpaic estimability screen, scope:package-specific of the reviewed corpus.

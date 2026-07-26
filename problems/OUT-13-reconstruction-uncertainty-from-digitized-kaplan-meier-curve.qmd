@@ -1,0 +1,77 @@
+---
+title: "Reconstruction uncertainty from digitized Kaplan-Meier curves"
+description: "Survival indirect comparisons routinely digitize published Kaplan-Meier curves into pseudo individual patient data and carry the reconstruction downstream as if it were observed, and population-adjusted intervals do not propagate the reconstruction error. Part of the proposed remedy has been built: RESOLVE-IPD (arxiv:2511.01785) generates ensembles of mathematically valid labelings so that reconstruction uncertainty propagates into the downstream meta-analysis, and Rogula et al. (doi:10.1177/23814683221077643) reconstruct from marked censoring times and report curve-fit uncertainty the standard algorithm does not provide. Multiple reconstruction is therefore no longer merely promising, though it is a valid analogue of multiple imputation only where the repeated reconstructions are proper draws from a calibrated distribution conditional on the image, the risk table and the reported totals, rather than repeated runs of a deterministic algorithm or arbitrary tuning variants. Defining a Bayesian likelihood directly on the reported Kaplan-Meier ordinates and numbers-at-risk table remains unbuilt."
+pid: "OUT-13"
+topic: "Outcome-specific problems"
+categories: ["Outcome-specific problems", "High priority", "Partially addressed"]
+priority: "High"
+prank: 2
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
+maturity: "Promising"
+tractability: 3
+---
+::: {.problem-meta}
+[OUT-13]{.problem-id}
+[Partially addressed]{.verdict .verdict-partially-addressed}
+[High priority]{.chip .chip-priority-high}
+[Promising]{.chip .chip-maturity-promising}
+[Tractability 3/5]{.chip}
+:::
+## Statement
+
+Survival indirect comparisons routinely digitize published Kaplan-Meier curves into pseudo individual patient data and carry the reconstruction downstream as if it were observed, and population-adjusted intervals do not propagate the reconstruction error. Part of the proposed remedy has been built: RESOLVE-IPD (arxiv:2511.01785) generates ensembles of mathematically valid labelings so that reconstruction uncertainty propagates into the downstream meta-analysis, and Rogula et al. (doi:10.1177/23814683221077643) reconstruct from marked censoring times and report curve-fit uncertainty the standard algorithm does not provide. Multiple reconstruction is therefore no longer merely promising, though it is a valid analogue of multiple imputation only where the repeated reconstructions are proper draws from a calibrated distribution conditional on the image, the risk table and the reported totals, rather than repeated runs of a deterministic algorithm or arbitrary tuning variants. Defining a Bayesian likelihood directly on the reported Kaplan-Meier ordinates and numbers-at-risk table remains unbuilt.
+
+## Why it is open
+
+Reconstruction is deterministic given the image, so every standard method runs without complaint and repeating it reveals nothing; the error is silent while the reported interval ignores the extra variability. The published Kaplan-Meier ordinates are dependent derived statistics, so a likelihood defined on them needs an explicit digitization, rounding, censoring and risk-table observation model, which nobody has written. Population-adjusted implementations take reconstructed event and censoring rows straight into the likelihood as data: at commit 9d150e9, cpaic, the unreleased development package on GitHub that is not installable from CRAN, has no observation model for digitization, risk-table interpolation, event allocation or alternative compatible reconstructions. How much this matters depends on image quality and on downstream sensitivity, so it is context-dependent rather than uniformly decisive.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Lang, Zhao, Gao and Xu 2025, RESOLVE-IPD: High-Fidelity Individual Patient Data Reconstruction and Uncertainty-Aware Subgroup Meta-Analysis (arxiv:2511.01785)](https://arxiv.org/abs/2511.01785) | its MAPLE component generates ensembles of mathematically valid labelings, facilitating a propagating meta-analysis that quantifies and reflects uncertainty from subgroup reconstruction, with VEC-KM extracting coordinates and explicit censoring marks from vectorized figures; it is the multiple-imputation analogue the entry proposed |
+| [Rogula, Lozano-Ortega and Johnston 2022, A Method for Reconstructing Individual Patient Data From Kaplan-Meier Survival Curves That Incorporate Marked Censoring Times, MDM Policy and Practice](https://doi.org/10.1177/23814683221077643) | reconstruction method using marked censoring times that yields estimates of uncertainty in the curve fit, which the standard Guyot-style algorithm does not provide |
+
+:::
+
+## Probable solution or research direction
+
+Connect the existing ensemble reconstruction machinery to population-adjusted analysis rather than reinventing it, and state the calibration condition explicitly so the ensemble is a set of draws conditional on the image, risk table and reported totals rather than a set of arbitrary tuning variants. Build the Bayesian likelihood on the reported curve and numbers-at-risk table, which requires an explicit observation model for digitization, rounding, censoring and risk-table reporting. Report how far RMST and extrapolated survival move across reconstructions rather than assuming a uniform inflation, since curve error can partly cancel under integration and can be amplified or damped by the tail model.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Partially addressed. Part of this problem is addressed by existing work; the entry names which part.
+
+**The source said.** "Survival indirect comparisons routinely digitize published Kaplan-Meier curves to build pseudo individual patient data, then carry that reconstruction into every downstream analysis as if it were observed data, with no propagation of reconstruction uncertainty."
+
+**What was wrong with it.** The source listed multiple reconstruction as an unbuilt promising direction; the literature auditor found it implemented in RESOLVE-IPD (arxiv:2511.01785) and partially in Rogula et al. (doi:10.1177/23814683221077643). The code auditor added two qualifications: repeatedly applying a deterministic reconstruction or varying arbitrary tuning choices is not a valid multiple-imputation analogue, and reconstruction error does not monotonically compound, since RMST integrates curve error that can partly cancel while extrapolation can amplify or damp it depending on the tail model.
+
+Literature and prior-art check
+:   **partially-solved / supported-with-caveat.** Routine practice does treat digitised pseudo-IPD as observed data, and I found no standard tool that propagates reconstruction error, so the description of practice holds. But the proposed direction has begun to be built. Rogula, Lozano-Ortega and Johnston (MDM Policy & Practice 2022, doi 10.1177/23814683221077643) reconstruct IPD using marked censoring times and report that the method yields estimates of the uncertainty in curve fits that traditional methods do not provide. More directly, RESOLVE-IPD (arXiv 2511.01785, Lang, Zhao, Gao and Xu) implements the multiple-reconstruction idea: its MAPLE component 'generates ensembles of mathematically valid labelings, facilitating a propagating meta-analysis that quantifies and reflects uncertainty from subgroup reconstruction', with VEC-KM extracting coordinates and explicit censoring marks from vectorised figures to minimise digitisation error. That is the multiple-imputation analogue named in the proposed direction, so it is no longer merely 'promising'. The Bayesian-likelihood-on-reported-summaries route remains undeveloped; I found nothing implementing it.
+    Cites arxiv:2511.01785: Implements ensemble (multiple-reconstruction) uncertainty propagation from KM digitisation into downstream meta-analysis, the analogue of multiple imputation the entry proposes..
+    Cites doi:10.1177/23814683221077643: Reconstruction method that yields estimates of uncertainty in the curve fit, unavailable from the standard Guyot-style algorithm..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / supported-with-caveat.** At the requested cpaic revision, aggregate survival input consists of reconstructed event and censoring rows that enter the likelihood as data. There is no observation model for digitization, risk-table interpolation, event allocation, or alternative compatible reconstructions, so ordinary cpaic posterior intervals do not propagate reconstruction uncertainty. C3 is directionally correct, although reconstruction errors need not monotonically compound: RMST integrates curve error, which can partly cancel, while extrapolation can amplify or damp it depending on the tail model. C4 is technically promising only if repeated reconstructions are proper draws from a calibrated distribution conditional on the image, risk table, and reported totals; repeatedly applying a deterministic reconstruction or varying arbitrary tuning choices is not analogous to valid multiple imputation. C5 is possible in principle, but the reported Kaplan-Meier ordinates are dependent derived statistics and require an explicit digitization, rounding, censoring, and risk-table observation model. The field-wide words 'routinely' and 'standard' are empirical claims outside this audit's source-code scope. The priority is context-dependent because reconstruction uncertainty may be negligible or decision-changing depending on image quality and downstream sensitivity.
+
+Decision path
+:   `R3:partially-solved(n=1) → R11:caveated(n=2)`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [CMP-17 — Survival pseudo-IPD reconstruction uncertainty is not propagated](CMP-17-survival-pseudo-ipd-reconstruction-uncertainty-is-not-propag.qmd)
+- [DEC-11 — Intervals omit selection, reconstruction and target-summary error](DEC-11-intervals-omit-selection-reconstruction-and-target-summary-e.qmd)
+- [DIA-10 — Data access is simulated as benign rather than informative](DIA-10-data-access-is-simulated-as-benign-rather-than-informative.qmd)
+- [QBA-24 — Survival QBA beyond the hazard ratio with limited aggregate data](QBA-24-survival-qba-beyond-the-hazard-ratio-with-limited-aggregate-.qmd)
+:::
+
+## Source
+
+Derived from C:L214-215, C:L245, C:L1578-1591 of the reviewed corpus.

@@ -1,0 +1,72 @@
+---
+title: "Unequal variances, skew, and bounded scales in continuous outcomes"
+description: "Individual-level normal likelihoods in population-adjusted synthesis use one residual standard deviation for all individual patient data, which can mis-weight studies with genuinely different dispersion and misstate uncertainty. The stronger claim in the source does not hold: under an identity-link normal model the target-standardized mean is the target expectation of the fitted conditional mean and does not contain the residual variance, so heteroscedasticity affects likelihood weighting, uncertainty, shrinkage, predictive distributions and responder probabilities rather than that marginal mean. The restriction is also specific to the individual-level likelihood, since aggregate contrast synthesis ordinarily carries study-specific standard errors already. Bounded instruments, skew and floor or ceiling masses need endpoint-appropriate likelihoods, and reported means and standard deviations generally do not identify those features in a comparator trial."
+pid: "OUT-05"
+topic: "Outcome-specific problems"
+categories: ["Outcome-specific problems", "Medium-high priority", "Confirmed open"]
+priority: "Medium-high"
+prank: 3
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[OUT-05]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[Medium-high priority]{.chip .chip-priority-medium-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+## Statement
+
+Individual-level normal likelihoods in population-adjusted synthesis use one residual standard deviation for all individual patient data, which can mis-weight studies with genuinely different dispersion and misstate uncertainty. The stronger claim in the source does not hold: under an identity-link normal model the target-standardized mean is the target expectation of the fitted conditional mean and does not contain the residual variance, so heteroscedasticity affects likelihood weighting, uncertainty, shrinkage, predictive distributions and responder probabilities rather than that marginal mean. The restriction is also specific to the individual-level likelihood, since aggregate contrast synthesis ordinarily carries study-specific standard errors already. Bounded instruments, skew and floor or ceiling masses need endpoint-appropriate likelihoods, and reported means and standard deviations generally do not identify those features in a comparator trial.
+
+## Why it is open
+
+Where the estimand is a responder probability, a predictive quantity or a tail summary rather than a mean, the residual distribution does enter, so a single pooled variance and an assumed normal shape propagate into the reported number and not only into its interval. Bounded instruments pile observations at the extremes, and population adjustment shifts the covariate distribution relative to the floor or ceiling, which makes the bias from ignoring truncation itself population-dependent. Aggregate-data publications report means and standard deviations only, so skewness and boundary piling in the comparator trial cannot be identified, although known scale bounds and extreme moments can flag a problem without identifying the distribution. cpaic, the unreleased development package on GitHub that is not installable from CRAN, documents its common-sigma limitation but implements no heteroscedastic, skew or bounded alternative, and the continuous likelihood offered by multinma is normal only.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [cpaic, unreleased development package on GitHub (not on CRAN), commit 9d150e9, R/plot-mlnmr.R and inst/stan/cpaic_normal.stan](https://github.com/choxos/cpaic) | uses one residual standard deviation for all individual patient data and documents that limitation; the code auditor cites its note that a Gaussian model under the identity link is exact at the covariate means, which is the basis for rejecting the claim that residual variance enters the target-standardized mean |
+| [multinma (CRAN), nma() continuous likelihood](https://cran.r-project.org/package=multinma) | the literature auditor verified from the nma() documentation that the supported continuous likelihood is normal only, with no robust, skew or truncated alternative |
+
+:::
+
+## Probable solution or research direction
+
+Fit study-specific residual variances with hierarchical shrinkage where the number of studies is small, and report how far uncertainty, shrinkage and any responder or predictive summary move when the common-variance assumption is relaxed, rather than claiming movement in the standardized mean itself. For bounded or skewed endpoints use likelihoods that model the support and the point masses, not only heavier or asymmetric tails, since a robust or skew density on the real line does not represent a floor or a ceiling. Where aggregate reporting cannot identify the distributional shape, treat it as a declared assumption with sensitivity analysis rather than something the available data can settle.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+
+**The source said.** "Continuous-outcome models in indirect comparison and ML-NMR assume a shared residual variance and a normal-linear response, but residual variance genuinely differs across trials and clinical endpoints are frequently skewed, truncated, or subject to floor and ceiling effects."
+
+**What was wrong with it.** The source claimed residual variance affects target-standardized summaries and not only standard errors; the code auditor showed this is false for a target-standardized mean under a linear identity-link model, where the standardized mean is the target expectation of the conditional mean function. The same auditor narrowed the pooled-variance complaint to the individual-level Gaussian likelihood and noted that robust or skew distributions do not by themselves model bounded support, censoring or point masses at floor and ceiling values; the literature auditor could not confirm from documentation whether multinma stratifies its normal auxiliary parameter by study, so that specific point is left unasserted here.
+
+**Dissent.** codex dissented (overstated): C2 is a reasonable extension, and C4 identifies real risks. The statement overgeneralizes C1: aggregate contrast synthesis ordinarily uses study-specific standard errors, while cpaic's single residual sigma applies to its IPD Gaussian likelihood. C3 is false for a target-standardized mean under a linear identity-link model. If E(Y|A,X)=m(A,X), the standardized mean is the target expectation of m(A,X) and does not contain the residual variance. Residual variance can alter likelihood weighting, uncertainty, posterior shrinkage, predictive distributions, and responder probabilities, but not that marginal mean. Individual-level skewness also does not automatically bias a correctly specified conditional-mean estimator, although it can invalidate likelihood-based uncertainty and tail summaries. C5 is incomplete: robust or skew distributions do not by themselves model bounded support, censoring, or point masses at floor and ceiling values. C6 is broadly right as a non-identification claim, although known scale bounds and extreme moments may flag a problem without identifying the distribution. cpaic documents its common-sigma limitation but implements no heteroscedastic, skew, or bounded alternative. The bundled priority is context-dependent: responder or boundary-sensitive decisions can be serious, whereas the common-sigma issue for a mean estimand may primarily concern efficiency and uncertainty.
+
+Literature and prior-art check
+:   **open / supported-with-caveat.** I could not retrieve any PAIC-specific treatment of unequal residual variances, skewness or bounded scales, so the problem appears unaddressed in this setting. The caveat is scope: in standard aggregate-data NMA of continuous outcomes each study contributes its own standard error, so study-specific variance is already inherent there; the shared-residual-variance restriction the entry describes is specific to the individual-level normal likelihood in IPD meta-regression and ML-NMR. I confirmed from the multinma nma() documentation that the supported continuous likelihood is 'normal' only, with no robust, skew or truncated alternatives, which supports the software half of the claim. I could not confirm from the documentation whether multinma stratifies the normal auxiliary parameter (sigma) by study, so I do not assert that the pooled-variance restriction is actually imposed by the leading implementation; that is the one factual point a reader could challenge. The claim that residual variance propagates into target-standardised summaries is correct for any latent-normal responder derivation but I retrieved no paper quantifying it.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** C2 is a reasonable extension, and C4 identifies real risks. The statement overgeneralizes C1: aggregate contrast synthesis ordinarily uses study-specific standard errors, while cpaic's single residual sigma applies to its IPD Gaussian likelihood. C3 is false for a target-standardized mean under a linear identity-link model. If E(Y|A,X)=m(A,X), the standardized mean is the target expectation of m(A,X) and does not contain the residual variance. Residual variance can alter likelihood weighting, uncertainty, posterior shrinkage, predictive distributions, and responder probabilities, but not that marginal mean. Individual-level skewness also does not automatically bias a correctly specified conditional-mean estimator, although it can invalidate likelihood-based uncertainty and tail summaries. C5 is incomplete: robust or skew distributions do not by themselves model bounded support, censoring, or point masses at floor and ceiling values. C6 is broadly right as a non-identification claim, although known scale bounds and extreme moments may flag a problem without identifying the distribution. cpaic documents its common-sigma limitation but implements no heteroscedastic, skew, or bounded alternative. The bundled priority is context-dependent: responder or boundary-sensitive decisions can be serious, whereas the common-sigma issue for a mean estimand may primarily concern efficiency and uncertainty.
+
+Decision path
+:   `R5:default-open → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [CMP-16 — Unreleased cpaic shares one tau and one IPD-row residual variance](CMP-16-unreleased-cpaic-shares-one-tau-and-one-ipd-row-residual-var.qmd)
+:::
+
+## Source
+
+Derived from C:L1537-1543, C:L1537-1544, C:L1548-1552, C:L1548-1553 of the reviewed corpus.

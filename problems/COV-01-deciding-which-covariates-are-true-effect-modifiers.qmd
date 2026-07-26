@@ -1,0 +1,89 @@
+---
+title: "Deciding which covariates are true effect modifiers"
+description: "There is no agreed default for choosing the effect-modifier set: the right set depends on the treatment contrast, estimand, effect scale, design and available support, and in the small samples typical of these analyses significance screening is unstable while balancing on every available covariate can destroy overlap and exhaust the information available for interaction terms. Reviews document what applied work does: NICE technology appraisals selected covariates by availability, expert opinion, effective sample size, statistical significance or cross-validation (Phillippo et al. 2019, doi:10.1017/S0266462319000333); of 117 oncology MAICs only 3 met all NICE recommendations, with evidence of effect-modifier status among the least reported items (Farinasso 2025, doi:10.1016/j.vhri.2025.101088); and no study among 27 CAR-T indirect comparisons described its identification methodology (Neumann 2026, doi:10.57264/cer-2026-0033). Adjustment sets are not uniformly small: those reviews report anywhere from no adjustment to 19 covariates, and a median of 6 (range 1 to 13) for unanchored analyses. A formal causal covariate-selection procedure does exist for transporting experimental results (Egami and Hartman, arxiv:1909.02669), but it assumes richer target data than an aggregate-data comparator supplies, and it has not been benchmarked for this setting."
+pid: "COV-01"
+topic: "Covariates: selection, target moments, measurement"
+categories: ["Covariates: selection, target moments, measurement", "Very high priority", "Confirmed open"]
+priority: "Very high"
+prank: 1
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[COV-01]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[Very high priority]{.chip .chip-priority-very-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+::: {.source-unsourced}
+**Source note.** This entry derives in part from a source document whose inline citations
+were ChatGPT interface tokens rather than references, and so resolve to nothing. Claims
+below are attributed to that document and were checked independently where possible;
+anything that could not be independently sourced is marked in the verification trail.
+:::
+
+## Statement
+
+There is no agreed default for choosing the effect-modifier set: the right set depends on the treatment contrast, estimand, effect scale, design and available support, and in the small samples typical of these analyses significance screening is unstable while balancing on every available covariate can destroy overlap and exhaust the information available for interaction terms. Reviews document what applied work does: NICE technology appraisals selected covariates by availability, expert opinion, effective sample size, statistical significance or cross-validation (Phillippo et al. 2019, doi:10.1017/S0266462319000333); of 117 oncology MAICs only 3 met all NICE recommendations, with evidence of effect-modifier status among the least reported items (Farinasso 2025, doi:10.1016/j.vhri.2025.101088); and no study among 27 CAR-T indirect comparisons described its identification methodology (Neumann 2026, doi:10.57264/cer-2026-0033). Adjustment sets are not uniformly small: those reviews report anywhere from no adjustment to 19 covariates, and a median of 6 (range 1 to 13) for unanchored analyses. A formal causal covariate-selection procedure does exist for transporting experimental results (Egami and Hartman, arxiv:1909.02669), but it assumes richer target data than an aggregate-data comparator supplies, and it has not been benchmarked for this setting.
+
+## Why it is open
+
+Interaction terms carry far less information than main effects, so a data-driven modifier set fluctuates across resamples and the downstream interval is conditional on a selection event that is never reported. Balancing on everything trades that instability for a support problem: extra balancing constraints usually make the weights harder to satisfy and cut effective sample size, though not monotonically, and extra interaction terms consume information the network may not hold. Clinical elicitation, the remaining route, is incomplete and not free of the analyst's interest in the result. Because the rationale is seldom documented the same evidence base yields different adjustment sets in different submissions, and getting the set wrong has measured consequences: all population adjustment methods incur bias when an effect modifier is missing (Phillippo et al. 2020, doi:10.1002/sim.8759).
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Phillippo et al., 2019](https://doi.org/10.1017/S0266462319000333) | Reviews population adjustment in NICE technology appraisals and records that covariates were included 'based on: availability, expert opinion, effective sample size, statistical significance, or cross-validation'; the audit uses it to source the ad hoc and significance-screening claims, and it reports a median of 6 covariates (range 1 to 13) for unanchored analyses. |
+| [Farinasso, 2025](https://doi.org/10.1016/j.vhri.2025.101088) | Scoping review of 117 oncology MAICs focused on reporting quality; only 3 fulfilled all NICE recommendations, and evidence of effect-modifier status and the distribution of weights were among the least reported items. |
+| [Neumann, 2026](https://doi.org/10.57264/cer-2026-0033) | Systematic review of 27 CAR-T indirect comparisons; covariates were chosen from clinical expertise or literature review but 'no study provided a detailed description of the identification methodology', and adjustment ranged from none to 19 covariates. |
+| [Egami and Hartman, 2021](https://arxiv.org/abs/1909.02669) | Formal causal covariate-selection procedure based on estimated separating sets for generalizing experimental results; adjacent prior art that assumes richer target data than an aggregate-data comparator provides. |
+| [Phillippo et al., 2020](https://doi.org/10.1002/sim.8759) | Simulation study of anchored population adjustment methods; all methods incur bias when an effect modifier is missing, which is the consequence of getting the modifier set wrong. |
+
+:::
+
+## Probable solution or research direction
+
+Prespecify the selection process and record it: causal and clinical knowledge, cross-trial interaction evidence, prognostic strength where the design is unanchored or the strategy is precision-oriented, measurement comparability, expected imbalance between source and target, support and estimability consequences, and predeclared sensitivity sets over alternative modifier lists. The gap to fill is not a way to encode nonlinear covariate effects, which splines and basis expansions already do, but a way to choose and estimate them when interaction information is sparse. Adapt and benchmark the existing separating-set procedure (arxiv:1909.02669) for the case where the target is known only through published summaries, and report uncertainty for the whole procedure including selection, whether by sample splitting, cross-fitting, resampling the entire selection procedure, selective inference, shrinkage or model averaging. Minimum covariate reporting sets for aggregate-data publications would make any of this auditable.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+
+**The source said.** "Effect-modifier transport is the entire reason population adjustment exists, yet there is no defensible default for choosing the modifier set: significance-based screening rests on underpowered interaction tests, adjusting for every available covariate destroys overlap and can leave the interaction model unidentified, and clinical elicitation is incomplete. Applied work uses small ad hoc covariate sets with weak overlap diagnostics and poorly reported selection rationale."
+
+**What was wrong with it.** The claim was unattributed in the source, which also said applied work uses 'small ad hoc covariate sets'; the literature auditor supplied real references, so the ad hoc-selection, weak-diagnostic and poor-rationale claims are now sourced to three reviews (doi:10.1017/S0266462319000333, doi:10.1016/j.vhri.2025.101088, doi:10.57264/cer-2026-0033), the last of which contradicts 'small' by reporting adjustment sets that range from none to 19 covariates. The code auditor struck two further claims: splines and basis expansions already encode nonlinear covariate effects, so only their selection and estimation under sparse data is unresolved, and honest sample splitting is one valid inferential strategy among several rather than a necessity.
+
+Literature and prior-art check
+:   **open / supported-with-caveat.** Retrieved three empirical reviews that source this entry's unsourced claims. Phillippo 2019 (NICE TAs) reports covariates 'included based on: availability, expert opinion, effective sample size, statistical significance, or cross-validation' — sourcing both the significance-screening and ad hoc claims. Farinasso 2025 (117 oncology MAICs) reports only 3 met all NICE recommendations and that 'the least reported aspects were the adjustment for all effect modifiers and prognostic variables..., evidence of effect modifier status, and distribution of weights' — sourcing the poor-rationale and weak-diagnostics claims. Neumann 2026 (27 CAR-T ITCs) states 'no study provided a detailed description of the identification methodology' and that standardized approaches are 'urgently needed'. Caveat: the same review contradicts 'small' covariate sets (range: none to 19 covariates); Phillippo 2019 gives median 6, range 1-13 for unanchored. The 'no benchmarked pipeline' claim is an absence claim I cannot verify; a formal separating-set selection algorithm exists for generalization (Egami & Hartman), just not benchmarked with an aggregate-data target.
+    Cites doi:10.1017/S0266462319000333: Sources the claims that applied PAIC selects covariates ad hoc and partly by statistical significance.
+    Cites doi:10.1016/j.vhri.2025.101088: Sources the weak-diagnostics and poor-reporting-of-rationale claims with numbers (117 studies, 3 compliant).
+    Cites doi:10.57264/cer-2026-0033: A source that itself asserts the absence of a standardized covariate-identification approach.
+    Cites arxiv:1909.02669: A formal causal covariate-selection procedure (estimated separating sets) for transporting effects; adjacent prior art the entry does not cite, though it assumes richer target data than a PAIC aggregate-data comparator provides.
+    Cites doi:10.1002/sim.8759: Sources the consequence of getting the modifier set wrong.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** The underlying selection problem is genuinely open because the needed adjustment set is specific to the treatment contrast, estimand, effect scale, design, and available support. The compound claim is nevertheless too broad. C3-C6 and C8 are prevalence or consensus claims with no supplied evidence. C7 is false as written: splines, basis expansions, and prespecified interactions already encode nonlinear effects; choosing and estimating them under sparse data is the unresolved part. C9 and C11 are common finite-sample risks, not universal facts. C12 holds when selection is ignored, and C15 is false as a necessity because cross-fitting, resampling the full selection procedure, selective inference, shrinkage or model averaging, and external prespecification are alternatives. Added balance constraints often worsen feasibility and ESS but need not reduce ESS monotonically. At cpaic@9d150e9, no modifier-selection pipeline is exported; cstc() and cmaic() accept analyst-specified sets and default to all IPD covariates. Very-high priority is warranted only when plausible modifier omission and weak support can materially move the target contrast.
+
+Decision path
+:   `R5:default-open → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [DEC-09 — Modifier selection and target moments reported without provenance](DEC-09-modifier-selection-and-target-moments-reported-without-prove.qmd)
+- [EVB-05 — No reporting standard covers what population adjustment needs](EVB-05-no-reporting-standard-covers-what-population-adjustment-need.qmd)
+- [IDN-05 — The shared effect modifier check has low and uncalibrated power](IDN-05-the-shared-effect-modifier-check-has-low-and-uncalibrated-po.qmd)
+- [MOD-02 — Convenience functional forms and untested flexible alternatives](MOD-02-convenience-functional-forms-and-untested-flexible-alternati.qmd)
+- [OVL-01 — Weak overlap leaves target regions the source data cannot support](OVL-01-weak-overlap-leaves-target-regions-the-source-data-cannot-su.qmd)
+:::
+
+## Source
+
+Derived from A:L63, C:L214-215, C:L228, C:L916-928 of the reviewed corpus.

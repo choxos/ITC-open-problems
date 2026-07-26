@@ -1,0 +1,83 @@
+---
+title: "Target population and joint-distribution uncertainty"
+description: "Aggregate publications report marginal means or proportions, so analysts copy correlations from the IPD source into a single reconstructed target population and treat it as known; Ren et al. 2025 (doi:10.1017/rsm.2025.13) do exactly that, taking the marginals from the comparator publication and the correlation structure from their own trial. Published marginal summaries identify a target-standardized effect only when they determine the expectations of every basis function the outcome model uses, which nonlinearity generally defeats; the converse does not hold, since under an identity-link model with a treatment-by-U interaction the target mean of U can suffice despite effect modification, and correlation is irrelevant to a purely additive linear expectation. The target is also commonly the comparator-study population by data availability rather than the reimbursement-relevant population, and Chandler and Ishak (arXiv:2602.17041) show that pairwise PAIC identifies an effect defined in the comparator population, so applying it elsewhere is an additional transport step; because marginal effects are population-dependent on non-collapsible scales, this is not a labeling issue."
+pid: "QBA-10"
+topic: "Quantitative bias analysis for unanchored PAIC"
+categories: ["Quantitative bias analysis for unanchored PAIC", "Very high priority", "Confirmed open"]
+priority: "Very high"
+prank: 1
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Emerging"
+tractability: 4
+---
+::: {.problem-meta}
+[QBA-10]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[Very high priority]{.chip .chip-priority-very-high}
+[Emerging]{.chip .chip-maturity-emerging}
+[Tractability 4/5]{.chip}
+:::
+## Statement
+
+Aggregate publications report marginal means or proportions, so analysts copy correlations from the IPD source into a single reconstructed target population and treat it as known; Ren et al. 2025 (doi:10.1017/rsm.2025.13) do exactly that, taking the marginals from the comparator publication and the correlation structure from their own trial. Published marginal summaries identify a target-standardized effect only when they determine the expectations of every basis function the outcome model uses, which nonlinearity generally defeats; the converse does not hold, since under an identity-link model with a treatment-by-U interaction the target mean of U can suffice despite effect modification, and correlation is irrelevant to a purely additive linear expectation. The target is also commonly the comparator-study population by data availability rather than the reimbursement-relevant population, and Chandler and Ishak (arXiv:2602.17041) show that pairwise PAIC identifies an effect defined in the comparator population, so applying it elsewhere is an additional transport step; because marginal effects are population-dependent on non-collapsible scales, this is not a labeling issue.
+
+## Why it is open
+
+Published marginals generally do not identify the target joint distribution, yet the copula and higher moments enter the weights and the standardized arm outcomes, so a step currently treated as data processing is in fact unquantified modeling. Fixing one synthetic population hides that error layer inside what looks like a data-driven target, and nothing in the output records which features of the assumed target law the estimand actually depends on. Producing QBA in the decision-relevant population would require target moments that are usually unavailable, so the bias analysis answers a question about a population no decision maker asked about, and on non-collapsible scales the estimand genuinely changes with the population rather than being relabeled.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Ren et al. 2025, Research Synthesis Methods](https://doi.org/10.1017/rsm.2025.13) | Documents the practice the entry describes: a NORTA construction taking marginals from the comparator publication and the correlation structure from the IPD trial, with the resulting estimand flagged as the marginal treatment effect in the comparator trial population rather than in the RCT population. |
+| [Chandler and Ishak 2026, Reframing Population-Adjusted Indirect Comparisons as a Transportability Problem: An Estimand-Based Perspective and Implications for Health Technology Assessment](https://arxiv.org/abs/2602.17041) | Shows that pairwise PAIC approaches typically identify effects defined in the comparator population and that applying these estimates to other populations entails an additional, often implicit, transport step requiring further assumptions. Formalizes the target-population point rather than resolving the joint-distribution problem. |
+
+:::
+
+## Probable solution or research direction
+
+Replace the single reconstructed target with a set of jointly compatible target laws and run the QBA over the features that materially affect the estimand, rather than mechanically varying every mean, variance, correlation, copula family and higher moment. Disclose the assumed target law explicitly, characterize when the reported summaries are sufficient for the required target expectations and when they are not, and bound or vary the unidentified features in the insufficient case. Require explicit source and target notation for the sensitivity analysis as well as the primary analysis, report results in several explicitly named targets including the decision-relevant population, and use robust standardization where the target law is only partially known.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+
+**The source said.** "Aggregate publications report only marginal means or proportions, so analysts copy correlations from the IPD source into a single reconstructed target population and then treat it as known, although the copula family, tail dependence and higher moments are not identified by published marginals. The target is also commonly the comparator-study population by data availability rather than the reimbursement-relevant population, and both the primary analysis and its sensitivity layer inherit that default."
+
+**What was wrong with it.** GPT-5.6 Sol found the entry's sufficiency condition stated backwards: target means fail when they do not determine the outcome model's relevant expectations, not automatically whenever the outcome is nonlinear, the omitted variable interacts with treatment or it correlates with measured covariates. The claim that a joint distribution is unidentified by aggregate data was narrowed to marginal summaries, since sufficiently detailed joint tables or cross-moments can identify dependence features, and a sensitivity analysis should vary jointly compatible target laws in the features that affect the estimand rather than mechanically vary every listed quantity. The entry cited nothing; the literature auditor supplied Ren et al. 2025 (doi:10.1017/rsm.2025.13) for current practice and Chandler and Ishak (arXiv:2602.17041) for the target-population point.
+
+**Dissent.** literature dissented (supported): Claims 1 to 3 and 6 to 8 are well supported by retrieved literature the entry cites nothing for. Ren et al. 2025 confirms current practice exactly: their NORTA construction takes 'the marginal distribution of O_i ... based on the reported mean for O_j from Study A' but 'the correlation structure from Study B', i.e. correlations are copied from the IPD source into the reconstructed target and then treated as known, and they flag that the resulting estimand is 'the marginal treatment effect in the comparator trial population, which is different from the marginal treatment effect in the RCT population'. Claim 8 is independently and strongly supported by Chandler and Ishak (arXiv 2602.17041), which shows 'pairwise PAIC approaches typically identify effects defined in the comparator population and that applying these estimates to other populations entails an additional, often implicit, transport step requiring further assumptions', and that marginal effects on non-collapsible scales are population-dependent so the labelling is not cosmetic. Claim 4 (QBA should range over copula families and higher moments) is a normative proposal and I found no published PAIC implementation of distributional-uncertainty-set or copula sensitivity, so the problem is open.
+
+Literature and prior-art check
+:   **open / supported.** Claims 1 to 3 and 6 to 8 are well supported by retrieved literature the entry cites nothing for. Ren et al. 2025 confirms current practice exactly: their NORTA construction takes 'the marginal distribution of O_i ... based on the reported mean for O_j from Study A' but 'the correlation structure from Study B', i.e. correlations are copied from the IPD source into the reconstructed target and then treated as known, and they flag that the resulting estimand is 'the marginal treatment effect in the comparator trial population, which is different from the marginal treatment effect in the RCT population'. Claim 8 is independently and strongly supported by Chandler and Ishak (arXiv 2602.17041), which shows 'pairwise PAIC approaches typically identify effects defined in the comparator population and that applying these estimates to other populations entails an additional, often implicit, transport step requiring further assumptions', and that marginal effects on non-collapsible scales are population-dependent so the labelling is not cosmetic. Claim 4 (QBA should range over copula families and higher moments) is a normative proposal and I found no published PAIC implementation of distributional-uncertainty-set or copula sensitivity, so the problem is open.
+    Cites arxiv:2602.17041: Does not solve the problem; formalizes and therefore strengthens claims 7 and 8 with a real citable source, showing the comparator-study population is the identified target and that transporting elsewhere is an extra assumption..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** Let m_a(x)=E(Y^a|X=x). The target mean is E_F[m_a(X)], and published moments identify it only when they identify the expectations of every relevant basis function in m_a. Nonlinearity generally defeats mean-only reconstruction, but C1's converse is false: under an identity-link model with interaction gamma*A*U, E(Y^1-Y^0)=beta_A+gamma*E(U), so the target mean can suffice despite effect modification. Correlation is also irrelevant to a purely additive linear expectation. C3 should refer to marginal summaries, not aggregate data generally, because sufficiently detailed joint tables or cross-moments can identify dependence features. C2 and C8 are correct. Distributional uncertainty sets and copula sensitivity are reasonable options, but C4-C5 should vary compatible target laws and only features affecting the estimand, not mechanically vary every listed quantity. C6-C7 are practice generalizations rather than mathematical universals. The underlying partial-identification problem remains open.
+
+Decision path
+:   `R5:default-open → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [ADJ-06 — Distributionally robust bounds over compatible target laws](ADJ-06-distributionally-robust-bounds-over-compatible-target-laws.qmd)
+- [COV-07 — Unknown target joint covariate distribution](COV-07-unknown-target-joint-covariate-distribution.qmd)
+- [DEC-09 — Modifier selection and target moments reported without provenance](DEC-09-modifier-selection-and-target-moments-reported-without-prove.qmd)
+- [EST-01 — Target population is unnamed and set by data availability](EST-01-target-population-is-unnamed-and-set-by-data-availability.qmd)
+- [EST-07 — Reported target moments are treated as known constants](EST-07-reported-target-moments-are-treated-as-known-constants.qmd)
+- [MIS-01 — Missing aggregate summaries and unavailable IPD have no remedy](MIS-01-missing-aggregate-summaries-and-unavailable-ipd-have-no-reme.qmd)
+- [MIS-03 — Nothing propagates sampling error in reported target moments](MIS-03-nothing-propagates-sampling-error-in-reported-target-moments.qmd)
+- [MOD-01 — Conventional STC reports a conditional effect at target means](MOD-01-conventional-stc-reports-a-conditional-effect-at-target-mean.qmd)
+- [MOD-08 — Cross-fitting folds and rate conditions undefined for PAIC](MOD-08-cross-fitting-folds-and-rate-conditions-undefined-for-paic.qmd)
+:::
+
+## Source
+
+Derived from C:L487, C:L514, C:L515, C:L573, C:L800-810, C:L2151 of the reviewed corpus.

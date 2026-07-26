@@ -1,0 +1,90 @@
+---
+title: "No agreed ESS definition and no support-geometry diagnostics"
+description: "A global effective sample size is a scalar function of the weight distribution, so it does not encode where in covariate space the support lies or whether the supported region is relevant to the decision contrast. Reporting is demonstrably incomplete in practice: of 117 oncology MAICs reviewed by Farinasso et al. 2025 (doi:10.1016/j.vhri.2025.101088), only three fulfilled all NICE recommendations and the distribution of weights was among the least reported items. The claim that software reports ESS alone and never computes contrast-specific influence is too strong: cpaic, an unreleased development package on GitHub that is not on CRAN, already exports a weight panel with effective sample size, entropy efficiency, weight variation, concentration and residual balance, plus an edge influence function for a named treatment contrast. What remains missing is a definition set agreed across packages and the support-geometry diagnostics that no package computes: region-specific ESS, convex-hull distance, density-ratio and optimal-transport cost, out-of-distribution maps, and balance on omitted moments."
+pid: "DIA-02"
+topic: "Diagnostics & empirical validation"
+categories: ["Diagnostics & empirical validation", "Very high priority", "Unverifiable"]
+priority: "Very high"
+prank: 1
+verdict: "Unverifiable"
+verdictslug: "unverifiable"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[DIA-02]{.problem-id}
+[Unverifiable]{.verdict .verdict-unverifiable}
+[Very high priority]{.chip .chip-priority-very-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+::: {.source-unsourced}
+**Source note.** This entry derives in part from a source document whose inline citations
+were ChatGPT interface tokens rather than references, and so resolve to nothing. Claims
+below are attributed to that document and were checked independently where possible;
+anything that could not be independently sourced is marked in the verification trail.
+:::
+
+## Statement
+
+A global effective sample size is a scalar function of the weight distribution, so it does not encode where in covariate space the support lies or whether the supported region is relevant to the decision contrast. Reporting is demonstrably incomplete in practice: of 117 oncology MAICs reviewed by Farinasso et al. 2025 (doi:10.1016/j.vhri.2025.101088), only three fulfilled all NICE recommendations and the distribution of weights was among the least reported items. The claim that software reports ESS alone and never computes contrast-specific influence is too strong: cpaic, an unreleased development package on GitHub that is not on CRAN, already exports a weight panel with effective sample size, entropy efficiency, weight variation, concentration and residual balance, plus an edge influence function for a named treatment contrast. What remains missing is a definition set agreed across packages and the support-geometry diagnostics that no package computes: region-specific ESS, convex-hull distance, density-ratio and optimal-transport cost, out-of-distribution maps, and balance on omitted moments.
+
+## Why it is open
+
+Effective sample size is the squared sum of the weights divided by the sum of their squares, so it is invariant to where the weights sit in covariate space; the same value can come from a broad shifted distribution or from a decision-relevant subgroup with no source support at all. Balance is conventionally reported on the moments that were matched, which is tautological, while balance on the omitted moments is the informative check and is usually skipped. Because no body owns the definitions and at least three competing ESS calculations for population adjustment have been proposed, two analyses of the same evidence can report incomparable numbers, and no empirical knowledge accumulates about which diagnostic values predict bias.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Farinasso et al. 2025, Matching-Adjusted Indirect Comparison Studies in Oncology: A Scoping Review Focused on Reporting Quality](https://doi.org/10.1016/j.vhri.2025.101088) | Scoping review of 117 oncology MAICs finding that only three fulfilled all NICE recommendations and that the distribution of weights was among the least reported items; sources the previously unattributed claim that diagnostic practice is heterogeneous and incomplete. |
+| [Three new methodologies for calculating the effective sample size when performing population adjustment, 2024](https://doi.org/10.1186/s12874-024-02412-1) | Proposes three competing ESS calculations for population adjustment, evidence that no single ESS definition is fixed across packages and publications. The literature auditor retrieved this at title and venue level only. |
+| [cpaic (development version), commit 9d150e9](https://github.com/choxos/cpaic/commit/9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca) | Unreleased development package on GitHub, not available from CRAN. Exports a weight-quality panel (ESS, entropy efficiency, weight variation, concentration, residual balance) and an edge influence function for a named treatment contrast, documented as approximate for multi-arm networks. |
+
+:::
+
+## Probable solution or research direction
+
+Standardize and extend what exists rather than specify a panel from scratch: agree one definition set across packages, starting from the multi-metric weight panel and contrast-specific influence already implemented in cpaic, and add the support-geometry diagnostics no package computes, namely region-specific ESS, convex-hull distance between source and target support, density-ratio and optimal-transport cost, out-of-distribution maps, and balance on omitted as well as fitted moments. Require the agreed panel in publications and submissions. Evaluate each member of the panel in simulation for its ability to predict realized error, and drop the ones that only describe the fit.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Unverifiable. Auditors disagreed and the disagreement was evidence-bearing on both sides.
+
+**The source titled this.** "ESS reported alone and overlap diagnostics are not standardized" The title says software reports effective sample size alone, which the audit judged too strong given an implemented multi-metric weight panel and contrast-specific edge influence.
+
+**The source said.** "Overlap is summarized by a single effective sample size, which cannot show the geometry of covariate support, where the analysis is extrapolating, or whether the supported region is relevant to the target contrast. The definitions and displays of overlap, ESS, extrapolation and modifier-balance diagnostics also differ between packages and publications, so two analyses of the same evidence report incomparable numbers."
+
+**What was wrong with it.** The claim was unattributed in the source and is now sourced: the literature auditor supplied Farinasso et al. 2025 (doi:10.1016/j.vhri.2025.101088) for heterogeneous and incomplete diagnostic reporting, and a 2024 paper proposing three competing ESS calculations (doi:10.1186/s12874-024-02412-1) for the non-standardization of ESS itself. GPT-5.6 Sol read cpaic at commit 9d150e9 and found a multi-metric weight panel and contrast-specific edge influence already implemented, so the ESS-only claim fails there; the two auditors disagreed on whether the entry as written was supported or overstated, and the weaker reading is published here.
+
+**Dissent.** literature dissented (open): This entry is source_unsourced; I found real references that support it. Farinasso et al. 2025 scoping-reviewed 117 oncology MAICs and reports that only 3 fulfilled all NICE DSU recommendations and that among the least reported items was the distribution of weights, with mean sample-size reduction 44.9%. That is direct published evidence that diagnostic reporting practice is heterogeneous and suboptimal. Independently, a 2024 BMC Med Res Methodol paper proposes three new ESS calculations for population adjustment, which is itself evidence that no single ESS definition is fixed across packages and publications. I found no PAIC package or publication reporting local (region-specific) ESS, optimal-transport cost, convex-hull distance, out-of-distribution maps, balance on omitted moments, or influence alignment between IPD study edges and the decision contrast; those remain absent, though absence found by search is weaker evidence than the reporting review. codex dissented (overstated): C4 through C7 follow directly from ESS = (sum w)^2 / sum(w^2): the same weights can be reassigned to different covariate locations without changing ESS, despite different local support and contrast relevance. The claim that software reports only ESS and never computes contrast-specific influence is already false for cpaic at the requested commit. It exports `weight_diagnostics()` with ESS, entropy efficiency, weight variation, concentration, and residual balance, plus `edge_influence()` for a named treatment contrast. The latter is documented as approximate for multi-arm networks. Local ESS, convex-hull distance, density ratios, and transport costs are complementary diagnostics requiring careful definitions and validation, not established replacements for ESS. Cross-package standardization and fuller support-geometry diagnostics remain open.
+
+Literature and prior-art check
+:   **open / supported.** This entry is source_unsourced; I found real references that support it. Farinasso et al. 2025 scoping-reviewed 117 oncology MAICs and reports that only 3 fulfilled all NICE DSU recommendations and that among the least reported items was the distribution of weights, with mean sample-size reduction 44.9%. That is direct published evidence that diagnostic reporting practice is heterogeneous and suboptimal. Independently, a 2024 BMC Med Res Methodol paper proposes three new ESS calculations for population adjustment, which is itself evidence that no single ESS definition is fixed across packages and publications. I found no PAIC package or publication reporting local (region-specific) ESS, optimal-transport cost, convex-hull distance, out-of-distribution maps, balance on omitted moments, or influence alignment between IPD study edges and the decision contrast; those remain absent, though absence found by search is weaker evidence than the reporting review.
+    Cites 10.1016/j.vhri.2025.101088: Sources the previously unsourced claim that PAIC diagnostic practice is heterogeneous and suboptimal, with hard numbers on non-reporting of weight distributions..
+    Cites 10.1186/s12874-024-02412-1: Existence of three competing new ESS calculations for population adjustment supports the claim that ESS definitions are not standardized. Retrieved at title/venue level only; I did not read the full text..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / overstated.** C4 through C7 follow directly from ESS = (sum w)^2 / sum(w^2): the same weights can be reassigned to different covariate locations without changing ESS, despite different local support and contrast relevance. The claim that software reports only ESS and never computes contrast-specific influence is already false for cpaic at the requested commit. It exports `weight_diagnostics()` with ESS, entropy efficiency, weight variation, concentration, and residual balance, plus `edge_influence()` for a named treatment contrast. The latter is documented as approximate for multi-arm networks. Local ESS, convex-hull distance, density ratios, and transport costs are complementary diagnostics requiring careful definitions and validation, not established replacements for ESS. Cross-package standardization and fuller support-geometry diagnostics remain open.
+    Cites choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca: The package implements a multi-metric weight panel and contrast-specific edge influence, refuting the universal ESS-only and no-influence-software claims. It does not standardize definitions across packages or provide all proposed geometric diagnostics..
+
+Decision path
+:   `R3:partially-solved(n=1) → R7:counter-and-support-both-present`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [ADJ-04 — Flexible outcome surfaces and support diagnostics in standardization](ADJ-04-flexible-outcome-surfaces-and-support-diagnostics-in-standar.qmd)
+- [ADJ-05 — Optimal transport for distributional rather than moment balance](ADJ-05-optimal-transport-for-distributional-rather-than-moment-bala.qmd)
+- [OVL-01 — Weak overlap leaves target regions the source data cannot support](OVL-01-weak-overlap-leaves-target-regions-the-source-data-cannot-su.qmd)
+- [OVL-02 — ESS is an insufficient overlap diagnostic and no battery is agreed](OVL-02-ess-is-an-insufficient-overlap-diagnostic-and-no-battery-is-.qmd)
+- [OVL-04 — Weight trimming silently changes the estimand](OVL-04-weight-trimming-silently-changes-the-estimand.qmd)
+- [SFW-10 — maicplus variance, trimming and estimand disclosure gaps](SFW-10-maicplus-variance-trimming-and-estimand-disclosure-gaps.qmd)
+:::
+
+## Source
+
+Derived from A:L217, C:L214-215, C:L254, C:L2002-2010 of the reviewed corpus.

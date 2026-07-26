@@ -1,0 +1,70 @@
+---
+title: "Benchmarking and negative controls as data-based calibration"
+description: "Two data-based routes to sensitivity parameters exist, and the first has been implemented for unanchored MAIC: Yi and Jiang 2025 (doi:10.57264/cer-2024-0235) build artificially risk-unbalanced groups with a predetermined hazard ratio of 1.8, reweight on the candidate prognostic factors and check whether the reweighted hazard ratio returns to one, reporting 0.9157 with all covariates included and 1.671 when one critical prognostic factor was omitted. It is a covariate-sufficiency diagnostic: it does not convert an induced bias into a sensitivity-parameter range and does not bound residual bias from unobserved structure. The second route, negative-control outcomes or exposures, needs a control that shares the relevant confounding and selection structure and has no causal relation to the outcome of interest, and it detects rather than quantifies, since a signal may instead reflect failure of the negative-control assumptions and a null signal does not establish absence of bias; converting an association into a bias-parameter range for the primary estimand requires further bridge, completeness or proportional-bias assumptions that have not been developed for population-adjusted comparisons."
+pid: "QBA-26"
+topic: "Quantitative bias analysis for unanchored PAIC"
+categories: ["Quantitative bias analysis for unanchored PAIC", "High priority", "Confirmed open"]
+priority: "High"
+prank: 2
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[QBA-26]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[High priority]{.chip .chip-priority-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+## Statement
+
+Two data-based routes to sensitivity parameters exist, and the first has been implemented for unanchored MAIC: Yi and Jiang 2025 (doi:10.57264/cer-2024-0235) build artificially risk-unbalanced groups with a predetermined hazard ratio of 1.8, reweight on the candidate prognostic factors and check whether the reweighted hazard ratio returns to one, reporting 0.9157 with all covariates included and 1.671 when one critical prognostic factor was omitted. It is a covariate-sufficiency diagnostic: it does not convert an induced bias into a sensitivity-parameter range and does not bound residual bias from unobserved structure. The second route, negative-control outcomes or exposures, needs a control that shares the relevant confounding and selection structure and has no causal relation to the outcome of interest, and it detects rather than quantifies, since a signal may instead reflect failure of the negative-control assumptions and a null signal does not establish absence of bias; converting an association into a bias-parameter range for the primary estimand requires further bridge, completeness or proportional-bias assumptions that have not been developed for population-adjusted comparisons.
+
+## Why it is open
+
+A held-out benchmark is limited to what happened to be measured, so it says how strong an observed variable is and never how strong the unobserved structure is; an omitted composite factor can be stronger than any single measured variable, so the familiar argument that no measured covariate produces bias as large as the assumed value establishes nothing without an explicit assumption linking unmeasured structure to the measured covariates, and no procedure scales a single-variable benchmark up to composite or multivariate omitted structure. In an unanchored PAIC the comparator is published aggregate data in which no negative-control outcome is typically reported, so the diagnostic is usually unavailable on the side where it is needed. Converting an observed negative-control association into a bias-parameter range requires bridge or completeness assumptions that have not been worked out for population-adjusted comparisons, so the routine output stays a binary pass or fail.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Yi and Jiang 2025, A process to validate prognostic factors for unanchored matching-adjusted indirect comparison of single-arm trials in oncology: a proof-of-concept study, Journal of Comparative Effectiveness Research 14:e240235](https://doi.org/10.57264/cer-2024-0235) | Implements the held-out prognostic-factor benchmarking route in the unanchored MAIC setting as a covariate-sufficiency diagnostic: with all covariates included the reweighted hazard ratio was 0.9157 (95% CI 0.5629 to 2.493) and with one critical prognostic factor omitted it was 1.671 (95% CI 1.194 to 2.340). It produces no bias-parameter range and no bound on residual bias. |
+
+:::
+
+## Probable solution or research direction
+
+Treat a held-out benchmark as calibration by analogy that is neither an upper nor a lower bound, rerunning the whole PAIC procedure and accounting for the held-out variable's scale, prevalence, role and correlation with the retained variables, and extend it so it can address composite and multivariate omitted structure. Use it as one rung of an explicit evidence hierarchy alongside internal validation data, external evidence, randomized-benchmark emulation and formal elicitation rather than as standalone justification. Encourage reporting of candidate negative-control outcomes in trial and external-control publications so the diagnostic becomes usable with aggregate data, and develop the bridge or completeness assumptions under which a negative-control association converts into a bias-parameter range for the primary estimand rather than a pass or fail.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+
+**The source said.** "Two data-based routes to sensitivity parameters exist: removing a measured prognostic factor or effect modifier and estimating the bias its omission induces, and using negative-control outcomes or exposures to reveal selection, ascertainment or design differences not removed by adjusting for the measured covariates. Neither converts into a bound on the residual bias affecting the primary estimand."
+
+**What was wrong with it.** The entry cited nothing for a benchmarking route that has already been implemented for unanchored MAIC; the literature auditor supplied Yi and Jiang 2025 (doi:10.57264/cer-2024-0235), which does not close the problem but is prior art the entry should carry. GPT-5.6 Sol rejected the entry's proposal to treat a held-out benchmark as a lower reference point, since it is guaranteed to be neither a lower nor an upper bound, and noted that under explicit additional assumptions negative controls can calibrate an effect on the primary estimand rather than only detect a bias.
+
+Literature and prior-art check
+:   **open / supported-with-caveat.** The held-out-variable benchmarking route in claim 1 has in fact been implemented for unanchored MAIC and the entry cites nothing for it: Yi and Jiang 2025 (J Comp Eff Res 14:e240235, PMID 40190245) propose a validation framework that builds two artificially risk-unbalanced groups with a predetermined HR of 1.8, reweights on the candidate prognostic factors, and checks whether the reweighted HR returns to one; with all covariates included HR was 0.9157 (95% CI 0.5629-2.493), and omitting one critical prognostic factor moved it to 1.671 (95% CI 1.194-2.340). That is precisely 'removing a measured prognostic factor and estimating the induced bias' in the unanchored MAIC setting. Crucially it does not falsify the entry: it is a pass/fail sufficiency diagnostic for covariate selection, it does not convert an induced bias into a sensitivity-parameter range, and it does not bound residual bias from unobserved structure, so claims 2, 3 and the problem itself stand. Claims 4 and 5 on negative controls are correct in substance; negative-control outcomes are essentially never reported in an aggregate comparator publication, which is the binding constraint.
+    Cites 10.57264/cer-2024-0235: Implements the held-out prognostic-factor benchmarking route for unanchored MAIC as a covariate-sufficiency diagnostic. Does not produce a bias-parameter range or a bound on residual bias, so the problem remains open; the entry should cite it as prior art..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / supported-with-caveat.** C1 is valid as calibration by analogy, provided the whole PAIC procedure is rerun and the held-out variable's scale, prevalence, role, and correlation with retained variables are considered. It is a benchmark, not a bound. C2 and C3 are correct absent an explicit assumption linking unmeasured structure to the measured covariates. C4 is correct only for a valid negative control that shares the relevant bias structure and has the required no-causal-effect property; a signal can also reflect failure of the negative-control assumptions, and a null signal does not establish no residual bias. C5 is correct with 'by itself': under additional confounding-bridge, completeness, or proportional-bias assumptions, negative controls can identify or calibrate effects on the primary estimand. The proposed direction should not call a held-out benchmark a lower reference point because it is not guaranteed to be either a lower or an upper bound. The limited-aggregate-data calibration problem therefore remains open, but this is a calibration and reporting gap rather than proof that data-based information is impossible.
+
+Decision path
+:   `R5:default-open → R11:caveated(n=2)`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [IDN-07 — No agreed criterion for when a held-out-trial discrepancy falsifies](IDN-07-no-agreed-criterion-for-when-a-held-out-trial-discrepancy-fa.qmd)
+:::
+
+## Source
+
+Derived from C:L685-687, C:L685-691 of the reviewed corpus.

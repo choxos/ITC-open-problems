@@ -1,0 +1,79 @@
+---
+title: "Weight trimming silently changes the estimand"
+description: "Ordinary MAIC weight capping or trimming changes the weighting functional, so a trimmed analysis generally no longer identifies the nominal target-population effect: it reduces variance while introducing bias, and the two-stage MAIC simulation states the limitation directly, that truncation 'shifts the target population or estimand definition' and 'requires arbitrary ad hoc decisions on cutoff thresholds' (doi:10.1186/s12874-022-01692-9). The induced population is not indescribable, however: capping at c defines a tilted distribution proportional to f_source(x) min{w(x), c}, which is data-adaptive and clinically awkward but mathematically statable, so the exact rule and the induced population can and should be reported as a sensitivity or secondary estimand. Estimand-explicit overlap methods also already exist: Fang and He 2026 adopt overlap weights and name the average treatment effect in the overlap population as the target estimand for indirect treatment comparison, with estimators, standard errors and a 1000-replicate simulation in which mean ESS rises from 49.8 and 61.9 under MAIC to 272.5 and 272.7 under overlap weighting at 600 patients per trial, and RMSE falls from 0.432 and 0.485 to 0.208 (doi:10.1007/s43441-026-00976-2). What is still undeveloped is estimand-preserving stabilization that retains the nominal target population, together with adoption, extension beyond the anchored continuous-outcome case, and guidance on when redefining to the overlap population is decision-relevant."
+pid: "OVL-04"
+topic: "Positivity, overlap & extrapolation"
+categories: ["Positivity, overlap & extrapolation", "Very high priority", "Overstated"]
+priority: "Very high"
+prank: 1
+verdict: "Overstated"
+verdictslug: "overstated"
+maturity: "Emerging"
+---
+::: {.problem-meta}
+[OVL-04]{.problem-id}
+[Overstated]{.verdict .verdict-overstated}
+[Very high priority]{.chip .chip-priority-very-high}
+[Emerging]{.chip .chip-maturity-emerging}
+:::
+## Statement
+
+Ordinary MAIC weight capping or trimming changes the weighting functional, so a trimmed analysis generally no longer identifies the nominal target-population effect: it reduces variance while introducing bias, and the two-stage MAIC simulation states the limitation directly, that truncation 'shifts the target population or estimand definition' and 'requires arbitrary ad hoc decisions on cutoff thresholds' (doi:10.1186/s12874-022-01692-9). The induced population is not indescribable, however: capping at c defines a tilted distribution proportional to f_source(x) min{w(x), c}, which is data-adaptive and clinically awkward but mathematically statable, so the exact rule and the induced population can and should be reported as a sensitivity or secondary estimand. Estimand-explicit overlap methods also already exist: Fang and He 2026 adopt overlap weights and name the average treatment effect in the overlap population as the target estimand for indirect treatment comparison, with estimators, standard errors and a 1000-replicate simulation in which mean ESS rises from 49.8 and 61.9 under MAIC to 272.5 and 272.7 under overlap weighting at 600 patients per trial, and RMSE falls from 0.432 and 0.485 to 0.208 (doi:10.1007/s43441-026-00976-2). What is still undeveloped is estimand-preserving stabilization that retains the nominal target population, together with adoption, extension beyond the anchored continuous-outcome case, and guidance on when redefining to the overlap population is decision-relevant.
+
+## Why it is open
+
+Trimming defines the population through a rule on estimated weights, so the induced estimand is data-adaptive and has no clean clinical description even though it has a closed mathematical one, and simple capping does not automatically produce a well-defined overlap population; it may be better described as a biased sensitivity estimate for the original target. Estimand-preserving stabilization is the part with no candidate: weight-only stabilization cannot reduce relative weight dispersion while preserving the full target distribution unless it leaves the normalized weights unchanged, so efficiency gains that keep the nominal target require outcome modeling, augmentation or design information rather than a better cutoff rule. Overlap-weighted estimands solve the naming problem but move the population, and the published version covers the anchored continuous-outcome case, so non-collapsible scales, survival outcomes and network settings are untested. Nothing in current practice forces an analyst to state the cutoff rule or the induced population, which is why the trade stays silent.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Remiro-Azocar 2022 (two-stage MAIC)](https://doi.org/10.1186/s12874-022-01692-9) | shows two-stage MAIC can improve precision in some settings while simulations indicate poor overlap remains a fundamental limitation and truncation induces considerable bias when overlap is poor; states explicitly that truncation shifts the target population or estimand definition and requires arbitrary ad hoc cutoff decisions (also indexed as https://pubmed.ncbi.nlm.nih.gov/35941551/) |
+| [Fang and He 2026, Arbitrated Indirect Treatment Comparisons, Therapeutic Innovation and Regulatory Science](https://doi.org/10.1007/s43441-026-00976-2) | contradicts the claim that estimand-explicit overlap methods for PAIC do not exist: adopts overlap weights, names the average treatment effect in the overlap population as the target estimand, and supplies estimators, standard errors, a 1000-replicate simulation and an arbitration variant for when neither sponsor shares individual patient data; preprint at https://arxiv.org/abs/2510.18071 and PMID https://pubmed.ncbi.nlm.nih.gov/42177327/ |
+| [Jiang et al. 2025, A critical assessment of matching-adjusted indirect comparisons in relation to target populations](https://doi.org/10.1017/rsm.2025.10) | establishes the target-population problem that the overlap estimand answers, including the MAIC paradox in which different entities reach opposing conclusions about which treatment is more effective despite analyzing the same data |
+
+:::
+
+## Probable solution or research direction
+
+Do not build estimand-explicit overlap methods from scratch: extend the published overlap-weight estimand for indirect comparison (doi:10.1007/s43441-026-00976-2) beyond the anchored continuous-outcome case to binary and survival outcomes, non-collapsible scales and network settings, and test whether the overlap population it names is the one decision-makers want, which is the question raised by the target-population critique it answers (doi:10.1017/rsm.2025.10). Where the nominal target must be retained, the open work is estimand-preserving efficiency through augmentation or outcome modeling rather than through a smarter weight cap, since weight-only stabilization cannot both shrink dispersion and preserve the target distribution. Where trimming is used anyway, require the cutoff rule, the induced tilted population and its effective sample size to be reported, and label the result a secondary or sensitivity estimand rather than the target-population effect.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Overstated. 2 independent auditors judged the claim as stated too strong. Weight truncation trades variance for bias and changes the implicit population without naming it, and estimand-preserving stabilisation that retains the nominal target population is still undeveloped for PAIC. Estimand-explicit overlap methods, by contrast, now exist: Fang and He (2026) propose the average treatment effect in the overlap population (ATO) as an explicitly named target for indirect treatment comparison. What remains open is adoption, extension beyond the anchored continuous-outcome case, and guidance on when redefining to the overlap population is decision-relevant.
+
+**The source said.** "Weight truncation is applied in practice as a numerical fix for unstable MAIC weights, but it trades variance for bias and usually changes the implicit population, so the reported estimand is no longer the nominal target-population effect. A trimmed analysis should be reported as a secondary effect in an explicitly defined trimmed or overlap population."
+
+**What was wrong with it.** The source claimed there is no accepted way to state which population a truncated MAIC estimates and that estimand-explicit overlap methods have not been developed; both auditors judged the entry overstated. The literature auditor found Fang and He 2026 (doi:10.1007/s43441-026-00976-2; preprint https://arxiv.org/abs/2510.18071; PMID 42177327), which names the overlap population as the target estimand for indirect comparison with estimators, standard errors and simulation, and GPT-5.6 Sol showed the truncated population is mathematically statable as the tilted density proportional to f_source(x) min{w(x), c} and pointed out that the source's own cited two-stage MAIC paper already records that truncation shifts the estimand (doi:10.1186/s12874-022-01692-9).
+
+Literature and prior-art check
+:   **partially-solved / overstated.** The prior_work citation checks out exactly. Remiro-Azocar 2022 (PMID 35941551) states 'the simulation study also explores the use of weight truncation in combination with MAIC for the first time' and 'It is not as effective when overlap between the trials' target populations is poor and the extremity of the weights is high. In these scenarios, truncation leads to substantial precision and efficiency gains but induces considerable bias.' That supports every attributed element. The overstatement is elsewhere: the claim 'Estimand-explicit overlap methods for PAIC have not yet been developed' is false as of 2026. Fang and He, Arbitrated Indirect Treatment Comparisons (Ther Innov Regul Sci, DOI 10.1007/s43441-026-00976-2, PMID 42177327; arXiv 2510.18071), propose exactly that: overlap weights targeting a named ATO estimand for indirect comparison, with simulation and an arbitration protocol usable when only AgD is available for the counterpart. They also note 'because the overlap weights are confined to the interval [0,1], they remain stable' - i.e. the stability motive for trimming is obtained without trimming. Estimand-preserving stabilisation remains undeveloped; the coverage is anchored and continuous-outcome, so partially-solved.
+    Cites doi:10.1007/s43441-026-00976-2: Directly contradicts 'Estimand-explicit overlap methods for PAIC have not yet been developed.' Adopts Li et al. (2018) overlap weights, names the overlap population as the target estimand (ATO), gives estimators plus standard errors, a 1000-replicate simulation, and a variant for when neither sponsor shares IPD (arbitrator simulates covariate IPD from the counterpart's AgD). Simulation: MAIC mean ESS 49.8 and 61.9 versus overlap-weighted 272.5 and 272.7 at n=600 per trial, with RMSE 0.208 versus 0.432/0.485..
+    Cites doi:10.1017/rsm.2025.10: Establishes the target-population problem that the overlap estimand answers, and is the paper Fang and He respond to..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / overstated.** C1, C2, and C4-C6 are correct for ordinary clipping or deletion of high weights, and the cited simulation directly demonstrates the bias-variance trade-off. The report overstates the conceptual gap, however. If the intended target density ratio is w(x), capping at c defines an induced tilted distribution proportional to f_source(x) min{w(x),c}; trimming has an analogous indicator-weighted form. The population may be data-adaptive and clinically awkward, but it can be stated mathematically. Consequently, the assertion that there is no accepted way even to state what population is estimated is too strong. C3 is sensible as reporting advice if the exact rule and resulting target are declared, but simple capping does not automatically produce a clean, clinically defined overlap population and may instead be best described as a biased sensitivity estimate for the original target. C7 and C8 are categorical literature-absence claims outside this audit's technical lens. Pure weight-only stabilization cannot reduce relative weight dispersion while preserving the complete target distribution unless it leaves normalized weights unchanged; estimand-preserving efficiency gains require additional outcome modeling, augmentation, or design information. The cited work resolves the empirical trade-off, while standardized estimand definition and decision rules remain incomplete.
+    Cites 10.1186/s12874-022-01692-9: The simulation establishes that two-stage MAIC can improve precision and that truncation reduces variance while introducing bias, especially as overlap worsens. The paper also explicitly recognizes that truncation shifts the target population or estimand..
+
+Decision path
+:   `R3:partially-solved(n=2) → R8:overstated-majority(n=2)`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [DEC-10 — Trimming redefines the target population without naming it](DEC-10-trimming-redefines-the-target-population-without-naming-it.qmd)
+- [DIA-02 — No agreed ESS definition and no support-geometry diagnostics](DIA-02-no-agreed-ess-definition-and-no-support-geometry-diagnostics.qmd)
+- [EST-01 — Target population is unnamed and set by data availability](EST-01-target-population-is-unnamed-and-set-by-data-availability.qmd)
+- [EST-05 — Nothing requires declaring whether a result is marginal or conditional](EST-05-nothing-requires-declaring-whether-a-result-is-marginal-or-c.qmd)
+- [QBA-18 — MAIC sensitivity grids: infeasible calibration and failed fits](QBA-18-maic-sensitivity-grids-infeasible-calibration-and-failed-fit.qmd)
+- [SFW-10 — maicplus variance, trimming and estimand disclosure gaps](SFW-10-maicplus-variance-trimming-and-estimand-disclosure-gaps.qmd)
+:::
+
+## Source
+
+Derived from C:L227, C:L888-894 of the reviewed corpus.

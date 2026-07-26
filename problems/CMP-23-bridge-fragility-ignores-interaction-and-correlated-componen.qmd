@@ -1,0 +1,86 @@
+---
+title: "Bridge fragility ignores interaction and correlated component drift"
+description: "The bridge fragility threshold BFT = |D - tau| / sum_c |m_c| is the smallest common per-component main-effect drift, under a worst-case axis-aligned box bound, that moves a target contrast D to a decision threshold tau. It is computed per posterior draw, so it does propagate within-model parameter uncertainty; what it does not cover is interaction drift, covariance-shaped or correlated drift, and structural model uncertainty. Decision-consequence machinery is not missing from the field: decision-invariant threshold analysis for network meta-analysis has existed since Phillippo et al. 2018, is on CRAN as nmathresh, and has been applied to covariate-adjusted networks and combined with GRADE. What no method does is perturb the structural component-bridging parameter itself and report the resulting decision regret."
+pid: "CMP-23"
+topic: "Component methods (CNMA and component PAIC)"
+categories: ["Component methods (CNMA and component PAIC)", "High priority", "Overstated"]
+priority: "High"
+prank: 2
+verdict: "Overstated"
+verdictslug: "overstated"
+maturity: "Emerging"
+---
+::: {.problem-meta}
+[CMP-23]{.problem-id}
+[Overstated]{.verdict .verdict-overstated}
+[High priority]{.chip .chip-priority-high}
+[Emerging]{.chip .chip-maturity-emerging}
+:::
+## Statement
+
+The bridge fragility threshold BFT = |D - tau| / sum_c |m_c| is the smallest common per-component main-effect drift, under a worst-case axis-aligned box bound, that moves a target contrast D to a decision threshold tau. It is computed per posterior draw, so it does propagate within-model parameter uncertainty; what it does not cover is interaction drift, covariance-shaped or correlated drift, and structural model uncertainty. Decision-consequence machinery is not missing from the field: decision-invariant threshold analysis for network meta-analysis has existed since Phillippo et al. 2018, is on CRAN as nmathresh, and has been applied to covariate-adjusted networks and combined with GRADE. What no method does is perturb the structural component-bridging parameter itself and report the resulting decision regret.
+
+## Why it is open
+
+The single-number threshold assumes all components can drift by the same amount and independently in the worst direction, which is a deterministic uncertainty set rather than the most plausible configuration, and in a population-adjusted analysis drift in effect-modification parameters can matter more than main-effect drift. The extended expressions for component-specific box drift, ellipsoidal drift r times sqrt(m' Sigma_Delta m) with symmetric positive-definite Sigma_Delta, and interaction drift are analytically standard but need inputs no data source supplies: component-specific bounds, a drift covariance, and plausible interaction drift. Calibrating those from connected networks with repeated components requires an explicit exchangeability and transport model, which anchors rather than validates the sensitivity values, and no calculation reports regret conditional on the untestable bridge.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Phillippo et al. 2018](https://doi.org/10.1111/rssa.12341) | establishes decision-invariant bias adjustment thresholds and intervals for network meta-analysis, defined on the treatment recommendation rather than the effect scale |
+| [nmathresh 0.1.6](https://cran.r-project.org/package=nmathresh) | released R implementation of decision-invariant threshold analysis, including for random-effects models |
+| [Holper 2020](https://doi.org/10.1002/jrsm.1393) | applies threshold analysis to covariate-adjusted network recommendations and integrates it with GRADE |
+| [cpaic 0.1.0 (development version, choxos/cpaic@9d150e9)](choxos/cpaic@9d150e9) | unreleased development R package on GitHub, not on CRAN; computes the box-bound bridge fragility threshold per posterior draw in bridge_fragility(), accepts arbitrary link-scale thresholds, and reports posterior probabilities, p_best, and rank probabilities but no net benefit, wrong-decision probability, or value of information |
+
+:::
+
+## Probable solution or research direction
+
+Extend fragility to component-specific, ellipsoidal, and polyhedral drift sets and to joint main-effect and interaction drift, since the formulas are standard and the missing ingredient is the inputs. Connect the existing decision-invariant threshold machinery to the bridging parameter rather than rebuilding decision analysis: nmathresh perturbs data, and what is needed is the same treatment of the structural drift, reported as net benefit, probability of a wrong decision, value of information, and bridge-conditional regret. Calibrate plausible drift distributions from connected networks containing repeated components across contexts while stating that this anchors rather than validates the assumption, and consider whether the net-benefit layer belongs in a downstream decision model rather than in the effect-estimation package.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Overstated. 2 independent auditors judged the claim as stated too strong. No sensitivity analysis perturbs the structural component-bridging parameters themselves: decision-invariant threshold analysis for network meta-analysis already exists and operates on the treatment recommendation rather than the link-scale effect (Phillippo et al. 2018, R package nmathresh), and the box and ellipsoidal worst-case bias formulas are standard dual-norm results, so what is genuinely absent is drift-specific inputs, interaction-drift and correlated-drift versions, and a regret calculation conditional on an untestable bridge.
+
+**The source titled this.** "Bridge fragility covers only main-effect box drift, not decisions" The title says the fragility measure does not cover decisions, but it is computed against a user-supplied decision threshold and the package already reports decision probabilities and rankings.
+
+**The source said.** "The bridge fragility threshold BFT = |D - tau| / sum_c |m_c|, for target contrast D, component loading m, and decision threshold tau, is the smallest common per-component main-effect drift under a worst-case box bound that moves the contrast to the decision threshold; it covers neither interaction drift, correlated drift, nor model uncertainty. Outputs are organized around link-scale effects rather than decision consequences such as net benefit, probability of a wrong decision, or value of information."
+
+**What was wrong with it.** The source said outputs are organized around link-scale effects rather than decision consequences and that the extended worst-case expressions are unavailable. The literature auditor found decision-invariant threshold analysis already established and released (doi:10.1111/rssa.12341; cran:nmathresh; doi:10.1002/jrsm.1393), and noted the box and ellipsoidal bias formulas are elementary dual-norm results rather than open problems; GPT-5.6 Sol added that choxos/cpaic@9d150e9 already accepts arbitrary decision thresholds and reports posterior probabilities, p_best, and full rank probabilities, and that BFT is computed per posterior draw.
+
+Literature and prior-art check
+:   **partially-solved / overstated.** The claim that decision-consequence machinery does not exist is wrong at field level. Threshold analysis for network meta-analysis has existed since Phillippo et al. 2018 and is on CRAN as nmathresh, described as computing 'decision-invariant bias adjustment thresholds and intervals for Network Meta-Analysis', identifying the smallest data changes that would alter the conclusion. That is precisely a decision-fragility calculation, it is defined on the treatment recommendation rather than on a link-scale effect, and it has been extended to covariate-adjusted networks and combined with GRADE (Holper 2020). The BFT is nonetheless a genuinely different object - it perturbs a structural bridging parameter rather than a data point - and I found nothing that does that, so the entry keeps a real open core. But the two extended worst-case formulas the entry gives (box bound sum |m_c| d_c and ellipsoidal bound r sqrt(m' Sigma m)) are elementary dual-norm results, not open problems, and framing them as unavailable overstates the gap; what is missing is the inputs, as the entry itself says elsewhere.
+    Cites doi:10.1111/rssa.12341: Establishes decision-invariant threshold analysis for NMA: thresholds are defined on the treatment decision, not the effect scale, so 'no decision-consequence machinery exists' is false..
+    Cites cran:nmathresh 0.1.6: Working software implementation of decision-invariant threshold analysis, including for random-effects models..
+    Cites doi:10.1002/jrsm.1393: Shows threshold analysis already applied to covariate-adjusted network recommendations and integrated with a certainty-of-evidence framework..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / overstated.** C1, C2, C3, C5, and C6 are mathematically correct, with C6 requiring a symmetric positive-definite Sigma_Delta. The box result follows from the L1 support function and is attainable by choosing each drift sign against m; it is a deterministic uncertainty set, not a probabilistic independence assumption. C4 is correct for interaction drift, covariance-shaped drift, and structural model uncertainty, but BFT is calculated per posterior draw and therefore does propagate within-model parameter uncertainty. C8 requires an explicit exchangeability and transport model; connected-network estimates can anchor a prior but cannot validate its applicability, as C9 correctly states. The decision-capability gap is overstated: cpaic already accepts arbitrary link-scale thresholds, reports posterior robustness, posterior probabilities, p_best, and full rank probabilities. It lacks net benefit, wrong-decision probability, value-of-information, and drift-fragility analyses for rankings. Those consequences are important for HTA, but they may properly reside in a downstream decision model rather than this effect-estimation package.
+    Cites choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca: Implements the stated first-generation box-bound bridge fragility threshold for every posterior draw..
+    Cites choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca: Already supplies a population-specific probability-of-being-best output..
+
+Decision path
+:   `R3:partially-solved(n=2) → R8:overstated-majority(n=2)`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [ADJ-09 — Cross-environment invariance as a screen for bridges and modifiers](ADJ-09-cross-environment-invariance-as-a-screen-for-bridges-and-mod.qmd)
+- [DEC-02 — No factorial study ranks which choice most often flips a decision](DEC-02-no-factorial-study-ranks-which-choice-most-often-flips-a-dec.qmd)
+- [DIA-12 — No study ranks competing bridges by worst-case misspecification](DIA-12-no-study-ranks-competing-bridges-by-worst-case-misspecificat.qmd)
+- [DIA-15 — Coding-error bias, rank reversal and drift calibration go unscored](DIA-15-coding-error-bias-rank-reversal-and-drift-calibration-go-uns.qmd)
+- [DIS-14 — Reported intervals condition on the bridge being exactly true](DIS-14-reported-intervals-condition-on-the-bridge-being-exactly-tru.qmd)
+- [DIS-15 — Cross-gap bridge bounds are not propagated to net benefit](DIS-15-cross-gap-bridge-bounds-are-not-propagated-to-net-benefit.qmd)
+- [QBA-21 — Unreleased cpaic has no QBA interface beyond box-bounded drift](QBA-21-unreleased-cpaic-has-no-qba-interface-beyond-box-bounded-dri.qmd)
+- [SFW-13 — cpaic and mlumr are unreleased and independently unvalidated](SFW-13-cpaic-and-mlumr-are-unreleased-and-independently-unvalidated.qmd)
+:::
+
+## Source
+
+Derived from C:L1382, C:L1313-1321, C:L1458-1493, C:L1388, C:L1482-1489, scope:package-specific diagnostic, scope:field-level methodology extension; would be implemented in cpaic, scope:package-specific output gap with a field-level HTA motivation of the reviewed corpus.

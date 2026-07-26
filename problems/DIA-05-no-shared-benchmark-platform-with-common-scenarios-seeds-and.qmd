@@ -1,0 +1,79 @@
+---
+title: "No shared benchmark platform with common scenarios, seeds and truth"
+description: "No shared platform runs the field's methods on common data-generating mechanisms with published scenarios, seeds, code and ground truth, so nothing accumulates across papers and the ranking of methods under assumption failure cannot be read off the literature. The oracle claim does not survive scrutiny: Phillippo et al. 2020 (doi:10.1002/sim.8759) defines truth as what a gold-standard correctly specified IPD network meta-regression would estimate, and the general-likelihood ML-NMR work (arxiv:2401.12640) includes full-IPD reference comparisons. A single full-IPD oracle also cannot separate information loss from method failure, because it changes data granularity, covariate availability and model specification at the same time; that decomposition needs nested arms that vary one feature at a time. The proposed 28-family minimum comparator set is a design proposal rather than a derived requirement, and several of its categories overlap."
+pid: "DIA-05"
+topic: "Diagnostics & empirical validation"
+categories: ["Diagnostics & empirical validation", "Very high priority", "Confirmed open"]
+priority: "Very high"
+prank: 1
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Promising"
+tractability: 5
+---
+::: {.problem-meta}
+[DIA-05]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[Very high priority]{.chip .chip-priority-very-high}
+[Promising]{.chip .chip-maturity-promising}
+[Tractability 5/5]{.chip}
+:::
+::: {.source-unsourced}
+**Source note.** This entry derives in part from a source document whose inline citations
+were ChatGPT interface tokens rather than references, and so resolve to nothing. Claims
+below are attributed to that document and were checked independently where possible;
+anything that could not be independently sourced is marked in the verification trail.
+:::
+
+## Statement
+
+No shared platform runs the field's methods on common data-generating mechanisms with published scenarios, seeds, code and ground truth, so nothing accumulates across papers and the ranking of methods under assumption failure cannot be read off the literature. The oracle claim does not survive scrutiny: Phillippo et al. 2020 (doi:10.1002/sim.8759) defines truth as what a gold-standard correctly specified IPD network meta-regression would estimate, and the general-likelihood ML-NMR work (arxiv:2401.12640) includes full-IPD reference comparisons. A single full-IPD oracle also cannot separate information loss from method failure, because it changes data granularity, covariate availability and model specification at the same time; that decomposition needs nested arms that vary one feature at a time. The proposed 28-family minimum comparator set is a design proposal rather than a derived requirement, and several of its categories overlap.
+
+## Why it is open
+
+Data-generating mechanisms, estimands and performance measures differ between papers, so published rankings do not compose and each new comparison starts over. Average-case simulation under correct specification rewards efficiency in a regime applied HTA data are rarely in, and building adversarial mechanisms that break one's own method runs against the incentives of a methods paper. A shared benchmark needs shared code, shared scenarios and a maintainer, which is infrastructure work with no conventional publication reward.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Phillippo et al. 2020, Assessing the performance of population adjustment methods for anchored indirect comparisons: A simulation study](https://doi.org/10.1002/sim.8759) | Anchored population-adjustment simulation of ML-NMR, MAIC and STC named as a foundational benchmark in the source; the locator was missing and was recovered by the literature auditor. Defines the estimand as what a gold-standard correctly specified IPD network meta-regression would estimate. |
+| [Hatswell et al. 2020, The Effects of Model Misspecification in Unanchored Matching-Adjusted Indirect Comparison: Results of a Simulation Study](https://doi.org/10.1016/j.jval.2020.02.008) | Unanchored misspecification simulation named as a foundational benchmark in the source; the locator was missing and was recovered by the literature auditor. Varies the simulation setup to violate implicit and explicit MAIC assumptions. |
+| [Multilevel network meta-regression for general likelihoods: synthesis of individual and aggregate data with applications to survival analysis, 2024](https://arxiv.org/abs/2401.12640) | Contains simulated comparisons against a full-IPD analysis, that is an oracle-style reference arm, weakening the claim that PAIC simulations commonly omit one. Retrieved at abstract level. |
+
+:::
+
+## Probable solution or research direction
+
+Build a public benchmark that prespecifies estimands, combines benign and adversarial scenarios, verifies implementations against known analytic results, and publishes scenarios, seeds, code and ground truth so that results accumulate. Choose the comparator set by applicability to each scenario rather than by a fixed family count, and where information loss is the question use nested paired arms that change one feature at a time (data granularity, covariate availability, model specification) instead of a single full-IPD oracle. Score on bias, coverage, ESS collapse, decision error and runtime, and report excess error against the appropriate nested reference rather than raw bias alone.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+
+**The source titled this.** "No neutral adversarial benchmark, comparator set, or oracle arm" The title says no oracle arm exists, but the audit found a gold-standard full-IPD reference already defined and used, and rejected the 28-family comparator set as a derived requirement.
+
+**The source said.** "No shared simulation platform compares the field's methods on common data-generating mechanisms; published comparisons are pairwise contests run by method authors under benign conditions, against a handful of chosen comparators, and almost never include an oracle analysis that uses full IPD, the true bias variables and correct models. Consequently neither the ranking of methods under assumption failure nor the separation of information loss from method failure can be read off the literature."
+
+**What was wrong with it.** The source said PAIC simulations almost never include an oracle and that a minimum comparator set contains 28 method families; the literature auditor found the gold-standard full-IPD reference already explicit in Phillippo et al. 2020 (doi:10.1002/sim.8759) and full-IPD comparisons in arxiv:2401.12640, and GPT-5.6 Sol found no argument establishing 28 as a minimum, noting that exponential-tilting MAIC and entropy balancing can be dual formulations of the same calibration problem and that trimming is a tuning choice. The entry's two prior_work items carried no locators; the literature auditor identified them as Phillippo et al. 2020 and Hatswell et al. 2020 (doi:10.1016/j.jval.2020.02.008), which are now cited.
+
+Literature and prior-art check
+:   **open / supported-with-caveat.** Citation fidelity: the two prior_work entries carry no DOI, but they map cleanly onto real papers whose descriptions match. 'Phillippo and colleagues, anchored population-adjustment simulation' is Phillippo, Dias, Ades & Welton 2020 (Stat Med 39:4885-4911), which is exactly an anchored population-adjustment simulation of ML-NMR, MAIC and STC. 'Hatswell and colleagues, unanchored misspecification simulation' is Hatswell, Freemantle & Baio 2020 (Value Health 23:751-759), 'The Effects of Model Misspecification in Unanchored Matching-Adjusted Indirect Comparison'. Both are accurately characterized; supplying the locators would make them non-decorative. I found no public neutral adversarial benchmark platform for PAIC; outstandR is a unified software interface, not a benchmark with shared scenarios and published ground truth. The oracle claim is too strong: Phillippo 2020 explicitly defines truth as what a gold-standard correctly specified IPD network meta-regression would estimate, and full-IPD reference arms are actually run in ML-NMR and IPD-NMA simulation work. The '28 method families' figure is a design proposal, not a checkable fact.
+    Cites 10.1002/sim.8759: Confirms the 'Phillippo and colleagues' prior_work description and supplies the missing locator; also shows the gold-standard IPD network meta-regression concept is explicit in the anchored benchmark literature..
+    Cites 10.1016/j.jval.2020.02.008: Confirms the 'Hatswell and colleagues' prior_work description and supplies the missing locator..
+    Cites arXiv:2401.12640: Contains simulated comparisons against a full-IPD analysis, i.e. an oracle-style reference arm, weakening 'PAIC simulation studies commonly omit an oracle comparator'. Retrieved at abstract/summary level..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** C6 is correct, C7 is a sound design principle, and C11 correctly counts ten grouped scenario families. The remainder is inflated. No mathematical or decision-theoretic argument establishes 28 families as a minimum, and several categories overlap. Conventional exponential-tilting MAIC and entropy balancing can be dual formulations of the same calibration problem when they use identical moments and base weights; trimming is a tuning intervention rather than necessarily a separate method family. A single full-IPD oracle cannot separate information loss from method failure because it simultaneously changes data granularity, available covariates, and model specification. That decomposition requires nested paired arms that change one feature at a time. Simulation truth itself can be the relevant reference, so an estimated oracle need not appear in every scenario. Claims about the absence of public benchmarks, author behavior, and routine oracle omission are literature claims unsupported here. A shared adversarial benchmark would be useful infrastructure, but not a decision-grade requirement in the asserted form.
+
+Decision path
+:   `R5:default-open → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Source
+
+Derived from A:L158, A:L172-183, A:L185, C:L1946-1979, C:L1977-1979, C:L2147 of the reviewed corpus.

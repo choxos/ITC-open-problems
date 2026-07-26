@@ -1,0 +1,85 @@
+---
+title: "Unreleased cpaic shares one tau and one IPD-row residual variance"
+description: "cpaic, an unreleased development R package on GitHub (choxos/cpaic@9d150e9) that a reader cannot install from CRAN, declares at most one between-study heterogeneity parameter tau when random effects are requested and applies it to all study-arm deviations, with no component-, class-, or subnetwork-indexed heterogeneity. Its Gaussian component ML-NMR likelihood uses one residual sigma across all IPD rows, although aggregate arms use their own supplied standard errors and the two-stage routes fit study-specific regressions, so the shared residual scale is narrower than stated. A common tau is also the near-universal default in netmeta and multinma, so this is a field-level convention rather than a package idiosyncrasy."
+pid: "CMP-16"
+topic: "Component methods (CNMA and component PAIC)"
+categories: ["Component methods (CNMA and component PAIC)", "High priority", "Unverifiable"]
+priority: "High"
+prank: 2
+verdict: "Unverifiable"
+verdictslug: "unverifiable"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[CMP-16]{.problem-id}
+[Unverifiable]{.verdict .verdict-unverifiable}
+[High priority]{.chip .chip-priority-high}
+[Promising]{.chip .chip-maturity-promising}
+[Implementation-specific]{.chip}
+:::
+::: {.callout-note appearance="simple"}
+## Scope
+
+This entry describes a limitation of a specific implementation rather than of the field.
+It is catalogued because the underlying methodological problem is general, and because a
+reference implementation is where such problems become concrete and checkable.
+:::
+
+## Statement
+
+cpaic, an unreleased development R package on GitHub (choxos/cpaic@9d150e9) that a reader cannot install from CRAN, declares at most one between-study heterogeneity parameter tau when random effects are requested and applies it to all study-arm deviations, with no component-, class-, or subnetwork-indexed heterogeneity. Its Gaussian component ML-NMR likelihood uses one residual sigma across all IPD rows, although aggregate arms use their own supplied standard errors and the two-stage routes fit study-specific regressions, so the shared residual scale is narrower than stated. A common tau is also the near-universal default in netmeta and multinma, so this is a field-level convention rather than a package idiosyncrasy.
+
+## Why it is open
+
+A single tau borrows strength across parts of a network that may not be exchangeable, so a heterogeneous subnetwork can inflate uncertainty in a homogeneous one and vice versa, and in a disconnected network that directly changes how much support the bridge appears to have. Forcing one residual scale across IPD studies that differ in instruments, populations, and follow-up transfers weight between studies and makes model-based intervals wrong even where the mean model is right. Allowing structured heterogeneity or study-specific scales immediately runs into identifiability, because sparse disconnected networks rarely have enough studies per stratum to estimate several variance components, so shrinkage is needed and prior dependence returns.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [cpaic 0.1.0 (development version, choxos/cpaic@9d150e9)](choxos/cpaic@9d150e9) | unreleased development R package on GitHub, not on CRAN; every Stan family declares at most one tau applied to all study-arm deviations, and the Gaussian likelihood uses one residual sigma across IPD rows while aggregate arms use supplied standard errors |
+
+:::
+
+## Probable solution or research direction
+
+Allow heterogeneity structured by component, component class, or subnetwork with shrinkage across strata, and add identifiability checks that flag a variance component driven entirely by its prior, since that is the binding constraint in sparse networks. Support study-specific or hierarchically shrunk residual scales for the IPD likelihood and robust residual distributions so heavy tails and unequal precision do not distort weighting. Report the diagnostic separately from the correction, so an analyst can see whether stratum-specific heterogeneity is supported before fitting it.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Unverifiable. Auditors disagreed and the disagreement was evidence-bearing on both sides.
+
+**The source titled this.** "cpaic assumes a single heterogeneity and residual variance" The title implies an installable package and a single residual variance across all studies, but cpaic is a GitHub development package and the shared sigma covers IPD rows only.
+
+**The source said.** "cpaic's models assume one common between-study heterogeneity parameter across the network and, for continuous outcomes, one Gaussian residual standard deviation shared across all studies. Different component classes or subnetworks may plausibly have different heterogeneity, and unequal true residual variances distort study precision and network weighting."
+
+**What was wrong with it.** The source said the single residual standard deviation is shared across all studies and that it biases both the point estimate and its interval. GPT-5.6 Sol read choxos/cpaic@9d150e9 and narrowed both: the shared sigma covers IPD rows only, since aggregate arms use supplied se_agd and the two-stage routes fit study-specific regressions, and residual heteroskedasticity misallocates precision and invalidates model-based uncertainty without by itself implying biased mean-effect coefficients under a correct conditional mean model. The literature auditor added that a common tau is the standard default in netmeta and multinma too.
+
+**Dissent.** codex dissented (overstated): When random effects are requested, C1-C3 are supported for cML-NMR: every Stan family declares at most one tau and applies tau[1] to all study-arm deviations; no component-, class-, or subnetwork-indexed heterogeneity scale exists. C4 and C6 require qualification. The Gaussian cML-NMR likelihood has one sigma across all IPD observations, but aggregate arms use their separately supplied se_agd values, and cMAIC/cSTC fit study-specific regressions rather than sharing this sigma. Unequal IPD residual variances do misrepresent relative precision, efficient weighting, and model-based uncertainty. However, heteroskedasticity alone does not imply biased mean-effect coefficients when the conditional mean model is correct, contrary to the report's narrative. The priority is conditional on material variance or heterogeneity differences and the amount of evidence each affected stratum contributes.
+
+Literature and prior-art check
+:   **open / unverifiable.** Every claim here is about cpaic's internals (single heterogeneity parameter, single residual standard deviation, absence of structured or study-specific scales). cpaic is not on CRAN and I found no public repository, so I have nothing to read and this belongs to the source-code auditor. On the literature side the statistical assertions are textbook and safe: a common tau borrows strength across possibly non-exchangeable parts of a network, and forcing a common residual variance misallocates precision weights. I did not retrieve a specific paper on comparison-specific or class-specific heterogeneity variances in network meta-analysis in this session, so I will not cite one; note only that a common tau is the near-universal default in netmeta and multinma too, so this is a field-level convention rather than a cpaic idiosyncrasy, and the entry would be stronger if it said so. The identifiability tension the entry raises (too few studies per stratum in sparse disconnected networks) is genuine and, as far as I found, unaddressed.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** When random effects are requested, C1-C3 are supported for cML-NMR: every Stan family declares at most one tau and applies tau[1] to all study-arm deviations; no component-, class-, or subnetwork-indexed heterogeneity scale exists. C4 and C6 require qualification. The Gaussian cML-NMR likelihood has one sigma across all IPD observations, but aggregate arms use their separately supplied se_agd values, and cMAIC/cSTC fit study-specific regressions rather than sharing this sigma. Unequal IPD residual variances do misrepresent relative precision, efficient weighting, and model-based uncertainty. However, heteroskedasticity alone does not imply biased mean-effect coefficients when the conditional mean model is correct, contrary to the report's narrative. The priority is conditional on material variance or heterogeneity differences and the amount of evidence each affected stratum contributes.
+
+Grok 4.5, recency lens
+:   **open / supported.** cpaic 0.1.0 (README, cmlnmr Rd, NEWS) still fits one common tau and one network-wide Gaussian residual sigma; no component-class, subnetwork, or study-specific residual hierarchy is implemented. Broader NMA has class-effect and hierarchical heterogeneity models (e.g. class-effects NMA practice literature), but those are not component-PAIC residual or component-structured tau models and do not close the stated cpaic gap. No CRAN/GitHub change in multinma/maicplus/netmeta/cpaic was found that adds study-specific residual scales inside component ML-NMR. Queries: cpaic tau sigma; multinma study-specific residual; structured heterogeneity component NMA 2024–2026; class-effects NMA residual variance. Claims C1–C6 are faithful software/limitation statements; the methodological problem remains open as stated.
+
+Decision path
+:   `R5:default-open → R7:counter-and-support-both-present`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [OUT-05 — Unequal variances, skew, and bounded scales in continuous outcomes](OUT-05-unequal-variances-skew-and-bounded-scales-in-continuous-outc.qmd)
+:::
+
+## Source
+
+Derived from C:L1371, C:L1372, scope:package-specific default resting on a field-level NMA modeling question, scope:package-specific of the reviewed corpus.

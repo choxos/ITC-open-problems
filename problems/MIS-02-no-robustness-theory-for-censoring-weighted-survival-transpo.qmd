@@ -1,0 +1,76 @@
+---
+title: "No robustness theory for censoring-weighted survival transport"
+description: "For survival outcomes, censoring that depends on covariates adds a weighting or modeling layer on top of transport adjustment. Yan et al. (2025, doi:10.1002/pst.70029) built that estimator: TADA multiplies time-varying inverse-probability-of-censoring weights by method-of-moments participation weights and estimates variance by nonparametric bootstrap, evaluated in an ADEMP simulation study, so the construction is done for the unanchored survival transport case under conditionally independent censoring, positivity, and correctly specified nuisance models. What is not done is the robustness characterization, which the paper itself lists as future work: sandwich variance under heavy censoring, non-proportional-hazards censoring models, and doubly robust protection against partial misspecification of either weighting component. Sampling error in the published target moments is also not propagated, because the method of moments conditions on them, and censoring driven by unmeasured event prognosis stays unidentified without a sensitivity parameter."
+pid: "MIS-02"
+topic: "Missing data & uncertainty propagation"
+categories: ["Missing data & uncertainty propagation", "High priority", "Unverifiable"]
+priority: "High"
+prank: 2
+verdict: "Unverifiable"
+verdictslug: "unverifiable"
+maturity: "Emerging"
+---
+::: {.problem-meta}
+[MIS-02]{.problem-id}
+[Unverifiable]{.verdict .verdict-unverifiable}
+[High priority]{.chip .chip-priority-high}
+[Emerging]{.chip .chip-maturity-emerging}
+:::
+## Statement
+
+For survival outcomes, censoring that depends on covariates adds a weighting or modeling layer on top of transport adjustment. Yan et al. (2025, doi:10.1002/pst.70029) built that estimator: TADA multiplies time-varying inverse-probability-of-censoring weights by method-of-moments participation weights and estimates variance by nonparametric bootstrap, evaluated in an ADEMP simulation study, so the construction is done for the unanchored survival transport case under conditionally independent censoring, positivity, and correctly specified nuisance models. What is not done is the robustness characterization, which the paper itself lists as future work: sandwich variance under heavy censoring, non-proportional-hazards censoring models, and doubly robust protection against partial misspecification of either weighting component. Sampling error in the published target moments is also not propagated, because the method of moments conditions on them, and censoring driven by unmeasured event prognosis stays unidentified without a sensitivity parameter.
+
+## Why it is open
+
+Survival PAIC has to reweight to a target covariate distribution and correct for covariate-dependent censoring at the same time, and the estimator that does both is one paper old. Its behavior under censoring-model misspecification, heavy censoring, and non-proportional hazards is unmapped, and overlap is not examined anywhere in the source paper. The censoring mechanism is usually unverifiable from published data, and the covariates driving censoring are often not the ones reported for the target population, so the censoring model cannot be calibrated to the target. Censoring that depends on unmeasured prognosis is not identified from observed data at all, so it needs an assumption or a sensitivity parameter rather than a better model.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Yan, Vuong, Metcalfe, Guan, Shi and Park 2025, Target Aggregate Data Adjustment Method for Transportability Analysis Utilizing Summary-Level Data From the Target Population](https://doi.org/10.1002/pst.70029) | TADA, a two-stage weighting framework whose final weights are the product of time-varying inverse-probability-of-censoring weights and participation weights derived by the method of moments, with nonparametric bootstrap variance and an ADEMP simulation study; it states that aggregate-data transportability methods under informative censoring remain underexplored, and it does not identify censoring driven by unmeasured event prognosis, does not propagate sampling error in the supplied target summaries, and leaves sandwich variance, non-proportional-hazards censoring models, and doubly robust extensions to future work |
+
+:::
+
+## Probable solution or research direction
+
+The estimator exists, so the work is characterization rather than construction. Run TADA under censoring-model misspecification, weak overlap, and non-proportional hazards, and compare bootstrap variance against sandwich or stacked M-estimation under heavy censoring, which the authors name as their own next step. Add doubly robust or semiparametric versions that survive partial misspecification of either weighting component, and extend the variance to carry sampling error in the published target summaries instead of conditioning on them. Supply an explicit sensitivity parameter for censoring that depends on unmeasured prognosis.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Unverifiable. Auditors disagreed and the disagreement was evidence-bearing on both sides.
+
+**The source titled this.** "Informative censoring compounds transport weighting in survival PAIC" The title presents the compounding of censoring and transport weights as unsolved, but TADA already builds, bootstraps and evaluates that estimator.
+
+**The source said.** "For survival outcomes, informative censoring adds a further weighting or modeling layer on top of transport weighting and imputation, and the combined variance has to account for the estimation of both weight systems plus the estimated target summaries. Combining target-summary calibration with censoring adjustment is recent rather than settled."
+
+**What was wrong with it.** The source said no standard variance formula covers the product of the two weight systems and treated the joint approach as recent rather than settled. Both auditors rejected the variance claim: TADA (doi:10.1002/pst.70029) already estimates variance by nonparametric bootstrap, and stacked M-estimation or sandwich influence functions can also cover product weights; the code auditor added that TADA is an operational solution under its stated assumptions rather than an untested attempt, and what genuinely goes unpropagated is the sampling error in the published target moments.
+
+**Dissent.** literature dissented (supported): Read the full text of Yan, Vuong, Metcalfe, Guan, Shi & Park (2025) via PMC12326296. Every attribution is accurate. TADA is a 'two-stage weighting framework named Target Aggregate Data Adjustment (TADA) that can simultaneously adjust for both censoring bias and distributional imbalances of effect modifiers... the final weights are the product of the time-varying inverse probability of censoring weights and participation weights derived using the method of moments.' The paper itself asserts the absence the entry describes: 'AgD-based transportability methods in the presence of informative-censoring remain underexplored.' Two corrections to the entry's why_open. First, TADA does propagate uncertainty across both weight systems: 'We are estimating the variance of [the log hazard ratio] using a nonparametric bootstrap method', so 'no standard variance formula covers the product' is too strong; what is not propagated is the sampling error in the published target moments, which the method of moments treats as fixed. Second, the entry's claimed uncharacterized behaviors are confirmed by the paper's own discussion: sandwich variance under heavy censoring, non-PH censoring models, and doubly robust or semiparametric protection against 'partial misspecification of either weighting component' are all listed as future work, and the word overlap does not appear anywhere in the text. codex dissented (supported-with-caveat): C1 is technically correct when censoring is conditionally independent only after adjustment for observed variables: an IPCW factor may multiply the transport weight, or the two mechanisms may be handled through outcome or joint modeling. C2 is correct: TADA combines method-of-moments participation weights with time-varying censoring weights. C3 is proportionate only as a statement about remaining scope. TADA is an operational solution under conditional independent censoring, positivity, correct nuisance-model specification, and its defined target; it is not merely an untested attempt. Arbitrary dependent censoring remains unidentified without additional assumptions or sensitivity parameters. The claim that no standard variance method covers product weights is false: stacked M-estimation, sandwich influence functions, and a bootstrap that re-estimates both nuisance systems can do so. Target-summary sampling variability additionally matters when the estimand is defined for a superpopulation rather than conditional on the supplied summaries. cpaic does not solve informative censoring: its survival likelihood uses censoring contributions but does not model the censoring process. This is high priority only where censoring is plausibly informative and consequential.
+
+Literature and prior-art check
+:   **partially-solved / supported.** Read the full text of Yan, Vuong, Metcalfe, Guan, Shi & Park (2025) via PMC12326296. Every attribution is accurate. TADA is a 'two-stage weighting framework named Target Aggregate Data Adjustment (TADA) that can simultaneously adjust for both censoring bias and distributional imbalances of effect modifiers... the final weights are the product of the time-varying inverse probability of censoring weights and participation weights derived using the method of moments.' The paper itself asserts the absence the entry describes: 'AgD-based transportability methods in the presence of informative-censoring remain underexplored.' Two corrections to the entry's why_open. First, TADA does propagate uncertainty across both weight systems: 'We are estimating the variance of [the log hazard ratio] using a nonparametric bootstrap method', so 'no standard variance formula covers the product' is too strong; what is not propagated is the sampling error in the published target moments, which the method of moments treats as fixed. Second, the entry's claimed uncharacterized behaviors are confirmed by the paper's own discussion: sandwich variance under heavy censoring, non-PH censoring models, and doubly robust or semiparametric protection against 'partial misspecification of either weighting component' are all listed as future work, and the word overlap does not appear anywhere in the text.
+    Cites doi:10.1002/pst.70029: Delivers the joint censoring-plus-transport weighting estimator with bootstrap variance and an ADEMP simulation study, so the core construction is done for the unanchored survival transport case; the robustness characterization the entry asks for is not..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / supported-with-caveat.** C1 is technically correct when censoring is conditionally independent only after adjustment for observed variables: an IPCW factor may multiply the transport weight, or the two mechanisms may be handled through outcome or joint modeling. C2 is correct: TADA combines method-of-moments participation weights with time-varying censoring weights. C3 is proportionate only as a statement about remaining scope. TADA is an operational solution under conditional independent censoring, positivity, correct nuisance-model specification, and its defined target; it is not merely an untested attempt. Arbitrary dependent censoring remains unidentified without additional assumptions or sensitivity parameters. The claim that no standard variance method covers product weights is false: stacked M-estimation, sandwich influence functions, and a bootstrap that re-estimates both nuisance systems can do so. Target-summary sampling variability additionally matters when the estimand is defined for a superpopulation rather than conditional on the supplied summaries. cpaic does not solve informative censoring: its survival likelihood uses censoring contributions but does not model the censoring process. This is high priority only where censoring is plausibly informative and consequential.
+    Cites doi:10.1002/pst.70029: Provides an operational survival transport estimator combining time-varying inverse-probability-of-censoring weights with target-summary participation weights and uses bootstrap variance estimation. It does not identify censoring dependent on unmeasured event prognosis or propagate target-summary sampling error automatically..
+
+Decision path
+:   `R3:partially-solved(n=2) → R7:counter-and-support-both-present`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [OUT-11 — Non-proportional hazards and the transported hazard ratio](OUT-11-non-proportional-hazards-and-the-transported-hazard-ratio.qmd)
+- [OUT-18 — Component-specific time-varying treatment effects](OUT-18-component-specific-time-varying-treatment-effects.qmd)
+:::
+
+## Source
+
+Derived from C:L999, C:L250 of the reviewed corpus.

@@ -1,0 +1,79 @@
+---
+title: "Effect scales chosen by convention rather than transportability"
+description: "Odds ratios and hazard ratios are not automatically population-invariant, so they should not be treated as portable decision inputs without an explicit transport argument; that much holds. The source's stronger claim, that risk differences, standardized risks, RMST differences and incremental net benefit are more portable across populations, does not: Dahabreh, Robertson and Steingrimsson (doi:10.1007/s10654-023-01067-4) show transportability for relative measures is largely incompatible with transportability for difference measures, and Xiao et al. (doi:10.1016/j.jclinepi.2021.08.002) conclude that neither the odds ratio nor the risk ratio is universally portable. The defensible core is narrower and already formalized: direct collapsibility makes marginal effects easier to standardize to a declared target (Remiro-Azocar, doi:10.1002/sim.10111), and Colnet et al. (arxiv:2303.16008) give formal criteria for which causal measure generalizes, so the selection theory the source calls missing partly exists. Incremental net benefit is the least portable quantity on the list, since it depends on local costs, utilities and willingness-to-pay thresholds."
+pid: "EST-08"
+topic: "Estimands & target populations"
+categories: ["Estimands & target populations", "Very high priority", "Overstated"]
+priority: "Very high"
+prank: 1
+verdict: "Overstated"
+verdictslug: "overstated"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[EST-08]{.problem-id}
+[Overstated]{.verdict .verdict-overstated}
+[Very high priority]{.chip .chip-priority-very-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+## Statement
+
+Odds ratios and hazard ratios are not automatically population-invariant, so they should not be treated as portable decision inputs without an explicit transport argument; that much holds. The source's stronger claim, that risk differences, standardized risks, RMST differences and incremental net benefit are more portable across populations, does not: Dahabreh, Robertson and Steingrimsson (doi:10.1007/s10654-023-01067-4) show transportability for relative measures is largely incompatible with transportability for difference measures, and Xiao et al. (doi:10.1016/j.jclinepi.2021.08.002) conclude that neither the odds ratio nor the risk ratio is universally portable. The defensible core is narrower and already formalized: direct collapsibility makes marginal effects easier to standardize to a declared target (Remiro-Azocar, doi:10.1002/sim.10111), and Colnet et al. (arxiv:2303.16008) give formal criteria for which causal measure generalizes, so the selection theory the source calls missing partly exists. Incremental net benefit is the least portable quantity on the list, since it depends on local costs, utilities and willingness-to-pay thresholds.
+
+## Why it is open
+
+Choosing a scale trades off several things at once: how easily the estimand standardizes to a declared target, how stable it is across populations, how usable it is as a decision-model input, and how it behaves under random-effects synthesis, sparse events and censoring. Collapsibility settles only the first of these and no measure is stable everywhere, so an analyst who wants to switch still has no criterion that scores a measure jointly on transport and decision use for a given problem. The generalization theory that exists was developed for simple causal-inference settings rather than for indirect comparisons with aggregate targets, non-collapsible link functions and network structure. In component or additive-model settings the choice is further constrained, since marginal component effects are not generally additive, as documented at commit 9d150e9 of cpaic, an unreleased development package on GitHub that is not installable from CRAN.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Dahabreh, Robertson and Steingrimsson 2024, European Journal of Epidemiology](https://doi.org/10.1007/s10654-023-01067-4) | Shows that transportability for relative effect measures is largely incompatible with transportability for difference effect measures unless the treatment has no effect on average, which contradicts a blanket ranking of absolute measures as more portable. |
+| [Xiao, Chu, Cole, Chen, MacLehose, Richardson and Greenland 2021, Journal of Clinical Epidemiology](https://doi.org/10.1016/j.jclinepi.2021.08.002) | Concludes that neither the odds ratio nor the risk ratio is universally portable, so no ratio measure can be assumed stable across populations by default. |
+| [Remiro-Azocar 2024, Transportability of model-based estimands in evidence synthesis, Statistics in Medicine 43(22):4217-4249](https://doi.org/10.1002/sim.10111) | Gives the formal argument that directly collapsible measures facilitate the transportability of marginal effects between studies, which is the defensible core of the source's Direction D and is about ease of standardization rather than empirical constancy. |
+| [Colnet, Josse, Varoquaux and Scornet, Risk ratio, odds ratio, risk difference... Which causal measure is easier to generalize?](https://arxiv.org/abs/2303.16008) | Existing formal theory for selecting an effect measure for generalization, showing that only the risk difference has its conditional and average treatment effects disentangled from the baseline regardless of outcome type, and that the covariate set needed depends on the measure chosen. It is developed outside the indirect-comparison setting. |
+| [multinma: Bayesian Network Meta-Analysis of Individual and Aggregate Data (R package)](https://cran.r-project.org/package=multinma) | Its marginal_effects() defaults to a difference scale, contradicting the claim that software defaults push analysts toward odds ratios and hazard ratios. |
+| [cpaic, unreleased development package on GitHub (not on CRAN), commit 9d150e9](https://github.com/choxos/cpaic) | Documents that marginal component effects are not generally additive and add exactly only when the standardized treatment effects remain affine in the component design, which constrains scale choice in component analyses. |
+
+:::
+
+## Probable solution or research direction
+
+Build on Colnet et al. rather than starting from nothing: extend measure-selection criteria to the indirect-comparison setting, where the target is described by aggregate summaries and the network imposes its own constraints, and score candidates on standardization cost and decision usability rather than on a presumed portability ranking. Establish how the candidate scales behave under random-effects synthesis, sparse events and censoring, so that a switch is statistically supported rather than advocated. Keep odds ratios and hazard ratios as modeling parameters where convenient, standardize to the declared target before any decision use, and check component additivity on whichever scale the analysis runs on.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Overstated. 2 independent auditors judged the claim as stated too strong. Directly collapsible measures make marginal effects easier to standardize to a declared target covariate distribution, because for non-collapsible measures even purely prognostic variables shift the marginal effect; this is a reason to standardize explicitly before decision use, not evidence that risk differences or RMST differences are empirically more constant across populations than odds or hazard ratios.
+
+**The source said.** "Direction D proposes selecting the effect measure for transportability and decision usability, prioritizing risk differences and standardized risks, mean differences, survival-probability differences at clinically relevant times, RMST differences, cumulative incidence differences, and incremental net benefit. Odds ratios and hazard ratios may remain useful model parameters but should not automatically be treated as population-invariant decision inputs."
+
+**What was wrong with it.** The source ranked collapsible and absolute measures as more portable and said no theory exists for selecting a scale; the literature auditor found the ranking contradicted by Dahabreh et al. (doi:10.1007/s10654-023-01067-4) and Xiao et al. (doi:10.1016/j.jclinepi.2021.08.002), found existing selection theory in Colnet et al. (arxiv:2303.16008), and found the software-default claim false since multinma's marginal_effects() defaults to a risk difference. GPT-5.6 Sol added that risk differences move with baseline risk under a constant conditional odds ratio, that standardized risks, survival differences, RMST and cumulative-incidence differences all depend on the target law, time horizon and competing events, and that incremental net benefit additionally depends on costs, utilities and thresholds.
+
+**Dissent.** codex dissented (open): C2 and C3 are correct: marginal odds ratios are non-collapsible, and marginal hazard ratios depend on risk-set composition; neither is automatically population-invariant, although conditional log-odds and log-hazard parameters remain useful modeling devices. C1 and C4 conflate collapsibility, decision relevance, and transportability. Under a constant conditional odds ratio but differing baseline risks, risk differences vary across populations. Standardized risks, survival differences, RMST, and cumulative-incidence differences likewise depend on the target distribution, baseline hazards, competing events, and time horizon. Incremental net benefit additionally depends on costs, utilities, and willingness-to-pay. These quantities are often better decision outputs after target standardization, but they are not intrinsically more portable. Component PAIC also requires compatibility with the component model: cpaic at 9d150e9 documents that marginal component effects need not be additive. The context-specific scale-selection issue remains open, but the blanket prioritization and very-high severity are inflated.
+
+Literature and prior-art check
+:   **partially-solved / overstated.** The claim that collapsible and absolute measures are 'more portable across populations' than odds and hazard ratios conflates collapsibility with transportability, and the epidemiological literature actively contradicts it. Dahabreh, Robertson & Steingrimsson (Eur J Epidemiol 2024) note that 'many epidemiologists and applied statisticians believe that relative effect measures ... are transportable across populations or at least more likely to be transportable compared with difference (absolute) effect measures', and prove that 'transportability for relative effect measures is largely incompatible with transportability for difference effect measures'. Xiao, Chu, Cole, Chen, MacLehose, Richardson & Greenland (J Clin Epidemiol 2021) conclude 'Neither the odds ratio nor the risk ratio is universally portable'. What is defensible is narrower and is already theorized: Remiro-Azocar (Stat Med 2024) shows directly collapsible measures 'facilitate the transportability of marginal effects between studies', and Colnet, Josse, Varoquaux & Scornet (arXiv:2303.16008) show only the risk difference disentangles CATE and ATE from baseline while stressing that the covariate set needed depends on the measure chosen. The claim about software defaults also fails: multinma's marginal_effects() defaults to a risk difference. Incremental net benefit, being cost- and threshold-dependent, is the least jurisdiction-portable quantity on the list.
+    Cites doi:10.1002/sim.10111: Provides the formal argument linking direct collapsibility to easier transport of marginal effects, i.e. the defensible core of Direction D..
+    Cites arxiv:2303.16008: Existing formal theory for selecting an effect measure for generalization, which the entry says does not exist..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** C2 and C3 are correct: marginal odds ratios are non-collapsible, and marginal hazard ratios depend on risk-set composition; neither is automatically population-invariant, although conditional log-odds and log-hazard parameters remain useful modeling devices. C1 and C4 conflate collapsibility, decision relevance, and transportability. Under a constant conditional odds ratio but differing baseline risks, risk differences vary across populations. Standardized risks, survival differences, RMST, and cumulative-incidence differences likewise depend on the target distribution, baseline hazards, competing events, and time horizon. Incremental net benefit additionally depends on costs, utilities, and willingness-to-pay. These quantities are often better decision outputs after target standardization, but they are not intrinsically more portable. Component PAIC also requires compatibility with the component model: cpaic at 9d150e9 documents that marginal component effects need not be additive. The context-specific scale-selection issue remains open, but the blanket prioritization and very-high severity are inflated.
+
+Decision path
+:   `R3:partially-solved(n=1) → R8:overstated-majority(n=2)`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [COV-02 — No evidence on how the modifier set changes across effect scales](COV-02-no-evidence-on-how-the-modifier-set-changes-across-effect-sc.qmd)
+- [OUT-11 — Non-proportional hazards and the transported hazard ratio](OUT-11-non-proportional-hazards-and-the-transported-hazard-ratio.qmd)
+:::
+
+## Source
+
+Derived from C:L349-360, C:L221 of the reviewed corpus.

@@ -1,0 +1,73 @@
+---
+title: "No sensitivity parameters index departures from censoring at random"
+description: "Censoring-weighted estimation has already been combined with weighting to an aggregate-data target population: Yan et al.'s TADA (doi:10.1002/pst.70029) forms final weights as the product of time-varying inverse-probability-of-censoring weights and method-of-moments participation weights derived from target aggregate data, with a simulation study and an NSCLC case study. It adjusts under censoring at random given covariates, so what remains open is the sensitivity layer: no method indexes departures from that assumption inside a population-adjusted indirect comparison, by a selection, censoring-outcome association, pattern-mixture, copula or bounds formulation, and PAIC implementations propagate no uncertainty about the censoring assumption. Differential follow-up alone does not establish informative censoring, and the parameters the entry listed are alternative factorizations rather than a set that must all be specified."
+pid: "QBA-09"
+topic: "Quantitative bias analysis for unanchored PAIC"
+categories: ["Quantitative bias analysis for unanchored PAIC", "High priority", "Overstated"]
+priority: "High"
+prank: 2
+verdict: "Overstated"
+verdictslug: "overstated"
+maturity: "Emerging"
+---
+::: {.problem-meta}
+[QBA-09]{.problem-id}
+[Overstated]{.verdict .verdict-overstated}
+[High priority]{.chip .chip-priority-high}
+[Emerging]{.chip .chip-maturity-emerging}
+:::
+## Statement
+
+Censoring-weighted estimation has already been combined with weighting to an aggregate-data target population: Yan et al.'s TADA (doi:10.1002/pst.70029) forms final weights as the product of time-varying inverse-probability-of-censoring weights and method-of-moments participation weights derived from target aggregate data, with a simulation study and an NSCLC case study. It adjusts under censoring at random given covariates, so what remains open is the sensitivity layer: no method indexes departures from that assumption inside a population-adjusted indirect comparison, by a selection, censoring-outcome association, pattern-mixture, copula or bounds formulation, and PAIC implementations propagate no uncertainty about the censoring assumption. Differential follow-up alone does not establish informative censoring, and the parameters the entry listed are alternative factorizations rather than a set that must all be specified.
+
+## Why it is open
+
+The comparator's censoring mechanism is unobservable from a published survival curve, so a departure from conditionally independent censoring is not identifiable from the observed follow-up and can only be indexed by assumption. Reweighting on baseline covariates addresses who enters the comparison, not the dependence between the censoring process and the unobserved event time, so the population-adjustment step leaves that dependence untouched even when a censoring model is fitted alongside it. Missingness also interacts with study selection and transport, so a censoring model fitted in the source carries its own transport assumption to the target. Ordinary inverse-probability-of-censoring weighting identifies the effect only under conditionally independent censoring unless it is augmented by an explicit departure parameter, and PAIC implementations typically assume administrative censoring and propagate no uncertainty about that assumption.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Yan et al. 2025, Target Aggregate Data Adjustment Method for Transportability Analysis Utilizing Summary-Level Data From the Target Population, Pharmaceutical Statistics 24:e70029](https://doi.org/10.1002/pst.70029) | Two-stage weighting whose final weights are the product of time-varying inverse probability of censoring weights and method-of-moments participation weights derived from target aggregate data, with simulations and an NSCLC case study. Adjusts under censoring at random given covariates; supplies no sensitivity-parameter layer, no bounds and no propagation of censoring-model uncertainty. |
+
+:::
+
+## Probable solution or research direction
+
+Extend TADA-style joint censoring and transport adjustment with an explicit departure parameter rather than building a censoring-aware PAIC estimator from scratch: choose one justified formulation, whether a selection model, a pattern-mixture shift, a copula or bounds, and index departure from conditionally independent censoring by it. Combine it with the weighting or standardization step rather than applying it separately, and include censoring-model uncertainty among the propagated uncertainty layers. Trigger the analysis when censoring is plausibly outcome-dependent after conditioning on measured history, not merely because follow-up differs between the studies.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Overstated. 2 independent auditors judged the claim as stated too strong. Censoring-weighted estimation has been combined with weighting to an aggregate-data target population, but no method indexes departures from non-informative censoring by explicit sensitivity parameters (selection odds, censoring-outcome association, pattern-mixture shift) inside a population-adjusted indirect comparison, and PAIC implementations propagate no uncertainty about the censoring assumption.
+
+**The source titled this.** "Informative censoring and differential dropout as a bias model" The title presents censoring as an unbuilt bias model, but TADA already combines a censoring model with weighting to an aggregate-data target.
+
+**The source said.** "Differential follow-up and treatment-related dropout between the IPD source and the external comparator require selection-odds, censoring-outcome association and pattern-mixture shift sensitivity parameters, addressed with IPCW sensitivity analyses, selection or pattern-mixture models and bounds. The report is explicit that these mechanisms are not forms of confounding and need their own bias models."
+
+**What was wrong with it.** Both auditors judged the claim overstated on the same evidence: Yan et al. 2025 (doi:10.1002/pst.70029), which the entry did not cite, already combines a censoring model with weighting to an external aggregate-data target, contradicting the entry's central claim that this has not been done. GPT-5.6 Sol added that differing censoring rates do not imply dependent censoring, and that selection odds, censoring-outcome association and pattern-mixture shift are alternative parameterizations rather than three jointly required parameters.
+
+Literature and prior-art check
+:   **partially-solved / overstated.** Claim 5 ('Sensitivity methods for dependent censoring have not been combined with weighting or standardization to an external target population') is materially narrowed by Yan et al. 2025 (Pharm Stat 24:e70029, PMID 40765487), which the entry does not cite. TADA is a two-stage weighting framework whose final weights are the product of time-varying inverse probability of censoring weights and method-of-moments participation weights derived from target aggregate-level data. That is precisely the combination of a censoring model with weighting to an external aggregate-data target population that the entry says does not exist, with a simulation study and an NSCLC case study. The paper's own framing also corroborates the entry's premise: 'AgD-based transportability methods in the presence of informative-censoring remain underexplored.' What genuinely remains open is the sensitivity layer: TADA adjusts under a censoring-at-random-given-covariates assumption; it does not index departures from non-informative censoring by selection-odds or pattern-mixture shift parameters, does not return bounds, and does not propagate censoring-model uncertainty as a QBA layer. The entry also has zero prior_work, which understates a mature general literature on IPCW sensitivity analysis under non-ignorable dropout.
+    Cites 10.1002/pst.70029: Combines time-varying inverse probability of censoring weights with method-of-moments participation weighting to an aggregate-data target population, directly contradicting the claim that censoring models have not been combined with weighting to an external target. Does not provide the sensitivity-parameter layer..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / overstated.** Differential follow-up alone does not imply informative censoring: censoring rates may differ while remaining independent of event times conditional on measured history. C1 also incorrectly presents selection odds, censoring-outcome association, and pattern-mixture shifts as jointly required; these are alternative factorizations or sensitivity parameterizations. C2 names appropriate families, but ordinary IPCW identifies effects only under conditional independent censoring unless augmented by an explicit departure parameter. C3 and C4 correctly separate post-entry selection from baseline confounding. C5 is false under its broad reading because target participation weighting has been combined with time-varying censoring weights. That work does not, however, solve sensitivity to residual dependent censoring. At cpaic@9d150e9 there is no IPCW or censoring-sensitivity API, so that package does not close the residual layer.
+    Cites 10.1002/pst.70029: Combines time-varying inverse-probability-of-censoring weights with method-of-moments target participation weights. It addresses joint censoring and transport adjustment under conditional censoring assumptions, but not residual MNAR sensitivity..
+
+Decision path
+:   `R3:partially-solved(n=2) → R8:overstated-majority(n=2)`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [MIS-01 — Missing aggregate summaries and unavailable IPD have no remedy](MIS-01-missing-aggregate-summaries-and-unavailable-ipd-have-no-reme.qmd)
+:::
+
+## Source
+
+Derived from C:L486, C:L770-780 of the reviewed corpus.

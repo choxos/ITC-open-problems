@@ -1,0 +1,82 @@
+---
+title: "Design and conduct differences survive baseline covariate balancing"
+description: "Cross-trial differences in endpoint definition, follow-up schedule, adherence, rescue therapy and care pathway are properties of the trial rather than of the patient, so baseline covariate balancing in MAIC or STC cannot remove them, and a standard PAIC output does not separate residual protocol difference from residual patient-mix imbalance. Known design features are not beyond the reach of every estimator: they can enter study-level meta-regression, estimand or measurement models, and bias models, provided the network supplies enough cross-study variation to identify them. What stays nonidentifiable is the latent part and the split between design difference and patient mix. The bias-adjustment machinery the source proposes as new is mature: elicited, design-stratified priors for internal and external bias were published in Turner et al. 2009 (doi:10.1111/j.1467-985X.2008.00547.x), and threshold analysis quantifies how much study-level bias would have to be present to change a network's recommendation (Phillippo et al. 2018, doi:10.1111/rssa.12341); neither has been ported to the population-adjusted setting."
+pid: "HET-01"
+topic: "Heterogeneity, consistency & multi-arm structure"
+categories: ["Heterogeneity, consistency & multi-arm structure", "Very high priority", "Overstated"]
+priority: "Very high"
+prank: 1
+verdict: "Overstated"
+verdictslug: "overstated"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[HET-01]{.problem-id}
+[Overstated]{.verdict .verdict-overstated}
+[Very high priority]{.chip .chip-priority-very-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+::: {.source-unsourced}
+**Source note.** This entry derives in part from a source document whose inline citations
+were ChatGPT interface tokens rather than references, and so resolve to nothing. Claims
+below are attributed to that document and were checked independently where possible;
+anything that could not be independently sourced is marked in the verification trail.
+:::
+
+## Statement
+
+Cross-trial differences in endpoint definition, follow-up schedule, adherence, rescue therapy and care pathway are properties of the trial rather than of the patient, so baseline covariate balancing in MAIC or STC cannot remove them, and a standard PAIC output does not separate residual protocol difference from residual patient-mix imbalance. Known design features are not beyond the reach of every estimator: they can enter study-level meta-regression, estimand or measurement models, and bias models, provided the network supplies enough cross-study variation to identify them. What stays nonidentifiable is the latent part and the split between design difference and patient mix. The bias-adjustment machinery the source proposes as new is mature: elicited, design-stratified priors for internal and external bias were published in Turner et al. 2009 (doi:10.1111/j.1467-985X.2008.00547.x), and threshold analysis quantifies how much study-level bias would have to be present to change a network's recommendation (Phillippo et al. 2018, doi:10.1111/rssa.12341); neither has been ported to the population-adjusted setting.
+
+## Why it is open
+
+The offending quantities have no patient-level distribution, so a weight that equalizes age and biomarker status leaves an imaging schedule or a rescue-therapy rule untouched, and separating the latent part of a design difference from residual patient-mix imbalance is not identified without further information or assumptions. Where a design feature is recorded and varies across enough studies it can be modeled, but PAIC networks are usually too small for that variation to exist, and these features are written up as narrative study characteristics rather than as variables. Adherence is a further complication because it is post-randomization: balancing baseline predictors can equalize it incidentally, while adjusting for it directly can change the estimand. Once baselines are balanced the analysis looks comparable, which makes the residue easy to overlook, and how much it matters is not established, since severity turns on whether the difference changes the estimand or the treatment as implemented.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Turner, Spiegelhalter, Smith and Thompson, 2009, Bias modelling in evidence synthesis, JRSS-A 172:21-47](https://doi.org/10.1111/j.1467-985X.2008.00547.x) | Constructs prior distributions from elicited opinion to represent internal bias (lack of rigour) and external bias (lack of relevance) in each study and performs a bias-adjusted meta-analysis; this is the hierarchical bias model with design-stratified priors that the source lists as a new direction. |
+| [Phillippo et al., 2018, Sensitivity of treatment recommendations to bias in network meta-analysis](https://doi.org/10.1111/rssa.12341) | Threshold analysis: quantifies how much study-level bias would have to be present before a network's treatment recommendation changes, giving existing machinery for the design-feature direction the source proposes. |
+
+:::
+
+## Probable solution or research direction
+
+Port the existing bias-adjustment apparatus rather than build it. Turner et al.'s elicited, design-stratified bias priors and Phillippo et al.'s threshold analysis are both defined for aggregate-data meta-analysis and NMA; what is missing is their combination with a weighting or standardization step and with an explicit target population. Design-feature meta-regression stays a reasonable route where the network holds enough studies to identify a study-level coefficient, and that replication, not the modeling, is the binding constraint. Negative-control endpoints are worth trying as a residual-heterogeneity signal, but there is no use of them in this field to build on, and a negative control can at best flag residual incompatibility; it cannot attribute that incompatibility to patient mix rather than to trial design.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Overstated. 2 independent auditors judged the claim as stated too strong. Cross-trial differences in endpoint definition, follow-up schedule, adherence, rescue therapy and care pathway are properties of the trial, not the patient, so baseline covariate balancing cannot remove them and standard PAIC output does not distinguish them from residual patient-mix imbalance. Bayesian bias-adjustment models with elicited, design-stratified priors exist and are well developed for meta-analysis and NMA (Turner et al. 2009), but have not been ported to the population-adjusted setting.
+
+**The source said.** "Population adjustment balances baseline patient covariates, but cross-trial differences in endpoint definition, follow-up schedule, adherence, rescue therapy, and care pathway are properties of the trial rather than of the patient and remain once balancing is complete. Nothing in a standard PAIC output distinguishes residual patient-mix imbalance from residual protocol difference."
+
+**What was wrong with it.** The source presented hierarchical bias models with design-stratified priors as an emerging response and cited nothing; the literature auditor found them a seventeen-year-old evidence-synthesis literature, so the entry is now sourced to Turner et al. 2009 (doi:10.1111/j.1467-985X.2008.00547.x) and Phillippo et al. 2018 (doi:10.1111/rssa.12341) and the gap is their absence from PAIC, not from the literature. The same auditor could verify neither the claim that reviews find these sources under-handled in ITC and PAIC work nor any literature at all on negative-control endpoints in this field, and the code auditor struck the source's assertion that these features cannot enter the estimator even when known.
+
+Literature and prior-art check
+:   **open / overstated.** Retrieved Turner, Spiegelhalter, Smith & Thompson (2009), JRSS-A 172:21-47: 'We present simple methods of allowing for differences in rigour (or lack of internal bias) and relevance (or lack of external bias) in evidence synthesis... Using elicited opinion, we construct prior distributions to represent the biases in each study and perform a bias-adjusted meta-analysis.' Hierarchical bias models with design-stratified elicited priors are therefore a 17-year-old, mature evidence-synthesis literature, extended by Phillippo et al. (2018) threshold analysis and by the 2025 RoB NMA tool. Presenting them as an emerging idea is the overstatement. The core identification problem is genuinely open: design and conduct features have no patient-level distribution, so no weighting or standardization estimator can separate residual protocol difference from residual patient-mix imbalance; this is structurally untestable, so no paper can solve it. Two sub-claims fail verification. I found no review asserting that design and conduct heterogeneity is specifically under-handled in ITC/PAIC; the reviews I retrieved (Phillippo 2019 NICE TAs, Freitag 2023, van Beekhuizen 2025 EUnetHTA) concern covariate/effect-modifier selection and overall ITC suitability. And I found no literature at all on negative-control endpoints in ITC/PAIC, so that absence claim is unverifiable.
+    Cites doi:10.1111/j.1467-985X.2008.00547.x: Supplies the real reference for the entry's unsourced 'Bayesian hierarchical bias models and design-stratified bias priors' direction. It already exists for evidence synthesis; the gap is its absence from PAIC, not its absence from the literature..
+    Cites doi:10.1111/rssa.12341: Existing quantitative machinery for asking how much study-level bias would have to be present to change a network's treatment recommendation; a real prior-art anchor for the 'design-feature' direction..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** The core limitation is real, but several claims exceed it. C2 and C4 are correct for baseline-only MAIC and STC: patient reweighting cannot change endpoint definitions, follow-up, rescue rules, care delivery, or latent study-level features. C3 is generally but not logically true because balancing complete baseline predictors could incidentally balance adherence; adherence itself is postrandomization, and direct adjustment may change the estimand or introduce bias. The statement that known design features cannot enter an estimator is false: they can enter study-level meta-regression, measurement or estimand models, and bias models when replication and identifying assumptions permit. Negative controls can signal residual incompatibility only under valid negative-control assumptions and cannot by themselves attribute it to patient mix versus trial design. C5 through C7 are prevalence or current-use claims with no cited source and are unverifiable in this offline technical audit. C8 is plausible but limited by study-level confounding and sparse replication. Very high severity is justified when the differences change the estimand or treatment implementation, not automatically for every conduct difference.
+
+Decision path
+:   `R5:default-open → R8:overstated-majority(n=2)`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [DIA-18 — Constancy assumptions are never tested across calendar time](DIA-18-constancy-assumptions-are-never-tested-across-calendar-time.qmd)
+- [EVB-03 — Trials combined under one outcome label are not one estimand](EVB-03-trials-combined-under-one-outcome-label-are-not-one-estimand.qmd)
+- [IDN-04 — Recorded-covariate adjustment cannot remove unmeasured modifier bias](IDN-04-recorded-covariate-adjustment-cannot-remove-unmeasured-modif.qmd)
+- [QBA-12 — Treatment version, care context and subsequent-therapy drift](QBA-12-treatment-version-care-context-and-subsequent-therapy-drift.qmd)
+:::
+
+## Source
+
+Derived from A:L61, C:L214-215, C:L233 of the reviewed corpus.

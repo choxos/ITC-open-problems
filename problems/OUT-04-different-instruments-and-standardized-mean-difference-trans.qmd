@@ -1,0 +1,75 @@
+---
+title: "Different instruments and standardized mean difference transport"
+description: "Trials in a network may measure the same construct with different instruments, and a linear rescaling makes them equivalent only where the instruments are defensibly affine-equivalent and measurement-invariant. Latent-variable linking is not a new proposal: common-metric and item-response linking of different patient-reported instruments is deployed methodology (PMC5069858) and has been built for individual participant data across studies (PMC6582193), so what is missing is its integration into network or population-adjusted synthesis together with the anchor items, co-administration or calibration data it requires. On the standardized mean difference side, the standardizer is a property of the population in which it was measured, which is documented (PMC12358740; doi:10.1002/sim.10114), so the same mean difference yields different SMDs in populations with different outcome variability. The transport behavior of an SMD is not mathematically undefined; it is a mean difference divided by a specified reference standard deviation, so the real problem is choosing and identifying a scientifically meaningful common scale, and no transport theory for the standardized scale is established."
+pid: "OUT-04"
+topic: "Outcome-specific problems"
+categories: ["Outcome-specific problems", "High priority", "Partially addressed"]
+priority: "High"
+prank: 2
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[OUT-04]{.problem-id}
+[Partially addressed]{.verdict .verdict-partially-addressed}
+[High priority]{.chip .chip-priority-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+## Statement
+
+Trials in a network may measure the same construct with different instruments, and a linear rescaling makes them equivalent only where the instruments are defensibly affine-equivalent and measurement-invariant. Latent-variable linking is not a new proposal: common-metric and item-response linking of different patient-reported instruments is deployed methodology (PMC5069858) and has been built for individual participant data across studies (PMC6582193), so what is missing is its integration into network or population-adjusted synthesis together with the anchor items, co-administration or calibration data it requires. On the standardized mean difference side, the standardizer is a property of the population in which it was measured, which is documented (PMC12358740; doi:10.1002/sim.10114), so the same mean difference yields different SMDs in populations with different outcome variability. The transport behavior of an SMD is not mathematically undefined; it is a mean difference divided by a specified reference standard deviation, so the real problem is choosing and identifying a scientifically meaningful common scale, and no transport theory for the standardized scale is established.
+
+## Why it is open
+
+Instruments differ in item content, scoring range and precision, and publications rarely include the co-administration, anchor items or calibration data a linking model needs, so the mapping is unidentified from what is published. Because the standardizer is a population property, transporting an SMD mixes a change in the effect with a change in the standardizing variance, and the target-population standard deviation is one of several defensible denominators rather than the compelled one. The native-scale fallback does not rescue this, since it cannot create a common metric across different instruments without a mapping. In cpaic, the unreleased development package on GitHub that is not installable from CRAN, Gaussian individual-patient analyses accept mean differences only and explicitly reject SMD, so no cross-instrument path exists there at all.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [www.common-metrics.org: a web application to estimate scores from different patient-reported outcome measures on a common scale, 2016 (PMC5069858)](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5069858/) | deployed latent-variable and item-response linking of different patient-reported instruments onto a common metric, showing the cross-instrument problem is not unaddressed outside PAIC |
+| [Multivariate Higher-Order IRT Model and MCMC Algorithm for Linking Individual Participant Data From Multiple Studies, 2019 (PMC6582193)](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6582193/) | establishes a common metric retrospectively across independently conducted studies with different items, which is the measurement-model half of the proposed direction in the individual-participant-data synthesis setting |
+| [Standardized Mean Differences: Not So Standard After All (PMC12358740)](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12358740/) | documents that the standardizer is a population property, so standardized mean differences vary with within-study standard deviation variability even when the underlying mean difference is fixed |
+| [Hopkins 2024, Standardization and other approaches to meta-analyze differences in means, Statistics in Medicine](https://doi.org/10.1002/sim.10114) | compares standardization and alternative approaches to meta-analyzing mean differences, supporting the population dependence of the standardized scale |
+| [cpaic, unreleased development package on GitHub (not on CRAN), commit 9d150e9](https://github.com/choxos/cpaic) | its Gaussian individual-patient-data analyses accept mean differences only and explicitly reject SMD, so it offers no cross-instrument path; the code auditor cites this as the concrete state of a population-adjusted implementation |
+
+:::
+
+## Probable solution or research direction
+
+Bring the existing latent-variable and item-response linking machinery into network and population-adjusted synthesis rather than building it afresh, and state the identifying data it needs, whether anchor items, co-administration or external calibration, with explicit sensitivity to the linking assumptions. Where a standardized scale is unavoidable, make the denominator part of the estimand and report which population's standard deviation was used, since the choice defines a different quantity rather than a different estimate of the same one. Develop transport theory for that declared standardized estimand, or report target-standardized mean differences on the native scale alongside study-specific residual variances.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Partially addressed. Part of this problem is addressed by existing work; the entry names which part.
+
+**The source said.** "Trials in a network may measure the same continuous construct with different instruments, so the reported means are not on a common metric before any population adjustment. The usual fix, the standardized mean difference, has unclear interpretation and unclear behavior under transport to a different target population."
+
+**What was wrong with it.** The source presented latent-variable measurement models as a proposed remedy; the literature auditor found instrument linking to be established methodology in integrative data analysis (PMC5069858, PMC6582193), so what is being proposed is its composition with population adjustment, not the models themselves. The code auditor rejected the framing that SMD transport is unclear in principle and noted that no unique denominator is compelled, since pooled, control-arm, baseline, external-reference and target-population standard deviations define different quantities; the auditors also split on status, with literature judging the entry partially solved and the code auditor judging it open, and that split is left standing.
+
+Literature and prior-art check
+:   **partially-solved / supported-with-caveat.** Two halves with different maturity. The instrument-linking half is not new: I retrieved the common-metrics literature (www.common-metrics.org, PMC5069858, which estimates scores from different patient-reported outcome measures on a common latent scale) and a multi-group multivariate higher-order IRT model for linking individual participant data from multiple studies (PMC6582193). Latent-variable linking of different instruments is therefore an established methodology in integrative data analysis, not merely a 'proposed remedy'; what is missing is its integration into a network/population-adjusted synthesis, and the co-administration data needed to fit it. The SMD half is better supported: I retrieved 'Standardized Mean Differences: Not So Standard After All' (PMC12358740) and Hopkins, 'Standardization and other approaches to meta-analyze differences in means' (Stat Med 2024, doi 10.1002/sim.10114), which document that the standardiser is a population property so SMDs vary with within-study SD variability. I found no formal transport theory for the SMD scale, so that specific gap stands.
+    Cites https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5069858/: Shows latent-variable/IRT linking of different PRO instruments onto a common metric is an existing, deployed methodology, so the cross-instrument problem is not unaddressed outside PAIC..
+    Cites https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6582193/: Retrospectively establishes a common metric across independently conducted studies with different items, i.e. the measurement-model half of the proposed direction, in the IPD-synthesis setting..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / supported-with-caveat.** C2, C3, and C5 are sound. A simple rescaling is sufficient only when instruments are defensibly affine-equivalent and measurement-invariant. A latent-variable link requires anchor items, co-administration, calibration data, or other identifying restrictions. The SMD's transport behavior is not mathematically undefined: it is a mean difference divided by a specified reference standard deviation, so changing the population or denominator changes the estimand. The genuine problem is selecting and identifying a scientifically meaningful common scale. C6's claim about an accepted convention is a literature-consensus claim outside this lens; technically, no unique denominator is compelled, and pooled, control-arm, baseline, external-reference, and target-population SDs define different quantities. The proposed native-scale fallback cannot create a common metric across different instruments without a mapping. At cpaic commit 9d150e9, Gaussian IPD analyses accept MD only and explicitly reject SMD, so no cross-instrument PAIC path exists. High priority is proportionate only for networks that actually mix non-equivalent instruments.
+
+Decision path
+:   `R3:partially-solved(n=1) → R11:caveated(n=2)`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [COV-09 — Measurement non-equivalence of covariates across trials](COV-09-measurement-non-equivalence-of-covariates-across-trials.qmd)
+:::
+
+## Source
+
+Derived from C:L1537-1542, C:L1537-1546, C:L1548-1550, C:L1548-1553, C:L230 of the reviewed corpus.

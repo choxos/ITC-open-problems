@@ -1,0 +1,80 @@
+---
+title: "Measurement non-equivalence of covariates across trials"
+description: "Nominally identical covariates may be recorded on different assays, scales, thresholds, timings, assessors or definitions, so unless measurement invariance or a source-to-target crosswalk is established, balancing the recorded summaries does not guarantee balance of the underlying construct. Classical nondifferential additive error attenuates a linear treatment-by-covariate interaction, but differential error, Berkson error, misclassification, correlated error, nonlinear links and non-collapsible estimands can bias the interaction in either direction. Machinery exists for adjacent cases: correction strategies for covariate-balancing weights under measurement error in the individual-level single-sample setting (Wen and Yan 2024, arxiv:2406.09163), and multiple-imputation harmonization of non-commensurate measures using external calibration studies that administered both instruments (Siddique et al. 2015, doi:10.1002/sim.6562). Neither covers the PAIC case, where the mismeasurement can differ between source and target and the target is a published summary."
+pid: "COV-09"
+topic: "Covariates: selection, target moments, measurement"
+categories: ["Covariates: selection, target moments, measurement", "High priority", "Partially addressed"]
+priority: "High"
+prank: 2
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[COV-09]{.problem-id}
+[Partially addressed]{.verdict .verdict-partially-addressed}
+[High priority]{.chip .chip-priority-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+## Statement
+
+Nominally identical covariates may be recorded on different assays, scales, thresholds, timings, assessors or definitions, so unless measurement invariance or a source-to-target crosswalk is established, balancing the recorded summaries does not guarantee balance of the underlying construct. Classical nondifferential additive error attenuates a linear treatment-by-covariate interaction, but differential error, Berkson error, misclassification, correlated error, nonlinear links and non-collapsible estimands can bias the interaction in either direction. Machinery exists for adjacent cases: correction strategies for covariate-balancing weights under measurement error in the individual-level single-sample setting (Wen and Yan 2024, arxiv:2406.09163), and multiple-imputation harmonization of non-commensurate measures using external calibration studies that administered both instruments (Siddique et al. 2015, doi:10.1002/sim.6562). Neither covers the PAIC case, where the mismeasurement can differ between source and target and the target is a published summary.
+
+## Why it is open
+
+Balancing and standardization operate on the recorded number, so a systematic measurement difference passes through as if it were a real difference in patient characteristics, and reports usually give a variable name and a summary statistic without the assay, cut-point or timing that would reveal the discrepancy. Without metadata, bridge information or defensible mapping assumptions, balance on the latent covariate and the transported effect are not identified from ordinary PAIC inputs, which makes this decision-critical when the variable is a strong effect modifier. The existing corrections need linking data that PAIC usually lacks, and even where calibration studies exist, imputation-based harmonization can fail to recover accurate values (counter-evidence in the audit record, doi:10.1007/s11121-017-0760-x).
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Wen and Yan, 2024](https://arxiv.org/abs/2406.09163) | Covariate balancing with measurement error: notes that covariate balancing assumes all covariates are accurately measured and proposes correction strategies for the individual-level single-sample observational case, which is the machinery closest to MAIC weights. |
+| [Siddique et al., 2015](https://doi.org/10.1002/sim.6562) | Multiple imputation for harmonizing longitudinal non-commensurate measures in individual participant data meta-analysis, using external calibration studies in which both versions of the measure were administered; the linking-study route the source proposes, already implemented. |
+| [Counter-evidence in the audit record, 2017](https://doi.org/10.1007/s11121-017-0760-x) | Cited by the literature auditor as evidence that imputation-based harmonization can fail: 'Even after reducing the scale of our application, we were still unable to produce accurate imputations of the missing values.' The audit record supplies no title for this reference. |
+
+:::
+
+## Probable solution or research direction
+
+Extend the two existing lines to this setting: covariate-balancing corrections under measurement error (arxiv:2406.09163) assume one individual-level sample, and imputation-based harmonization (doi:10.1002/sim.6562) assumes access to both instruments, so both need a version in which the target is an aggregate summary and the error may be differential between source and target. Where no linking information exists, report explicit sensitivity ranges over the measurement mapping rather than treating calibration equations or paired bridge studies as prerequisites, and run cut-point sensitivity analysis where a continuous variable has been dichotomized differently. Reporting the assay, cut-point and timing alongside the covariate summary is a cheap partial fix that would at least make the discrepancy detectable.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Partially addressed. Part of this problem is addressed by existing work; the entry names which part.
+
+**The source said.** "Covariates carrying the same name across trials are frequently measured on different assays, scales, timings or definitions, so a target mean of nominally the same variable is not a meaningful balancing constraint and adjusting for it does not balance the same underlying construct. Measurement error in an effect modifier usually attenuates interaction estimates and may leave substantial residual transport bias."
+
+**What was wrong with it.** The source said measurement error 'usually' attenuates interaction estimates and that balancing a mismeasured covariate can leave more residual imbalance than not adjusting at all; the code auditor restricted the attenuation result to classical nondifferential additive error in a linear interaction model, and neither auditor could verify the worse-than-nothing claim, which is plausible only under systematic study-specific scale, offset or classification differences. The literature auditor sourced the calibration and linking-study elements to arxiv:2406.09163 and doi:10.1002/sim.6562, and the code auditor rejected the framing that calibration equations, linking studies and cut-point sensitivity analysis are requirements rather than options.
+
+Literature and prior-art check
+:   **partially-solved / supported-with-caveat.** The mechanism claims are sound and one is now directly sourced. Wen & Yan 2024 states that covariate balancing's validity 'relies on an implicit assumption that all covariates are accurately measured, which is frequently violated', that 'the impact of measurement error on covariate balancing is unclear, and there is no existing work on balancing mismeasured covariates adequately', and then proposes correction strategies; since MAIC weights are entropy-balancing weights, this is the closest existing machinery to the entry's problem, in the single-sample observational case. The linking-study claim is also already realized: Siddique et al. 2015 harmonize non-commensurate measures across trials by multiple imputation using 'external calibration studies in which both depression measures were used'. Two caveats. Neither covers the PAIC-defining case, where the mismeasurement is differential between source and target and the target is a published summary. And the strongest claim, that balancing a mismeasured covariate can leave more residual imbalance than not adjusting at all, I could not verify against any retrieved source; treat it as unevidenced.
+    Cites arxiv:2406.09163: Measurement-error correction strategies for covariate balancing weights, the same estimating machinery MAIC uses, in the individual-level single-sample case.
+    Cites doi:10.1002/sim.6562: Sources the linking-study and calibration claims: an implemented cross-study harmonization method using external calibration studies measuring both versions of a variable.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** C1 and C3-C8 describe valid forms of operational non-equivalence, although C7 concerns outcome-measure heterogeneity unless the assessment is used as a baseline covariate. Formally, if study s records W_s = a_s + b_s X + U_s, equality of recorded means does not imply equality of the latent X means without measurement invariance or a known crosswalk. C2 is nevertheless too categorical: differing procedures do not invalidate a target mean when their equivalence or transformation is established. C9 holds for classical, nondifferential additive error in a correctly specified linear treatment-by-covariate model, where the interaction is attenuated by a reliability factor. Differential error, Berkson error, misclassification, correlated error, nonlinear links, and non-collapsible estimands can bias interactions in either direction. C10 is therefore possible but conditional. C11 is possible under systematic study-specific scale, offset, or classification differences; simple classical attenuation alone ordinarily yields partial correction rather than greater bias than no adjustment. C12, C14, and C15 overstate necessity. What is required is identifying information or assumptions about the cross-study measurement mapping, or an explicit sensitivity analysis when it remains unidentified. A dedicated paired linking study and cut-point sensitivity analysis are useful routes, not universal requirements. Calibration and latent-variable models address C13 only to the extent their mapping assumptions are supported. Without metadata, bridge information, or defensible mapping assumptions, latent covariate balance and the transported effect remain unidentified from ordinary PAIC inputs, so the core problem remains open and can be decision-critical when the variable is a strong effect modifier.
+
+Decision path
+:   `R3:partially-solved(n=1) → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [CMP-05 — No versioned intervention ontology maps onto CNMA component matrices](CMP-05-no-versioned-intervention-ontology-maps-onto-cnma-component-.qmd)
+- [CMP-06 — Measurement error and component misclassification are ignored](CMP-06-measurement-error-and-component-misclassification-are-ignore.qmd)
+- [DEC-09 — Modifier selection and target moments reported without provenance](DEC-09-modifier-selection-and-target-moments-reported-without-prove.qmd)
+- [DIA-08 — PAIC simulations generate only shared, linear effect modification](DIA-08-paic-simulations-generate-only-shared-linear-effect-modifica.qmd)
+- [EVB-03 — Trials combined under one outcome label are not one estimand](EVB-03-trials-combined-under-one-outcome-label-are-not-one-estimand.qmd)
+- [OUT-03 — Outcome misclassification in binary indirect comparisons](OUT-03-outcome-misclassification-in-binary-indirect-comparisons.qmd)
+- [OUT-04 — Different instruments and standardized mean difference transport](OUT-04-different-instruments-and-standardized-mean-difference-trans.qmd)
+- [QBA-06 — Measurement and misclassification QBA under population adjustment](QBA-06-measurement-and-misclassification-qba-under-population-adjus.qmd)
+:::
+
+## Source
+
+Derived from C:L214-215, C:L230, C:L978-989 of the reviewed corpus.

@@ -1,0 +1,78 @@
+---
+title: "Nonparametric and commensurate priors in disconnected evidence"
+description: "Both halves of this machinery are long established in evidence synthesis rather than emerging. Bayesian nonparametric random effects for non-normal heterogeneity go back to Burr and Doss (JASA 2005) and Branscum and Hanson (pmid:18162115), with a 2024 review and simulation study of meta-analysis models that relax normality (arXiv:2412.12945); commensurate priors are already in NMA (JRSS-C 2018;67:1047) and robust mixture priors are standard (pmid:25355546). What is unvalidated is their use to bridge a disconnected subnetwork: with no shared contrast the commensurability parameter has nothing to be identified from, and the posterior for the cross-gap contrast is supplied by the assumed bridge and its prior."
+pid: "ADJ-08"
+topic: "Adjacent-field methods"
+categories: ["Adjacent-field methods", "High priority", "Overstated"]
+priority: "High"
+prank: 2
+verdict: "Overstated"
+verdictslug: "overstated"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[ADJ-08]{.problem-id}
+[Overstated]{.verdict .verdict-overstated}
+[High priority]{.chip .chip-priority-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+## Statement
+
+Both halves of this machinery are long established in evidence synthesis rather than emerging. Bayesian nonparametric random effects for non-normal heterogeneity go back to Burr and Doss (JASA 2005) and Branscum and Hanson (pmid:18162115), with a 2024 review and simulation study of meta-analysis models that relax normality (arXiv:2412.12945); commensurate priors are already in NMA (JRSS-C 2018;67:1047) and robust mixture priors are standard (pmid:25355546). What is unvalidated is their use to bridge a disconnected subnetwork: with no shared contrast the commensurability parameter has nothing to be identified from, and the posterior for the cross-gap contrast is supplied by the assumed bridge and its prior.
+
+## Why it is open
+
+Across a disconnected gap there is no likelihood contribution for the contrast of interest, so the posterior in that direction is determined by the assumed bridge and its prior, even where other parameters remain data-informed. A nonparametric prior aggravates the presentation problem because it looks agnostic while still supplying the structure that produces a finite estimate. Dynamic borrowing normally lets the data adjudicate how similar two sources are, but with no shared contrast there is nothing to adjudicate with, so the commensurability parameter is weakly identified. The exchangeability assumption that licenses the borrowing cannot be tested from the disconnected data, though it can be calibrated externally.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Branscum & Hanson, Bayesian nonparametric meta-analysis using Polya tree mixture models, Biometrics 2008](https://pubmed.ncbi.nlm.nih.gov/18162115/) | Shows that flexible non-normal random-effects distributions in evidence synthesis are an established rather than emerging capability. |
+| [Power and Commensurate Priors for Synthesizing Aggregate and Individual Patient Level Data in Network Meta-Analysis, JRSS-C 2018;67:1047](https://academic.oup.com/jrsssc/article/67/4/1047/7058351) | Commensurate priors for controlled borrowing already exist inside NMA; the novelty in this entry is confined to the disconnected case. |
+| [arXiv:2412.12945 (2024 methodological systematic review and simulation study of meta-analysis models relaxing the random-effects normality assumption)](https://arxiv.org/abs/2412.12945) | Reviews and evaluates meta-analysis models that relax the normal random-effects assumption, further evidence that the flexible-heterogeneity half is mature. |
+| [Schmidli et al. (pmid:25355546), robust mixture meta-analytic-predictive priors](https://pubmed.ncbi.nlm.nih.gov/25355546/) | Robust mixture priors for dynamic borrowing from historical controls, named by the literature auditor as the standard reference for the robust-prior half. |
+| [jarbes (R package)](https://cran.r-project.org/package=jarbes) | Named by the recency auditor as shipped Bayesian nonparametric meta-analysis tooling, evidence that the machinery is available rather than prospective. |
+
+:::
+
+## Probable solution or research direction
+
+Use nonparametric mixtures and commensurate or robust-mixture priors where the network is connected and the likelihood can inform them, and where it is disconnected require an explicit prior-versus-likelihood decomposition reporting how much of the estimate comes from the prior. Calibrate externally in settings where the bridge can be checked, for example by severing edges in connected networks and comparing the borrowed estimate against the known contrast. The contribution is the disconnected-gap protocol and its calibration evidence, not the priors, which already exist.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Overstated. 2 independent auditors judged the claim as stated too strong. Bayesian nonparametric random-effects models and commensurate/robust priors are established tools in meta-analysis and NMA; what is unvalidated is their use to bridge a disconnected subnetwork, where the commensurability parameter has no shared contrast to be identified from.
+
+**The source said.** "Bayesian nonparametric priors are proposed for flexible study and population mixtures and for non-normal random-effects distributions, and commensurate or robust-mixture priors for letting a disconnected subnetwork borrow imperfectly from another rather than assuming full exchangeability or full independence. Both place additional structure in the prior at precisely the point where the likelihood is silent."
+
+**What was wrong with it.** The source labeled Bayesian nonparametrics 'Emerging' and commensurate priors 'Promising' and treated both as proposals; the literature auditor showed they have been in use in evidence synthesis for one to two decades (pmid:18162115; JRSS-C 2018;67:1047; pmid:25355546). Only the disconnected-subnetwork application is novel, and GPT-5.6 Sol added that a proper posterior in a likelihood-unidentified direction should not be called identification.
+
+Literature and prior-art check
+:   **partially-solved / overstated.** Both halves of the 'proposed' machinery are long established in evidence synthesis, which makes the maturity labels wrong. Bayesian nonparametric random effects in meta-analysis date to Burr & Doss (JASA 2005) and Branscum & Hanson, 'Bayesian nonparametric meta-analysis using Polya tree mixture models' (Biometrics 2008, PMID 18162115); a 2024 methodological systematic review plus simulation study of meta-analysis models relaxing the random-effects normality assumption exists (arXiv:2412.12945). Commensurate priors are already in NMA: 'Power and Commensurate Priors for Synthesizing Aggregate and Individual Patient Level Data in Network Meta-Analysis' (JRSS-C 2018;67:1047), and robust mixture MAP priors are standard (Schmidli et al., PMID 25355546). So 'Emerging' for Bayesian nonparametrics and 'Promising' for commensurate priors both understate maturity by 10-20 years. What is genuinely open is the disconnected-subnetwork application, and the entry's diagnosis is corroborated: work on Bayesian disconnected NMA finds the standard approach unusable under vague priors and dependent on moderately informative ones, i.e. the posterior for the disconnected contrast is prior-driven.
+    Cites pmid:18162115: Flexible non-normal random-effects distributions in evidence synthesis are an established, not emerging, capability..
+    Cites https://academic.oup.com/jrsssc/article/67/4/1047/7058351: Commensurate priors for controlled borrowing already exist inside NMA; the novelty in this entry is confined to the disconnected case..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** C1 and C4 are technically sound capabilities. C2 and C5 are conditional, not guaranteed improvements: flexible or robust priors trade parametric restriction for prior and hyperparameter sensitivity and need enough likelihood information. C3 should not call a proper posterior identification. For a contrast outside the likelihood-identified subspace, the hierarchical or bridge prior supplies the otherwise unidentified direction, although other parameters can remain data-informed. C6 is too absolute. Exchangeability for the actual missing cross-gap contrast cannot be tested by that disconnected likelihood, but empirical calibration is possible with external or connected networks and edge-severing exercises, as the proposed direction itself recognizes. C7 and C8 accurately reproduce the report's labels. Transparent prior attribution and sensitivity remain open and are decision-critical only when the target decision uses a cross-gap posterior; the general High priority is otherwise a roadmap judgment.
+
+Grok 4.5, recency lens
+:   **open / supported-with-caveat.** Inverted-prior search finds mature building blocks, not a closed ITC gap. Bayesian nonparametric mixtures for flexible random-effects / non-normal heterogeneity exist in pairwise meta-analysis (Dirichlet-process / DPM style work; recent bias-corrected BNP in Biometrical Journal 2025; CRAN jarbes). Commensurate and robust-mixture dynamic borrowing are well established for historical controls when a shared endpoint/likelihood contributes information (Hobbs et al.; recent robust-mixture / SAM literature 2023–2025). None of this removes the structural fact that a disconnected contrast has no likelihood contribution for the bridge: the posterior remains prior-driven, and the commensurability parameter is weakly identified when there is no shared contrast with which to adjudicate similarity. I found no 2024–2026 NMA/ITC paper or multinma/crossnma/gemtc/netmeta feature that validates exchangeability across a disconnected subnetwork gap or that supplies an accepted prior-versus-likelihood decomposition for that case. C1 and C4 are true as method existence claims outside pure disconnected ITC; C3 and C6 correctly describe why the problem remains open; maturity labels C7/C8 are report-internal taxonomy and were not re-verified against a report file. Queries: Bayesian nonparametric Dirichlet process NMA; commensurate/robust mixture disconnected NMA; crossnma disconnected borrowing; jarbes BC-BNP.
+
+Decision path
+:   `R3:partially-solved(n=1) → R8:overstated-majority(n=2)`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [SFW-08 — No agreed leave-one-out unit for mixed IPD and aggregate likelihoods](SFW-08-no-agreed-leave-one-out-unit-for-mixed-ipd-and-aggregate-lik.qmd)
+:::
+
+## Source
+
+Derived from C:L1646-1647, C:L1655, C:L1656 of the reviewed corpus.

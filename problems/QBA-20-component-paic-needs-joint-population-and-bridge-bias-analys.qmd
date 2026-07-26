@@ -1,0 +1,73 @@
+---
+title: "Component PAIC needs joint population-and-bridge bias analysis"
+description: "In a disconnected component PAIC with no cross-gap evidence, violations of population transportability and of component invariance are both unidentified and should be assessed jointly, since either can offset the other and an analysis that varies only one may report spurious robustness; population or selection bias is not necessarily nonidentified when adequate covariates and transport assumptions are available. Structural bridge bias includes component main-effect drift and component-by-modifier drift across subnetworks, treatment versions, eras or backbones, and can also include component-by-component nonadditivity and backbone interactions. Evaluating a joint sensitivity model means integrating inverse-linked perturbed predictions over the joint target distribution of measured and omitted covariates, with the corresponding marginal survival or RMST functional for time-to-event estimands, and that joint target distribution is what published aggregate data do not supply."
+pid: "QBA-20"
+topic: "Quantitative bias analysis for unanchored PAIC"
+categories: ["Quantitative bias analysis for unanchored PAIC", "Very high priority", "Confirmed open"]
+priority: "Very high"
+prank: 1
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Emerging"
+tractability: 4
+---
+::: {.problem-meta}
+[QBA-20]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[Very high priority]{.chip .chip-priority-very-high}
+[Emerging]{.chip .chip-maturity-emerging}
+[Tractability 4/5]{.chip}
+:::
+## Statement
+
+In a disconnected component PAIC with no cross-gap evidence, violations of population transportability and of component invariance are both unidentified and should be assessed jointly, since either can offset the other and an analysis that varies only one may report spurious robustness; population or selection bias is not necessarily nonidentified when adequate covariates and transport assumptions are available. Structural bridge bias includes component main-effect drift and component-by-modifier drift across subnetworks, treatment versions, eras or backbones, and can also include component-by-component nonadditivity and backbone interactions. Evaluating a joint sensitivity model means integrating inverse-linked perturbed predictions over the joint target distribution of measured and omitted covariates, with the corresponding marginal survival or RMST functional for time-to-event estimands, and that joint target distribution is what published aggregate data do not supply.
+
+## Why it is open
+
+When no cross-gap evidence exists neither layer is identified, and because they can offset each other a one-at-a-time curve computed with the other layer held at its assumed null cannot reveal the cancellation. The joint parameter space is high-dimensional with correlated drift and no data to inform the correlation, so the dependence structure must be supplied entirely by assumption. The natural-scale integration a joint model requires needs a joint target distribution of measured and omitted covariates that published aggregate data do not provide, and current tooling addresses only bounded component main-effect drift, so the interaction-drift and omitted-variable layers stay unexamined.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Ackerman et al. 2024, Measurement error and bias in real-world oncology endpoints when constructing external control arms, Frontiers in Drug Safety and Regulation](https://doi.org/10.3389/fdsfr.2024.1423493) | Empirical demonstration that two bias mechanisms in an external control arm interact non-additively, supporting the non-additivity premise with measurement rather than assertion. Supplied by the literature auditor; the entry cited nothing. |
+
+:::
+
+## Probable solution or research direction
+
+Implement a joint sensitivity model placing subnetwork-specific component main-effect drift, component-by-modifier drift, omitted modifiers, measurement bias and decision thresholds in one coherent framework, integrating inverse-linked perturbed predictions over the joint target covariate distribution and using the marginal survival or RMST functional for time-to-event estimands. Report which bias layer dominates under an explicitly stated attribution rule and whether apparent robustness comes from cancellation between the layers. Expose feasibility, effective sample size, edge influence, effect and decision-reversal surfaces and partial-identification bounds as a single object, and state which forms of drift, including component-by-component nonadditivity, the model does and does not cover.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+
+**The source said.** "Component PAIC carries at least two distinct nonidentified bias layers, population or selection bias and structural bridge bias comprising component main-effect drift and component-by-modifier interaction drift across subnetworks, treatment versions, eras or backbones, and no existing method quantifies them jointly. Total bias does not decompose additively across the layers, so one-at-a-time curves cannot describe the joint surface."
+
+**What was wrong with it.** GPT-5.6 Sol corrected the mathematics of the proposed sensitivity model: for a nonlinear link the target arm mean is the expectation of the inverse-linked perturbed predictor over the joint target distribution, so integrating the linear predictor itself is not integration on the natural outcome scale. It also narrowed the non-additivity claim to isolated one-at-a-time effects, since a telescoping additive decomposition can always be constructed with path- and order-dependent contributions and exact additivity does hold under an identity-link model without interactions. The literature auditor could find no published literature on component PAIC as a named method and voted unverifiable, so the entry's claims that no method or framework exists are true but uninformative.
+
+Literature and prior-art check
+:   **open / unverifiable.** I could not locate any published literature on 'component PAIC' as a named method combining component network meta-analysis with population adjustment, nor any prior_work is offered. Component NMA itself is established (netmeta, and 2026 work on treatment and component hierarchies in CNMA including disconnected networks), and population-adjusted methods are established, but the composite object the entry calls component PAIC, with a 'bridge' between subnetworks and component main-effect and component-by-modifier drift, appears to be a construct of this research programme rather than a published method with a literature. That makes claims 4 and 5 ('no existing method jointly quantifies...', 'no current framework combines...') technically true but uninformative, because there is no established base method to extend. Claim 6 (total bias does not decompose additively across layers) is generically true on non-collapsible scales and is independently supported by Ackerman et al. 2024, who show two measurement mechanisms in external controls interact non-additively. Claims 3 and 7 are design proposals. I vote unverifiable on support because the central objects cannot be checked against any literature.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** The core joint-sensitivity concern is technically valid, but the statement needs conditions. C1 holds in a disconnected analysis with no cross-gap validation and unresolved transport variables; population or selection bias is not necessarily nonidentified when adequate covariates and transport assumptions are available. C2 identifies valid forms of bridge drift, but structural bridge bias can also include component-by-component nonadditivity or backbone interactions, not only main-effect and component-by-modifier drift. C3 is mathematically misstated: for a nonlinear link the target arm mean is E_T[g^{-1}{eta_t(X,U;delta)}], meaning inverse-linked perturbed predictions are integrated over the joint target distribution. Integrating the linear predictor itself is not integration on the natural outcome scale. Survival estimands require the corresponding marginal survival or RMST functional. C4 and C5 are universal method-existence claims that this audit cannot establish. C6 is correct only as a statement about a unique decomposition into isolated one-at-a-time effects. A telescoping additive decomposition can always be constructed, but its contributions are path and order dependent; exact invariant additivity can also hold under an identity-link additive model without interactions. C7 is a sound reporting objective once the attribution rule is defined. The joint problem is decision-critical for disconnected component bridges, while a comprehensive result object remains a roadmap item.
+
+Decision path
+:   `R5:default-open → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [ADJ-19 — Shapley attribution of regimen effects to treatment components](ADJ-19-shapley-attribution-of-regimen-effects-to-treatment-componen.qmd)
+- [CMP-01 — Cross-subnetwork component constancy is the untestable bridge](CMP-01-cross-subnetwork-component-constancy-is-the-untestable-bridg.qmd)
+- [CMP-02 — Adjusted component bridges need interaction constancy across the gap](CMP-02-adjusted-component-bridges-need-interaction-constancy-across.qmd)
+:::
+
+## Source
+
+Derived from C:L603-623, C:L643, C:L681, C:L800-811, C:L811, C:L2145 of the reviewed corpus.

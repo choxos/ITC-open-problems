@@ -1,0 +1,85 @@
+---
+title: "Strict component additivity may be clinically false"
+description: "Strict component additivity can be clinically false, and interaction CNMA already relaxes it: Rucker et al. 2020 define interaction CNMA models and implement them in netmeta by adding interaction columns to the combination matrix. What is not solved is the disconnected and sparse case, where Petropoulou et al. 2023 found that forward selection of interaction CNMAs performs poorly and recommended separate subnetwork analyses, and where the number of possible component interactions grows combinatorially while the number of observed combinations does not. No method bounds how far an omitted component interaction could move a target cross-gap contrast, and no heredity-constrained sparse selection with subnetwork drift blocks has been implemented for component PAIC."
+pid: "CMP-03"
+topic: "Component methods (CNMA and component PAIC)"
+categories: ["Component methods (CNMA and component PAIC)", "Very high priority", "Partially addressed"]
+priority: "Very high"
+prank: 1
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
+maturity: "Emerging"
+---
+::: {.problem-meta}
+[CMP-03]{.problem-id}
+[Partially addressed]{.verdict .verdict-partially-addressed}
+[Very high priority]{.chip .chip-priority-very-high}
+[Emerging]{.chip .chip-maturity-emerging}
+:::
+## Statement
+
+Strict component additivity can be clinically false, and interaction CNMA already relaxes it: Rucker et al. 2020 define interaction CNMA models and implement them in netmeta by adding interaction columns to the combination matrix. What is not solved is the disconnected and sparse case, where Petropoulou et al. 2023 found that forward selection of interaction CNMAs performs poorly and recommended separate subnetwork analyses, and where the number of possible component interactions grows combinatorially while the number of observed combinations does not. No method bounds how far an omitted component interaction could move a target cross-gap contrast, and no heredity-constrained sparse selection with subnetwork drift blocks has been implemented for component PAIC.
+
+## Why it is open
+
+Additivity is what reconnects a disconnected network, so adding interaction terms consumes the degrees of freedom the bridge depends on, and the contrasts that would discriminate between candidate interaction structures are the ones spanning the gap. Petropoulou et al. 2023 measured the consequence: data-driven selection of interaction structures recovers the right model rarely in disconnected networks and tends to fall back on sparse additive models even when additivity is violated. The proposed global-plus-drift decomposition also needs reference or zero-mean constraints to separate beta from u_s, eta from v_s, and Gamma from Lambda_s, and no bound currently exists for how far unmodeled synergy could move the target contrast.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Rucker et al. 2020](https://doi.org/10.1002/bimj.201800167) | defines and implements additive and interaction CNMA in the frequentist netmeta framework, so strict additivity is not the only available model form |
+| [Petropoulou et al. 2023](https://doi.org/10.1186/s12874-023-01959-9) | simulates mild and strong additivity violations and shows forward selection of interaction CNMA models does not work well for disconnected networks |
+| [Veroniki et al. 2026](https://doi.org/10.1136/bmj-2024-083075) | documents that synergy and antagonism motivate interaction CNMA and that additivity cannot be assessed statistically in disconnected networks |
+| netmeta | supplies the frequentist component NMA engine, including the interaction CNMA models |
+| [cpaic 0.1.0 (development version, choxos/cpaic@9d150e9)](choxos/cpaic@9d150e9) | unreleased development R package on GitHub, not on CRAN; fits additive component bridges with total and nested additivity lack-of-fit diagnostics, and implements no component-by-component interaction or subnetwork drift model |
+
+:::
+
+## Probable solution or research direction
+
+Build on interaction CNMA rather than reinventing it: prespecify the interactions that are estimable given the observed combinations, and use sparse or hierarchical priors with an explicit heredity or mechanistic rationale rather than data-driven forward selection, which is already known to fail across a disconnection. Derive omitted-interaction bounds that quantify how far a target cross-gap contrast could move under unmodeled synergy, since that is the part with no existing method. Report for each cross-gap contrast how much of the result depends on shrinkage rather than on likelihood information, and state which drift and interaction directions the design can identify.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Partially addressed. Part of this problem is addressed by existing work; the entry names which part.
+
+**The source said.** "The additive component model assumes a combination's effect equals the sum of its component effects, but synergy and antagonism can be precisely what defines the value of a combination therapy, and omitted interaction terms are assumed negligible by default. The proposed replacement writes theta_{t,s}(x) = C_t'(beta + u_s) + Z_t'(eta + v_s) + C_t'(Gamma + Lambda_s)x, adding candidate interactions Z_t and subnetwork-specific drift blocks with shrinkage priors."
+
+**What was wrong with it.** The source presented relaxing additivity as an unbuilt research direction; interaction CNMA has existed since Rucker et al. 2020 and ships in netmeta, and Petropoulou et al. 2023 already simulated mild and strong additivity violations. Both the literature auditor and Grok 4.5 supplied those locators, and GPT-5.6 Sol corrected the claim that the drift-and-interaction model is estimable only through its priors: sufficiently rich replicated designs can identify some of those contrasts through the likelihood.
+
+**Dissent.** literature dissented (open): Retrieved Rucker et al. 2020: interaction CNMA already exists ('Interaction CNMA models also allow interactions between the components'), and Petropoulou et al. 2023 simulated exactly this, with mild and strong additivity violations (exp(lambda) = 1.5 and 2). So the 'additivity may be false' half is settled published fact, not an open problem; what is open is the heredity-constrained sparse selection, the drift-block parameterisation, and omitted-interaction bounds. Petropoulou et al. supply the nearest thing to a source asserting the software absence the entry claims: 'More advanced methods penalizing the size of the estimated interaction parameters like the LASSO could in principle also be used to select interaction CNMA models, however, this would not be possible using our R scripts.' Caveat: the entry cites only 'cpaic 0.1.0' and 'netmeta' for a claim whose real evidence base is the Rucker/Petropoulou line of work; the netmeta citation is functionally decorative because the substantive content sits in the papers, not the package. I found no bounds for omitted component synergy.
+
+Literature and prior-art check
+:   **open / supported-with-caveat.** Retrieved Rucker et al. 2020: interaction CNMA already exists ('Interaction CNMA models also allow interactions between the components'), and Petropoulou et al. 2023 simulated exactly this, with mild and strong additivity violations (exp(lambda) = 1.5 and 2). So the 'additivity may be false' half is settled published fact, not an open problem; what is open is the heredity-constrained sparse selection, the drift-block parameterisation, and omitted-interaction bounds. Petropoulou et al. supply the nearest thing to a source asserting the software absence the entry claims: 'More advanced methods penalizing the size of the estimated interaction parameters like the LASSO could in principle also be used to select interaction CNMA models, however, this would not be possible using our R scripts.' Caveat: the entry cites only 'cpaic 0.1.0' and 'netmeta' for a claim whose real evidence base is the Rucker/Petropoulou line of work; the netmeta citation is functionally decorative because the substantive content sits in the papers, not the package. I found no bounds for omitted component synergy.
+    Cites doi:10.1002/bimj.201800167: Partially covers the 'relax additivity' direction: interaction CNMA models are already defined and implemented; the open part is principled sparse/heredity-constrained selection and bounding of omitted interactions..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** C1-C3 are correct for cpaic: cnma_bridge() uses theta=C beta, and cmlnmr() adds component-by-covariate interactions but no component-by-component synergy terms. No exported function or fitted parameter block implements the proposed Z, u_s, v_s, or Lambda_s structure, supporting C14. C8 and C9 correctly describe interaction CNMA and the proposed blocks. C4 and C6 are software- or literature-wide nonexistence claims that this audit does not adjudicate. C5 is mathematically possible only after a credible bound set for omitted interactions is specified. C7 and C10-C12 are defensible modeling choices, not general statistical requirements: heredity can be weak or strong, qualitative interactions can violate heredity, and shrinkage strength should follow scientific scale information rather than automatically being stronger for every interaction. The proposed global-plus-drift decomposition also needs reference or zero-mean constraints to distinguish beta from u_s, eta from v_s, and Gamma from Lambda_s. Interactions and drift contrasts are not necessarily identified only by priors; sufficiently rich replicated designs can identify some or all of them through the likelihood. The issue is decision-critical when plausible synergy loads the requested cross-gap contrast, but a high-dimensional heredity-and-drift model is otherwise a roadmap item rather than a universally required replacement.
+
+Grok 4.5, recency lens
+:   **partially-solved / supported-with-caveat.** Clinical falsehood of strict additivity and the existence of interaction CNMA are already in the literature: Rücker et al. 2020 implement pairwise (and higher) interaction CNMA in netmeta; Welton et al. 2009 introduce interaction models; Veroniki et al. 2026 state that interaction CNMA is used when synergy or antagonism violates additivity and warn that power to detect interactions is limited by observed combinations. Petropoulou et al. 2023 evaluate forward selection of interactions and show poor performance for disconnected reconnection. That partially answers the claim that analysts must assume pure additivity, but does not resolve the problem as stated for sparse/disconnected component PAIC: omitted-interaction bounds on the target contrast, heredity-constrained sparse selection with subnetwork drift blocks, and quantification of how much a cross-gap contrast depends on shrinkage toward zero drift were not found in software or published methods. Searches for omitted-interaction bounds, heredity priors in CNMA/PAIC, and drift-plus-interaction models returned no resolving implementation. cpaic is not on CRAN. So the clinical and modeling recognition is partly covered by interaction CNMA; the bound-and-shrinkage agenda remains open. Caveat on support: C3–C4, C6, C14 about current software gaps are supported by absence of public tools; C5, C7, C10–C13 are proposals, not established solutions.
+    Cites 10.1002/bimj.201800167: Defines and implements additive and interaction CNMA in the frequentist netmeta framework, so strict additivity is not the only model form when interactions are included as extra combination-matrix columns..
+    Cites 10.1136/bmj-2024-083075: States that synergy/antagonism motivates interaction CNMA and that additivity cannot be assessed statistically in disconnected networks, documenting the clinical and identification tension the problem describes..
+    Cites 10.1186/s12874-023-01959-9: Evaluates forward selection of interaction terms that relax additivity; shows selection does not perform well for disconnected networks, so relaxing additivity via data-driven interactions is not a solved reconnection strategy..
+
+Decision path
+:   `R3:partially-solved(n=1) → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [ADJ-03 — Efficient influence-function transport estimators for ITC networks](ADJ-03-efficient-influence-function-transport-estimators-for-itc-ne.qmd)
+- [ADJ-19 — Shapley attribution of regimen effects to treatment components](ADJ-19-shapley-attribution-of-regimen-effects-to-treatment-componen.qmd)
+- [DIA-15 — Coding-error bias, rank reversal and drift calibration go unscored](DIA-15-coding-error-bias-rank-reversal-and-drift-calibration-go-uns.qmd)
+- [DIS-06 — Component additivity across a gap cannot be checked from the data](DIS-06-component-additivity-across-a-gap-cannot-be-checked-from-the.qmd)
+:::
+
+## Source
+
+Derived from C:L1357, C:L1235-1237, C:L214-215, C:L240, C:L1416-1445, scope:field-level (component NMA/CNMA generally; inherited by cpaic), scope:field-level model proposal; not implemented in cpaic of the reviewed corpus.

@@ -1,0 +1,80 @@
+---
+title: "Non-collapsible marginal effects are not portable across populations"
+description: "Odds ratios and hazard ratios can vary across populations even without confounding, so the shared effect modifier assumption alone does not make a marginal effect portable to an arbitrary population. The result is not new and does not belong to the citation the source gave it: Remiro-Azocar (doi:10.1002/sim.10111) established the stronger result that under non-collapsibility even purely prognostic variables shift the marginal effect, Phillippo et al. 2021 (doi:10.1002/sim.8965) had already noted that marginal effects are less transportable than population-average conditional ones, and Chandler and Ishak (arxiv:2602.17041) restate it inside an explicit two-step transportability framing for PAIC. Collapsibility is also not the same as transportability: a risk difference or an RMST difference marginalizes cleanly but still varies across populations when effects are heterogeneous, and a standardized risk is a target-specific absolute quantity rather than a treatment-effect scale."
+pid: "EST-03"
+topic: "Estimands & target populations"
+categories: ["Estimands & target populations", "Very high priority", "Not supported"]
+priority: "Very high"
+prank: 1
+verdict: "Not supported"
+verdictslug: "not-supported"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[EST-03]{.problem-id}
+[Not supported]{.verdict .verdict-not-supported}
+[Very high priority]{.chip .chip-priority-very-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+## Statement
+
+Odds ratios and hazard ratios can vary across populations even without confounding, so the shared effect modifier assumption alone does not make a marginal effect portable to an arbitrary population. The result is not new and does not belong to the citation the source gave it: Remiro-Azocar (doi:10.1002/sim.10111) established the stronger result that under non-collapsibility even purely prognostic variables shift the marginal effect, Phillippo et al. 2021 (doi:10.1002/sim.8965) had already noted that marginal effects are less transportable than population-average conditional ones, and Chandler and Ishak (arxiv:2602.17041) restate it inside an explicit two-step transportability framing for PAIC. Collapsibility is also not the same as transportability: a risk difference or an RMST difference marginalizes cleanly but still varies across populations when effects are heterogeneous, and a standardized risk is a target-specific absolute quantity rather than a treatment-effect scale.
+
+## Why it is open
+
+Non-collapsibility is a property of the effect measure rather than a bias, so it cannot be removed by better adjustment, better models or larger samples. An assumption about effect modification of the conditional contrast does not license moving the marginal contrast, because the marginal effect depends on the covariate distribution it is averaged over, and under non-collapsibility even purely prognostic variables move it. What remains open is propagation rather than theory: the formal results are published and target-specific standardization is implemented, but reporting conventions and HTA submission scales still carry marginal odds ratios and hazard ratios without a population index. Because the same number is valid in its own population and invalid in the target, no diagnostic run on the source analysis reveals the error.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Remiro-Azocar 2024, Transportability of model-based estimands in evidence synthesis, Statistics in Medicine 43(22):4217-4249](https://doi.org/10.1002/sim.10111) | Establishes that for non-collapsible measures purely prognostic variables that are not determinants of treatment response can modify marginal effects even under individual-level treatment effect homogeneity, which is why an assumption about effect modifiers cannot suffice for portability. This is the work that establishes the entry's central result. |
+| [Phillippo, Dias, Ades and Welton 2021, Target estimands for efficient decision making: Response to comments on Assessing the performance of population adjustment methods for anchored indirect comparisons: A simulation study, Statistics in Medicine](https://doi.org/10.1002/sim.8965) | States that marginal population-average treatment effects depend more strongly on the population of interest than population-average conditional effects and are less generalizable as a result, foreshadowing the formal result by three years. |
+| [Chandler and Ishak 2026, Reframing Population-Adjusted Indirect Comparisons as a Transportability Problem](https://arxiv.org/abs/2602.17041) | Restates that the shared effect modifier assumption alone does not guarantee direct transportability of marginal effects, inside an explicit two-step transportability framing for PAIC. It restates rather than establishes the result. |
+| [Jiang et al. 2025, A critical assessment of matching-adjusted indirect comparisons in relation to target populations, Research Synthesis Methods](https://doi.org/10.1017/rsm.2025.10) | Documents the population dependence of MAIC results in relation to target populations. |
+| [multinma: Bayesian Network Meta-Analysis of Individual and Aggregate Data (R package)](https://cran.r-project.org/package=multinma) | Implements target-population marginal-effect calculation, with marginal_effects() defaulting to a risk difference, so the standardization step is available and the collapsible default is already in software. |
+| [cpaic, unreleased development package on GitHub (not on CRAN), commit 9d150e9](https://github.com/choxos/cpaic) | Distinguishes a conditional profile contrast from a marginal population-standardized effect in its documentation, stating that the returned value is the conditional contrast at the covariate profile rather than the marginal effect standardized over a population. The labeling is correct; the marginal path is absent. |
+
+:::
+
+## Probable solution or research direction
+
+Index every marginal estimand by the population it is defined in and standardize explicitly to a named target covariate law before any decision use, rather than assuming scale invariance. Directly collapsible contrasts make that standardization easier, so prefer them where the decision permits, but do not present them as empirically constant across populations, since the target still has to be declared. The concrete work is in outputs rather than derivations: get the population index into reporting templates and into packages that do not yet separate a conditional profile contrast from a population-standardized marginal effect, as in cpaic, an unreleased development package on GitHub that is not installable from CRAN, where at commit 9d150e9 the cML-NMR path returns only the conditional contrast at a covariate profile.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Not supported. No accessible source substantiates the claim as stated.
+
+**The source said.** "Odds ratios and hazard ratios can vary across populations even in the absence of confounding, so a marginal effect estimated in one population is not automatically transportable to another. The shared-effect-modifier assumption, routinely invoked to justify population adjustment, does not by itself make non-collapsible marginal effects portable to an arbitrary population."
+
+**What was wrong with it.** The source credited Chandler and Ishak (arxiv:2602.17041) with establishing that shared effect modification does not make non-collapsible marginal effects portable; the literature auditor found the result established two years earlier by Remiro-Azocar (doi:10.1002/sim.10111) and foreshadowed by Phillippo et al. 2021 (doi:10.1002/sim.8965), and found the claim that it has not reached software defaults false, since multinma's marginal_effects() defaults to a risk difference. GPT-5.6 Sol separately struck the equation of collapsibility with portability and the treatment of a standardized risk as an effect scale.
+
+**Dissent.** literature dissented (open): Chandler & Ishak 2026 does say what is attributed ('SEMA alone does not guarantee direct transportability of marginal treatment effects'; non-collapsible marginal effects 'are not directly transportable, even when SEMA holds'), so claims 1-3, 5 and 6 hold. Claim 4 does not: Chandler & Ishak are not the work that establishes this. Remiro-Azocar, Statistics in Medicine 43(22):4217-4249 (2024) establishes a strictly stronger result two years earlier - for non-collapsible measures even purely prognostic variables that are not determinants of treatment response modify marginal effects - which is exactly why an assumption about effect modifiers cannot suffice. Earlier still, Phillippo, Dias, Ades & Welton (Stat Med 2021) wrote that marginal effects 'depend more strongly on the population of interest than the population-average conditional treatment effects, and are less generalizable/transportable as a result'. The why_open assertion that the result 'has not propagated into guidance, software defaults' is also wrong at the software level: multinma's marginal_effects() defaults to mtype = 'difference', a collapsible absolute scale. Status stays open because these are formalizations of an unfixable property. codex dissented (overstated): C1-C3 are mathematically correct: a marginal odds ratio or hazard-ratio projection can change with baseline risk, prognostic covariate distribution, or follow-up composition despite no confounding and a stable conditional treatment parameter. C4 is a priority-attribution claim outside this assigned technical lens; the result is an established consequence of non-collapsibility, not something that can be credited from technical truth alone. C5 is sloppy: risk differences and RMST differences are collapsible linear contrasts, but collapsibility neither guarantees transportability under effect modification nor makes them universally preferable; a standardized risk is target-specific and is not itself a treatment-effect scale. C6 should require a named target population, and numerical standardization needs a target covariate or outcome law, but the abstract marginal estimand need not encode one particular covariate representation. Target-specific standardization is established and implemented, so the management problem is partly solved; no population-free marginal OR or HR exists.
+
+Literature and prior-art check
+:   **open / misattributed.** Chandler & Ishak 2026 does say what is attributed ('SEMA alone does not guarantee direct transportability of marginal treatment effects'; non-collapsible marginal effects 'are not directly transportable, even when SEMA holds'), so claims 1-3, 5 and 6 hold. Claim 4 does not: Chandler & Ishak are not the work that establishes this. Remiro-Azocar, Statistics in Medicine 43(22):4217-4249 (2024) establishes a strictly stronger result two years earlier - for non-collapsible measures even purely prognostic variables that are not determinants of treatment response modify marginal effects - which is exactly why an assumption about effect modifiers cannot suffice. Earlier still, Phillippo, Dias, Ades & Welton (Stat Med 2021) wrote that marginal effects 'depend more strongly on the population of interest than the population-average conditional treatment effects, and are less generalizable/transportable as a result'. The why_open assertion that the result 'has not propagated into guidance, software defaults' is also wrong at the software level: multinma's marginal_effects() defaults to mtype = 'difference', a collapsible absolute scale. Status stays open because these are formalizations of an unfixable property.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / overstated.** C1-C3 are mathematically correct: a marginal odds ratio or hazard-ratio projection can change with baseline risk, prognostic covariate distribution, or follow-up composition despite no confounding and a stable conditional treatment parameter. C4 is a priority-attribution claim outside this assigned technical lens; the result is an established consequence of non-collapsibility, not something that can be credited from technical truth alone. C5 is sloppy: risk differences and RMST differences are collapsible linear contrasts, but collapsibility neither guarantees transportability under effect modification nor makes them universally preferable; a standardized risk is target-specific and is not itself a treatment-effect scale. C6 should require a named target population, and numerical standardization needs a target covariate or outcome law, but the abstract marginal estimand need not encode one particular covariate representation. Target-specific standardization is established and implemented, so the management problem is partly solved; no population-free marginal OR or HR exists.
+    Cites doi:10.1002/sim.10111: Formalizes the population dependence of model-based marginal estimands and the role of prognostic variables under non-collapsibility..
+    Cites cran:multinma: Implements target-population marginal-effect calculations, resolving the computational standardization step while not creating a portable population-free effect..
+    Cites choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca: Explicitly distinguishes a conditional profile contrast from a marginal population-standardized effect, resolving the software-labeling part in cpaic..
+
+Decision path
+:   `R3:partially-solved(n=1) → R6:counter-quote-uncontested`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [COV-02 — No evidence on how the modifier set changes across effect scales](COV-02-no-evidence-on-how-the-modifier-set-changes-across-effect-sc.qmd)
+- [OUT-11 — Non-proportional hazards and the transported hazard ratio](OUT-11-non-proportional-hazards-and-the-transported-hazard-ratio.qmd)
+:::
+
+## Source
+
+Derived from C:L214-215, C:L221, C:L298, C:L46 of the reviewed corpus.

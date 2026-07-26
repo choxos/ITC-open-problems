@@ -1,0 +1,85 @@
+---
+title: "Target population is unnamed and set by data availability"
+description: "Applied ITC and PAIC practice still defaults the target population to whichever aggregate-data trial reported enough baseline covariates, and reported effects are rarely labeled with the population they refer to. The normative half of the source's Direction A is not new: NICE DSU TSD18 (Phillippo et al. 2018, doi:10.1177/0272989X17725740) has required since 2016 that the target population be stated explicitly and that population-adjusted effects be generated for it, and it names a cohort or registry population relevant to the decision as the appropriate external source. The machinery is not missing either: multilevel network meta-regression estimates every contrast in a network in one externally supplied target population (Phillippo et al. 2020, doi:10.1111/rssa.12579; doi:10.1002/sim.8759), and multinma implements it through relative_effects(), predict() and marginal_effects(), each of which accepts an arbitrary target via newdata. What survives is the gap between that requirement and practice, together with the substantive judgment of which target to name, which no statistical criterion settles."
+pid: "EST-01"
+topic: "Estimands & target populations"
+categories: ["Estimands & target populations", "Very high priority", "Overstated"]
+priority: "Very high"
+prank: 1
+verdict: "Overstated"
+verdictslug: "overstated"
+maturity: "Emerging"
+---
+::: {.problem-meta}
+[EST-01]{.problem-id}
+[Overstated]{.verdict .verdict-overstated}
+[Very high priority]{.chip .chip-priority-very-high}
+[Emerging]{.chip .chip-maturity-emerging}
+:::
+## Statement
+
+Applied ITC and PAIC practice still defaults the target population to whichever aggregate-data trial reported enough baseline covariates, and reported effects are rarely labeled with the population they refer to. The normative half of the source's Direction A is not new: NICE DSU TSD18 (Phillippo et al. 2018, doi:10.1177/0272989X17725740) has required since 2016 that the target population be stated explicitly and that population-adjusted effects be generated for it, and it names a cohort or registry population relevant to the decision as the appropriate external source. The machinery is not missing either: multilevel network meta-regression estimates every contrast in a network in one externally supplied target population (Phillippo et al. 2020, doi:10.1111/rssa.12579; doi:10.1002/sim.8759), and multinma implements it through relative_effects(), predict() and marginal_effects(), each of which accepts an arbitrary target via newdata. What survives is the gap between that requirement and practice, together with the substantive judgment of which target to name, which no statistical criterion settles.
+
+## Why it is open
+
+The requirement exists but nothing enforces it at the point where the target is actually chosen, so the estimator's target is still fixed by which trial reported enough baseline variables, and no diagnostic run on the source analysis can flag a target that was never declared. Transporting a whole network to one external population needs IPD for at least one study and a covariate law for the target, so the capability that exists in ML-NMR is unavailable in exactly the aggregate-only networks where the default is most damaging. Choosing among candidate target sources is a policy judgment no statistical criterion settles, and falling back to an overlap population restores comparability only if the whole network shares one declared overlap estimand rather than a different overlap per pair. Because a single unlabeled symbol denotes both the estimated and the required quantity, the substitution leaves no trace for a reviewer to challenge.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Phillippo, Ades, Dias, Palmer, Abrams and Welton 2018, Methods for Population-Adjusted Indirect Comparisons in Health Technology Appraisal, Medical Decision Making (NICE DSU TSD18)](https://doi.org/10.1177/0272989X17725740) | Requires that the target population for any treatment comparison be stated explicitly and that population-adjusted relative effects be generated for that target, and names a cohort or registry population relevant to the clinical decision as the appropriate source, which is unlikely to match the aggregate-data trial population. It supplies the normative half of Direction A a decade before this agenda; it does not make the declaration a field anyone checks outside NICE submissions. |
+| [Phillippo, Dias, Elsada, Ades and Welton 2020, Multilevel network meta-regression for population-adjusted treatment comparisons, JRSS-A](https://doi.org/10.1111/rssa.12579) | Defines the one-stage individual-level regression that fits aggregate data by integration and produces population-adjusted contrasts for a specified target population across a whole network, which is the machinery the entry described as nonexistent. It requires IPD from at least one study. |
+| [Phillippo, Dias, Ades, Belger, Brnabic, Schacht, Saure, Kadziola and Welton 2020, Assessing the performance of population adjustment methods for anchored indirect comparisons: A simulation study, Statistics in Medicine](https://doi.org/10.1002/sim.8759) | Simulation evidence that ML-NMR extends to larger treatment networks and produces estimates in any target population, unlike pairwise MAIC and STC. |
+| [multinma: Bayesian Network Meta-Analysis of Individual and Aggregate Data (R package)](https://cran.r-project.org/package=multinma) | Implements ML-NMR, with relative_effects(), predict() and marginal_effects() all accepting newdata describing an arbitrary target population's covariate distribution, so estimating every network contrast in one declared target is available software rather than a proposal. |
+
+:::
+
+## Probable solution or research direction
+
+Do not rebuild the declaration rule or the network estimator, since both exist. The work is to make the declared target binding: carry the TSD18 requirement into journal and submission templates, label every reported contrast with its population, and treat target-specific prediction from a network model as the default output rather than an option. Where the full decision target lacks covariate support, change the estimand to one common overlap population for the whole network, and use several targets as sensitivity analysis rather than in place of a primary decision target. The measurable question is whether an enforced declaration changes what appears in submissions, not whether the method exists.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Overstated. 2 independent auditors judged the claim as stated too strong. Although NICE DSU TSD18 has required since 2016 that the target population be explicitly stated, and although ML-NMR/multinma can estimate every network contrast in one externally supplied target population, applied ITC and PAIC practice still defaults the target to whichever aggregate-data trial reported enough covariates, and reported effects are rarely labelled with the population they refer to.
+
+**The source said.** "Population-adjusted analyses adjust to whichever aggregate-data trial population happens to be reportable, while the decision concerns a different population, and the reported effect carries no label identifying the population it refers to. The report's Direction A instead requires every relevant contrast to be estimated in one externally defined target population P*, chosen from a named source such as a jurisdictional registry, the eligible treatment population, a pooled trial-eligible population, a standardized reference population, or an overlap population where the full target is unsupported."
+
+**What was wrong with it.** The source treated both explicit target declaration and one-target network estimation as absent; the literature auditor found both already in place, in Recommendation 6 of NICE DSU TSD18 (doi:10.1177/0272989X17725740) and in ML-NMR as implemented in multinma (https://cran.r-project.org/package=multinma). GPT-5.6 Sol added that the target need not come from an external data source, that an overlap target is acceptable only as one common network estimand rather than pair by pair, and that reporting several targets is sensitivity analysis rather than a substitute for naming a primary decision target.
+
+Literature and prior-art check
+:   **partially-solved / overstated.** I read the full text of Phillippo et al. 2018 Med Decis Making (the peer-reviewed NICE DSU TSD18). Its Recommendation 6 reads: 'The target population for any treatment comparison must be explicitly stated, and population-adjusted estimates of the relative treatment effects must be generated for this target population.' It also already names the external source the entry asks for: 'the target population should be a cohort or registry study population relevant to the clinical decision, which is unlikely to match the population of the [AgD] trial.' The practice half of the entry survives (Phillippo 2019 NICE review; Serret-Larmande 2023 found 3/133 PAIC articles reported all key methodological aspects). What does not survive is 'there is no standard machinery for ... transporting every contrast in a network to it at once': ML-NMR does exactly that, and multinma implements relative_effects(), predict() and marginal_effects() with a newdata target population. The claim that the report 'names exactly five candidate sources' is self-referential and not externally checkable.
+    Cites doi:10.1177/0272989X17725740: Already mandates explicit target-population declaration for NICE submissions and names registry/cohort populations as the appropriate external source, i.e. the normative half of Direction A predates this agenda by a decade..
+    Cites doi:10.1002/sim.8759: Establishes ML-NMR as machinery that transports all contrasts of a network into a single declared target population..
+    Cites cran:multinma: Software implementation: relative_effects(), predict() and marginal_effects() all accept newdata describing an arbitrary target population's covariate distribution..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / overstated.** C1 describes conventional pairwise anchored MAIC/STC, not ITC or PAIC generally; C2 and C6 are prevalence or adoption claims that this technical audit cannot establish. C3 is a second transport only when a population-indexed effect is reused in another population; a genuinely invariant conditional parameter is different. A coherent multi-treatment decision normally needs a common decision target, but C4 is too absolute: the target need not come from an external data source, and some decisions legitimately require several populations. C5's count of five is textually true but methodologically vacuous. C7 is acceptable only as an explicit change to a common network overlap estimand; pair-specific overlap targets destroy contrast comparability. C8 is useful sensitivity analysis, not a substitute for choosing a primary decision target. Target declaration and common-target network standardization already have methodological and software machinery, so the technical problem is partly solved; data support and disciplined use remain.
+    Cites doi:10.1177/0272989X17725740: Already requires an explicit target population and effects generated for that target, resolving the claim that no target-declaration machinery exists..
+    Cites doi:10.1111/rssa.12579: Provides one-stage network machinery for population-adjusted contrasts in a specified target population..
+    Cites cran:multinma: Implements target-specific prediction and marginal-effect calculations for a network, so the capability is not absent..
+
+Decision path
+:   `R3:partially-solved(n=2) → R8:overstated-majority(n=2)`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [CMP-11 — Two-stage component PAIC adjusts only the IPD edges](CMP-11-two-stage-component-paic-adjusts-only-the-ipd-edges.qmd)
+- [DEC-06 — Estimand-first guidance exists but is not enforced in PAIC practice](DEC-06-estimand-first-guidance-exists-but-is-not-enforced-in-paic-p.qmd)
+- [DIA-08 — PAIC simulations generate only shared, linear effect modification](DIA-08-paic-simulations-generate-only-shared-linear-effect-modifica.qmd)
+- [HET-04 — Node splitting compares paths without standardizing to a target](HET-04-node-splitting-compares-paths-without-standardizing-to-a-tar.qmd)
+- [IDN-01 — Transitivity and conditional constancy cannot be tested in-sample](IDN-01-transitivity-and-conditional-constancy-cannot-be-tested-in-s.qmd)
+- [OVL-01 — Weak overlap leaves target regions the source data cannot support](OVL-01-weak-overlap-leaves-target-regions-the-source-data-cannot-su.qmd)
+- [OVL-04 — Weight trimming silently changes the estimand](OVL-04-weight-trimming-silently-changes-the-estimand.qmd)
+- [QBA-10 — Target population and joint-distribution uncertainty](QBA-10-target-population-and-joint-distribution-uncertainty.qmd)
+:::
+
+## Source
+
+Derived from C:L214-215, C:L219, C:L312-324 of the reviewed corpus.

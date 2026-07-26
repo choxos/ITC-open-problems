@@ -1,0 +1,73 @@
+---
+title: "Model and bridge selection uncertainty never enters the interval"
+description: "When the same data select a PAIC model or bridge and ordinary conditional intervals are then reported, nominal coverage is generally not guaranteed, although the distortion can run in either direction and a prespecified or externally chosen model does not create the problem at all. Model averaging as the response is established in evidence synthesis generally (Rover, Wandel and Friede 2019; Bartos et al., arXiv:2110.01076) but has not been applied to PAIC, and predictive stacking needs a held-out unit aligned with the prediction target and dependence structure, so patient, study, and contrast level prediction are different estimands to choose between rather than an ambiguity that blocks the method. For bridges the difficulty is narrower than the source claimed: likelihood-based weights can be formed when candidate bridges imply different observed-data likelihoods or predictions, and are unavailable only for observationally equivalent identifying assumptions, which need prior elicitation or sensitivity analysis instead. No PAIC software feeds model or bridge averaging into the reported effect interval; in cpaic, an unreleased development package on GitHub that is not on CRAN, loo() is observation-level and warns that it does not validate cross-gap prediction, while prior_sensitivity() and bridge_fragility() remain diagnostics."
+pid: "MIS-04"
+topic: "Missing data & uncertainty propagation"
+categories: ["Missing data & uncertainty propagation", "High priority", "Confirmed open"]
+priority: "High"
+prank: 2
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[MIS-04]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[High priority]{.chip .chip-priority-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+## Statement
+
+When the same data select a PAIC model or bridge and ordinary conditional intervals are then reported, nominal coverage is generally not guaranteed, although the distortion can run in either direction and a prespecified or externally chosen model does not create the problem at all. Model averaging as the response is established in evidence synthesis generally (Rover, Wandel and Friede 2019; Bartos et al., arXiv:2110.01076) but has not been applied to PAIC, and predictive stacking needs a held-out unit aligned with the prediction target and dependence structure, so patient, study, and contrast level prediction are different estimands to choose between rather than an ambiguity that blocks the method. For bridges the difficulty is narrower than the source claimed: likelihood-based weights can be formed when candidate bridges imply different observed-data likelihoods or predictions, and are unavailable only for observationally equivalent identifying assumptions, which need prior elicitation or sensitivity analysis instead. No PAIC software feeds model or bridge averaging into the reported effect interval; in cpaic, an unreleased development package on GitHub that is not on CRAN, loo() is observation-level and warns that it does not validate cross-gap prediction, while prior_sensitivity() and bridge_fragility() remain diagnostics.
+
+## Why it is open
+
+Selection happens on the same data used for estimation, so the reported interval is conditional on a choice it does not price. The standard remedy needs a predictive unit at which the stacking weights are meaningful, and in a network the choice among patient, study, and contrast has to be made deliberately as a statement of the prediction target rather than inherited from a default. Projection predictive selection controls predictive loss and does not by itself deliver valid post-selection intervals, and robust Bayes covers only the model and prior classes actually represented, so neither is a finished answer and neither has been tried in PAIC. For bridges that are observationally equivalent no fit statistic can separate them, and the only honest input is a prior on assumption plausibility, which nobody has elicited.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| Rover, Wandel and Friede 2019, Statistics in Medicine (locator not supplied by the auditor) | heavy-tailed mixture priors for effect estimation in meta-analysis, which effectively result in a model-averaging technique robust to prior-data conflict; established for meta-analysis, not applied to population-adjusted comparisons |
+| [Bartos et al., Bayesian Model-Averaged Meta-Analysis in Medicine](https://arxiv.org/abs/2110.01076) | Bayesian model averaging over meta-analytic models so that model uncertainty enters the reported estimate; again for meta-analysis rather than for population-adjusted or network settings |
+| [cpaic, unreleased development package on GitHub (not on CRAN), commit 9d150e9](https://github.com/choxos/cpaic) | provides prior_sensitivity() and bridge_fragility() diagnostics and an observation-level loo() that warns it does not validate cross-gap prediction; no model or bridge averaging enters the reported effect interval |
+
+:::
+
+## Probable solution or research direction
+
+The machinery exists outside PAIC, so the task is to port and test rather than to invent. Apply Bayesian model averaging as practiced in meta-analysis to population-adjusted networks, and state which predictive unit the stacking weights target, since that choice defines the estimand. Test whether projection predictive selection and robust Bayesian analysis over model and prior classes actually restore coverage here rather than assuming they do. For bridges, build likelihood-based weights where candidates imply different observed-data predictions, reserve elicited priors over assumption plausibility for the observationally equivalent case, and feed existing diagnostics such as bridge fragility into the reported interval instead of reporting them beside it.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+
+**The source said.** "Results are reported from one selected model or one selected bridge as if the selection step had not happened, so the interval omits the variability that the selection itself contributes."
+
+**What was wrong with it.** The source said reporting a single selected model understates uncertainty and that likelihood-based weights for bridge selection are not available at all. The code auditor narrowed both: post-selection distortion can run in either direction and does not arise for prespecified or externally chosen models, and likelihood-based weights do exist when candidate bridges imply different observed-data likelihoods or predictions, failing only for observationally equivalent assumptions; the literature auditor added that the entry carried no prior work despite an established model-averaging literature in evidence synthesis (Rover, Wandel and Friede 2019; Bartos et al., arXiv:2110.01076), and found no projection-predictive or robust-Bayes application to PAIC.
+
+Literature and prior-art check
+:   **open / supported-with-caveat.** The entry carries no prior_work at all, which understates a mature adjacent literature. Model averaging as a response to selection uncertainty in evidence synthesis is established: Rover, Wandel & Friede (2019), Stat Med, describe 'heavy-tailed mixture priors for effect estimation in meta-analysis, which effectively results in a model-averaging technique... robust in the sense that a potential prior-data conflict... is explicitly anticipated'; also Bartos et al., 'Bayesian Model-Averaged Meta-Analysis in Medicine' (arXiv 2110.01076). So 'Reporting a single selected model understates uncertainty' is supported but generic, not a PAIC finding. I could not retrieve any source stating the second claim, that model averaging in network settings requires choosing a valid predictive unit for stacking weights; it is defensible on general grounds about leave-one-out stacking in hierarchical data, but I found nobody writing it for NMA, so treat it as the authors' own argument rather than a sourced one. I found no projection-predictive or robust-Bayes application to PAIC. The bridge half is the genuinely novel and correct part: candidate bridges are competing identifying assumptions rather than nested models, so likelihood-based weights do not exist and averaging would need a prior on assumption plausibility. I found no work doing that.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** C1 is too categorical. If the same data select a model and ordinary conditional intervals are reported, nominal coverage is generally not guaranteed, but distortion may be in either direction; externally chosen or prespecified models do not create this post-selection problem. C2 is correct for predictive stacking: the held-out unit and dependence structure must match the intended prediction task. It is not a requirement of every form of model averaging, and patient-, contrast-, or study-level prediction are different estimands rather than an irresolvable ambiguity. C3 is plausible as a research direction, but projection predictive selection controls predictive loss rather than automatically delivering valid post-selection intervals, and robust Bayes addresses only the model or prior classes actually represented. Likelihood-based bridge weights are not universally unavailable: they can be formed when bridge models imply different observed-data likelihoods or predictions. They cannot learn the plausibility of observationally equivalent identifying assumptions, for which prior elicitation or sensitivity analysis is appropriate. At cpaic 9d150e9, loo() is explicitly observation-level and warns that it does not validate cross-gap prediction; prior_sensitivity() and bridge_fragility() provide diagnostics, but no model or bridge averaging enters the reported effect interval. The interval problem therefore remains open, but it is decision-critical mainly after material data-adaptive selection or when conclusions are sensitive to the bridge.
+
+Decision path
+:   `R5:default-open → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [COV-04 — Selection uncertainty in PAIC interaction shrinkage is uncalibrated](COV-04-selection-uncertainty-in-paic-interaction-shrinkage-is-uncal.qmd)
+- [DEC-11 — Intervals omit selection, reconstruction and target-summary error](DEC-11-intervals-omit-selection-reconstruction-and-target-summary-e.qmd)
+- [DIS-02 — No data-driven criterion can rank candidate bridge families](DIS-02-no-data-driven-criterion-can-rank-candidate-bridge-families.qmd)
+:::
+
+## Source
+
+Derived from C:L214-215, C:L252 of the reviewed corpus.

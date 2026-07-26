@@ -1,0 +1,81 @@
+---
+title: "Flexible outcome surfaces and support diagnostics in standardization"
+description: "No published STC or ML-NMR analysis uses BART or a Gaussian process as the outcome surface, so that adaptation is open. All the proposals share one limit: standardizing a fitted surface over a target distribution with mass outside the source support is extrapolation however flexible the learner, and BART's behavior outside the observed support is prior-driven rather than evidential (arXiv:2204.10963). The conformal half needs narrowing. Ordinary split-conformal prediction does not itself detect unsupported covariate profiles, since an interval can keep the same width far outside source support, and the covariate-shift repair already exists: Tibshirani, Barber, Candes and Ramdas (NeurIPS 2019) show the guarantee rests on exchangeability and restore it by likelihood-ratio weighting, which is the natural route with PAIC weights."
+pid: "ADJ-04"
+topic: "Adjacent-field methods"
+categories: ["Adjacent-field methods", "High priority", "Confirmed open"]
+priority: "High"
+prank: 2
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[ADJ-04]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[High priority]{.chip .chip-priority-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+## Statement
+
+No published STC or ML-NMR analysis uses BART or a Gaussian process as the outcome surface, so that adaptation is open. All the proposals share one limit: standardizing a fitted surface over a target distribution with mass outside the source support is extrapolation however flexible the learner, and BART's behavior outside the observed support is prior-driven rather than evidential (arXiv:2204.10963). The conformal half needs narrowing. Ordinary split-conformal prediction does not itself detect unsupported covariate profiles, since an interval can keep the same width far outside source support, and the covariate-shift repair already exists: Tibshirani, Barber, Candes and Ramdas (NeurIPS 2019) show the guarantee rests on exchangeability and restore it by likelihood-ratio weighting, which is the natural route with PAIC weights.
+
+## Why it is open
+
+A flexible learner fits only where data exist; outside that region BART's priors and a Gaussian process's kernel and prior mean produce plausible predictions and prior-driven intervals that are modeling artifacts, and Gaussian-process uncertainty is calibrated conditional on the kernel, prior and likelihood rather than automatically. Fitted interactions are predictive structure rather than identified effect modification. Conformal coverage does not transfer under the covariate shift a transport problem creates by construction, and the weighted repair needs estimable density ratios and target support, which is exactly what is in doubt. Gaussian-process inference also scales poorly in data and integration points, which collides with the numerical integration burden already present in ML-NMR.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Tibshirani, Barber, Candes & Ramdas, Conformal Prediction Under Covariate Shift, NeurIPS 2019](https://candes.su.domains/publications/downloads/WeightedCP.pdf) | Canonical source for the claim that conformal coverage does not transfer under shift, and supplies the likelihood-ratio-weighted repair that is the natural route for PAIC. Does not address the ITC problem itself. |
+| [Local Gaussian process extrapolation for BART models with applications to causal inference (2022)](https://arxiv.org/abs/2204.10963) | Direct evidence that BART's behavior outside the observed covariate support is prior-driven rather than evidential. Does not address the ITC problem itself. |
+
+:::
+
+## Probable solution or research direction
+
+Build BART and Gaussian-process outcome standardization for STC and ML-NMR paired with mandatory support and out-of-distribution diagnostics, and use weighted conformal prediction with the PAIC weights so the coverage claim is stated correctly rather than assumed. The open work here is adapting an existing shift-aware conformal method, not inventing a diagnostic. Make behavior in unsupported target regions visible instead of smoothed over, address Gaussian-process cost with sparse or approximate methods, and forbid reading fitted interactions as causal effect modification.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+
+**The source said.** "BART and Gaussian processes are proposed as flexible nonlinear outcome and treatment-by-covariate surfaces for standardization in STC and ML-NMR, with GPs also covering dose-response curves, and conformal prediction is proposed as the diagnostic that flags target profiles the source data do not support. All three inherit one problem: standardizing a fitted surface over a target distribution with mass outside the source support is extrapolation however flexible the learner is."
+
+**What was wrong with it.** The source presented conformal prediction as the diagnostic that flags target profiles the source data do not support. GPT-5.6 Sol pointed out that a split-conformal interval can retain the same width far outside source support, so it is not an out-of-support detector, and the literature auditor supplied the weighted-conformal repair for covariate shift (Tibshirani et al., NeurIPS 2019) that the source did not cite.
+
+**Dissent.** literature dissented (supported): I found no published use of BART or Gaussian processes as the outcome surface inside STC or ML-NMR standardization, so the ITC-specific proposal stands open. The supporting claims are each backed by retrievable work outside ITC. BART is routinely used to fit the outcome model on trial data and predict potential outcomes in a target population in the generalizability literature; its extrapolation behavior outside the covariate support is a known, separately studied failure mode (arXiv:2204.10963, 'Local Gaussian process extrapolation for BART models with applications to causal inference'). The conformal claim is exactly right and has a canonical source: Tibshirani, Barber, Candes & Ramdas, 'Conformal Prediction Under Covariate Shift' (NeurIPS 2019), which shows the standard guarantee rests on exchangeability and must be repaired by likelihood-ratio weighting; note this also means a route exists (weighted conformal with the MAIC odds weights), which the entry does not mention. I did not verify the 'Promising'/'Speculative diagnostic' labels; those are claims about the source report, not the literature.
+
+Literature and prior-art check
+:   **open / supported.** I found no published use of BART or Gaussian processes as the outcome surface inside STC or ML-NMR standardization, so the ITC-specific proposal stands open. The supporting claims are each backed by retrievable work outside ITC. BART is routinely used to fit the outcome model on trial data and predict potential outcomes in a target population in the generalizability literature; its extrapolation behavior outside the covariate support is a known, separately studied failure mode (arXiv:2204.10963, 'Local Gaussian process extrapolation for BART models with applications to causal inference'). The conformal claim is exactly right and has a canonical source: Tibshirani, Barber, Candes & Ramdas, 'Conformal Prediction Under Covariate Shift' (NeurIPS 2019), which shows the standard guarantee rests on exchangeability and must be repaired by likelihood-ratio weighting; note this also means a route exists (weighted conformal with the MAIC odds weights), which the entry does not mention. I did not verify the 'Promising'/'Speculative diagnostic' labels; those are claims about the source report, not the literature.
+    Cites https://candes.su.domains/publications/downloads/WeightedCP.pdf: Does NOT resolve the ITC problem. It is the canonical source for the entry's claim that conformal coverage does not transfer under shift, and it supplies the weighted-conformal repair the entry should cite as the natural PAIC route..
+    Cites arxiv:2204.10963: Does NOT resolve the ITC problem. It is direct evidence for the claim that BART's behavior outside the observed covariate support is prior-driven rather than evidential..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** C1-C8 and C11 are broadly correct with model-dependent qualifications: BART and Gaussian processes can represent flexible surfaces, but neither supplies causal effect-modifier interpretation, support or extrapolation validity. Gaussian-process uncertainty is conditional on the kernel, prior and likelihood, not automatically calibrated. C9-C10 are too strong. Ordinary conformal prediction does not inherently detect unsupported covariate profiles; a split-conformal interval can retain the same width far outside source support. Exchangeability failure removes its usual coverage result, while covariate-shift variants require additional assumptions, estimable density ratios and target support. The critical issue is positivity and visible model dependence; adopting BART or GPs is principally a modeling roadmap item.
+
+Grok 4.5, recency lens
+:   **open / supported.** No retrieved 2024–2026 STC/ML-NMR implementation pairs BART or GPs as routine outcome surfaces with mandatory support diagnostics inside multinma or equivalent PAIC software. General BART/GP and conformal literature is active (including GP plus conformal calibration work), but conformal coverage under transport/covariate shift requires extra assumptions and is not solved as a PAIC product. The report's own caveats (extrapolation remains extrapolation; conformal exchangeability fails by construction under shift; GP cost versus ML-NMR integration) match the broader ML literature and are not resolved by a PAIC-specific package. C1–C11 read as research proposals plus correct limitations, not closed methods. Queries: BART GP ML-NMR STC standardization; conformal covariate shift PAIC; multinma flexible outcome; Research Synthesis Methods / SiM 2024–2026 BART NMA.
+
+Decision path
+:   `R5:default-open → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [DEC-09 — Modifier selection and target moments reported without provenance](DEC-09-modifier-selection-and-target-moments-reported-without-prove.qmd)
+- [DIA-02 — No agreed ESS definition and no support-geometry diagnostics](DIA-02-no-agreed-ess-definition-and-no-support-geometry-diagnostics.qmd)
+- [DIA-03 — PAIC diagnostics are not evaluated as classifiers of realized error](DIA-03-paic-diagnostics-are-not-evaluated-as-classifiers-of-realize.qmd)
+- [DIS-04 — Dose-response bridges assume a curve that may not transport](DIS-04-dose-response-bridges-assume-a-curve-that-may-not-transport.qmd)
+- [OVL-03 — No support diagnostic aggregates over a PAIC target distribution](OVL-03-no-support-diagnostic-aggregates-over-a-paic-target-distribu.qmd)
+:::
+
+## Source
+
+Derived from C:L1646-1647, C:L1650, C:L1652, C:L1666 of the reviewed corpus.

@@ -1,0 +1,76 @@
+---
+title: "Data-driven modifier and causal-structure discovery with few trials"
+description: "The study-aware causal forest already exists: Multi-Study Causal Forest (arXiv:2502.02110) is built to borrow individual patient data across studies when the sources of heterogeneity differ, and causal forests are routinely fitted to pooled multi-trial individual data. What is not done is aggregating the fitted conditional average treatment effect to an external HTA target population inside an indirect comparison, and no work applies causal discovery to a treatment network. Neither method selects a causally sufficient transport adjustment set, resolves unmeasured transport bias, or stays reliable with sparse events and few informative environments, so both remain hypothesis-generation aids."
+pid: "ADJ-10"
+topic: "Adjacent-field methods"
+categories: ["Adjacent-field methods", "Medium-high priority", "Partially addressed"]
+priority: "Medium-high"
+prank: 3
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
+maturity: "Emerging"
+---
+::: {.problem-meta}
+[ADJ-10]{.problem-id}
+[Partially addressed]{.verdict .verdict-partially-addressed}
+[Medium-high priority]{.chip .chip-priority-medium-high}
+[Emerging]{.chip .chip-maturity-emerging}
+:::
+## Statement
+
+The study-aware causal forest already exists: Multi-Study Causal Forest (arXiv:2502.02110) is built to borrow individual patient data across studies when the sources of heterogeneity differ, and causal forests are routinely fitted to pooled multi-trial individual data. What is not done is aggregating the fitted conditional average treatment effect to an external HTA target population inside an indirect comparison, and no work applies causal discovery to a treatment network. Neither method selects a causally sufficient transport adjustment set, resolves unmeasured transport bias, or stays reliable with sparse events and few informative environments, so both remain hypothesis-generation aids.
+
+## Why it is open
+
+Aggregating a fitted conditional effect to a declared target distribution needs the target covariate distribution, overlap and a transport argument, none of which the forest supplies. Discovered heterogeneity can reflect between-study differences rather than modification, and neither method distinguishes a causal interaction from one induced by an unadjusted study-level factor. Causal discovery returns observationally equivalent graphs with different transport implications; randomized treatments can orient some edges, but nothing in the output selects an adjustment set or certifies transportability. The identifying signal for cross-study structure is the number of distinct environments, and evidence networks supply few.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Multi-Study Causal Forest (MCF): A flexible framework for data borrowing in the presence of varying treatment effect heterogeneity (2025)](https://arxiv.org/abs/2502.02110) | Covers the study-aware causal forest for effect-modifier discovery across studies. Does not cover aggregation of the fitted conditional effect to an external target population within an indirect comparison. |
+
+:::
+
+## Probable solution or research direction
+
+Take the existing multi-study causal forest and add what an indirect comparison needs: standardization of the fitted conditional effect to a declared external target distribution, with overlap and transport assumptions stated. Quantify how many trials and events are required before discovered structure is stable, and validate against known-truth simulations. Treat all output as candidate hypotheses for expert review and sensitivity analysis, requiring external confirmation before a discovered modifier enters an adjustment set.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Partially addressed. Part of this problem is addressed by existing work; the entry names which part.
+
+**The source said.** "Study-aware causal forests are proposed to discover effect modifiers and aggregate conditional average treatment effects to a target population, and causal discovery algorithms to generate candidate DAGs and interaction structures across studies. Both are offered as replacements for pre-specified modifier lists but are labeled hypothesis-generation aids rather than selection procedures."
+
+**What was wrong with it.** The source proposed study-aware causal forests as something still to develop and labeled them 'Promising-emerging'; the literature auditor found a published multi-study causal forest (arXiv:2502.02110), so the forest half is not awaiting adaptation and the open part is aggregation to an external target. GPT-5.6 Sol also corrected the claim that few trials and rare events compromise validity: they damage power, stability and calibration, while a large randomized trial can still identify within-trial conditional effects.
+
+Literature and prior-art check
+:   **partially-solved / supported-with-caveat.** The 'study-aware causal forest' is already published: 'Multi-Study Causal Forest (MCF): A flexible framework for data borrowing in the presence of varying treatment effect heterogeneity' (arXiv:2502.02110), which is explicitly built to borrow individual patient data across studies when the sources of heterogeneity differ. Causal forests are also routinely fitted to pooled multi-trial IPD (e.g. the type 2 diabetes application, BMC Med Inform Decis Mak 2023; the psychiatry tutorial, Int J Methods Psychiatr Res 2025). So the forest half is not a proposal awaiting adaptation; what remains open is aggregating the fitted CATE to an external HTA target population inside an indirect comparison. I found nothing applying causal discovery to a treatment network, and the entry's limitations (few trials, rare events, observational equivalence of returned graphs, inability to distinguish modification from between-study confounding) are all standard and correct. The caveat is the 'Promising-emerging' label for causal forests, which understates the multi-study work already done.
+    Cites arxiv:2502.02110: Covers the study-aware causal forest for effect-modifier discovery across studies. Does not cover aggregation of the CATE to an external target population within an indirect comparison..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** C1 is feasible with sufficiently large randomized IPD, study-aware fitting or splitting, overlap, and a declared target covariate distribution. C2 is not a guaranteed improvement, and C3 confuses low information with validity: few trials and rare events primarily damage power, stability, calibration, and transport assessment, while a large randomized trial can still identify within-trial CATEs. C4 is correct for unmeasured transport factors. C5 and C6 are defensible only as candidate generation. C7 holds for purely observational discovery without added interventional, temporal, functional-form, or background-knowledge restrictions; randomized treatments and multiple interventions can orient some edges, so observational equivalence does not categorically prevent all orientation. C8 applies when cross-study shifts are the identifying signal, not simply because the individual-level sample came from few trials. C9 and C10 reproduce the labels. Calling either approach a replacement for pre-specified, causally justified modifiers is unsound, and Medium-high is inflated for tools restricted to hypothesis generation.
+
+Grok 4.5, recency lens
+:   **open / supported.** Causal forests are actively used on single RCTs and in multi-study synthesis contexts (e.g. Van Vogt et al. 2025 BMC Medical Research Methodology application; broader multi-study causal ML surveys 2024), and causal discovery remains a general tool for candidate DAGs. Neither closes the stated ITC problem. Forests still need substantial within-study signal and do not remove hidden confounding or certify that discovered heterogeneity is modification rather than study-level confounding; discovery still returns observationally equivalent graphs with different transport implications. No 2024–2026 work makes study-aware causal forests or multi-study discovery a reliable adjustment-set selector under typical NMA study counts and rare events. Treating output as hypothesis generation (as the report does) is still the honest status. Queries: causal forest network meta-analysis; study-aware causal forest IPD meta-analysis; causal discovery multi-trial transportability.
+
+Decision path
+:   `R3:partially-solved(n=1) → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [ADJ-11 — No proximal ITC method works with an aggregate-only comparator](ADJ-11-no-proximal-itc-method-works-with-an-aggregate-only-comparat.qmd)
+- [COV-06 — No causal forest aggregates to a target known only by marginals](COV-06-no-causal-forest-aggregates-to-a-target-known-only-by-margin.qmd)
+- [DEC-09 — Modifier selection and target moments reported without provenance](DEC-09-modifier-selection-and-target-moments-reported-without-prove.qmd)
+- [IDN-01 — Transitivity and conditional constancy cannot be tested in-sample](IDN-01-transitivity-and-conditional-constancy-cannot-be-tested-in-s.qmd)
+:::
+
+## Source
+
+Derived from C:L1646-1647, C:L1651, C:L1671 of the reviewed corpus.

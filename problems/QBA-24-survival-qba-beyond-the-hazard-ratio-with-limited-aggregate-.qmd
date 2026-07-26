@@ -1,0 +1,76 @@
+---
+title: "Survival QBA beyond the hazard ratio with limited aggregate data"
+description: "When proportional hazards is implausible a QBA reporting only a hazard ratio does not answer the decision question, and sensitivity should target the survival functional the decision uses, such as landmark survival, RMST difference, cumulative incidence under competing risks, cure fraction, recurrent-event burden or multistate occupancy; differing follow-up alone does not invalidate a hazard ratio when proportional hazards holds and that ratio is the prespecified estimand. Soutar et al. 2025 (doi:10.1186/s12874-025-02551-z) supply subject-level Bayesian data-augmentation QBA for the difference in RMST under user-specified exposure and outcome associations, recovering the target with minimal bias in the simulated structures studied, but they assume subject-level data for both groups and report that lacking IPD blocked plausibility assessment of their sensitivity scenarios in the applied example. The limited-aggregate-data extension is the open part, and where pseudo-IPD is reconstructed from a published curve its reconstruction error is a distinct uncertainty layer, although landmark survival and in-window RMST can be estimated from a published Kaplan-Meier curve without reconstructing pseudo-IPD at all."
+pid: "QBA-24"
+topic: "Quantitative bias analysis for unanchored PAIC"
+categories: ["Quantitative bias analysis for unanchored PAIC", "Very high priority", "Partially addressed"]
+priority: "Very high"
+prank: 1
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
+maturity: "Emerging"
+tractability: 3
+---
+::: {.problem-meta}
+[QBA-24]{.problem-id}
+[Partially addressed]{.verdict .verdict-partially-addressed}
+[Very high priority]{.chip .chip-priority-very-high}
+[Emerging]{.chip .chip-maturity-emerging}
+[Tractability 3/5]{.chip}
+:::
+## Statement
+
+When proportional hazards is implausible a QBA reporting only a hazard ratio does not answer the decision question, and sensitivity should target the survival functional the decision uses, such as landmark survival, RMST difference, cumulative incidence under competing risks, cure fraction, recurrent-event burden or multistate occupancy; differing follow-up alone does not invalidate a hazard ratio when proportional hazards holds and that ratio is the prespecified estimand. Soutar et al. 2025 (doi:10.1186/s12874-025-02551-z) supply subject-level Bayesian data-augmentation QBA for the difference in RMST under user-specified exposure and outcome associations, recovering the target with minimal bias in the simulated structures studied, but they assume subject-level data for both groups and report that lacking IPD blocked plausibility assessment of their sensitivity scenarios in the applied example. The limited-aggregate-data extension is the open part, and where pseudo-IPD is reconstructed from a published curve its reconstruction error is a distinct uncertainty layer, although landmark survival and in-window RMST can be estimated from a published Kaplan-Meier curve without reconstructing pseudo-IPD at all.
+
+## Why it is open
+
+A bias parameter specified on the hazard scale does not induce a fixed distortion of RMST or landmark survival, because RMST is an integral of the survival curve and the mapping depends on the whole baseline hazard and the follow-up window, so a hazard-ratio sensitivity analysis cannot be reinterpreted for the estimand the decision uses; each target needs its own bias model and multistate outcomes need one per transition. Bayesian data augmentation attaches an imputed confounder value to individual records, which the comparator side of an unanchored PAIC does not have, and it depends on correctly specified imputation and outcome models and stable weights that are less checkable when one arm is aggregate. Where reconstruction is used it produces a single deterministic pseudo-dataset, so digitization error, rounding in the numbers at risk and the assumed allocation of censoring times enter as if exact, and the bias model is then built on a dataset that was itself reconstructed.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Soutar et al. 2025, Flexible quantitative bias analysis for unmeasured confounding in subject-level indirect treatment comparisons with proportional hazards violation, BMC Medical Research Methodology](https://doi.org/10.1186/s12874-025-02551-z) | Treats an unmeasured confounder as missing data and uses Bayesian data augmentation to impute it under user-specified exposure or source and outcome associations, estimating a weighted difference in RMST from subject-level data without relying on proportional hazards. Its applied example could not assess scenario plausibility for lack of IPD, which is the aggregate-data gap. |
+| [cpaic, unreleased development package on GitHub (not on CRAN), commit 9d150e9](choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca) | Treats reconstructed rows as fixed in the likelihood but labels them explicitly as pseudo-IPD and discloses that reconstruction uncertainty is not propagated, which refutes the blanket claim that current practice treats reconstructed data as observed IPD. |
+
+:::
+
+## Probable solution or research direction
+
+Develop estimand-specific survival QBA that parameterizes bias directly for the quantity the economic model uses and reports the sensitivity surface on that scale rather than the hazard scale, and extend the subject-level RMST data-augmentation route to aggregate or reconstructed comparators with tipping combinations of exposure and survival associations. Where landmark survival or in-window RMST is the target, work from the published Kaplan-Meier curve directly rather than reconstructing pseudo-IPD; where reconstruction is unavoidable, build a distribution over reconstructions consistent with the published curve, numbers at risk and event counts, and propagate that uncertainty together with the confounding parameters. Add censoring QBA when informative censoring is plausible rather than by default.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Partially addressed. Part of this problem is addressed by existing work; the entry names which part.
+
+**The source said.** "A QBA reporting only a hazard ratio is inadequate when hazards are non-proportional or follow-up differs between the compared studies; sensitivity should target landmark survival, RMST differences, cumulative incidence under competing risks, cure fraction, recurrent-event burden and multistate occupancy. The one method that does this properly assumes subject-level data for both groups, while an unanchored PAIC has a published curve, and the pseudo-IPD reconstructed from it is treated downstream as if it were observed data."
+
+**What was wrong with it.** GPT-5.6 Sol narrowed several claims: differing follow-up alone does not invalidate a hazard ratio under proportional hazards, the listed survival estimands are a menu rather than a required set, the Soutar recovery result holds for the simulated structures and known associations studied rather than generically, and the claim that current practice treats reconstructed pseudo-IPD as observed data is too broad, since cpaic (choxos/cpaic@9d150e9, an unreleased development package on GitHub, not installable from CRAN) labels reconstructed rows as pseudo-IPD and discloses that their reconstruction uncertainty is not propagated. The absence of an accepted resampling scheme over reconstructions is a matter of consensus rather than mathematical impossibility.
+
+**Dissent.** codex dissented (overstated): C1 is right under nonproportional hazards when the decision estimand is a survival functional, but differing follow-up alone does not invalidate a hazard ratio if proportional hazards holds and that ratio is the prespecified estimand. C2 is a menu of possible estimands, not a set every analysis must report. C3 is correct: RMST is the integral of the survival curve, so a hazard-scale perturbation has no baseline- and horizon-invariant RMST effect. The censoring distribution affects identification and estimation, not the true RMST mapping under independent censoring. C4, C6, and C7 match the cited Soutar method. C5 is supported only for the simulated structures and known exposure/outcome associations studied, not as a generic recovery theorem. C8 is correct when pseudo-IPD reconstruction is used and its error is material. C9 is too broad: cpaic treats reconstructed rows as fixed in the likelihood but explicitly labels them pseudo-IPD and discloses that reconstruction uncertainty is not propagated. C10 remains open for cpaic and for a limited-aggregate extension of the cited method, but landmark survival and in-window RMST can be estimated directly from a published Kaplan-Meier curve without reconstructing pseudo-IPD. C11 should require censoring QBA only when informative censoring is plausible and reconstruction uncertainty only when reconstruction is used. C12 is a consensus claim, not a mathematical impossibility; multiple-reconstruction and curve-resampling schemes can be defined even if no standard has been adopted.
+
+Literature and prior-art check
+:   **open / supported.** Retrieved Soutar et al. 2025. Claims 4 to 7 verified: it treats the unmeasured confounder as missing data and imputes it under user-specified exposure/source and outcome associations, targets the difference in restricted mean survival time so as to avoid reliance on proportional hazards, reports that 'imputation-based adjustment was able to recover the true adjusted dRMST with minimal bias across all scenarios', and is built on combined subject-level covariates and outcomes. Its own applied limitation confirms claim 7: applying the framework to real data, the authors 'did not have access to IPD, so it was not possible to estimate associations between known confounders', which blocked plausibility assessment of the sensitivity scenarios. That is the aggregate-data gap the entry names. Claims 8, 9, 12 concern pseudo-IPD reconstruction uncertainty; an active 2025-2026 methods literature on IPD reconstruction from Kaplan-Meier curves and on uncertainty-aware reconstruction now exists and the entry should engage with it, but I did not read those papers closely enough to judge whether any propagates reconstruction uncertainty into a PAIC bias analysis, so I do not credit them.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / overstated.** C1 is right under nonproportional hazards when the decision estimand is a survival functional, but differing follow-up alone does not invalidate a hazard ratio if proportional hazards holds and that ratio is the prespecified estimand. C2 is a menu of possible estimands, not a set every analysis must report. C3 is correct: RMST is the integral of the survival curve, so a hazard-scale perturbation has no baseline- and horizon-invariant RMST effect. The censoring distribution affects identification and estimation, not the true RMST mapping under independent censoring. C4, C6, and C7 match the cited Soutar method. C5 is supported only for the simulated structures and known exposure/outcome associations studied, not as a generic recovery theorem. C8 is correct when pseudo-IPD reconstruction is used and its error is material. C9 is too broad: cpaic treats reconstructed rows as fixed in the likelihood but explicitly labels them pseudo-IPD and discloses that reconstruction uncertainty is not propagated. C10 remains open for cpaic and for a limited-aggregate extension of the cited method, but landmark survival and in-window RMST can be estimated directly from a published Kaplan-Meier curve without reconstructing pseudo-IPD. C11 should require censoring QBA only when informative censoring is plausible and reconstruction uncertainty only when reconstruction is used. C12 is a consensus claim, not a mathematical impossibility; multiple-reconstruction and curve-resampling schemes can be defined even if no standard has been adopted.
+    Cites doi:10.1186/s12874-025-02551-z: Provides subject-level Bayesian data-augmentation QBA for difference in RMST under proportional-hazards violation and demonstrates low bias in the studied simulations..
+
+Decision path
+:   `R3:partially-solved(n=1) → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [CMP-19 — Competing risks and recurrent events are absent from component PAIC](CMP-19-competing-risks-and-recurrent-events-are-absent-from-compone.qmd)
+- [OUT-13 — Reconstruction uncertainty from digitized Kaplan-Meier curves](OUT-13-reconstruction-uncertainty-from-digitized-kaplan-meier-curve.qmd)
+:::
+
+## Source
+
+Derived from C:L738, C:L757-766, C:L768, C:L770-780, C:L800-808, C:L808, C:L2152 of the reviewed corpus.

@@ -1,0 +1,82 @@
+---
+title: "outstandR is pairwise only with no network or disconnected validation"
+description: "outstandR reached CRAN as version 2.0.0 on 10 June 2026, titled Model-Based Standardisation for Indirect Treatment Comparison with Limited Subject-Level Data (Green, Gao and Remiro-Azocar), implementing the parametric G-computation approach of Remiro-Azocar, Heath and Baio (doi:10.1002/jrsm.1565). Its CRAN description is framed entirely around the two-trial limited-IPD problem with no mention of networks, so the pairwise focus holds, and no published validation covers its behavior in networks or across disconnected evidence. Dependence on the target covariate distribution is partly definitional rather than a defect, since standardization is defined relative to a declared target, and the package ships custom-copula and diagnostics-and-uncertainty vignettes that acknowledge the sensitivity rather than hiding it. Dependence on the outcome model is a genuine robustness concern, and any disconnected-network use would additionally require structural bridge assumptions that standardization cannot identify."
+pid: "SFW-12"
+topic: "Software, benchmarks & interface standards"
+categories: ["Software, benchmarks & interface standards", "High priority", "Confirmed open"]
+priority: "High"
+prank: 2
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[SFW-12]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[High priority]{.chip .chip-priority-high}
+[Promising]{.chip .chip-maturity-promising}
+[Implementation-specific]{.chip}
+:::
+::: {.callout-note appearance="simple"}
+## Scope
+
+This entry describes a limitation of a specific implementation rather than of the field.
+It is catalogued because the underlying methodological problem is general, and because a
+reference implementation is where such problems become concrete and checkable.
+:::
+
+## Statement
+
+outstandR reached CRAN as version 2.0.0 on 10 June 2026, titled Model-Based Standardisation for Indirect Treatment Comparison with Limited Subject-Level Data (Green, Gao and Remiro-Azocar), implementing the parametric G-computation approach of Remiro-Azocar, Heath and Baio (doi:10.1002/jrsm.1565). Its CRAN description is framed entirely around the two-trial limited-IPD problem with no mention of networks, so the pairwise focus holds, and no published validation covers its behavior in networks or across disconnected evidence. Dependence on the target covariate distribution is partly definitional rather than a defect, since standardization is defined relative to a declared target, and the package ships custom-copula and diagnostics-and-uncertainty vignettes that acknowledge the sensitivity rather than hiding it. Dependence on the outcome model is a genuine robustness concern, and any disconnected-network use would additionally require structural bridge assumptions that standardization cannot identify.
+
+## Why it is open
+
+Outcome standardization was developed for the two-trial indirect comparison, so extending it to a network requires deciding how standardized arm-level quantities from different studies combine while preserving within-study randomization, which is not a mechanical generalization. Reconstructing the target covariate distribution from limited published moments makes the result sensitive to the reconstruction, which the copula vignette exposes but cannot resolve. Nothing published characterizes the package's behavior in networks or across disconnected evidence, and in the disconnected case standardization would need a bridge assumption it cannot identify from the data. The 2.0.0 separation of outcome model from balance model prepares the way for doubly robust variants that are not there yet.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [outstandR (project site)](https://statisticshealtheconomics.github.io/outstandR/) | computes compatible marginal effects by model-based standardization and covariate simulation as an alternative to conventional STC; documentation site including the custom-copula and diagnostics-and-uncertainty vignettes |
+| [outstandR 2.0.0 (CRAN, published 10 Jun 2026; Green, Gao and Remiro-Azocar)](https://cran.r-project.org/package=outstandR) | released package titled Model-Based Standardisation for Indirect Treatment Comparison with Limited Subject-Level Data, framed around the two-trial limited-IPD problem; its 2.0.0 release notes separate outcome_model from balance_model to accommodate forthcoming doubly robust methods |
+| [Remiro-Azocar, Heath and Baio 2022, Parametric G-computation for compatible indirect treatment comparisons with limited individual patient data, Research Synthesis Methods](https://doi.org/10.1002/jrsm.1565) | standardizes a GLM or Cox outcome model over the target covariate distribution to recover a marginal effect compatible with the aggregate-data trial; the method outstandR implements |
+
+:::
+
+## Probable solution or research direction
+
+Characterize rather than rebuild: run outstandR against alternative reconstructions of the target distribution and alternative outcome models to map where the estimate moves, using the copula machinery the package already exposes. Extend the standardization from the pairwise case to networks by specifying how standardized arm-level quantities combine while preserving within-study randomization, and state explicitly which bridge assumption any disconnected-network extension would rely on. Use the 2.0.0 outcome-model and balance-model split as the hook for doubly robust variants, and publish the network validation that does not currently exist.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+
+**The source titled this.** "outstandR is pairwise only and sensitive to the simulated target" The title treats sensitivity to the target distribution as a defect, but the audit found it partly definitional and found shipped vignettes that acknowledge it.
+
+**The source said.** "outstandR is an active outcome-standardization package producing compatible marginal effects through model-based standardization and covariate simulation, and a useful alternative to conventional STC, but it is focused on pairwise comparisons, is sensitive to the target distribution and outcome model, and needs broader network and disconnected-network validation."
+
+**What was wrong with it.** The source cited only the pkgdown site; the literature auditor found outstandR is now on CRAN at version 2.0.0 (10 June 2026) with the underlying method published (doi:10.1002/jrsm.1565), and that the package already ships copula and diagnostics-and-uncertainty vignettes addressing the target-distribution sensitivity the entry treats as unexamined. GPT-5.6 Sol added that sensitivity to the target distribution is partly definitional and that disconnected-network use would need bridge assumptions standardization cannot supply, making this a roadmap limitation rather than a defect in pairwise use.
+
+Literature and prior-art check
+:   **open / supported-with-caveat.** The characterisation is accurate but the citation is stale. outstandR is no longer only a pkgdown site: version 2.0.0 is on CRAN, published 2026-06-10, titled 'Model-Based Standardisation for Indirect Treatment Comparison with Limited Subject-Level Data', authored by Green, Gao and Remiro-Azocar and built on the parametric G-computation paper (doi 10.1002/jrsm.1565). The CRAN description is framed entirely around the two-trial limited-IPD problem with no mention of networks, which supports 'focused on pairwise comparisons'. Sensitivity to the reconstructed target is real enough that the package ships a custom-copula vignette and a diagnostics-and-uncertainty vignette, so the package acknowledges rather than hides it. The 2.0.0 NEWS separates outcome_model from balance_model explicitly to 'future-proof the package for upcoming doubly-robust methods'. I found no published validation of outstandR in networks or disconnected evidence, so that claim stands, though absence of validation is not something I can positively verify.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / supported-with-caveat.** Standardizing arm-specific outcome predictions over the same target joint covariate distribution yields compatible marginal effects and is technically preferable to conventional mean-covariate STC for nonlinear or non-collapsible models. Pairwise focus and broader network validation are reasonable open scope questions. Dependence on the target population is partly definitional rather than a defect, while dependence on the outcome model is a genuine robustness concern. Disconnected-network use would additionally require structural bridge assumptions that standardization cannot identify. This is a roadmap-level limitation for network use, not a critical defect for an explicitly pairwise analysis. No local outstandR source was available for code-level confirmation of package capabilities.
+
+Decision path
+:   `R5:default-open → R11:caveated(n=2)`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [CMP-15 — Target joint covariate distribution is only approximately known](CMP-15-target-joint-covariate-distribution-is-only-approximately-kn.qmd)
+:::
+
+## Source
+
+Derived from C:L2248 of the reviewed corpus.

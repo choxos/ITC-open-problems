@@ -1,0 +1,80 @@
+---
+title: "Cross-gap bridge bounds are not propagated to net benefit"
+description: "Decision-linked threshold analysis is not missing. Phillippo et al. 2018 derive bias-adjustment thresholds giving the smallest changes to the data that change a treatment decision in fixed and random-effects NMA, released as the CRAN package nmathresh, and the cpaic development package maps uniform box-bounded component main-effect drift to any scalar link-scale decision threshold, which for a one-dimensional monotone economic model can already represent a reimbursement tipping point. Two extensions are genuinely absent: perturbing a cross-gap bridge parameter in a disconnected network rather than an observed data point, and propagating a multidimensional cross-gap identified set through costs, QALYs, survival extrapolation, and competing decisions to incremental net benefit. cpaic is an unreleased development package on GitHub and is not installable from CRAN, so its part of this capability is not available to a general user."
+pid: "DIS-15"
+topic: "Disconnected networks & bridges"
+categories: ["Disconnected networks & bridges", "Very high priority", "Overstated"]
+priority: "Very high"
+prank: 1
+verdict: "Overstated"
+verdictslug: "overstated"
+maturity: "Emerging"
+---
+::: {.problem-meta}
+[DIS-15]{.problem-id}
+[Overstated]{.verdict .verdict-overstated}
+[Very high priority]{.chip .chip-priority-very-high}
+[Emerging]{.chip .chip-maturity-emerging}
+:::
+## Statement
+
+Decision-linked threshold analysis is not missing. Phillippo et al. 2018 derive bias-adjustment thresholds giving the smallest changes to the data that change a treatment decision in fixed and random-effects NMA, released as the CRAN package nmathresh, and the cpaic development package maps uniform box-bounded component main-effect drift to any scalar link-scale decision threshold, which for a one-dimensional monotone economic model can already represent a reimbursement tipping point. Two extensions are genuinely absent: perturbing a cross-gap bridge parameter in a disconnected network rather than an observed data point, and propagating a multidimensional cross-gap identified set through costs, QALYs, survival extrapolation, and competing decisions to incremental net benefit. cpaic is an unreleased development package on GitHub and is not installable from CRAN, so its part of this capability is not available to a general user.
+
+## Why it is open
+
+The existing threshold machinery perturbs observed evidence in a connected network, so it has no notion of a bridge parameter carrying a gap, and the fragility calculation that does perturb a bridge is limited to a uniform box bound on component main effects and to a scalar threshold on the link scale. Mapping a drift set into a reimbursement decision needs the economic model as well as the synthesis model, so it crosses the boundary between synthesis software and decision-analytic software and neither side currently owns the interface. Until that interface exists, a bound on the effect scale cannot be translated into a statement about whether the recommendation is robust, except in the special case where net benefit is monotone in a single contrast.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Phillippo et al. 2018 (JRSS-A)](https://doi.org/10.1111/rssa.12341) | provides the decision-linked smallest-violation quantity the source said did not exist, for connected NMA: bias adjustment thresholds measuring the smallest changes to the data that result in a change of treatment decision |
+| [nmathresh](https://cran.r-project.org/package=nmathresh) | released CRAN implementation of decision-invariant bias adjustment thresholds and intervals for network meta-analysis, so this is available software rather than a research direction |
+| [cpaic 0.1.0 (development version, choxos/cpaic@9d150e9)](https://github.com/choxos/cpaic/commit/9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca) | unreleased development R package on GitHub, not on CRAN; bridge_fragility() computes the smallest per-component drift that moves the contrast to a user-supplied scalar link-scale decision threshold, but implements no propagation through costs, QALYs, or net benefit |
+
+:::
+
+## Probable solution or research direction
+
+Build the interface rather than the primitive: extend decision-invariant threshold analysis so the perturbed quantity is a bridge parameter in a disconnected network, and extend the existing per-component fragility calculation from a scalar link-scale threshold to a full net-benefit boundary. Propagate multidimensional identified sets through the health-economic model and report the smallest cross-gap assumption violation that flips the reimbursement decision, alongside superiority and noninferiority thresholds. Where net benefit is monotone in a single contrast, document that the existing scalar-threshold tools already answer the question, so effort goes to the cases they do not cover.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Overstated. 2 independent auditors judged the claim as stated too strong. Decision-invariant threshold analysis (Phillippo et al. 2018, R package nmathresh) already reports the smallest change to observed evidence that flips a treatment recommendation in a connected NMA, but it has not been extended to perturbations of a cross-gap bridge parameter in a disconnected network, nor propagated through a cost-effectiveness model to a net-benefit or reimbursement threshold.
+
+**The source titled this.** "Cross-gap bounds are not linked to decision thresholds" The title says bounds are not linked to decision thresholds, but decision-invariant threshold analysis is on CRAN and component-drift fragility already maps to a decision threshold.
+
+**The source said.** "The research opportunity flagged by the report is to connect partial-identification bounds for cross-gap contrasts to decision thresholds and net benefit, producing the smallest assumption violation that changes reimbursement."
+
+**What was wrong with it.** The source said no current method reports the smallest cross-gap assumption violation that would change a reimbursement decision and that bounds are not linked to decision thresholds; both auditors judged this too strong. The literature auditor cited doi:10.1111/rssa.12341 and the nmathresh package, and GPT-5.6 Sol found that cpaic's bridge_fragility() already computes the smallest per-component drift that moves the contrast to a user-supplied decision threshold. What survives is the net-benefit and reimbursement propagation, not an absence of all decision-linking machinery.
+
+Literature and prior-art check
+:   **partially-solved / overstated.** Claim 1, that no current method reports the smallest assumption violation that would change a decision, is contradicted as written. Phillippo, Dias, Ades, Didelez and Welton (JRSS-A 2018) derive decision-invariant bias-adjustment thresholds that give exactly 'the smallest changes to the data that result in a change of treatment decision', for individual studies or aggregate contrasts, in fixed and random-effects NMA, with an accompanying R package; nmathresh is on CRAN and its stated purpose is 'the calculation and presentation of decision-invariant bias adjustment thresholds and intervals for Network Meta-Analysis'. What is genuinely missing is the two extensions the entry actually needs: the perturbed quantity being a bridge parameter in a disconnected network rather than an observed data point, and the decision being net benefit at a cost-effectiveness threshold rather than the treatment recommendation from the synthesis. Stated that way the problem is real and well posed. Stated as 'no current method', it will be read as unfamiliarity with a well-known Bristol method by the same group whose software the catalog audits elsewhere.
+    Cites 10.1111/rssa.12341: Provides the decision-linked smallest-violation quantity the entry claims does not exist, for connected NMA.
+    Cites cran:nmathresh: Released implementation of decision-invariant thresholds, showing this is available software rather than a research direction.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / overstated.** C1 is too absolute. At the requested cpaic snapshot, the exported bridge_fragility() function computes d* = |D - tau| / sum|m_c| per posterior draw for box-bounded cross-subnetwork component drift and accepts any finite scalar link-scale decision threshold. Mathematically, the drift set produces the interval [D - d sum|m_c|, D + d sum|m_c|], so this is exactly the smallest violation whose bound reaches tau. For a one-dimensional monotone economic model whose net-benefit boundary can be translated into tau, it can already represent a reimbursement tipping point. C2 is therefore false regarding decision thresholds, although it remains true regarding general net benefit: cpaic does not propagate multidimensional identified sets through costs, QALYs, survival extrapolation, or competing decisions. The remaining work is an economic-model interface, not an absence of all decision-linking machinery. Very-high severity is conditional on the reimbursement decision actually being bridge-sensitive.
+    Cites choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca: bridge_fragility() implements the exact tipping violation for uniform per-component main-effect drift relative to a user-supplied scalar decision threshold; it does not implement general net-benefit propagation..
+
+Decision path
+:   `R3:partially-solved(n=2) → R8:overstated-majority(n=2)`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [CMP-23 — Bridge fragility ignores interaction and correlated component drift](CMP-23-bridge-fragility-ignores-interaction-and-correlated-componen.qmd)
+- [DEC-01 — Method evaluations score estimator error, not decision error](DEC-01-method-evaluations-score-estimator-error-not-decision-error.qmd)
+- [DEC-02 — No factorial study ranks which choice most often flips a decision](DEC-02-no-factorial-study-ranks-which-choice-most-often-flips-a-dec.qmd)
+- [QBA-17 — Partial identification and robust decision regions for HTA](QBA-17-partial-identification-and-robust-decision-regions-for-hta.qmd)
+- [QBA-25 — Decision QBA: net benefit, tipping surfaces and extrapolation](QBA-25-decision-qba-net-benefit-tipping-surfaces-and-extrapolation.qmd)
+:::
+
+## Source
+
+Derived from C:L1213, C:L2479 of the reviewed corpus.

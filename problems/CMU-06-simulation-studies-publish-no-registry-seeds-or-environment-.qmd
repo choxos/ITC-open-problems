@@ -1,0 +1,82 @@
+---
+title: "Simulation studies publish no registry, seeds, or environment locks"
+description: "Large simulation programs in this field publish neither a navigable scenario registry (stable scenario identifiers, exact per-scenario estimands, data-generating code) nor the provenance needed to re-run a specific cell (a reproducible RNG stream assignment, an immutable implementation identifier, environment information, and tests against analytic special cases). The prescriptions and the tooling exist outside the field: Siepe et al. (doi:10.1037/met0000695) recommend RNG streams rather than a single seed under parallelism together with environment capture, and report that full computational-environment information appeared in 2% of studies; the RepliSims project (doi:10.1098/rsos.231003) shows that missing information, not cost, is what blocks replication; and SimDesign supplies parallel substreams and session capture. Two of the source's requirements do not survive as requirements: a dashboard is one way of serving a machine-readable registry and not the only one, and a container or lock file supports reproducible results without guaranteeing bitwise identity across hardware and numerical libraries. No review of ITC or PAIC simulation studies was found, so the field-specific absence claims are unrefuted rather than verified."
+pid: "CMU-06"
+topic: "Computation & reproducibility"
+categories: ["Computation & reproducibility", "High priority", "Partially addressed"]
+priority: "High"
+prank: 2
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
+maturity: "Established"
+---
+::: {.problem-meta}
+[CMU-06]{.problem-id}
+[Partially addressed]{.verdict .verdict-partially-addressed}
+[High priority]{.chip .chip-priority-high}
+[Established]{.chip .chip-maturity-established}
+:::
+## Statement
+
+Large simulation programs in this field publish neither a navigable scenario registry (stable scenario identifiers, exact per-scenario estimands, data-generating code) nor the provenance needed to re-run a specific cell (a reproducible RNG stream assignment, an immutable implementation identifier, environment information, and tests against analytic special cases). The prescriptions and the tooling exist outside the field: Siepe et al. (doi:10.1037/met0000695) recommend RNG streams rather than a single seed under parallelism together with environment capture, and report that full computational-environment information appeared in 2% of studies; the RepliSims project (doi:10.1098/rsos.231003) shows that missing information, not cost, is what blocks replication; and SimDesign supplies parallel substreams and session capture. Two of the source's requirements do not survive as requirements: a dashboard is one way of serving a machine-readable registry and not the only one, and a container or lock file supports reproducible results without guaranteeing bitwise identity across hardware and numerical libraries. No review of ITC or PAIC simulation studies was found, so the field-specific absence claims are unrefuted rather than verified.
+
+## Why it is open
+
+A factorial program over topology, covariates, modification structure, outcomes, missingness, information and bias mechanisms produces thousands of cells that cannot be communicated in a journal table, so results are compressed into averages that hide the method-by-scenario interaction a reader needs, and without stable scenario identifiers a later paper cannot re-run or extend a specific cell, so evidence does not accumulate. Reproduction fails for a separate reason: a single reported seed suffices only when the code deterministically derives per-worker streams, which is rarely documented, and the realized numbers also depend on the whole toolchain. Journals reward the narrative rather than the registry and no venue requires either set of artifacts, so producing them is unpaid work.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Siepe, Bartos, Morris, Boulesteix, Heck and Pawel 2024, Simulation studies for methodological research in psychology: a standardized template for planning, preregistration, and reporting, Psychological Methods](https://doi.org/10.1037/met0000695) | reports that of the 36% of studies providing code only 21% also provided a seed and that full computational-environment information was reported in 2%, and prescribes RNG streams rather than seeds under parallelism, Docker and sessionInfo() capture, and preregistration |
+| [RepliSims project 2024, Replicability of simulation studies for the investigation of statistical methods, Royal Society Open Science](https://doi.org/10.1098/rsos.231003) | attempts to replicate eight highly cited simulation studies and finds replicability mainly impeded by lack of information and the sustainability of information sources, with some studies providing too little to implement any reported simulation |
+| [SimDesign 2.25.5, Structure for Organizing Monte Carlo Simulation Designs](https://cran.r-project.org/package=SimDesign) | supplies parallel random number generation with high-quality substreams, error and warning capture, and environment capture, covering the reproducibility half of what this entry asks for |
+| [cpaic, unreleased development package on GitHub (not on CRAN), commits ae63da3 and 9d150e9](https://github.com/choxos/cpaic) | records fit provenance covering package and backend versions, the Stan source hash, the seed, the integration count and core assumptions, and carries tests comparing survival integration against analytically known values; it has no tracked scenario registry, lock file, container, or public simulation pipeline |
+
+:::
+
+## Probable solution or research direction
+
+Adopt the existing prescriptions rather than restate them: publish the scenario registry as a machine-readable table with stable identifiers, exact per-scenario estimands and generator code, an immutable implementation identifier (a release tag, source archive or content digest, of which a commit hash is one form), the RNG algorithm and the task-to-stream mapping, environment information, and tests against analytic special cases with closed-form answers. A queryable result table is the deliverable and a dashboard over it is optional. Frameworks such as SimDesign already provide the parallel substreams and environment capture, so the work is to run an ITC simulation program through them and to publish the registry as the primary output with the paper as a summary of it.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Partially addressed. Part of this problem is addressed by existing work; the entry names which part.
+
+**The source said.** "Simulation programs in this field publish neither the artifacts that make a large factorial study navigable (a scenario registry with human-readable IDs, exact per-scenario estimand definitions, data-generating code, and a dashboard filterable by assumption violation) nor the artifacts required to reproduce one bitwise (seeds together with the parallel RNG substream strategy, a container image or environment lock file, package versions and commit hashes, and automated tests against analytic special cases)."
+
+**What was wrong with it.** The source asked for artifacts that already have published prescriptions and working tooling. The literature auditor named Siepe et al. 2024 (doi:10.1037/met0000695) for the seed, substream and environment-capture recommendations and RepliSims (doi:10.1098/rsos.231003) for the evidence that missing information blocks replication, so the gap is adoption in this field rather than invention. The source-code auditor knocked down two framings: a dashboard is not required because a machine-readable registry with a queryable result table does the same job, and containers or lock files do not deliver bitwise reproduction across toolchains.
+
+**Dissent.** codex dissented (overstated): C1-C3 are field-practice claims that cannot be established under the assigned lens. C4 overstates what is required: an immutable release, source archive, or content digest can identify an implementation without a Git commit, although stronger provenance is preferable. C5 is false as a requirement; a documented machine-readable registry and queryable result table can replace a dashboard. C6 is correct when averaging masks method-by-scenario interactions. C7 should require a reproducible RNG algorithm and task-to-stream mapping, but a single master seed can be sufficient when the code deterministically derives task streams. C8 conflates bitwise identity with reproducible scientific results; containers and lock files are useful but neither necessary nor sufficient across hardware and numerical libraries. C9 is sound. At 9d150e9, cpaic records package and backend versions, the Stan-source hash, seed, integration count, and assumptions, and has analytic special-case tests. It still has no tracked scenario registry, lock file, container, or public simulation pipeline; the local validation tree is ignored and therefore is not resolving public work.
+
+Literature and prior-art check
+:   **partially-solved / supported-with-caveat.** Retrieved three sources. Siepe et al. 2024 (doi 10.1037/met0000695, PMC7616844) gives the empirical rates ('Of the 36% of studies in which code was provided, 21% also provided a seed'; 'Full information on the computational environment was only reported in 2% of the studies') and makes exactly the recommendations the entry proposes, including using RNG streams rather than seeds when parallelizing and using Docker plus sessionInfo(). The RepliSims project (doi 10.1098/rsos.231003, PMID 38234442) attempted to replicate eight highly cited simulation studies and found replicability 'mainly impeded by lack of information and sustainability of information sources', with some studies providing too little to implement any reported simulation. SimDesign (CRAN 2.25.5) already delivers parallel RNG substreams, error capture and environment capture. So the seeds/substreams/lock-file half of this entry is solved as prescription and tooling; adoption in ITC/PAIC is the residual gap. Caveats: the scenario-registry-with-human-readable-IDs and the 'dashboard filterable by assumption violation' are normative assertions for which I found no supporting source, and no ITC-specific review exists, so the field-specific absence claims are unverifiable.
+    Cites doi:10.1098/rsos.231003: Empirically establishes that missing implementation detail, not cost, blocks reproduction of simulation studies, and identifies which artifacts matter..
+    Cites doi:10.1037/met0000695: Supplies the seed/stream, environment-lock and preregistration prescriptions this entry asks for, plus the non-reporting base rates..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / overstated.** C1-C3 are field-practice claims that cannot be established under the assigned lens. C4 overstates what is required: an immutable release, source archive, or content digest can identify an implementation without a Git commit, although stronger provenance is preferable. C5 is false as a requirement; a documented machine-readable registry and queryable result table can replace a dashboard. C6 is correct when averaging masks method-by-scenario interactions. C7 should require a reproducible RNG algorithm and task-to-stream mapping, but a single master seed can be sufficient when the code deterministically derives task streams. C8 conflates bitwise identity with reproducible scientific results; containers and lock files are useful but neither necessary nor sufficient across hardware and numerical libraries. C9 is sound. At 9d150e9, cpaic records package and backend versions, the Stan-source hash, seed, integration count, and assumptions, and has analytic special-case tests. It still has no tracked scenario registry, lock file, container, or public simulation pipeline; the local validation tree is ignored and therefore is not resolving public work.
+    Cites choxos/cpaic@ae63da32171aa12fbfb0311ede1066213342b483: Adds automatic fit provenance covering the package, sampler engine, Stan source, seed, integration count, and core assumptions..
+    Cites choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca: Provides tracked tests comparing survival integration calculations with analytically known values..
+
+Grok 4.5, recency lens
+:   **open / supported-with-caveat.** Queries for ITC/PAIC simulation programs publishing human-readable scenario registries, assumption-filter dashboards, parallel RNG substream strategies, container/lockfiles with commit hashes, and analytic special-case tests (arXiv, RSM/SiM, CRAN/GitHub for multinma/maicplus/netmeta/gemtc/MBNMAdose, 2024–2026) found no field standard that would falsify C1–C3 or C6–C9 as practice claims. General reproducibility tools (renv/packrat, Docker, rngtools/L'Ecuyer streams, ADEMP structure from Morris et al. 2019) exist outside the field, so C4, C7, and C8 are technically correct requirements but not invented by this agenda. C5 ('required' dashboard) is a design preference for very large factorials rather than a solved or refuted scientific claim. Evidence accumulation across studies via stable scenario IDs remains largely absent in PAIC simulation literature. Confidence capped because some individual open-code studies may partially meet subsets of artifacts without a public registry narrative.
+
+Decision path
+:   `R3:partially-solved(n=2) → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [QBA-28 — Reference QBA software and a minimum reporting standard](QBA-28-reference-qba-software-and-a-minimum-reporting-standard.qmd)
+- [SFW-02 — No machine-readable specification standard for ITC analyses](SFW-02-no-machine-readable-specification-standard-for-itc-analyses.qmd)
+:::
+
+## Source
+
+Derived from C:L2115-2129, C:L2121-2128 of the reviewed corpus.

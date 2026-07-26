@@ -1,0 +1,87 @@
+---
+title: "Missing aggregate summaries and unavailable IPD have no remedy"
+description: "PAIC missingness spans three layers that rest on different assumptions and admit different remedies: participant-level missing covariates or outcomes inside the IPD, trial-level non-reporting in the aggregate publication, and structurally unavailable IPD for whole studies. Fang et al. (2026, doi:10.1007/s43441-026-00914-2) closes the first layer for MAIC by multiplying an inverse-probability-of-being-observed weight into the matching weights, with simulation evidence; the other two layers are untouched, and multiple imputation congenial with the transport model, missing-not-at-random sensitivity analysis, and imputation of missing target summaries remain unbuilt. Complete-case handling is not a single default that collapses all three, because it acts on individual records while an absent aggregate summary and an unavailable IPD study are identification and data-access problems it cannot reach. What survives is narrower: complete-case deletion changes the identifying sample, and any imputation, weighting, or standardization has to preserve the target estimand and the conditional distributions the transport step relies on."
+pid: "MIS-01"
+topic: "Missing data & uncertainty propagation"
+categories: ["Missing data & uncertainty propagation", "Very high priority", "Unverifiable"]
+priority: "Very high"
+prank: 1
+verdict: "Unverifiable"
+verdictslug: "unverifiable"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[MIS-01]{.problem-id}
+[Unverifiable]{.verdict .verdict-unverifiable}
+[Very high priority]{.chip .chip-priority-very-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+::: {.source-unsourced}
+**Source note.** This entry derives in part from a source document whose inline citations
+were ChatGPT interface tokens rather than references, and so resolve to nothing. Claims
+below are attributed to that document and were checked independently where possible;
+anything that could not be independently sourced is marked in the verification trail.
+:::
+
+## Statement
+
+PAIC missingness spans three layers that rest on different assumptions and admit different remedies: participant-level missing covariates or outcomes inside the IPD, trial-level non-reporting in the aggregate publication, and structurally unavailable IPD for whole studies. Fang et al. (2026, doi:10.1007/s43441-026-00914-2) closes the first layer for MAIC by multiplying an inverse-probability-of-being-observed weight into the matching weights, with simulation evidence; the other two layers are untouched, and multiple imputation congenial with the transport model, missing-not-at-random sensitivity analysis, and imputation of missing target summaries remain unbuilt. Complete-case handling is not a single default that collapses all three, because it acts on individual records while an absent aggregate summary and an unavailable IPD study are identification and data-access problems it cannot reach. What survives is narrower: complete-case deletion changes the identifying sample, and any imputation, weighting, or standardization has to preserve the target estimand and the conditional distributions the transport step relies on.
+
+## Why it is open
+
+Deleting a record for a missing covariate does not only lose a variable; it removes a patient from the balancing constraint set, so the population actually being matched shifts with nothing in the output to signal it. The other two layers resist the same treatment: an unreported aggregate moment cannot be imputed from nothing without auxiliary information or an identified model, and a study with no IPD is an access problem rather than a missing-data problem. The one solution that exists is specific to MAIC and to missingness inside the IPD, so nothing yet propagates uncertainty jointly across imputation, weighting, and target-summary estimation, and packages still do not record which strategy was used; the literature auditor found that maicplus 0.1.2 and outstandR 2.0.0 declare no missing-data dependency at all. Missing-not-at-random departures stay unidentifiable from the data, so sensitivity analysis is needed wherever a missing-at-random assumption is not defensible rather than as a blanket requirement.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Fang, Li, Lai and He 2026, Missing Data Handling in the Application of Matching-Adjusted Indirect Comparison, Ther Innov Regul Sci 60(4):1103-1111](https://doi.org/10.1007/s43441-026-00914-2) | states that the literature lacks guidance on how to handle missing data in the application of MAIC, then proposes weighting-based methods for missing outcomes and covariates inside the IPD, formed as the product of an inverse probability of not missing the outcome and the usual MAIC balancing weights, with extensive simulation studies; it does not address unreported aggregate summaries or structurally unavailable IPD |
+| [cpaic, unreleased development package on GitHub (not on CRAN), commit 9d150e9](https://github.com/choxos/cpaic) | handles the three layers differently rather than collapsing them: cstc() delegates NA handling to glm() and coxph(), cmaic() rejects nonfinite weights caused by missing matching covariates, cmlnmr() rejects missing covariates and outcomes outright, missing aggregate moments raise an error, and aggregate-only edges keep their published study-population contrast; it has no coherent missing-data framework |
+
+:::
+
+## Probable solution or research direction
+
+Layer one now has a weighting solution for MAIC, so the work there is validation and extension: test it outside MAIC, against multiple imputation, and under conditions the original simulations did not cover. Multiple imputation congenial with a transport model still has to be built, with imputation variables chosen by their causal role rather than from a fixed checklist, since a selection indicator is usually unavailable when target microdata do not exist. Missing target summaries need auxiliary information or an explicit identified model rather than imputation from nothing, and missing-not-at-random departures need declared sensitivity analysis. At minimum, software should record which missing-data strategy was applied, because the choice is currently invisible in the output; a negligible-missingness threshold is the wrong test, since it is neither necessary nor sufficient for complete-case validity.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Unverifiable. Auditors disagreed and the disagreement was evidence-bearing on both sides.
+
+**The source titled this.** "Three missingness layers in PAIC collapse to a complete-case default" The title says all three missingness layers collapse to a complete-case default, which the audit found too strong since the layers are handled differently and layer one has been closed by weighting.
+
+**The source said.** "PAIC missingness has three distinct layers with different mechanisms: participant-level missing covariates or outcomes inside the IPD, trial-level non-reporting in the aggregate publication, and structurally unavailable IPD for whole studies. Packages default to complete-case handling that collapses all three, and standard imputation is not automatically compatible with the transport model, so imputations valid in the source need not be valid in the target."
+
+**What was wrong with it.** The three-layer taxonomy was unattributed in the source, and its central claim, that packages default to a complete-case handling that collapses all three layers, was too strong. The literature auditor supplied the missing source, Fang et al. 2026 (doi:10.1007/s43441-026-00914-2), which states that the literature lacks guidance on handling missing data in MAIC and then closes layer one by weighting; the code auditor found that at commit 9d150e9 of the unreleased cpaic development package the layers are handled differently rather than collapsed, since cmlnmr() rejects missing covariates and outcomes outright, missing aggregate moments raise an error, and aggregate-only edges keep their published contrast.
+
+**Dissent.** literature dissented (supported): Retrieved Fang, Li, Lai & He (2026), Ther Innov Regul Sci 60(4):1103-1111, which both confirms the absence claim and partly closes it. The paper states outright: 'However, the literature lacks guidance on how to handle missing data in the application of MAIC.' That is a source asserting the absence, which is what the entry's unsourced claims need. It then proposes a solution for layer one only: 'we propose some weighting-based methods to handle missing data in the outcome variable and/or covariates when applying MAIC. These weights can be expressed as products of the inverse probability of not missing the outcomes and weights that account for the difference in baseline characteristics... Extensive simulation studies are conducted.' So participant-level missing covariates and outcomes inside the IPD are now handled, by inverse-probability weighting nested inside the MAIC weights, with simulation evidence. The other two layers are untouched: trial-level non-reporting in the aggregate publication, and structurally unavailable IPD. Multiple imputation congenial with the transport model remains unbuilt (Fang et al. use weighting, not MI), as does MNAR sensitivity analysis and imputation of missing target summaries. maicplus 0.1.2 and outstandR 2.0.0 declare no missing-data dependency, consistent with the complete-case-default claim. codex dissented (open): C2 is a useful taxonomy, but complete-case analysis cannot collapse all three layers: it acts on individual records, while absent aggregate summaries and unavailable IPD create different identification or data-access problems. C3, C4, and C6 are unsourced prevalence or maturity claims. C5 is correct when the missing variables are required for identification. C7 is possible, not inevitable; dependence between missingness, study selection, and transport must be represented by an explicit causal or selection model. C8 and C9 are broadly sound as conditional recommendations. C10 is too prescriptive: treatment, outcome, study, and selection indicators belong in an imputation model only when their variation and causal roles require them, and a selection indicator cannot ordinarily be used in standard MI when target microdata do not exist. C11 is not universally required, although MNAR sensitivity analysis is warranted when MAR is not defensible. C12 requires auxiliary information or an identified model; missing target summaries cannot simply be imputed from nothing. C13 uses the wrong criterion: negligible missingness is neither necessary nor sufficient for complete-case validity. At cpaic commit 9d150e9, cstc() delegates NA handling to glm()/coxph(), cmaic() rejects nonfinite weights caused by missing matching covariates, cmlnmr() explicitly rejects missing covariates and outcomes, missing AgD moments cause errors, and aggregate-only edges are retained rather than complete-cased. Thus cpaic does not collapse the three layers, although it lacks a coherent missing-data framework. The issue is decision-critical only when missingness or data availability threatens identification or materially changes precision.
+
+Literature and prior-art check
+:   **partially-solved / supported.** Retrieved Fang, Li, Lai & He (2026), Ther Innov Regul Sci 60(4):1103-1111, which both confirms the absence claim and partly closes it. The paper states outright: 'However, the literature lacks guidance on how to handle missing data in the application of MAIC.' That is a source asserting the absence, which is what the entry's unsourced claims need. It then proposes a solution for layer one only: 'we propose some weighting-based methods to handle missing data in the outcome variable and/or covariates when applying MAIC. These weights can be expressed as products of the inverse probability of not missing the outcomes and weights that account for the difference in baseline characteristics... Extensive simulation studies are conducted.' So participant-level missing covariates and outcomes inside the IPD are now handled, by inverse-probability weighting nested inside the MAIC weights, with simulation evidence. The other two layers are untouched: trial-level non-reporting in the aggregate publication, and structurally unavailable IPD. Multiple imputation congenial with the transport model remains unbuilt (Fang et al. use weighting, not MI), as does MNAR sensitivity analysis and imputation of missing target summaries. maicplus 0.1.2 and outstandR 2.0.0 declare no missing-data dependency, consistent with the complete-case-default claim.
+    Cites doi:10.1007/s43441-026-00914-2: Closes layer one (participant-level missing outcomes and covariates inside the IPD) with IPW-type weights multiplied into the MAIC weights, evaluated by simulation. Also supplies a citable assertion that the missing-data guidance gap in MAIC was real..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** C2 is a useful taxonomy, but complete-case analysis cannot collapse all three layers: it acts on individual records, while absent aggregate summaries and unavailable IPD create different identification or data-access problems. C3, C4, and C6 are unsourced prevalence or maturity claims. C5 is correct when the missing variables are required for identification. C7 is possible, not inevitable; dependence between missingness, study selection, and transport must be represented by an explicit causal or selection model. C8 and C9 are broadly sound as conditional recommendations. C10 is too prescriptive: treatment, outcome, study, and selection indicators belong in an imputation model only when their variation and causal roles require them, and a selection indicator cannot ordinarily be used in standard MI when target microdata do not exist. C11 is not universally required, although MNAR sensitivity analysis is warranted when MAR is not defensible. C12 requires auxiliary information or an identified model; missing target summaries cannot simply be imputed from nothing. C13 uses the wrong criterion: negligible missingness is neither necessary nor sufficient for complete-case validity. At cpaic commit 9d150e9, cstc() delegates NA handling to glm()/coxph(), cmaic() rejects nonfinite weights caused by missing matching covariates, cmlnmr() explicitly rejects missing covariates and outcomes, missing AgD moments cause errors, and aggregate-only edges are retained rather than complete-cased. Thus cpaic does not collapse the three layers, although it lacks a coherent missing-data framework. The issue is decision-critical only when missingness or data availability threatens identification or materially changes precision.
+
+Decision path
+:   `R3:partially-solved(n=1) → R7:counter-and-support-both-present`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [CMP-21 — Missing data and MNAR sensitivity are unaddressed in component PAIC](CMP-21-missing-data-and-mnar-sensitivity-are-unaddressed-in-compone.qmd)
+- [COV-07 — Unknown target joint covariate distribution](COV-07-unknown-target-joint-covariate-distribution.qmd)
+- [EVB-01 — Selective IPD availability threatens transport across the network](EVB-01-selective-ipd-availability-threatens-transport-across-the-ne.qmd)
+- [EVB-05 — No reporting standard covers what population adjustment needs](EVB-05-no-reporting-standard-covers-what-population-adjustment-need.qmd)
+- [QBA-09 — No sensitivity parameters index departures from censoring at random](QBA-09-no-sensitivity-parameters-index-departures-from-censoring-at.qmd)
+- [QBA-10 — Target population and joint-distribution uncertainty](QBA-10-target-population-and-joint-distribution-uncertainty.qmd)
+:::
+
+## Source
+
+Derived from A:L75, A:L183, C:L214-215, C:L250, C:L991-998, C:L1001 of the reviewed corpus.

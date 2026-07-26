@@ -1,0 +1,75 @@
+---
+title: "Index-date, immortal time and delayed entry in external comparators"
+description: "When trial and external-comparator eligibility or time zero are causally misaligned, or when cohort classification depends on future survival, index-date error, immortal time and informative left truncation can bias a survival contrast; differing rules alone do not, and delayed entry handled with correct risk sets under conditionally independent truncation is left truncation rather than bias. The alignment half of the problem now has a published method the entry does not cite: Le Coent et al. (arXiv:2509.14183) impute comparable index dates for external controls under delayed treatment initiation with a truncation-aware scheme, combine it with propensity-score weighting or matching rather than leaving alignment as a separate step, and validate it against a randomized benchmark. What remains open is the sensitivity layer: no method indexes the residual time-origin error by a lag or lead distribution and propagates that uncertainty into the transported contrast jointly with the censoring and confounding parameters."
+pid: "QBA-08"
+topic: "Quantitative bias analysis for unanchored PAIC"
+categories: ["Quantitative bias analysis for unanchored PAIC", "High priority", "Partially addressed"]
+priority: "High"
+prank: 2
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[QBA-08]{.problem-id}
+[Partially addressed]{.verdict .verdict-partially-addressed}
+[High priority]{.chip .chip-priority-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+## Statement
+
+When trial and external-comparator eligibility or time zero are causally misaligned, or when cohort classification depends on future survival, index-date error, immortal time and informative left truncation can bias a survival contrast; differing rules alone do not, and delayed entry handled with correct risk sets under conditionally independent truncation is left truncation rather than bias. The alignment half of the problem now has a published method the entry does not cite: Le Coent et al. (arXiv:2509.14183) impute comparable index dates for external controls under delayed treatment initiation with a truncation-aware scheme, combine it with propensity-score weighting or matching rather than leaving alignment as a separate step, and validate it against a randomized benchmark. What remains open is the sensitivity layer: no method indexes the residual time-origin error by a lag or lead distribution and propagates that uncertainty into the transported contrast jointly with the censoring and confounding parameters.
+
+## Why it is open
+
+An external data source usually has no protocol-defined randomization moment, so time zero must be reconstructed from routine records and the reconstruction error is unobservable; the index-date definition is often unrecoverable from the aggregate publication, so the analyst cannot verify whether a time-origin mismatch exists at all. Alignment methods reduce the misalignment but do not measure the residual error, and the induced bias depends on the joint distribution of that error and the hazard, so it cannot be summarized by a single confounding parameter. It may act in the opposite direction to informative censoring, so it cannot be signed a priori and a one-at-a-time analysis cannot reveal the cancellation.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Gray et al. 2024, Pharmacoepidemiology and Drug Safety](https://doi.org/10.1002/pds.5796) | Demonstrates external-control bias scenarios including misclassification of exposure (line of therapy), which misspecifies the index date and survival time. The entry's description of this as index-date error is loose but defensible. |
+| [Le Coent, Rosner, Wang and Hu, Index Date Imputation for Survival Analysis in Externally Controlled Trials with Delayed Treatment Initiation (2025)](https://arxiv.org/abs/2509.14183) | Truncation-aware imputation of comparable index dates for external controls under delayed treatment initiation, explicitly combined with propensity-score weighting or matching and benchmarked against a randomized trial. Covers the alignment half; supplies no residual-error sensitivity parameters and does not propagate time-origin uncertainty into the transported contrast. |
+
+:::
+
+## Probable solution or research direction
+
+Define the time origin from an explicit target-trial specification and use the published index-date imputation route where delayed treatment initiation applies, then model the residual misalignment as a sensitivity parameter and propagate its survival impact into the transported contrast. Choose the parameterization the mechanism warrants, whether a continuous lag or lead distribution, a classification error, or a single joint latent-time, entry and event model, rather than requiring a fixed trio of parameters or a separate model per mechanism. Analyze it together with the censoring and confounding parameters because the directions can oppose one another.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Partially addressed. Part of this problem is addressed by existing work; the entry names which part.
+
+**The source said.** "Different eligibility and index-date rules between a trial and an external comparator induce index-date, immortal-time and delayed-entry bias, requiring misclassification-rate, lag or lead distribution and survival-association sensitivity parameters alongside target-trial time-zero emulation."
+
+**What was wrong with it.** Both auditors found the entry's premise that population adjustment cannot correct a misaligned time origin, and that time-zero emulation is the only route, materially narrowed by Le Coent et al. (arXiv:2509.14183), which combines truncation-aware index-date imputation with propensity-score weighting or matching. GPT-5.6 Sol also rejected the prescription that index-date QBA requires a misclassification rate, a lag or lead distribution and a survival-association parameter, since continuous index-date error has no misclassification rate and one joint latent-time, entry and event model can cover several mechanisms at once.
+
+**Dissent.** codex dissented (overstated): C1 holds only when differing rules misalign causal time zero or condition classification on future survival; different rules alone do not induce bias. Immortal time requires future-survival-dependent classification. Delayed entry is left truncation and is not itself bias when risk sets handle it correctly and truncation is conditionally independent. C2 is too prescriptive: continuous index-date error need not have a misclassification rate, and the three listed parameters are neither necessary nor a canonical minimal set. One joint latent-time, entry, and event model can cover several mechanisms, contrary to C4's requirement for separate models. Target-trial emulation plus residual-error sensitivity is appropriate, and opposing directions relative to censoring are possible. Index-date imputation now addresses part of the alignment problem, while residual-misalignment QBA remains open.
+
+Literature and prior-art check
+:   **partially-solved / supported-with-caveat.** Retrieved Le Coent, Rosner, Wang and Hu, 'Index Date Imputation for Survival Analysis in Externally Controlled Trials with Delayed Treatment Initiation' (arXiv 2509.14183, Sept 2025, revised June 2026), which the entry does not cite. It targets exactly the mechanism in claims 1 and 4: single-arm follow-up indexed at treatment initiation versus external controls indexed at diagnosis or relapse, inducing immortal time bias and distorted risk sets. It proposes a truncation-aware imputation of comparable index dates for external controls, explicitly integrates that with propensity score weighting or matching rather than leaving it as a separate step, and validates against a randomized benchmark by inducing index-date misalignment in an oncology trial. That materially narrows the entry's claim that population adjustment 'cannot correct a misaligned time origin' and that time-zero emulation is the only route. What remains open is the QBA layer proper: IDI does not index the residual index-date error by lag or lead distribution sensitivity parameters, does not propagate that uncertainty into the transported contrast, (claims 2, 3, 5 stand). Gray et al. 2024 models 'misclassification of exposure' (line of therapy) affecting index date and survival time, so the citation is defensible but should be worded that way.
+    Cites arxiv:2509.14183: Provides a truncation-aware index-date imputation method for externally controlled survival analyses under delayed treatment initiation, combined with propensity score weighting or matching, and benchmarked against a randomized trial. Covers the alignment half of the problem; not the sensitivity-parameter half..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / overstated.** C1 holds only when differing rules misalign causal time zero or condition classification on future survival; different rules alone do not induce bias. Immortal time requires future-survival-dependent classification. Delayed entry is left truncation and is not itself bias when risk sets handle it correctly and truncation is conditionally independent. C2 is too prescriptive: continuous index-date error need not have a misclassification rate, and the three listed parameters are neither necessary nor a canonical minimal set. One joint latent-time, entry, and event model can cover several mechanisms, contrary to C4's requirement for separate models. Target-trial emulation plus residual-error sensitivity is appropriate, and opposing directions relative to censoring are possible. Index-date imputation now addresses part of the alignment problem, while residual-misalignment QBA remains open.
+    Cites arXiv:2509.14183: Provides truncation-aware index-date imputation integrated with propensity-score weighting or matching, addressing the time-alignment component but not residual index-date QBA..
+
+Decision path
+:   `R3:partially-solved(n=2) → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [DIS-07 — External-control bridges become cross-design causal synthesis](DIS-07-external-control-bridges-become-cross-design-causal-synthesi.qmd)
+- [OUT-14 — Pseudo-IPD cannot express delayed entry or assessment windows](OUT-14-pseudo-ipd-cannot-express-delayed-entry-or-assessment-window.qmd)
+:::
+
+## Source
+
+Derived from C:L412, C:L485, C:L770-780, C:L784 of the reviewed corpus.

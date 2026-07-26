@@ -1,0 +1,79 @@
+---
+title: "Mixture-weight calibration is unvalidated for subnetwork bridges"
+description: "Both devices already exist and are standard. Commensurate priors that link sources while allowing drift are Hobbs et al. 2011 (doi:10.1111/j.1541-0420.2011.01564.x), extended to survival with non-exchangeable sources by Murray et al. 2014 (doi:10.1111/biom.12115), and the robust mixture prior with an informative component plus a deliberately vague one is the robust meta-analytic-predictive prior of Schmidli et al. 2014 (doi:10.1111/biom.12242). What is new is only the application to subnetwork bridges and, as the entry itself says, the calibration and validation of the mixture weight or commensurability parameter. The non-identification claim also needs a sharper condition than absence of cross-gap randomized evidence: the weight stays at its prior value when the bridge-valid and bridge-invalid components induce the same likelihood for every observed datum, whereas replicated bridges, shared parameters or external validation data can give the components different observable implications and permit updating."
+pid: "MOD-12"
+topic: "Model specification, double robustness & targeted learning"
+categories: ["Model specification, double robustness & targeted learning", "High priority", "Partially addressed"]
+priority: "High"
+prank: 2
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
+maturity: "Promising"
+tractability: 2
+---
+::: {.problem-meta}
+[MOD-12]{.problem-id}
+[Partially addressed]{.verdict .verdict-partially-addressed}
+[High priority]{.chip .chip-priority-high}
+[Promising]{.chip .chip-maturity-promising}
+[Tractability 2/5]{.chip}
+:::
+## Statement
+
+Both devices already exist and are standard. Commensurate priors that link sources while allowing drift are Hobbs et al. 2011 (doi:10.1111/j.1541-0420.2011.01564.x), extended to survival with non-exchangeable sources by Murray et al. 2014 (doi:10.1111/biom.12115), and the robust mixture prior with an informative component plus a deliberately vague one is the robust meta-analytic-predictive prior of Schmidli et al. 2014 (doi:10.1111/biom.12242). What is new is only the application to subnetwork bridges and, as the entry itself says, the calibration and validation of the mixture weight or commensurability parameter. The non-identification claim also needs a sharper condition than absence of cross-gap randomized evidence: the weight stays at its prior value when the bridge-valid and bridge-invalid components induce the same likelihood for every observed datum, whereas replicated bridges, shared parameters or external validation data can give the components different observable implications and permit updating.
+
+## Why it is open
+
+When the bridge-valid and bridge-invalid states are observationally equivalent on all available data, the mixture weight and the commensurability parameter are fixed by prior belief and can dominate the posterior for exactly the contrast the decision depends on, so a robust or commensurate prior represents an assumption about exchangeability rather than validating it. There is no empirical validation of exchangeability across subnetworks that would calibrate either parameter, and validation rather than construction is the binding constraint. Where the competing states do differ in observable implications the parameter can be updated, so the residual problem is specific to decision-driving gaps with no observable consequence.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Schmidli, Gsteiger, Roychoudhury, O'Hagan, Spiegelhalter & Neuenschwander 2014, Robust meta-analytic-predictive priors in clinical trials with historical control information, Biometrics 70(4):1023-32 (PMID 25355546)](https://doi.org/10.1111/biom.12242) | The robust mixture prior with an informative component and a deliberately vague one already exists and is standard in historical borrowing, giving heavy tails and reaction to prior-data conflict. Only its application to subnetwork bridges and the calibration of its weight are new. |
+| [Hobbs, Carlin, Mandrekar & Sargent 2011, Hierarchical commensurate and power prior models for adaptive incorporation of historical information in clinical trials, Biometrics 67(3):1047-56 (PMID 21361892)](https://doi.org/10.1111/j.1541-0420.2011.01564.x) | Establishes commensurate priors that link sources while allowing drift, letting the commensurability of the information determine how much is borrowed. This is the device the entry proposes for linking subnetworks. |
+| [Murray, Hobbs, Lystig & Carlin 2014, Biometrics](https://doi.org/10.1111/biom.12115) | Extends commensurate priors to survival outcomes with non-exchangeable historical sources. |
+
+:::
+
+## Probable solution or research direction
+
+Apply the existing robust mixture and commensurate-prior machinery to subnetwork bridges with components corresponding to explicit scientific states, and report how much of the posterior for each cross-gap contrast is generated by the mixture weight rather than by data, using prior-to-posterior movement, prior classes or power-scaling and tipping-point analysis. Check first whether the competing bridge states have any differing observable implications, since that determines whether empirical calibration is possible at all. Calibrate commensurability from connected component networks where cross-gap evidence does exist, and validate by bridge deletion.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Partially addressed. Part of this problem is addressed by existing work; the entry names which part.
+
+**The source titled this.** "Robust mixture priors for bridge-valid versus bridge-invalid states" The title names robust mixture priors as the object to build, but the audit found commensurate and robust mixture priors established methods 12 to 15 years old.
+
+**The source said.** "The report proposes commensurate priors that link subnetworks while allowing drift, and robust mixture priors containing an explicit bridge-valid and bridge-invalid component, so uncertainty about whether a bridge holds enters the posterior instead of being assumed away."
+
+**What was wrong with it.** The source proposed building commensurate and robust mixture priors with an empty prior_work list; the literature auditor identified both as established methods 12 to 15 years old (doi:10.1111/j.1541-0420.2011.01564.x, doi:10.1111/biom.12242), so construction is solved and packaged and only calibration is open. GPT-5.6 Sol tightened the non-identification condition to observational equivalence rather than the absence of randomized cross-gap evidence.
+
+Literature and prior-art check
+:   **partially-solved / supported-with-caveat.** prior_work is empty, yet both named devices are 12-15-year-old established methods that I retrieved. Commensurate priors: Hobbs, Carlin, Mandrekar & Sargent, Biometrics 2011;67(3):1047-56 (PMID 21361892), which 'present several models that allow for the commensurability of the information in the historical and current data to determine how much historical information is used'; extended to survival with non-exchangeable sources by Murray, Hobbs, Lystig & Carlin, Biometrics 2014 (doi 10.1111/biom.12115). Robust mixture priors with an explicit valid and invalid component: Schmidli, Gsteiger, Roychoudhury, O'Hagan, Spiegelhalter & Neuenschwander, Biometrics 2014;70(4):1023-32 (PMID 25355546), whose robust MAP prior is a two- or three-component mixture in which one component is deliberately vague so the model reacts to prior-data conflict. So construction is solved and packaged; what is genuinely open, and what the entry itself correctly identifies as the binding constraint, is empirical calibration of the mixture weight and commensurability parameter when no cross-gap randomized evidence exists, plus validation by bridge deletion. A novelty score of 5 is hard to defend against this prior art. The report-scoring claim is self-referential and unverifiable externally.
+    Cites doi:10.1111/biom.12242 (PMID 25355546): The robust mixture prior with an informative (bridge-valid) and a vague (bridge-invalid) component already exists and is standard in historical borrowing; only its application to subnetwork bridges and the calibration of its weight are new..
+    Cites doi:10.1111/j.1541-0420.2011.01564.x (PMID 21361892): Establishes commensurate priors that link sources while allowing drift, the exact device the entry proposes for linking subnetworks..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** C1 and C2 are valid candidate constructions, but the nonidentification claim needs a sharper condition. A bridge-valid/bridge-invalid mixture weight remains equal to its prior weight when the components induce the same likelihood for every observed datum. Absence of a direct randomized cross-gap comparison alone is not sufficient: replicated bridges, shared parameters, external validation data or other differing observable implications can sometimes update a commensurability parameter. Conversely, when the components differ only along a likelihood-null cross-gap direction, no robust or commensurate prior empirically validates exchangeability; it only represents assumptions about it. C3 is therefore too categorical. C4 accurately reports the agenda's internal scoring but supplies no methodological evidence for those scores. Calibration and validation remain open, especially for a decision-driving gap with no observable implications.
+
+Decision path
+:   `R3:partially-solved(n=1) → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [DEC-11 — Intervals omit selection, reconstruction and target-summary error](DEC-11-intervals-omit-selection-reconstruction-and-target-summary-e.qmd)
+- [DIS-02 — No data-driven criterion can rank candidate bridge families](DIS-02-no-data-driven-criterion-can-rank-candidate-bridge-families.qmd)
+- [DIS-13 — Bridge-ensemble weights cannot be learned for cross-gap accuracy](DIS-13-bridge-ensemble-weights-cannot-be-learned-for-cross-gap-accu.qmd)
+:::
+
+## Source
+
+Derived from C:L1069-1070, C:L1656, C:L2158 of the reviewed corpus.

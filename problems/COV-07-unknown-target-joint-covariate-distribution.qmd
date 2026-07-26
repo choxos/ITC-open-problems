@@ -1,0 +1,88 @@
+---
+title: "Unknown target joint covariate distribution"
+description: "For marginal standardization of a nonlinear or nonseparable outcome model, published marginal summaries do not identify the features of the target joint covariate law that the estimand needs, and different compatible dependence structures can give materially different answers. The reconstruction step is not missing: multilevel network meta-regression has built the aggregate-data joint distribution with a Gaussian copula matched to IPD correlations since 2020 (Phillippo et al. 2020, doi:10.1111/rssa.12579), and multinma::add_integration() ships it, creating quasi-Monte Carlo integration points from a Gaussian copula and Sobol sequences with user-supplied or IPD-derived correlations (cran:multinma). What is missing is a standard way to carry the non-identification of the dependence structure into the reported interval, and PAIC-specific work on the alternatives the source lists: maximum-entropy reconstruction, distributionally robust standardization and multiple synthetic target populations. The problem also does not touch every estimand, since an additive identity-link model depends only on the target means and moment-calibration weighting can be defined from reported moments without reconstructing the joint law."
+pid: "COV-07"
+topic: "Covariates: selection, target moments, measurement"
+categories: ["Covariates: selection, target moments, measurement", "Very high priority", "Partially addressed"]
+priority: "Very high"
+prank: 1
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
+maturity: "Promising"
+tractability: 4
+---
+::: {.problem-meta}
+[COV-07]{.problem-id}
+[Partially addressed]{.verdict .verdict-partially-addressed}
+[Very high priority]{.chip .chip-priority-very-high}
+[Promising]{.chip .chip-maturity-promising}
+[Tractability 4/5]{.chip}
+:::
+## Statement
+
+For marginal standardization of a nonlinear or nonseparable outcome model, published marginal summaries do not identify the features of the target joint covariate law that the estimand needs, and different compatible dependence structures can give materially different answers. The reconstruction step is not missing: multilevel network meta-regression has built the aggregate-data joint distribution with a Gaussian copula matched to IPD correlations since 2020 (Phillippo et al. 2020, doi:10.1111/rssa.12579), and multinma::add_integration() ships it, creating quasi-Monte Carlo integration points from a Gaussian copula and Sobol sequences with user-supplied or IPD-derived correlations (cran:multinma). What is missing is a standard way to carry the non-identification of the dependence structure into the reported interval, and PAIC-specific work on the alternatives the source lists: maximum-entropy reconstruction, distributionally robust standardization and multiple synthetic target populations. The problem also does not touch every estimand, since an additive identity-link model depends only on the target means and moment-calibration weighting can be defined from reported moments without reconstructing the joint law.
+
+## Why it is open
+
+Published marginals constrain only the one-dimensional margins, so an infinite family of joint laws is compatible with them, and standardization of a nonlinear model is not a function of the margins alone. The shipped fix is an assumption rather than a solution: importing correlations from the IPD trial presumes exactly the cross-trial stability that population adjustment exists to question, and the assumption does not appear in the output. No standard machinery propagates that structural uncertainty into the reported interval, and any covariate not reported at all cannot be balanced, so the achievable adjustment is bounded by the comparator publication rather than by the method.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Phillippo et al., 2020](https://doi.org/10.1111/rssa.12579) | Multilevel network meta-regression: reconstructs the aggregate-data joint covariate distribution with a Gaussian copula whose correlations come from the IPD studies while retaining the published marginals, and integrates the individual-level model over it. |
+| [multinma (R package, version 0.9.1)](https://cran.r-project.org/package=multinma) | add_integration() 'creates Quasi-Monte Carlo numerical integration points using a Gaussian copula and Sobol sequences', taking a weighted correlation matrix from the IPD studies when none is supplied, with a cor_adjust option; the shipped implementation of the reconstruction the source treats as a candidate direction. |
+
+:::
+
+## Probable solution or research direction
+
+Build on the shipped copula machinery instead of proposing it: add sensitivity analysis over the dependence parameters and a route for the resulting structural uncertainty to reach the reported interval. Develop partial-identification or distributionally robust standardization that reports the range of the effect over joint distributions compatible with the published moments, and test maximum-entropy reconstruction against the copula default on the same networks. Multiple synthetic target populations qualify as multiple imputation only when they are draws from a specified posterior predictive imputation model; otherwise report them as sensitivity scenarios rather than combining them with Rubin's rules. Privacy-preserving release of richer summaries, including cross-moments and quantiles, would shrink the problem at its source.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Partially addressed. Part of this problem is addressed by existing work; the entry names which part.
+
+**The source said.** "ML-NMR, g-computation and weighting all require the target joint covariate distribution, but aggregate-data publications typically report only marginal means, standard deviations or proportions, and the joint law is not identified by those summaries. Assuming independence or borrowing correlations from the IPD source can materially change nonlinear standardized effects."
+
+**What was wrong with it.** The source listed copulas among candidate directions to pursue; copula reconstruction has been the operating default of ML-NMR for six years and ships in multinma::add_integration() with a correlation-adjustment option (doi:10.1111/rssa.12579, cran:multinma), which the literature auditor documented. The code auditor narrowed the scope: the claim that ML-NMR, g-computation and weighting all require the target joint distribution is false as a blanket statement, so the problem belongs to nonlinear marginal standardization rather than to every PAIC estimand.
+
+**Dissent.** codex dissented (open): C1 is correct for marginal ML-NMR or g-computation standardization, but cpaic's cML-NMR output at 9d150e9 is a conditional contrast at x, not a marginal standardized effect. The blanket statement about weighting is false: calibration weighting can be defined from reported moments without reconstructing the full joint law, subject to its density-ratio and balance assumptions. C2-C3 are unsourced prevalence claims. C4-C7 are correct for nonlinear or nonseparable standardized response functions: with at least two covariates, marginals do not identify the copula, and equal marginals can yield materially different effects. They are not universal; an additive identity-link model depends only on means. C8, C10, and C11 are candidate assumptions, sensitivity analyses, or partial-identification methods, not recovery of an unidentified joint law. C12 is valid as multiple imputation only if synthetic populations are draws from a specified posterior predictive imputation model; arbitrary dependence scenarios are sensitivity analyses and Rubin-style combining rules are not justified. C13-C14 are sound. cpaic already implements Gaussian-copula QMC integration with a user-supplied correlation and otherwise borrows pooled within-IPD correlation, but it does not identify the target correlation or propagate that structural uncertainty. This is very high priority for nonlinear marginal standardization from sparse AgD, not for every PAIC estimand.
+
+Literature and prior-art check
+:   **partially-solved / supported-with-caveat.** The non-identification claim is correct and the problem is real, but the entry treats copulas as a candidate direction when copula reconstruction has been the operating default of the leading method for six years. Phillippo et al. 2020 (JRSS-A) constructs the joint covariate distribution for aggregate-data studies with a Gaussian copula so that the correlation matrix matches the IPD studies while retaining the published marginals, and multinma's add_integration() implements this: it 'creates Quasi-Monte Carlo numerical integration points using a Gaussian copula and Sobol' sequences', taking a weighted correlation matrix from all IPD studies when cor is NULL, with cor_adjust for Spearman/Pearson/copula correlations. So 'Copulas and maximum entropy are promising tools' reads as decorative: for copulas it is implemented, documented and default, and the ML-NMR literature has examined varying the assumed correlation structure. The genuinely open parts are the ones the entry states well: propagating the non-identification into the reported interval, and the max-entropy, distributionally-robust and multiple-synthetic-target alternatives, for which I found no PAIC-specific work.
+    Cites doi:10.1111/rssa.12579: Reconstructs the aggregate-data joint covariate distribution with a Gaussian copula and IPD-derived correlations, and integrates the individual-level model over it.
+    Cites cran:multinma: Shipped implementation of copula-based joint-distribution reconstruction with user-supplied or IPD-derived correlations.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** C1 is correct for marginal ML-NMR or g-computation standardization, but cpaic's cML-NMR output at 9d150e9 is a conditional contrast at x, not a marginal standardized effect. The blanket statement about weighting is false: calibration weighting can be defined from reported moments without reconstructing the full joint law, subject to its density-ratio and balance assumptions. C2-C3 are unsourced prevalence claims. C4-C7 are correct for nonlinear or nonseparable standardized response functions: with at least two covariates, marginals do not identify the copula, and equal marginals can yield materially different effects. They are not universal; an additive identity-link model depends only on means. C8, C10, and C11 are candidate assumptions, sensitivity analyses, or partial-identification methods, not recovery of an unidentified joint law. C12 is valid as multiple imputation only if synthetic populations are draws from a specified posterior predictive imputation model; arbitrary dependence scenarios are sensitivity analyses and Rubin-style combining rules are not justified. C13-C14 are sound. cpaic already implements Gaussian-copula QMC integration with a user-supplied correlation and otherwise borrows pooled within-IPD correlation, but it does not identify the target correlation or propagate that structural uncertainty. This is very high priority for nonlinear marginal standardization from sparse AgD, not for every PAIC estimand.
+
+Decision path
+:   `R3:partially-solved(n=1) → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [CMP-15 — Target joint covariate distribution is only approximately known](CMP-15-target-joint-covariate-distribution-is-only-approximately-kn.qmd)
+- [DEC-09 — Modifier selection and target moments reported without provenance](DEC-09-modifier-selection-and-target-moments-reported-without-prove.qmd)
+- [DIA-08 — PAIC simulations generate only shared, linear effect modification](DIA-08-paic-simulations-generate-only-shared-linear-effect-modifica.qmd)
+- [EST-07 — Reported target moments are treated as known constants](EST-07-reported-target-moments-are-treated-as-known-constants.qmd)
+- [EVB-05 — No reporting standard covers what population adjustment needs](EVB-05-no-reporting-standard-covers-what-population-adjustment-need.qmd)
+- [MIS-01 — Missing aggregate summaries and unavailable IPD have no remedy](MIS-01-missing-aggregate-summaries-and-unavailable-ipd-have-no-reme.qmd)
+- [MOD-02 — Convenience functional forms and untested flexible alternatives](MOD-02-convenience-functional-forms-and-untested-flexible-alternati.qmd)
+- [MOD-08 — Cross-fitting folds and rate conditions undefined for PAIC](MOD-08-cross-fitting-folds-and-rate-conditions-undefined-for-paic.qmd)
+- [OVL-01 — Weak overlap leaves target regions the source data cannot support](OVL-01-weak-overlap-leaves-target-regions-the-source-data-cannot-su.qmd)
+- [OVL-05 — Optimal transport for distributional balancing in PAIC](OVL-05-optimal-transport-for-distributional-balancing-in-paic.qmd)
+- [QBA-10 — Target population and joint-distribution uncertainty](QBA-10-target-population-and-joint-distribution-uncertainty.qmd)
+- [QBA-13 — Simulated-covariate QBA is an STC route, not a general solution](QBA-13-simulated-covariate-qba-is-an-stc-route-not-a-general-soluti.qmd)
+- [QBA-15 — Multiple correlated omitted variables and their dependence structure](QBA-15-multiple-correlated-omitted-variables-and-their-dependence-s.qmd)
+:::
+
+## Source
+
+Derived from C:L214-215, C:L229, C:L963-974 of the reviewed corpus.

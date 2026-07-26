@@ -1,0 +1,155 @@
+---
+title: "The method landscape"
+subtitle: "What each approach identifies, where it breaks, and how to choose"
+---
+
+The catalog is organized by problem. This page is organized by method: which approach answers
+which question, what each one assumes, and where each one fails. It exists so an entry in the
+catalog can be read against the method it constrains.
+
+::: {.callout-important appearance="simple"}
+## The distinction that organizes everything
+
+The decisive division is **anchored versus unanchored evidence**, not matching versus
+regression versus multilevel modeling.
+
+With an anchor, randomization still identifies the within-trial relative effect, and
+population adjustment is about transporting effect modification. Without one, the analyst is
+reconstructing a causal contrast across studies: every prognostic factor and effect modifier
+that creates a cross-study outcome difference becomes relevant, and residual confounding is
+generally not testable.
+
+A richer model does not move a problem across that line.
+:::
+
+## Choosing a method
+
+```{mermaid}
+flowchart LR
+    A[Decision problem] --> B{Connected randomised network?}
+    B -- Yes --> C{Effect modifiers plausibly balanced?}
+    C -- Largely yes --> D[Standard ITC / NMA]
+    C -- No, IPD available in subset --> E[Anchored PAIC]
+    E --> F[ML-NMR preferred when feasible]
+    E --> G[MAIC or STC only with explicit diagnostics]
+    B -- No --> H{Single-arm or disconnected evidence?}
+    H -- Yes --> I[Unanchored comparison]
+    I --> J{Conditional constancy plausible?}
+    J -- Weak --> K[Do not make strong causal claims]
+    J -- Strong but uncertain --> L[Unanchored MAIC / STC / ML-UMR plus aggressive sensitivity analysis]
+    H --> M[Alternative linking: ALM, baseline RE, dose-response MBNMA, class effects]
+```
+
+The branch that matters most is the one ending in "do not make strong causal claims." That is
+a legitimate destination, not a failure of the analysis.
+
+## Where the bias enters
+
+```{mermaid}
+flowchart TB
+    X[Measured baseline covariates] --> S[Study membership]
+    X --> Y[Outcome]
+    Z[Effect modifiers] --> T[Treatment effect]
+    Z --> S
+    T --> Y
+    U[Unmeasured design / care differences] --> S
+    U --> Y
+    O[Overlap quality] --> W[Weight stability / extrapolation]
+    W --> Y
+```
+
+Read this for what it says about $U$. Weighting and outcome regression both act on $X$ and
+$Z$. If the determinants of the cross-study outcome difference sit in $U$ instead, no amount
+of balancing on $X$ repairs the comparison; at best it disguises the bias more elegantly. That
+observation is why [quantitative bias analysis](categories/qba.qmd) is the largest category in
+this catalog.
+
+## What each method identifies
+
+::: {.table-scroll}
+
+| Method | Evidence structure | Nominal estimand | Main identifying assumptions | Principal unresolved weakness |
+|---|---|---|---|---|
+| Bucher adjusted ITC | Two connected RCTs, common comparator | Relative effect in an implicitly common population | Transitivity; compatible effect scale; no material modifier imbalance | No explicit target population; fragile to modifier imbalance and design differences |
+| Aggregate-data NMA | Connected RCT network | Network relative effects | Homogeneity, transitivity, consistency | Population mismatch and effect modification often only weakly assessed |
+| IPD-NMA | IPD from all or many trials | Conditional or standardized effects | Correct individual-level model; exchangeability; IPD availability mechanism | IPD availability is selective; high-dimensional interactions remain difficult |
+| Anchored MAIC | IPD index trial, AgD comparator, common comparator | Usually a marginal effect in the AgD trial population | All relevant modifiers balanced; overlap; correct weighting moments | ESS collapse, incomplete moments, target ambiguity, non-collapsibility, second-stage transport |
+| Anchored STC | IPD index trial, AgD comparator, common comparator | Often a conditional effect at target means unless standardized | Correct outcome model; all relevant modifiers included; valid extrapolation | Model misspecification; conditional and marginal incompatibility; target joint distribution unavailable |
+| Parametric g-computation | IPD source plus target summaries | Compatible marginal effect in a specified target | Correct outcome model and target-distribution model | Sensitive to misspecification; target-summary uncertainty usually ignored |
+| ML-NMR | Mixed IPD and AgD in a connected network | Population-specific effects from one hierarchical model | Conditional constancy; individual-level model; integration distribution | Computational burden; partial identifiability; within and between interaction conflation |
+| Unanchored MAIC or STC | Disconnected trials or single-arm studies | Cross-study contrast in a chosen target | All prognostic factors and modifiers that differ across studies measured and correctly adjusted | No randomization anchor; extreme vulnerability to omitted variables and design heterogeneity |
+| Baseline synthesis, reference prediction | Disconnected AgD, possibly single-arm | Relative effects linked through baseline-outcome structure | Exchangeable or modelled baseline effects; correct arm-level model | Baseline risk is not a universal bridge; ecological and design confounding remain |
+| Dose-response MBNMA | Treatments linked through dose or exposure | Effects along a shared dose-response function | Common pharmacologic curve form and modifiers | A wrong curve or class assumption produces precise but artificial links |
+| Class-effect NMA | Treatments grouped into classes | Shrunk treatment effects and class contrasts | Within-class exchangeability; correct class variance | Class definitions are contestable and may hide genuine heterogeneity |
+| Additive CNMA | Multicomponent treatments sharing components | Component and reconstructed treatment effects | Additivity; stable component effects across subnetworks | Cross-gap component constancy; synergy and treatment-version differences may invalidate the bridge |
+| Component ML-NMR | Component network with mixed IPD and AgD | Component-adjusted contrasts at target covariate values | CNMA assumptions plus transportability and stable component-by-modifier interactions | Strong, partly untestable structural assumptions; marginal standardization incomplete |
+| Doubly robust transport | Source IPD plus target IPD or adequate summaries | Target-population marginal effect | Conditional exchangeability plus either a correct weight model or a correct outcome model | No protection against unmeasured modifiers, positivity failure, or both models being wrong |
+| Partial identification | Any structure with uncertain assumptions | Bounds or a bias-adjusted set | Explicit bounds rather than point identification | Requires defensible sensitivity parameters; less convenient for decision models |
+
+:::
+
+This table is not a ladder. A richer model helps only when its added structure is
+scientifically defensible and adequately informed by data. A faster sampler does not cure
+non-identification, a doubly robust estimator does not cure positivity failure, perfect
+covariate balance does not cure unmeasured effect modification, and a narrow interval does not
+establish that the target population was the right one.
+
+## How to evaluate a method
+
+Simulation studies in this field routinely report bias without naming the population-specific
+estimand the bias is relative to, which makes the number uninterpretable. A usable evaluation
+covers six families at minimum.
+
+::: {.table-scroll}
+
+| Metric family | Minimum metrics |
+|---|---|
+| **Estimand recovery** | Bias, relative bias, RMSE, mean absolute error, sign error, target-standardized bias |
+| **Uncertainty calibration** | 95% coverage, empirical to nominal standard-error ratio, posterior calibration, type I error, power |
+| **Decision quality** | Incremental net-benefit decision error, wrong-treatment probability, rank-reversal frequency |
+| **Overlap and weighting** | ESS, ESS over nominal $n$, coefficient of variation of weights, maximum weight, entropy, proportion trimmed |
+| **Model adequacy** | Calibration slope, posterior predictive checks, leave-one-study-out predictive error, divergence counts, $\hat{R}$, effective posterior draws |
+| **Computation and reproducibility** | Runtime, failure rate, seed sensitivity, sensitivity to starting values, container reproducibility |
+
+:::
+
+The decision-quality row is the one most often omitted. A method that is slightly more biased
+but better calibrated for a reimbursement decision may be preferable to one that looks
+efficient but is anti-conservative when overlap is weak.
+
+```{mermaid}
+flowchart LR
+    A[Define estimand] --> B[Data-generating mechanism]
+    B --> C[Connected / disconnected evidence]
+    C --> D[Manipulate: overlap, modifiers, misspecification]
+    D --> E[Fit competing methods]
+    E --> F[Evaluate against the declared estimand]
+    F --> G[Publish code, seeds, manifests]
+```
+
+## Software
+
+Verified against CRAN and GitHub during the audit; versions as at 25 July 2026.
+
+::: {.table-scroll}
+
+| Package | Status | Strengths | Cautions |
+|---|---|---|---|
+| [`multinma`](https://cran.r-project.org/package=multinma) | CRAN 0.9.1 | The most mature open Bayesian NMA, NMR, and ML-NMR platform; mixed IPD and AgD; target integration; class effects | Runtime and integration burden; disconnected-network support sits in an open, unmerged pull request |
+| [`maicplus`](https://cran.r-project.org/package=maicplus) | CRAN 0.1.2 | Maintained MAIC workflow; anchored and unanchored binary and survival analyses | Open needs include continuous and count outcomes, trimming, weight-estimation-aware variance, and non-proportional-hazards measures |
+| [`netmeta`](https://cran.r-project.org/package=netmeta) | CRAN 3.6-1 | Mature frequentist NMA; component NMA through `discomb`; rare-event methods | Not a population-transport platform |
+| [`outstandR`](https://statisticshealtheconomics.github.io/outstandR/) | Active | Compatible marginal effects by model-based standardization | Pairwise focus; sensitive to the target distribution and outcome model |
+| [`drMAIC`](https://cran.r-project.org/package=drMAIC) | CRAN 0.1.0 | Early doubly robust MAIC with diagnostics | New; requires independent audit and adversarial simulation |
+| [`gemtc`](https://cran.r-project.org/package=gemtc), [`MBNMAdose`](https://cran.r-project.org/package=MBNMAdose), `crossnma` | CRAN | Bayesian NMA, dose-response linking, cross-design synthesis | None has a native population-transport layer |
+
+:::
+
+Two packages that appear in older workflows are no longer maintained. `maic` was archived from
+CRAN on 22 July 2025 because the maintainer's email had become undeliverable, and `Roche/MAIC`
+states in its own README that it "is no longer developed", recommending `maicplus` instead.
+Legacy installs belong in reproducibility archaeology, not in a new workflow.
+
+No package unifies target-population definition, connected and disconnected evidence, marginal
+and conditional estimands, doubly robust transport, component structure, complex outcomes,
+missing data, sensitivity analysis, and regulatory reporting. That gap is itself catalogued,
+under [software and benchmarks](categories/software.qmd).

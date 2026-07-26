@@ -1,0 +1,76 @@
+---
+title: "No curated public suite for bridge-deletion validation with IPD"
+description: "Bridge deletion is an established published design, not an unused idea. Beliveau et al. 2017 (doi:10.1002/jrsm.1256) disconnects two publicly available connected networks in multiple ways, fits the random-baseline bridge and scores the reconstructed cross-gap comparisons against the connected-network analysis, publishing code so other datasets can be investigated; Petropoulou et al. 2023 (doi:10.1186/s12874-023-01959-9) removes 20 studies with 34 pairwise comparisons from a Cochrane network to create 19 disconnected variants, refits component models, and reports that the cross-subnetwork estimate is either inestimable or misleading. What does not exist is a curated, maintained public suite with IPD or well-reconstructed pseudo-IPD on both sides of the deleted edge on which PAIC and component methods are routinely scored, together with the factorial hidden-cell design for component additivity. The design is also weaker than the source implies: deletion validates only when the held-out contrast remains in the row space of the training design and all estimates share a population, outcome definition, follow-up and effect scale, and disagreement implicates the joint model rather than the bridging assumption alone."
+pid: "DIA-16"
+topic: "Diagnostics & empirical validation"
+categories: ["Diagnostics & empirical validation", "Very high priority", "Overstated"]
+priority: "Very high"
+prank: 1
+verdict: "Overstated"
+verdictslug: "overstated"
+maturity: "Promising"
+tractability: 5
+---
+::: {.problem-meta}
+[DIA-16]{.problem-id}
+[Overstated]{.verdict .verdict-overstated}
+[Very high priority]{.chip .chip-priority-very-high}
+[Promising]{.chip .chip-maturity-promising}
+[Tractability 5/5]{.chip}
+:::
+## Statement
+
+Bridge deletion is an established published design, not an unused idea. Beliveau et al. 2017 (doi:10.1002/jrsm.1256) disconnects two publicly available connected networks in multiple ways, fits the random-baseline bridge and scores the reconstructed cross-gap comparisons against the connected-network analysis, publishing code so other datasets can be investigated; Petropoulou et al. 2023 (doi:10.1186/s12874-023-01959-9) removes 20 studies with 34 pairwise comparisons from a Cochrane network to create 19 disconnected variants, refits component models, and reports that the cross-subnetwork estimate is either inestimable or misleading. What does not exist is a curated, maintained public suite with IPD or well-reconstructed pseudo-IPD on both sides of the deleted edge on which PAIC and component methods are routinely scored, together with the factorial hidden-cell design for component additivity. The design is also weaker than the source implies: deletion validates only when the held-out contrast remains in the row space of the training design and all estimates share a population, outcome definition, follow-up and effect scale, and disagreement implicates the joint model rather than the bridging assumption alone.
+
+## Why it is open
+
+The restrictions used exclusively to extrapolate across an unsupported gap are the ones that cannot be tested inside the disconnected data, so the only empirical check on them is an artificial disconnection where the answer is already known. That requires curating connected or factorial networks with enough structure to cut and with IPD or well-reconstructed pseudo-IPD on both sides of the deleted edge; suitable networks are scarce and scattered across indications, no maintained collection exists, and every attempt starts from scratch. The exercise mainly produces evidence against methods, as the published attempts already have, so developers have little incentive to run it.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Beliveau et al. 2017, Network meta-analysis of disconnected networks: How dangerous are random baseline treatment effects?](https://doi.org/10.1002/jrsm.1256) | A published bridge-deletion validation with shared code: real connected networks are disconnected in multiple ways and the reconstructed cross-gap comparisons are scored against the original connected-network analysis. |
+| [Petropoulou et al. 2023, Model selection for component network meta-analysis in connected and disconnected networks: a simulation study](https://doi.org/10.1186/s12874-023-01959-9) | Performs component and bridge deletion on a real Cochrane network, comparing reconstructed cross-subnetwork effects against the held-out connected-network analysis, and reports a negative result in which the reconstructed estimate is inestimable or misleading. |
+
+:::
+
+## Probable solution or research direction
+
+Assemble the published deletion designs into a standing public suite: curate connected networks suitable for bridge deletion and factorial or multicomponent networks suitable for component deletion, publish the deleted-edge and hidden-cell ground truth, and require that deletion leave the held-out contrast estimable and that reconstruction and the randomized comparison share population, outcome definition, follow-up and effect scale. Score disconnected-network and component methods on reconstruction error and decision agreement with the held-out randomized comparison, reporting the result as evidence about the joint bridging model rather than as a test of the bridging assumption alone. Pair the suite with simulation benchmarks and with the analytic checks, unit tests and independent implementation comparisons that software validation also requires, and use the failures to characterize when additivity is and is not clinically acceptable.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Overstated. 2 independent auditors judged the claim as stated too strong. Bridge deletion and disconnection-and-reconstruct validation have been published for random-baseline NMA and for CNMA, with code, and have already produced negative results; what does not exist is a curated, maintained public suite of such networks with individual patient data on both sides of the deleted edge on which PAIC and component methods are routinely scored.
+
+**The source titled this.** "Deleting a known bridge or component is not used as validation" The title says bridge deletion is not used as validation, but it is a published design with released code that has already produced negative results.
+
+**The source said.** "The direct empirical tests available for disconnected-network and component methods have not been assembled into a public validation suite: deleting the studies or the treatment that connect two subnetworks, fitting disconnected methods, and comparing the reconstructed cross-gap effect with the held-out randomized evidence; and hiding one component comparison in a factorial or multicomponent network and testing whether CNMA or component PAIC reconstructs it."
+
+**What was wrong with it.** The source treated bridge deletion and component deletion as unused; the literature auditor found both published with shared code, in Beliveau et al. 2017 (doi:10.1002/jrsm.1256) and Petropoulou et al. 2023 (doi:10.1186/s12874-023-01959-9), the latter already reporting a negative reconstruction result. GPT-5.6 Sol added that deletion probes rather than proves a bridging assumption and that additivity is testable wherever the design supplies overidentifying contrasts, not only in factorial networks.
+
+Literature and prior-art check
+:   **partially-solved / overstated.** Bridge deletion is not an unused idea; it is an established published design with shared code, in two independent lines of work. Beliveau, Goring, Platt & Gustafson 2017 took two publicly available connected networks, disconnected them in multiple ways, fitted the random-baseline bridge to each disconnected version, and compared the reconstructed cross-gap comparisons against the analysis of the original connected network, publishing code so other datasets can be investigated. Petropoulou et al. 2023 did the component version on a real Cochrane postoperative nausea and vomiting network: they removed 20 studies with 34 pairwise comparisons to separate a minimal set, generated 19 distinct disconnected variants, refitted additive and selected CNMA, and compared the reconstructed cross-subnetwork effects against the connected-network standard NMA, finding estimates that were 'either inestimable ... or misleading'. Their overall verdict is a negative reconstruction result. What is genuinely absent is a curated standing public suite with PAIC methods and IPD or pseudo-IPD on both sides of the deleted edge, and the specific factorial hidden-cell design.
+    Cites 10.1002/jrsm.1256: A published bridge-deletion validation with shared code: real connected networks are disconnected in multiple ways and the reconstructed cross-gap comparisons are scored against the original connected-network analysis..
+    Cites 10.1186/s12874-023-01959-9: Performs component/bridge-deletion validation of CNMA on a real Cochrane network, comparing reconstructed cross-subnetwork effects against the held-out connected-network NMA, and reports a negative result..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** C1 and C4 describe feasible external predictive checks, but only when deletion leaves the held-out contrast estimable: its component-contrast vector must lie in the row space of the training design, and the reconstruction and randomized comparison must target the same population, outcome definition, follow-up, and effect scale. The comparison probes the joint bridging model; it does not isolate or prove the bridging assumption because sampling error, heterogeneity, transport failure, coding, and outcome-model misspecification also affect disagreement. C3 inflates necessity. Public suites would improve comparability and credibility, but they are not logically necessary for software validation, which also requires analytic checks, unit tests, known-truth simulations, and independent implementation comparisons. C6 is too categorical: a full factorial can identify an interaction contrast and test additivity, while a disconnected network can still contain testable within-subnetwork or overidentifying component restrictions. Only restrictions used exclusively to extrapolate across the unsupported gap are untestable without redundant evidence. C2 and C5 are literature-absence claims not adjudicated here.
+
+Decision path
+:   `R3:partially-solved(n=1) → R8:overstated-majority(n=2)`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [CMP-01 — Cross-subnetwork component constancy is the untestable bridge](CMP-01-cross-subnetwork-component-constancy-is-the-untestable-bridg.qmd)
+:::
+
+## Source
+
+Derived from C:L2093-2097, C:L2103-2105, C:L2147 of the reviewed corpus.

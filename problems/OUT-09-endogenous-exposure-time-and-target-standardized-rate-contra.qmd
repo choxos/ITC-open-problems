@@ -1,0 +1,74 @@
+---
+title: "Endogenous exposure time and target-standardized rate contrasts"
+description: "Rate outcomes divide counts by exposure time, and where exposure is affected by treatment, prognosis, death or discontinuation the resulting contrast needs an explicit causal estimand. The source's framing that exposure cannot serve as an offset is not the issue: an offset is a modeling device that may contain a stochastic observed quantity, and the problem is the causal interpretation of the rate rather than the mechanics. Part of the reporting gap is already closed: cmaic() in cpaic reweights individual patient data to target covariate moments and fits a weighted Poisson model with a log-exposure offset, returning a marginal target-population rate ratio, and multinma fits Poisson models with a log time-at-risk offset. What remains open is joint exposure-count modeling, a common target exposure and follow-up strategy applied to both arms, marginal rate differences, and exposure-weighted aggregate covariate moments, since the aggregate Poisson path computes exposure times a covariate-averaged rate and explicitly assumes exposure is independent of covariates."
+pid: "OUT-09"
+topic: "Outcome-specific problems"
+categories: ["Outcome-specific problems", "High priority", "Partially addressed"]
+priority: "High"
+prank: 2
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
+maturity: "Emerging"
+---
+::: {.problem-meta}
+[OUT-09]{.problem-id}
+[Partially addressed]{.verdict .verdict-partially-addressed}
+[High priority]{.chip .chip-priority-high}
+[Emerging]{.chip .chip-maturity-emerging}
+:::
+## Statement
+
+Rate outcomes divide counts by exposure time, and where exposure is affected by treatment, prognosis, death or discontinuation the resulting contrast needs an explicit causal estimand. The source's framing that exposure cannot serve as an offset is not the issue: an offset is a modeling device that may contain a stochastic observed quantity, and the problem is the causal interpretation of the rate rather than the mechanics. Part of the reporting gap is already closed: cmaic() in cpaic reweights individual patient data to target covariate moments and fits a weighted Poisson model with a log-exposure offset, returning a marginal target-population rate ratio, and multinma fits Poisson models with a log time-at-risk offset. What remains open is joint exposure-count modeling, a common target exposure and follow-up strategy applied to both arms, marginal rate differences, and exposure-weighted aggregate covariate moments, since the aggregate Poisson path computes exposure times a covariate-averaged rate and explicitly assumes exposure is independent of covariates.
+
+## Why it is open
+
+If a treatment causes earlier discontinuation or death, patients on that arm accrue less exposure, so a rate computed from observed exposure can make a harmful treatment look favorable, and baseline covariate adjustment cannot repair a distortion that arises after randomization. Aggregate-data publications typically report total person-time without the joint distribution of exposure and events, so the dependence cannot be modeled from the reported summaries, although some publications do contain richer data. A rate difference is not directly available from a log-link coefficient and requires standardization over the target joint covariate distribution rather than the marginal moments aggregate data supply, and under overdispersed or zero-inflated likelihoods that marginalization is no longer analytic and carries its own integration uncertainty. The literature auditor found no literature at all on endogenous exposure time in indirect comparisons, so every claim here is a mechanism or an absence rather than a documented finding.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [cpaic, unreleased development package on GitHub (not on CRAN), commit 9d150e9, cmaic() weighted Poisson path](https://github.com/choxos/cpaic) | reweights individual patient data to target covariate moments and fits a weighted Poisson model with a log-exposure offset, returning a marginal target-population rate ratio; its aggregate Poisson ML-NMR path computes exposure times a covariate-averaged rate and explicitly assumes exposure is independent of covariates, and it produces no marginal rate difference |
+| [multinma (CRAN), Poisson likelihood with time-at-risk offset](https://cran.r-project.org/package=multinma) | fits Poisson models taking time at risk as a fixed offset, which is the practice the entry describes; the literature auditor did not test whether its marginal_effects() returns a rate difference among the marginal contrasts it can produce |
+
+:::
+
+## Probable solution or research direction
+
+Model exposure and event count jointly where exposure is plausibly affected by treatment or prognosis, or declare an explicit follow-up and intercurrent-event strategy that fixes what exposure the target contrast refers to. Extend the existing marginal rate-ratio path to marginal rate differences and to standardizing both arms to a common target exposure process, and allow exposure-weighted aggregate covariate moments so the aggregate side stops assuming exposure is independent of covariates. Propagate the integration uncertainty into the reported interval wherever the marginalization is numerical.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Partially addressed. Part of this problem is addressed by existing work; the entry names which part.
+
+**The source said.** "Rate outcomes divide counts by exposure time, but exposure itself depends on prognosis and on treatment, so using it as a fixed offset conditions on a post-randomization variable. Rate results are then reported as conditional model coefficients rather than as marginal rate differences and rate ratios standardized to an explicit target population."
+
+**What was wrong with it.** The source said no standard implementation produces target-standardized marginal rate contrasts; the code auditor found that cmaic() already returns a marginal target-population rate ratio at commit 9d150e9 of cpaic, an unreleased development package on GitHub that is not installable from CRAN, and the literature auditor independently asked for the claim to be softened to the packages actually checked. The same code auditor qualified the standardization claims: a full target distribution is needed for nonlinear or effect-modified marginal means, exposure can cancel from a constant multiplicative rate ratio under restrictive assumptions, and the target must specify a follow-up and intercurrent-event strategy rather than reproduce an empirical exposure distribution.
+
+**Dissent.** codex dissented (overstated): The causal concern is real when observed exposure is affected by treatment, prognosis, death, or discontinuation. Nevertheless, an offset is a modeling device and may contain a stochastic observed quantity; the problem is its causal interpretation, not whether it can literally be an offset. C3 is too absolute because some publications contain richer data, while others report only totals. C5-C6 require qualification: a full target distribution is needed for nonlinear or effect-modified marginal means, but exposure can cancel from a constant multiplicative rate ratio under restrictive assumptions. The target must specify a follow-up and intercurrent-event strategy, not necessarily reproduce an empirical exposure distribution. At the requested cpaic revision, aggregate Poisson ML-NMR computes E times the covariate-averaged rate and explicitly assumes exposure is independent of covariates, so C7 identifies a genuine limitation. However, cmaic() already reweights IPD to target covariate moments and fits a weighted Poisson model with a log-exposure offset, returning a marginal target-population rate ratio. What remains open is joint exposure-count modeling, a common target exposure strategy, and marginal rate differences.
+
+Literature and prior-art check
+:   **open / supported-with-caveat.** I found no literature at all on endogenous exposure time in indirect comparisons: no joint exposure-count model, no target-standardised marginal rate difference or rate ratio, and no treatment of exposure-weighted target moments. The mechanistic argument (offsetting by observed person-time conditions on a post-randomisation quantity) is sound and is a standard causal-inference point, and it is consistent with what implementations do: multinma's poisson likelihood takes time at risk as an offset, which is exactly the fixed-offset practice described. The caveat is that every one of the seven claims is an absence claim or a mechanistic assertion, and none is anchored to a source that itself states the absence, so on the support axis this is closer to unverifiable than to verified. I would soften 'no standard implementation produces such target-standardised marginal rate contrasts' to a statement about the packages actually checked, since multinma's marginal_effects() can in principle produce marginal contrasts for the Poisson likelihood and I did not test whether a rate difference is among them.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / overstated.** The causal concern is real when observed exposure is affected by treatment, prognosis, death, or discontinuation. Nevertheless, an offset is a modeling device and may contain a stochastic observed quantity; the problem is its causal interpretation, not whether it can literally be an offset. C3 is too absolute because some publications contain richer data, while others report only totals. C5-C6 require qualification: a full target distribution is needed for nonlinear or effect-modified marginal means, but exposure can cancel from a constant multiplicative rate ratio under restrictive assumptions. The target must specify a follow-up and intercurrent-event strategy, not necessarily reproduce an empirical exposure distribution. At the requested cpaic revision, aggregate Poisson ML-NMR computes E times the covariate-averaged rate and explicitly assumes exposure is independent of covariates, so C7 identifies a genuine limitation. However, cmaic() already reweights IPD to target covariate moments and fits a weighted Poisson model with a log-exposure offset, returning a marginal target-population rate ratio. What remains open is joint exposure-count modeling, a common target exposure strategy, and marginal rate differences.
+    Cites choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca: Provides a target-reweighted marginal Poisson rate-ratio path with a log-exposure offset, partially resolving C4 while leaving joint exposure standardization open..
+
+Decision path
+:   `R3:partially-solved(n=1) → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [CMP-10 — Component PAIC lacks a marginal target-standardized estimand path](CMP-10-component-paic-lacks-a-marginal-target-standardized-estimand.qmd)
+- [OUT-08 — Overdispersed counts and recurrent events as total disease burden](OUT-08-overdispersed-counts-and-recurrent-events-as-total-disease-b.qmd)
+:::
+
+## Source
+
+Derived from C:L1557-1559, C:L1557-1566, C:L1561-1564, C:L221 of the reviewed corpus.

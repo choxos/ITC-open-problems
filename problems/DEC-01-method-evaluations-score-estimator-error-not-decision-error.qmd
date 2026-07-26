@@ -1,0 +1,86 @@
+---
+title: "Method evaluations score estimator error, not decision error"
+description: "ADEMP does not require, and its performance-measure inventory does not contain, any decision or net-benefit measure: Table 6 of Morris et al. 2019 lists bias, EmpSE, relative precision, MSE, model standard error, coverage and rejection percentage only. Whether ITC and PAIC method comparisons routinely omit decision metrics such as wrong-decision probability, net-benefit error or rank reversal is contested: the literature auditor searched and found no such evaluation, while GPT-5.6 Sol holds that this prevalence claim is not established by the cited paper. Decision-level assessment already exists outside method-comparison simulation, in threshold analysis for applied network meta-analysis (Phillippo et al. 2018) and in NICE DSU TSD 7's probability that a strategy is optimal at a threshold willingness to pay. Expected value of perfect or sample information does not belong on the list of estimator-quality metrics: it measures the value of collecting information and can rise as uncertainty rises."
+pid: "DEC-01"
+topic: "Decision analysis, regulation & reporting"
+categories: ["Decision analysis, regulation & reporting", "Very high priority", "Unverifiable"]
+priority: "Very high"
+prank: 1
+verdict: "Unverifiable"
+verdictslug: "unverifiable"
+maturity: "Emerging"
+---
+::: {.problem-meta}
+[DEC-01]{.problem-id}
+[Unverifiable]{.verdict .verdict-unverifiable}
+[Very high priority]{.chip .chip-priority-very-high}
+[Emerging]{.chip .chip-maturity-emerging}
+:::
+::: {.source-unsourced}
+**Source note.** This entry derives in part from a source document whose inline citations
+were ChatGPT interface tokens rather than references, and so resolve to nothing. Claims
+below are attributed to that document and were checked independently where possible;
+anything that could not be independently sourced is marked in the verification trail.
+:::
+
+## Statement
+
+ADEMP does not require, and its performance-measure inventory does not contain, any decision or net-benefit measure: Table 6 of Morris et al. 2019 lists bias, EmpSE, relative precision, MSE, model standard error, coverage and rejection percentage only. Whether ITC and PAIC method comparisons routinely omit decision metrics such as wrong-decision probability, net-benefit error or rank reversal is contested: the literature auditor searched and found no such evaluation, while GPT-5.6 Sol holds that this prevalence claim is not established by the cited paper. Decision-level assessment already exists outside method-comparison simulation, in threshold analysis for applied network meta-analysis (Phillippo et al. 2018) and in NICE DSU TSD 7's probability that a strategy is optimal at a threshold willingness to pay. Expected value of perfect or sample information does not belong on the list of estimator-quality metrics: it measures the value of collecting information and can rise as uncertainty rises.
+
+## Why it is open
+
+The link from estimator error to decision error runs through a decision threshold and a loss function, neither of which ADEMP requires, so a method that wins on RMSE can lose on the recommendation; Figure 1 of Morris et al. already shows RMSE and coverage ranking methods differently. Computing a decision metric means simulating a decision rule and usually an economic model, machinery that method authors treat as outside statistical scope and that no ITC benchmark provides. The blocker is therefore adoption inside method-comparison simulation rather than missing technical machinery, since threshold-based decision assessment already exists for applied syntheses.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Morris, White and Crowther 2019](https://doi.org/10.1002/sim.8086) | Defines ADEMP; Table 6 enumerates the performance measures, none of which is a decision or net-benefit measure, and its methods element explicitly allows a decision rule. |
+| [Phillippo et al. 2018](https://doi.org/10.1111/rssa.12341) | Derives bias-adjustment thresholds, the smallest changes to the data that change the treatment decision, giving decision-level assessment for applied network meta-analysis. |
+| [NICE DSU Technical Support Document 7 (2012)](choxos/NICE-DSU-TSD-RAG@75abcb9c226a9f8fa7a0a4ffeba42874f1712ecb) | Reviewer's checklist for evidence synthesis in decision making; uses an explicit decision model, willingness-to-pay threshold and probability that a strategy is optimal. Read by the code auditor from a document corpus at the given commit. |
+
+:::
+
+## Probable solution or research direction
+
+Carry the existing threshold-and-loss machinery into method-comparison simulation instead of inventing decision metrics: report wrong-decision probability, net-benefit error and rank reversal alongside bias, RMSE and coverage under a prespecified decision model, threshold and loss, which the ADEMP performance-measure element is broad enough to hold. Re-score published benchmark scenarios on both axes so the estimation ranking and the decision ranking can be compared. Keep expected value of information out of that set and use it where it belongs, as a research-design criterion.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Unverifiable. Auditors disagreed and the disagreement was evidence-bearing on both sides.
+
+**The source said.** "ITC and PAIC method comparisons are scored on bias, RMSE and coverage, and ADEMP contains no decision element, so no evaluation reports how often a method produces the wrong reimbursement decision. Decision measures such as wrong-decision probability, incremental net-benefit error, expected regret, rank-reversal frequency, probability of selecting a dominated treatment and expected value of sample information are absent from the standard reporting set."
+
+**What was wrong with it.** The source listed EVPI and EVSI among decision-quality metrics for scoring estimators; GPT-5.6 Sol found this a category error, since value-of-information measures the value of collecting data rather than estimator quality. The premise that decision-level assessment is possible was unattributed in the source and is now sourced to Phillippo et al. 2018 (10.1111/rssa.12341) and NICE DSU TSD 7, and the ADEMP claim was checked line by line against Table 6 of Morris et al. 2019.
+
+**Dissent.** literature dissented (open): I read the full text of Morris, White & Crowther 2019 (PMC6492164). ADEMP is Aims, Data-generating mechanisms, Estimands, Methods, Performance measures; Table 6 enumerates exactly bias, EmpSE, relative % increase in precision, MSE, average ModSE, relative % error in ModSE, coverage, bias-eliminated coverage, and rejection % (power/type I error). No loss function, net benefit, regret or decision metric appears anywhere. The citation is used accurately. Two narrowings worth noting: the paper's Estimands element says 'Define estimands and/or other targets', and it states a method 'might refer to a design or some procedure (such as a decision rule)', so ADEMP accommodates decision rules without requiring a decision-consequence element. Figure 1 also demonstrates that RMSE and coverage can rank methods differently, which is the mechanism behind the entry's 'lower RMSE, more wrong decisions' claim. Prior art exists for decision-based assessment of applied NMAs (Phillippo threshold analysis, nmathresh), but I found no ITC/PAIC method-comparison simulation scoring wrong-decision probability, net-benefit error or rank reversal. The problem is open. 'Most important metric addition' is opinion, not verifiable. codex dissented (overstated): C5-C7 are mathematically correct. For example, with true incremental net benefit 1 and threshold 0, an estimator fixed at -0.1 has RMSE 1.1 and always gives the wrong decision, while one fixed at 3 has RMSE 2 and never does. C2 is also correct: ADEMP does not require a decision element. However, the report conflates estimator losses with value-of-information measures. Wrong-decision probability and regret are valid only after specifying actions, a threshold, and a loss or net-benefit model. EVPI and EVSI measure the value of resolving or collecting information, not estimator quality, and can increase when uncertainty increases. C3, C4, and C11 are literature-prevalence claims not established by the cited ADEMP paper; C10 is an unsupported priority judgment. Existing decision-analysis guidance already connects evidence synthesis to threshold-based decisions, so the remaining gap is routine PAIC application, not missing technical machinery.
+
+Literature and prior-art check
+:   **open / supported.** I read the full text of Morris, White & Crowther 2019 (PMC6492164). ADEMP is Aims, Data-generating mechanisms, Estimands, Methods, Performance measures; Table 6 enumerates exactly bias, EmpSE, relative % increase in precision, MSE, average ModSE, relative % error in ModSE, coverage, bias-eliminated coverage, and rejection % (power/type I error). No loss function, net benefit, regret or decision metric appears anywhere. The citation is used accurately. Two narrowings worth noting: the paper's Estimands element says 'Define estimands and/or other targets', and it states a method 'might refer to a design or some procedure (such as a decision rule)', so ADEMP accommodates decision rules without requiring a decision-consequence element. Figure 1 also demonstrates that RMSE and coverage can rank methods differently, which is the mechanism behind the entry's 'lower RMSE, more wrong decisions' claim. Prior art exists for decision-based assessment of applied NMAs (Phillippo threshold analysis, nmathresh), but I found no ITC/PAIC method-comparison simulation scoring wrong-decision probability, net-benefit error or rank reversal. The problem is open. 'Most important metric addition' is opinion, not verifiable.
+    Cites 10.1002/sim.8086: Confirms the cited claim: ADEMP has five elements and its performance-measure inventory contains no decision or net-benefit measure..
+    Cites 10.1111/rssa.12341: Real reference for the entry's unsourced premise that decision-level assessment is possible and already formalized for applied NMA (not for method-comparison simulations), so the proposed direction is building on existing machinery rather than starting fresh..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / overstated.** C5-C7 are mathematically correct. For example, with true incremental net benefit 1 and threshold 0, an estimator fixed at -0.1 has RMSE 1.1 and always gives the wrong decision, while one fixed at 3 has RMSE 2 and never does. C2 is also correct: ADEMP does not require a decision element. However, the report conflates estimator losses with value-of-information measures. Wrong-decision probability and regret are valid only after specifying actions, a threshold, and a loss or net-benefit model. EVPI and EVSI measure the value of resolving or collecting information, not estimator quality, and can increase when uncertainty increases. C3, C4, and C11 are literature-prevalence claims not established by the cited ADEMP paper; C10 is an unsupported priority judgment. Existing decision-analysis guidance already connects evidence synthesis to threshold-based decisions, so the remaining gap is routine PAIC application, not missing technical machinery.
+    Cites 10.1002/sim.8086: Provides the general ADEMP framework, including a performance-measures element broad enough to contain a prespecified decision loss, although it does not require one..
+    Cites choxos/NICE-DSU-TSD-RAG@75abcb9c226a9f8fa7a0a4ffeba42874f1712ecb: Shows that evidence-synthesis appraisal can already use an explicit decision model, willingness-to-pay threshold, and probability that a strategy is optimal..
+
+Decision path
+:   `R3:partially-solved(n=1) → R7:counter-and-support-both-present`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [DIA-04 — ADEMP has no identification map for simulation estimands](DIA-04-ademp-has-no-identification-map-for-simulation-estimands.qmd)
+- [DIS-15 — Cross-gap bridge bounds are not propagated to net benefit](DIS-15-cross-gap-bridge-bounds-are-not-propagated-to-net-benefit.qmd)
+- [OUT-20 — No PAIC workflow carries dependence through transport to net benefit](OUT-20-no-paic-workflow-carries-dependence-through-transport-to-net.qmd)
+:::
+
+## Source
+
+Derived from A:L193, A:L198, C:L214-215, C:L260, C:L1769, C:L2046-2053 of the reviewed corpus.

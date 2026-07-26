@@ -1,0 +1,69 @@
+---
+title: "Held-out IPD is not used to benchmark transport against truth"
+description: "No study masks selected trials of a multi-trial IPD dataset down to aggregate data and scores PAIC estimates against the full-IPD target-standardized analysis, and PAIC validation concentrates on relative effects rather than on the absolute arm-level predictions a transport model actually makes; the closest multi-IPD study, Phillippo et al. 2022 (doi:10.1177/0272989X221117162), validates through residual heterogeneity and inconsistency and modifier relaxation, with no held-out trial and no predicted-versus-observed arm check. Real-data benchmarking against randomized evidence does exist as one-off case studies, which the source does not acknowledge: Signorovitch et al. 2023 (doi:10.1080/09546634.2023.2169574) compares previously published guselkumab MAIC estimates against the subsequently completed ECLIPSE and IXORA-R head-to-head trials. The benchmark is a prespecified reference analysis carrying its own uncertainty rather than known truth, and it must match the estimand: a marginal PAIC estimate needs a marginal target-standardized comparator while conditional STC or conditional ML-NMR output needs a conditional one, a distinction that is material on non-collapsible scales."
+pid: "DIA-17"
+topic: "Diagnostics & empirical validation"
+categories: ["Diagnostics & empirical validation", "Very high priority", "Confirmed open"]
+priority: "Very high"
+prank: 1
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[DIA-17]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[Very high priority]{.chip .chip-priority-very-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+## Statement
+
+No study masks selected trials of a multi-trial IPD dataset down to aggregate data and scores PAIC estimates against the full-IPD target-standardized analysis, and PAIC validation concentrates on relative effects rather than on the absolute arm-level predictions a transport model actually makes; the closest multi-IPD study, Phillippo et al. 2022 (doi:10.1177/0272989X221117162), validates through residual heterogeneity and inconsistency and modifier relaxation, with no held-out trial and no predicted-versus-observed arm check. Real-data benchmarking against randomized evidence does exist as one-off case studies, which the source does not acknowledge: Signorovitch et al. 2023 (doi:10.1080/09546634.2023.2169574) compares previously published guselkumab MAIC estimates against the subsequently completed ECLIPSE and IXORA-R head-to-head trials. The benchmark is a prespecified reference analysis carrying its own uncertainty rather than known truth, and it must match the estimand: a marginal PAIC estimate needs a marginal target-standardized comparator while conditional STC or conditional ML-NMR output needs a conditional one, a distinction that is material on non-collapsible scales.
+
+## Why it is open
+
+Both designs require multi-trial IPD, which sits with sponsors and consortia rather than with methodologists, and data-sharing agreements rarely permit the repeated re-analysis a validation study needs. Population-shift validation additionally requires an identified absolute-risk transport model, compatible outcome definitions and follow-up, adequate overlap and preferably a shared arm for calibration, a rarer configuration than it appears. Masked-IPD validation is uniquely capable of embarrassing a method, so incentives run against it and the real-data checks that exist are sponsor-authored one-offs rather than standing benchmarks with reusable protocols.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Signorovitch et al. 2023, Matching-adjusted indirect comparison (MAIC) results confirmed by head-to-head trials: a case study in psoriasis](https://doi.org/10.1080/09546634.2023.2169574) | Benchmarks published MAIC estimates against subsequently completed head-to-head randomized trials on PASI 90 risk differences; a real-data check with a known answer, though a single sponsor-authored case study rather than a standing benchmark. |
+| [Phillippo et al. 2022, Validating the Assumptions of Population Adjustment: Application of Multilevel Network Meta-regression to a Network of Treatments for Plaque Psoriasis](https://doi.org/10.1177/0272989X221117162) | The closest existing multi-IPD validation of population adjustment; validates through residual heterogeneity and inconsistency checks and shared-modifier relaxation, with no held-out trial and no predicted-versus-observed absolute arm outcome check. |
+| [cpaic (development version), commit 9d150e9](https://github.com/choxos/cpaic/commit/9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca) | Unreleased development package on GitHub, not available from CRAN. Cited by GPT-5.6 Sol to show the estimand distinction that determines the correct benchmark: cstc() returns a conditional effect at the target covariate values while cmaic() returns a marginal weighted effect in the target population. |
+
+:::
+
+## Probable solution or research direction
+
+Establish standing IPD-masking benchmarks on shared multi-trial datasets with a fixed protocol: mask selected trials to aggregate data, run the comparator method set, and report discrepancy from a prespecified full-IPD analysis of the same estimand, marginal for marginal methods and conditional for conditional ones, with uncertainty in both estimates carried through, alongside decision agreement. Where trial pairs with IPD from distinct populations and a shared arm exist, transport in both directions and compare uncertainty-aware predicted arm outcomes with observed ones, treating a failed arm-level prediction as evidence against the transport model. Report arm-level calibration as a routine validation output rather than relative-effect agreement alone.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+
+**The source said.** "The two real-data designs with an unambiguous benchmark are not standard practice: IPD masking, in which selected trials of a multi-trial IPD dataset are reduced to aggregate data and the PAIC estimate is compared with the full-IPD target-standardized analysis it is supposed to approximate; and population-shift validation, in which transport between IPD populations is checked by comparing predicted with observed absolute arm outcomes as well as contrasts."
+
+**What was wrong with it.** The source called masked IPD the one design with an unambiguous benchmark and did not mention that MAIC estimates have already been checked against subsequent head-to-head trials (Signorovitch et al. 2023, doi:10.1080/09546634.2023.2169574). GPT-5.6 Sol added that a full-IPD benchmark is a prespecified reference analysis with its own sampling uncertainty and must be marginal or conditional to match the estimand of the method being scored.
+
+**Dissent.** codex dissented (overstated): C1 is sound only if 'known target' means a prespecified reference analysis, not known causal truth. A full-IPD estimate remains finite-sample uncertain and may depend on its outcome and transport models. C3 must be estimand-specific. Marginal target standardization is the appropriate comparator for a marginal PAIC estimand, but conditional STC or cML-NMR output requires a corresponding conditional benchmark. This distinction is material on non-collapsible scales. The cpaic source confirms that cstc() is conditional and cmaic() is marginal, while cML-NMR's current effect path is conditional rather than marginally standardized. C4 requires more than two IPD populations: absolute arm prediction needs an identified baseline-risk model, compatible outcomes and follow-up, positivity, and cross-trial transportability of absolute risks; a shared arm can provide calibration. Observed arm outcomes are noisy benchmarks and should be compared using uncertainty-aware predictions. C6 is correct because common baseline-risk errors can cancel in a contrast. C2 and C5 are literature-practice assertions outside this audit. The validation agenda remains valuable, but its benchmark is neither universal nor unambiguous.
+
+Literature and prior-art check
+:   **open / supported-with-caveat.** I found no study that masks selected trials of a multi-trial IPD dataset down to aggregate data and scores PAIC estimates against the full-IPD target-standardized analysis, so the core claim holds. Two caveats. First, real-data benchmarking of PAIC against randomized evidence does exist and the entry does not acknowledge it: Signorovitch et al. 2023 compared previously published guselkumab MAIC estimates against the subsequently completed ECLIPSE and IXORA-R head-to-head trials on PASI 90 risk differences (14.4% in ECLIPSE vs 9.4% in the MAIC at week 48; 0.0% vs 0.7% at week 24). That is a one-off sponsor-authored case study, not a standing benchmark, which is consistent with the entry's 'not standard practice' framing. Second, the population-shift design is not entirely unexercised: Phillippo et al. 2022 fit ML-NMR to a plaque psoriasis network with IPD from several trials and produce absolute target-population predictions, but explicitly do not hold out a trial or compare predicted with observed absolute arm outcomes, which confirms the entry's arm-level calibration claim.
+    Cites 10.1080/09546634.2023.2169574: A real-data benchmark of PAIC against randomized evidence with a known answer, which the entry does not acknowledge; it is a single sponsor-authored case study rather than the standing masked-IPD benchmark the entry calls for..
+    Cites 10.1177/0272989X221117162: The closest existing multi-IPD validation of population adjustment; confirms the entry's claim by validating only via residual heterogeneity/inconsistency and shared-modifier relaxation, with no held-out trial and no predicted-vs-observed absolute arm outcome check..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** C1 is sound only if 'known target' means a prespecified reference analysis, not known causal truth. A full-IPD estimate remains finite-sample uncertain and may depend on its outcome and transport models. C3 must be estimand-specific. Marginal target standardization is the appropriate comparator for a marginal PAIC estimand, but conditional STC or cML-NMR output requires a corresponding conditional benchmark. This distinction is material on non-collapsible scales. The cpaic source confirms that cstc() is conditional and cmaic() is marginal, while cML-NMR's current effect path is conditional rather than marginally standardized. C4 requires more than two IPD populations: absolute arm prediction needs an identified baseline-risk model, compatible outcomes and follow-up, positivity, and cross-trial transportability of absolute risks; a shared arm can provide calibration. Observed arm outcomes are noisy benchmarks and should be compared using uncertainty-aware predictions. C6 is correct because common baseline-risk errors can cancel in a contrast. C2 and C5 are literature-practice assertions outside this audit. The validation agenda remains valuable, but its benchmark is neither universal nor unambiguous.
+
+Decision path
+:   `R5:default-open → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Source
+
+Derived from C:L2099-2101, C:L2107-2109 of the reviewed corpus.

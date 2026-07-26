@@ -1,0 +1,89 @@
+---
+title: "No evidence on how the modifier set changes across effect scales"
+description: "Effect-modifier status is defined relative to a treatment contrast and an effect scale, so candidate adjustment sets can differ by estimand; that is an established definition rather than an unsettled question. The estimand-first rule the source says is missing has been stated: effect modification is defined on a conditional measure while population-level decisions need marginal effects, and under non-collapsibility purely prognostic variables can modify marginal effects (Remiro-Azocar 2024, doi:10.1002/sim.10111); a transportability framing ties modifier identification explicitly to the chosen measure (Chandler and Ishak 2026, arxiv:2602.17041). What is undone is uptake and evidence: neither paper reports how the modifier set changes across the candidate scales a decision might use, and learning which heterogeneity matters from sparse PAIC data remains uncertain."
+pid: "COV-02"
+topic: "Covariates: selection, target moments, measurement"
+categories: ["Covariates: selection, target moments, measurement", "High priority", "Partially addressed"]
+priority: "High"
+prank: 2
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
+maturity: "Emerging"
+---
+::: {.problem-meta}
+[COV-02]{.problem-id}
+[Partially addressed]{.verdict .verdict-partially-addressed}
+[High priority]{.chip .chip-priority-high}
+[Emerging]{.chip .chip-maturity-emerging}
+:::
+::: {.source-unsourced}
+**Source note.** This entry derives in part from a source document whose inline citations
+were ChatGPT interface tokens rather than references, and so resolve to nothing. Claims
+below are attributed to that document and were checked independently where possible;
+anything that could not be independently sourced is marked in the verification trail.
+:::
+
+## Statement
+
+Effect-modifier status is defined relative to a treatment contrast and an effect scale, so candidate adjustment sets can differ by estimand; that is an established definition rather than an unsettled question. The estimand-first rule the source says is missing has been stated: effect modification is defined on a conditional measure while population-level decisions need marginal effects, and under non-collapsibility purely prognostic variables can modify marginal effects (Remiro-Azocar 2024, doi:10.1002/sim.10111); a transportability framing ties modifier identification explicitly to the chosen measure (Chandler and Ishak 2026, arxiv:2602.17041). What is undone is uptake and evidence: neither paper reports how the modifier set changes across the candidate scales a decision might use, and learning which heterogeneity matters from sparse PAIC data remains uncertain.
+
+## Why it is open
+
+Under non-collapsible measures a variable can be purely prognostic on the conditional scale and still shift the marginal contrast, so the modifier set is a property of the estimand rather than of the variable, and a set that is right for the fitted model can be wrong for the decision. The scale-first principle is available but not routine, and no published analysis shows how the modifier set moves when the same data are read on the risk difference, odds ratio and hazard ratio scales, so scale sensitivity stays absorbed in the adjustment step. Population adjustment is also not only about transporting conditional effect modification: unanchored comparisons need prognostic adjustment, and marginal non-collapsible estimands vary with the prognostic distribution even without a conditional interaction.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Remiro-Azocar, 2024](https://doi.org/10.1002/sim.10111) | Transportability of model-based estimands in evidence synthesis: effect modification is defined with respect to a conditional measure while marginal effects are required for population-level decisions, and for non-collapsible measures purely prognostic variables can modify marginal effects. |
+| [Chandler and Ishak, 2026](https://arxiv.org/abs/2602.17041) | Reframes population-adjusted indirect comparison as a transportability problem from an estimand-based perspective, tying effect-modifier identification to the chosen effect measure. |
+| [cpaic, commit 9d150e9](choxos/cpaic@9d150e9) | Unreleased development R package on GitHub, not on CRAN and not installable by a reader; its estimand documentation distinguishes the conditional contrast at a covariate profile from the marginal effect standardized over a population, which is the distinction the source said is never surfaced. |
+
+:::
+
+## Probable solution or research direction
+
+Apply the estimand-first rule rather than rediscover it: declare the contrast and the scale, derive the modifier set from them, and require the reported estimand, adjustment set and contrast to sit on the same scale. The research contribution left is the diagnostic, which is to report how the modifier set and the resulting estimate move across the candidate scales a decision might use, plus evidence on how often that changes an appraisal. Implementations can help by labeling outputs as conditional profile contrasts or marginal standardized effects, as the development package cpaic does; cpaic is an unreleased GitHub development version, commit 9d150e9, and is not installable from CRAN.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Partially addressed. Part of this problem is addressed by existing work; the entry names which part.
+
+**The source titled this.** "Effect-modifier status is uncertain and scale-dependent" The title calls effect-modifier status uncertain, but the audit found scale-dependence to be an established definition and the estimand-first rule already stated in the literature.
+
+**The source said.** "Whether a covariate modifies the treatment effect depends on the effect scale, so the correct adjustment set is not a property of the variable alone. The report states that identification of which covariates are effect modifiers remains uncertain and scale-dependent."
+
+**What was wrong with it.** The entry was unattributed in the source and said the literature offers no rule for declaring the scale first and deriving the modifier set from it; it is now sourced, and that rule turns out to be stated in doi:10.1002/sim.10111 and arxiv:2602.17041, so the gap is uptake and benchmarking rather than the principle. The code auditor added that scale-conditional modifier status is a definition rather than an open problem, that effect-modifier transport is not the only reason population adjustment exists, and that software does surface the distinction between conditional and marginal effects; the two auditors split on whether the entry is open or partly solved, and it is published at the weaker claim.
+
+**Dissent.** literature dissented (open): All three claims are supportable from retrieved text. Remiro-Azocar 2024 (Stat Med) states verbatim that 'effect modification is defined with respect to a conditional measure, but marginal effect estimates are required for population-level decisions in health technology assessment', and that 'For non-collapsible measures, purely prognostic variables that are not determinants of treatment response at the individual level may modify marginal effects' — the precise mechanism the entry describes. Chandler & Ishak 2026 (arXiv 2602.17041) reframes PAIC as transportability and ties modifier identification to the chosen effect measure. The caveat is on the why_open text, not the claims: the entry asserts 'the literature offers no rule for declaring the scale first and deriving the modifier set from it'. Both retrieved papers articulate exactly such a rule (define the marginal estimand and its scale first; prefer directly collapsible measures partly because they facilitate covariate selection). What is missing is uptake and benchmarking, not the principle. Neither paper reports how modifier sets change across candidate scales, so the diagnostic proposed here is genuinely undone. codex dissented (overstated): C2 is mathematically correct: with a constant conditional odds ratio of 2, control risks 0.10 and 0.40 imply treated risks 0.1818 and 0.5714, hence risk differences 0.0818 and 0.1714. Scale-conditional modifier status is therefore an established definition, not itself an open problem; learning the relevant response surface from sparse PAIC data remains open. C3 is an unsourced practice claim. C4 overstates the scope: modifier transport is central to anchored PAIC, but unanchored comparisons also require prognostic adjustment, and marginal non-collapsible estimands can vary with the prognostic distribution even without a conditional interaction. The assertion that the mismatch is never surfaced is also contradicted by cpaic@9d150e9, which explicitly distinguishes conditional profile contrasts from marginal standardized effects.
+
+Literature and prior-art check
+:   **open / supported-with-caveat.** All three claims are supportable from retrieved text. Remiro-Azocar 2024 (Stat Med) states verbatim that 'effect modification is defined with respect to a conditional measure, but marginal effect estimates are required for population-level decisions in health technology assessment', and that 'For non-collapsible measures, purely prognostic variables that are not determinants of treatment response at the individual level may modify marginal effects' — the precise mechanism the entry describes. Chandler & Ishak 2026 (arXiv 2602.17041) reframes PAIC as transportability and ties modifier identification to the chosen effect measure. The caveat is on the why_open text, not the claims: the entry asserts 'the literature offers no rule for declaring the scale first and deriving the modifier set from it'. Both retrieved papers articulate exactly such a rule (define the marginal estimand and its scale first; prefer directly collapsible measures partly because they facilitate covariate selection). What is missing is uptake and benchmarking, not the principle. Neither paper reports how modifier sets change across candidate scales, so the diagnostic proposed here is genuinely undone.
+    Cites doi:10.1002/sim.10111: Sources the scale-dependence claim and articulates the scale/estimand-first principle the entry says is absent.
+    Cites arxiv:2602.17041: Estimand-first framing for PAIC in which effect-modifier identification is explicitly tied to the effect measure.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / overstated.** C2 is mathematically correct: with a constant conditional odds ratio of 2, control risks 0.10 and 0.40 imply treated risks 0.1818 and 0.5714, hence risk differences 0.0818 and 0.1714. Scale-conditional modifier status is therefore an established definition, not itself an open problem; learning the relevant response surface from sparse PAIC data remains open. C3 is an unsourced practice claim. C4 overstates the scope: modifier transport is central to anchored PAIC, but unanchored comparisons also require prognostic adjustment, and marginal non-collapsible estimands can vary with the prognostic distribution even without a conditional interaction. The assertion that the mismatch is never surfaced is also contradicted by cpaic@9d150e9, which explicitly distinguishes conditional profile contrasts from marginal standardized effects.
+    Cites choxos/cpaic@9d150e9: It explicitly distinguishes conditional profile effects from marginal population-standardized effects, resolving the scale and estimand declaration in this implementation; modifier discovery remains unresolved..
+
+Decision path
+:   `R3:partially-solved(n=1) → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [DEC-07 — Estimand, effect scale and absolute target outcomes go undeclared](DEC-07-estimand-effect-scale-and-absolute-target-outcomes-go-undecl.qmd)
+- [EST-03 — Non-collapsible marginal effects are not portable across populations](EST-03-non-collapsible-marginal-effects-are-not-portable-across-pop.qmd)
+- [EST-04 — Methods return incompatible marginal and conditional estimands](EST-04-methods-return-incompatible-marginal-and-conditional-estiman.qmd)
+- [EST-08 — Effect scales chosen by convention rather than transportability](EST-08-effect-scales-chosen-by-convention-rather-than-transportabil.qmd)
+- [QBA-14 — Sensitivity parameters carry their own identification problem](QBA-14-sensitivity-parameters-carry-their-own-identification-proble.qmd)
+:::
+
+## Source
+
+Derived from A:L66 of the reviewed corpus.

@@ -1,0 +1,95 @@
+---
+title: "No general-purpose transport library plugs into the NMA stack"
+description: "Standard transport estimators assume an individual-level sample from the target population and HTA targets are usually described only by published summaries, but that obstruction is no longer untouched. Chen et al. (doi:10.1111/biom.13825) reweight to target summary moments, Yan et al.'s TADA (doi:10.1002/pst.70029) transports survival effects from target aggregate data while adjusting for covariate-dependent censoring, and Vo et al. (arXiv:2503.05634) and Shi et al. (arXiv:2605.27272) extend causally interpretable meta-analysis to trials whose individual data are inaccessible. What is missing is a general-purpose transportability library that plugs into the NMA stack: the only NMA-integrated transport is multinma's own ML-NMR, which requires a copula reconstruction of the target joint covariate distribution from published marginals, while TransportHealth and similar stacks are separate codebases rather than drop-ins for multinma, netmeta or gemtc."
+pid: "ADJ-02"
+topic: "Adjacent-field methods"
+categories: ["Adjacent-field methods", "Very high priority", "Overstated"]
+priority: "Very high"
+prank: 1
+verdict: "Overstated"
+verdictslug: "overstated"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[ADJ-02]{.problem-id}
+[Overstated]{.verdict .verdict-overstated}
+[Very high priority]{.chip .chip-priority-very-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+::: {.source-unsourced}
+**Source note.** This entry derives in part from a source document whose inline citations
+were ChatGPT interface tokens rather than references, and so resolve to nothing. Claims
+below are attributed to that document and were checked independently where possible;
+anything that could not be independently sourced is marked in the verification trail.
+:::
+
+## Statement
+
+Standard transport estimators assume an individual-level sample from the target population and HTA targets are usually described only by published summaries, but that obstruction is no longer untouched. Chen et al. (doi:10.1111/biom.13825) reweight to target summary moments, Yan et al.'s TADA (doi:10.1002/pst.70029) transports survival effects from target aggregate data while adjusting for covariate-dependent censoring, and Vo et al. (arXiv:2503.05634) and Shi et al. (arXiv:2605.27272) extend causally interpretable meta-analysis to trials whose individual data are inaccessible. What is missing is a general-purpose transportability library that plugs into the NMA stack: the only NMA-integrated transport is multinma's own ML-NMR, which requires a copula reconstruction of the target joint covariate distribution from published marginals, while TransportHealth and similar stacks are separate codebases rather than drop-ins for multinma, netmeta or gemtc.
+
+## Why it is open
+
+Published marginals identify the target joint distribution only in special cases. Unless the reported summaries happen to identify every target expectation the estimand and model require, the dependence structure and nonlinear expectations must be assumed rather than estimated, and that assumption's contribution to uncertainty is not propagated into the interval. The existing aggregate-target estimators are built for a single source trial and a specified estimand rather than for a connected network with multi-arm structure. Transport software and NMA software are developed as separate stacks, so an estimate produced by one cannot enter an evidence network fitted by the other without manual re-implementation.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Yan et al., Target Aggregate Data Adjustment Method for Transportability Analysis Utilizing Summary-Level Data From the Target Population, Pharm Stat 2025](https://doi.org/10.1002/pst.70029) | TADA: two-stage weighting that transports a survival effect when only target aggregate data exist, adjusting simultaneously for censoring bias and effect-modifier imbalance. Evaluated and applied; not integrated into an NMA package. |
+| [Yan et al., Target Aggregate Data Adjustment Method for Transportability Analysis Utilizing Summary-Level Data from the Target Population (preprint, 2025)](https://arxiv.org/abs/2412.12335) | Preprint version of TADA with assumptions, theory, simulations and an NSCLC case study under target aggregate data only. |
+| [Chen et al., Entropy balancing for causal generalization with target sample summary information, Biometrics 2023](https://doi.org/10.1111/biom.13825) | Weighting transport of the average treatment effect using target summary-level moments only. Not survival PAIC and not NMA software. |
+| [Vo et al., Integration of aggregated data in causally interpretable meta-analysis by inverse weighting (2025)](https://arxiv.org/abs/2503.05634) | Transport and standardization across trials where individual data are inaccessible for some studies, by extending moment-based PAIC methods. |
+| [Shi, van Amsterdam, Dahabreh et al., Causally-interpretable meta-analysis using aggregate data (2026)](https://arxiv.org/abs/2605.27272) | Causally interpretable meta-analysis and indirect comparison in a target population from aggregate trial data only. |
+| [multinma package documentation (Phillippo)](https://dmphillippo.github.io/multinma/reference/multinma-package.html) | Counter-evidence to the claim that no transportability software interoperates with mainstream NMA packages: multinma produces population-adjusted effects for any study population in the network or for an external target population. |
+
+:::
+
+## Probable solution or research direction
+
+Extend the estimators that exist rather than build new ones: take TADA and target-moment entropy balancing to the estimands and outcome types HTA needs, and derive the extra uncertainty induced by reconstructing a joint distribution from marginals so that it appears in the reported interval. Characterize when reported summaries are sufficient for the required target expectations and when they are not, and pair the insufficient case with sensitivity analysis. Then make the result interoperable with mainstream NMA packages so a transported estimate can enter an evidence network directly.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Overstated. 2 independent auditors judged the claim as stated too strong. There is no general-purpose transportability library that plugs into the NMA stack; the only NMA-integrated transport is multinma's own ML-NMR, which requires a copula reconstruction of the target joint covariate distribution from published marginals.
+
+**The source titled this.** "Transport estimators and software for aggregate-only targets" The title lists transport estimators for aggregate-only targets as missing, but the audit found TADA and three further estimators published, narrowing the gap to NMA-integrated software.
+
+**The source said.** "Standard transportability estimators assume an individual-level sample from the target population, but HTA targets are described only by published summaries. The report proposes extending target-aggregate-data methods such as TADA and building transportability software that interoperates with existing NMA packages instead of standing alone."
+
+**What was wrong with it.** The source, which cited nothing, said TADA needs extension before it can be used and that no transportability software interoperates with mainstream NMA packages. The literature auditor found TADA published, evaluated and applied (doi:10.1002/pst.70029) alongside three further aggregate-target estimators, and multinma documenting population-adjusted effects for an external target population; the claim was unattributed in the source, is now sourced, and narrows to the absence of a general-purpose transport library that interoperates with the NMA stack.
+
+**Dissent.** grok dissented (supported-with-caveat): Target-AgD transport is no longer empty. Chen et al. (Biometrics 2023) give entropy balancing from target summary moments; Josey-style calibration and related AgD transport work predate that. Yan et al. TADA (Pharm Stat 2025; arXiv:2412.12335) is a two-stage MoM plus IPCW method for transporting survival effects with covariate-dependent censoring when only target AgD exist, with simulation and a case study, code on GitHub, and inclusion as a module in TransportHealth (Park et al. 2025). Le et al. (arXiv:2408.04854) address transporting aggregate trial results in causally interpretable meta-analysis. C2 remains supported for standard IPD-target transport estimators. C3 is partly overstated because TADA and Chen already exist for key estimands; further extension for full PAIC/NMA estimands and uncertainty from reconstructed joints is still needed. C4 remains largely supported: TransportHealth and CausalMetaR are transport stacks, not drop-ins for multinma/netmeta/gemtc. C5 remains supported for ITC-network validation and NMA interop. Queries: TADA transport AgD; Chen entropy balancing target summary; TransportHealth; CausalMetaR multinma interop; DIPW Quan; NMA package release notes 2024–2026.
+
+Literature and prior-art check
+:   **partially-solved / overstated.** The entry names TADA and then says it needs extension; TADA is published and evaluated: Yan et al., 'Target Aggregate Data Adjustment Method for Transportability Analysis Utilizing Summary-Level Data From the Target Population' (Pharm Stat 2025, doi:10.1002/pst.70029; arXiv:2412.12335), a two-stage weighting framework applied to transport a KM curve to an Ontario NSCLC target. Two further 2025-2026 estimators cover the aggregate case: Vo et al. (arXiv:2503.05634) integrate aggregate trials with inaccessible IPD into causal meta-analysis by extending PAIC moment methods; Shi, van Amsterdam, Dahabreh et al. (arXiv:2605.27272) build causally-interpretable meta-analysis from marginal and one-at-a-time subgroup effects plus covariate summaries. The claim I cannot let stand is 'No transportability software currently interoperates with mainstream NMA packages.' multinma is a mainstream NMA package that performs the transport itself: its documentation states population-adjusted effects 'can be produced for any study population in the network, or for an external target population.' Standalone packages (TransportHealth, generalize) exist alongside it.
+    Cites doi:10.1002/pst.70029: TADA exists, is evaluated and applied; the aggregate-only-target obstruction is partly addressed for a single source trial with a survival outcome..
+    Cites arxiv:2503.05634: Transport/standardization across trials where IPD is inaccessible for some studies, by extending PAIC moment-based methods..
+    Cites arxiv:2605.27272: Causally-interpretable meta-analysis and indirect comparison in a target population from aggregate trial data only..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** C2 is generally correct but not categorical. Aggregate summaries can suffice when they identify the target expectations required by the chosen outcome or effect model, such as when the relevant conditional contrast lies in the linear span of reported balance functions. Otherwise, marginal summaries do not identify the target joint distribution, dependence structure or nonlinear expectations. Individual-level target data and density estimation are therefore common requirements, not universal ones. C3 and C5 are plausible development assessments but unsourced; C4 is an unsupported universal software claim. The genuine open core is identification and uncertainty propagation under insufficient target summaries, plus usable network integration.
+
+Grok 4.5, recency lens
+:   **partially-solved / supported-with-caveat.** Target-AgD transport is no longer empty. Chen et al. (Biometrics 2023) give entropy balancing from target summary moments; Josey-style calibration and related AgD transport work predate that. Yan et al. TADA (Pharm Stat 2025; arXiv:2412.12335) is a two-stage MoM plus IPCW method for transporting survival effects with covariate-dependent censoring when only target AgD exist, with simulation and a case study, code on GitHub, and inclusion as a module in TransportHealth (Park et al. 2025). Le et al. (arXiv:2408.04854) address transporting aggregate trial results in causally interpretable meta-analysis. C2 remains supported for standard IPD-target transport estimators. C3 is partly overstated because TADA and Chen already exist for key estimands; further extension for full PAIC/NMA estimands and uncertainty from reconstructed joints is still needed. C4 remains largely supported: TransportHealth and CausalMetaR are transport stacks, not drop-ins for multinma/netmeta/gemtc. C5 remains supported for ITC-network validation and NMA interop. Queries: TADA transport AgD; Chen entropy balancing target summary; TransportHealth; CausalMetaR multinma interop; DIPW Quan; NMA package release notes 2024–2026.
+    Cites 10.1002/pst.70029: Operational AgD-target transport for survival with MoM participation weights and IPCW; software prototype (TADA/TransportHealth). Not full PAIC-into-NMA interop..
+    Cites arxiv:2412.12335: Preprint/version of TADA with assumptions, theory sketch, simulations, and NSCLC case study under target AgD only..
+    Cites 10.1111/biom.13825: Weighting transport of ATE using target summary-level moments only (binary/continuous-style generalization). Not survival PAIC/NMA network software..
+
+Decision path
+:   `R3:partially-solved(n=2) → R8:overstated-majority(n=2)`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [CMP-15 — Target joint covariate distribution is only approximately known](CMP-15-target-joint-covariate-distribution-is-only-approximately-kn.qmd)
+- [COV-08 — Entropy balancing has no network extension or variance theory](COV-08-entropy-balancing-has-no-network-extension-or-variance-theor.qmd)
+:::
+
+## Source
+
+Derived from A:L50, A:L65 of the reviewed corpus.

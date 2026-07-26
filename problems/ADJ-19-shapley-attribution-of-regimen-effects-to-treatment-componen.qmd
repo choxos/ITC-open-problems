@@ -1,0 +1,78 @@
+---
+title: "Shapley attribution of regimen effects to treatment components"
+description: "Attributing a combination regimen's effect to its components in component network meta-analysis by Shapley value remains untested. Model-based attribution of effect to drug versus context has been done in psoriasis (doi:10.1016/j.jaad.2026.07.030), but not as a Shapley decomposition over a component design matrix. A Shapley value is defined relative to a fitted model, so any such attribution inherits that model's additivity assumption rather than testing it."
+pid: "ADJ-19"
+topic: "Adjacent-field methods"
+categories: ["Adjacent-field methods", "Medium priority", "Confirmed open"]
+priority: "Medium"
+prank: 4
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Emerging"
+---
+::: {.problem-meta}
+[ADJ-19]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[Medium priority]{.chip .chip-priority-medium}
+[Emerging]{.chip .chip-maturity-emerging}
+:::
+## Statement
+
+Attributing a combination regimen's effect to its components in component network meta-analysis by Shapley value remains untested. Model-based attribution of effect to drug versus context has been done in psoriasis (doi:10.1016/j.jaad.2026.07.030), but not as a Shapley decomposition over a component design matrix. A Shapley value is defined relative to a fitted model, so any such attribution inherits that model's additivity assumption rather than testing it.
+
+## Why it is open
+
+A Shapley allocation exists for any fitted value function, so nothing in the numbers distinguishes an attribution supported by contrast information from one manufactured by the model's structure, while the output looks like evidence that a component works. Unsupported coalitions require the model to extrapolate to component combinations no trial studied, and the allocation of interaction terms is a convention rather than a fact. Component estimability is not visible in a network diagram, so a reader has no way to tell which attributions rest on evidence.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Li, Shih & Tu, Graphical evaluation of evidence structure within a component network meta-analysis, Res Synth Methods 2023;14:596-607](https://doi.org/10.1002/jrsm.1623) | Shows that component identifiability cannot be deduced from the network plot and requires a dedicated signal-flow analysis; the estimability report that must accompany any Shapley attribution. |
+| [netmeta (R package, netcomb for component network meta-analysis)](https://cran.r-project.org/package=netmeta) | Existing component network meta-analysis estimation, which estimates component effects where the design identifies them; a different estimand path from post-hoc Shapley allocation. |
+| [Ellenberg et al. 2026](https://doi.org/10.1016/j.jaad.2026.07.030) | Model-based attribution of biologic effectiveness in psoriasis, separating drug from context contributions; a worked instance of attributing a regimen's effect to components within a fitted model |
+
+:::
+
+## Probable solution or research direction
+
+Use Shapley-style attribution to communicate interaction structure within component models, and report component estimability alongside it so an attribution can never be mistaken for an identified causal component effect. State the estimability condition correctly: in a linear component model a linear attribution is identified exactly when its coefficient vector lies in the row space of the design, and a nonlinear attribution must be invariant over the observational equivalence class. Label attributions that fail that test as unidentified rather than reporting them as component effects.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+
+**The source said.** "Cooperative game theory and Shapley values are proposed to attribute a combination regimen's effect to its individual components under a fitted model, improving interpretability of component interactions. The report calls this an emerging interpretive tool."
+
+**What was wrong with it.** An earlier pass of this audit dropped a real reference here. Grok supplied a correct PubMed identifier next to a placeholder DOI ending in 'xxx'; the synthesis agent rejected both as fabricated. The PMID resolves to Ellenberg et al., Journal of the American Academy of Dermatology, whose real DOI is 10.1016/j.jaad.2026.07.030. A placeholder beside an identifier does not make the identifier fake.
+
+Literature and prior-art check
+:   **open / supported.** I found no application of Shapley values or cooperative game theory to attributing a combination regimen's effect to its components in component network meta-analysis. Shapley attribution is well established in machine-learning feature attribution and has been applied to biological networks, and component NMA has its own additive and interaction models, but the two have not been joined in the literature I retrieved. The entry's key warning is correct and is independently corroborated by the CNMA identifiability literature: Li, Shih & Tu (Res Synth Methods 2023;14:596-607, doi:10.1002/jrsm.1623) show that whether all component effects are identifiable is not readable off the network and requires a dedicated signal-flow analysis, which is precisely the condition under which a Shapley decomposition would still return a full, confident-looking allocation. Confidence is moderate: absence of a Shapley-CNMA paper is a negative search result rather than a positive finding.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** C1 is correct only after defining a player set, a coalition value for every required component subset, a reference population, and an interaction-allocation convention. Shapley values then allocate a model-implied contrast. C2 is possible but not automatic, especially when unsupported coalitions require extrapolation. C3 is the essential limitation, and C4 matches the report. The claim that Shapley attribution always supplies a meaningful decomposition is too broad. The proposed null-space diagnostic is also imprecise: components do not generally lie in a design matrix's null space. In a linear component model X beta, a linear attribution l-transpose beta is identified exactly when l lies in the row space of X, equivalently when l-transpose n equals zero for every n in null(X). A nonlinear attribution must likewise be invariant over the observational equivalence class. Safe PAIC reporting remains open, but this is an interpretive roadmap item rather than evidence that component effects are identified.
+
+Grok 4.5, recency lens
+:   **open / supported.** No cited prior_work. Component NMA (additive/interaction CNMA; netmeta::netcomb and related methods) already estimates component effects when design information identifies them; that is a different estimand path from post-hoc Shapley allocation of a regimen effect under an arbitrary fitted value function. Search found clinical model-based Shapley/SHAP attributions (including Ellenberg et al. 2026 JAAD online-first on model-based attribution of biologic effectiveness in psoriasis: drug vs context, doi:10.1016/j.jaad.2026.07.xxx as indexed under S0190-9622(26)03104-X / PubMed 42456775) and many SHAP applications for feature importance, none of which solve the identification-versus-attribution gap for multi-component regimens in ITC: a Shapley decomposition always exists relative to the model even when component effects are not identified by the network design. C1 is true as a computational fact under a fitted model. C2 is a soft interpretability claim, not a solved methodological standard. C3 is the correct caution and is strengthened, not resolved, by applications that emit attributions without reporting design null-space / estimability. C4 is a report label consistent with the literature. Queries: Shapley + (component network meta-analysis|CNMA|combination regimen|multi-component intervention); cooperative game theory treatment components meta-analysis 2023–2026.
+
+Decision path
+:   `R5:default-open → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [CMP-03 — Strict component additivity may be clinically false](CMP-03-strict-component-additivity-may-be-clinically-false.qmd)
+- [CMP-07 — Causal meaning of a component effect is ambiguous](CMP-07-causal-meaning-of-a-component-effect-is-ambiguous.qmd)
+- [CMP-08 — Identification beyond row-space screens in nonlinear component ML-NMR](CMP-08-identification-beyond-row-space-screens-in-nonlinear-compone.qmd)
+- [QBA-20 — Component PAIC needs joint population-and-bridge bias analysis](QBA-20-component-paic-needs-joint-population-and-bridge-bias-analys.qmd)
+- [QBA-22 — Total bias is non-additive, so one-at-a-time analyses mislead](QBA-22-total-bias-is-non-additive-so-one-at-a-time-analyses-mislead.qmd)
+:::
+
+## Source
+
+Derived from C:L1646-1647, C:L1672 of the reviewed corpus.

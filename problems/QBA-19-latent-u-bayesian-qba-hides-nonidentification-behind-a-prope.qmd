@@ -1,0 +1,76 @@
+---
+title: "Latent-U Bayesian QBA hides nonidentification behind a proper prior"
+description: "A Bayesian latent-U or fully joint QBA can conceal nonidentification: if the likelihood is flat in a sensitivity parameter and the prior factorizes, that parameter's posterior equals its prior while the causal contrast derived from it stays prior-driven and looks fully probabilistic, and convergence diagnostics assess computation rather than identification. Soutar et al. 2025 (doi:10.1186/s12874-025-02551-z) avoid the fully joint construction for this reason, using a two-step data-augmentation design with user-specified sensitivity parameters and warning that fully Bayesian approaches, if not correctly performed, may result in estimation issues such as non-identifiability. Part of the diagnostic infrastructure the entry asks for already exists: cpaic (choxos/cpaic@9d150e9, an unreleased development package on GitHub, not installable from CRAN) plots priors against posteriors and refits under tighter and looser priors to show which contrasts move, but these are generic cML-NMR diagnostics rather than a latent-U QBA module, and it offers no cut feedback or formal prior classes."
+pid: "QBA-19"
+topic: "Quantitative bias analysis for unanchored PAIC"
+categories: ["Quantitative bias analysis for unanchored PAIC", "Very high priority", "Unverifiable"]
+priority: "Very high"
+prank: 1
+verdict: "Unverifiable"
+verdictslug: "unverifiable"
+maturity: "Emerging"
+---
+::: {.problem-meta}
+[QBA-19]{.problem-id}
+[Unverifiable]{.verdict .verdict-unverifiable}
+[Very high priority]{.chip .chip-priority-very-high}
+[Emerging]{.chip .chip-maturity-emerging}
+:::
+## Statement
+
+A Bayesian latent-U or fully joint QBA can conceal nonidentification: if the likelihood is flat in a sensitivity parameter and the prior factorizes, that parameter's posterior equals its prior while the causal contrast derived from it stays prior-driven and looks fully probabilistic, and convergence diagnostics assess computation rather than identification. Soutar et al. 2025 (doi:10.1186/s12874-025-02551-z) avoid the fully joint construction for this reason, using a two-step data-augmentation design with user-specified sensitivity parameters and warning that fully Bayesian approaches, if not correctly performed, may result in estimation issues such as non-identifiability. Part of the diagnostic infrastructure the entry asks for already exists: cpaic (choxos/cpaic@9d150e9, an unreleased development package on GitHub, not installable from CRAN) plots priors against posteriors and refits under tighter and looser priors to show which contrasts move, but these are generic cML-NMR diagnostics rather than a latent-U QBA module, and it offers no cut feedback or formal prior classes.
+
+## Why it is open
+
+A nonidentified sensitivity parameter under a proper prior produces a finite, smooth, apparently well-behaved posterior that standard output cannot distinguish from an identified quantity, and no amount of sampler diagnostics changes that. Feedback from the outcome likelihood can update a clinically elicited sensitivity distribution that was never meant to be learned from the data, and where an external module is deliberately insulated or thought misspecified there is no modular fitting route in the ML-NMR software stack to prevent it. The diagnostics that do exist are generic parameter-level displays rather than a sensitivity module that labels parameters as identified, partially identified or nonidentified and shows how the causal conclusion depends on the prior class, and latent-U augmentation is computationally demanding on top of that.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Soutar et al. 2025, BMC Medical Research Methodology](https://doi.org/10.1186/s12874-025-02551-z) | Bayesian data-augmentation QBA for subject-level indirect comparisons with RMST under non-proportional hazards, treating the unmeasured confounder as missing data. Deliberately two-step with user-specified sensitivity parameters, warning that fully Bayesian approaches may produce non-identifiability. |
+| [cpaic, unreleased development package on GitHub (not on CRAN), commit 9d150e9](choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca) | plot_prior_posterior() draws posteriors as histograms against priors as lines so that a posterior reproducing its prior is visible, and prior_sensitivity() refits under tighter and looser priors as an empirical identification diagnostic. Generic cML-NMR diagnostics; no latent-U QBA, cut feedback or formal prior classes. |
+| [Chandler and Ishak 2026, Anchors Away: Navigating Unanchored Indirect Comparisons with Multilevel Unanchored Meta-Regression (ML-UMR)](https://arxiv.org/abs/2606.20341) | Confirms the one-stage gap: QBA could be adapted for ML-UMR by incorporating bias parameters or simulated unmeasured covariates into the outcome regression and standardization steps, which means it has not yet been done. |
+
+:::
+
+## Probable solution or research direction
+
+Build a prior-transparent sensitivity module on top of the prior-movement diagnostics that already exist, labeling parameters as identified, partially identified or nonidentified and reporting how far the causal contrast moves across a class of defensible priors rather than under one arbitrary choice. Offer modular or cut-feedback fitting as an option justified by an explicit modular argument rather than as a default, since a fully coherent joint fit is legitimate when the joint likelihood is what the analyst intends. Report deterministic parameter grids alongside the posterior mixture and cross-check the result against bias-function and partial-identification analyses of the same model.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Unverifiable. Auditors disagreed and the disagreement was evidence-bearing on both sides.
+
+**The source said.** "A one-stage Bayesian ML-UMR model can introduce a latent omitted variable with priors for its prevalence, source association, outcome association and treatment interaction, and a fully joint Bayesian QBA can specify observed-data, validation, target-distribution and sensitivity models together. In both cases the likelihood contains little or no information about the sensitivity parameters, so the posterior for the causal contrast can be prior-driven while appearing fully probabilistic."
+
+**What was wrong with it.** The auditors disagreed with evidence on both sides. GPT-5.6 Sol read cpaic at commit 9d150e9 and found prior-to-posterior plotting and prior-sensitivity refitting already implemented, so the claim that no PAIC software displays prior movement is false there; it also rejected modular or cut feedback as a requirement, since full feedback is coherent when the joint likelihood is scientifically intended and cut feedback breaks ordinary Bayesian coherence, and noted that a proper prior guarantees a proper posterior only when the marginal likelihood is finite and positive. The literature auditor kept the entry open and confirmed the one-stage gap from the ML-UMR paper (arXiv:2606.20341), whose authors say QBA could be adapted for ML-UMR, meaning it has not been.
+
+**Dissent.** codex dissented (overstated): The central warning is correct under the intended nonidentified latent-U model. If the likelihood is flat in a sensitivity parameter and the prior factorizes, that parameter's posterior equals its prior, while a derived causal contrast can remain prior-driven. C1, C2, C7, and the transparency objectives in C3 and C8 are therefore sound with model-specific qualifications. A proper prior does not literally always guarantee a proper posterior without a finite, positive marginal likelihood, although it does in the usual bounded-likelihood setup. Convergence diagnostics assess computation, not identification. C4 and C9 are false as requirements: full feedback is coherent when the stated joint likelihood is scientifically intended. Cut feedback is useful when an external module is deliberately insulated or thought misspecified, but it breaks ordinary joint Bayesian coherence and is redundant when the likelihood truly contains no information. C5 describes plausible flexibility rather than a guarantee. C6 should supplement, not replace, a justified primary prior; power scaling also does not address every structural sensitivity. C10 is too broad. At the requested cpaic snapshot, plot_prior_posterior() displays prior-to-posterior movement and prior_sensitivity() refits tighter and looser priors. These are not latent-U QBA diagnostics and do not provide cut feedback or formal prior classes, so the core module remains open but part of the requested diagnostic infrastructure already exists.
+
+Literature and prior-art check
+:   **open / supported.** Retrieved Soutar et al. 2025 (PMC12066054). It is correctly described: Bayesian data augmentation treating the unmeasured confounder as missing data, imputed under user-specified exposure and outcome associations, with a dRMST estimand valid under proportional-hazards violation. Notably its authors deliberately avoid the fully joint construction the entry criticises, warning that fully Bayesian approaches 'if not correctly performed may result in estimation issues such as non-identifiability' and using a two-step design with only 'user-specified sensitivity parameters'. That is a primary source corroborating claims 1, 2, 4 and 7. Claim 10 ('No PAIC software currently labels nonidentified parameters, displays prior-to-posterior movement, or supports prior classes and cut-feedback') is a no-feature-exists claim; multinma has no such interface as far as I could establish, but I did not read the source and treat it as unverified. Claim 3 and claims 5, 6, 8, 9 are normative design requirements. The ML-UMR paper (arXiv 2606.20341) confirms the gap on the one-stage side, stating QBA 'could be adapted for ML-UMR by incorporating bias parameters or simulated unmeasured covariates', i.e. it has not been.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / overstated.** The central warning is correct under the intended nonidentified latent-U model. If the likelihood is flat in a sensitivity parameter and the prior factorizes, that parameter's posterior equals its prior, while a derived causal contrast can remain prior-driven. C1, C2, C7, and the transparency objectives in C3 and C8 are therefore sound with model-specific qualifications. A proper prior does not literally always guarantee a proper posterior without a finite, positive marginal likelihood, although it does in the usual bounded-likelihood setup. Convergence diagnostics assess computation, not identification. C4 and C9 are false as requirements: full feedback is coherent when the stated joint likelihood is scientifically intended. Cut feedback is useful when an external module is deliberately insulated or thought misspecified, but it breaks ordinary joint Bayesian coherence and is redundant when the likelihood truly contains no information. C5 describes plausible flexibility rather than a guarantee. C6 should supplement, not replace, a justified primary prior; power scaling also does not address every structural sensitivity. C10 is too broad. At the requested cpaic snapshot, plot_prior_posterior() displays prior-to-posterior movement and prior_sensitivity() refits tighter and looser priors. These are not latent-U QBA diagnostics and do not provide cut feedback or formal prior classes, so the core module remains open but part of the requested diagnostic infrastructure already exists.
+    Cites choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca: The package already visualizes prior versus posterior distributions for cML-NMR parameters and quantifies contrast movement under tighter and looser priors. This partially resolves the broad diagnostic claim, but not the latent-U QBA-specific requirements..
+
+Decision path
+:   `R3:partially-solved(n=1) → R7:counter-and-support-both-present`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [DIA-11 — No scenario library or performance measures for estimability failure](DIA-11-no-scenario-library-or-performance-measures-for-estimability.qmd)
+- [DIS-09 — Structured elicitation is not applied to the cross-gap contrast](DIS-09-structured-elicitation-is-not-applied-to-the-cross-gap-contr.qmd)
+- [MOD-13 — No reporting convention exposes prior-dominated contrasts in PAIC](MOD-13-no-reporting-convention-exposes-prior-dominated-contrasts-in.qmd)
+:::
+
+## Source
+
+Derived from C:L529, C:L580-591, C:L743-748, C:L800-807 of the reviewed corpus.

@@ -1,0 +1,93 @@
+---
+title: "Methods return incompatible marginal and conditional estimands"
+description: "MAIC targets a marginal effect while a regression-based analysis returns a conditional one, so results from different population-adjustment methods are not directly comparable, and effect modification together with non-collapsibility can drive conditional and marginal estimates to conflicting treatment rankings (Phillippo et al. 2025, doi:10.1017/rsm.2025.2). The source's description of standard STC as yielding a clean conditional effect is wrong: in typical use it subtracts a published marginal comparator contrast from a conditional coefficient, and is biased for either estimand (Phillippo et al. 2021, doi:10.1002/sim.8965). The reconciliation the source proposes already exists and has been evaluated: parametric G-computation (doi:10.1002/jrsm.1565) and multiple imputation marginalization (doi:10.1186/s12874-024-02157-x) marginalize an outcome regression over a target population, and outstandR ships both (arxiv:2601.07532). What is left is discipline in use rather than a missing method: comparative evaluations still have to hold the estimand fixed, and some implementations return only one of the two quantities."
+pid: "EST-04"
+topic: "Estimands & target populations"
+categories: ["Estimands & target populations", "Very high priority", "Unverifiable"]
+priority: "Very high"
+prank: 1
+verdict: "Unverifiable"
+verdictslug: "unverifiable"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[EST-04]{.problem-id}
+[Unverifiable]{.verdict .verdict-unverifiable}
+[Very high priority]{.chip .chip-priority-very-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+::: {.source-unsourced}
+**Source note.** This entry derives in part from a source document whose inline citations
+were ChatGPT interface tokens rather than references, and so resolve to nothing. Claims
+below are attributed to that document and were checked independently where possible;
+anything that could not be independently sourced is marked in the verification trail.
+:::
+
+## Statement
+
+MAIC targets a marginal effect while a regression-based analysis returns a conditional one, so results from different population-adjustment methods are not directly comparable, and effect modification together with non-collapsibility can drive conditional and marginal estimates to conflicting treatment rankings (Phillippo et al. 2025, doi:10.1017/rsm.2025.2). The source's description of standard STC as yielding a clean conditional effect is wrong: in typical use it subtracts a published marginal comparator contrast from a conditional coefficient, and is biased for either estimand (Phillippo et al. 2021, doi:10.1002/sim.8965). The reconciliation the source proposes already exists and has been evaluated: parametric G-computation (doi:10.1002/jrsm.1565) and multiple imputation marginalization (doi:10.1186/s12874-024-02157-x) marginalize an outcome regression over a target population, and outstandR ships both (arxiv:2601.07532). What is left is discipline in use rather than a missing method: comparative evaluations still have to hold the estimand fixed, and some implementations return only one of the two quantities.
+
+## Why it is open
+
+The methods differ in where averaging over covariates happens, and on a non-collapsible scale averaging before and after the link function gives different numbers, so the discrepancy is not an artifact that better fitting removes. Applied comparisons of MAIC, STC and ML-NMR therefore often measure the estimand difference rather than estimator performance, and both quantities are printed on the same scale under the same name, so a reviewer cannot detect the switch from the output alone. Marginalization is available but is not the default everywhere: multinma returns conditional and marginal population-average effects as separately named outputs, while cpaic returns a conditional profile contrast from cML-NMR and documents that no population-standardized path exists yet. Marginalizing also requires a correctly specified outcome model, a defined target joint covariate law and adequate support, so it recovers a compatible marginal functional rather than making the conditional and marginal parameters identical.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Phillippo, Remiro-Azocar, Heath, Baio, Dias, Ades and Welton 2025, Effect modification and non-collapsibility together may lead to conflicting treatment decisions: A review of marginal and conditional estimands and recommendations for decision-making, Research Synthesis Methods 16(2):323-349](https://doi.org/10.1017/rsm.2025.2) | Supplies the missing citation for the conflicting-decisions claim and for reporting both estimands in the decision target population, and states that multilevel network meta-regression is currently the only population-adjustment method able to produce both conditional and marginal estimates in any decision target population. |
+| [Phillippo, Dias, Ades and Welton 2021, Target estimands for efficient decision making: Response to comments on Assessing the performance of population adjustment methods for anchored indirect comparisons: A simulation study, Statistics in Medicine](https://doi.org/10.1002/sim.8965) | States that STC in typical usage estimates neither the marginal nor the conditional population-average treatment effect and is biased for either, because it combines conditional and marginal quantities. This contradicts the source's description of standard STC as a conditional estimand. |
+| [Remiro-Azocar, Heath and Baio 2022, Parametric G-computation for compatible indirect treatment comparisons with limited individual patient data, Research Synthesis Methods](https://doi.org/10.1002/jrsm.1565) | Provides and evaluates marginalization of an outcome regression over the relevant population so that regression-based PAIC returns an estimand compatible with MAIC's marginal effect. |
+| [Model-based standardization using multiple imputation, BMC Medical Research Methodology 2024](https://doi.org/10.1186/s12874-024-02157-x) | Delivers the multiple imputation marginalization route the source proposed as future work, marginalizing over a target covariate distribution with simulation benchmarking under a correctly specified parametric outcome model. |
+| [Population-Adjusted Indirect Treatment Comparison with the outstandR Package in R, 2026](https://arxiv.org/abs/2601.07532) | Unified software implementing maximum-likelihood and Bayesian G-computation plus multiple imputation marginalization explicitly to address non-collapsibility, so the compatible-estimand route is packaged rather than research-only. |
+| [multinma: Bayesian Network Meta-Analysis of Individual and Aggregate Data (R package)](https://cran.r-project.org/package=multinma) | Returns conditional and marginal population-average effects as separately named outputs from one fitted model, so the two estimands need not be conflated in a network analysis. |
+| [cpaic, unreleased development package on GitHub (not on CRAN), commit 9d150e9](https://github.com/choxos/cpaic) | Labels cMAIC output as a marginal weighted effect and cSTC and cML-NMR output as conditional, and documents that there is no marginal population-standardized effect path yet, so only the conditional effect at a point is returned from cML-NMR. |
+
+:::
+
+## Probable solution or research direction
+
+Use the existing marginalization routes instead of proposing them as new work: parametric G-computation or multiple imputation marginalization, both implemented in outstandR, and multinma's separately named conditional and marginal outputs. Report conditional and marginal quantities in the declared decision target population where each is policy relevant, following the recommendations in Phillippo et al. 2025. Hold the estimand fixed before comparing MAIC, STC and ML-NMR, so head-to-head evaluations measure estimator performance rather than an estimand difference. Where an implementation returns only one quantity, as cML-NMR does in cpaic, the concrete task is to add the standardization step rather than to relabel the output.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Unverifiable. Auditors disagreed and the disagreement was evidence-bearing on both sides.
+
+**The source said.** "MAIC usually targets a marginal effect while standard STC often yields a conditional effect, and ML-NMR may return yet another quantity, so results from different population-adjustment methods are not directly comparable. The report states this mismatch can produce conflicting decisions if it is ignored."
+
+**What was wrong with it.** The claim was unattributed in the source and is now sourced: the literature auditor supplied Phillippo et al. 2025 (doi:10.1017/rsm.2025.2) for the conflicting-decisions claim and for reporting both estimands, and Remiro-Azocar et al. 2021, Research Synthesis Methods 12(6):750-775, for the marginal versus conditional mismatch between MAIC and STC. The same auditor found the proposed reconciliation already built and benchmarked (doi:10.1002/jrsm.1565; doi:10.1186/s12874-024-02157-x), and both auditors rejected the description of typical STC as a clean conditional estimand. GPT-5.6 Sol added that in cpaic, an unreleased development package on GitHub that is not installable from CRAN, cML-NMR at commit 9d150e9 has no marginal standardization path at all, so the mismatch is live in that package even though the labeling is correct.
+
+**Dissent.** literature dissented (supported): This entry is flagged SOURCE-A-UNSOURCED; I can supply real sources for every claim. Phillippo, Remiro-Azocar, Heath, Baio, Dias, Ades & Welton, Research Synthesis Methods 16(2):323-349 (2025) is a direct source for the 'conflicting decisions' claim ('effect modification can result in conflicting treatment rankings between conditional and marginal estimates') and for reporting both ('pragmatic comparisons of both conditional and marginal estimates in the decision target population'). Remiro-Azocar et al., Res Synth Methods 12(6):750-775 (2021) sources the MAIC-marginal / STC-conditional mismatch directly. But the methods half of the problem is largely solved, not open: parametric G-computation (Res Synth Methods 2022) and multiple imputation marginalization (BMC Med Res Methodol 2024) were built precisely to bring conditional regressions onto a compatible marginal scale, both with simulation evaluation, and outstandR (arXiv:2601.07532) ships both. multinma returns conditional and marginal population-average effects as separately named outputs. Caveat: Phillippo et al. contest the framing that typical STC yields a clean conditional effect - they say it mixes conditional and marginal quantities and is biased for either. codex dissented (supported-with-caveat): C1 is a placeholder, not a claim. C2 is correct for conventional anchored MAIC. C3 is correct only for the IPD regression contrast: a conventional anchored STC indirect comparison often subtracts a marginal published comparator contrast from that conditional coefficient and is therefore a hybrid, not a clean conditional A-versus-B estimand. C4, C5, and the possibility in C7 are sound. C6 is too vague to rank technically: ML-NMR can integrate nonlinear outcome models, but its reported estimand is implementation-specific. At cpaic@9d150e9, cmaic() returns a marginal weighted effect, cstc() a conditional effect at target means, and cmlnmr() only a conditional profile contrast; NAMESPACE has no marginal_effects export. C8 is valid under a correctly specified outcome model, a defined target joint law, and support; it estimates a compatible marginal functional rather than making conditional and marginal parameters identical. C9 is sensible. This mismatch can be decision-critical on non-collapsible scales, but established G-computation and multiple-imputation marginalization make it partly solved rather than a wholly open very-high-priority method gap.
+
+Literature and prior-art check
+:   **partially-solved / supported.** This entry is flagged SOURCE-A-UNSOURCED; I can supply real sources for every claim. Phillippo, Remiro-Azocar, Heath, Baio, Dias, Ades & Welton, Research Synthesis Methods 16(2):323-349 (2025) is a direct source for the 'conflicting decisions' claim ('effect modification can result in conflicting treatment rankings between conditional and marginal estimates') and for reporting both ('pragmatic comparisons of both conditional and marginal estimates in the decision target population'). Remiro-Azocar et al., Res Synth Methods 12(6):750-775 (2021) sources the MAIC-marginal / STC-conditional mismatch directly. But the methods half of the problem is largely solved, not open: parametric G-computation (Res Synth Methods 2022) and multiple imputation marginalization (BMC Med Res Methodol 2024) were built precisely to bring conditional regressions onto a compatible marginal scale, both with simulation evaluation, and outstandR (arXiv:2601.07532) ships both. multinma returns conditional and marginal population-average effects as separately named outputs. Caveat: Phillippo et al. contest the framing that typical STC yields a clean conditional effect - they say it mixes conditional and marginal quantities and is biased for either.
+    Cites doi:10.1002/jrsm.1565: Provides and evaluates the marginalization of an outcome regression so that regression-based PAIC returns an estimand compatible with MAIC's marginal effect..
+    Cites doi:10.1186/s12874-024-02157-x: Delivers the multiple imputation marginalization route named in the proposed direction, benchmarked by simulation..
+    Cites doi:10.1017/rsm.2025.2: Supplies the missing citation for the conflicting-decisions claim and for reporting both estimands; also asserts ML-NMR's uniqueness in producing both..
+    Cites arxiv:2601.07532: Unified software implementing G-computation (ML and Bayesian) and MIM explicitly to address non-collapsibility..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / supported-with-caveat.** C1 is a placeholder, not a claim. C2 is correct for conventional anchored MAIC. C3 is correct only for the IPD regression contrast: a conventional anchored STC indirect comparison often subtracts a marginal published comparator contrast from that conditional coefficient and is therefore a hybrid, not a clean conditional A-versus-B estimand. C4, C5, and the possibility in C7 are sound. C6 is too vague to rank technically: ML-NMR can integrate nonlinear outcome models, but its reported estimand is implementation-specific. At cpaic@9d150e9, cmaic() returns a marginal weighted effect, cstc() a conditional effect at target means, and cmlnmr() only a conditional profile contrast; NAMESPACE has no marginal_effects export. C8 is valid under a correctly specified outcome model, a defined target joint law, and support; it estimates a compatible marginal functional rather than making conditional and marginal parameters identical. C9 is sensible. This mismatch can be decision-critical on non-collapsible scales, but established G-computation and multiple-imputation marginalization make it partly solved rather than a wholly open very-high-priority method gap.
+    Cites doi:10.1002/jrsm.1565: Standardizes an outcome-regression model over the target population to obtain a marginal estimand compatible with MAIC..
+    Cites doi:10.1186/s12874-024-02157-x: Provides the multiple-imputation marginalization route proposed by the report..
+    Cites choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca: Correctly labels cMAIC as marginal and cSTC/cML-NMR outputs as conditional, resolving output ambiguity in this package, while documenting that cML-NMR marginal standardization remains absent..
+
+Decision path
+:   `R3:partially-solved(n=2) → R7:counter-and-support-both-present`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [COV-02 — No evidence on how the modifier set changes across effect scales](COV-02-no-evidence-on-how-the-modifier-set-changes-across-effect-sc.qmd)
+- [MOD-01 — Conventional STC reports a conditional effect at target means](MOD-01-conventional-stc-reports-a-conditional-effect-at-target-mean.qmd)
+- [OUT-01 — Target-standardized marginal risks are not the HTA reporting default](OUT-01-target-standardized-marginal-risks-are-not-the-hta-reporting.qmd)
+:::
+
+## Source
+
+Derived from A:L66, A:L45, A:L46, C:L214-215, C:L220 of the reviewed corpus.

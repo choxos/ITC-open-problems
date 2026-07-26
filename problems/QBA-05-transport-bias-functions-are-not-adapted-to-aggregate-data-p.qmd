@@ -1,0 +1,77 @@
+---
+title: "Transport bias functions are not adapted to aggregate-data PAIC"
+description: "Trial eligibility, referral patterns, performance status, treatment candidacy and calendar time can leave source-to-target selection bias after conditioning on measured covariates, and a bias function that perturbs the assumed equality of source and target potential-outcome means expresses that departure directly. Dahabreh et al. (doi:10.1002/sim.9550, doi:10.1002/sim.70083) do this without positing a concrete latent variable, but Nguyen et al. 2017 (doi:10.1214/16-AOAS1001) is not a clean example of the contrast, because it represents unobserved moderation as a composite moderator U and only two of its five methods are bias-formula based. These templates were built for individual-level transportability and have not been adapted to the limited aggregate-data structure of PAIC, while a generic E-value, which inherits the population and estimand of the estimate it is applied to but carries no target, aggregate-data or bridge structure of its own, occupies the role by default."
+pid: "QBA-05"
+topic: "Quantitative bias analysis for unanchored PAIC"
+categories: ["Quantitative bias analysis for unanchored PAIC", "High priority", "Confirmed open"]
+priority: "High"
+prank: 2
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[QBA-05]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[High priority]{.chip .chip-priority-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+## Statement
+
+Trial eligibility, referral patterns, performance status, treatment candidacy and calendar time can leave source-to-target selection bias after conditioning on measured covariates, and a bias function that perturbs the assumed equality of source and target potential-outcome means expresses that departure directly. Dahabreh et al. (doi:10.1002/sim.9550, doi:10.1002/sim.70083) do this without positing a concrete latent variable, but Nguyen et al. 2017 (doi:10.1214/16-AOAS1001) is not a clean example of the contrast, because it represents unobserved moderation as a composite moderator U and only two of its five methods are bias-formula based. These templates were built for individual-level transportability and have not been adapted to the limited aggregate-data structure of PAIC, while a generic E-value, which inherits the population and estimand of the estimate it is applied to but carries no target, aggregate-data or bridge structure of its own, occupies the role by default.
+
+## Why it is open
+
+Selection on unmeasured prognosis leaves no signature in the measured covariate distribution, so balance diagnostics are uninformative about it and only an explicit perturbation of exchangeability can express it. The bias-function parameterization avoids inventing a specific latent variable but is harder to elicit and defend unless it is indexed by treatment, covariates and target stratum, and no such indexing exists for the limited aggregate-data structure PAIC works with. An E-value is a scalar defined for one comparison on one association scale; it adds nothing about the target population, the marginal versus conditional choice, correlation with measured effect modifiers, non-collapsibility, outcome-definition differences or component-bridge assumptions, and it is cheap and familiar enough to displace analyses that would encode the operative mechanism.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Nguyen et al. 2017, Annals of Applied Statistics](https://doi.org/10.1214/16-AOAS1001) | Sensitivity analysis for generalizing trial results, offered by the entry as a closer conceptual template than E-values. Two of its five methods are bias-formula based; its unobserved-moderator analysis explicitly introduces a composite moderator U, so it is not a latent-variable-free bias-function method. |
+| [Nguyen et al., preprint of the same work](https://arxiv.org/abs/1610.06943) | Preprint carrying the counter-evidence quote both auditors cited: the concern that the treatment effect may be moderated by factors not observed even in the RCT, which we represent as a composite moderator U. |
+| [Dahabreh et al. 2023, Statistics in Medicine](https://doi.org/10.1002/sim.9550) | Bias-function sensitivity analysis for extending trial inferences, parameterizing violations of source-target exchangeability directly. |
+| [Dahabreh et al. 2026, Global Sensitivity Analysis for Studies Extending Inferences From a Randomized Trial to a Target Population, Statistics in Medicine 45:13-14](https://doi.org/10.1002/sim.70083) | Global sensitivity framework for transportability, modeling violations of conditional exchangeability through potential-outcome distributions. Built for individual-level data. |
+| [Leahy et al. 2023, International Journal of Technology Assessment in Health Care](https://doi.org/10.1017/S0266462323002702) | HTA workshop recommendations whose first item restricts E-values to unknown-unknowns, corroborating the entry's claim that an E-value is a screen rather than a primary sensitivity analysis. |
+
+:::
+
+## Probable solution or research direction
+
+Adapt the direct potential-outcome bias functions to limited-aggregate-data PAIC by indexing the perturbation by treatment, covariates and target stratum, choosing one coherent parameterization rather than stacking a selection-odds parameter on top of a potential-outcome shift that already encodes the same departure. Calibrate them with negative controls and selection models rather than a generic latent confounder. Keep E-values as a rapid screen when only an effect estimate is available and treat them as supplementary rather than as the decision-grade sensitivity analysis for an unanchored comparison, which is the position the Leahy et al. 2023 workshop already takes.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+
+**The source titled this.** "Transport and selection bias functions rather than generic E-values" The title sets bias functions against generic E-values, a framing the audit softened, and the cited bias-function example itself posits a composite latent moderator.
+
+**The source said.** "Trial eligibility, referral patterns, performance status, treatment candidacy and calendar time can leave source-to-target selection bias after conditioning on measured covariates, and the matching sensitivity object is a bias function that perturbs the assumed equality of source and target potential-outcome means directly. Existing bias-function templates were built for individual-level transportability and have not been adapted to limited aggregate data, while generic E-values, which encode none of the PAIC structure, occupy the role by default."
+
+**What was wrong with it.** Both auditors found the entry's use of Nguyen et al. 2017 (doi:10.1214/16-AOAS1001) cuts against its own claim that bias functions avoid positing a latent variable, since the paper represents the concern as a composite moderator U. GPT-5.6 Sol also rejected the requirement for both a selection-outcome association and a source-specific potential-outcome shift, which are alternative and often algebraically linked parameterizations that can double-count the same departure, and softened the blanket ban on E-values to insufficiency as the sole decision-grade analysis.
+
+**Dissent.** codex dissented (overstated): Direct potential-outcome bias functions can parameterize departures from source-target exchangeability without specifying a concrete latent covariate, so C1-C4 are broadly sound for the Dahabreh approach. Nguyen et al. is not a clean example of that contrast, because its unobserved-moderator analysis explicitly introduces a composite U and only some proposed methods use bias formulas. C5 is mathematically wrong as a requirement: a potential-outcome-distribution shift and a selection-outcome association are alternative, often algebraically linked parameterizations. Requiring both can overparameterize or double-count the same departure. C7-C10 correctly note that a generic E-value does not itself carry PAIC target, estimand, target-summary, or bridge structure, although an E-value inherits the population and estimand of the effect estimate to which it is applied. C11 is too absolute. An E-value can be a legitimate sensitivity analysis when the scientific question and its confounding-association model match, but it is generally insufficient as the sole decision-grade analysis for an unanchored PAIC. Adaptation of direct bias functions to limited aggregate summaries remains a valid open task. Claims about default use and complete publication absence were not adjudicated under this lens.
+
+Literature and prior-art check
+:   **open / supported-with-caveat.** Retrieved all three cited works. Dahabreh et al. 2026 verified as 'Global Sensitivity Analysis for Studies Extending Inferences From a Randomized Trial to a Target Population' (Stat Med 45:13-14), which models violations of conditional exchangeability through potential-outcome distributions, matching the entry's description. Dahabreh et al. 2023 is verified by title as bias-function sensitivity analysis for extending trial inferences. The Nguyen et al. 2017 attribution is partly decorative and cuts against claim 1. Its own abstract frames situation (2) as concern 'that the treatment effect may be moderated by factors not observed even in the RCT, which we represent as a composite moderator U', and only two of its five methods ((iv) a bias formula and (v) partial weighting combined with a bias formula) are bias-function based. So the paper does posit a latent composite variable, which is exactly the parameterization claim 1 contrasts bias functions with. Claim 11 is independently corroborated by Leahy et al. 2023, whose first workshop recommendation restricts E-values to unknown-unknowns. Claim 6 (no adaptation to limited-AgD PAIC) I could not falsify; I found no PAIC-specific bias-function template.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** Direct potential-outcome bias functions can parameterize departures from source-target exchangeability without specifying a concrete latent covariate, so C1-C4 are broadly sound for the Dahabreh approach. Nguyen et al. is not a clean example of that contrast, because its unobserved-moderator analysis explicitly introduces a composite U and only some proposed methods use bias formulas. C5 is mathematically wrong as a requirement: a potential-outcome-distribution shift and a selection-outcome association are alternative, often algebraically linked parameterizations. Requiring both can overparameterize or double-count the same departure. C7-C10 correctly note that a generic E-value does not itself carry PAIC target, estimand, target-summary, or bridge structure, although an E-value inherits the population and estimand of the effect estimate to which it is applied. C11 is too absolute. An E-value can be a legitimate sensitivity analysis when the scientific question and its confounding-association model match, but it is generally insufficient as the sole decision-grade analysis for an unanchored PAIC. Adaptation of direct bias functions to limited aggregate summaries remains a valid open task. Claims about default use and complete publication absence were not adjudicated under this lens.
+
+Decision path
+:   `R5:default-open → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [OUT-07 — Informative censoring and outcome-dependent missingness](OUT-07-informative-censoring-and-outcome-dependent-missingness.qmd)
+:::
+
+## Source
+
+Derived from C:L482, C:L530, C:L533-534, C:L534 of the reviewed corpus.

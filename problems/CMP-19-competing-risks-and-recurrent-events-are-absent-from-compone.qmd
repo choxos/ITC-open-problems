@@ -1,0 +1,77 @@
+---
+title: "Competing risks and recurrent events are absent from component PAIC"
+description: "Implemented component PAIC has a single-event survival likelihood with no cause, no recurrent-event history, no within-patient dependence, no transition state, and no joint terminal-event process, so it cannot express competing risks, recurrent events such as exacerbations or hospitalizations, or a recurrent-plus-terminal structure. Multistate NMA exists at the treatment level, for example for progression-free and overall survival, but no cause-specific, subdistribution, recurrent-event, joint recurrent-terminal, or multistate component model was found by any auditor. The absence of these models from one package does not by itself establish that they have never been formulated elsewhere; two auditors searched and found none, and one recorded the negative result as weak."
+pid: "CMP-19"
+topic: "Component methods (CNMA and component PAIC)"
+categories: ["Component methods (CNMA and component PAIC)", "High priority", "Confirmed open"]
+priority: "High"
+prank: 2
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Emerging"
+---
+::: {.problem-meta}
+[CMP-19]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[High priority]{.chip .chip-priority-high}
+[Emerging]{.chip .chip-maturity-emerging}
+:::
+## Statement
+
+Implemented component PAIC has a single-event survival likelihood with no cause, no recurrent-event history, no within-patient dependence, no transition state, and no joint terminal-event process, so it cannot express competing risks, recurrent events such as exacerbations or hospitalizations, or a recurrent-plus-terminal structure. Multistate NMA exists at the treatment level, for example for progression-free and overall survival, but no cause-specific, subdistribution, recurrent-event, joint recurrent-terminal, or multistate component model was found by any auditor. The absence of these models from one package does not by itself establish that they have never been formulated elsewhere; two auditors searched and found none, and one recorded the negative result as weak.
+
+## Why it is open
+
+Adding competing risks requires cause-specific or subdistribution hazards for every component, which multiplies the parameters that must be assumed constant across subnetworks and forces an explicit decision about the scale on which component additivity holds. Recurrent-event data require within-patient dependence structures that a first-event survival likelihood cannot represent, and aggregate publications rarely report cause-specific detail or individual event trajectories, so the aggregate-likelihood side is underdetermined. When a terminal event such as death censors recurrence informatively, valid analysis needs a joint model whose aggregate-likelihood counterpart in a component ML-NMR has not been written down.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Jansen, Incerti and Trikalinos 2023](https://pubmed.ncbi.nlm.nih.gov/37300446/) | develops multistate network meta-analysis at the treatment level, for example for progression-free and overall survival; not a component model |
+| [cpaic 0.1.0 (development version, choxos/cpaic@9d150e9)](choxos/cpaic@9d150e9) | unreleased development R package on GitHub, not on CRAN; supports binomial, Gaussian, Poisson, and single-event survival families with no competing-risk, recurrent-event, multistate, or joint recurrent-terminal component model |
+
+:::
+
+## Probable solution or research direction
+
+Extend the existing treatment-level multistate NMA formulation to components, letting component effects act on transition intensities rather than on a single all-cause hazard, and state explicitly the scale on which component additivity is assumed to hold. Develop cause-specific and subdistribution component models and recurrent-event component models, with the aggregate-likelihood counterpart specified for the summaries publications actually report. Joint recurrent-and-terminal component models are the hardest case and should follow rather than lead.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+
+**The source said.** "Component PAIC has no competing-risks models, no recurrent-event models, and no joint models for recurrent events with a terminal event. Many clinical decisions concern several mutually exclusive event types or repeated events such as exacerbations, hospitalizations, and relapses, which a single all-cause first-event model cannot express."
+
+**What was wrong with it.** The source stated the absence as a universal fact about the field. GPT-5.6 Sol confirmed it only for choxos/cpaic@9d150e9 and flagged that a package's capability set cannot establish that no multistate component ML-NMR exists anywhere; Grok 4.5 supplied the nearest existing prior art, treatment-level multistate NMA (pmid:37300446), which is not a component model.
+
+Literature and prior-art check
+:   **open / unverifiable.** I searched PubMed for competing risks, cause-specific hazards, recurrent events and multistate models in network meta-analysis and found nothing usable; the queries that returned results were badly translated by the search backend, so my negative result is weak evidence rather than proof. All six claims are absence claims and no source I retrieved asserts the absence, so unverifiable is the correct support vote. The methodological arguments are sound and, I believe, unpublished: cause-specific decomposition multiplies the parameters that must be constant across subnetworks and forces a choice of the scale on which component additivity is asserted, and the aggregate-likelihood counterpart of a joint recurrent-terminal model has no obvious form when publications report neither cause-specific detail nor event trajectories. Given that component ML-NMR itself has no public existence outside cpaic, a competing-risks version of it almost certainly does not exist. Entry has no prior_work, which weakens it presentationally.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** C1, C4, and C5 are supported as cpaic-specific capability claims: its survival paths implement a single-event survival likelihood without cause, recurrent-event history, patient-level dependence, transition state, or a joint terminal-event process. C3 is technically correct because an all-cause first-event endpoint cannot distinguish event types or represent repeated events. C2 and C6 are universal formulation or software-existence claims, not source-code claims. The absence of these models from cpaic cannot establish that no multistate component ML-NMR exists or that joint recurrent-terminal models have never been formulated elsewhere. The gap is critical only when the decision question actually concerns event type, recurrence, or terminal-event dependence; otherwise it is a roadmap item.
+
+Grok 4.5, recency lens
+:   **open / supported.** Standard multistate NMA for PFS/OS exists (Jansen, Incerti, Trikalinos 2023; PMID 37300446) and causal recurrent/competing-event frameworks exist outside PAIC, but no cause-specific, subdistribution, recurrent-event, joint recurrent-terminal, or multistate component ML-NMR was found in 2023–2026 journals, arXiv, or cpaic. cpaic families remain binomial/gaussian/poisson/survival (all-cause first-event style). Aggregate cause-specific detail and the scale of component additivity on transition intensities remain as the report describes. Queries: component network meta competing risks multistate recurrent; multistate component ML-NMR; cpaic competing recurrent; Jansen multistate NMA. C1–C6 hold as of the audit date.
+
+Decision path
+:   `R5:default-open → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [DIA-09 — Narrow outcome families and hazard-ratio-only survival scoring](DIA-09-narrow-outcome-families-and-hazard-ratio-only-survival-scori.qmd)
+- [EVB-03 — Trials combined under one outcome label are not one estimand](EVB-03-trials-combined-under-one-outcome-label-are-not-one-estimand.qmd)
+- [OUT-08 — Overdispersed counts and recurrent events as total disease burden](OUT-08-overdispersed-counts-and-recurrent-events-as-total-disease-b.qmd)
+- [OUT-17 — Transition-specific component effects in multistate PAIC](OUT-17-transition-specific-component-effects-in-multistate-paic.qmd)
+- [QBA-24 — Survival QBA beyond the hazard ratio with limited aggregate data](QBA-24-survival-qba-beyond-the-hazard-ratio-with-limited-aggregate-.qmd)
+:::
+
+## Source
+
+Derived from C:L1377, scope:package-specific feature gap resting on a field-level modeling gap, scope:package-specific feature gap resting on a field-level modeling gap; split from table row 23 of the reviewed corpus.

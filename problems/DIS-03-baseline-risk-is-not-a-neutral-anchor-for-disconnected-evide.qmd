@@ -1,0 +1,71 @@
+---
+title: "Baseline risk is not a neutral anchor for disconnected evidence"
+description: "Arm-based baseline-synthesis, reference-prediction, and aggregate-level matching models link disconnected subnetworks through a baseline-outcome structure, allowing disconnected RCTs and single-arm studies to be included. An observed control-arm risk depends on prognosis, endpoint definition, follow-up, ascertainment, care context, and calendar time, so it is not intrinsically exchangeable across designs or components. Thom et al. 2022 measured what this costs: disconnected-treatment bias ran from -0.16 to 0.392 for aggregate-level matching and from -0.102 to 0.40 for reference prediction, with coverage of 0.30 to 0.82 and 0.64 to 0.94 respectively, and they recommend reference prediction on coverage grounds. Beliveau et al. 2017 is not the cautionary result the source made it: across the two disconnected datasets it examined it found the use of random baseline treatment effects appropriate, while warning that the normality and exchangeability assumptions could be inappropriate in datasets it did not observe."
+pid: "DIS-03"
+topic: "Disconnected networks & bridges"
+categories: ["Disconnected networks & bridges", "High priority", "Not supported"]
+priority: "High"
+prank: 2
+verdict: "Not supported"
+verdictslug: "not-supported"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[DIS-03]{.problem-id}
+[Not supported]{.verdict .verdict-not-supported}
+[High priority]{.chip .chip-priority-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+## Statement
+
+Arm-based baseline-synthesis, reference-prediction, and aggregate-level matching models link disconnected subnetworks through a baseline-outcome structure, allowing disconnected RCTs and single-arm studies to be included. An observed control-arm risk depends on prognosis, endpoint definition, follow-up, ascertainment, care context, and calendar time, so it is not intrinsically exchangeable across designs or components. Thom et al. 2022 measured what this costs: disconnected-treatment bias ran from -0.16 to 0.392 for aggregate-level matching and from -0.102 to 0.40 for reference prediction, with coverage of 0.30 to 0.82 and 0.64 to 0.94 respectively, and they recommend reference prediction on coverage grounds. Beliveau et al. 2017 is not the cautionary result the source made it: across the two disconnected datasets it examined it found the use of random baseline treatment effects appropriate, while warning that the normality and exchangeability assumptions could be inappropriate in datasets it did not observe.
+
+## Why it is open
+
+Where a single baseline parameter both carries the cross-gap bridge and absorbs study-level nuisance variation, nothing inside a disconnected graph separates the two roles, so a difference in endpoint definition can be absorbed as a difference in prognosis and propagated into the relative effect. Observed baseline heterogeneity and design associations can be examined, but no such check reaches the cross-gap counterfactual, which is exactly what the bridge supplies, and regression to the mean and measurement error in the baseline term add distortion invisible in the fitted output. Thom et al. 2022 show the residual bias and undercoverage are material rather than theoretical, and better relative coverage for reference prediction in one simulation program is a conditional preference under stated assumptions, not evidence that disconnected networks are solved.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Beliveau et al. 2017](https://doi.org/10.1002/jrsm.1256) | asks how dangerous random baseline treatment effects are in disconnected networks and finds their use appropriate for the two datasets considered, with an explicit caveat about datasets it did not observe |
+| [Thom et al. 2022](https://doi.org/10.1177/0272989X221097081) | extends baseline-effect and aggregate-level matching to disconnected RCTs and single-arm studies, and quantifies the residual bias and undercoverage of both by simulation |
+
+:::
+
+## Probable solution or research direction
+
+Use separate baseline distributions for connected, disconnected, and single-arm evidence, and use commensurate rather than fully exchangeable baseline priors so the bridge is down-weighted when source and target baselines conflict. Condition reference prediction on design covariates where the relevant covariates are measured, overlap, and can be modeled correctly, since the improvement depends on those conditions rather than being automatic, and calibrate with negative controls that detect design-driven baseline differences. Report an explicit posterior decomposition of how much the baseline bridge moves each treatment contrast, and treat reference prediction as a conditional method rather than a solution to disconnection.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Not supported. No accessible source substantiates the claim as stated.
+
+**The source said.** "Arm-based baseline-synthesis, reference-prediction, and aggregate-level matching models link disconnected subnetworks through a baseline-outcome structure, allowing disconnected RCTs and single-arm studies to be included. Baseline risk is not a universal bridge: it mixes prognosis with outcome definition, ascertainment, follow-up, supportive care, and calendar time, and simulations show cross-disconnected estimates can still be materially biased."
+
+**What was wrong with it.** The source's gloss on Beliveau et al. 2017, its severity line, and the associated claim all inverted the paper's finding; the literature auditor quoted doi:10.1002/jrsm.1256 saying that for the two datasets considered the use of random baseline treatment effects in disconnected networks was appropriate. GPT-5.6 Sol added that not every implementation forces one baseline parameter to carry both nuisance variation and the whole bridge, and that observed baseline heterogeneity and its association with design features can be partly assessed, so the untestability narrows to the missing cross-gap counterfactual.
+
+Literature and prior-art check
+:   **open / misattributed.** I read the Beliveau et al. 2017 abstract in full. The title is a question and the paper's answer is largely reassuring, not cautionary: 'For the 2 datasets considered, we found that the use of random baseline treatment effects in disconnected networks was appropriate.' The entry's prior_work gloss ('shows random baseline treatment effects can be dangerous'), the severity line, and claim 1 all invert the paper's finding. The authors do add a hedge about other datasets, which is the defensible version. This is the kind of error the people who wrote the paper will notice immediately. Everything attributed to Thom et al. 2022 checks out exactly: disconnected-treatment bias -0.16 to 0.392 (ALM) and -0.102 to 0.40 (reference prediction), coverage 0.30-0.82 versus 0.64-0.94, and 'Reference prediction has greater coverage and may be recommended overall.' The substantive problem (baseline risk mixes prognosis with ascertainment and design era) remains open; only the attribution needs fixing.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / supported-with-caveat.** The technical core of C2-C9 and C13 is sound. An observed control-arm risk depends on prognosis, endpoint definition, follow-up, ascertainment, care context, and calendar time, so it is not intrinsically exchangeable across designs or components. A baseline bridge requires an appropriate arm-level outcome model plus explicit exchangeability or regression assumptions, and aggregate relationships do not identify individual-level transportability. The report nevertheless overgeneralizes. Not every implementation makes one baseline parameter carry both nuisance variation and the entire bridge; separate distributions, design covariates, measurement-error models, and partial pooling are possible. Observed baseline heterogeneity and design associations can be assessed, although such checks cannot validate the missing cross-gap counterfactual. Conditioning on design covariates is helpful only with measured relevant covariates, overlap, and a correctly specified model. C14-C15 are universal current-method absence claims, while C1 and C10-C12 are paper-attribution claims; none is established by the permitted technical and source-code lens. The issue is high priority only when baseline structure materially carries the decision contrast.
+
+Decision path
+:   `R5:default-open → R6:counter-quote-uncontested`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [IDN-10 — Transported control-arm outcomes are uncalibrated where it matters](IDN-10-transported-control-arm-outcomes-are-uncalibrated-where-it-m.qmd)
+- [SFW-07 — multinma lacks partial IPD, missing data and a data-informed bridge](SFW-07-multinma-lacks-partial-ipd-missing-data-and-a-data-informed-.qmd)
+:::
+
+## Source
+
+Derived from C:L187-188, C:L197, C:L214-215, C:L237, C:L1090-1100, C:L1102-1104 of the reviewed corpus.

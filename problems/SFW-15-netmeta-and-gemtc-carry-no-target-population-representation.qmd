@@ -1,0 +1,77 @@
+---
+title: "netmeta and gemtc carry no target-population representation"
+description: "netmeta 3.6-1 (CRAN, 20 June 2026) and gemtc 1.1-1 (CRAN, 26 March 2026) are mature NMA platforms carrying machinery the PAIC agenda needs: component NMA, rare-event methods, inconsistency assessment, node splitting, evidence flow, rankings, disconnected combination networks through discomb, and standard reporting. Neither is a native population-transport platform, because their analysis surfaces are study-level contrasts, arm summaries and study-level meta-regression with no representation of an IPD covariate distribution, a target population or a weighting step, so target standardization, component PAIC and IPD plus aggregate synthesis require external or new methods. Both auditors judged this supported: no function in the netmeta index or NAMESPACE references individual patient data or a target population. This is a package-scope and interoperability boundary rather than a defect, and it becomes decision-critical only when effect modification makes a declared target-population estimand necessary."
+pid: "SFW-15"
+topic: "Software, benchmarks & interface standards"
+categories: ["Software, benchmarks & interface standards", "Medium-high priority", "Confirmed open"]
+priority: "Medium-high"
+prank: 3
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Established"
+---
+::: {.problem-meta}
+[SFW-15]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[Medium-high priority]{.chip .chip-priority-medium-high}
+[Established]{.chip .chip-maturity-established}
+[Implementation-specific]{.chip}
+:::
+::: {.source-unsourced}
+**Source note.** This entry derives in part from a source document whose inline citations
+were ChatGPT interface tokens rather than references, and so resolve to nothing. Claims
+below are attributed to that document and were checked independently where possible;
+anything that could not be independently sourced is marked in the verification trail.
+:::
+
+::: {.callout-note appearance="simple"}
+## Scope
+
+This entry describes a limitation of a specific implementation rather than of the field.
+It is catalogued because the underlying methodological problem is general, and because a
+reference implementation is where such problems become concrete and checkable.
+:::
+
+## Statement
+
+netmeta 3.6-1 (CRAN, 20 June 2026) and gemtc 1.1-1 (CRAN, 26 March 2026) are mature NMA platforms carrying machinery the PAIC agenda needs: component NMA, rare-event methods, inconsistency assessment, node splitting, evidence flow, rankings, disconnected combination networks through discomb, and standard reporting. Neither is a native population-transport platform, because their analysis surfaces are study-level contrasts, arm summaries and study-level meta-regression with no representation of an IPD covariate distribution, a target population or a weighting step, so target standardization, component PAIC and IPD plus aggregate synthesis require external or new methods. Both auditors judged this supported: no function in the netmeta index or NAMESPACE references individual patient data or a target population. This is a package-scope and interoperability boundary rather than a defect, and it becomes decision-critical only when effect modification makes a declared target-population estimand necessary.
+
+## Why it is open
+
+Both packages are defined over contrasts among studies with no representation of a target covariate distribution, so there is no place in the object for individual patient data, a target population or a weighting step, and adding transport would mean a different data model rather than an extra argument. Component NMA in netmeta therefore delivers component effects that are not indexed by a population, which is exactly the gap component PAIC exists to close, and gemtc's inconsistency machinery is reachable only after population adjustment has happened elsewhere. Bridging the two would require an agreed intermediate representation that does not exist, so analysts re-specify the target population outside the model at the hand-off, which is where estimand definitions get lost. When effect modification is absent the boundary costs nothing, which is why it persists without pressure to close it.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [netmeta 3.6-1 (CRAN, published 20 Jun 2026)](https://cran.r-project.org/package=netmeta) | provides mature frequentist NMA with component NMA (netcomb), rare-event methods (netmetabin), inconsistency and evidence-flow tools (netsplit, netheat, netimpact), rankings and connectivity checks; no function references individual patient data or a target population |
+| [guido-s/netmeta (GitHub)](https://github.com/guido-s/netmeta) | development repository for netmeta, including discomb, additive network meta-analysis for combinations of treatments in disconnected networks, implemented over study-level contrasts rather than IPD covariate distributions |
+| [gemtc 1.1-1 (CRAN, published 26 Mar 2026)](https://cran.r-project.org/package=gemtc) | provides mature Bayesian JAGS-based NMA with node splitting, heterogeneity and inconsistency assessment and standard reporting; no native PAIC or population-transport layer, so transportability and target-population estimation are external tasks for its users |
+
+:::
+
+## Probable solution or research direction
+
+Do not expect population adjustment from these packages. Make their rare-event, inconsistency, node-splitting and disconnected-network machinery interoperable with PAIC tooling through a shared intermediate representation, so transport and IPD plus aggregate synthesis can reuse mature backends and the target-population specification travels explicitly across the tool boundary instead of being duplicated by hand. Prioritize that interoperability work for the cases where a declared target-population estimand is necessary, since that is where the hand-off currently loses the estimand.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+
+Literature and prior-art check
+:   **open / supported.** Every checkable claim verifies. CRAN gives netmeta 3.6-1 published 2026-06-20 and gemtc 1.1-1 published 2026-03-26, so both are active in 2026. The netmeta function index confirms discomb, described verbatim as 'Additive network meta-analysis for combinations of treatments (disconnected networks)', alongside netcomb (component NMA), netmetabin (binary/rare-event methods), netsplit, netheat, netimpact, netrank and netconnection. No function in that index references individual patient data or a target population, which is exactly the entry's point: these packages are defined over study-level contrasts with no slot for a target covariate distribution. I found no evidence of any population-transport layer in either package, and the entry's recommendation not to expect one is the correct reading of their data models.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / supported.** The listed capability boundary is technically correct. netmeta's NAMESPACE exports netcomb, discomb, netmetabin, netsplit, netheat, netimpact, netrank, and netconnection; R/discomb.R implements additive component NMA for disconnected networks. Its native analysis surface uses study-level contrasts, arm summaries, and study-level meta-regression, not IPD covariate distributions, population weighting, target standardization, or joint IPD-plus-AgD transport. Thus C2-C3 and C5-C7 hold. C9-C11 also correctly distinguish gemtc's Bayesian JAGS NMA, node-splitting, heterogeneity, and inconsistency machinery from PAIC or external-target transport. C1 is a provenance flag rather than a statistical claim. Under the no-web constraint, C4 and C8 are accepted from the supplied CRAN metadata rather than independently rechecked. This is an interoperability and package-scope gap, not a defect in either NMA package; it becomes decision-critical only when effect modification makes a declared target-population estimand necessary.
+
+Decision path
+:   `R5:default-open → R12:supported`
+
+:::
+
+## Source
+
+Derived from A:L108, A:L109, C:L2251, C:L2254 of the reviewed corpus.

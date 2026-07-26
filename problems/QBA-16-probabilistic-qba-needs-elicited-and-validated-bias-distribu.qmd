@@ -1,0 +1,71 @@
+---
+title: "Probabilistic QBA needs elicited and validated bias distributions"
+description: "Probabilistic QBA needs defensible probability distributions for the bias parameters, and no validated elicitation protocol exists for unanchored PAIC: Ren et al. 2025 (doi:10.1017/rsm.2025.13), having proposed probabilistic QBA as the natural extension of their deterministic method, say that how to obtain such distributions requires further research and offer only initial suggestions. Practice asks experts whether residual confounding is plausible, which produces a scalar with no mapping to any parameter the analysis needs. When bias parameters are not identified by the data their assumed joint distribution dominates the systematic-error component, although the data still determine the observed estimate and its sampling uncertainty, so the output is not simply the input distribution relabeled."
+pid: "QBA-16"
+topic: "Quantitative bias analysis for unanchored PAIC"
+categories: ["Quantitative bias analysis for unanchored PAIC", "Very high priority", "Confirmed open"]
+priority: "Very high"
+prank: 1
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Emerging"
+---
+::: {.problem-meta}
+[QBA-16]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[Very high priority]{.chip .chip-priority-very-high}
+[Emerging]{.chip .chip-maturity-emerging}
+:::
+## Statement
+
+Probabilistic QBA needs defensible probability distributions for the bias parameters, and no validated elicitation protocol exists for unanchored PAIC: Ren et al. 2025 (doi:10.1017/rsm.2025.13), having proposed probabilistic QBA as the natural extension of their deterministic method, say that how to obtain such distributions requires further research and offer only initial suggestions. Practice asks experts whether residual confounding is plausible, which produces a scalar with no mapping to any parameter the analysis needs. When bias parameters are not identified by the data their assumed joint distribution dominates the systematic-error component, although the data still determine the observed estimate and its sampling uncertainty, so the output is not simply the input distribution relabeled.
+
+## Why it is open
+
+When bias parameters are nonidentified the likelihood does not update them, so sampling triangular or uniform distributions chosen for convenience propagates that convenience into decision claims with unwarranted apparent precision. Experts are poorly placed to reason about conditional outcome associations on a model scale and about dependence between bias parameters, and general elicitation protocols are not specialized to population-adjusted comparisons or to the non-redundant parameter set a given bias model requires. Nothing in an unanchored design can check elicited values against the data at hand, so the elicitation carries the whole analysis while remaining unvalidated, and the strongest external checks, held-out measured-variable benchmarks and randomized-benchmark emulations, exist in few indications and require a specified data-generating process before coverage can even be defined.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Leahy et al. 2023, International Journal of Technology Assessment in Health Care](https://doi.org/10.1017/S0266462323002702) | HTA workshop recommendations on transparent sourcing of bias parameters, a-priori specification and sensitivity analysis for QBA inputs. Positions expert elicitation primarily as a way to validate or plausibility-check inputs obtained from other sources, not as the primary parameter source. |
+| [Ren et al. 2025, Research Synthesis Methods](https://doi.org/10.1017/rsm.2025.13) | Proposes probabilistic QBA as the extension of its deterministic method and states that how to obtain distributions for the marginal means of the unmeasured confounders requires further research, offering only initial suggestions. The strongest available evidence that no validated elicitation protocol exists for unanchored PAIC. |
+
+:::
+
+## Probable solution or research direction
+
+Develop PAIC-specific elicitation protocols that target the non-redundant parameters of the chosen bias model, separating prevalence or mean imbalance, outcome association, treatment interaction and, where they apply, measurement error and dependence, expressed on scales clinicians can reason about, and elicit the dependence structure explicitly rather than only marginals. Stress-test elicited distributions using simulation, held-out measured-variable benchmarks and external analogues, and report coverage of the resulting systematic-error and total-error intervals and the correctness of the resulting decisions under a stated data-generating process. Position elicitation as one source in an evidence hierarchy alongside validation and external data, as the Leahy workshop recommends, rather than as the default source.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+
+**The source said.** "Probabilistic QBA requires defensible probability distributions for the bias parameters, but no validated elicitation protocol exists for unanchored PAIC: practice asks experts whether residual confounding is plausible, which produces a scalar with no mapping to any parameter the analysis needs, and elicited distributions have never been checked for interval coverage or decision correctness."
+
+**What was wrong with it.** GPT-5.6 Sol corrected the claim that a probabilistic QBA output is determined by the bias distributions rather than the data: exact nonidentification means the data do not update the bias parameter, not that the data do not affect the result. The entry's assertion that validation requires hidden randomized controls or masked IPD is too narrow, since simulation, external validation and held-out measured-variable exercises can assess calibration, and the hidden-truth framing rests on a design property the benchmark study it invokes did not have. The literature auditor also found that Leahy et al. 2023 (doi:10.1017/S0266462323002702) position elicitation primarily as a way to validate or plausibility-check inputs obtained from other sources rather than as the primary parameter source the entry implies.
+
+Literature and prior-art check
+:   **open / supported-with-caveat.** Claim 3 is corroborated by a source asserting the absence: Ren et al. 2025, having proposed probabilistic QBA as the natural extension of their deterministic method, write 'The area on how to obtain such distributions for the marginal means of the unmeasured confounders requires further research', then offer only 'initial suggestions'. That is the strongest available evidence that no validated elicitation protocol exists for unanchored PAIC. Claims 1, 2 and 7 follow. The caveat concerns how Leahy et al. 2023 is used. Retrieved its ten recommendations: elicitation is recommended in a narrower role than the entry implies, 'Expert elicitation approaches may have a place ... primarily as a means to validate or plausibility-check inputs obtained from other sources', alongside 'Input parameters should be identified through a systematic and transparent approach and specified a priori in a protocol or analysis plan' and 'Sensitivity analyses should account for uncertainty in QBA inputs'. So the workshop supports the entry's direction but positions elicitation as a validation step rather than a primary parameter source; the citation should say so. Claim 6 (elicited distributions never validated for coverage or decision behaviour) I could not verify by search.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** C1 incorrectly says the output is determined by bias distributions rather than data. For an adjustment such as theta_adjusted = theta_observed - B, the data determine the observed estimate and sampling uncertainty, while the assumed joint distribution of nonidentified B determines the systematic-error component. Exact nonidentification means the data do not update B, not that the data do not affect the output. C2 and C5 are sound. C4 and C7 should be model-specific: analysts should elicit a nonredundant set of inputs and their joint distribution, but measurement error and dependence are not mandatory when absent, and prognostic and interaction effects need not be elicited twice. C3 and C6 are literature and historical-validation claims outside the permitted lens. Coverage requires a specified repeated-sampling data-generating process and true bias values. Simulation, external validation, and held-out measured-variable exercises can evaluate calibration, although none identifies the actually unmeasured bias from the same unanchored data. The report's assertion that validation requires hidden randomized controls or masked IPD is too narrow. This is high priority when probabilistic QBA drives a decision, but protocol development is otherwise a roadmap item.
+
+Decision path
+:   `R5:default-open → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [DIS-09 — Structured elicitation is not applied to the cross-gap contrast](DIS-09-structured-elicitation-is-not-applied-to-the-cross-gap-contr.qmd)
+- [MOD-13 — No reporting convention exposes prior-dominated contrasts in PAIC](MOD-13-no-reporting-convention-exposes-prior-dominated-contrasts-in.qmd)
+:::
+
+## Source
+
+Derived from C:L448, C:L452, C:L517, C:L685-692, C:L800-805 of the reviewed corpus.

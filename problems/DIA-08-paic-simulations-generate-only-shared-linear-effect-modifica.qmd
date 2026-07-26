@@ -1,0 +1,80 @@
+---
+title: "PAIC simulations generate only shared, linear effect modification"
+description: "PAIC simulation generators have begun to include non-normal, bimodal and Gamma covariates and deliberate positivity violations: Phillippo et al. 2020 (doi:10.1002/sim.8759) includes Gamma covariate scenarios and an explicit overlap sweep from no overlap to full overlap, Serret-Larmande et al. 2025 (arxiv:2507.12241) runs eight scenarios from ideal conditions to positivity violations with bimodal covariates, and copula (NORTA) generation of comparator covariates from reported summaries is already in use (doi:10.1017/rsm.2025.13). The premise also needs correcting: matching the full mean vector and covariance matrix of a nonsingular multivariate normal fixes the joint law, so the matched-moments failure mode comes from balancing a finite set of reported moments rather than from Gaussianity as such, and a shared-linear generator can still separate methods on efficiency, variance and finite-sample behavior even though it cannot test robustness to departures. The gap that survives is on the effect-modification side: component-specific, nonlinear-threshold and subnetwork-varying modification, decoupling of the within-study interaction from the between-study ecological gradient, participation-only variables and trial-engagement effects are all absent."
+pid: "DIA-08"
+topic: "Diagnostics & empirical validation"
+categories: ["Diagnostics & empirical validation", "Very high priority", "Overstated"]
+priority: "Very high"
+prank: 1
+verdict: "Overstated"
+verdictslug: "overstated"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[DIA-08]{.problem-id}
+[Overstated]{.verdict .verdict-overstated}
+[Very high priority]{.chip .chip-priority-very-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+## Statement
+
+PAIC simulation generators have begun to include non-normal, bimodal and Gamma covariates and deliberate positivity violations: Phillippo et al. 2020 (doi:10.1002/sim.8759) includes Gamma covariate scenarios and an explicit overlap sweep from no overlap to full overlap, Serret-Larmande et al. 2025 (arxiv:2507.12241) runs eight scenarios from ideal conditions to positivity violations with bimodal covariates, and copula (NORTA) generation of comparator covariates from reported summaries is already in use (doi:10.1017/rsm.2025.13). The premise also needs correcting: matching the full mean vector and covariance matrix of a nonsingular multivariate normal fixes the joint law, so the matched-moments failure mode comes from balancing a finite set of reported moments rather than from Gaussianity as such, and a shared-linear generator can still separate methods on efficiency, variance and finite-sample behavior even though it cannot test robustness to departures. The gap that survives is on the effect-modification side: component-specific, nonlinear-threshold and subnetwork-varying modification, decoupling of the within-study interaction from the between-study ecological gradient, participation-only variables and trial-engagement effects are all absent.
+
+## Why it is open
+
+Data generated under shared linear effect modification cannot evaluate robustness to departures from that structure or demonstrate the benefit of relaxing it, so on the question that matters most the comparison is decided by the generator rather than by the methods. The distinction between a within-study interaction and a between-study ecological gradient exists only with multiple studies and varying covariate distributions, so single-pair templates cannot represent aggregation bias at all. Variables that drive participation but not outcome, and trial-engagement effects, require an explicit selection model that standard generators do not contain.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Serret-Larmande et al. 2025, Assessing the Impact of Covariate Distribution and Positivity Violation on Weighting-Based Indirect Comparisons: a Simulation Study](https://arxiv.org/abs/2507.12241) | Runs eight scenarios from ideal conditions to positivity violations with non-normal and bimodal covariate distributions and reports which weighting estimators break, contradicting the claim that PAIC simulations cannot produce the limited-support failure mode. |
+| [Phillippo et al. 2020, Assessing the performance of population adjustment methods for anchored indirect comparisons: A simulation study](https://doi.org/10.1002/sim.8759) | Includes Gamma-distributed covariate scenarios and an explicit overlap sweep from no overlap to full overlap, contradicting the multivariate-normal-only premise; also varies the validity of the shared effect modifier assumption. |
+| [Ren et al. 2025, Quantitative bias analysis for unmeasured confounding in unanchored population-adjusted indirect comparisons](https://doi.org/10.1017/rsm.2025.13) | Uses NORTA (Gaussian copula) sampling to build comparator covariate distributions from reported summaries, showing that copula generation is already standard practice in this literature. |
+
+:::
+
+## Probable solution or research direction
+
+Take the non-normal, bimodal and copula-based covariate generators that already exist and add explicit control over local support gaps, tail behavior and correlation, so that scenarios matching every reported moment while having disjoint local support can be produced on demand; vary target definition (trial, registry, pooled, overlap), measurement error, differing cut-points and missing target moments with wrong dependence assumptions as factors rather than fixing them. Concentrate new work on the effect-modification side by generating treatment-specific, component-specific, nonlinear-threshold, modifier-by-modifier and subnetwork-varying modification, and explicitly decoupling the within-study interaction from the between-study ecological gradient so aggregation bias becomes measurable. Add participation-only variables and trial-engagement effects through an explicit selection model to test whether adjusting for them inflates variance or induces bias.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Overstated. 2 independent auditors judged the claim as stated too strong. PAIC simulation generators have begun to include non-normal, bimodal and Gamma covariates and deliberate positivity violations, but effect-modification generators remain almost entirely shared-and-linear: component-specific, nonlinear-threshold and subnetwork-varying modification, decoupling of within-study interaction from between-study ecological gradient, participation-only variables and trial-engagement effects are absent.
+
+**The source titled this.** "Covariate and modifier generators are too benign to break methods" The title says covariate generators are too benign, but the audit found Gamma and bimodal covariates and deliberate positivity violations already in published generators.
+
+**The source said.** "Simulations generate multivariate normal covariates and shared linear effect modification, so by construction they cannot produce the two failure modes that dominate practice: populations that match on every reported global moment while containing regions of covariate space with no source support, and effect modification that is treatment-specific, component-specific, nonlinear, subnetwork-varying, or driven by an ecological gradient different from the within-study interaction. Non-Gaussian and multimodal marginals, ordinal and skewed variables, tail behavior, rare biomarker subgroups, temporal drift, measurement error, differing cut-points, alternative target definitions, participation-only variables and trial-engagement effects are all absent."
+
+**What was wrong with it.** The source said PAIC simulations use multivariate normal covariates and therefore cannot produce matched moments with disjoint support, and that the required copula machinery is missing from simulation code; the literature auditor found Gamma and bimodal covariate scenarios with deliberate positivity violations already published (doi:10.1002/sim.8759, arxiv:2507.12241) and NORTA copula generation already in use (doi:10.1017/rsm.2025.13). GPT-5.6 Sol corrected the Gaussian argument itself, since matching the full mean and covariance of a nonsingular normal identifies the joint law, and the claim that a shared-linear truth cannot distinguish methods at all.
+
+Literature and prior-art check
+:   **partially-solved / overstated.** The premise that PAIC simulations generate multivariate normal covariates 'so by construction' cannot produce matched-moments-with-disjoint-support is factually wrong for at least two studies I retrieved. Phillippo et al. 2020 simulated Gamma covariates in dedicated scenarios alongside normal ones and swept an overlap parameter from no overlap to full overlap. Serret-Larmande et al. 2025 ran eight scenarios spanning ideal conditions through positivity violations and non-normal, explicitly including bimodal, covariate distributions, and found MAIC-2 and propensity-score weighting sensitive to positivity violations while MAIC-1 stayed unbiased. Copula machinery is also already in use in this literature: Ren et al. 2025 use NORTA/Gaussian copula sampling to build comparator covariate distributions from reported summaries. The effect-modification half of the entry fares better: Phillippo 2020 varied validity of the shared effect modifier assumption, but I found nothing generating component-specific, nonlinear-threshold, subnetwork-varying modification, nor anything decoupling within-study interaction from an ecological gradient, nor participation-only variables or trial-engagement effects.
+    Cites arXiv:2507.12241: Directly contradicts the claim that PAIC simulations cannot produce the matched-moments/limited-support failure mode: it deliberately simulates non-normal and bimodal covariates with positivity violations and reports which estimators break..
+    Cites 10.1002/sim.8759: Includes Gamma-distributed covariate scenarios and an explicit overlap sweep, contradicting the multivariate-normal-only premise..
+    Cites 10.1017/rsm.2025.13: Shows copula (NORTA) covariate generation from reported marginals is already standard practice in this literature, contradicting 'requires copula machinery that most simulation code does not contain'..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** The core validation concern is real, but several absolutes fail. C1 holds for a finite set of reported moments; a complete moment-determining sequence is a different claim. For nonsingular multivariate normals, matching the full mean vector and covariance matrix fixes the joint law and both populations have support on all of R^p. Matching only marginal means and variances does not fix correlations, however, and finite Gaussian samples can still have severe practical overlap problems. MAIC balances selected moments rather than establishing joint-law equality, while ML-NMR integration requires a specified joint distribution. C3, C5-C6, and C8-C12 are defensible scenario dimensions. C7 is false as written: a shared-linear truth can still distinguish methods on efficiency, variance, regularization, computation, and finite-sample behavior; it merely cannot evaluate robustness to departures or demonstrate the benefit of relaxing the shared-linear assumption. C4's prevalence claim is outside this technical audit. The proposed expansion is primarily a validation roadmap, not uniformly a very-high-severity defect in every decision analysis.
+
+Decision path
+:   `R3:partially-solved(n=1) → R8:overstated-majority(n=2)`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [COV-07 — Unknown target joint covariate distribution](COV-07-unknown-target-joint-covariate-distribution.qmd)
+- [COV-09 — Measurement non-equivalence of covariates across trials](COV-09-measurement-non-equivalence-of-covariates-across-trials.qmd)
+- [EST-01 — Target population is unnamed and set by data availability](EST-01-target-population-is-unnamed-and-set-by-data-availability.qmd)
+- [IDN-11 — Trial-engagement effects are mistaken for prognostic imbalance](IDN-11-trial-engagement-effects-are-mistaken-for-prognostic-imbalan.qmd)
+- [MOD-03 — Ecological versus within-study effect modification](MOD-03-ecological-versus-within-study-effect-modification.qmd)
+:::
+
+## Source
+
+Derived from C:L1826-1839, C:L1841-1856 of the reviewed corpus.

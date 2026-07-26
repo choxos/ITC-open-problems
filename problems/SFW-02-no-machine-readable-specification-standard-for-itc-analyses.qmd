@@ -1,0 +1,73 @@
+---
+title: "No machine-readable specification standard for ITC analyses"
+description: "The report proposes a cross-package machine-readable object, illustrated as a YAML specification, recording the estimand (population, outcome, contrast, intercurrent-event strategy), the evidence structure, the bridge, the adjustment, the quantitative bias analysis configuration and the requested output, and the literature auditor confirmed every field verbatim in the source at section 16.6. No such schema was found, but that is an exhaustive software-landscape negative neither auditor could verify rather than an established fact. Prose-level reporting structure for PAIC does exist: Ishak et al. 2025 (doi:10.1007/s40273-025-01503-1) publishes a framework for reliable, transparent and reproducible population-adjusted indirect comparisons, but it governs what an analyst reports and does not define a machine-readable object that packages read and emit. A schema would also make analyses portable and auditable only if it carried controlled definitions, versioning, validation rules, provenance and explicit mappings to package-specific estimands, so serializing labels into YAML is necessary rather than sufficient."
+pid: "SFW-02"
+topic: "Software, benchmarks & interface standards"
+categories: ["Software, benchmarks & interface standards", "Very high priority", "Confirmed open"]
+priority: "Very high"
+prank: 1
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Emerging"
+---
+::: {.problem-meta}
+[SFW-02]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[Very high priority]{.chip .chip-priority-very-high}
+[Emerging]{.chip .chip-maturity-emerging}
+:::
+## Statement
+
+The report proposes a cross-package machine-readable object, illustrated as a YAML specification, recording the estimand (population, outcome, contrast, intercurrent-event strategy), the evidence structure, the bridge, the adjustment, the quantitative bias analysis configuration and the requested output, and the literature auditor confirmed every field verbatim in the source at section 16.6. No such schema was found, but that is an exhaustive software-landscape negative neither auditor could verify rather than an established fact. Prose-level reporting structure for PAIC does exist: Ishak et al. 2025 (doi:10.1007/s40273-025-01503-1) publishes a framework for reliable, transparent and reproducible population-adjusted indirect comparisons, but it governs what an analyst reports and does not define a machine-readable object that packages read and emit. A schema would also make analyses portable and auditable only if it carried controlled definitions, versioning, validation rules, provenance and explicit mappings to package-specific estimands, so serializing labels into YAML is necessary rather than sufficient.
+
+## Why it is open
+
+Every package encodes these choices implicitly in its own arguments and defaults, so moving an analysis between tools means re-deriving the specification from code, and the published reporting framework is a prose checklist a reviewer reads rather than an artifact a program can validate. Standardizing function names would not help, because the packages implement genuinely different models; what is shared is the scientific specification, not the API. Current packages lead with the estimate and keep assumptions in model code and prior specifications, so there is nothing to serialize without new work. Adoption further requires controlled vocabularies and estimand mappings agreed among independently maintained packages that have no incentive structure for that coordination.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Ishak et al. 2025, A Framework for Reliable, Transparent, and Reproducible Population-Adjusted Indirect Comparisons, PharmacoEconomics](https://doi.org/10.1007/s40273-025-01503-1) | publishes a reporting and risk-of-bias framework for population-adjusted indirect comparisons, the closest existing thing to a PAIC reporting standard; it is prose for analysts rather than a machine-readable specification that packages can read, emit or validate |
+
+:::
+
+## Probable solution or research direction
+
+Build the schema on top of the reporting framework that already exists rather than beside it: take the elements Ishak et al. 2025 asks analysts to report and give them controlled definitions, a version, validation rules, provenance fields and explicit mappings to each package's estimand conventions. Have synthesis packages read and emit it, and generate the assumptions map, bridge ledger and bias ledger from it, printed before the estimate rather than after. Make round-tripping the acceptance test: the same specification loaded into two packages should yield the same declared estimand and target, not merely the same field names.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+
+**The source said.** "The report proposes a cross-package machine-readable object, illustrated as a YAML specification, recording the estimand (population, outcome, contrast, intercurrent-event strategy), the evidence structure (connectedness, number of randomized subnetworks, which studies have IPD), the bridge (type, components, drift sensitivity), the adjustment (modifiers, prognostics, target distribution), the QBA configuration and the output requested, and argues the bridge ledger itself should be machine-readable so that assumption and sensitivity summaries can be generated automatically. No such schema or package-generated ledger exists."
+
+**What was wrong with it.** The source stated as fact that no machine-readable bridge-ledger schema exists and that no package generates assumption and sensitivity summaries automatically; both auditors classed these as exhaustive negatives they could not confirm, and GPT-5.6 Sol added that a schema is enabling infrastructure rather than a condition for a valid analysis. The reporting side is not empty either: Ishak et al. 2025 (doi:10.1007/s40273-025-01503-1) already publishes a PAIC reporting and risk-of-bias framework in prose.
+
+Literature and prior-art check
+:   **open / supported-with-caveat.** I retrieved the source document (documentation/open_problems_itc_paic_cpaic_qba_2026.md, section 16.6, lines 2324-2359) and every self-referential claim checks out verbatim: the YAML block contains estimand (population, outcome, contrast, strategy: 'treatment policy'), evidence (connected, randomized_subnetworks, ipd_studies), bridge (type, components, drift_sensitivity), adjustment (modifiers, prognostics, target_distribution), qba (mode, omitted_variables, selection_bias, outcome_misclassification, component_drift, parameter_sources) and output (marginal, conditional, partial_identification), followed by 'This is more valuable than forcing all packages to share the same function names. It makes the scientific specification portable and auditable.' The two existence claims ('no machine-readable schema for a disconnected-network bridge ledger currently exists'; 'no current package automatically generates assumption and sensitivity summaries') are negatives I searched for and could not confirm from any source that itself asserts the absence; per calibration they are unverifiable, not supported. Adjacent prior art exists on machine-readable evidence-synthesis databases but it concerns extraction databases, not estimand/bridge specification.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / supported-with-caveat.** C1 and C4-C8 describe a technically feasible schema, and scientific semantics are more important than standardized function names as claimed in C2. C3 holds only if the schema also has controlled definitions, versioning, validation rules, provenance, and explicit mappings to package-specific estimands; serializing labels into YAML alone does not make analyses portable or auditable. The illustrated fields are proposed requirements, not an implemented or enforced standard. C9-C10 are exhaustive software-landscape claims that cannot be established from technical reasoning alone, while C11 is an unquantified sociological generalization. The interoperability and auditability problem is real, but a machine-readable schema is enabling infrastructure rather than an identification condition or a universal prerequisite for a valid decision-grade analysis.
+
+Decision path
+:   `R5:default-open → R11:caveated(n=2)`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [ADJ-16 — No ITC component vocabulary or datum-level extraction provenance](ADJ-16-no-itc-component-vocabulary-or-datum-level-extraction-proven.qmd)
+- [CMU-06 — Simulation studies publish no registry, seeds, or environment locks](CMU-06-simulation-studies-publish-no-registry-seeds-or-environment-.qmd)
+- [DEC-04 — No PAIC-specific reporting standard or credibility appraisal tool](DEC-04-no-paic-specific-reporting-standard-or-credibility-appraisal.qmd)
+- [DEC-08 — No provenance label separates bridged from prior-driven contrasts](DEC-08-no-provenance-label-separates-bridged-from-prior-driven-cont.qmd)
+- [DEC-13 — Published PAIC analyses cannot be reconstructed from the record](DEC-13-published-paic-analyses-cannot-be-reconstructed-from-the-rec.qmd)
+:::
+
+## Source
+
+Derived from C:L1180, C:L2324-2359, C:L2530, C:L2553 of the reviewed corpus.

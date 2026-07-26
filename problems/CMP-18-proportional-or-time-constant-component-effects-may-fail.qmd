@@ -1,0 +1,74 @@
+---
+title: "Proportional or time-constant component effects may fail"
+description: "Component survival models place time-invariant component effects on the hazard, with flexible piecewise and M-spline baselines that vary the study-specific baseline hazard but do not create time-varying treatment or component effects. Combination-therapy components can produce delayed, waning, or crossing effects, and if two components have different time profiles the additive combination of their time-constant summaries has no clear correspondence to the combination's actual hazard trajectory. Non-proportional hazards is not an open gap at the non-component level: multinma has supported it since 0.6.0 (2024-01-24) through aux_regression, which allows treatment and covariate effects on shape parameters and spline coefficients across a wide family of baseline hazards. Cure and multistate models are absent from both."
+pid: "CMP-18"
+topic: "Component methods (CNMA and component PAIC)"
+categories: ["Component methods (CNMA and component PAIC)", "Very high priority", "Partially addressed"]
+priority: "Very high"
+prank: 1
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[CMP-18]{.problem-id}
+[Partially addressed]{.verdict .verdict-partially-addressed}
+[Very high priority]{.chip .chip-priority-very-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+## Statement
+
+Component survival models place time-invariant component effects on the hazard, with flexible piecewise and M-spline baselines that vary the study-specific baseline hazard but do not create time-varying treatment or component effects. Combination-therapy components can produce delayed, waning, or crossing effects, and if two components have different time profiles the additive combination of their time-constant summaries has no clear correspondence to the combination's actual hazard trajectory. Non-proportional hazards is not an open gap at the non-component level: multinma has supported it since 0.6.0 (2024-01-24) through aux_regression, which allows treatment and covariate effects on shape parameters and spline coefficients across a wide family of baseline hazards. Cure and multistate models are absent from both.
+
+## Why it is open
+
+Allowing time-varying component effects multiplies the parameters that must be assumed constant across subnetworks, so it worsens the untestable-constancy problem that makes the bridge work in the first place. The bridge itself becomes time-dependent when components have different time profiles, which means the cross-gap contrast has to be reported as a trajectory rather than a number. Decision-relevant summaries such as restricted mean survival time then depend on extrapolation beyond the observed follow-up, and cure and multistate structures that would discipline that extrapolation are not implemented in component or non-component ML-NMR.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [multinma 0.6.0 (2024-01-24), aux_regression](https://cran.r-project.org/package=multinma) | implements non-proportional hazards in ML-NMR by allowing a regression model for auxiliary parameters (shape parameters and spline coefficients) across exponential, Weibull, Gompertz, log-normal, log-logistic, gamma, generalized gamma, M-spline, and piecewise-exponential baselines |
+| [cpaic 0.1.0 (development version, choxos/cpaic@9d150e9)](choxos/cpaic@9d150e9) | unreleased development R package on GitHub, not on CRAN; provides piecewise and M-spline baseline hazards with time-invariant component effects and component-by-covariate interactions, and implements no time-varying-effect, cure, or multistate likelihood |
+
+:::
+
+## Probable solution or research direction
+
+Port the existing auxiliary-parameter regression approach to component effects, so component-specific shape parameters and spline coefficients can carry delayed, waning, and crossing profiles, and state explicitly which of those parameters the bridge now requires to be constant across subnetworks. Make restricted mean survival time an estimand rather than a derived quantity, since it is the summary that survives non-proportionality. Cure and multistate component models are genuinely new work, absent from the non-component packages as well.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Partially addressed. Part of this problem is addressed by existing work; the entry names which part.
+
+**The source said.** "Component survival models assume component effects that are proportional or constant over time. Combination-therapy components commonly produce delayed, waning, or crossing effects, so a single time-constant component parameter can misrepresent the whole survival experience."
+
+**What was wrong with it.** The source proposed building time-varying effects and flexible hazard models as though none existed. The literature auditor found that multinma 0.6.0's aux_regression already implements non-proportional hazards for ML-NMR via regression on auxiliary parameters, so the gap is specific to component effects; GPT-5.6 Sol confirmed at choxos/cpaic@9d150e9 that piecewise and M-spline baselines give flexible baselines but not time-varying component effects, and declined to assess the word 'commonly'.
+
+Literature and prior-art check
+:   **partially-solved / supported-with-caveat.** The clinical premise (combination therapies show delayed, waning or crossing effects) is uncontroversial, and the structural point that time-varying component effects multiply the parameters requiring cross-subnetwork constancy is a good one I found nowhere else. But non-proportional hazards in population-adjusted synthesis is not an open gap at the non-component level: multinma added survival models in 0.6.0 (2024-01-24) with exponential, Weibull, Gompertz, log-normal, log-logistic, gamma, generalised gamma, M-spline and piecewise-exponential baselines, and its aux_regression argument allows treatment and covariate effects on shape parameters and spline coefficients, which is exactly a time-varying treatment effect. Phillippo et al. 2025 add that under effect modification marginal hazard ratios are intrinsically time-varying. So the entry should be scoped to component effects specifically. Cure and multistate models are indeed absent from multinma as well, so that sub-claim generalises beyond cpaic.
+    Cites cran:multinma 0.6.0 (2024-01-24), aux_regression argument: Non-proportional hazards in ML-NMR are implemented via regression on auxiliary parameters (shape parameters and spline coefficients) across a wide family of baseline hazards; not available for component effects..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / supported-with-caveat.** C1, C3, and C4 are supported. cpaic records proportional hazards as a survival assumption, and the Stan survival linear predictor contains time-invariant component effects and component-by-covariate interactions. Piecewise and M-spline baselines allow flexible study-specific baseline hazards but do not create time-varying treatment or component effects. No time-varying-effect, cure, or multistate likelihood is implemented. C2 is technically correct: delayed, waning, or crossing effects can violate this structure. The empirical word 'commonly' was not assessed, and 'very high' severity is conditional on material non-proportionality and on the decision estimand; it is not an automatic defect in every survival analysis.
+
+Grok 4.5, recency lens
+:   **open / supported.** Treatment-level non-proportional hazards NMA/ML-NMR advanced in 2025 (Phillippo et al., arXiv:2509.10383; multinma M-spline NPH, treatment effects on spline coefficients or stratification). That closes part of the survival-NMA NPH agenda but not the stated component-PAIC problem: additive time-constant component effects on the hazard, with delayed/waning/crossing combination profiles, plus cure and multistate components in cpaic. cpaic 0.1.0 still documents piecewise/M-spline baselines with time-constant component effects and proportional hazards for survival. No time-varying component-effect, cure, or multistate implementation in cpaic or a component ML-NMR package was found. Queries: Phillippo 2025 M-spline NPH; cpaic proportional hazards; time-varying component NMA survival; cure multistate component NMA. Claims C1–C4 about cpaic remain accurate; adjacent treatment-level NPH software does not make the component problem solved.
+
+Decision path
+:   `R3:partially-solved(n=1) → R11:caveated(n=2)`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [OUT-18 — Component-specific time-varying treatment effects](OUT-18-component-specific-time-varying-treatment-effects.qmd)
+:::
+
+## Source
+
+Derived from C:L1376, C:L1309-1311, scope:field-level (survival synthesis); implemented assumption in cpaic of the reviewed corpus.

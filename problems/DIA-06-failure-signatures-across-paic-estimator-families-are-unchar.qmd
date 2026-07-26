@@ -1,0 +1,79 @@
+---
+title: "Failure signatures across PAIC estimator families are uncharacterized"
+description: "Factorial simulations have already located the region where MAIC stops improving on an unadjusted indirect comparison: Phillippo et al. 2020 (doi:10.1002/sim.8759) sweeps overlap, effect-modification strength, sample size and missing modifiers and reports that MAIC may even increase bias compared with standard indirect comparisons; Remiro-Azocar et al. 2021 (doi:10.1002/jrsm.1511) locates the bias-variance crossover over 162 scenarios; and Liu et al. 2025 (doi:10.1007/s40258-025-00952-1) runs a 729-scenario full factorial and finds MAIC more biased than naive indirect comparison at low covariate overlap with high covariate strength. What no study does is characterize and contrast the failure signatures of weighting-based, outcome-model-based and machine-learning estimators as overlap deteriorates, or report whether those failures are visible in any reported diagnostic. Flexible learners are absent from this simulation literature entirely."
+pid: "DIA-06"
+topic: "Diagnostics & empirical validation"
+categories: ["Diagnostics & empirical validation", "Very high priority", "Overstated"]
+priority: "Very high"
+prank: 1
+verdict: "Overstated"
+verdictslug: "overstated"
+maturity: "Emerging"
+---
+::: {.problem-meta}
+[DIA-06]{.problem-id}
+[Overstated]{.verdict .verdict-overstated}
+[Very high priority]{.chip .chip-priority-very-high}
+[Emerging]{.chip .chip-maturity-emerging}
+:::
+## Statement
+
+Factorial simulations have already located the region where MAIC stops improving on an unadjusted indirect comparison: Phillippo et al. 2020 (doi:10.1002/sim.8759) sweeps overlap, effect-modification strength, sample size and missing modifiers and reports that MAIC may even increase bias compared with standard indirect comparisons; Remiro-Azocar et al. 2021 (doi:10.1002/jrsm.1511) locates the bias-variance crossover over 162 scenarios; and Liu et al. 2025 (doi:10.1007/s40258-025-00952-1) runs a 729-scenario full factorial and finds MAIC more biased than naive indirect comparison at low covariate overlap with high covariate strength. What no study does is characterize and contrast the failure signatures of weighting-based, outcome-model-based and machine-learning estimators as overlap deteriorates, or report whether those failures are visible in any reported diagnostic. Flexible learners are absent from this simulation literature entirely.
+
+## Why it is open
+
+Adjustment trades a bias term that depends on unobserved cross-study modifier imbalance against an observable variance penalty, so the exact data-specific gain cannot be learned from the data at hand without causal and modeling assumptions, although observed imbalance, prespecified effect modifiers, trial design and external knowledge still inform the decision. Weighting estimators fail by variance explosion and weight concentration while outcome-model estimators fail silently by extrapolating a fitted surface into regions with no data, so the two signatures are not comparable on any single performance measure, and flexible learners make this worse because their extrapolation behavior is set by regularization rather than by an explicit functional form. The existing factorials fix the estimator set narrowly, so the differential behavior near the support boundary is never observed even in the studies that have mapped the crossover region.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Phillippo et al. 2020, Assessing the performance of population adjustment methods for anchored indirect comparisons: A simulation study](https://doi.org/10.1002/sim.8759) | Factorial simulation crossing overlap, effect-modification strength, sample size, missing modifiers and covariate distributions across MAIC, STC and ML-NMR, reporting where adjustment fails to pay. |
+| [Remiro-Azocar et al. 2021, Methods for population adjustment with limited access to individual patient data: A review and simulation study](https://doi.org/10.1002/jrsm.1511) | 162-scenario simulation locating the bias-variance crossover as covariate overlap degrades. |
+| [Liu et al. 2025, Is the Use of Unanchored Matching-Adjusted Indirect Comparison Always Superior to Naive Indirect Comparison on Survival Outcomes? A Simulation Study](https://doi.org/10.1007/s40258-025-00952-1) | 729-scenario three-level full factorial over six factors including covariate overlap and covariate strength, identifying the region where MAIC is more biased than naive indirect comparison. |
+| [cpaic (development version), commit 9d150e9](https://github.com/choxos/cpaic/commit/9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca) | Unreleased development package on GitHub, not available from CRAN. Records a factorial comparison across imbalance and overlap for naive bridging, cSTC and cMAIC; narrow in estimator coverage, and the auditor notes its validation pipeline was not publicly tracked and the result was not independently reproducible from the public commit. |
+
+:::
+
+## Probable solution or research direction
+
+Extend the existing overlap-by-effect-modification factorials rather than repeat them: hold their design fixed and add outcome-model, ML-NMR, doubly robust and flexible-learner arms, sweep overlap from complete to near-disjoint, and record for each estimator family the onset of bias, the onset of variance inflation, and whether either is visible in any diagnostic the analyst would actually report. Report failure signatures rather than only average performance, so the output is a map of how each family degrades rather than a single winner. Publish the code so the comparison can be re-run as new estimators appear.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Overstated. 2 independent auditors judged the claim as stated too strong. Factorial simulations have located the region where MAIC stops improving on an unadjusted indirect comparison, but no study characterizes and contrasts the failure signatures of weighting-based versus outcome-model-based versus machine-learning PAIC estimators as overlap deteriorates, nor reports whether those failures are visible in any diagnostic.
+
+**The source titled this.** "When adjustment pays, and how each estimator fails, is unknown" The title says when adjustment pays is unknown, but three published factorial simulations already locate the region where MAIC stops improving on an unadjusted comparison.
+
+**The source said.** "The field cannot say under which conditions population adjustment materially improves an ordinary ITC or NMA and under which it merely adds variance without reducing bias. Nor has it characterized how MAIC, standardized outcome regression, ML-NMR, doubly robust methods and flexible learners each fail as source-target overlap deteriorates."
+
+**What was wrong with it.** The source said there is no evidence base specifying when population adjustment materially improves an ordinary ITC; the literature auditor found three factorial simulations that map exactly that region (doi:10.1002/sim.8759, doi:10.1002/jrsm.1511, doi:10.1007/s40258-025-00952-1), and GPT-5.6 Sol found a factorial imbalance-and-overlap comparison of naive bridging, cSTC and cMAIC in the cpaic development package. What survives is the comparative failure-signature question across estimator families.
+
+Literature and prior-art check
+:   **partially-solved / overstated.** The claim that there is no evidence base specifying when population adjustment materially improves an ordinary ITC is contradicted by at least three factorial simulations I retrieved. Phillippo et al. 2020 crossed sample size, missing effect modifiers, strength of effect modification, shared-effect-modifier validity, extrapolation validity, between-study overlap (a proxy parameter kappa swept from no overlap to full overlap) and covariate distributions, and reported that MAIC 'may even increase bias compared with standard indirect comparisons' - i.e. the region where adjustment does not pay. Remiro-Azocar et al. 2021 ran 162 scenarios and located the crossover explicitly. Liu et al. 2025 ran 729 scenarios in a three-level full factorial over six factors including covariate overlap and covariate strength and identified the failure region for MAIC versus naive comparison. What remains genuinely open is the comparative failure-signature question: no study I found sweeps overlap to near-disjoint and records, per estimator family, onset of bias versus onset of variance inflation and whether any diagnostic sees it, and flexible learners are absent entirely.
+    Cites 10.1007/s40258-025-00952-1: 729-scenario full factorial over six factors including covariate overlap and strength; identifies the region where adjustment is worse than not adjusting..
+    Cites 10.1002/sim.8759: Factorial simulation crossing overlap, effect-modification strength, sample size, missing modifiers and covariate distributions across MAIC, STC and ML-NMR, and reporting where adjustment fails to pay..
+    Cites 10.1002/jrsm.1511: 162-scenario simulation locating the bias-variance crossover as overlap degrades..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / overstated.** C2, C5, and C6 are correct qualitative statements. Basic theory already identifies the crossover: without relevant effect modification or source-target imbalance, adjustment cannot remove that bias and may add variance; under positivity failure, weighting becomes concentrated while outcome regression relies on extrapolation and model correctness. Exact data-specific MSE improvement cannot be learned from observed data without causal and modeling assumptions, but adjustment decisions can still use observed imbalance, prespecified effect modifiers, trial design, and external knowledge. At cpaic commit 9d150e9, the README reports a factorial overlap-and-imbalance comparison of naive bridging, cSTC, and cMAIC, so "no evidence base" is false. That evidence is narrow, and the commit itself says its validation pipeline was not publicly tracked. A broad comparison including ML-NMR, doubly robust estimators, and flexible learners remains open.
+    Cites choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca: The package records a factorial comparison across imbalance and overlap for naive bridging, cSTC, and cMAIC, partially characterizing when adjustment changes bias and uncertainty. It does not cover the full estimator set and was not independently reproducible from the public commit..
+
+Decision path
+:   `R3:partially-solved(n=2) → R8:overstated-majority(n=2)`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [COV-05 — Legitimate versus dangerous roles for flexible learners](COV-05-legitimate-versus-dangerous-roles-for-flexible-learners.qmd)
+- [OVL-03 — No support diagnostic aggregates over a PAIC target distribution](OVL-03-no-support-diagnostic-aggregates-over-a-paic-target-distribu.qmd)
+:::
+
+## Source
+
+Derived from C:L1775-1778, C:L1779 of the reviewed corpus.

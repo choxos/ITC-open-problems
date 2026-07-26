@@ -1,0 +1,81 @@
+---
+title: "No provenance label separates bridged from prior-driven contrasts"
+description: "For connected networks, contrast-specific evidence provenance is already computable and shipped in standard software: the proportion contribution matrix (10.12688/f1000research.14770.3) shows how much each direct comparison contributes to each network estimate, it is available as netmeta::netcontrib and drives CINeMA's per-comparison judgments, it has been applied across 213 published network meta-analyses, and the shortest-path approach has now been extended to component networks (10.1186/s12874-026-02766-8). What no convention or software produces is a provenance label separating structurally bridged from purely prior-driven contrasts across a disconnection, or an explicit ledger naming what carries information over each gap. Contrast-specific estimability is the right check rather than global rank, since a contrast is estimable exactly when its vector lies in the row space of the design; that check is implemented in cpaic, an unreleased development package on GitHub that an auditor confirmed is not on CRAN."
+pid: "DEC-08"
+topic: "Decision analysis, regulation & reporting"
+categories: ["Decision analysis, regulation & reporting", "Very high priority", "Overstated"]
+priority: "Very high"
+prank: 1
+verdict: "Overstated"
+verdictslug: "overstated"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[DEC-08]{.problem-id}
+[Overstated]{.verdict .verdict-overstated}
+[Very high priority]{.chip .chip-priority-very-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+## Statement
+
+For connected networks, contrast-specific evidence provenance is already computable and shipped in standard software: the proportion contribution matrix (10.12688/f1000research.14770.3) shows how much each direct comparison contributes to each network estimate, it is available as netmeta::netcontrib and drives CINeMA's per-comparison judgments, it has been applied across 213 published network meta-analyses, and the shortest-path approach has now been extended to component networks (10.1186/s12874-026-02766-8). What no convention or software produces is a provenance label separating structurally bridged from purely prior-driven contrasts across a disconnection, or an explicit ledger naming what carries information over each gap. Contrast-specific estimability is the right check rather than global rank, since a contrast is estimable exactly when its vector lies in the row space of the design; that check is implemented in cpaic, an unreleased development package on GitHub that an auditor confirmed is not on CRAN.
+
+## Why it is open
+
+A network diagram draws a randomized comparison and one manufactured by a structural assumption identically, and contribution-matrix methods are defined for connected networks, so they say nothing about a contrast that exists only because of a bridge. Across a gap the information may be carried by several component parameters or by a linear subspace rather than by one named parameter, so a ledger with one row per gap is a reporting convention still to be defined rather than a quantity waiting to be read off a fit. Global rank of the design matrix continues to be reported as evidence that a network is estimable, which hides that a specific decision contrast may lie outside the estimable space.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Papakonstantinou et al. 2018](https://doi.org/10.12688/f1000research.14770.3) | Derives the proportion contribution matrix showing how much each direct treatment effect contributes to each network estimate, giving contrast-specific evidence provenance for connected networks. |
+| [netmeta::netcontrib (R package netmeta)](https://cran.r-project.org/package=netmeta) | Ships the contribution matrix as standard software output: rows are network treatment effects, columns are the contributions of direct treatment effects. |
+| [Papakonstantinou et al. 2020](https://doi.org/10.1016/j.jclinepi.2020.04.009) | Applies the contribution matrix to 213 published network meta-analyses, finding 33% of information from direct evidence, 47% from length-2 paths and 20% from length-3. |
+| [Yang et al. 2026](https://doi.org/10.1186/s12874-026-02766-8) | Adapts the shortest-path approach to component network meta-analysis, tracing evidence contributions to component-level estimates. |
+| [cpaic (development package, audited at commit 9d150e9)](choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca) | Unreleased development package on GitHub, confirmed by an auditor not to be on CRAN. Implements treatment subnetworks and bridging-component discovery, an exact per-contrast row-space estimability check, suppression of non-estimable effects, and a network plot distinguishing IPD from aggregate-data studies; it does not implement the four-way provenance labels, a separate component graph, articulation and single-arm markings, or the bridge ledger. |
+
+:::
+
+## Probable solution or research direction
+
+Extend contribution-matrix reporting to the disconnected case rather than build per-contrast provenance from nothing: for each decision-critical contrast report the mixture of randomized, indirect, structural and prior information instead of a single label, alongside the row-space estimability check that cpaic already performs. Define the bridge disclosure as the assumptions plus the parameter loadings that carry information across the gap, which covers the case where no single parameter does. Add a separate component-network display with articulation edges and single-arm evidence marked, recognizing that component structure is often a design matrix or hypergraph rather than an ordinary graph.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Overstated. 2 independent auditors judged the claim as stated too strong. For connected networks, contrast-specific evidence provenance is already computable and shipped in standard software (the proportion contribution matrix in netmeta and CINeMA), and component-level evidence flow now exists too. What is not produced by any convention or software is a provenance label distinguishing structurally bridged from purely prior-driven contrasts in disconnected evidence, or an explicit bridge ledger naming the parameter carrying information across each gap.
+
+**The source titled this.** "Contrast provenance and the bridge ledger are not reported" The title says contrast provenance is not reported, but the proportion contribution matrix has shipped in netmeta and CINeMA since 2018 and now extends to component networks.
+
+**The source said.** "Evidence-graph reporting does not distinguish the provenance of each contrast. Reports do not show the treatment and component networks separately, do not identify connected components, articulation edges and single-arm evidence, do not state for each cross-treatment contrast whether it is randomized, indirectly randomized, structurally bridged or purely prior-driven, report global rank instead of contrast-specific estimability, and carry no bridge ledger for disconnected comparisons."
+
+**What was wrong with it.** The source said no convention or software output currently produces a per-contrast provenance label, so even a willing analyst has nothing to fill in. The literature auditor found the contribution matrix has been in netmeta and CINeMA since 2018 and now extends to component networks, leaving only the disconnected case; GPT-5.6 Sol added that a single four-way label can itself conceal a mixture of direct, indirect, structural and prior information, and that per-contrast estimability is already implemented in cpaic.
+
+Literature and prior-art check
+:   **partially-solved / overstated.** The claim 'No convention or software output currently produces a per-contrast provenance label ... so even a willing analyst has nothing to fill in' is wrong for connected networks. Papakonstantinou et al. 2018 (F1000Research, doi 10.12688/f1000research.14770.3) derived the proportion contribution matrix showing 'how much each direct treatment effect contributes to each treatment effect estimate from network meta-analysis'; it is shipped as netmeta::netcontrib, whose documentation I retrieved ('generates the contribution of direct comparisons to every network treatment comparison ... rows represent network treatment effects and columns represent the contribution of direct treatment effects'), and it is the engine behind CINeMA's per-comparison within-study-bias and indirectness judgments. Papakonstantinou et al. 2020 (doi 10.1016/j.jclinepi.2020.04.009) applied it across 213 published NMAs, finding 33% of information from direct evidence, 47% from length-2 paths and 20% from length-3. Yang et al. 2026 (doi 10.1186/s12874-026-02766-8) extends evidence-flow tracing to component NMA via pseudo-paths, addressing the treatment-versus-component-network claim. What genuinely remains: labels distinguishing 'structurally bridged' from 'prior-driven' for disconnected evidence, and the bridge ledger itself.
+    Cites 10.12688/f1000research.14770.3: Provides contrast-specific evidence provenance (direct vs indirect decomposition per network estimate) rather than a global rank statistic..
+    Cites cran:netmeta::netcontrib: Shows the per-contrast provenance output already exists as standard software output..
+    Cites 10.1186/s12874-026-02766-8: Extends contribution tracing to the component network, addressing the claim that treatment and component networks are different graphs with no tooling..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / overstated.** C2 is correct only with qualification: when X = BC is rank deficient, a contrast is estimable exactly when its contrast vector lies in row(X), so the rank number alone does not identify which contrasts survive. Full column rank of the correct estimand design does, however, certify every linear contrast. C3-C4 are useful reporting recommendations, although component information is often a design matrix, bipartite graph, or hypergraph rather than one ordinary graph. C5 is too categorical: cross-gap information may be carried by several component parameters or a linear subspace, and an equivalent assumption-and-loading report can replace a formal ledger. A single provenance label can also conceal mixtures of direct, indirect, structural, and prior information. C1's frequency is not established here. At the requested cpaic commit, subnetworks, bridging components, contrast-specific estimability, IPD-versus-AgD plotting, and approximate edge influence already exist. The four-way provenance labels, separate component graph, articulation and single-arm markings, and bridge ledger remain absent. This is critical for cross-gap decision contrasts, but not uniformly a very-high-priority defect for every contrast.
+    Cites choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca: Implements treatment subnetworks and bridging-component discovery, an exact row-space check for each treatment contrast, suppression of nonestimable effects, and a network plot distinguishing IPD from AgD. This resolves C2 and parts of C3-C4, but not the requested ledger or complete provenance taxonomy..
+
+Decision path
+:   `R3:partially-solved(n=2) → R8:overstated-majority(n=2)`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [DIS-01 — Cross-gap contrasts are absent from the randomized likelihood](DIS-01-cross-gap-contrasts-are-absent-from-the-randomized-likelihoo.qmd)
+- [DIS-12 — No standard ledger names the parameter carrying the gap](DIS-12-no-standard-ledger-names-the-parameter-carrying-the-gap.qmd)
+- [SFW-02 — No machine-readable specification standard for ITC analyses](SFW-02-no-machine-readable-specification-standard-for-itc-analyses.qmd)
+:::
+
+## Source
+
+Derived from C:L2374-2380 of the reviewed corpus.

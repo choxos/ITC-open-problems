@@ -1,0 +1,81 @@
+---
+title: "No package unifies PAIC, transport, estimands and reporting"
+description: "Existing packages already cover substantial and overlapping subsets of this agenda, but no mature, widely adopted package covers the whole capability list and none supplies a shared field-wide specification and reporting workflow. outstandR 2.0.0 (CRAN, 10 June 2026) unifies MAIC, STC and parametric G-computation behind one API with an explicit outcome-model and balance-model split; maicChecks 0.3.0 supplies dedicated MAIC feasibility and overlap diagnostics implementing Glimm and Yau (doi:10.1002/pst.2210); and cpaic, an unreleased development package on GitHub that is not installable from CRAN, spans disconnected component bridging, cMAIC, cSTC, cML-NMR, marginal and conditional estimands, multiple outcome families and overlap, ESS, prior and bridge diagnostics at commit 9d150e9. What no single package supplies is doubly robust transport, integrated missing-data modeling, a coherent quantitative bias analysis object and regulatory reporting in one workflow. Defaults, diagnostics and output conventions still differ across packages, so the estimand and target are re-specified informally at every hand-off."
+pid: "SFW-01"
+topic: "Software, benchmarks & interface standards"
+categories: ["Software, benchmarks & interface standards", "Very high priority", "Confirmed open"]
+priority: "Very high"
+prank: 1
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Emerging"
+---
+::: {.problem-meta}
+[SFW-01]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[Very high priority]{.chip .chip-priority-very-high}
+[Emerging]{.chip .chip-maturity-emerging}
+:::
+::: {.source-unsourced}
+**Source note.** This entry derives in part from a source document whose inline citations
+were ChatGPT interface tokens rather than references, and so resolve to nothing. Claims
+below are attributed to that document and were checked independently where possible;
+anything that could not be independently sourced is marked in the verification trail.
+:::
+
+## Statement
+
+Existing packages already cover substantial and overlapping subsets of this agenda, but no mature, widely adopted package covers the whole capability list and none supplies a shared field-wide specification and reporting workflow. outstandR 2.0.0 (CRAN, 10 June 2026) unifies MAIC, STC and parametric G-computation behind one API with an explicit outcome-model and balance-model split; maicChecks 0.3.0 supplies dedicated MAIC feasibility and overlap diagnostics implementing Glimm and Yau (doi:10.1002/pst.2210); and cpaic, an unreleased development package on GitHub that is not installable from CRAN, spans disconnected component bridging, cMAIC, cSTC, cML-NMR, marginal and conditional estimands, multiple outcome families and overlap, ESS, prior and bridge diagnostics at commit 9d150e9. What no single package supplies is doubly robust transport, integrated missing-data modeling, a coherent quantitative bias analysis object and regulatory reporting in one workflow. Defaults, diagnostics and output conventions still differ across packages, so the estimand and target are re-specified informally at every hand-off.
+
+## Why it is open
+
+Each package grew around one methodological tradition, and the abstractions those traditions use for population, evidence structure and estimand are incompatible, so unification is not a matter of adding features to any one of them. The partial unification that exists stays inside a tradition: outstandR unifies the pairwise PAIC estimator families, maicChecks covers feasibility and overlap, cpaic covers the component and disconnected case, and none of them shares a representation of IPD plus aggregate data plus a target population on which a common diagnostic or reporting layer could sit. Defaults encode different implicit estimands, so two packages can answer the same question differently without either being wrong by its own conventions. The integration layer is unglamorous maintenance work that no funder, maintainer or academic incentive currently owns.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [outstandR 2.0.0 (CRAN, published 10 Jun 2026)](https://cran.r-project.org/package=outstandR) | unifies MAIC, STC and parametric G-computation behind one API with an explicit outcome-model and balance-model split and a diagnostics vignette; partial unification across the PAIC estimator families, but pairwise and without transport, quantitative bias analysis or regulatory reporting layers |
+| [maicChecks 0.3.0 (CRAN; Yau, Glimm and Deng)](https://cran.r-project.org/package=maicChecks) | dedicated MAIC feasibility and overlap diagnostic package listed in the CRAN CausalInference task view; supplies the built-in overlap diagnostics the source said few ITC packages have |
+| [Glimm and Yau 2022](https://doi.org/10.1002/pst.2210) | introduces multivariate data analysis methods for assessing whether MAIC is appropriate for a given set of baseline characteristics, comparing the matched variables between the aggregate-data study and the IPD study; the method maicChecks implements |
+| [cpaic, unreleased development package on GitHub (not on CRAN), commit 9d150e9](https://github.com/choxos/cpaic) | spans disconnected component bridging, cMAIC, cSTC, cML-NMR, marginal and conditional estimands, component structure, multiple outcome families and overlap, ESS, prior and bridge diagnostics, and ships public known-truth data with cross-package equivalence tests; lacks doubly robust transport, integrated missing-data analysis, marginal standardization for cML-NMR, a quantitative bias analysis object and regulatory ledgers |
+
+:::
+
+## Probable solution or research direction
+
+Do not start from an empty platform. outstandR 2.0.0 already separates outcome model from balance model in a single API and says in its release notes that the split is meant to accommodate doubly robust methods, maicChecks already implements the feasibility and overlap layer, and cpaic already covers the component and disconnected case. The work is defining the shared data model for IPD, aggregate data and target populations that lets those pieces interoperate, then adding the capabilities none of them has: doubly robust transport, missing-data modeling, a quantitative bias analysis object and regulatory reporting. Pair that with a common reference API and cross-package gold-standard tests built out from the known-truth fixtures and equivalence tests cpaic already carries.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+
+**The source said.** "ITC and PAIC capability is scattered across packages with inconsistent defaults, diagnostics and output conventions, and no mature, widely adopted open package natively unifies target-population definition, connected and disconnected evidence, marginal and conditional estimands, doubly robust transport, component structure, complex outcomes, missing data, sensitivity analysis, overlap diagnostics and regulatory reporting. The report states this is an inference from reviewed package scopes and issue trackers, not a formal theorem."
+
+**What was wrong with it.** The source was unattributed and claimed both that few ITC packages carry built-in PAIC diagnostics or overlap visualization and that no public validation datasets or cross-package gold-standard tests exist; the literature auditor supplied maicChecks 0.3.0 (cran:maicChecks, implementing doi:10.1002/pst.2210) and outstandR 2.0.0, and GPT-5.6 Sol found public known-truth fixtures and cross-package equivalence tests in cpaic at commit 9d150e9. The conjunctive gap across the full capability list survives, those two supporting claims do not, and the entry is now sourced.
+
+**Dissent.** codex dissented (overstated): At cpaic commit 9d150e9, the package already spans disconnected component bridging, cMAIC, cSTC, cML-NMR, marginal and conditional estimands, component structure, multiple outcome families, and overlap, ESS, prior, and bridge diagnostics. It still lacks doubly robust transport, integrated missing-data analysis, marginal standardization for cML-NMR, a coherent QBA object, and regulatory ledgers, so the complete platform gap remains open. C2-C3 are defensible only as conjunctions covering the entire feature list. C4, C6, C10, C11, and C15 are proportionate. C7 is vague; C8 is an interoperability claim rather than a statistical result; C9 is false as an absolute because cpaic includes public known-truth data and cross-package equivalence tests; and C12-C14 are unsupported superlatives. The decision-grade concern is failure to declare estimands, targets, assumptions, and diagnostics, not the absence of one omnibus package.
+
+Literature and prior-art check
+:   **open / supported-with-caveat.** prior_work is empty, so nothing to check for fidelity; I hunted prior art instead. The conjunctive negative (one package covering target definition + disconnected evidence + marginal/conditional estimands + DR transport + components + complex outcomes + missing data + QBA + overlap + regulatory reporting) survives: I found no candidate. But two supporting claims are weaker than stated. outstandR 2.0.0 (CRAN, 2026-06-10) already unifies MAIC, STC and parametric G-computation behind one API with an explicit outcome_model/balance_model split and a diagnostics vignette, i.e. partial unification across PAIC families. And 'few ITC packages have built-in PAIC diagnostics, overlap visualisation' overlooks maicChecks 0.3.0 (Yau, Glimm, Deng; CRAN, CausalInference task view), a dedicated MAIC feasibility/overlap diagnostic package implementing Glimm & Yau (2022). Neither appears anywhere in the SFW landscape. 'No public validation datasets exist' is a negative I cannot verify and is partly countered by the public simulation studies cited under SFW-04.
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** At cpaic commit 9d150e9, the package already spans disconnected component bridging, cMAIC, cSTC, cML-NMR, marginal and conditional estimands, component structure, multiple outcome families, and overlap, ESS, prior, and bridge diagnostics. It still lacks doubly robust transport, integrated missing-data analysis, marginal standardization for cML-NMR, a coherent QBA object, and regulatory ledgers, so the complete platform gap remains open. C2-C3 are defensible only as conjunctions covering the entire feature list. C4, C6, C10, C11, and C15 are proportionate. C7 is vague; C8 is an interoperability claim rather than a statistical result; C9 is false as an absolute because cpaic includes public known-truth data and cross-package equivalence tests; and C12-C14 are unsupported superlatives. The decision-grade concern is failure to declare estimands, targets, assumptions, and diagnostics, not the absence of one omnibus package.
+
+Decision path
+:   `R5:default-open → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [CMU-08 — No cross-package benchmark or reference pipeline for ITC software](CMU-08-no-cross-package-benchmark-or-reference-pipeline-for-itc-sof.qmd)
+:::
+
+## Source
+
+Derived from A:L11, A:L76, A:L99, A:L113, C:L2236-2240 of the reviewed corpus.

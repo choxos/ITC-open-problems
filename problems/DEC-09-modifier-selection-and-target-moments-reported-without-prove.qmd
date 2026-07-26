@@ -1,0 +1,93 @@
+---
+title: "Modifier selection and target moments reported without provenance"
+description: "Population-adjustment reports frequently omit the inputs that determine the adjustment: which variables were predefined as effect modifiers rather than prognostic-only, the clinical and empirical rationale, measurement definitions and harmonization, the provenance of each target moment, the assumptions used to reconstruct the target joint distribution, and any uncertainty in the target summaries. Farinasso et al. 2025 (10.1016/j.vhri.2025.101088) found evidence of effect-modifier status and adjustment for all effect modifiers among the least-reported items across 117 oncology MAICs. The joint-distribution assumption is an undisclosed requirement rather than an unrecognized one: multilevel network meta-regression (10.1111/rssa.12579) reconstructs the target joint distribution with a Gaussian copula whose correlations are borrowed from the IPD studies, and multinma implements it, so an analyst has a named convention to state. A correlation matrix alone does not identify a joint distribution, since marginal families and a dependence model are also needed, and moment-matching MAIC and identity-link models do not require a full joint distribution at all."
+pid: "DEC-09"
+topic: "Decision analysis, regulation & reporting"
+categories: ["Decision analysis, regulation & reporting", "Very high priority", "Partially addressed"]
+priority: "Very high"
+prank: 1
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
+maturity: "Promising"
+---
+::: {.problem-meta}
+[DEC-09]{.problem-id}
+[Partially addressed]{.verdict .verdict-partially-addressed}
+[Very high priority]{.chip .chip-priority-very-high}
+[Promising]{.chip .chip-maturity-promising}
+:::
+## Statement
+
+Population-adjustment reports frequently omit the inputs that determine the adjustment: which variables were predefined as effect modifiers rather than prognostic-only, the clinical and empirical rationale, measurement definitions and harmonization, the provenance of each target moment, the assumptions used to reconstruct the target joint distribution, and any uncertainty in the target summaries. Farinasso et al. 2025 (10.1016/j.vhri.2025.101088) found evidence of effect-modifier status and adjustment for all effect modifiers among the least-reported items across 117 oncology MAICs. The joint-distribution assumption is an undisclosed requirement rather than an unrecognized one: multilevel network meta-regression (10.1111/rssa.12579) reconstructs the target joint distribution with a Gaussian copula whose correlations are borrowed from the IPD studies, and multinma implements it, so an analyst has a named convention to state. A correlation matrix alone does not identify a joint distribution, since marginal families and a dependence model are also needed, and moment-matching MAIC and identity-link models do not require a full joint distribution at all.
+
+## Why it is open
+
+Modifier selection is usually made after seeing which variables the comparator publication happens to report, so predefinition would expose that availability rather than clinical reasoning drove the choice. Target summaries are published as point estimates, so treating them as fixed constants is the path of least resistance and no reporting rule forces the uncertainty to be propagated or its neglect justified; conditioning on them is defensible only for a fixed policy target or negligible sampling error. Software does not push back either: the component ML-NMR path in cpaic stores the copula, marginal families and correlation matrix in the fit, but no path records the source of each target moment, harmonization decisions or target-summary uncertainty, and its MAIC object retains target means without target standard deviations. cpaic is an unreleased development package on GitHub and is not on CRAN.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Phillippo et al. 2020 (multilevel network meta-regression)](https://doi.org/10.1111/rssa.12579) | Reconstructs the target joint covariate distribution from published marginals using a Gaussian copula with correlations matched to the IPD studies, making explicit the assumption the entry says is undisclosed; implemented in multinma. |
+| [Farinasso et al. 2025](https://doi.org/10.1016/j.vhri.2025.101088) | Finds evidence of effect-modifier status and adjustment for all effect modifiers and prognostic variables among the least-reported items across 117 oncology MAICs. |
+| [cpaic (development package, audited at commit 9d150e9)](choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca) | Unreleased development package on GitHub, confirmed by an auditor not to be on CRAN. Its component ML-NMR path makes the Gaussian-copula dependence model, marginal families and correlation matrix explicit and retains them in the fit; it does not record moment sources, harmonization decisions or target-summary uncertainty, and its MAIC object stores target means but not target standard deviations. |
+
+:::
+
+## Probable solution or research direction
+
+Require the reporting elements the methods already imply: predefined effect modifiers with clinical and empirical rationale, harmonized measurement definitions, a complete listing of target moments with sources, an explicit statement of the marginal families and dependence model used to reconstruct the target joint distribution, and either propagation of target-summary uncertainty or a justification for treating it as negligible. Fix the estimand and effect scale first, because on a non-collapsible scale a variable that is only conditionally prognostic still moves the marginal effect, so prognostic-only cannot mean ignorable. Make the fit object carry the provenance so the disclosure is emitted by the software rather than asserted by the analyst.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Partially addressed. Part of this problem is addressed by existing work; the entry names which part.
+
+**The source said.** "Population-adjustment reporting omits the inputs that determine the adjustment: predefinition of effect modifiers as distinct from prognostic-only variables, clinical and empirical rationale for each variable, measurement definitions and harmonization, all target moments and their sources, the reconstruction of the target joint distribution with its correlation assumptions, and propagation of uncertainty in the target summaries."
+
+**What was wrong with it.** The source treated the correlation assumption behind a reconstructed target joint distribution as an unrecognized gap. The literature auditor found it is an explicit, documented component of multilevel network meta-regression (Phillippo et al. 2020, 10.1111/rssa.12579, implemented in multinma), so the claim narrows to non-disclosure; GPT-5.6 Sol added that correlations alone do not identify a joint distribution and that moment-matching MAIC does not need one.
+
+**Dissent.** literature dissented (open): The reporting gap is documented. Farinasso et al. 2025 found that 'evidence of effect modifier status' and 'adjustment for all effect modifiers and prognostic variables' were among the least-reported items across 117 oncology MAICs, and Truong et al. 2023 found extensive heterogeneity assessment in only 37.0% of PAIC analyses. Caveat on the correlation sub-claim: the requirement is not an unrecognized gap but an explicit, documented component of an existing method. Multilevel network meta-regression (Phillippo et al. 2020, doi 10.1111/rssa.12579) reconstructs the target joint covariate distribution from published marginals using a Gaussian copula with a correlation matrix borrowed from the IPD studies, and this is implemented in multinma; Ren et al. 2025 similarly use the NORTA algorithm with an assumed correlation structure. So a willing analyst has a named convention to state, and the entry should say the assumption is rarely disclosed rather than that it is unrecognized. I could not verify with any measured figure how often correlation assumptions or target-moment provenance are actually reported, nor find a method paper propagating target-summary uncertainty; those sub-claims are plausible but unmeasured.
+
+Literature and prior-art check
+:   **open / supported-with-caveat.** The reporting gap is documented. Farinasso et al. 2025 found that 'evidence of effect modifier status' and 'adjustment for all effect modifiers and prognostic variables' were among the least-reported items across 117 oncology MAICs, and Truong et al. 2023 found extensive heterogeneity assessment in only 37.0% of PAIC analyses. Caveat on the correlation sub-claim: the requirement is not an unrecognized gap but an explicit, documented component of an existing method. Multilevel network meta-regression (Phillippo et al. 2020, doi 10.1111/rssa.12579) reconstructs the target joint covariate distribution from published marginals using a Gaussian copula with a correlation matrix borrowed from the IPD studies, and this is implemented in multinma; Ren et al. 2025 similarly use the NORTA algorithm with an assumed correlation structure. So a willing analyst has a named convention to state, and the entry should say the assumption is rarely disclosed rather than that it is unrecognized. I could not verify with any measured figure how often correlation assumptions or target-moment provenance are actually reported, nor find a method paper propagating target-summary uncertainty; those sub-claims are plausible but unmeasured.
+    Cites 10.1111/rssa.12579: Establishes that reconstructing a target joint distribution from marginal summaries requires an explicit correlation assumption, and gives the standard convention (Gaussian copula with IPD-borrowed correlations) that a report could name..
+    Cites 10.1016/j.vhri.2025.101088: Sources the claim that effect-modifier justification and covariate provenance are frequently unreported..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / supported-with-caveat.** C1 and C5 are sound only after fixing the estimand and effect scale. On non-collapsible scales, a conditionally prognostic variable can alter a marginal treatment effect even without a conditional treatment interaction, so prognostic-only must not mean irrelevant. C2's frequency is not assessable from the supplied evidence. C3 is correct for nonlinear standardization from marginal summaries, but correlations alone do not identify a joint distribution; marginal families, a copula or other dependence model, and potentially higher-order dependence are also required. Moment-matching MAIC and identity-link models need not reconstruct a full joint distribution. C4 is correct when target summaries estimate a superpopulation quantity, including their covariance; conditioning can be justified for a fixed policy target or negligible sampling error. cpaic's cML-NMR path explicitly uses and stores margins, a Gaussian copula, and a correlation matrix, partially addressing C3. It does not record sources, harmonization decisions, or target-summary uncertainty. Its cMAIC object stores target means but not target_sd, so even the complete set of matching moments is not retained.
+    Cites choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca: Makes the Gaussian-copula dependence model, marginal families, and correlation matrix explicit and retains them in the cML-NMR fit. This partially resolves C3 but does not provide provenance or uncertainty for the target summaries..
+
+Decision path
+:   `R3:partially-solved(n=1) → R11:caveated(n=2)`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [ADJ-04 — Flexible outcome surfaces and support diagnostics in standardization](ADJ-04-flexible-outcome-surfaces-and-support-diagnostics-in-standar.qmd)
+- [ADJ-10 — Data-driven modifier and causal-structure discovery with few trials](ADJ-10-data-driven-modifier-and-causal-structure-discovery-with-few.qmd)
+- [ADJ-17 — Representation learning for low-dimensional population encodings](ADJ-17-representation-learning-for-low-dimensional-population-encod.qmd)
+- [CMP-15 — Target joint covariate distribution is only approximately known](CMP-15-target-joint-covariate-distribution-is-only-approximately-kn.qmd)
+- [CMU-07 — Published PAIC analyses do not record the choices that drive them](CMU-07-published-paic-analyses-do-not-record-the-choices-that-drive.qmd)
+- [COV-01 — Deciding which covariates are true effect modifiers](COV-01-deciding-which-covariates-are-true-effect-modifiers.qmd)
+- [COV-07 — Unknown target joint covariate distribution](COV-07-unknown-target-joint-covariate-distribution.qmd)
+- [COV-09 — Measurement non-equivalence of covariates across trials](COV-09-measurement-non-equivalence-of-covariates-across-trials.qmd)
+- [DIA-10 — Data access is simulated as benign rather than informative](DIA-10-data-access-is-simulated-as-benign-rather-than-informative.qmd)
+- [EST-07 — Reported target moments are treated as known constants](EST-07-reported-target-moments-are-treated-as-known-constants.qmd)
+- [IDN-03 — No procedure shows an unanchored adjustment set is complete](IDN-03-no-procedure-shows-an-unanchored-adjustment-set-is-complete.qmd)
+- [IDN-05 — The shared effect modifier check has low and uncalibrated power](IDN-05-the-shared-effect-modifier-check-has-low-and-uncalibrated-po.qmd)
+- [IDN-09 — Negative controls for ITC lack catalogues, power and calibration](IDN-09-negative-controls-for-itc-lack-catalogues-power-and-calibrat.qmd)
+- [MOD-02 — Convenience functional forms and untested flexible alternatives](MOD-02-convenience-functional-forms-and-untested-flexible-alternati.qmd)
+- [MOD-03 — Ecological versus within-study effect modification](MOD-03-ecological-versus-within-study-effect-modification.qmd)
+- [MOD-04 — No post-selection inference for model choice in population adjustment](MOD-04-no-post-selection-inference-for-model-choice-in-population-a.qmd)
+- [MOD-10 — Flexible interaction surfaces inside network evidence synthesis](MOD-10-flexible-interaction-surfaces-inside-network-evidence-synthe.qmd)
+- [QBA-10 — Target population and joint-distribution uncertainty](QBA-10-target-population-and-joint-distribution-uncertainty.qmd)
+:::
+
+## Source
+
+Derived from C:L2382-2389 of the reviewed corpus.

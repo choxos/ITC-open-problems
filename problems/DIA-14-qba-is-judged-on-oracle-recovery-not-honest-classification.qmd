@@ -1,0 +1,72 @@
+---
+title: "QBA is judged on oracle recovery, not honest classification"
+description: "Recovering the truth when supplied with the true sensitivity parameters is a necessary implementation check but says nothing about whether a QBA classifies robustness honestly when those parameters are unknown. The measures that would show this are not reported: false-reassurance and false-fragility rates, sensitivity-set truth inclusion, tipping-point error, calibration of probabilistic intervals, decision-reversal classification and expected regret, feasibility across the QBA grid, and Monte Carlo error of the QBA computation itself. Ren et al. 2025 (doi:10.1017/rsm.2025.13) exemplifies the practice: the QBA is demonstrated by graphical presentation of point estimates and intervals across assumed bias parameters on a case study, with none of these measures and no simulation evaluation of the method. The further claim that no minimum ADEMP standard exists for QBA simulation in PAIC is an absence claim the literature auditor could not verify."
+pid: "DIA-14"
+topic: "Diagnostics & empirical validation"
+categories: ["Diagnostics & empirical validation", "Very high priority", "Confirmed open"]
+priority: "Very high"
+prank: 1
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Emerging"
+---
+::: {.problem-meta}
+[DIA-14]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[Very high priority]{.chip .chip-priority-very-high}
+[Emerging]{.chip .chip-maturity-emerging}
+:::
+## Statement
+
+Recovering the truth when supplied with the true sensitivity parameters is a necessary implementation check but says nothing about whether a QBA classifies robustness honestly when those parameters are unknown. The measures that would show this are not reported: false-reassurance and false-fragility rates, sensitivity-set truth inclusion, tipping-point error, calibration of probabilistic intervals, decision-reversal classification and expected regret, feasibility across the QBA grid, and Monte Carlo error of the QBA computation itself. Ren et al. 2025 (doi:10.1017/rsm.2025.13) exemplifies the practice: the QBA is demonstrated by graphical presentation of point estimates and intervals across assumed bias parameters on a case study, with none of these measures and no simulation evaluation of the method. The further claim that no minimum ADEMP standard exists for QBA simulation in PAIC is an absence claim the literature auditor could not verify.
+
+## Why it is open
+
+Supplying the true sensitivity parameters removes exactly the uncertainty QBA exists to represent, so the evaluation is circular and every correctly coded method passes. A QBA produces a qualitative verdict, robust or fragile, that ordinary bias and coverage measures cannot score, and false reassurance is the costly error yet stays invisible unless the simulation deliberately places the truth outside the analyst's assumed region. Evaluating classification honesty requires simulating the elicitation process itself, including ranges, priors, dependence and expert error, a behavioral component that statistical simulation conventions have no vocabulary for.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Ren et al. 2025, Quantitative bias analysis for unmeasured confounding in unanchored population-adjusted indirect comparisons](https://doi.org/10.1017/rsm.2025.13) | Exemplifies the reporting practice the entry criticizes: the QBA is demonstrated by scenario exploration on a case study, with none of the classification-honesty measures reported and no simulation evaluation of the method itself. |
+
+:::
+
+## Probable solution or research direction
+
+Score QBA methods as classifiers of robustness against an explicit decision rule, reporting false-reassurance and false-fragility rates, sensitivity-set truth inclusion over simulated data and elicitations, tipping-point error where a tipping point exists and a distance is defined, interval calibration, decision-reversal classification and expected regret, and evaluate estimation at the true parameters separately from classification when the parameters are unknown. Report Monte Carlo error and computational failure of the QBA computation itself, and check support and effective sample size across the QBA grid wherever the QBA changes weighting or the implied target distribution. Fit the required data-generating factors and comparator set to the QBA estimand and mechanism rather than imposing a single universal blueprint.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+
+**The source said.** "QBA methods are evaluated by whether they recover the truth when supplied with the true sensitivity parameters, which is only an implementation check, and no minimum ADEMP standard exists for QBA simulation studies. The measures that would show whether a QBA is honest are not reported: sensitivity-set truth inclusion, false-reassurance and false-fragility rates, tipping-point or tipping-surface error, calibration of probabilistic QBA intervals, robustness to misspecified sensitivity-parameter distributions, support and ESS failure across the QBA grid, the frequency with which bias cancellation masquerades as validity, decision-reversal classification and expected regret, and the computational failure and Monte Carlo error of the QBA itself."
+
+**What was wrong with it.** The source asserted that no published minimum ADEMP standard exists for QBA simulation in PAIC and then prescribed one universal blueprint; the literature auditor recorded the absence claim as unverified rather than confirmed, and GPT-5.6 Sol judged the prescribed data-generating content and comparator set to be one particular benchmark design rather than a necessary minimum, with several proposed measures (tipping-point error, truth inclusion, support and ESS checks) applying only under stated conditions.
+
+Literature and prior-art check
+:   **open / supported-with-caveat.** Consistent with the entry: in Ren et al. 2025, the newest QBA method for unanchored PAIC, the evaluation is graphical presentation of point estimates and intervals across assumed bias parameters on a case study, with no false-reassurance or false-fragility rate, no tipping-point error, no interval calibration, no sensitivity-set truth inclusion, and no Monte Carlo error for the QBA computation itself. That is positive evidence of the practice the entry describes. The caveat is the calibration rule: 'No published minimum ADEMP standard exists for quantitative bias analysis simulation studies in PAIC' is an absence claim and I found no source that asserts the absence, so I record it as unverified rather than confirmed. The remaining items are normative proposals for a blueprint, which cannot be true or false, only adopted or not.
+    Cites 10.1017/rsm.2025.13: Exemplifies the reporting practice the entry criticizes: the QBA is demonstrated by scenario exploration on a case study, with none of the classification-honesty measures reported and no simulation evaluation of the method itself..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **open / overstated.** Oracle-parameter recovery is necessary evidence about implementation and identification under correct inputs, but it is insufficient evidence about practical QBA performance when sensitivity parameters are unknown; C1-C2 are therefore sound with that qualification. False reassurance, false fragility, truth inclusion, tipping error, decision classification, feasibility, and computational error are useful distinct targets when the QBA is intended to support a robustness decision. The proposed universal minimum is not technically established, however. C4 and C5 prescribe one large benchmark rather than a necessary ADEMP minimum; a direct QBA may itself be a bounding or partial-identification method. C6 is required for decision classification and regret, not for every inferential QBA. In C9, truth inclusion is a binary property for one fixed sensitivity set and becomes a probability only over simulated data, elicitation, or random sets. Tipping-point error requires existence, uniqueness, and a defined distance for multidimensional surfaces. Support and ESS checks apply when the QBA changes weighting or the implied target distribution, not automatically to every algebraic bias correction. Publication-frequency claims C3, C7, and C8 were not adjudicated. Honest classification is a high-priority validation goal, but the exact blueprint is roadmap guidance rather than a universal standard.
+
+Decision path
+:   `R5:default-open → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [QBA-02 — No prospectively blinded calibration program for PAIC and QBA](QBA-02-no-prospectively-blinded-calibration-program-for-paic-and-qb.qmd)
+- [QBA-18 — MAIC sensitivity grids: infeasible calibration and failed fits](QBA-18-maic-sensitivity-grids-infeasible-calibration-and-failed-fit.qmd)
+- [QBA-28 — Reference QBA software and a minimum reporting standard](QBA-28-reference-qba-software-and-a-minimum-reporting-standard.qmd)
+:::
+
+## Source
+
+Derived from C:L1944, C:L2022-2034, C:L2065-2077 of the reviewed corpus.
