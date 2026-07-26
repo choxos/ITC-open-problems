@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="description" content="Trials grouped under one outcome label may estimate non-equivalent quantities because they differ in follow-up, endpoint definition, analysis population or intercurrent-event handling; simulation of treatment switching in oncology shows that pooling estimates targeting different estimands yields a pooled estimator that targets no estimand of interest, even under a random-effects model (Metcalfe et al.&nbsp;2025, doi:10.1017/rsm.2025.10039). Estimand mapping is the response and it is no longer a proposal: it has been argued into the evidence-synthesis literature (doi:10.1002/jrsm.1741), given a pragmatic framework with a worked NMA case study varying intercurrent-event strategies (arxiv:2510.15762), and codified as step 1 of a population-adjusted indirect comparison framework (doi:10.1007/s40273-025-01503-1). What remains open is per-trial estimand mapping from published reports, where the needed detail is often not reported, and structured encoding of intercurrent-event handling and analysis population.">
+
+<title>Trials combined under one outcome label are not one estimand – Open Problems in ITC &amp; PAIC</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-b758ccaa5987ceb1b75504551e579abf.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-03d47695bc5f811f7e6896b5de8ee1f3.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-9a2863f3190aa48dadd243fa71713907.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-03d47695bc5f811f7e6896b5de8ee1f3.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": true,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+</head>
+
+<body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">Open Problems in ITC &amp; PAIC</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../catalog.html"> 
+<span class="menu-text">Catalog</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-categories" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Categories</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-categories">    
+        <li>
+    <a class="dropdown-item" href="../categories/estimands.html">
+ <span class="dropdown-text">Estimands &amp; target populations</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/identification.html">
+ <span class="dropdown-text">Identification, transitivity &amp; conditional constancy</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/qba.html">
+ <span class="dropdown-text">Quantitative bias analysis for unanchored PAIC</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/overlap.html">
+ <span class="dropdown-text">Positivity, overlap &amp; extrapolation</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/covariates.html">
+ <span class="dropdown-text">Covariates: selection, target moments, measurement</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/model-specification.html">
+ <span class="dropdown-text">Model specification, double robustness &amp; targeted learning</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/heterogeneity.html">
+ <span class="dropdown-text">Heterogeneity, consistency &amp; multi-arm structure</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/disconnected.html">
+ <span class="dropdown-text">Disconnected networks &amp; bridges</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/component.html">
+ <span class="dropdown-text">Component methods (CNMA and component PAIC)</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/outcomes.html">
+ <span class="dropdown-text">Outcome-specific problems</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/missing-data.html">
+ <span class="dropdown-text">Missing data &amp; uncertainty propagation</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/diagnostics.html">
+ <span class="dropdown-text">Diagnostics &amp; empirical validation</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/computation.html">
+ <span class="dropdown-text">Computation &amp; reproducibility</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/decision.html">
+ <span class="dropdown-text">Decision analysis, regulation &amp; reporting</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/evidence-base.html">
+ <span class="dropdown-text">Evidence-base construction &amp; data access</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/adjacent-methods.html">
+ <span class="dropdown-text">Adjacent-field methods</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/software.html">
+ <span class="dropdown-text">Software, benchmarks &amp; interface standards</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="../agenda.html"> 
+<span class="menu-text">Agenda</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../landscape.html"> 
+<span class="menu-text">Landscape</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../methods.html"> 
+<span class="menu-text">How this was verified</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../references.html"> 
+<span class="menu-text">References</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/choxos/ITC-open-problems"> <i class="bi bi-github" role="img" aria-label="GitHub repository">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active" data-toc-expanded="99">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#statement" id="toc-statement" class="nav-link active" data-scroll-target="#statement">Statement</a></li>
+  <li><a href="#why-it-is-open" id="toc-why-it-is-open" class="nav-link" data-scroll-target="#why-it-is-open">Why it is open</a></li>
+  <li><a href="#what-has-been-tried" id="toc-what-has-been-tried" class="nav-link" data-scroll-target="#what-has-been-tried">What has been tried</a></li>
+  <li><a href="#probable-solution-or-research-direction" id="toc-probable-solution-or-research-direction" class="nav-link" data-scroll-target="#probable-solution-or-research-direction">Probable solution or research direction</a></li>
+  <li><a href="#verification" id="toc-verification" class="nav-link" data-scroll-target="#verification">Verification</a></li>
+  <li><a href="#related-problems" id="toc-related-problems" class="nav-link" data-scroll-target="#related-problems">Related problems</a></li>
+  <li><a href="#source" id="toc-source" class="nav-link" data-scroll-target="#source">Source</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/choxos/ITC-open-problems/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Trials combined under one outcome label are not one estimand</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">Evidence-base construction &amp; data access</div>
+    <div class="quarto-category">Very high priority</div>
+    <div class="quarto-category">Partially addressed</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    Trials grouped under one outcome label may estimate non-equivalent quantities because they differ in follow-up, endpoint definition, analysis population or intercurrent-event handling; simulation of treatment switching in oncology shows that pooling estimates targeting different estimands yields a pooled estimator that targets no estimand of interest, even under a random-effects model (Metcalfe et al.&nbsp;2025, doi:10.1017/rsm.2025.10039). Estimand mapping is the response and it is no longer a proposal: it has been argued into the evidence-synthesis literature (doi:10.1002/jrsm.1741), given a pragmatic framework with a worked NMA case study varying intercurrent-event strategies (arxiv:2510.15762), and codified as step 1 of a population-adjusted indirect comparison framework (doi:10.1007/s40273-025-01503-1). What remains open is per-trial estimand mapping from published reports, where the needed detail is often not reported, and structured encoding of intercurrent-event handling and analysis population.
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="problem-meta">
+<p><span class="problem-id">EVB-03</span> <span class="verdict verdict-partially-addressed">Partially addressed</span> <span class="chip chip-priority-very-high">Very high priority</span> <span class="chip chip-maturity-promising">Promising</span></p>
+</div>
+<section id="statement" class="level2">
+<h2 class="anchored" data-anchor-id="statement">Statement</h2>
+<p>Trials grouped under one outcome label may estimate non-equivalent quantities because they differ in follow-up, endpoint definition, analysis population or intercurrent-event handling; simulation of treatment switching in oncology shows that pooling estimates targeting different estimands yields a pooled estimator that targets no estimand of interest, even under a random-effects model (Metcalfe et al.&nbsp;2025, doi:10.1017/rsm.2025.10039). Estimand mapping is the response and it is no longer a proposal: it has been argued into the evidence-synthesis literature (doi:10.1002/jrsm.1741), given a pragmatic framework with a worked NMA case study varying intercurrent-event strategies (arxiv:2510.15762), and codified as step 1 of a population-adjusted indirect comparison framework (doi:10.1007/s40273-025-01503-1). What remains open is per-trial estimand mapping from published reports, where the needed detail is often not reported, and structured encoding of intercurrent-event handling and analysis population.</p>
+</section>
+<section id="why-it-is-open" class="level2">
+<h2 class="anchored" data-anchor-id="why-it-is-open">Why it is open</h2>
+<p>Indirect comparison arithmetic assumes the contrasts refer to a common estimand, but conformity is usually checked at the level of the outcome label rather than the outcome definition. Differences in intercurrent-event strategy and analysis population change the causal question each trial answers, and no covariate adjustment repairs that mismatch. Published reports frequently do not carry the detail needed to do the mapping trial by trial, and uptake of estimand-aware synthesis remains modest, particularly without IPD. An outcome taxonomy exists for classifying outcomes, but nothing machine-readable encodes intercurrent-event strategy or analysis population.</p>
+</section>
+<section id="what-has-been-tried" class="level2">
+<h2 class="anchored" data-anchor-id="what-has-been-tried">What has been tried</h2>
+<div class="table-scroll">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Work</th>
+<th>What it contributes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><a href="https://doi.org/10.1017/rsm.2025.10039">Metcalfe et al.&nbsp;2025, Research Synthesis Methods</a></td>
+<td>Simulation of treatment switching in oncology showing that pooling treatment-policy and hypothetical estimands produces a pooled estimator targeting no estimand of interest, and that this can mislead even under random effects.</td>
+</tr>
+<tr class="even">
+<td><a href="https://doi.org/10.1002/jrsm.1741">Remiro-Azocar and Gorst-Rasmussen 2024, Research Synthesis Methods</a></td>
+<td>Position paper arguing that the language of estimands belongs in network meta-analysis and HTA, especially under the narrow treatment and target-population perspective HTA takes.</td>
+</tr>
+<tr class="odd">
+<td><a href="https://arxiv.org/abs/2510.15762">Remiro-Azocar et al., Incorporating estimands into meta-analyses of clinical trials (preprint)</a></td>
+<td>Pragmatic framework for estimands in meta-analysis and NMA for HTA, applied to an NMA of semaglutide versus dulaglutide contrasting treatment-policy and hypothetical strategies for discontinuation and rescue.</td>
+</tr>
+<tr class="even">
+<td><a href="https://doi.org/10.1007/s40273-025-01503-1">Ishak et al.&nbsp;2025, PharmacoEconomics</a></td>
+<td>Six-element framework for reliable, transparent and reproducible population-adjusted indirect comparisons in which definition of the comparison as an estimand is element 1.</td>
+</tr>
+<tr class="odd">
+<td><a href="https://doi.org/10.1002/jrsm.1745">Ades et al.&nbsp;2024, Research Synthesis Methods</a></td>
+<td>Names integration of the estimand framework with evidence synthesis as an explicit agenda item of the core NMA methods group.</td>
+</tr>
+<tr class="even">
+<td><a href="https://pubmed.ncbi.nlm.nih.gov/40754038/">Analysis of opinions from studies citing the COMET outcomes taxonomy, 2025</a></td>
+<td>Shows an outcome taxonomy for evidence synthesis already exists and is widely cited, narrowing the gap to estimand-level, machine-readable detail rather than outcome classification as such.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="probable-solution-or-research-direction" class="level2">
+<h2 class="anchored" data-anchor-id="probable-solution-or-research-direction">Probable solution or research direction</h2>
+<p>The direction is to make the existing estimand frameworks routine rather than to invent them: apply the published meta-analysis and PAIC estimand frameworks to each contributing trial and report the mapping alongside the synthesis, so mismatches are visible before pooling rather than after. Extend outcome taxonomies such as COMET beyond outcome classification to encode intercurrent-event strategy and analysis population in structured form. Latent harmonization and multivariate endpoint models are appropriate only where a defensible linking model connects the endpoints and the available data identify its parameters; they cannot generally reconcile different treatment-policy questions, intercurrent-event strategies, populations or time points.</p>
+</section>
+<section id="verification" class="level2">
+<h2 class="anchored" data-anchor-id="verification">Verification</h2>
+<div class="verification-trail">
+<p><strong>Verdict.</strong> Partially addressed. Part of this problem is addressed by existing work; the entry names which part.</p>
+<p><strong>The source said.</strong> “Trials in the same comparison differ in follow-up duration, endpoint definitions, handling of intercurrent events, and analysis populations, so the quantities being combined are not the same estimand even before population adjustment.”</p>
+<p><strong>What was wrong with it.</strong> The source presented ICH E9(R1)-style estimand mapping and outcome ontologies as promising future directions; the literature auditor and Grok both found an active published programme already doing the mapping (doi:10.1002/jrsm.1741, arxiv:2510.15762, doi:10.1007/s40273-025-01503-1) and a widely used outcome taxonomy already in routine use (COMET, pmid:40754038). GPT-5.6 Sol rejected the claim that endpoint definitions live in prose no tool can read: the obstacle is incomplete reporting and unreliable structured interpretation, not literal unreadability.</p>
+<dl>
+<dt>Literature and prior-art check</dt>
+<dd>
+<strong>partially-solved / supported-with-caveat.</strong> prior_work is empty, yet an active published programme addresses exactly claim 2. Metcalfe et al.&nbsp;2025 Res Synth Methods simulated pooling of treatment-policy and hypothetical estimands across oncology RCTs allowing treatment switching, and showed the pooled estimator targets nothing of interest; that converts the entry’s assertion from conjecture into a quantified result. Remiro-Azocar and Gorst-Rasmussen 2024 RSM argue the estimand language belongs in NMA and HTA; Ades et al.&nbsp;2024 RSM call for integration of the estimand framework with evidence synthesis; Ishak et al.&nbsp;2025 PharmacoEconomics already makes estimand definition element 1 of a six-element PAIC framework. Claim 1 is uncontroversial and is documented by the COMET outcome-heterogeneity literature. Claim 3 needs softening: the COMET outcome taxonomy exists and is in routine use for classifying trial outcomes, so an outcome classification standard is not absent, though I found nothing machine-readable that encodes intercurrent-event handling or analysis population. Claim 4 I could not verify with a retrieved source this session. Status is partially-solved: the diagnosis and the framework are published; per-trial estimand mapping from published reports is not. Cites doi:10.1017/rsm.2025.10039: Quantifies the bias from combining trials whose estimands differ, which the entry states only qualitatively. Also confirms the gap is real.. Cites doi:10.1002/jrsm.1741: Claim 2 is already a published position paper in the NMA/HTA literature, not a novel proposed direction.. Cites doi:10.1002/jrsm.1745: Establishes that estimand-framework integration is an explicitly stated agenda item of the core NMA methods group.. Cites doi:10.1007/s40273-025-01503-1: Shows estimand-first definition is already codified as step 1 of a PAIC analysis framework, so the ITC-specific version of claim 2 is partly operationalized.. Cites pmid:40754038: Narrows claim 3: an outcome taxonomy for evidence synthesis already exists and is widely cited, so what is missing is estimand-level, machine-readable detail rather than outcome classification as such..
+</dd>
+<dt>GPT-5.6 Sol, technical and source-code lens</dt>
+<dd>
+<strong>open / overstated.</strong> The central estimand warning is correct and can be decision-critical. Differences in follow-up, outcome variable, analysis population, summary measure, or intercurrent-event strategy produce different estimands when they change the causal quantity being estimated; a common outcome label is insufficient. C2 is technically sound because structured estimand mapping exposes these differences before synthesis. C3 describes useful infrastructure, not a mathematical necessity for valid ITC. C4 holds only when a defensible measurement or linking model connects the endpoints and the available data identify its parameters. Latent or multivariate models cannot generally reconcile different treatment-policy questions, intercurrent-event strategies, populations, or time points. The assertion that no tool can read endpoint definitions in prose is false; the problem is incomplete reporting and unreliable structured interpretation, not literal unreadability.
+</dd>
+<dt>Grok 4.5, recency lens</dt>
+<dd>
+<strong>partially-solved / supported-with-caveat.</strong> That trials sharing an outcome label often target different estimands (follow-up, endpoint definition, intercurrent events, analysis population) remains correct and is now a central theme in synthesis methodology rather than a neglected gap. Remiro-Azócar and Gorst-Rasmussen (2024) argue for estimand thinking as a parallel to narrow research questions in evidence synthesis. Remiro-Azócar et al.&nbsp;(arXiv:2510.15762, versions through 2026) propose a pragmatic framework for estimands in meta-analyses for HTA, apply it to an NMA of semaglutide versus dulaglutide, and contrast treatment-policy versus hypothetical strategies for discontinuation/rescue. EU HTA quantitative evidence-synthesis guidance (2024) also stresses that a common estimand should apply across studies in a synthesis. These works partially resolve C2: ICH E9(R1)-style mapping is no longer only a vague proposal; it is formalized for synthesis and illustrated. They do not close the problem: authors still note modest uptake, difficulty without IPD, and residual cross-trial misalignment. C3 (machine-readable outcome ontology standards for ITC evidence bases) and C4 (latent outcome harmonization models as deployed standards) were not found as solved; semantic-variability/LLM and specialized outcome ontologies exist outside routine ITC pipelines. Mismatched estimands therefore remain open as an operational constraint; the mapping response is partially developed. Cites doi:10.1002/jrsm.1741: Places estimands at the center of evidence-synthesis question formulation; partially resolves the claim that estimand mapping is only aspirational (C2).. Cites arxiv:2510.15762: Provides a pragmatic estimand framework for meta-analysis/NMA in HTA and a worked NMA case study varying intercurrent-event strategies; partially operationalizes ICH E9(R1)-style mapping for synthesis (C2)..
+</dd>
+<dt>Decision path</dt>
+<dd>
+<code>R3:partially-solved(n=2) → R9:substantiated-single-overstatement:codex</code>
+</dd>
+</dl>
+</div>
+</section>
+<section id="related-problems" class="level2">
+<h2 class="anchored" data-anchor-id="related-problems">Related problems</h2>
+<div class="related-links">
+<ul>
+<li><a href="../problems/CMP-19-competing-risks-and-recurrent-events-are-absent-from-compone.html">CMP-19 — Competing risks and recurrent events are absent from component PAIC</a></li>
+<li><a href="../problems/COV-09-measurement-non-equivalence-of-covariates-across-trials.html">COV-09 — Measurement non-equivalence of covariates across trials</a></li>
+<li><a href="../problems/HET-01-design-and-conduct-differences-survive-baseline-covariate-ba.html">HET-01 — Design and conduct differences survive baseline covariate balancing</a></li>
+</ul>
+</div>
+</section>
+<section id="source" class="level2">
+<h2 class="anchored" data-anchor-id="source">Source</h2>
+<p>Derived from C:L214-215, C:L218 of the reviewed corpus.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/choxos\.github\.io\/ITC-open-problems\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>Ahmad Sofi-Mahmudi</p>
+</div>   
+    <div class="nav-footer-center">
+<p>Every entry carries a verification verdict. See <a href="../methods.html">How this was verified</a>.</p>
+<div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/choxos/ITC-open-problems/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></div>
+    <div class="nav-footer-right">
+<p><a href="https://github.com/choxos/ITC-open-problems">Source</a></p>
+</div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="description" content="No cross-package agreement harness, containerized reference pipeline, or published benchmark output with expected values exists for ITC and PAIC methods, so a third party cannot re-run a submitted analysis and compare it against a reference result. Individual packages are further along than ‘method demonstration’ implies: multinma ships more than thirty testthat files including snapshot tests plus vignettes that reproduce the published NICE TSD analyses, and maicplus is maintained by the hta-pharma consortium with continuous integration and was presented as a package to support analysis and reporting of MAIC for HTA dossiers (doi:10.1016/j.jval.2023.09.2992). cpaic, an unreleased development package on GitHub that is not on CRAN, has seeded analyses, expected-value regression tests, rendered end-to-end vignettes, multi-platform R CMD check, a smoke test comparing its rstan and cmdstanr backends, and one narrow numerical agreement test against multinma, while lacking a dependency lock file, a container specification, and a publicly tracked simulation-validation pipeline.">
+
+<title>No cross-package benchmark or reference pipeline for ITC software – Open Problems in ITC &amp; PAIC</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-b758ccaa5987ceb1b75504551e579abf.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-03d47695bc5f811f7e6896b5de8ee1f3.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-9a2863f3190aa48dadd243fa71713907.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-03d47695bc5f811f7e6896b5de8ee1f3.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": true,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+</head>
+
+<body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">Open Problems in ITC &amp; PAIC</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../catalog.html"> 
+<span class="menu-text">Catalog</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-categories" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Categories</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-categories">    
+        <li>
+    <a class="dropdown-item" href="../categories/estimands.html">
+ <span class="dropdown-text">Estimands &amp; target populations</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/identification.html">
+ <span class="dropdown-text">Identification, transitivity &amp; conditional constancy</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/qba.html">
+ <span class="dropdown-text">Quantitative bias analysis for unanchored PAIC</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/overlap.html">
+ <span class="dropdown-text">Positivity, overlap &amp; extrapolation</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/covariates.html">
+ <span class="dropdown-text">Covariates: selection, target moments, measurement</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/model-specification.html">
+ <span class="dropdown-text">Model specification, double robustness &amp; targeted learning</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/heterogeneity.html">
+ <span class="dropdown-text">Heterogeneity, consistency &amp; multi-arm structure</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/disconnected.html">
+ <span class="dropdown-text">Disconnected networks &amp; bridges</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/component.html">
+ <span class="dropdown-text">Component methods (CNMA and component PAIC)</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/outcomes.html">
+ <span class="dropdown-text">Outcome-specific problems</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/missing-data.html">
+ <span class="dropdown-text">Missing data &amp; uncertainty propagation</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/diagnostics.html">
+ <span class="dropdown-text">Diagnostics &amp; empirical validation</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/computation.html">
+ <span class="dropdown-text">Computation &amp; reproducibility</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/decision.html">
+ <span class="dropdown-text">Decision analysis, regulation &amp; reporting</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/evidence-base.html">
+ <span class="dropdown-text">Evidence-base construction &amp; data access</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/adjacent-methods.html">
+ <span class="dropdown-text">Adjacent-field methods</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/software.html">
+ <span class="dropdown-text">Software, benchmarks &amp; interface standards</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="../agenda.html"> 
+<span class="menu-text">Agenda</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../landscape.html"> 
+<span class="menu-text">Landscape</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../methods.html"> 
+<span class="menu-text">How this was verified</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../references.html"> 
+<span class="menu-text">References</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/choxos/ITC-open-problems"> <i class="bi bi-github" role="img" aria-label="GitHub repository">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active" data-toc-expanded="99">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#statement" id="toc-statement" class="nav-link active" data-scroll-target="#statement">Statement</a></li>
+  <li><a href="#why-it-is-open" id="toc-why-it-is-open" class="nav-link" data-scroll-target="#why-it-is-open">Why it is open</a></li>
+  <li><a href="#what-has-been-tried" id="toc-what-has-been-tried" class="nav-link" data-scroll-target="#what-has-been-tried">What has been tried</a></li>
+  <li><a href="#probable-solution-or-research-direction" id="toc-probable-solution-or-research-direction" class="nav-link" data-scroll-target="#probable-solution-or-research-direction">Probable solution or research direction</a></li>
+  <li><a href="#verification" id="toc-verification" class="nav-link" data-scroll-target="#verification">Verification</a></li>
+  <li><a href="#related-problems" id="toc-related-problems" class="nav-link" data-scroll-target="#related-problems">Related problems</a></li>
+  <li><a href="#source" id="toc-source" class="nav-link" data-scroll-target="#source">Source</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/choxos/ITC-open-problems/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">No cross-package benchmark or reference pipeline for ITC software</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">Computation &amp; reproducibility</div>
+    <div class="quarto-category">Very high priority</div>
+    <div class="quarto-category">Overstated</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    No cross-package agreement harness, containerized reference pipeline, or published benchmark output with expected values exists for ITC and PAIC methods, so a third party cannot re-run a submitted analysis and compare it against a reference result. Individual packages are further along than ‘method demonstration’ implies: multinma ships more than thirty testthat files including snapshot tests plus vignettes that reproduce the published NICE TSD analyses, and maicplus is maintained by the hta-pharma consortium with continuous integration and was presented as a package to support analysis and reporting of MAIC for HTA dossiers (doi:10.1016/j.jval.2023.09.2992). cpaic, an unreleased development package on GitHub that is not on CRAN, has seeded analyses, expected-value regression tests, rendered end-to-end vignettes, multi-platform R CMD check, a smoke test comparing its rstan and cmdstanr backends, and one narrow numerical agreement test against multinma, while lacking a dependency lock file, a container specification, and a publicly tracked simulation-validation pipeline.
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="problem-meta">
+<p><span class="problem-id">CMU-08</span> <span class="verdict verdict-overstated">Overstated</span> <span class="chip chip-priority-very-high">Very high priority</span> <span class="chip chip-maturity-emerging">Emerging</span></p>
+</div>
+<div class="source-unsourced">
+<p><strong>Source note.</strong> This entry derives in part from a source document whose inline citations were ChatGPT interface tokens rather than references, and so resolve to nothing. Claims below are attributed to that document and were checked independently where possible; anything that could not be independently sourced is marked in the verification trail.</p>
+</div>
+<section id="statement" class="level2">
+<h2 class="anchored" data-anchor-id="statement">Statement</h2>
+<p>No cross-package agreement harness, containerized reference pipeline, or published benchmark output with expected values exists for ITC and PAIC methods, so a third party cannot re-run a submitted analysis and compare it against a reference result. Individual packages are further along than ‘method demonstration’ implies: multinma ships more than thirty testthat files including snapshot tests plus vignettes that reproduce the published NICE TSD analyses, and maicplus is maintained by the hta-pharma consortium with continuous integration and was presented as a package to support analysis and reporting of MAIC for HTA dossiers (doi:10.1016/j.jval.2023.09.2992). cpaic, an unreleased development package on GitHub that is not on CRAN, has seeded analyses, expected-value regression tests, rendered end-to-end vignettes, multi-platform R CMD check, a smoke test comparing its rstan and cmdstanr backends, and one narrow numerical agreement test against multinma, while lacking a dependency lock file, a container specification, and a publicly tracked simulation-validation pipeline.</p>
+</section>
+<section id="why-it-is-open" class="level2">
+<h2 class="anchored" data-anchor-id="why-it-is-open">Why it is open</h2>
+<p>Packages are funded and published on the criterion that the method runs on a worked example, so nothing in the incentive structure asks whether an outside analyst can regenerate a submission, and no single maintainer is rewarded for manifests, expected outputs, container images or cross-package agreement tests that only pay off across the ecosystem. Cross-package agreement is also a weaker check than it sounds: one comparison of four MAIC packages on a shared unanchored simulation, cited by the recency auditor without a locator (Taylor and Hatswell, Value in Health 2025), found identical weights, effective sample sizes and outcomes because the packages reuse the same NICE DSU TSD 18 code, so agreement can reflect shared lineage rather than independent verification. And reproducibility infrastructure buys computational auditability only: it can expose an implementation error but it does not repair non-identification, estimand mismatch, non-collapsibility or an untestable bridging assumption, so the claim that it would materially improve decisions holds only conditionally.</p>
+</section>
+<section id="what-has-been-tried" class="level2">
+<h2 class="anchored" data-anchor-id="what-has-been-tried">What has been tried</h2>
+<div class="table-scroll">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Work</th>
+<th>What it contributes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><a href="https://doi.org/10.1016/j.jval.2023.09.2992">Chen et al.&nbsp;2023, maicplus: an R package to support analysis and reporting of matching-adjusted indirect treatment comparisons for HTA dossiers, Value in Health (abstract)</a></td>
+<td>presents maicplus as a consortium-maintained package aimed at analysis and reporting for HTA dossiers, which is a reporting-workflow aim rather than a method demonstration</td>
+</tr>
+<tr class="even">
+<td><a href="https://cran.r-project.org/package=multinma">multinma R package</a></td>
+<td>ships more than thirty testthat files including snapshot tests and vignettes that reproduce the published NICE TSD analyses, so reference examples with expected outputs already exist for at least one package</td>
+</tr>
+<tr class="odd">
+<td><a href="https://github.com/choxos/cpaic">cpaic, unreleased development package on GitHub (not on CRAN), commit 9d150e9</a></td>
+<td>carries seeded analyses that record an unset seed so an unseeded fit reproduces, expected-value regression tests, precompiled end-to-end vignettes keyed to a digest of source and installed package, a CI smoke fit checking cmdstanr against rstan, and one agreement test against multinma::RE_cor; it has no lock file, container, or public simulation-validation pipeline</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="probable-solution-or-research-direction" class="level2">
+<h2 class="anchored" data-anchor-id="probable-solution-or-research-direction">Probable solution or research direction</h2>
+<p>Build the ecosystem-level artifacts that no single package has an incentive to build: published benchmark datasets with expected outputs, a containerized reference pipeline, and an agreement harness across implementations. Design the agreement tests to compare implementations with independent lineage, since packages descended from the same TSD 18 code will agree without verifying anything. Add the cheap per-package pieces where they are missing, namely dependency lock files, container specifications, and publicly tracked simulation-validation pipelines. Claim the benefit as computational auditability rather than as better decisions, because the assumptions that drive a population-adjusted estimate are untouched by reproducibility.</p>
+</section>
+<section id="verification" class="level2">
+<h2 class="anchored" data-anchor-id="verification">Verification</h2>
+<div class="verification-trail">
+<p><strong>Verdict.</strong> Overstated. 2 independent auditors judged the claim as stated too strong. No cross-package agreement tests, containerized reference pipelines, or published benchmark outputs with expected values exist for ITC and PAIC methods, so a submitted analysis cannot be independently re-run and compared against a reference result; individual packages such as multinma and maicplus do already ship test suites, reproducible vignettes and HTA-reporting-oriented documentation.</p>
+<p><strong>The source titled this.</strong> “ITC and PAIC software are method demos, not reference workflows” The title calls the whole software ecosystem method demonstrations, which the audit contradicted with multinma’s snapshot tests and TSD-reproducing vignettes and maicplus’s HTA reporting remit.</p>
+<p><strong>The source said.</strong> “ITC and PAIC packages are built and published as demonstrations that a method runs on an example, not as reference implementations with which a third party can reproduce a submitted analysis end to end. The report ranks moving the ecosystem from method demonstrations to reference-grade reproducible workflows as its fourth most consequential open question.”</p>
+<p><strong>What was wrong with it.</strong> The source called the whole ecosystem method demonstrations and cited nothing for it; the entry was flagged source_unsourced. Auditors found multinma’s snapshot tests and NICE TSD-reproducing vignettes and maicplus’s HTA-reporting remit (doi:10.1016/j.jval.2023.09.2992) contradict the categorical framing, and the original second sentence, which ranked the problem fourth most consequential in the source report, was cut as an unverifiable self-reference. What survives is the ecosystem-level absence.</p>
+<p><strong>Dissent.</strong> literature dissented (open): This entry is source_unsourced and its second sentence (‘the report ranks … as its fourth most consequential open question’) is a self-reference to a document with no retrievable citation, so it is unverifiable and should be cut or reworded. On the substance I inspected the artifacts rather than searching for opinions. multinma’s repository contains 30+ testthat files including snapshot tests and vignettes that reproduce the published NICE TSD analyses, i.e.&nbsp;reference examples with expected outputs already exist for at least one package. maicplus is maintained by the hta-pharma consortium with CI, coverage reporting and a package website, and was presented as a package ‘to Support Analysis and Reporting of Matching Adjusted Indirect Treatment Comparisons (MAIC) for HTA Dossiers’ (Chen et al., Value in Health 2023, doi 10.1016/j.jval.2023.09.2992), which is a reporting-workflow aim, not a method demo. What I could not find any instance of is the ecosystem-level element: cross-package agreement tests, containerized reference pipelines, or published benchmark outputs against which a submitted analysis could be re-run. That narrower claim is defensible and still open.</p>
+<dl>
+<dt>Literature and prior-art check</dt>
+<dd>
+<strong>open / overstated.</strong> This entry is source_unsourced and its second sentence (‘the report ranks … as its fourth most consequential open question’) is a self-reference to a document with no retrievable citation, so it is unverifiable and should be cut or reworded. On the substance I inspected the artifacts rather than searching for opinions. multinma’s repository contains 30+ testthat files including snapshot tests and vignettes that reproduce the published NICE TSD analyses, i.e.&nbsp;reference examples with expected outputs already exist for at least one package. maicplus is maintained by the hta-pharma consortium with CI, coverage reporting and a package website, and was presented as a package ‘to Support Analysis and Reporting of Matching Adjusted Indirect Treatment Comparisons (MAIC) for HTA Dossiers’ (Chen et al., Value in Health 2023, doi 10.1016/j.jval.2023.09.2992), which is a reporting-workflow aim, not a method demo. What I could not find any instance of is the ecosystem-level element: cross-package agreement tests, containerized reference pipelines, or published benchmark outputs against which a submitted analysis could be re-run. That narrower claim is defensible and still open.
+</dd>
+<dt>GPT-5.6 Sol, technical and source-code lens</dt>
+<dd>
+<strong>partially-solved / overstated.</strong> C1 is confirmed: the report supplies no source for its ecosystem-wide and incentive-structure assertions. C2 is not established for ITC/PAIC software generally, and cpaic@9d150e9 is material counter-evidence to the categorical method-demo framing: it has seeded analyses, expected-value regression tests, rendered end-to-end vignettes, multi-platform R CMD check, an installed-package smoke fit comparing rstan with cmdstanr, and a narrow agreement test against multinma. The remaining gap is real but narrower: cpaic calls itself research software, has no dependency lockfile or container specification, and explicitly says its simulation-validation code is not in the public repository. C3 holds only conditionally. Reproducible workflows improve computational auditability and can expose implementation errors, but they do not repair non-identification, estimand mismatch, non-collapsibility, extrapolation, or an untestable bridging assumption; cross-implementation agreement also does not establish statistical validity when implementations share assumptions or defects. C4 is a comparative literature-coverage claim, outside the specified technical/source-code lens, and cannot be inferred from one repository or from the absence of cited evidence. Accordingly, the workflow work is valuable quality infrastructure, but the asserted ecosystem prevalence, guaranteed material effect on decision quality, estimator-versus-implementation shortage, and very-high ranking are inflated. The checkout itself was at aaa76c9, two commits beyond the supplied revision; all quoted evidence was read from the exact 9d150e9 Git object. Cites choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca: Partially implements an automated, installed-package, end-to-end reference check and compares the two supported Stan backends.. Cites choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca: Provides executable vignette sources, self-contained rendered outputs, installed-source freshness checks, and cache keys tied to the analysis and package inputs.. Cites choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca: Implements one narrow cross-package numerical agreement test, though not full independent-method validation.. Cites choxos/cpaic@9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca: Records random seeds as fit provenance, covering one reproducibility requirement identified by the report..
+</dd>
+<dt>Grok 4.5, recency lens</dt>
+<dd>
+<strong>open / supported-with-caveat.</strong> Inverted prior: treated the gap as closed if any released package ecosystem or guidance had delivered reference-grade, third-party-rerunnable ITC/PAIC workflows (manifests, fixed seeds, expected benchmark outputs, containers, and sustained cross-package agreement tests for submitted analyses). Nothing retrieved does that. (1) No prior_work was listed on the problem, so search went straight to packages and 2024–2026 literature. (2) Taylor &amp; Hatswell (Value in Health 2025; ISPOR Europe 2024 SA88) is the highest-yield hit: they compared maic, MAIC, maicplus, and maicChecks on a shared unanchored simulation and found identical weights/ESS/outcomes because all reuse NICE DSU TSD 18 code; maicChecks is the only partial alternative. That is diagnostic work exposing shared demo lineage and optimizer sensitivity, not an installed reference pipeline. Their conclusion still calls for comparative studies of weight methods. (3) New or maturing packages (outstandR, arXiv:2601.07532 / CRAN 2026; drMAIC CRAN 2026 with “submission-ready” reporting language; ongoing maicplus / multinma / netmeta / gemtc vignette+testthat culture) remain method-and-dossier tools with synthetic or example vignettes. outstandR’s own paper frames use as “illustrative examples using synthetic datasets,” which is the method-demo pattern the claim describes. (4) No CRAN NEWS or GitHub signal was found for dockerized reference pipelines, published expected-output gold files for third-party re-run of HTA submissions, or continuous cross-package agreement harnesses across MAIC/NMA stacks. (5) NHS Open Analytics RAP material (2026) and ISPOR HARPER/ICH M14 reproducibility templates target general analytics or RWE protocols, not ITC/PAIC estimator agreement or re-execution of PAIC submissions. NICE DSU TSD 18 remains the 2016 methods/code anchor; no 2025–2026 DSU/EUnetHTA revision establishing reference software workflows was found. Caveats on support: C2 and C4 are faithful as of mid-2026 (estimators and packages proliferate; reference-grade end-to-end auditability does not). C3 (material decision-quality gain from reference workflows) is a priority/impact judgment, not something the literature has established as an empirical result; treat that sub-claim as aspirational. C1 correctly flags the problem statement as unsourced. Status remains open: partial packaging and one-off package-comparison studies do not solve incentive-structure or reference-workflow gaps.
+</dd>
+<dt>Decision path</dt>
+<dd>
+<code>R3:partially-solved(n=1) → R8:overstated-majority(n=2)</code>
+</dd>
+</dl>
+</div>
+</section>
+<section id="related-problems" class="level2">
+<h2 class="anchored" data-anchor-id="related-problems">Related problems</h2>
+<div class="related-links">
+<ul>
+<li><a href="../problems/DEC-13-published-paic-analyses-cannot-be-reconstructed-from-the-rec.html">DEC-13 — Published PAIC analyses cannot be reconstructed from the record</a></li>
+<li><a href="../problems/SFW-01-no-package-unifies-paic-transport-estimands-and-reporting.html">SFW-01 — No package unifies PAIC, transport, estimands and reporting</a></li>
+<li><a href="../problems/SFW-04-no-neutral-cross-package-benchmark-suite-for-paic-implementa.html">SFW-04 — No neutral cross-package benchmark suite for PAIC implementations</a></li>
+<li><a href="../problems/SFW-11-archived-maic-packages-leave-no-maintained-cran-installation.html">SFW-11 — Archived MAIC packages leave no maintained CRAN installation path</a></li>
+</ul>
+</div>
+</section>
+<section id="source" class="level2">
+<h2 class="anchored" data-anchor-id="source">Source</h2>
+<p>Derived from A:L223, A:L225 of the reviewed corpus.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/choxos\.github\.io\/ITC-open-problems\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>Ahmad Sofi-Mahmudi</p>
+</div>   
+    <div class="nav-footer-center">
+<p>Every entry carries a verification verdict. See <a href="../methods.html">How this was verified</a>.</p>
+<div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/choxos/ITC-open-problems/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></div>
+    <div class="nav-footer-right">
+<p><a href="https://github.com/choxos/ITC-open-problems">Source</a></p>
+</div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

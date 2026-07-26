@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="description" content="Generic baseline-covariate reporting is already mandated: CONSORT 2025 item 25 requires a table of baseline demographic and clinical characteristics for each group, and CONSORT presents itself as a minimum set of items for a trial report (doi:10.1371/journal.pmed.1004587). What no standard specifies is what population adjustment needs: which covariates, dispersion measures, any joint or correlation structure, and reporting on the analysis set that matches the reported effect estimate. In practice the adjustment set is therefore bounded by what the comparator publication happened to print; a review of 18 NICE technology appraisals using population adjustment lists availability among the bases on which covariates were selected (Phillippo et al.&nbsp;2019, doi:10.1017/S0266462319000333).">
+
+<title>No reporting standard covers what population adjustment needs – Open Problems in ITC &amp; PAIC</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-b758ccaa5987ceb1b75504551e579abf.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-03d47695bc5f811f7e6896b5de8ee1f3.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-9a2863f3190aa48dadd243fa71713907.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-03d47695bc5f811f7e6896b5de8ee1f3.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": true,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+</head>
+
+<body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">Open Problems in ITC &amp; PAIC</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../catalog.html"> 
+<span class="menu-text">Catalog</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-categories" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Categories</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-categories">    
+        <li>
+    <a class="dropdown-item" href="../categories/estimands.html">
+ <span class="dropdown-text">Estimands &amp; target populations</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/identification.html">
+ <span class="dropdown-text">Identification, transitivity &amp; conditional constancy</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/qba.html">
+ <span class="dropdown-text">Quantitative bias analysis for unanchored PAIC</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/overlap.html">
+ <span class="dropdown-text">Positivity, overlap &amp; extrapolation</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/covariates.html">
+ <span class="dropdown-text">Covariates: selection, target moments, measurement</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/model-specification.html">
+ <span class="dropdown-text">Model specification, double robustness &amp; targeted learning</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/heterogeneity.html">
+ <span class="dropdown-text">Heterogeneity, consistency &amp; multi-arm structure</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/disconnected.html">
+ <span class="dropdown-text">Disconnected networks &amp; bridges</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/component.html">
+ <span class="dropdown-text">Component methods (CNMA and component PAIC)</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/outcomes.html">
+ <span class="dropdown-text">Outcome-specific problems</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/missing-data.html">
+ <span class="dropdown-text">Missing data &amp; uncertainty propagation</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/diagnostics.html">
+ <span class="dropdown-text">Diagnostics &amp; empirical validation</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/computation.html">
+ <span class="dropdown-text">Computation &amp; reproducibility</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/decision.html">
+ <span class="dropdown-text">Decision analysis, regulation &amp; reporting</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/evidence-base.html">
+ <span class="dropdown-text">Evidence-base construction &amp; data access</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/adjacent-methods.html">
+ <span class="dropdown-text">Adjacent-field methods</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/software.html">
+ <span class="dropdown-text">Software, benchmarks &amp; interface standards</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="../agenda.html"> 
+<span class="menu-text">Agenda</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../landscape.html"> 
+<span class="menu-text">Landscape</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../methods.html"> 
+<span class="menu-text">How this was verified</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../references.html"> 
+<span class="menu-text">References</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/choxos/ITC-open-problems"> <i class="bi bi-github" role="img" aria-label="GitHub repository">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active" data-toc-expanded="99">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#statement" id="toc-statement" class="nav-link active" data-scroll-target="#statement">Statement</a></li>
+  <li><a href="#why-it-is-open" id="toc-why-it-is-open" class="nav-link" data-scroll-target="#why-it-is-open">Why it is open</a></li>
+  <li><a href="#what-has-been-tried" id="toc-what-has-been-tried" class="nav-link" data-scroll-target="#what-has-been-tried">What has been tried</a></li>
+  <li><a href="#probable-solution-or-research-direction" id="toc-probable-solution-or-research-direction" class="nav-link" data-scroll-target="#probable-solution-or-research-direction">Probable solution or research direction</a></li>
+  <li><a href="#verification" id="toc-verification" class="nav-link" data-scroll-target="#verification">Verification</a></li>
+  <li><a href="#related-problems" id="toc-related-problems" class="nav-link" data-scroll-target="#related-problems">Related problems</a></li>
+  <li><a href="#source" id="toc-source" class="nav-link" data-scroll-target="#source">Source</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/choxos/ITC-open-problems/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">No reporting standard covers what population adjustment needs</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">Evidence-base construction &amp; data access</div>
+    <div class="quarto-category">High priority</div>
+    <div class="quarto-category">Unverifiable</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    Generic baseline-covariate reporting is already mandated: CONSORT 2025 item 25 requires a table of baseline demographic and clinical characteristics for each group, and CONSORT presents itself as a minimum set of items for a trial report (doi:10.1371/journal.pmed.1004587). What no standard specifies is what population adjustment needs: which covariates, dispersion measures, any joint or correlation structure, and reporting on the analysis set that matches the reported effect estimate. In practice the adjustment set is therefore bounded by what the comparator publication happened to print; a review of 18 NICE technology appraisals using population adjustment lists availability among the bases on which covariates were selected (Phillippo et al.&nbsp;2019, doi:10.1017/S0266462319000333).
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="problem-meta">
+<p><span class="problem-id">EVB-05</span> <span class="verdict verdict-unverifiable">Unverifiable</span> <span class="chip chip-priority-high">High priority</span> <span class="chip chip-maturity-emerging">Emerging</span></p>
+</div>
+<div class="source-unsourced">
+<p><strong>Source note.</strong> This entry derives in part from a source document whose inline citations were ChatGPT interface tokens rather than references, and so resolve to nothing. Claims below are attributed to that document and were checked independently where possible; anything that could not be independently sourced is marked in the verification trail.</p>
+</div>
+<section id="statement" class="level2">
+<h2 class="anchored" data-anchor-id="statement">Statement</h2>
+<p>Generic baseline-covariate reporting is already mandated: CONSORT 2025 item 25 requires a table of baseline demographic and clinical characteristics for each group, and CONSORT presents itself as a minimum set of items for a trial report (doi:10.1371/journal.pmed.1004587). What no standard specifies is what population adjustment needs: which covariates, dispersion measures, any joint or correlation structure, and reporting on the analysis set that matches the reported effect estimate. In practice the adjustment set is therefore bounded by what the comparator publication happened to print; a review of 18 NICE technology appraisals using population adjustment lists availability among the bases on which covariates were selected (Phillippo et al.&nbsp;2019, doi:10.1017/S0266462319000333).</p>
+</section>
+<section id="why-it-is-open" class="level2">
+<h2 class="anchored" data-anchor-id="why-it-is-open">Why it is open</h2>
+<p>The analyst does not control the comparator publication, so the moments needed for balancing are supplied or withheld by a third party with no stake in the later comparison. A CONSORT-style baseline table does not close the gap, because what is required varies with the estimand and the model, and marginal means and proportions can be insufficient when joint distributions, nonlinear terms or interactions matter. No journal, regulator or registry mandates that PAIC-specific increment, and how often it is missing has not been quantified, though reviews of PAIC practice report inconsistent and incomplete covariate reporting (Truong et al.&nbsp;2023, doi:10.1002/jrsm.1653). The nearest thing to a PAIC reporting standard governs the analyst’s own reporting of the comparison rather than what the comparator publication must carry (Ishak et al.&nbsp;2025, doi:10.1007/s40273-025-01503-1).</p>
+</section>
+<section id="what-has-been-tried" class="level2">
+<h2 class="anchored" data-anchor-id="what-has-been-tried">What has been tried</h2>
+<div class="table-scroll">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Work</th>
+<th>What it contributes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><a href="https://doi.org/10.1017/S0266462319000333">Phillippo et al.&nbsp;2019, International Journal of Technology Assessment in Health Care</a></td>
+<td>Review of 18 NICE technology appraisals using population adjustment; reports that covariates were included on the basis of availability, expert opinion, effective sample size, statistical significance or cross-validation, sourcing the availability-bounded adjustment set.</td>
+</tr>
+<tr class="even">
+<td><a href="https://doi.org/10.1371/journal.pmed.1004587">CONSORT 2025 statement, PLOS Medicine</a></td>
+<td>Trial reporting standard whose item 25 mandates a baseline demographic and clinical characteristics table per group; establishes that a mandated minimum baseline reporting set does exist, without specifying what population adjustment needs.</td>
+</tr>
+<tr class="odd">
+<td><a href="https://doi.org/10.1002/jrsm.1608">Harari et al.&nbsp;2023, Research Synthesis Methods</a></td>
+<td>Network meta-interpolation: adjusts for effect modification using subgroup analyses reported in aggregate publications, with standard errors, instead of treating the reported covariate set as a fixed constraint.</td>
+</tr>
+<tr class="even">
+<td><a href="https://doi.org/10.1002/jrsm.1653">Truong et al.&nbsp;2023, Research Synthesis Methods</a></td>
+<td>Methodological review of PAIC practice documenting inconsistent reporting and incomplete covariate information; cited by the recency auditor as support that partial reporting is a live obstacle, without giving a prevalence estimate for the specific summaries PAIC needs.</td>
+</tr>
+<tr class="odd">
+<td><a href="https://doi.org/10.1007/s40273-025-01503-1">Ishak et al.&nbsp;2025, PharmacoEconomics</a></td>
+<td>Framework for reliable, transparent and reproducible PAICs; the closest existing thing to a PAIC reporting standard, but it governs the analyst’s reporting rather than the comparator publication’s covariate summaries.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="probable-solution-or-research-direction" class="level2">
+<h2 class="anchored" data-anchor-id="probable-solution-or-research-direction">Probable solution or research direction</h2>
+<p>Define and benchmark the PAIC-specific increment over CONSORT, namely which covariates, which dispersions, any joint or correlation structure, and reporting on the analysis set matching the reported effect estimate, and pursue it as an addition to trial reporting guidance rather than as an analyst-side workaround. Quantify how often that increment is missing, which no auditor found measured, so the case for a standard rests on evidence rather than assertion. In the meantime, methods that build effect-modifier adjustment out of the subgroup information aggregate publications do report already exist and should be extended (network meta-interpolation, Harari et al.&nbsp;2023, doi:10.1002/jrsm.1608); treating unreported summaries as missing data propagates uncertainty only once identifying assumptions, external information or priors are added, so partial identification and sensitivity analysis are the honest fallback.</p>
+</section>
+<section id="verification" class="level2">
+<h2 class="anchored" data-anchor-id="verification">Verification</h2>
+<div class="verification-trail">
+<p><strong>Verdict.</strong> Unverifiable. Auditors disagreed and the disagreement was evidence-bearing on both sides.</p>
+<p><strong>The source titled this.</strong> “No minimum covariate-reporting standard for aggregate-data trials” The title says no minimum covariate-reporting standard exists, but CONSORT 2025 item 25 already mandates a baseline characteristics table for each group.</p>
+<p><strong>The source said.</strong> “The covariate summaries that population adjustment needs are frequently absent from the comparator publication, or reported for a different analysis set, and no benchmarked minimum reporting set exists that would require them. Which covariates can be balanced is therefore decided by what a journal printed rather than by what causal reasoning requires.”</p>
+<p><strong>What was wrong with it.</strong> The claim was unattributed in the source and stated flatly that no benchmarked minimum reporting set exists; the literature auditor read CONSORT 2025 and found item 25 mandates baseline data (doi:10.1371/journal.pmed.1004587), so only the narrower PAIC-specific version survives, and it is now sourced to Phillippo et al.&nbsp;2019 (doi:10.1017/S0266462319000333). GPT-5.6 Sol added that there is no universal finite set of summaries every PAIC requires, because the requirement depends on the estimand, the effect-modification basis, the link and outcome models and the weighting method.</p>
+<p><strong>Dissent.</strong> literature dissented (overstated): This entry is source_unsourced, so I judged it against the literature. I read the CONSORT 2025 full text. It does contain a mandated baseline-covariate reporting item, item 25 ‘Baseline data’, and the statement describes itself as ‘a minimum set of items to be included in a report of a randomised trial’, endorsed by ICMJE, WAME and CSE, with the same item present as CONSORT 2010 item 15. Claim 2 as written (‘No benchmarked minimum reporting set of baseline covariate summaries currently exists’) is therefore contradicted at face value. What CONSORT does not do is specify which covariates, require dispersion measures, require any joint or correlation structure, or require alignment with the analysis set used for the reported effect estimate; that narrower version survives and I found no PAIC-benchmarked standard. Claim 1 is supportable and I can source it: Phillippo et al.&nbsp;2019 IJTAHC reviewed 18 NICE technology appraisals using population adjustment and found availability was among the bases on which covariates were selected. Harari et al.&nbsp;2023 network meta-interpolation exists precisely because full effect-modifier summaries are not uniformly reported. Claim 3 remains without a prevalence estimate.</p>
+<dl>
+<dt>Literature and prior-art check</dt>
+<dd>
+<strong>open / overstated.</strong> This entry is source_unsourced, so I judged it against the literature. I read the CONSORT 2025 full text. It does contain a mandated baseline-covariate reporting item, item 25 ‘Baseline data’, and the statement describes itself as ‘a minimum set of items to be included in a report of a randomised trial’, endorsed by ICMJE, WAME and CSE, with the same item present as CONSORT 2010 item 15. Claim 2 as written (‘No benchmarked minimum reporting set of baseline covariate summaries currently exists’) is therefore contradicted at face value. What CONSORT does not do is specify which covariates, require dispersion measures, require any joint or correlation structure, or require alignment with the analysis set used for the reported effect estimate; that narrower version survives and I found no PAIC-benchmarked standard. Claim 1 is supportable and I can source it: Phillippo et al.&nbsp;2019 IJTAHC reviewed 18 NICE technology appraisals using population adjustment and found availability was among the bases on which covariates were selected. Harari et al.&nbsp;2023 network meta-interpolation exists precisely because full effect-modifier summaries are not uniformly reported. Claim 3 remains without a prevalence estimate. Cites doi:10.1017/S0266462319000333: Supplies a real reference for claim 1, converting an unsourced assertion into a sourced one: in 18 NICE appraisals using population adjustment, availability was one of the reported bases for covariate selection.. Cites doi:10.1002/jrsm.1608: Existing partial response to the proposed direction: builds effect-modifier adjustment out of whatever subgroup information aggregate publications do report, with standard errors, rather than treating the reported set as a fixed constraint.. Cites doi:10.1007/s40273-025-01503-1: Nearest existing thing to a PAIC reporting standard, but it governs the analyst’s own reporting of the comparison, not the covariate summaries the comparator publication must carry; so it does not close the gap the entry describes..
+</dd>
+<dt>GPT-5.6 Sol, technical and source-code lens</dt>
+<dd>
+<strong>open / unverifiable.</strong> The technical core of C2 is correct: absent or incompatible target-population summaries can prevent balancing of prespecified effect modifiers or make PAIC strongly assumption-dependent. C1 contains no substantive proposition. C3 is an uncited absence claim and C4 is an uncited frequency claim, so neither can be verified under the specified technical-only, no-literature lens. Moreover, there is no universal finite collection of summaries that every PAIC requires; requirements depend on the estimand, effect-modification basis, link and outcome models, and weighting method. Marginal means and proportions may be insufficient when joint distributions, nonlinear terms, or interactions matter. Treating unreported summaries as missing data propagates uncertainty only after adding identifying assumptions, external information, or priors; otherwise sensitivity analysis or partial identification is required. The reporting limitation remains open, but its alleged prevalence and the nonexistence of standards are not established here.
+</dd>
+<dt>Grok 4.5, recency lens</dt>
+<dd>
+<strong>open / supported.</strong> Inverted search looked for a benchmarked minimum covariate-reporting set that would make aggregate-data publications PAIC-ready. Methodological reviews of PAIC practice document inconsistent reporting and incomplete covariate information as live obstacles (Serret-Larmande et al.&nbsp;2023, J Clin Epidemiol; Truong et al.&nbsp;2023, Res Synth Methods, doi:10.1002/jrsm.1653), supporting C2 and C4. CONSORT and trial reporting norms require baseline characteristic tables, but they do not mandate the full set of moments PAIC needs (means and SDs for continuous covariates on the analysis set of interest, consistent analysis populations, and joint/correlation structure). PRISMA-NMA update work (Veroniki et al.&nbsp;2025 scoping/update papers) targets NMA reporting gaps (nodes, consistency, certainty of evidence) and is not a minimum AD covariate package for population adjustment. NICE DSU TSD 18 and EU HTA 2024 quantitative synthesis guidance describe what analysts need for MAIC/STC/ML-NMR but do not create a journal/registry mandate for publishers of comparator AD trials. No 2024–2026 standard was found that benchmarks a minimum reporting set and closes the reporting failure as a solved policy problem. C3 therefore still holds: the constraint remains what journals print. Treat incompletely reported AD as missing data with propagated uncertainty remains a proposed analyst-side response, not a solved standard.
+</dd>
+<dt>Decision path</dt>
+<dd>
+<code>R5:default-open → R7:counter-and-support-both-present</code>
+</dd>
+</dl>
+</div>
+</section>
+<section id="related-problems" class="level2">
+<h2 class="anchored" data-anchor-id="related-problems">Related problems</h2>
+<div class="related-links">
+<ul>
+<li><a href="../problems/COV-01-deciding-which-covariates-are-true-effect-modifiers.html">COV-01 — Deciding which covariates are true effect modifiers</a></li>
+<li><a href="../problems/COV-07-unknown-target-joint-covariate-distribution.html">COV-07 — Unknown target joint covariate distribution</a></li>
+<li><a href="../problems/DIA-10-data-access-is-simulated-as-benign-rather-than-informative.html">DIA-10 — Data access is simulated as benign rather than informative</a></li>
+<li><a href="../problems/MIS-01-missing-aggregate-summaries-and-unavailable-ipd-have-no-reme.html">MIS-01 — Missing aggregate summaries and unavailable IPD have no remedy</a></li>
+</ul>
+</div>
+</section>
+<section id="source" class="level2">
+<h2 class="anchored" data-anchor-id="source">Source</h2>
+<p>Derived from A:L63, A:L75 of the reviewed corpus.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/choxos\.github\.io\/ITC-open-problems\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>Ahmad Sofi-Mahmudi</p>
+</div>   
+    <div class="nav-footer-center">
+<p>Every entry carries a verification verdict. See <a href="../methods.html">How this was verified</a>.</p>
+<div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/choxos/ITC-open-problems/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></div>
+    <div class="nav-footer-right">
+<p><a href="https://github.com/choxos/ITC-open-problems">Source</a></p>
+</div>
+  </div>
+</footer>
+
+
+
+
+</body></html>
