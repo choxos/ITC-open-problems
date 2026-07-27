@@ -1,0 +1,115 @@
+{
+  "recommendation": "major-revision",
+  "summary": "The study uses an exact conjugate Gaussian simulation to evaluate four automated prior-sensitivity warnings and a composite across a factorial set of evidence structures, prior scales, sample sizes, and target contrasts. Exact posterior computation, explicit positive controls, and reporting both sensitivity and false warnings are important strengths. However, the study does not presently answer CMU-02: prior dominance is the stated problem, whereas the reference standard is undercoverage, so a correct warning in a prior-dominated but well-covering scenario is counted as false. The principal negative finding is also largely built into the combination of a zero-centered tight prior, true gamma_C = 0.40, and little or no likelihood information, while the reported operating-characteristic estimand, uncertainty calculation, protocol deviations, and omitted results prevent the prespecified verdict from being accepted.",
+  "strengths": [
+    "The closed-form Gaussian analysis cleanly removes MCMC convergence and importance-sampling error from the diagnostic comparison.",
+    "The authors appropriately distinguish sampler convergence from likelihood information and avoid describing the no-diagnostic condition as current practice.",
+    "The factorial design includes both prior-compatible and prior-incompatible truths, two sample sizes, graded evidence structures, and analyses excluding the acknowledged positive controls.",
+    "The manuscript is unusually transparent about the initially circular reference standard and the post-run power-scaling amendment.",
+    "There is no evident variance-estimator rigging: all diagnostics operate on the same exact posterior rather than giving one method an inferior uncertainty estimator.",
+    "The limitations concerning component models, ecological discrepancies, nonconjugate models, and released software are stated with commendable restraint."
+  ],
+  "comments": [
+    {
+      "id": 1,
+      "severity": "major",
+      "section": "The problem; The reference standard; Results",
+      "comment": "The reference standard answers a neighboring question. CMU-02 concerns whether the posterior is driven by the prior, but the study labels cells by frequentist coverage and calls warnings in cells with coverage at least 0.94 false. Thus, when gamma_C = 0 and a zero-centered prior dominates, a diagnostic that correctly detects prior dominance is penalized, despite the manuscript saying that silence in these cells must not be credited. Conversely, in an unidentified direction no data-based diagnostic can determine whether an unsupported prior location happens to equal the unknown truth. The study therefore evaluates whether influence diagnostics predict wrong answers, not whether they expose prior-driven posteriors.",
+      "what_would_satisfy": "Separate prior dominance from harm. Evaluate diagnostic calibration against a prespecified DGM-level or counterfactual measure of prior influence, then separately study how that influence relates to bias, coverage, and decision loss. Alternatively, reframe the paper entirely as a study of predicting undercoverage and withdraw the claim that it answers CMU-02."
+    },
+    {
+      "id": 2,
+      "severity": "major",
+      "section": "Performance measures; Table 1",
+      "comment": "The reported sensitivity is not sensitivity for flagging analyses whose intervals miss the truth. A scenario-contrast is first called harmful when its coverage is below 0.90, and the rule then counts as detecting that cell only when it fires in a majority of replicates. This discards the pairing between a warning and an interval miss within each replicate. Consequently, 0.111 means that 2 of 18 design cells had warning probabilities above 0.5; it does not mean that one harmful analysis in nine was flagged. The false-warning calculation has the same problem and can penalize a warning on a replicate that actually misses the truth merely because its scenario has good average coverage.",
+      "what_would_satisfy": "Report replicate-paired P(warning | interval miss) and P(warning | interval covers), stratified and appropriately macro-averaged across scenarios. If scenario detection is also of interest, retain it under that name, justify the 0.5 threshold, and stop interpreting it as analysis-level sensitivity."
+    },
+    {
+      "id": 3,
+      "severity": "major",
+      "section": "Factors; Why the diagnostics answer a different question",
+      "comment": "The central result is substantially true by construction. The relevant choices are a prior centered at gamma_C = 0, a true gamma_C = 0.40, the unspecified tight prior scale, and AgD-flat, AgD-narrow, or disconnected evidence carrying little or no information in the relevant direction. In a genuinely unidentified direction the posterior location and interval are supplied by the prior, so sufficiently large prior-truth separation guarantees near-zero coverage. The dramatic sample-size example is additionally tied to the contraction statistic moving from 0.198 to 0.267 across a fixed cutoff of 0.20, which can mechanically switch the two-of-four composite.",
+      "what_would_satisfy": "Report the numerical prior standard deviations and prior-truth separation in prior-SD units; analyze several prior-location offsets independently of likelihood information; show continuous diagnostic values and threshold sensitivity; and either present the unidentified-direction result as an analytic impossibility result or demonstrate that the substantive conclusion persists away from constructed null directions and cutoff crossings."
+    },
+    {
+      "id": 4,
+      "severity": "major",
+      "section": "Table 1; Prespecified decision",
+      "comment": "The quantities in brackets are not Monte Carlo standard errors as described. For example, sqrt(0.324 × 0.676 / 34) = 0.080, showing that the calculation treats the 34 fixed scenario-contrasts as an independent binomial sample. They are fixed factorial design points, not Monte Carlo draws from a defined superpopulation, and paired contrasts from the same simulated data are correlated. Some factor combinations are also duplicates for a contrast to which the target-population mean is irrelevant. Therefore the interval ending at 0.481 does not provide the claimed Monte Carlo justification for the prespecified failure verdict.",
+      "what_would_satisfy": "Define the finite-grid estimand and propagate replication error by resampling or analytically integrating within scenario while preserving paired contrasts. If inference to a superpopulation of scenarios is intended, define its distribution and weights and use an appropriate clustered analysis. Re-evaluate the decision rule with the corrected uncertainty."
+    },
+    {
+      "id": 5,
+      "severity": "major",
+      "section": "Protocol adherence; Results",
+      "comment": "Several prespecified results are absent. The protocol includes a structural rank screen as a fifth diagnostic, the wrong-side posterior event, decision-error rate, interval width, the relationship with W_c, and a Stan validation gate. None is reported. The structural screen is especially material because it should remain active whenever a disconnected target contrast is outside the row space of H, including at n = 400, and could directly qualify the statement that warnings become quiet. Results are also pooled across two substantively different contrasts, and the failure table does not identify which contrast each row represents.",
+      "what_would_satisfy": "Report every prespecified diagnostic, performance measure, validation result, and contrast-specific operating characteristic, or give a dated and explicit explanation for each omission. Revise all global claims after including the structural screen."
+    },
+    {
+      "id": 6,
+      "severity": "major",
+      "section": "Protocol amendment; Diagnostics",
+      "comment": "The implemented primary analysis was not wholly registered before results were seen. Power-scaling was changed after a first run, and because power-scaling contributes to the primary composite, the composite decision was affected by a result-informed amendment. In addition, Kallioinen et al. use cumulative Jensen-Shannon divergence, whereas this study substitutes Hellinger distance and carries over 0.05 merely because both measures are bounded; numerical thresholds do not transfer on that basis. The protocol specifies squared Hellinger distance for the prior-only benchmark, while the manuscript says Hellinger distance, another potentially large threshold change.",
+      "what_would_satisfy": "Describe the study as initially registered with a post-result amendment, identify exactly what first-run information was seen, and distinguish confirmatory from amended analyses. Resolve the squared-versus-unsquared discrepancy and justify or independently calibrate every threshold for the actual distance measure used."
+    },
+    {
+      "id": 7,
+      "severity": "major",
+      "section": "Design; Estimands",
+      "comment": "The manuscript does not supply enough of the DGM to verify either estimand. It omits the numerical prior covariance matrices, true main effects and other interactions, the H and V constructions for each geometry, trial covariate distributions, covariance among arm summaries, and the scale on which X is standardized. Under the stated identity-link model the target-population marginal C-versus-B contrast should ordinarily be d_C - d_B + (gamma_C - gamma_B) mu_X, but this formula and the corresponding posterior contrast are not given. It is also unclear whether mu_X is a known superpopulation quantity, a fixed realized target sample mean, or an estimated quantity whose uncertainty should enter the target.",
+      "what_would_satisfy": "Provide a complete ADEMP DGM table or explicit matrices for every evidence geometry; state all true and prior parameter values; write the exact contrast vectors and truth formulas; and clarify the target population, covariate standardization, and whether target-mean uncertainty is conditioned on or propagated."
+    },
+    {
+      "id": 8,
+      "severity": "major",
+      "section": "Results; Discussion",
+      "comment": "One operating point per rule cannot establish that the failure is structural rather than a matter of tuning. The tight-and-loose rule has reported sensitivity 0.882 and false-warning rate 0.548 overall, which may still represent substantial discrimination and could be useful as a prompt for human review, one of the protocol's stated aims. Outside controls, 0.509 differs from 0.50 by only 0.009 and no valid Monte Carlo uncertainty is supplied. Likewise, a fixed two-of-four composite can perform badly even when its continuous components contain useful ranking information.",
+      "what_would_satisfy": "Report distributions of the continuous diagnostic scores, ROC or precision-recall curves, threshold sensitivity, and a decision analysis reflecting the workload or cost of human review. Temper claims about impossibility or non-actionability unless supported by a formal result or threshold-independent evidence."
+    },
+    {
+      "id": 9,
+      "severity": "major",
+      "section": "What this answers, and what it does not",
+      "comment": "The limitations section lists model-form and software limitations but omits the limitations that directly threaten the conclusion: the mismatch between prior dominance and undercoverage, the deliberately wrong tight prior in weak directions, the scenario-majority estimand, the threshold cliff, the post-result amendment, and omission of the rank screen. These are not ancillary qualifications; they determine what the result means.",
+      "what_would_satisfy": "Rewrite the limitations and abstract after resolving the primary estimand and reporting issues, explicitly stating that no diagnostic can infer the correctness of a prior in a likelihood-null direction without external information."
+    },
+    {
+      "id": 10,
+      "severity": "minor",
+      "section": "Abstract; Results mechanism example",
+      "comment": "Several numerical or labeling statements are internally inconsistent. Coverage of 0.940 cannot mean that an interval essentially never contains the truth, and the accompanying table gives 0.000 for the highlighted disconnected cells. The abstract's warning rate of 0.000 is not supported by the displayed cells, which show 0.009 or 0.012 in the low-warning disconnected cases. The 34 units are scenario-contrasts, not scenarios, and the final column labeled contraction is not identified as a statistic or firing probability.",
+      "what_would_satisfy": "Correct the apparent 0.940 typo, identify the cells supporting the 0.000 warning claim or remove it, consistently use scenario-contrast terminology, and define every column in the cell-level table."
+    }
+  ],
+  "citation_problems": [
+    {
+      "cite": "Kallioinen, Paananen, Bürkner and Vehtari (2024)",
+      "problem": "The cited diagnostic uses cumulative Jensen-Shannon divergence. The manuscript's Hellinger implementation is an adaptation, and the citation does not support carrying the 0.05 threshold over unchanged merely because both measures have bounded ranges. The paper also concerns prior and likelihood sensitivity, not a general test of whether an answer is correct."
+    },
+    {
+      "cite": "Gelman, Simpson and Betancourt (2017)",
+      "problem": "This source supports understanding a prior in the context of its likelihood, but it does not establish the manuscript's stronger claims that the observed operating-characteristic failure is threshold-independent or that retuning the selected rules cannot help."
+    },
+    {
+      "cite": "Novelty claim that diagnostics detect weak likelihood rather than a wrong prior",
+      "problem": "The distinction between prior influence, prior-data conflict, and prior correctness has an established literature that is not discussed. Relevant omissions include Evans and Moshonov's work on checking for prior-data conflict and Presanis et al.'s conflict diagnostics for Bayesian evidence synthesis. That literature will not solve correctness in an unidentified direction, but it materially changes the novelty framing and the taxonomy of available diagnostics."
+    },
+    {
+      "cite": "multinma prior-versus-posterior comparison",
+      "problem": "The package functionality is asserted without a package or methodological citation, version, function name, or explanation of whether the implemented benchmark reproduces that comparison."
+    }
+  ],
+  "conclusions_supported": false,
+  "unsupported_claims": [
+    "That is an operating-characteristics question, and this study answers it.",
+    "They fail.",
+    "Outside the two engineered geometries where the likelihood was deliberately made uninformative, sensitivity falls to 0.111: roughly one harmful analysis in nine is flagged.",
+    "The reason is structural rather than a matter of tuning.",
+    "In the worst cells, coverage is zero and the composite warns on 0.000 of replicates.",
+    "Coverage is 0.940 at best, meaning the interval essentially never contains the truth.",
+    "More data makes the warning quieter while leaving the answer just as wrong.",
+    "A warning that accompanies half of all correct analyses is not actionable; it is a warning that the model has a prior.",
+    "Thresholds are those the source literature suggests and were not tuned.",
+    "Reporting follows ADEMP."
+  ]
+}

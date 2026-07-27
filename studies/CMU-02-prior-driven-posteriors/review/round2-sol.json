@@ -1,0 +1,164 @@
+{
+ "recommendation": "major-revision",
+ "summary": "The revision makes substantive progress by replacing scenario-majority detection with warning/miss pairing, adding AUCs, reporting the rank screen and wrong-side decisions, and examining the composite without amended power scaling. It now establishes a coherent finite-grid result about whether selected automated warnings coincide with realized interval noncoverage, but this is not calibration for detecting prior dominance, and the manuscript still overstates its answer to CMU-02. The data-generating mechanism and population-adjusted estimands remain too incompletely specified to verify the result, despite the response claiming the contrast formula was added, while the pooled estimand and its Monte Carlo uncertainty do not match the registered macro estimand or explicitly preserve paired contrasts. These issues are repairable through complete reporting, reanalysis, and narrower claims, so major revision rather than rejection is appropriate.",
+ "strengths": [
+  "Exact conjugate computation cleanly isolates diagnostic behavior from posterior simulation and convergence error.",
+  "The authors have transparently corrected a serious operating-characteristic error rather than defending the original scenario-majority calculation.",
+  "Including both prior-compatible and prior-incompatible truths, graded evidence structures, and results excluding engineered positive controls is methodologically valuable.",
+  "The threshold-free analysis appropriately retracts the earlier claim that one operating point proved the statistics uninformative.",
+  "There is no evident unfair variance comparison: every warning is evaluated using the same exact posterior, and the bare posterior is not misrepresented as current practice.",
+  "The sample-size example is a useful illustration of the distinction between prior influence and prior correctness, provided it is presented as a constructed mechanism rather than an estimated empirical regularity.",
+  "The revised limitations are substantially more candid about the consequence-based reference standard, restricted prior misspecification, unrun Stan validation, and limited software scope."
+ ],
+ "comments": [
+  {
+   "id": 1,
+   "severity": "major",
+   "section": "Abstract; The problem; The reference standard; What this answers, and what it does not",
+   "comment": "The central target mismatch remains. A realized 95% interval miss is a loss event, not a definition of prior dominance and not necessarily evidence that an analysis is defective, since calibrated procedures are expected to miss occasionally. Conversely, a warning in a prior-dominated gamma_C = 0 replicate is classified as a false alarm even though it correctly identifies the condition in CMU-02. The manuscript now acknowledges this, but still says that it answers CMU-02 and that the diagnostics fail, while providing little calibration conditional on scenario severity beyond excluding two controls.",
+   "what_would_satisfy": "Either evaluate prior dominance using an independent continuous or counterfactual DGM-level reference and then relate dominance separately to coverage and decision loss, or fully reframe the paper as prediction of realized noncoverage and withdraw the claim that it evaluates diagnostic detection of prior-driven posteriors. Report operating characteristics by evidence geometry, prior scale, contrast, and prior-truth compatibility."
+  },
+  {
+   "id": 2,
+   "severity": "major",
+   "section": "Design; Factors; Estimands",
+   "comment": "The response states that the target contrast formula and DGM details were added, but they are not present in the revised manuscript. Numerical prior covariance matrices, the tight/regular/weak standard deviations, true main effects and other interactions, H and V for each geometry, covariate distributions, and covariance among evidence summaries remain absent. Under the stated identity-link model, the target marginal C-versus-B contrast appears to be d_C - d_B + (gamma_C - gamma_B) mu_X, but neither this formula nor its truth and posterior contrast vector is given. It also remains unclear whether mu_X is a fixed superpopulation mean, a realized target-sample mean, or an estimate whose uncertainty should be propagated.",
+   "what_would_satisfy": "Provide a complete ADEMP DGM table or explicit matrices, all parameter and prior values, both contrast vectors and truth formulas, the standardization population for X, and a precise definition of the target population. If mu_X is estimated from a target sample, propagate its uncertainty; if it is conditioned upon, state that explicitly."
+  },
+  {
+   "id": 3,
+   "severity": "major",
+   "section": "Factors; What no threshold repairs",
+   "comment": "The dramatic failure is still substantially built into the mechanism by combining a prior centered at zero, true gamma_C = 0.40, an unspecified tight prior scale, and little information in the relevant direction. If 0.40 is several prior standard deviations from zero, near-zero coverage follows arithmetically when the likelihood contributes little. The manuscript now calls this a mechanism, which is appropriate, but the abstract and discussion still use it to support broad threshold-independent claims without reporting the prior-truth separation or demonstrating persistence away from constructed weak directions and cutoff crossings.",
+   "what_would_satisfy": "Report every prior scale and the 0.40 offset in prior-standard-deviation units, show cell-level continuous scores at both sample sizes, vary prior location independently of scale and evidence strength, and report results outside all deliberately weak or null directions. Alternatively, present the null-direction result as an analytic identifiability argument and sharply separate it from the empirical operating-characteristic findings."
+  },
+  {
+   "id": 4,
+   "severity": "major",
+   "section": "Registered performance measures; Results; Table 1",
+   "comment": "The revised pooled estimand P(warning | miss) is meaningful for a specified equal-weight mixture of scenarios and contrasts, but it is not the registered macro-average across harmful scenario-contrasts. It weights cells according to their number of misses and may also count duplicated factor combinations for contrasts unaffected by target-population mean. Moreover, the two contrasts arise from the same simulated replicate, probabilities differ across fixed design cells, and no Monte Carlo SE calculation is described; a simple binomial formula would not preserve this dependence or the fixed-grid structure. The controls-excluded estimates and AUCs have no Monte Carlo uncertainty.",
+   "what_would_satisfy": "Define the finite-grid mixture and its weights, report contrast-specific and scenario-stratified results, and report both the corrected registered macro estimand and the pooled micro estimand. Estimate Monte Carlo uncertainty by a stratified delta method or bootstrap that resamples simulation replicates within scenarios while retaining both contrasts together. Label application of the registered decision thresholds to the new estimand as a post-review amendment rather than a prespecified verdict."
+  },
+  {
+   "id": 5,
+   "severity": "major",
+   "section": "Measures that were registered and are now reported; Reproducibility",
+   "comment": "The heading claims that the registered measures are now reported, but interval width, the relationship with W_c, and contrast-specific operating characteristics remain absent. The registered Stan validation gate was not run. The rank-screen paragraph is also internally inconsistent: firing among 0.147 of covered replicates is a false-alarm rate of 0.147 under the manuscript's harm reference, so it cannot simultaneously be described as having no false alarms at all. It has no false positives only against its separate structural row-space definition.",
+   "what_would_satisfy": "Report all prespecified outputs in the paper or supplement, with separate results by contrast. Present the rank screen against both structural nonidentification and interval noncoverage using distinct terminology. Run the registered validation or state that the confirmatory validation gate remains unevaluated and revise the status of the verdict accordingly."
+  },
+  {
+   "id": 6,
+   "severity": "major",
+   "section": "Diagnostics; Protocol amendment; Abstract",
+   "comment": "Threshold provenance remains unresolved. The abstract and verdict still refer to thresholds suggested by the literature, although the manuscript admits that all thresholds except power scaling are author-defined. Kallioinen et al.'s 0.05 convention applies to cumulative Jensen-Shannon sensitivity, not automatically to the substituted Hellinger measure. In addition, the protocol specifies squared Hellinger distance below 0.10 for the prior-only benchmark, whereas the manuscript specifies Hellinger distance below 0.10; these cutoffs differ materially. Removing power scaling from the composite demonstrates robustness of that composite verdict, but it does not validate the amended power-scaling analysis or resolve the prior-only discrepancy.",
+   "what_would_satisfy": "Identify the exact implemented distance and transformation for every diagnostic, reconcile squared versus unsquared Hellinger, and rerun affected results if necessary. Independently calibrate the Hellinger power-scaling cutoff or label it exploratory, correct the plural literature-threshold claim, and clearly separate registered analyses from post-result amendments."
+  },
+  {
+   "id": 7,
+   "severity": "major",
+   "section": "Abstract; Threshold-free discrimination; Discussion",
+   "comment": "The AUC analysis supports a narrower conclusion than stated. An AUC of 0.511 is essentially chance discrimination, whereas 0.781 is moderate to good, so the same quantities cannot collectively be described as moderately discriminating or as showing that the statistics are not the problem. Score orientation, pooling weights, and Monte Carlo uncertainty are not reported. Nor does an in-sample AUC establish that a calibrated threshold would satisfy the sensitivity and workload requirements in new scenarios. The assertion that a 53% warning rate is not actionable is a decision claim requiring costs or workload assumptions.",
+   "what_would_satisfy": "Report uncertainty-preserving ROC and precision-recall curves for each correctly oriented score, stratified by contrast and scenario class. Show threshold tradeoffs, use separate calibration and evaluation simulations if proposing improved cutoffs, and add a decision or workload analysis before making actionability claims. Otherwise describe the AUCs individually and temper the abstract."
+  },
+  {
+   "id": 8,
+   "severity": "minor",
+   "section": "Authors' response; Abstract; Prespecified decision table",
+   "comment": "The response to GLM states that the n = 400 disconnected cell has coverage 0.350 and warning probability 0.005, but the revised abstract reports 0.000 and 0.011, while the supplied decision table reports 0.000 with warning probabilities 0.009 and 0.012 for the two target means. Although 0.011 may be their average, the response describes a different numerical result.",
+   "what_would_satisfy": "Reconcile the response, abstract, figures, and cell-level table against one analysis output, and state explicitly when an abstract value averages over target-population means or contrasts."
+  }
+ ],
+ "citation_problems": [
+  {
+   "cite": "Kallioinen, Paananen, Bürkner and Vehtari (2024)",
+   "problem": "The cited method uses cumulative Jensen-Shannon divergence. It does not justify carrying its 0.05 threshold to Hellinger sensitivity, and it diagnoses prior or likelihood sensitivity rather than whether a posterior answer is correct."
+  },
+  {
+   "cite": "Gelman, Simpson and Betancourt (2017)",
+   "problem": "This paper supports interpreting a prior in the context of its likelihood, but it does not establish the manuscript's stronger empirical claim that recalibration cannot improve the studied rules in the reported estimable geometry."
+  },
+  {
+   "cite": "Evans and Moshonov; Presanis and colleagues",
+   "problem": "The novelty and diagnostic taxonomy omit established work on prior-data conflict and conflict diagnostics in Bayesian evidence synthesis. Those methods cannot establish truth in a likelihood-null direction, but they are directly relevant to the distinction between influence, conflict, and correctness."
+  },
+  {
+   "cite": "multinma prior-versus-posterior comparison",
+   "problem": "The package functionality is asserted without a package citation, version, function name, or evidence that the simulated benchmark corresponds to the implemented comparison."
+  },
+  {
+   "cite": "Morris, White and Crowther (2019)",
+   "problem": "The citation is appropriate, but the claim that reporting follows ADEMP is not supported while the numerical DGM, precise estimands, full performance measures, and validation remain absent from the manuscript."
+  }
+ ],
+ "conclusions_supported": false,
+ "unsupported_claims": [
+  "That is an operating-characteristics question, and this study answers it.",
+  "At the thresholds the literature suggests, they fail.",
+  "The statistics are not the problem; the thresholds are, and something else is.",
+  "Used as continuous scores rather than as rules, the same quantities discriminate moderately: area under the curve 0.511 to 0.781 for predicting a miss.",
+  "So a better-calibrated threshold would do better, and we do not claim otherwise.",
+  "It is the one rule here with no false alarms at all.",
+  "A warning attached to half of all sound analyses is not actionable; it is a warning that the model has a prior.",
+  "In a conjugate Gaussian network with graded evidence structures, the answer is that they discriminate poorly against the consequence that matters, and that the reason is structural: they measure prior influence, not prior correctness.",
+  "Reporting follows ADEMP."
+ ],
+ "round1_resolution": [
+  {
+   "reviewer": "sol",
+   "id": 1,
+   "resolved": "partly",
+   "note": "The reference-standard mismatch is now acknowledged, but prior dominance is still not evaluated and the paper retains the claim that it answers CMU-02."
+  },
+  {
+   "reviewer": "sol",
+   "id": 2,
+   "resolved": "partly",
+   "note": "Replicate-level warning/miss pairing corrects the main interpretation error, but the requested stratification and macro-average are absent and the pooled estimand has different weights."
+  },
+  {
+   "reviewer": "sol",
+   "id": 3,
+   "resolved": "partly",
+   "note": "The constructed cells are now described as a mechanism and AUCs were added, but prior scales, prior-SD offsets, threshold sensitivity, and evidence away from constructed weak directions remain missing."
+  },
+  {
+   "reviewer": "sol",
+   "id": 4,
+   "resolved": "partly",
+   "note": "Fixed scenarios are no longer treated as 34 binomial draws, but the new Monte Carlo SE method is undescribed and does not explicitly preserve paired contrasts or heterogeneous fixed cells."
+  },
+  {
+   "reviewer": "sol",
+   "id": 5,
+   "resolved": "partly",
+   "note": "The rank screen, wrong-side event, and amendment sensitivity were added, but interval width, W_c results, contrast-specific performance, and Stan validation remain absent."
+  },
+  {
+   "reviewer": "sol",
+   "id": 6,
+   "resolved": "partly",
+   "note": "The amendment is disclosed and a composite without power scaling is reported, but the Hellinger cutoff is uncalibrated, confirmatory status remains unclear, and squared versus unsquared Hellinger is unresolved."
+  },
+  {
+   "reviewer": "sol",
+   "id": 7,
+   "resolved": "no",
+   "note": "Despite the response claiming otherwise, the revised manuscript still omits the numerical DGM, evidence matrices, exact marginal contrast formula, and definition of target-population uncertainty."
+  },
+  {
+   "reviewer": "sol",
+   "id": 8,
+   "resolved": "partly",
+   "note": "AUCs were added and the broad structural-failure claim was tempered, but threshold curves, uncertainty, calibration validation, and decision or workload analysis are still absent."
+  },
+  {
+   "reviewer": "sol",
+   "id": 9,
+   "resolved": "partly",
+   "note": "The limitations now cover several central threats, but they omit the post-review change of primary estimand, fixed-grid weighting and dependence, and the incomplete diagnostic literature."
+  }
+ ],
+ "reviewer": "sol",
+ "name": "GPT-5.6 Sol (maximum reasoning effort)",
+ "round": 2
+}

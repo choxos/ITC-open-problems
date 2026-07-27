@@ -20,19 +20,30 @@ benchmark, power-scaling sensitivity, a tight-and-loose prior refit, and
 a composite of the four, against a reference defined by consequence:
 whether the 95% credible interval misses the truth.
 
-**They fail.** Across 34 harmful scenarios the composite has sensitivity
-0.324 (Monte Carlo SE 0.080) at a false-warning rate of 0.170. Outside
-the two engineered geometries where the likelihood was deliberately made
-uninformative, sensitivity falls to 0.111: roughly one harmful analysis
-in nine is flagged. The only rule with high sensitivity, refitting under
-halved and doubled prior scales, fires on 51% of the clean scenarios
-too.
+**At the thresholds the literature suggests, they fail.** Intervals
+missed on 56,210 of 480,000 replicate-contrasts. Pairing each warning
+with whether that replicate’s interval missed, the composite has
+sensitivity 0.366 (Monte Carlo SE 0.002) at a false-alarm rate of 0.158.
+Outside two engineered geometries where the likelihood was deliberately
+made uninformative, sensitivity falls to 0.127. The only rule with
+useful sensitivity, refitting under halved and doubled prior scales,
+fires on 53% of the replicates whose intervals were fine.
 
-The reason is structural rather than a matter of tuning. **These
-diagnostics detect a weak likelihood; the harm here comes from a tight
-prior that is wrong.** In the worst cells, coverage is zero and the
-composite warns on 0.000 of replicates, and increasing the sample size
-makes the warning quieter while the answer stays just as wrong.
+**The statistics are not the problem; the thresholds are, and something
+else is.** Used as continuous scores rather than as rules, the same
+quantities discriminate moderately: area under the curve 0.511 to 0.781
+for predicting a miss. So a better-calibrated threshold would do better,
+and we do not claim otherwise.
+
+**What no threshold can repair** is that these diagnostics measure the
+prior’s *influence* and the harm here comes from the prior’s *location*.
+With disconnected evidence, a tight prior centered at zero and a true
+interaction of 0.40, coverage is 0.000 at 100 participants per arm with
+the composite warning on 0.984 of replicates; at 400 per arm coverage is
+0.000 and the warning rate is 0.011. More data lets the posterior
+contract, which every one of these diagnostics reads as reassurance,
+while none of them can see that the prior is centered in the wrong
+place.
 
 # The problem
 
@@ -99,7 +110,38 @@ heterogeneity is 0.10, treated as known.
 
 120 scenarios, 2000 replicates, two contrasts: the interaction
 $\gamma_C$ and the target-population marginal C versus B mean difference
-a committee would read.
+a committee would read,
+
+<span id="eq-delta">$$\Delta_{CB}(\mu_X) = (d_C - d_B) + (\gamma_C - \gamma_B)\,\mu_X, \qquad(2)$$</span>
+
+where $\mu_X$ is a **known superpopulation** mean, not a realized
+target-sample mean and not an estimate, so no uncertainty in it is
+propagated. Under the identity link this is exact and needs no Monte
+Carlo evaluation. The posterior contrast vector is
+$c = (-1, 1, 0, -\mu_X, \mu_X, 0)$ on
+$(d_B, d_C, d_D, \gamma_B, \gamma_C, \gamma_D)$.
+
+Numerical values, which an earlier version left to the code: true main
+effects $d_B = 0.30$, $d_C = 0.40$, $d_D = 0.35$; true interactions
+$\gamma_B = 0.20$, $\gamma_D = 0.10$, with $\gamma_C$ a factor. Priors
+are independent and zero-centered with standard deviations
+$(0.20, 0.10)$ for main effects and interactions under **tight**,
+$(0.50, 0.25)$ under **regular** and $(2.00, 1.00)$ under **weak**.
+Individual-data trials contribute the exact ordinary-least-squares
+covariance of their treatment and treatment-by-covariate coefficients
+for a 1:1 randomized design with the covariate standard normal within
+trial; aggregate arms contribute a single adjusted contrast with
+variance $2/n + \tau^2$. The evidence matrices $H$ and $V$ for each
+geometry are constructed in `R/01-model.R`.
+
+**Prior-truth separation matters for reading the results and is stated
+here rather than left implicit.** A true $\gamma_C$ of 0.40 sits 4.0
+tight-prior standard deviations from the prior mean, 1.6 regular ones
+and 0.4 weak ones. Under the tight prior in a direction the likelihood
+barely informs, poor coverage follows arithmetically; peer review was
+right to ask for this number, and the sample-size result in
+<a href="#sec-why" class="quarto-xref">Section 3.2</a> should be read as
+demonstrating a mechanism rather than estimating how often it occurs.
 
 **AgD-flat and AgD-narrow are positive controls**, engineered so the
 likelihood carries almost no information about the interaction. A
@@ -132,23 +174,30 @@ misses the truth. A scenario is **harmful** when coverage falls below
 | Diagnostic | Fires when |
 |----|----|
 | Contraction | $1 - \mathrm{Var}_{\text{post}}/\mathrm{Var}_{\text{prior}} < 0.20$ |
-| Prior-only benchmark | Hellinger distance to the prior $< 0.10$ and decision-probability change $< 0.05$ |
+| Prior-only benchmark | **squared** Hellinger distance to the prior $< 0.10$ and decision-probability change $< 0.05$ |
 | Power-scaling | prior sensitivity $\ge 0.05$ and likelihood sensitivity $< 0.05$ |
 | Tight and loose refit | posterior mean moves $> 0.25$ posterior SD, or decision probability by $> 0.05$ |
 | **Composite** | at least two of the four fire |
 
-Power-scaling is measured **distributionally**, as the Hellinger
-distance between base and power-scaled posteriors per unit $\log\alpha$.
-A first implementation used the shift in the posterior *mean*, and that
-cannot work: in a conjugate Gaussian with a zero-centered prior, raising
-the prior to $\alpha$ and lowering the likelihood to $1/\alpha$ give
-posteriors with identical means, so prior and likelihood sensitivity are
-equal by construction and a rule of the form “prior sensitive,
-likelihood insensitive” can never fire. Measured that way the diagnostic
-had sensitivity 0.000 everywhere, which would have been published as a
-property of the method rather than of our code. The standard deviations
-do differ, which is why ([1](#ref-kallioinen2024)) define the diagnostic
-as a divergence between the two posteriors.
+Power-scaling is measured **distributionally**, as the (unsquared)
+Hellinger distance between base and power-scaled posteriors per unit
+$\log\alpha$. The prior-only benchmark uses the **squared** Hellinger
+distance, as the protocol specifies; the two are on different scales and
+an earlier draft described both as “Hellinger distance”, which peer
+review flagged. A first implementation used the shift in the posterior
+*mean*, and that cannot work: in a conjugate Gaussian with a
+zero-centered prior, raising the prior to $\alpha$ and lowering the
+likelihood to $1/\alpha$ give posteriors with identical means, so prior
+and likelihood sensitivity are equal by construction and a rule of the
+form “prior sensitive, likelihood insensitive” can never fire. Measured
+that way the diagnostic had sensitivity 0.000 everywhere, which would
+have been published as a property of the method rather than of our code.
+The standard deviations do differ, which is why
+([1](#ref-kallioinen2024)) define the diagnostic as a divergence between
+the two posteriors. They use cumulative Jensen-Shannon distance; a
+numerical threshold does not transfer between that and Hellinger merely
+because both are bounded, so the 0.05 used here should be read as a
+choice informed by their default rather than as their threshold.
 
 The bare posterior is labelled the **no-diagnostic baseline**, not
 “current practice”: `multinma` ships a prior-versus-posterior plot, so
@@ -157,26 +206,37 @@ what a careful analyst reviewing plots would.
 
 # Results
 
-34 of 240 scenario-contrasts are harmful, of which 18 lie outside the
-engineered positive controls, so the gate on estimating sensitivity only
-where failure was manufactured is passed.
+Intervals missed on 56,210 of 480,000 replicate-contrasts. 34 of 240
+scenario-contrasts are harmful by the prespecified definition, 18 of
+them outside the engineered positive controls, so the gate against
+estimating sensitivity only where failure was manufactured is passed.
+
+**Operating characteristics are computed per replicate**, pairing each
+warning with whether that replicate’s own interval missed. An earlier
+version called a scenario detected when a rule fired on a majority of
+its replicates and averaged over scenarios; peer review established that
+this is not sensitivity for flagging analyses whose intervals miss, that
+it discards the within-replicate pairing, and that its uncertainty
+treated fixed factorial design points as a binomial sample. Replicates
+are Monte Carlo draws, so both the pairing and the Monte Carlo error are
+well defined at that level.
 
 <div id="tbl-oc">
 
-Table 1: Operating characteristics. Sensitivity is the share of harmful
-scenarios in which the rule fires on a majority of replicates; the
-false-warning rate is the same among scenarios covering at or above 94%.
-Monte Carlo standard errors in brackets.
+Table 1: Operating characteristics per replicate. Sensitivity is the
+share of replicates whose interval missed on which the rule fired; the
+false-alarm rate is the share of replicates whose interval covered on
+which it fired. Monte Carlo standard errors in brackets.
 
 <div class="cell-output-display">
 
-| Rule | Sensitivity | False-warning rate | Sensitivity, controls excluded | False warning, controls excluded |
+| Rule | Sensitivity | False alarm | Sensitivity, controls excluded | False alarm, controls excluded |
 |:---|---:|---:|---:|---:|
-| Contraction | 0.324 (0.080) | 0.149 (0.026) | 0.111 | 0.018 |
-| Prior-only benchmark | 0.118 (0.055) | 0.117 (0.023) | 0.000 | 0.000 |
-| Power-scaling | 0.176 (0.065) | 0.144 (0.026) | 0.000 | 0.000 |
-| Tight and loose refit | 0.882 (0.055) | 0.548 (0.036) | 1.000 | 0.509 |
-| Composite (2 of 4) | 0.324 (0.080) | 0.170 (0.027) | 0.111 | 0.018 |
+| Contraction | 0.363 (0.002) | 0.141 (0.001) | 0.122 | 0.016 |
+| Prior-only benchmark | 0.209 (0.002) | 0.128 (0.001) | 0.017 | 0.024 |
+| Power-scaling | 0.209 (0.002) | 0.130 (0.001) | 0.007 | 0.003 |
+| Tight and loose refit | 0.698 (0.002) | 0.526 (0.001) | 0.830 | 0.531 |
+| Composite (2 of 4) | 0.366 (0.002) | 0.158 (0.001) | 0.127 | 0.025 |
 
 </div>
 
@@ -190,90 +250,174 @@ Figure 1: Do the warnings land on the analyses that are wrong?
 
 </div>
 
-<div id="fig-oc">
+The prespecified verdict is **diagnostics fail at the thresholds the
+literature suggests**. Two patterns produce it.
 
-![](../results/figures/fig2-operating-characteristics.png)
+**The sensitive rule is not specific.** Refitting under halved and
+doubled prior scales catches 0.830 of misses outside the controls and
+fires on 53% of covered replicates too. A warning attached to half of
+all sound analyses is not actionable; it is a warning that the model has
+a prior.
 
-Figure 2: Operating characteristics. The dotted line is chance.
+**The specific rules are not sensitive.** Contraction, the prior-only
+benchmark and power-scaling keep false alarms low and catch almost
+nothing outside the engineered geometries. Requiring two of four to
+agree, intended to buy specificity, inherits the low sensitivity instead
+of repairing it.
+
+## The statistics discriminate; the thresholds do not
+
+<div id="tbl-auc">
+
+Table 2: Threshold-free discrimination: area under the curve for
+predicting that a replicate’s interval missed, using each statistic as a
+continuous score.
+
+<div class="cell-output-display">
+
+| Statistic   | AUC, all scenarios | AUC, controls excluded |
+|:------------|-------------------:|-----------------------:|
+| contraction |              0.711 |                  0.749 |
+| prior_sens  |              0.766 |                  0.781 |
+| lik_sens    |              0.505 |                  0.627 |
+| h2          |              0.578 |                  0.511 |
+| refit_sd    |              0.653 |                  0.762 |
 
 </div>
 
-The prespecified conclusion is **diagnostics fail**: the composite’s
-sensitivity is 0.324 with a Monte Carlo 95% interval reaching 0.481,
-below the 0.50 threshold the protocol set for that verdict.
+</div>
 
-Two patterns underlie it.
+This matters for what may be concluded. Used as continuous scores the
+same quantities reach areas under the curve of 0.511 to 0.781 outside
+the controls, which is moderate discrimination, not none. **The failure
+reported above is a failure of the prespecified thresholds, not a
+demonstration that the statistics are uninformative**, and a
+better-calibrated rule would do better. We do not claim otherwise, and
+an earlier draft that called the failure structural on the strength of
+one operating point per rule overstated it.
 
-**The sensitive rule is not specific.** Refitting under halved and
-doubled prior scales catches every harmful scenario outside the
-controls, and also fires on 51% of clean ones. A warning that
-accompanies half of all correct analyses is not actionable; it is a
-warning that the model has a prior.
-
-**The specific rules are not sensitive.** Contraction, the prior-only
-benchmark and power-scaling each keep false warnings low and catch
-almost nothing outside the engineered geometries. Requiring two of four
-to agree, which the design intended as a way to buy specificity,
-inherits the low sensitivity rather than repairing it.
-
-## Why: the diagnostics answer a different question
+## What no threshold repairs
 
 <div id="fig-mech">
 
 ![](../results/figures/fig3-mechanism.png)
 
-Figure 3: Where the diagnostics go quiet while the answer stays wrong.
+Figure 2: Where the diagnostics go quiet while the answer stays wrong.
 
 </div>
 
 Every diagnostic here asks a version of *is the likelihood weak relative
-to the prior*. The harm being measured is *is the answer wrong*, and the
-two come apart exactly where it matters.
+to the prior*. The harm asks *is the answer wrong*, and the two separate
+exactly where it matters most.
 
-The clearest case is disconnected evidence with a tight prior and a true
-interaction of 0.40 against a prior centered at zero. Coverage is 0.940
-at best, meaning the interval essentially never contains the truth. At
-100 participants per arm the composite warns on 0.984 of replicates. At
-400 it warns on 0.012.
+Take disconnected evidence with a tight prior centered at zero and a
+true interaction of 0.40. At 100 participants per arm, coverage of the
+interaction is 0.000 and the composite warns on 0.984 of replicates. At
+400 per arm, coverage is 0.000 and the warning rate is 0.011.
 
-**More data makes the warning quieter while leaving the answer just as
-wrong.** The extra data lets the posterior contract, which is precisely
-what contraction, the prior-only benchmark and power-scaling read as
-reassurance. None of them can see that the prior is centered in the
-wrong place, because none of them compares the prior to anything outside
-itself. This is the sense in which a prior can only be understood
-alongside the likelihood it is paired with ([3](#ref-gelman2017)): a
-diagnostic that examines the prior’s *influence* is silent about the
-prior’s *location*.
+**More data makes the warning quieter while leaving the answer wrong.**
+The extra data lets the posterior contract, which contraction, the
+prior-only benchmark and power-scaling all read as reassurance. None of
+them compares the prior to anything outside itself, so none can see that
+it is centered in the wrong place. This is the sense in which a prior
+can only be understood alongside its likelihood ([3](#ref-gelman2017)):
+a diagnostic that examines the prior’s *influence* is silent about the
+prior’s *location*, and no recalibration of a threshold on an influence
+statistic changes that.
 
-Where the prior is accidentally correct, at $\gamma_C = 0$, coverage
-runs 0.908 to 1.000 and the composite fires in 18% of scenarios. The
-analyses are right for the wrong reason and mostly unflagged, which is
-the same blindness seen from the other side.
+The distinction is not new and the manuscript should not imply it is.
+Prior-data conflict checking ([4](#ref-evans2006)) and conflict
+diagnostics for evidence-synthesis graphs ([5](#ref-presanis2013))
+address prior *location* directly, by asking whether the prior and the
+likelihood are compatible rather than how much the prior contributes.
+What this study adds is the measurement that the influence-based family,
+which is what `priorsense` and the prior-versus-posterior plot supply
+and what CMU-02 names, does not substitute for a conflict check in these
+networks. A conflict diagnostic is a different instrument and is not
+evaluated here.
+
+Where the prior is accidentally correct, at $\gamma_C = 0$, the
+composite fires on 0.190 of covered replicates against 0.119 where it is
+wrong. Those firings are not errors in the diagnostic’s own terms, since
+the prior really is doing the work; they are counted as false alarms
+here because the reference is harm, and that mismatch is a real
+limitation of the reference rather than of the diagnostic.
+
+## Measures that were registered and are now reported
+
+An earlier draft omitted several prespecified outputs, which peer review
+identified.
+
+**The structural rank screen** fires on 0.150 of replicates overall,
+0.175 among misses and 0.147 among covered. It fires only where a
+contrast genuinely lies outside the row space of the evidence, which
+happens only in the AgD-flat geometry, and it never fires elsewhere. It
+is the one rule here with no false alarms at all, and it is also the one
+that answers the narrowest question: exact nonidentification, not weak
+identification. It cannot see the disconnected failures above, where the
+contrast is estimable and the answer is still wrong.
+
+**Confident decisions on the wrong side of zero** occur on 0.016 of
+replicates overall and 0.085 among those whose interval missed.
+
+**The composite adds almost nothing over its best component.** Its
+sensitivity of 0.366 sits just above contraction alone at 0.363, at a
+slightly higher false-alarm rate, 0.158 against 0.141. Requiring two of
+four rules to agree neither buys specificity nor recovers sensitivity
+here.
+
+**The verdict does not depend on the amended diagnostic.** Power-scaling
+was reimplemented after a first run, and it contributes to the
+composite, so the composite recomputed with that component removed
+entirely gives sensitivity 0.365 and false alarm 0.146, against 0.366
+and 0.158 with it.
 
 # What this answers, and what it does not
 
-**Answers, in part.** CMU-02 asks for these diagnostics to be applied to
-population-adjusted models and evaluated conditional on scenario
-severity rather than at one benign dataset. In a conjugate Gaussian
-network with graded evidence structures, the answer is that they
-discriminate poorly against the consequence that matters, and that the
-reason is structural: they measure prior influence, not prior
-correctness. An analyst who runs them and sees nothing has learned that
+**Answers, in part, and less than an earlier draft claimed.** CMU-02
+asks for these diagnostics to be applied to population-adjusted models
+and evaluated conditional on scenario severity. What is established here
+is narrower: in a conjugate Gaussian network with graded evidence
+structures, these warnings coincide poorly with realized interval misses
+at the thresholds examined, and the influence-based family cannot see a
+misplaced prior. That is not the same as calibrating them for detecting
+prior dominance, which would need a reference for dominance that is not
+one of the diagnostics; finding such a reference is itself unfinished
+business, since the obvious geometric one is algebraically identical to
+contraction. An analyst who runs them and sees nothing has learned that
 the likelihood is not obviously weak, which is a much smaller claim than
 that the answer is trustworthy.
 
-**Does not answer.** The other half of CMU-02, wiring these into
-released software, is untouched; neither `multinma` nor `cpaic` is run.
-The model is conjugate Gaussian with an identity link, a correctly
-specified linear mean and known variances, so nothing here transfers
-directly to a non-conjugate posterior where the diagnostics behave
-differently and MCMC error enters. Only automated thresholds are
-evaluated; a plot read by an experienced analyst is a different
-instrument and may do better. Thresholds are those the source literature
-suggests and were not tuned, so a better-calibrated rule may exist,
-though the structural argument in
-<a href="#sec-why" class="quarto-xref">Section 3.1</a> suggests
+**Does not answer.** The reference standard is undercoverage, not prior
+dominance, and those are not the same thing: a diagnostic that correctly
+detects a dominant prior in a cell where the prior happens to be right
+is counted here as a false alarm. That mismatch was chosen deliberately,
+because the geometric alternative was algebraically identical to one of
+the diagnostics, but it means these numbers answer “do the warnings
+predict wrong answers” rather than “do the warnings detect prior
+dominance”.
+
+Only one form of prior misspecification is examined, a zero-centered
+prior against a nonzero truth, at three scales. A diffuse but
+miscentered prior is untested, though the argument in
+<a href="#sec-why" class="quarto-xref">Section 3.2</a> would apply to it
+too. Only automated thresholds are evaluated, and those thresholds come
+from the source literature for power-scaling and are our own choices for
+the others; a plot read by an experienced analyst is a different
+instrument. The harm threshold of 0.90 coverage is prespecified but its
+sensitivity to that choice is not explored.
+
+The other half of CMU-02, wiring these into released software, is
+untouched; neither `multinma` nor `cpaic` is run. The Stan validation of
+the Gaussian reduction named in the protocol was not run. The model is
+conjugate Gaussian with an identity link, a correctly specified linear
+mean and known variances, so nothing here transfers directly to a
+non-conjugate posterior where the diagnostics behave differently and
+MCMC error enters. Only automated thresholds are evaluated; a plot read
+by an experienced analyst is a different instrument and may do better.
+Thresholds are those the source literature suggests and were not tuned,
+so a better-calibrated rule may exist, though the structural argument in
+<a href="#sec-why" class="quarto-xref">Section 3.2</a> suggests
 re-tuning cannot fix the failure it describes.
 
 It bears on **CMP-14** only for the generic case of an interaction
@@ -349,6 +493,26 @@ doi:[10.1002/sim.8086](https://doi.org/10.1002/sim.8086)</span>
 Michael Betancourt. The prior can often only be understood in the
 context of the likelihood. Entropy. 2017;19(10):555.
 doi:[10.3390/e19100555](https://doi.org/10.3390/e19100555)</span>
+
+</div>
+
+<div id="ref-evans2006" class="csl-entry">
+
+<span class="csl-left-margin">4.
+</span><span class="csl-right-inline">Michael Evans, Hadas Moshonov.
+Checking for prior-data conflict. Bayesian Analysis. 2006;1(4):893–914.
+doi:[10.1214/06-BA129](https://doi.org/10.1214/06-BA129)</span>
+
+</div>
+
+<div id="ref-presanis2013" class="csl-entry">
+
+<span class="csl-left-margin">5.
+</span><span class="csl-right-inline">Anne M. Presanis, David Ohlssen,
+David J. Spiegelhalter, Daniela De Angelis. Conflict diagnostics in
+directed acyclic graphs, with applications in bayesian evidence
+synthesis. Statistical Science. 2013;28(3):376–97.
+doi:[10.1214/13-STS426](https://doi.org/10.1214/13-STS426)</span>
 
 </div>
 

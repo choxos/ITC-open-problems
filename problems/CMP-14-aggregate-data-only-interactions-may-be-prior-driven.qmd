@@ -16,6 +16,12 @@ maturity: "Promising"
 [Very high priority]{.chip .chip-priority-very-high}
 [Promising]{.chip .chip-maturity-promising}
 :::
+::: {.callout-important appearance="simple"}
+## A study has been run against this problem
+
+At the thresholds the literature suggests, they miss most of it. Pairing each warning with whether that replicate's own interval missed, a composite of four diagnostics has sensitivity 0.37 at a false-alarm rate of 0.16, falling to 0.13 outside two engineered geometries; the one sensitive rule fires on half the sound analyses too. Used as continuous scores the same statistics reach AUC 0.51 to 0.78, so this is a failure of thresholds rather than of the statistics. What no threshold repairs is that these diagnostics measure the prior's influence while the harm comes from the prior's location: with disconnected evidence and a tight prior four standard deviations from the truth, going from 100 to 400 per arm drops the warning rate from 0.98 to 0.01 while coverage stays near zero. [Read the study below](#our-study).
+:::
+
 ## Statement
 
 Interaction parameters informed only by aggregate data can be regularized into finite posterior intervals by the prior, so a proper credible interval is not evidence that the likelihood contributed anything. Implemented component PAIC already ships partial mitigation: plot_prior_posterior() compares each prior with its posterior, prior_sensitivity() quantifies how far target contrasts move when priors are tightened or loosened, and estimable_effects_at() separates no first-order information from IPD-supported and aggregate-only information. What is missing is a default numerical summary: prior-to-posterior contraction per interaction parameter and an effective likelihood rank, reported without the analyst having to ask.
@@ -37,6 +43,48 @@ A proper prior yields a proper posterior under ordinary integrability conditions
 ## Probable solution or research direction
 
 Promote the existing prior-versus-posterior comparison and prior-sensitivity refit from optional diagnostics to default reported output, and add numerical prior-to-posterior contraction for every interaction parameter plus an effective likelihood rank for the fitted model. Attach to each reported interaction the label of whether it is identified by IPD, by aggregate arms, or by neither, which the estimability screen already computes. Calibrate these summaries specifically to interaction parameters in a bridged component model, since the generic Bayesian workflow versions are already standard.
+
+## Our study
+
+::: {.study-result}
+**Do prior-sensitivity diagnostics catch the analyses that are actually wrong?**
+
+*This study was designed against [CMU-02](https://github.com/choxos/ITC-open-problems/tree/main/studies/CMU-02-prior-driven-posteriors) and bears on this entry in part. What it does not answer is stated below.*
+
+**The question put to it.** In a population-adjusted network a proper prior yields a proper posterior even where the likelihood identifies nothing, so a narrow interval can reflect the prior rather than the evidence. The diagnostics that would expose this exist. What are their operating characteristics: do they flag the analyses whose intervals actually miss the truth, and how often do they cry wolf?
+
+**What it found.** At the thresholds the literature suggests, they miss most of it. Pairing each warning with whether that replicate's own interval missed, a composite of four diagnostics has sensitivity 0.37 at a false-alarm rate of 0.16, falling to 0.13 outside two engineered geometries; the one sensitive rule fires on half the sound analyses too. Used as continuous scores the same statistics reach AUC 0.51 to 0.78, so this is a failure of thresholds rather than of the statistics. What no threshold repairs is that these diagnostics measure the prior's influence while the harm comes from the prior's location: with disconnected evidence and a tight prior four standard deviations from the truth, going from 100 to 400 per arm drops the warning rate from 0.98 to 0.01 while coverage stays near zero.
+
+**Results.**
+
+- Prespecified verdict: diagnostics fail at the thresholds the literature suggests. Composite sensitivity 0.366 (MCSE 0.002), false alarm 0.158; 0.127 and 0.025 outside the engineered positive controls.
+- Sensitivity and specificity trade off completely. Tight-and-loose prior refitting catches 0.83 of misses outside the controls and fires on 53% of covered replicates. Contraction, the prior-only benchmark and power-scaling keep false alarms low and catch almost nothing.
+- The composite adds almost nothing over its best component: 0.366 against contraction's 0.363, at a higher false-alarm rate. Requiring two of four rules to agree neither buys specificity nor recovers sensitivity.
+- More data makes the warning quieter while the answer stays wrong. Disconnected evidence, tight prior, true interaction four prior SDs away: coverage near zero at both sample sizes, warning rate 0.98 at 100 per arm and 0.01 at 400. Contraction is what every diagnostic reads as reassurance.
+- A first implementation measured power-scaling by posterior mean shift and found sensitivity 0.000 everywhere. That was our error: with a zero-centred prior, scaling the prior up and the likelihood down give identical posterior means, so the standard rule can never fire. Measured distributionally it works, and the verdict does not depend on the amendment.
+- The structural rank screen is the only rule with no false alarms at all, and it is blind to every failure where the contrast is estimable and the answer is still wrong.
+
+**Design.**
+
+Estimand
+:   Target-population marginal C versus B mean difference, and the conditional interaction coefficient
+
+Methods compared
+:   no-diagnostic baseline, structural rank screen, prior-to-posterior contraction, prior-only benchmark, power-scaling sensitivity, tight and loose refit, composite rule
+
+Data-generating mechanism
+:   A conjugate Gaussian population-adjusted network in which every piece of evidence reduces without loss to a normal observation, so the posterior and every power-scaled posterior are exact and no diagnostic is contaminated by MCMC noise. 120 scenarios crossing the evidence available about the weakly identified treatment, arm size, whether the truth agrees with the zero-centered prior, prior scale, and the target population. 2000 replicates each.
+
+Replicates
+:   2000 per scenario, 240,000 datasets and 480,000 contrast evaluations
+
+**What this does not answer.** The other half of CMU-02, wiring these diagnostics into released software, is untouched; neither multinma nor cpaic is run. The model is conjugate Gaussian with an identity link, a correctly specified linear mean and known variances, so nothing transfers directly to a non-conjugate posterior where MCMC error enters and the diagnostics behave differently. Only automated thresholds are evaluated; a plot read by an experienced analyst is a different instrument. Thresholds were taken from the source literature and not tuned. CMP-14 is touched only for the generic aggregate-only interaction, not for component models, and IDN-06 is not addressed at all because this design contains no within-versus-between discrepancy.
+
+**Peer review.** 2 rounds, two independent reviewers. The reports, the point-by-point responses and the editorial decision are published in full: [read the review](/studies/CMU-02-prior-driven-posteriors/out/CMU-02-peer-review.md).
+
+Read it: [PDF](/studies/CMU-02-prior-driven-posteriors/out/CMU-02.pdf) · [Markdown](/studies/CMU-02-prior-driven-posteriors/out/CMU-02.md) · [OpenDocument](/studies/CMU-02-prior-driven-posteriors/out/CMU-02.odt) · Code and data: [studies/CMU-02-prior-driven-posteriors](https://github.com/choxos/ITC-open-problems/tree/main/studies/CMU-02-prior-driven-posteriors) · Protocol: [registered before the run](/studies/CMU-02-prior-driven-posteriors/out/CMU-02-protocol.md) · Review: [full history](/studies/CMU-02-prior-driven-posteriors/out/CMU-02-peer-review.md)
+
+:::
 
 ## Verification
 

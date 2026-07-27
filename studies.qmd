@@ -27,6 +27,18 @@ Also bears on [IDN-06](problems/IDN-06-ml-nmr-interactions-can-rest-solely-on-ag
 
 Read it: [PDF](/studies/CMP-13-within-between-interaction/out/CMP-13.pdf) · [Markdown](/studies/CMP-13-within-between-interaction/out/CMP-13.md) · [OpenDocument](/studies/CMP-13-within-between-interaction/out/CMP-13.odt)
 
+### [CMU-02](problems/CMU-02-priors-not-data-can-drive-posteriors-in-weakly-identified-mo.qmd) — Do prior-sensitivity diagnostics catch the analyses that are actually wrong?
+
+Also bears on [CMP-14](problems/CMP-14-aggregate-data-only-interactions-may-be-prior-driven.qmd).
+
+**Question.** In a population-adjusted network a proper prior yields a proper posterior even where the likelihood identifies nothing, so a narrow interval can reflect the prior rather than the evidence. The diagnostics that would expose this exist. What are their operating characteristics: do they flag the analyses whose intervals actually miss the truth, and how often do they cry wolf?
+
+**Answer.** At the thresholds the literature suggests, they miss most of it. Pairing each warning with whether that replicate's own interval missed, a composite of four diagnostics has sensitivity 0.37 at a false-alarm rate of 0.16, falling to 0.13 outside two engineered geometries; the one sensitive rule fires on half the sound analyses too. Used as continuous scores the same statistics reach AUC 0.51 to 0.78, so this is a failure of thresholds rather than of the statistics. What no threshold repairs is that these diagnostics measure the prior's influence while the harm comes from the prior's location: with disconnected evidence and a tight prior four standard deviations from the truth, going from 100 to 400 per arm drops the warning rate from 0.98 to 0.01 while coverage stays near zero.
+
+**What it does not answer.** The other half of CMU-02, wiring these diagnostics into released software, is untouched; neither multinma nor cpaic is run. The model is conjugate Gaussian with an identity link, a correctly specified linear mean and known variances, so nothing transfers directly to a non-conjugate posterior where MCMC error enters and the diagnostics behave differently. Only automated thresholds are evaluated; a plot read by an experienced analyst is a different instrument. Thresholds were taken from the source literature and not tuned. CMP-14 is touched only for the generic aggregate-only interaction, not for component models, and IDN-06 is not addressed at all because this design contains no within-versus-between discrepancy.
+
+Read it: [PDF](/studies/CMU-02-prior-driven-posteriors/out/CMU-02.pdf) · [Markdown](/studies/CMU-02-prior-driven-posteriors/out/CMU-02.md) · [OpenDocument](/studies/CMU-02-prior-driven-posteriors/out/CMU-02.odt)
+
 ### [MIS-03](problems/MIS-03-nothing-propagates-sampling-error-in-reported-target-moments.qmd) — What conditioning on sampled target moments costs
 
 Also bears on [EST-07](problems/EST-07-reported-target-moments-are-treated-as-known-constants.qmd).
