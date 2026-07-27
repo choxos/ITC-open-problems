@@ -52,6 +52,13 @@ performance measures with Monte Carlo standard errors for bias, empirical SE,
 model SE, relative error in model SE, MSE, coverage, bias-eliminated coverage,
 rejection rate and convergence. Do not design those; use them.
 
+Study 1 of this program established the working budget empirically: a
+closed-form estimator with an analytic sandwich ran 1,260,000 replicates over
+252 scenarios in about 25 minutes. So a design whose per-replicate cost is a
+convex optimization plus matrix algebra can be large. A design that fits a
+Bayesian model by MCMC per replicate cannot: at 2 seconds per fit, 20,000 fits
+is 11 hours on one core.
+
 Budget: about a week of one person's time, and the run itself should finish
 overnight at worst. A Bayesian method fitted by MCMC across a large factorial
 design is the usual way this budget is blown. If ML-NMR is in the comparison,
