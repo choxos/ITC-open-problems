@@ -1,0 +1,66 @@
+---
+title: "Unequal dose coverage moves a dose-response bridge one way"
+description: "In a dose-response model-based network meta-analysis used to bridge a disconnected network, each agent's curve is identified only by the distinct doses published for that agent, and dose coverage is systematically unequal across agents because a sponsor holds unpublished phase II dose-ranging evidence for its own product and not for competitors. The consequence is directional rather than symmetric noise: where an agent's dose evidence is too sparse the model falls back to a simpler functional form, and the fitted cross-gap contrast then moves in a direction set by which agent was under-covered. The mechanism has been demonstrated rather than hypothesized. In a manipulated migraine network of 70 studies and seven triptan agents, dose-response estimates agreed with the augmented connected analysis in 15 of 18 disconnected datasets, and all three disagreements involved eletriptan, whose relationship needed an Emax curve the sparse disconnected data could not support, so an exponential curve was fitted and pushed its cross-gap effects downward (Pedder et al. 2021, doi:10.1177/0272989X20983315). No reported diagnostic states how many distinct doses inform each agent's curve, no sensitivity analysis grants the under-covered agent the flexibility the well-covered one receives, and no simulation crosses per-agent dose coverage with which agent belongs to the submitting sponsor. Consistency checking does not fill the gap: node splitting in a dose-response network requires loops a disconnected network does not have, and the number of comparisons where it is possible at all depends on the complexity of the selected dose-response function."
+pid: "DIS-18"
+topic: "Disconnected networks & bridges"
+categories: ["Disconnected networks & bridges", "Medium-high priority", "Confirmed open"]
+priority: "Medium-high"
+prank: 3
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Promising"
+tractability: 4
+---
+::: {.problem-meta}
+[DIS-18]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[Medium-high priority]{.chip .chip-priority-medium-high}
+[Promising]{.chip .chip-maturity-promising}
+[Tractability 4/5]{.chip}
+:::
+## Statement
+
+In a dose-response model-based network meta-analysis used to bridge a disconnected network, each agent's curve is identified only by the distinct doses published for that agent, and dose coverage is systematically unequal across agents because a sponsor holds unpublished phase II dose-ranging evidence for its own product and not for competitors. The consequence is directional rather than symmetric noise: where an agent's dose evidence is too sparse the model falls back to a simpler functional form, and the fitted cross-gap contrast then moves in a direction set by which agent was under-covered. The mechanism has been demonstrated rather than hypothesized. In a manipulated migraine network of 70 studies and seven triptan agents, dose-response estimates agreed with the augmented connected analysis in 15 of 18 disconnected datasets, and all three disagreements involved eletriptan, whose relationship needed an Emax curve the sparse disconnected data could not support, so an exponential curve was fitted and pushed its cross-gap effects downward (Pedder et al. 2021, doi:10.1177/0272989X20983315). No reported diagnostic states how many distinct doses inform each agent's curve, no sensitivity analysis grants the under-covered agent the flexibility the well-covered one receives, and no simulation crosses per-agent dose coverage with which agent belongs to the submitting sponsor. Consistency checking does not fill the gap: node splitting in a dose-response network requires loops a disconnected network does not have, and the number of comparisons where it is possible at all depends on the complexity of the selected dose-response function.
+
+## Why it is open
+
+The asymmetry is a property of the evidence base rather than of the model, so no estimator removes it; correcting it needs either the missing dose-ranging studies or an explicit model for what has not been published. Model-fit statistics cannot choose a functional form for an agent with one or two doses, so the fallback to a simpler curve is forced rather than selected, and the analyst has no way to record that one agent's curve is better identified than another's. The diagnostics that exist were built for connected dose-response networks, where redundancy makes consistency checkable, and they disappear precisely in the disconnected case where the curve carries the whole contrast. Nobody has run the simulation because it requires a factor nobody currently varies, per-agent dose coverage crossed with which agent the analysis favors, and because the obvious remedy, publication of phase II dose-ranging results, is outside the analyst's control.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Pedder et al. 2021, Medical Decision Making](https://doi.org/10.1177/0272989X20983315) | builds the dose-response bridge, validates it by deleting connecting evidence from a triptans network, and localizes its failure to the one agent whose dose evidence could not support the curve its data required, while naming the sponsor-linked availability asymmetry and proposing no remedy beyond urging publication |
+| [Mawdsley et al. 2016, CPT: Pharmacometrics and Systems Pharmacology](https://doi.org/10.1002/psp4.12091) | establishes the model-based network meta-analysis framework in which dose is modeled as a quantitative shared structure, the machinery whose identification depends on which doses were published |
+| [Pedder et al. 2022, Statistics in Medicine](https://doi.org/10.1002/sim.9270) | supplies global and node-splitting inconsistency tests for dose-response model-based network meta-analysis, shows that a misspecified dose-response function can itself create apparent inconsistency, and states that the scope for node splitting depends on the complexity of the chosen function and that dose-finding designs offer limited scope to assess consistency |
+| [MBNMAdose (CRAN 0.5.1)](https://cran.r-project.org/package=MBNMAdose) | implements the dose-response bridge with unrelated-mean-effects and node-splitting checks; nothing in its output reports how many distinct doses inform each agent's curve or which agents were forced into a simpler form |
+| [Chaimani and Salanti 2012, Research Synthesis Methods](https://doi.org/10.1002/jrsm.57) | gives the comparison-adjusted funnel plot, the routine screen for selective availability in a network, which is indexed by comparison rather than by agent or dose and so cannot detect asymmetric dose coverage |
+| [Mavridis et al. 2014, Statistics in Medicine](https://doi.org/10.1002/sim.6321) | gives a selection model for publication bias across a full network, showing that machinery for modeling unavailable studies exists and has simply not been directed at which doses of which agent were published |
+
+:::
+
+## Probable solution or research direction
+
+Report the coverage table first: for every agent, the number of distinct doses, their spread, the studies contributing them and the functional forms those data can support, printed beside the fitted curves so that a reader sees which curve is thin. Add a symmetric-flexibility sensitivity analysis, refitting with the well-covered agent forced into the functional form imposed on the under-covered one, and again with Emax or ED50 shared within a clinically justified class, and report the cross-gap contrast under each. Simulate the asymmetry directly by crossing the number and spacing of doses per agent with the true curve shape and with which agent is the intervention under appraisal, scoring bias and coverage on the bridged contrast rather than on curve parameters. Where the submitting sponsor holds unpublished dose-ranging data, treat its release as a condition of the analysis or model the missing doses explicitly, since the direction of the induced bias is predictable from who holds what.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. One reader proposed it and the reviewer accepted differential dose coverage as an identification and bias problem distinct from whether a dose-response curve transports, while noting that the sponsor-linked direction of bias needs broader empirical and simulation support. The basis is a single manipulated real network, in which every disagreement with the connected analysis involved the one under-covered agent.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [DIA-10 — Data access is simulated as benign rather than informative](DIA-10-data-access-is-simulated-as-benign-rather-than-informative.qmd)
+- [DIS-04 — Dose-response bridges assume a curve that may not transport](DIS-04-dose-response-bridges-assume-a-curve-that-may-not-transport.qmd)
+- [EVB-02 — Evidence-set assembly can favor the sponsor before modeling begins](EVB-02-evidence-set-assembly-can-favor-the-sponsor-before-modeling-.qmd)
+- [SFW-16 — MBNMAdose and crossnma bridges are unidentified across a disconnection](SFW-16-mbnmadose-and-crossnma-bridges-are-unidentified-across-a-dis.qmd)
+:::
+
+## Source
+
+Derived from reading:nma-21 of the reviewed corpus.

@@ -1,0 +1,70 @@
+---
+title: "No practical-identification diagnostic for component effects"
+description: "The only estimability diagnostic in use for component network meta-analysis is a binary linear-algebra test: whether a requested contrast vector lies in the row space of the component design, checked by comparing the rank of the design with the rank of the design augmented by that vector, as implemented in netmeta and in the 2026 component-hierarchy workflow. A component design can pass that test and still be so nearly rank-deficient that the component effects are not practically identified, and no contrast-specific measure of near-collinearity is defined, reported or given a threshold in this literature: not the condition number, not the smallest singular value of the design or of the information matrix, not a variance inflation attributable to each component column, not prior-to-posterior contraction for the requested contrast. Exact rank deficiency is the rare case; the common case in applied component networks is a component almost always co-administered with another, which leaves the design formally full rank. Because the screen is binary it returns estimable and the analysis proceeds, so the failure surfaces downstream as non-convergence or an implausible interval and is then handled by deleting the offending columns and refitting: a 2026 BMJ component review excluded both delivered-by components, healthcare professional and community member, from a subgroup model because it failed to converge owing to high correlation between them, a condition an exact-rank screen never flags, and a 2026 obesity review fitted a sparse disconnected technical-level component network with the Moore-Penrose inverse, which returns a finite answer regardless. Standard errors and the fitted covariance matrix do carry indirect warning after the fact, so the failure is not invisible; what is missing is a prospective contrast-specific weak-identification diagnostic, a convention for reporting it next to each component effect, and a rule for what to do when it is bad other than silently removing components."
+pid: "CMP-31"
+topic: "Component methods (CNMA and component PAIC)"
+categories: ["Component methods (CNMA and component PAIC)", "High priority", "Confirmed open"]
+priority: "High"
+prank: 2
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Promising"
+tractability: 4
+---
+::: {.problem-meta}
+[CMP-31]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[High priority]{.chip .chip-priority-high}
+[Promising]{.chip .chip-maturity-promising}
+[Tractability 4/5]{.chip}
+:::
+## Statement
+
+The only estimability diagnostic in use for component network meta-analysis is a binary linear-algebra test: whether a requested contrast vector lies in the row space of the component design, checked by comparing the rank of the design with the rank of the design augmented by that vector, as implemented in netmeta and in the 2026 component-hierarchy workflow. A component design can pass that test and still be so nearly rank-deficient that the component effects are not practically identified, and no contrast-specific measure of near-collinearity is defined, reported or given a threshold in this literature: not the condition number, not the smallest singular value of the design or of the information matrix, not a variance inflation attributable to each component column, not prior-to-posterior contraction for the requested contrast. Exact rank deficiency is the rare case; the common case in applied component networks is a component almost always co-administered with another, which leaves the design formally full rank. Because the screen is binary it returns estimable and the analysis proceeds, so the failure surfaces downstream as non-convergence or an implausible interval and is then handled by deleting the offending columns and refitting: a 2026 BMJ component review excluded both delivered-by components, healthcare professional and community member, from a subgroup model because it failed to converge owing to high correlation between them, a condition an exact-rank screen never flags, and a 2026 obesity review fitted a sparse disconnected technical-level component network with the Moore-Penrose inverse, which returns a finite answer regardless. Standard errors and the fitted covariance matrix do carry indirect warning after the fact, so the failure is not invisible; what is missing is a prospective contrast-specific weak-identification diagnostic, a convention for reporting it next to each component effect, and a rule for what to do when it is bad other than silently removing components.
+
+## Why it is open
+
+Near-collinearity is a continuum with no natural cut, and the thresholds that exist elsewhere are rules of thumb calibrated for prediction models with independent observations, not for a weighted network design carrying between-study heterogeneity and multi-arm correlation, so they cannot be transplanted without new calibration. The quantity that matters is contrast-specific rather than model-wide: the same design can identify one component contrast well and another badly, so a single scalar condition number does not answer the question a report asks. Nothing forces the issue at fit time, because the Bayesian route always returns a finite interval supplied in part by the prior and the frequentist pseudoinverse always returns a number. The remedy is unspecified as well: dropping a column changes the estimand of every retained component, so a diagnostic issued without an accompanying rule would formalize an existing bad practice rather than replace it.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Wigle et al. 2026, arXiv:2605.15142](https://arxiv.org/abs/2605.15142) | sets out the row-space estimability step for treatment and component hierarchies, implemented by comparing the rank of the design with the rank of the design augmented by the contrast; the check is exact and binary, and no near-singularity measure accompanies it |
+| [Rucker, Petropoulou and Schwarzer 2020, Biometrical Journal](https://doi.org/10.1002/bimj.201800167) | defines the component design as the product of the comparison design matrix and the treatment-by-component matrix and fits it by weighted least squares with a Moore-Penrose inverse, which returns finite estimates whether or not the design is close to singular |
+| [Petropoulou et al. 2023, BMC Medical Research Methodology](https://doi.org/10.1186/s12874-023-01959-9) | supplies the algorithm that screens out inestimable interactions before fitting, and the simulated connected and disconnected component networks a weak-identification diagnostic could be calibrated on; the screen itself is exact-rank |
+| [Davies et al. 2026, BMJ](https://doi.org/10.1136/bmj-2025-087578) | component network meta-analysis of vaccine uptake interventions whose 2020-onwards subgroup model failed to converge for both delivered-by components because of high correlation between them, so both were excluded from that model; the failure mode an exact-rank screen does not flag |
+| [Xie et al. 2026, Obesity Reviews](https://doi.org/10.1111/obr.70118) | fits a technical-level component network described as sparse and disconnected using the Moore-Penrose pseudoinverse, illustrating that the software returns component estimates without any practical-identification warning |
+| [Balduzzi et al. 2023, Journal of Statistical Software](https://doi.org/10.18637/jss.v106.i02) | documents the netmeta component functions that applied reviews use; the output carries standard errors but no contrast-level identification measure or threshold |
+
+:::
+
+## Probable solution or research direction
+
+Define a contrast-specific weak-identification measure and calibrate it. For each requested contrast, report the variance under the fitted design relative to its variance under a reference design in which the component varies independently, giving a component variance inflation factor on an interpretable scale; report the smallest singular value of the design restricted to the subspace the contrast spans; and in the Bayesian route report prior-to-posterior contraction for the same contrast. Calibrate thresholds by simulation over the published component network scenario designs, scoring the diagnostic as a classifier of realized error, meaning bias and interval coverage for that contrast, rather than by whether it recovers a known rank. Ship it alongside the row-space verdict in the frequentist component workflow and in the component-hierarchy tooling, and require it to be reported for every component effect a review interprets. Replace the delete-and-refit habit with penalization toward a shared component effect or a declared merge, both of which change the estimand explicitly rather than silently.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. One reader proposed it from a single methods preprint, supported by two 2026 applied reviews that display the failure and the ad hoc response, and the reviewer accepted the gap while narrowing the claim: standard errors and covariance matrices give indirect warning after fitting, so what is absent is a prospective contrast-level diagnostic with a reporting and remediation convention rather than any warning at all.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [CMP-04 — Additivity model selection can be unstable](CMP-04-additivity-model-selection-can-be-unstable.qmd)
+- [CMP-08 — Identification beyond row-space screens in nonlinear component ML-NMR](CMP-08-identification-beyond-row-space-screens-in-nonlinear-compone.qmd)
+- [CMP-28 — Component NMA has no dose-response dimension](CMP-28-component-nma-has-no-dose-response-dimension.qmd)
+- [CMP-30 — No diagnostic for anchor choice in additive component models](CMP-30-no-diagnostic-for-anchor-choice-in-additive-component-models.qmd)
+- [CMP-32 — No sample-size or allocation method for component NMA](CMP-32-no-sample-size-or-allocation-method-for-component-nma.qmd)
+- [CMP-33 — No screen separates randomized from between-study component identification](CMP-33-no-screen-separates-randomized-from-between-study-component-.qmd)
+- [CMP-34 — No sensitivity or reporting standard for discretionary component coding](CMP-34-no-sensitivity-or-reporting-standard-for-discretionary-compo.qmd)
+- [DIA-11 — No scenario library or performance measures for estimability failure](DIA-11-no-scenario-library-or-performance-measures-for-estimability.qmd)
+:::
+
+## Source
+
+Derived from reading:cnma-01 of the reviewed corpus.

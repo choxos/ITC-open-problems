@@ -1,0 +1,71 @@
+---
+title: "Ranking metrics reward imprecision and no correction exists"
+description: "Rank probabilities, the probability of being ranked best and SUCRA are computed from the joint posterior of relative effects, so a treatment estimated imprecisely carries more posterior mass in both tails of its rank distribution and is systematically over-ranked at the extremes and under-ranked in the middle. Simulation shows the distortion tracks how information is distributed over the graph rather than efficacy: with degree irregularity defined as the normalized variance of weighted node degree, the probability of being ranked best is overestimated for the least-studied treatment and underestimated for the most-studied one, total rank-probability bias grows with irregularity, and bias in the relative effects themselves shows no such relationship. SUCRA is only accidentally protected; its bias is roughly ten times smaller and is unaffected by irregularity when all treatments are equally effective, because the rank-2 and rank-3 biases cancel the rank-1 and rank-4 biases, and that cancellation fails once true effects differ. What does not exist is any estimator, correction or reporting convention separating a top rank earned by efficacy from a top rank earned by a thin evidence base: no precision-standardized ranking metric, no bias correction for the rank-probability vector, and no diagnostic reporting how much of a treatment's rank is attributable to its own posterior width. Work since then quantifies or reframes hierarchy uncertainty rather than removing the dependence, and the one structural remedy on offer is to plan future trials that reduce irregularity, which cannot repair a network that already exists. The consequence is visible in appraisal practice, where some reviews decline to report any hierarchy at all, citing sensitivity of ranking methods to network composition and the absence of an established standard for which method to use."
+pid: "DEC-29"
+topic: "Decision analysis, regulation & reporting"
+categories: ["Decision analysis, regulation & reporting", "High priority", "Partially addressed"]
+priority: "High"
+prank: 2
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
+maturity: "Promising"
+tractability: 4
+---
+::: {.problem-meta}
+[DEC-29]{.problem-id}
+[Partially addressed]{.verdict .verdict-partially-addressed}
+[High priority]{.chip .chip-priority-high}
+[Promising]{.chip .chip-maturity-promising}
+[Tractability 4/5]{.chip}
+:::
+## Statement
+
+Rank probabilities, the probability of being ranked best and SUCRA are computed from the joint posterior of relative effects, so a treatment estimated imprecisely carries more posterior mass in both tails of its rank distribution and is systematically over-ranked at the extremes and under-ranked in the middle. Simulation shows the distortion tracks how information is distributed over the graph rather than efficacy: with degree irregularity defined as the normalized variance of weighted node degree, the probability of being ranked best is overestimated for the least-studied treatment and underestimated for the most-studied one, total rank-probability bias grows with irregularity, and bias in the relative effects themselves shows no such relationship. SUCRA is only accidentally protected; its bias is roughly ten times smaller and is unaffected by irregularity when all treatments are equally effective, because the rank-2 and rank-3 biases cancel the rank-1 and rank-4 biases, and that cancellation fails once true effects differ. What does not exist is any estimator, correction or reporting convention separating a top rank earned by efficacy from a top rank earned by a thin evidence base: no precision-standardized ranking metric, no bias correction for the rank-probability vector, and no diagnostic reporting how much of a treatment's rank is attributable to its own posterior width. Work since then quantifies or reframes hierarchy uncertainty rather than removing the dependence, and the one structural remedy on offer is to plan future trials that reduce irregularity, which cannot repair a network that already exists. The consequence is visible in appraisal practice, where some reviews decline to report any hierarchy at all, citing sensitivity of ranking methods to network composition and the absence of an established standard for which method to use.
+
+## Why it is open
+
+The bias belongs to the estimator rather than to the fit: a rank probability is a functional of an ordering, and unequal marginal variances change the distribution of orderings even when every posterior mean is identical, so no improvement in estimation removes it. Any correction must decide what to hold fixed, and standardizing each treatment's posterior to a common precision changes the question the hierarchy answers; since different ranking metrics already answer different hierarchy questions, a corrected rank probability needs an agreed target before it can be defined at all. The distortion is a property of the whole network rather than of one contrast, so it cannot be absorbed into a per-comparison adjustment, and the feature that indexes it, the irregularity of the graph, is a property of the evidence base that no analysis choice can alter. Guidance has responded by asking authors to report the full set of rank probabilities rather than the probability of being best alone, which does not remove a bias that afflicts all of them, and the leading credibility framework explicitly defers appraisal of a treatment hierarchy to future work.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Davies and Galla 2021, Research Synthesis Methods](https://doi.org/10.1002/jrsm.1454) | Defines normalized degree irregularity and shows by simulation across five four-treatment geometries that disparity in the number of trials per treatment produces a systematic bias in estimated rank probabilities that grows with irregularity, while bias in the relative effects does not; offers no correction, only guidance on choosing which trial to add next. |
+| [Salanti, Ades and Ioannidis 2011, Journal of Clinical Epidemiology](https://doi.org/10.1016/j.jclinepi.2010.03.016) | Introduces SUCRA and the rank-probability presentation that is now the standard ranking output of Bayesian network meta-analysis. |
+| [Rucker and Schwarzer 2015, BMC Medical Research Methodology](https://doi.org/10.1186/s12874-015-0060-8) | P-score, the frequentist analogue of SUCRA computed without resampling; inherits the same dependence on how precisely each treatment's effect is estimated. |
+| [Trinquart et al. 2016, Annals of Internal Medicine](https://doi.org/10.7326/M15-2521) | Reanalysis of published network meta-analyses showing that treatment rankings carry substantial uncertainty which the conventional presentation hides. |
+| [Salanti et al. 2022, American Journal of Epidemiology](https://doi.org/10.1093/aje/kwab278) | Introduces the treatment hierarchy question and shows that ranking metrics encompass estimation uncertainty in different ways and so produce different hierarchies; makes the target explicit but corrects no metric. |
+| [Nikolakopoulou et al. 2021, Research Synthesis Methods](https://doi.org/10.1002/jrsm.1463) | PreTA, the probability that a treatment is preferable to a fictional treatment of average performance, obtained by deviation-from-means parameterization; agreement with existing metrics across 232 networks is found to depend on the precision with which relative effects are estimated. |
+| [Wigle et al. 2025, Statistics in Medicine](https://doi.org/10.1002/sim.70176) | Precision of Treatment Hierarchy, a single metric linking the variance of SUCRA values, the variance of mean ranks and the average variance of individual rank distributions, which quantifies certainty in a hierarchy as a whole and can be restricted to subsets such as the top three; it grades the hierarchy rather than correcting per-treatment rank bias. |
+| [Evrenoglou et al. 2026, Research Synthesis Methods](https://doi.org/10.1017/rsm.2026.10071) | Converts network estimates into pairwise preferences using a smallest worthwhile difference and fits a probabilistic ranking model assigning each treatment a latent ability, implemented in the R package mtrank, so that small differences stop driving the hierarchy; agreement with existing metrics across 153 networks again depends on the precision of the estimates. |
+| [Nikolakopoulou et al. 2020, PLoS Medicine](https://doi.org/10.1371/journal.pmed.1003082) | CINeMA rates confidence in each relative effect and states that assessment of confidence in a treatment hierarchy is left to future work. |
+| [Janke et al. 2020, BMJ](https://doi.org/10.1136/bmj.m2288) | Network meta-analysis of biological medicines in rheumatoid arthritis that reports no treatment ranking, citing the sensitivity of ranking methods to network composition and the absence of an established standard. |
+
+:::
+
+## Probable solution or research direction
+
+State the target first, because the correction depends on it: a rank-probability vector that would be obtained if every treatment were estimated with equal precision is one candidate, and the probability that a treatment's effect exceeds a clinically relevant threshold is another that is already precision-honest. Then derive the correction analytically, since under a multivariate normal posterior the mapping from unequal marginal variances to the rank distribution is explicit, so a first-order bias expression in those variances can be written down and validated against the published simulation design. Report a per-treatment decomposition beside any hierarchy, separating the part of a SUCRA value attributable to the estimated effect from the part attributable to posterior width, and pair it with the existing hierarchy-level certainty metric so a reader sees both the global and the per-treatment components. Make degree irregularity a routinely reported feature of a network, since it is cheap to compute and predicts both the precision of the estimates and the size of the rank bias.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Partially addressed. One reader proposed this from a single simulation study, and the reviewer accepted that a precision-driven distortion of estimated rank probabilities is different from uncertainty in the relative effects. It is not recorded as confirmed-open because a line of work now quantifies hierarchy certainty and reframes the hierarchy question; what remains absent is any correction indexed to how information is distributed across the network.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [ADJ-12 — Routine NMA output omits graph diagnostics and value of information](ADJ-12-routine-nma-output-omits-graph-diagnostics-and-value-of-info.qmd)
+- [DIA-07 — Scenario grids omit network topology and information placement](DIA-07-scenario-grids-omit-network-topology-and-information-placeme.qmd)
+- [DEC-01 — Method evaluations score estimator error, not decision error](DEC-01-method-evaluations-score-estimator-error-not-decision-error.qmd)
+- [DEC-32 — Threshold analysis can perturb an estimate's location but not its precision](DEC-32-threshold-analysis-can-perturb-an-estimate-s-location-but-no.qmd)
+- [EVB-02 — Evidence-set assembly can favor the sponsor before modeling begins](EVB-02-evidence-set-assembly-can-favor-the-sponsor-before-modeling-.qmd)
+:::
+
+## Source
+
+Derived from reading:nma-24 of the reviewed corpus.

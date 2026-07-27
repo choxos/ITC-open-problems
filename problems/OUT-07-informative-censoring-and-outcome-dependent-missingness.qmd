@@ -3,16 +3,16 @@ title: "Informative censoring and outcome-dependent missingness"
 description: "Continuous outcomes go missing and time-to-event outcomes are censored for reasons related to the outcome itself, and the source and comparator trials can have different mechanisms, so the biases do not cancel in an indirect comparison. Dependence between the dropout process and the outcome after dropout is not identified from observed event and censoring data alone without auxiliary information or restrictions, though observable censoring patterns and some model implications can still be examined, so the untestability is specific rather than total. Baseline covariate adjustment cannot correct selection driven by unobserved post-baseline outcomes, but correction is not ruled out in principle: baseline covariates may suffice under conditional independent censoring, and time-varying inverse probability of censoring weighting, congenial imputation or joint models can identify effects under further assumptions. Externally controlled comparisons are where the asymmetry bites hardest, and censoring there is documented to be often informative because it reflects discontinuation for toxicity, patient preference or early switch to alternative therapies."
 pid: "OUT-07"
 topic: "Outcome-specific problems"
-categories: ["Outcome-specific problems", "Very high priority", "Confirmed open"]
+categories: ["Outcome-specific problems", "Very high priority", "Partially addressed"]
 priority: "Very high"
 prank: 1
-verdict: "Confirmed open"
-verdictslug: "confirmed-open"
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
 maturity: "Promising"
 ---
 ::: {.problem-meta}
 [OUT-07]{.problem-id}
-[Confirmed open]{.verdict .verdict-confirmed-open}
+[Partially addressed]{.verdict .verdict-partially-addressed}
 [Very high priority]{.chip .chip-priority-very-high}
 [Promising]{.chip .chip-maturity-promising}
 :::
@@ -41,13 +41,18 @@ Build multiple imputation and inverse probability of censoring weighting that ar
 ## Verification
 
 ::: {.verification-trail}
-**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+**Verdict.** Partially addressed. Auditors agreed the problem is open and no counterevidence surfaced. Reopened by the full-text reading: 3 findings from 3 papers survived both the reader and an independent second reviewer, so the verdict moves from confirmed-open to partially-addressed.
 
 **The source said.** "Continuous outcomes go missing and time-to-event outcomes get censored for reasons related to the outcome itself, such as lack of efficacy or toxicity, yet population-adjusted analyses assume ignorable missingness and non-informative censoring."
 
 **What was wrong with it.** The claim that non-informative censoring is simply untestable was narrowed by the code auditor to dependence between censoring and the unobserved post-dropout outcome, and the claim that population adjustment cannot correct such selection was narrowed to baseline weighting alone, since time-varying inverse probability of censoring weighting, congenial imputation and joint models can identify effects under further assumptions. The literature auditor supplied a real source for the asymmetry in the indirect-comparison setting, an ESMO Open 2024 article on informative censoring in externally controlled trials, and voted the entry supported rather than caveated; the weaker caveated reading is used here and the disagreement stays in the audit record.
 
 **Dissent.** literature dissented (supported): The core claim is structurally untestable and therefore cannot be closed by any paper: non-informative censoring and ignorable missingness are assumptions about the joint outcome-dropout distribution, so per the audit calibration this stays open regardless of how much sensitivity-analysis literature exists. I did retrieve a real source that asserts the problem specifically in the indirect-comparison setting rather than in trials generally: 'Informative censoring in externally controlled clinical trials: a potential source of bias' (ESMO Open 2024), which notes censoring is often informative because it reflects discontinuation due to toxicity, preference, or early switch to alternative therapies, and that this can bias progression-free survival comparisons. This supports the asymmetry claim, since external-control and unanchored ITC designs are exactly where the two sides have different censoring processes. I found no method that makes MNAR or informative-censoring sensitivity analysis compatible with a transport model, so the proposed direction is genuinely unbuilt. Generic IPCW and calibrated-IPCW sensitivity analyses exist but adjust within a study, not across the transport step.
+
+**Revised by the full-text reading.** Applied 2026-07-26 full-text reading of the consolidated library (687 papers).
+
+Verdict changed
+:   **confirmed-open -> partially-addressed** 3 surviving findings from: Allowing for informative missingness in aggregate data meta-; Allowing for uncertainty due to missing continuous outcome d; Continuous(ly) missing outcome data in network meta-analysis. New citations: 10.1002/sim.6365, 10.1177/0962280220983544
 
 Literature and prior-art check
 :   **open / supported.** The core claim is structurally untestable and therefore cannot be closed by any paper: non-informative censoring and ignorable missingness are assumptions about the joint outcome-dropout distribution, so per the audit calibration this stays open regardless of how much sensitivity-analysis literature exists. I did retrieve a real source that asserts the problem specifically in the indirect-comparison setting rather than in trials generally: 'Informative censoring in externally controlled clinical trials: a potential source of bias' (ESMO Open 2024), which notes censoring is often informative because it reflects discontinuation due to toxicity, preference, or early switch to alternative therapies, and that this can bias progression-free survival comparisons. This supports the asymmetry claim, since external-control and unanchored ITC designs are exactly where the two sides have different censoring processes. I found no method that makes MNAR or informative-censoring sensitivity analysis compatible with a transport model, so the proposed direction is genuinely unbuilt. Generic IPCW and calibrated-IPCW sensitivity analyses exist but adjust within a study, not across the transport step.
@@ -61,9 +66,34 @@ Decision path
 
 :::
 
+## How the evidence falls in time
+
+11 papers in the reviewed corpus bear on this problem, published 2014 to 2021. Progress and a fresh assertion of openness land in the same year.
+
+It is also being **closed in pieces**: partial results come from more than one paper in more than one year, each covering a different part.
+
+::: {.table-scroll}
+
+| Year | Says | Paper |
+|---|---|---|
+| 2014 | partly addresses it | Allowing for uncertainty due to missing continuous outcome data in pairwise and network meta-analysis |
+| 2016 | confirms it is open | Identifying back pain subgroups: developing and applying approaches using individual patient data collected within clinical trials |
+| 2016 | confirms it is open | Methods for network meta-analysis of continuous outcomes using individual patient data: a case study in acupuncture for chronic pain |
+| 2018 | partly addresses it | Allowing for informative missingness in aggregate data meta-analysis with continuous or binary outcomes: Extensions to metamiss |
+| 2018 | confirms it is open | A systematic survey shows that reporting and handling of missing outcome data in networks of interventions is poor |
+| 2018 | confirms it is open | An innovative and comprehensive technique to evaluate different measures of medication adherence: The network meta-analysis |
+| 2019 | confirms it is open | A comparative review of network meta-analysis models in longitudinal randomized controlled trial |
+| 2019 | confirms it is open | Participants' outcomes gone missing within a network of interventions: Bayesian modeling strategies |
+| 2020 | confirms it is open | Comparison of exclusion, imputation and modelling of missing binary outcome data in frequentist network meta-analysis |
+| 2021 | partly addresses it | Continuous(ly) missing outcome data in network meta-analysis: A one-stage pattern-mixture model approach |
+| 2021 | confirms it is open | Pattern-mixture model in network meta-analysis of binary missing outcome data: one-stage or two-stage approach? |
+
+:::
+
 ## Related problems
 
 ::: {.related-links}
+- [MIS-05 — Missing-outcome methods do not cover NMA inconsistency and rankings](MIS-05-missing-outcome-methods-do-not-cover-nma-inconsistency-and-r.qmd)
 - [QBA-05 — Transport bias functions are not adapted to aggregate-data PAIC](QBA-05-transport-bias-functions-are-not-adapted-to-aggregate-data-p.qmd)
 :::
 

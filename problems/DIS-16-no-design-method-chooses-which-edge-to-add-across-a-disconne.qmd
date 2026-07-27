@@ -33,7 +33,7 @@ Value-of-information machinery scores a candidate design against an assumed mode
 | Work | What it contributes |
 |---|---|
 | [Salanti, Nikolakopoulou, Sutton et al. 2018](https://doi.org/10.1186/s13063-018-2740-2) | four-step framework identifying the optimal design for a new trial that updates an existing network while minimizing required sample size, without requiring all comparisons of interest to be included |
-| [Nikolakopoulou et al. 2022](https://doi.org/10.1186/s12874-022-01792-6) | extends network-informed trial design to a new treatment entering the network, covering power, sample allocation, and the two-arm versus three-arm choice |
+| [Hu, Wang, Ye and O'Connor 2022, BMC Medical Research Methodology](https://doi.org/10.1186/s12874-022-01792-6) | extends network-informed trial design to a new treatment entering the network, covering power, sample allocation, and the two-arm versus three-arm choice |
 | [Jackson, Presanis, Conti and De Angelis 2019 (also arXiv:1703.08994)](https://doi.org/10.1080/01621459.2018.1562932) | general value-of-information machinery for Bayesian evidence synthesis, including EVPPI and EVSI for comparing candidate data sources and sample sizes against sampling cost |
 | [Wigle, Beliveau, Nikolakopoulou and Lin 2026](https://arxiv.org/abs/2605.15142) | workflow for explicitly identifying the uniquely estimable relative effects in frequentist and Bayesian component NMA, demonstrated on a disconnected network, supplying the estimability step the edge-design question needs |
 | [cpaic 0.1.0 (development version, choxos/cpaic@9d150e9)](https://github.com/choxos/cpaic/commit/9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca) | unreleased development R package on GitHub, not on CRAN; exposes the combination and design matrices, rank, null space, and contrast estimability, but enumerates no candidate edges and computes no value of information |
@@ -55,6 +55,14 @@ Extend the existing frameworks to the disconnected case rather than starting ove
 
 **What was wrong with it.** The source said there is no principled method for choosing which IPD or which bridging trial to obtain; both auditors judged this false as stated, citing doi:10.1186/s13063-018-2740-2, doi:10.1186/s12874-022-01792-6, and doi:10.1080/01621459.2018.1562932. GPT-5.6 Sol also corrected the null-space criterion, since one added edge changes rank by at most one and reducing global nullity need not make the decision-critical contrast estimable, rejected 'which subpopulation maximizes identification' as conflating a rank property with expected decision value, and narrowed the software-absence claim to cpaic, which exposes rank, null space, and contrast estimability but has no candidate-edge or value-of-information routine; the literature auditor added arXiv:2605.15142 for determining which CNMA relative effects are uniquely estimable, demonstrated on a disconnected network.
 
+**Revised by the full-text reading.** Applied 2026-07-26 full-text reading of the consolidated library (687 papers).
+
+Citation corrected
+:   **corrected attribution: 'Nikolakopoulou et al. 2022' -> "Hu, Wang, Ye and O'Connor 2022, BMC Medical Research Methodology"** CrossRef resolves this DOI to Hu, Wang, Ye and O'Connor, 'Using information from network meta-analyses to optimize the power and sample allocation of a subsequent trial with a new treatment'.
+
+Citation corrected
+:   **corrected attribution: "Hu, Wang, Ye and O'Connor 2022, BMC Medical Research Methodology" -> "Hu, Wang, Ye and O'Connor 2022, BMC Medical Research Methodology"** CrossRef resolves this DOI to Hu, Wang, Ye and O'Connor, 'Using information from network meta-analyses to optimize the power and sample allocation of a subsequent trial with a new treatment'.
+
 Literature and prior-art check
 :   **partially-solved / overstated.** Claim 1, that there is no principled method for choosing which trial to obtain and that such decisions are made opportunistically, is too strong. Salanti, Nikolakopoulou, Sutton et al. (Trials 2018) 'introduce a four-step framework that aims to identify the optimal design for a new trial that will update the existing evidence while minimizing the required sample size', explicitly noting the new trial need not include all comparisons of interest; Nikolakopoulou and colleagues (BMC Med Res Methodol 2022) extend this to optimizing power and sample allocation for a subsequent trial with a new treatment; and Jackson, Presanis, Conti and De Angelis give a general value-of-information framework for research design in Bayesian evidence synthesis. Separately, the estimability half of claim 8 now exists: Wigle, Beliveau, Nikolakopoulou and Lin (arXiv 2026) give a workflow for explicitly identifying uniquely estimable relative effects in CNMA, demonstrated on a disconnected network. What remains genuinely open is bridging-specific design: choosing an edge to add across a gap, IPD acquisition, and biomarker-versus-outcome trade-offs under bridge uncertainty.
     Cites 10.1186/s13063-018-2740-2: Principled, published framework for choosing which comparisons a new trial should include given an existing network, contradicting 'no principled method' as stated.
@@ -73,10 +81,33 @@ Decision path
 
 :::
 
+## How the evidence falls in time
+
+6 papers in the reviewed corpus bear on this problem, published 2018 to 2023. The most recent paper to touch this reports progress on it, and every paper calling it open is older.
+
+It is also being **closed in pieces**: partial results come from more than one paper in more than one year, each covering a different part.
+
+**Does the later work answer the earlier work?** Put to an independent reviewer with the older and newer claims side by side, it judged that the later work answers a component of it, leaving a named part (high confidence). The 2023 connecting-trial paper directly answers a central part of the earlier gap by enumerating candidate edges across a disconnected network and selecting the one minimizing variance for a prespecified cross-gap contrast. Its scope is narrower than the stated open problem: fixed-effect NMA, two-arm trials, one contrast, and variance rather than decision value. What remains: Decision-theoretic selection across candidate designs, including costs and utilities, alternative evidence acquisitions, and objectives that depend on an explicit contested bridge assumption.
+
+::: {.table-scroll}
+
+| Year | Says | Paper |
+|---|---|---|
+| 2018 | confirms it is open | Planning a future randomized clinical trial based on a network of relevant past trials |
+| 2021 | confirms it is open | Conditional power of antidepressant network meta-analysis |
+| 2022 | partly addresses it | Using information from network meta-analyses to optimize the power and sample allocation of a subsequent trial with a new treatment |
+| 2022 | confirms it is open | Network Meta-analysis on Disconnected Evidence Networks When Only Aggregate Data Are Available: Modified Methods to Include Disconnected Trials and Single-Arm Studies while Minimizing Bias |
+| 2023 | partly addresses it | Connecting a disconnected trial network with a new trial: optimizing the estimation of a comparative effect in a network meta-analysis |
+| 2023 | partly addresses it | Optimal trial design selection: a comparative analysis between two-arm and three-arm trials incorporating network meta-analysis for evaluating a new treatment |
+
+:::
+
 ## Related problems
 
 ::: {.related-links}
 - [DEC-03 — Value of information is not extended to IPD or bridge acquisition](DEC-03-value-of-information-is-not-extended-to-ipd-or-bridge-acquis.qmd)
+- [DEC-31 — Evaluating a treatment strategy can disconnect the network it is evaluated on](DEC-31-evaluating-a-treatment-strategy-can-disconnect-the-network-i.qmd)
+- [EVB-12 — No selective-inference correction for outcome-triggered new trials pooled into NMA](EVB-12-no-selective-inference-correction-for-outcome-triggered-new-.qmd)
 :::
 
 ## Source

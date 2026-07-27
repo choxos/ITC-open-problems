@@ -1,0 +1,67 @@
+---
+title: "No diagnostic for anchor choice in additive component models"
+description: "The additivity equation for a multicomponent treatment holds relative to exactly one treatment, the anchor, and Wigle and Beliveau 2022 prove that additivity cannot hold for two distinct anchors at once, so different anchors define different models rather than different parameterizations of one model. The anchor is a separate object from the reference treatment: changing the reference is a reparameterization that consistency makes harmless, whereas changing the anchor changes which vector of true relative effects the model asserts, and therefore changes the mechanism the model is fitting. Existing methods choose it in one of two ways and neither is examined in application. The Welton-type Bayesian additive model is anchored, fixing the anchor to the modeler's chosen first treatment; the frequentist netmeta model is unanchored, its weighted least squares fit with a Moore-Penrose inverse selecting whichever anchor fits the data best, an anchor that need not be a treatment in the network and may be zero. Under a misspecified anchor the measured consequences are severe: bias did not shrink with sample size, coverage of several relative effects fell well below nominal and decreased as the per-arm sample size rose from 50 to 500, reaching zero for one contrast, and average SUCRA values put the wrong treatment ahead. The diagnostic that would catch it does not exist: in one of the two simulated networks the DIC failed to prefer the unanchored model over a misspecified anchored one in any scenario, and because no frequentist anchored component model has been developed, no likelihood-ratio test of a specified anchor is available either."
+pid: "CMP-30"
+topic: "Component methods (CNMA and component PAIC)"
+categories: ["Component methods (CNMA and component PAIC)", "Very high priority", "Confirmed open"]
+priority: "Very high"
+prank: 1
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Emerging"
+tractability: 3
+---
+::: {.problem-meta}
+[CMP-30]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[Very high priority]{.chip .chip-priority-very-high}
+[Emerging]{.chip .chip-maturity-emerging}
+[Tractability 3/5]{.chip}
+:::
+## Statement
+
+The additivity equation for a multicomponent treatment holds relative to exactly one treatment, the anchor, and Wigle and Beliveau 2022 prove that additivity cannot hold for two distinct anchors at once, so different anchors define different models rather than different parameterizations of one model. The anchor is a separate object from the reference treatment: changing the reference is a reparameterization that consistency makes harmless, whereas changing the anchor changes which vector of true relative effects the model asserts, and therefore changes the mechanism the model is fitting. Existing methods choose it in one of two ways and neither is examined in application. The Welton-type Bayesian additive model is anchored, fixing the anchor to the modeler's chosen first treatment; the frequentist netmeta model is unanchored, its weighted least squares fit with a Moore-Penrose inverse selecting whichever anchor fits the data best, an anchor that need not be a treatment in the network and may be zero. Under a misspecified anchor the measured consequences are severe: bias did not shrink with sample size, coverage of several relative effects fell well below nominal and decreased as the per-arm sample size rose from 50 to 500, reaching zero for one contrast, and average SUCRA values put the wrong treatment ahead. The diagnostic that would catch it does not exist: in one of the two simulated networks the DIC failed to prefer the unanchored model over a misspecified anchored one in any scenario, and because no frequentist anchored component model has been developed, no likelihood-ratio test of a specified anchor is available either.
+
+## Why it is open
+
+Candidate anchors index non-nested models that agree over most of the network and differ only on the multicomponent arms, which are the sparsest cells, so a global fit criterion averages the discriminating information away; that is the structural reason DIC fails rather than an artifact of one simulation. Clinical knowledge does not settle the choice either, because the anchor is a claim about the scale on which component effects add, not about which treatment is inactive, so an analyst has no basis for the confidence that the anchored model requires. The unanchored route sidesteps the problem by estimating the anchor, but it spends a parameter to do so and has not been studied in the disconnected and sparse networks where component models are most used and where the estimated anchor may itself be weakly identified. The distinction is recent and was expressly overlooked in the literature before 2022, so there has been little time and little awareness; the standing recommendation is still to use an anchored model when the modeler is confident in the anchor, with no procedure offered for becoming confident.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Wigle and Beliveau 2022, Statistics in Medicine](https://doi.org/10.1002/sim.9520) | introduces the anchor treatment, proves in its appendix that additivity can hold for only one anchor at a time, classifies existing component models as anchored or unanchored, proposes two Bayesian unanchored models, and measures the bias, coverage and ranking failures of a misspecified anchor and the failure of DIC to detect it; states that methods to assess the chosen anchor are needed |
+| [Welton et al. 2009, American Journal of Epidemiology](https://doi.org/10.1093/aje/kwp014) | the original additive component model for complex interventions, in which the anchor is fixed to the modeler's chosen reference treatment by construction and is never tested |
+| [Rucker, Petropoulou and Schwarzer 2020, Biometrical Journal](https://doi.org/10.1002/bimj.201800167) | frequentist component network meta-analysis in netmeta; the weighted least squares fit with a Moore-Penrose inverse estimates the anchor implicitly, and supplies a likelihood-ratio test of the additive model against the standard network model but none of the anchor |
+| [Petropoulou et al. 2023, BMC Medical Research Methodology](https://doi.org/10.1186/s12874-023-01959-9) | evaluates component model selection in 1000 simulated connected and disconnected networks; the selection cascade operates over interaction structures and contains no step that examines or varies the anchor |
+| [Balduzzi et al. 2023, Journal of Statistical Software](https://doi.org/10.18637/jss.v106.i02) | documents the netmeta component workflow that applied reviews use, including the inactive-treatment declaration analysts make; no anchor sensitivity or anchor test is exposed |
+| [Wigle et al. 2026, arXiv:2605.15142](https://arxiv.org/abs/2605.15142) | builds treatment and component hierarchies from component models and characterizes which hierarchy questions are estimable; the hierarchies inherit whatever anchor the underlying model asserts, which is the output that anchor misspecification was shown to corrupt |
+
+:::
+
+## Probable solution or research direction
+
+Characterize the observable implications that separate two anchors: for a given network, identify the set of contrasts on which anchored models with different anchors make different predictions, and build a score or likelihood-ratio test from those contrasts alone rather than from a global fit criterion. That test needs a frequentist anchored component model, which does not exist and is a well-posed first deliverable. In the Bayesian route, either place a prior over candidate anchors and report the posterior over them, or fit the unanchored model and report the posterior of the implied anchor with a prior-sensitivity check, so an unstated modeling choice becomes a reported quantity. Until a test exists, make anchor sensitivity routine: refit under every plausible anchor and report the range of each target contrast and of the resulting hierarchy, which existing software makes cheap. Extend the published simulation to disconnected networks and to networks with few multicomponent arms, reporting bias, coverage and rank recovery for the estimated anchor as well as for the effects.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. One reader proposed it from a single source, which is a weaker basis, but that source is a methods paper containing a proof that additivity holds for only one anchor and a simulation quantifying the cost of choosing wrongly; the reviewer accepted that the anchor is a substantive identifying restriction rather than a harmless reference choice, and the source's own discussion states that a method to test the suitability of a chosen anchor is needed and that no frequentist test is available.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [CMP-01 — Cross-subnetwork component constancy is the untestable bridge](CMP-01-cross-subnetwork-component-constancy-is-the-untestable-bridg.qmd)
+- [CMP-03 — Strict component additivity may be clinically false](CMP-03-strict-component-additivity-may-be-clinically-false.qmd)
+- [CMP-04 — Additivity model selection can be unstable](CMP-04-additivity-model-selection-can-be-unstable.qmd)
+- [CMP-07 — Causal meaning of a component effect is ambiguous](CMP-07-causal-meaning-of-a-component-effect-is-ambiguous.qmd)
+- [CMP-31 — No practical-identification diagnostic for component effects](CMP-31-no-practical-identification-diagnostic-for-component-effects.qmd)
+:::
+
+## Source
+
+Derived from reading:core-06 of the reviewed corpus.

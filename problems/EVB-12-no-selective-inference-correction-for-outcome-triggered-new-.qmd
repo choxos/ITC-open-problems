@@ -1,0 +1,75 @@
+---
+title: "No selective-inference correction for outcome-triggered new trials pooled into NMA"
+description: "When the decision to run a new trial is taken because an existing network showed a promising but non-significant contrast, and that trial is later pooled back into the same network, the network estimate for that contrast is conditioned on the very result that triggered the trial. The cost is measured rather than conjectured: type I error for the targeted contrast rises from the nominal 5 percent to between 23.8 and 38.5 percent under ordinary network analysis, and to between 29.1 and 47.3 percent under alpha-spending sequential analysis, across new-trial sizes from 50 to 200 and in both an indirect-only and a direct-comparison setting. No estimator, weighting scheme or selective-inference correction recovers valid inference for such a contrast, and the alpha-spending boundaries imported from trial sequential analysis make the inflation worse rather than better under the strongest triggering rule. The only remedy currently on offer is to refuse to pool the triggered trial, which discards the precision gain that network-informed trial planning exists to deliver. Nothing in current trial reporting records whether a comparison was chosen from a prior synthesis, so a network cannot identify which of its own studies were triggered even if a correction existed."
+pid: "EVB-12"
+topic: "Evidence-base construction & data access"
+categories: ["Evidence-base construction & data access", "Medium-high priority", "Confirmed open"]
+priority: "Medium-high"
+prank: 3
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Emerging"
+tractability: 3
+---
+::: {.problem-meta}
+[EVB-12]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[Medium-high priority]{.chip .chip-priority-medium-high}
+[Emerging]{.chip .chip-maturity-emerging}
+[Tractability 3/5]{.chip}
+:::
+## Statement
+
+When the decision to run a new trial is taken because an existing network showed a promising but non-significant contrast, and that trial is later pooled back into the same network, the network estimate for that contrast is conditioned on the very result that triggered the trial. The cost is measured rather than conjectured: type I error for the targeted contrast rises from the nominal 5 percent to between 23.8 and 38.5 percent under ordinary network analysis, and to between 29.1 and 47.3 percent under alpha-spending sequential analysis, across new-trial sizes from 50 to 200 and in both an indirect-only and a direct-comparison setting. No estimator, weighting scheme or selective-inference correction recovers valid inference for such a contrast, and the alpha-spending boundaries imported from trial sequential analysis make the inflation worse rather than better under the strongest triggering rule. The only remedy currently on offer is to refuse to pool the triggered trial, which discards the precision gain that network-informed trial planning exists to deliver. Nothing in current trial reporting records whether a comparison was chosen from a prior synthesis, so a network cannot identify which of its own studies were triggered even if a correction existed.
+
+## Why it is open
+
+The correction needs the selection event to be written down, and the triggering rule is almost never stated: investigators and sponsors respond to a promising synthesis informally, so there is no threshold, no test statistic and no decision function to condition on. Even where the rule is explicit, conditioning changes the estimator that everything downstream depends on, so a corrected contrast is no longer the same quantity as the uncorrected contrasts elsewhere in the network, and nothing says how a decision model should combine the two. The problem also cannot be avoided by intent, because living and continuously updated network meta-analyses absorb every relevant trial regardless of why it was run, so a policy of excluding triggered trials is not implementable at scale. And the machinery currently used to control repeated testing in updated networks was designed for a different multiplicity, namely repeated looks at accumulating evidence, and it makes this inflation larger rather than smaller.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Ye et al. 2023, Frontiers in Pharmacology](https://doi.org/10.3389/fphar.2023.1157708) | Simulates the type I error of a network estimate for a contrast whose new trial was triggered by a promising prior network result, under both network analysis and alpha-spending sequential analysis, and states that methods for analyzing triggered and independently motivated trials together remain to be developed. |
+| [Salanti et al. 2018, Trials](https://doi.org/10.1186/s13063-018-2740-2) | Conditional trial design: sizes and configures a new trial against an existing network while minimizing required sample size; the practice that creates the dependence this problem is about. |
+| [Nikolakopoulou, Mavridis and Salanti 2016, Statistics in Medicine](https://doi.org/10.1002/sim.6608) | Plans future studies from the precision of network meta-analysis results, making the prior network an explicit input to the decision to run a trial. |
+| [Nikolakopoulou et al. 2018, Statistical Methods in Medical Research](https://doi.org/10.1177/0962280216659896) | Continuously updated network meta-analysis with statistical monitoring, importing alpha-spending boundaries from trial sequential analysis into repeated network updating; the machinery shown to worsen the inflation under a strong triggering rule. |
+| [Brok et al. 2008, Journal of Clinical Epidemiology](https://doi.org/10.1016/j.jclinepi.2007.10.007) | Establishes the multiplicity created by repeated meta-analytic testing and the trial sequential analysis response; the origin of the boundaries used in updated networks. |
+| [Crequit et al. 2016, BMC Medicine](https://doi.org/10.1186/s12916-016-0555-0) | Documents how quickly a synthesis goes out of date and argues for living cumulative synthesis; the reason a policy of excluding triggered trials is not implementable at scale. |
+| [Berk et al. 2013, Annals of Statistics](https://doi.org/10.1214/12-AOS1077) | Valid post-selection inference: guarantees that hold simultaneously over all possible selections, the conservative route requiring no knowledge of the selection rule. |
+| [Lee et al. 2016, Annals of Statistics](https://doi.org/10.1214/15-AOS1371) | Exact post-selection inference by conditioning on a polyhedral selection event; the construction closest to what a stated triggering threshold on a network contrast would need. |
+| [Bauer and Kohne 1994, Biometrics](https://doi.org/10.2307/2533441) | Combination tests for adaptive interim analyses, showing how a second stage chosen in response to first-stage data can be combined with the first while preserving the overall error rate whatever the adaptation rule. |
+| [Whitehead 1986, Biometrika](https://doi.org/10.1093/biomet/73.3.573) | Bias of maximum likelihood estimation following a sequential stopping rule, with a correction; the single-trial analogue of estimating a contrast whose data existence depended on an earlier result. |
+
+:::
+
+## Probable solution or research direction
+
+Treat the triggering rule as a selection event and condition on it: where the rule can be stated, for instance run a trial when the network contrast exceeds a threshold, the conditional distribution of the pooled estimate given that event is computable under the normal network likelihood, so a selection-adjusted interval follows by the same construction used for exact post-selection inference after the lasso. Where the rule is unavailable, use a combination test instead: treat the pre-trigger network and the new trial as two stages and combine their evidence with a prespecified combination function, which is valid whatever generated the second stage, at a known cost in efficiency. Compare the two across the triggering rules that occur in practice, calibrating against the published simulation and reporting type I error, power and estimator bias for each. Fix the reporting gap in the same pass, since no correction can be applied to a network that cannot tell which of its studies were triggered: a trial record should state whether its comparison was chosen from a prior synthesis, and a living review should date-stamp the network state that preceded each new inclusion. Revisit the alpha-spending boundaries currently imported into updated network meta-analysis, which were designed for repeated looks at accumulating evidence and were shown to increase rather than reduce the inflation under the strongest triggering rule.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. One reader proposed this from a single simulation study that quantifies the inflation and states that methods for jointly analyzing triggered and independently motivated trials remain to be developed, and the reviewer accepted it as distinct from evidence-set selection, model selection and ordinary next-study design because the existence and target of the new data depend on prior network results. Resting on one paper, the error rates are simulated under stated triggering rules and how often real trials are triggered this way is undocumented.
+
+**Revised by the full-text reading.** Applied 2026-07-26 full-text reading of the consolidated library (687 papers).
+
+Citation corrected
+:   **normalized a citation year: 'Nikolakopoulou, Mavridis and Salanti 2015, Statistics in Medicine' -> 'Nikolakopoulou, Mavridis and Salanti 2016, Statistics in Medicine'** 10.1002/sim.6608 is cited with two different years across the registry. CrossRef gives 2015 online and 2016 in print; the issue year is used throughout.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [EVB-02 — Evidence-set assembly can favor the sponsor before modeling begins](EVB-02-evidence-set-assembly-can-favor-the-sponsor-before-modeling-.qmd)
+- [EVB-04 — No decision-value method chooses which IPD or bridging trial to get](EVB-04-no-decision-value-method-chooses-which-ipd-or-bridging-trial.qmd)
+- [MOD-04 — No post-selection inference for model choice in population adjustment](MOD-04-no-post-selection-inference-for-model-choice-in-population-a.qmd)
+- [DIS-16 — No design method chooses which edge to add across a disconnected gap](DIS-16-no-design-method-chooses-which-edge-to-add-across-a-disconne.qmd)
+:::
+
+## Source
+
+Derived from reading:nma-15 of the reviewed corpus.

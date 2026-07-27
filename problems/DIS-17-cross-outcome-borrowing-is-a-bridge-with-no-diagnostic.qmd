@@ -1,0 +1,67 @@
+---
+title: "Cross-outcome borrowing is a bridge with no diagnostic"
+description: "Multivariate network meta-analysis can connect a treatment that is disconnected, or entirely unstudied, on one outcome by borrowing its position in the network for a different correlated outcome. The information crossing that gap is carried by a restriction on the treatment-by-outcome effect surface, typically the additive form in which a treatment's effect on an outcome is a treatment term plus an outcome term with a single shared deviation variance, so a treatment's profile across outcomes is assumed to differ from the average profile only by noise of that one variance. Nothing in the observed data distinguishes a small fitted deviation variance from genuine cross-outcome constancy for the specific unobserved treatment-outcome cell, and the fitted variance is a network-wide scalar that cannot be interrogated cell by cell. The construction is decision-changing in use: in a network of 143 overactive bladder trials and 115 interventions where only 51 studies reported all three outcomes, sacral nerve stimulation, never measured for urgency in any trial, was estimated as the best treatment for urgency with a 95 percent credible interval of -10.11 to -6.78 episodes, displacing the univariate recommendation, and a class layer raised its precision on that outcome by roughly 28 percent (Owen et al. 2020, doi:10.1186/s12874-020-01025-8). The restriction is strongest exactly where it is most used, since for an active-versus-active contrast the outcome term cancels and the contrast is carried entirely by the treatment terms and the shared variance, and residual deviance was not computable in that parameterization, so no fit statistic was reported for any model. Cross-outcome borrowing does not appear in the standard enumeration of bridge families for disconnected evidence, has no named sensitivity parameter and no partial-identification bound, and no diagnostic reports how much of a given cell's estimate is borrowed rather than observed."
+pid: "DIS-17"
+topic: "Disconnected networks & bridges"
+categories: ["Disconnected networks & bridges", "High priority", "Confirmed open"]
+priority: "High"
+prank: 2
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Promising"
+tractability: 3
+---
+::: {.problem-meta}
+[DIS-17]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[High priority]{.chip .chip-priority-high}
+[Promising]{.chip .chip-maturity-promising}
+[Tractability 3/5]{.chip}
+:::
+## Statement
+
+Multivariate network meta-analysis can connect a treatment that is disconnected, or entirely unstudied, on one outcome by borrowing its position in the network for a different correlated outcome. The information crossing that gap is carried by a restriction on the treatment-by-outcome effect surface, typically the additive form in which a treatment's effect on an outcome is a treatment term plus an outcome term with a single shared deviation variance, so a treatment's profile across outcomes is assumed to differ from the average profile only by noise of that one variance. Nothing in the observed data distinguishes a small fitted deviation variance from genuine cross-outcome constancy for the specific unobserved treatment-outcome cell, and the fitted variance is a network-wide scalar that cannot be interrogated cell by cell. The construction is decision-changing in use: in a network of 143 overactive bladder trials and 115 interventions where only 51 studies reported all three outcomes, sacral nerve stimulation, never measured for urgency in any trial, was estimated as the best treatment for urgency with a 95 percent credible interval of -10.11 to -6.78 episodes, displacing the univariate recommendation, and a class layer raised its precision on that outcome by roughly 28 percent (Owen et al. 2020, doi:10.1186/s12874-020-01025-8). The restriction is strongest exactly where it is most used, since for an active-versus-active contrast the outcome term cancels and the contrast is carried entirely by the treatment terms and the shared variance, and residual deviance was not computable in that parameterization, so no fit statistic was reported for any model. Cross-outcome borrowing does not appear in the standard enumeration of bridge families for disconnected evidence, has no named sensitivity parameter and no partial-identification bound, and no diagnostic reports how much of a given cell's estimate is borrowed rather than observed.
+
+## Why it is open
+
+The quantity the restriction supplies is an unobserved treatment-outcome cell, so no in-sample check can bear on it: fit is computed over the cells that were reported, and every candidate restriction agreeing on those cells is indistinguishable there. Multivariate synthesis was developed to gain precision on outcomes that are partially reported, where borrowed information supplements observed data, and the identification-by-borrowing use arrived as a by-product without its own assumption ledger. Within-study correlations, which govern how much strength is borrowed, are usually imported as fixed constants from an external individual-level dataset, so the borrowing rate is itself an assumption whose uncertainty is not propagated. And because the output is an ordinary posterior with an ordinary credible interval, nothing in a report signals that a particular number was manufactured by the restriction rather than measured.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Owen et al. 2020, BMC Medical Research Methodology](https://doi.org/10.1186/s12874-020-01025-8) | adds a class-exchangeability layer to arm-level multivariate network meta-analysis, uses the additive treatment-plus-outcome restriction to reach all 115 interventions on all three outcomes, and reports a decision reversal driven by a treatment with no data on the outcome, while conceding the restriction is strong for active-versus-active contrasts and that model fit could not be assessed |
+| [Achana et al. 2014, BMC Medical Research Methodology](https://doi.org/10.1186/1471-2288-14-92) | introduces the arm-level multivariate network meta-analysis with borrowing across outcomes and the additive restriction later used as a bridge, developed for prediction of unreported outcomes rather than for identification of unstudied ones |
+| [Efthimiou et al. 2015, Biostatistics](https://doi.org/10.1093/biostatistics/kxu030) | gives the joint synthesis of multiple correlated outcomes across a network of interventions, the model class in which the treatment-by-outcome restriction lives |
+| [Riley et al. 2017, BMJ](https://doi.org/10.1136/bmj.j3932) | sets out the rationale and concepts of multivariate and network meta-analysis, including the dependence of any borrowing on within-study correlations that are rarely reported |
+| [Jackson et al. 2017, Statistical Methods in Medical Research](https://doi.org/10.1177/0962280215611702) | gives the borrowing-of-strength statistic, the nearest available quantification of how much of an estimate's precision comes from evidence other than the direct data, but as a study-weight summary rather than a cell-level provenance measure |
+| [Copas et al. 2018, Journal of the Royal Statistical Society Series C](https://doi.org/10.1111/rssc.12274) | characterizes when secondary outcomes actually contribute information to a primary outcome in multivariate meta-analysis, which is the analytic route by which a cell-level borrowing diagnostic could be derived |
+| [Kirkham et al. 2012, Statistics in Medicine](https://doi.org/10.1002/sim.5356) | uses multivariate meta-analysis explicitly to recover outcomes suppressed by reporting bias, the same borrowing mechanism operating as an identifying device, and evaluates it against known reported values |
+
+:::
+
+## Probable solution or research direction
+
+Name the bridge and write its ledger row: the identifying restriction is exchangeability of a treatment's deviation from the additive treatment-plus-outcome surface, and the natural sensitivity parameter is a cell-specific shift added to that surface for the unobserved cell, reported as the shift at which the recommendation changes. Compute a cell-level borrowing diagnostic, for example the share of the posterior precision for a treatment-outcome cell attributable to other outcomes, so that a fully borrowed cell is labeled as such in the output rather than printed like any other. Validate by deletion: mask observed treatment-outcome cells in networks that report them, refit under the restriction, and report prediction error and interval coverage against the withheld estimates, indexed by outcome pair and by the strength of the between-study correlation. Propagate the uncertainty in imported within-study correlations rather than fixing them, since the borrowing rate that carries the gap is a function of those correlations.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. One reader proposed it and the reviewer accepted cross-outcome borrowing as a bridge family distinct from class, component, baseline and external-control bridges, while noting that the blanket claim that no sensitivity analysis exists is broader than the quoted evidence establishes. The basis is a single applied methods paper, whose own discussion concedes the restriction is strong for active-versus-active contrasts and that no fit statistic was computable in its parameterization.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [DIS-02 — No data-driven criterion can rank candidate bridge families](DIS-02-no-data-driven-criterion-can-rank-candidate-bridge-families.qmd)
+- [DIS-12 — No standard ledger names the parameter carrying the gap](DIS-12-no-standard-ledger-names-the-parameter-carrying-the-gap.qmd)
+- [DIS-14 — Reported intervals condition on the bridge being exactly true](DIS-14-reported-intervals-condition-on-the-bridge-being-exactly-tru.qmd)
+- [OUT-19 — No multivariate population-adjusted model for correlated outcomes](OUT-19-no-multivariate-population-adjusted-model-for-correlated-out.qmd)
+:::
+
+## Source
+
+Derived from reading:nma-25 of the reviewed corpus.

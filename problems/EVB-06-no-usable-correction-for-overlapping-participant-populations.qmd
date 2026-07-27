@@ -1,0 +1,65 @@
+---
+title: "No usable correction for overlapping participant populations across studies"
+description: "Meta-analysis and network meta-analysis likelihoods treat every study as an independent sample, and that assumption fails whenever real-world evidence enters the network: several eligible publications frequently analyze the same registry, claims database or electronic health record source, produced by different investigators with different study years, populations and analytic choices, so their reported treatment effects share an unknown fraction of the same patients. The same failure arises between real-world studies and trials whose participants also appear in a national treatment database, between salami-sliced multicenter reports, and between single-arm studies sharing a historical control. Double counting overstates the precision of the affected contrasts and can move point estimates: removing overlapping-population studies from one public health synthesis moved a pooled adjusted risk ratio from 1.63 (1.39 to 1.92) to 1.50 (1.24 to 1.83) with increased heterogeneity, and in another review overlap was so pervasive that no meta-analysis could be run at all. The two responses in use are both unsatisfactory. Selecting one pivotal publication per database discards evidence and makes the estimate depend on a discretionary rule, which changed statistical conclusions for three of six comparisons in one sparse multiple sclerosis network; including all publications requires a between-publication correlation that cannot be estimated from published summaries and was therefore fixed at assumed moderate values that neither reproduced the single-publication point estimates nor widened the intervals beyond the base case. The one estimator that models the dependence directly takes the number of overlapping observations as an input, which is exactly what published reports do not give. What is missing is an overlap-aware synthesis model identifiable from what publications actually report, a defensible bound on the dependence when it cannot be counted, and comparative evidence on which of the ad hoc inclusion rules is least harmful."
+pid: "EVB-06"
+topic: "Evidence-base construction & data access"
+categories: ["Evidence-base construction & data access", "High priority", "Confirmed open"]
+priority: "High"
+prank: 2
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Emerging"
+tractability: 3
+---
+::: {.problem-meta}
+[EVB-06]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[High priority]{.chip .chip-priority-high}
+[Emerging]{.chip .chip-maturity-emerging}
+[Tractability 3/5]{.chip}
+:::
+## Statement
+
+Meta-analysis and network meta-analysis likelihoods treat every study as an independent sample, and that assumption fails whenever real-world evidence enters the network: several eligible publications frequently analyze the same registry, claims database or electronic health record source, produced by different investigators with different study years, populations and analytic choices, so their reported treatment effects share an unknown fraction of the same patients. The same failure arises between real-world studies and trials whose participants also appear in a national treatment database, between salami-sliced multicenter reports, and between single-arm studies sharing a historical control. Double counting overstates the precision of the affected contrasts and can move point estimates: removing overlapping-population studies from one public health synthesis moved a pooled adjusted risk ratio from 1.63 (1.39 to 1.92) to 1.50 (1.24 to 1.83) with increased heterogeneity, and in another review overlap was so pervasive that no meta-analysis could be run at all. The two responses in use are both unsatisfactory. Selecting one pivotal publication per database discards evidence and makes the estimate depend on a discretionary rule, which changed statistical conclusions for three of six comparisons in one sparse multiple sclerosis network; including all publications requires a between-publication correlation that cannot be estimated from published summaries and was therefore fixed at assumed moderate values that neither reproduced the single-publication point estimates nor widened the intervals beyond the base case. The one estimator that models the dependence directly takes the number of overlapping observations as an input, which is exactly what published reports do not give. What is missing is an overlap-aware synthesis model identifiable from what publications actually report, a defensible bound on the dependence when it cannot be counted, and comparative evidence on which of the ad hoc inclusion rules is least harmful.
+
+## Why it is open
+
+The overlap fraction is a property of the underlying patient records, which the analyst does not hold, so the correlation between two published effect estimates from one database is not a function of the reported summaries; it is unidentified rather than merely hard to estimate. Matching, weighting and trimming inside the source studies mean the number of patients actually contributing to each published estimate is unknown, so even the magnitude of the precision error cannot be bounded by comparing sample sizes. A three-level model with a database random effect does not repair it, because that model assumes sampling errors are conditionally independent given the database effect, which is precisely what shared patients violate. Robust variance estimation handles clustered effect estimates with unknown within-cluster correlation, but it has never been evaluated for participant overlap in a network, where the dependence links specific contrasts across studies rather than effect sizes within one. The remedy that would identify the quantity is organizational rather than statistical, requiring either record-level data sharing or a convention obliging authors to report enough provenance to bound the overlap, and no synthesis reporting standard asks for it.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Betts et al. 2023, Journal of Comparative Effectiveness Research](https://doi.org/10.57264/cer-2022-0132) | case study in multiple sclerosis handling related real-world publications in a network meta-analysis; states that estimating a specific correlation between any two related publications is impossible, specifies assumed moderate correlations instead, and shows that neither the assumed-correlation route nor the single-publication selection route is satisfactory |
+| [Hussein et al. 2022, BMC Public Health](https://doi.org/10.1186/s12889-022-14213-6) | catalogs the mechanisms by which the same participants enter a synthesis twice, quantifies the effect in case studies, and states that current practices only mitigate it and that methodological and guideline development is needed |
+| [Lin and Sullivan 2009, American Journal of Human Genetics](https://doi.org/10.1016/j.ajhg.2009.11.001) | gives a closed-form correction for meta-analysis of association studies with overlapping subjects; the correction requires the number of overlapping subjects as an input, which published clinical reports do not supply |
+| [Hedges, Tipton and Johnson 2010, Research Synthesis Methods](https://doi.org/10.1002/jrsm.5) | robust variance estimation for dependent effect estimates with unknown within-cluster correlation; a candidate route that has not been evaluated for participant overlap across studies in a network |
+
+:::
+
+## Probable solution or research direction
+
+Parameterize the dependence by the overlap fraction between two publications and derive how the network variance and the point estimate move as a function of it, so a sensitivity analysis becomes a one-parameter curve on an interpretable axis rather than an assumed correlation. Then derive worst-case bounds over the overlap sets consistent with what the publications report, namely the data source, accrual window, extraction date, eligibility criteria and arm sizes, so an analyst can publish an interval valid for every overlap compatible with the evidence. Evaluate the inclusion rules currently in use, keep the largest, keep the peer-reviewed, keep one per database, include everything, against record-level truth in a database where the individual records are available and the true overlap can be computed, across overlap sizes and network topologies. Add the minimum provenance fields to reporting standards for real-world evidence in synthesis, since overlap cannot be bounded at all without them.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Two independent readers proposed it, one from a methods commentary on double counting in public health synthesis and one from an applied network that had to assume correlations it could not estimate, and the reviewer accepted both, noting that assumed-correlation sensitivity analyses supply neither an identification strategy, nor a defensible bound, nor a principled inclusion and weighting rule.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [EVB-01 — Selective IPD availability threatens transport across the network](EVB-01-selective-ipd-availability-threatens-transport-across-the-ne.qmd)
+- [EVB-02 — Evidence-set assembly can favor the sponsor before modeling begins](EVB-02-evidence-set-assembly-can-favor-the-sponsor-before-modeling-.qmd)
+- [EVB-03 — Trials combined under one outcome label are not one estimand](EVB-03-trials-combined-under-one-outcome-label-are-not-one-estimand.qmd)
+- [CMP-12 — No two-stage adjusted estimator carries multi-arm covariance](CMP-12-no-two-stage-adjusted-estimator-carries-multi-arm-covariance.qmd)
+- [DIS-07 — External-control bridges become cross-design causal synthesis](DIS-07-external-control-bridges-become-cross-design-causal-synthesi.qmd)
+:::
+
+## Source
+
+Derived from reading:nma-13, reading:nma-16 of the reviewed corpus.

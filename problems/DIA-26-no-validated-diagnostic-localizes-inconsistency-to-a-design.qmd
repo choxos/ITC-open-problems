@@ -1,0 +1,67 @@
+---
+title: "No validated diagnostic localizes inconsistency to a design"
+description: "Inconsistency is a property of a loop rather than of a design, so attributing it to a single design is not identified unless that design sits in more than one loop, and the diagnostic most widely used for the attempt is unreliable. The net heat statistic factorizes approximately into the loop signal times a second factor proportional to the direct-minus-indirect difference for the design, and that second factor shrinks as the network gains loops, so a fixed inconsistency stops being flagged in larger networks: in simulation an inflated ABC-loop effect fell below the plot's threshold of 8 once seven or more loops were present (Freeman et al. 2019, doi:10.1002/sim.8383). In an individual-participant lung cancer network of 7,531 patients, Cochran's Q for the network (p = 0.043), the between-design Q (p = 0.034), a Bucher loop test (p = 0.035), a Lu-Ades inconsistency parameter of -0.176 (95 percent credible interval -0.337 to -0.016) and node splitting (p = 0.033) all flagged inconsistency while the net heat plot showed nothing to read. The statistic also has no known sampling distribution and no calibrated mapping from color to importance, and it tends to attribute inconsistency to the comparisons with the least direct evidence. Two replacements appeared in 2026: leave-one-design-out influence diagnostics with a summary value for prioritizing designs and an accompanying test, and a display combining direct and indirect effect sizes, their contributions, their difference and its significance. Neither has been evaluated against the loop-count masking that discredited the incumbent, both have been assessed only by their own authors, and netmeta continues to ship the net heat plot."
+pid: "DIA-26"
+topic: "Diagnostics & empirical validation"
+categories: ["Diagnostics & empirical validation", "High priority", "Partially addressed"]
+priority: "High"
+prank: 2
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
+maturity: "Promising"
+tractability: 4
+---
+::: {.problem-meta}
+[DIA-26]{.problem-id}
+[Partially addressed]{.verdict .verdict-partially-addressed}
+[High priority]{.chip .chip-priority-high}
+[Promising]{.chip .chip-maturity-promising}
+[Tractability 4/5]{.chip}
+:::
+## Statement
+
+Inconsistency is a property of a loop rather than of a design, so attributing it to a single design is not identified unless that design sits in more than one loop, and the diagnostic most widely used for the attempt is unreliable. The net heat statistic factorizes approximately into the loop signal times a second factor proportional to the direct-minus-indirect difference for the design, and that second factor shrinks as the network gains loops, so a fixed inconsistency stops being flagged in larger networks: in simulation an inflated ABC-loop effect fell below the plot's threshold of 8 once seven or more loops were present (Freeman et al. 2019, doi:10.1002/sim.8383). In an individual-participant lung cancer network of 7,531 patients, Cochran's Q for the network (p = 0.043), the between-design Q (p = 0.034), a Bucher loop test (p = 0.035), a Lu-Ades inconsistency parameter of -0.176 (95 percent credible interval -0.337 to -0.016) and node splitting (p = 0.033) all flagged inconsistency while the net heat plot showed nothing to read. The statistic also has no known sampling distribution and no calibrated mapping from color to importance, and it tends to attribute inconsistency to the comparisons with the least direct evidence. Two replacements appeared in 2026: leave-one-design-out influence diagnostics with a summary value for prioritizing designs and an accompanying test, and a display combining direct and indirect effect sizes, their contributions, their difference and its significance. Neither has been evaluated against the loop-count masking that discredited the incumbent, both have been assessed only by their own authors, and netmeta continues to ship the net heat plot.
+
+## Why it is open
+
+The attribution being asked for is not always identified: where a design belongs to one loop, that loop's inconsistency cannot be assigned to the design from the data, so any design-level display is reading structure the design-by-treatment interaction model does not separate. A graphical summary and a calibrated test pull against each other, because a statistic scaled for display across a whole network is not on the scale of any single test, and the net heat statistic was constructed for display. Deriving its sampling distribution requires handling multi-arm trials and multiple indirect paths, which the closed-form analysis assumed away, and the derivation is fixed-effect throughout, so behavior under genuine within-design heterogeneity is unknown. The replacements are new, and evaluating them properly means reproducing the adversarial design that exposed the incumbent rather than demonstrating them on networks where the formal tests already agree.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Freeman et al. 2019, Statistics in Medicine](https://doi.org/10.1002/sim.8383) | derives the net heat statistic in closed form, shows by simulation that it falls below its own threshold as loops are added while the underlying inconsistency is unchanged, exhibits a real network where every formal test rejects consistency and the plot reads clean, and concludes the plot neither reliably signals inconsistency nor identifies the designs causing it |
+| [Krahn et al. 2013, BMC Medical Research Methodology](https://doi.org/10.1186/1471-2288-13-35) | introduces the net heat plot and the design-based decomposition of Cochran's Q that it displays; still shipped in netmeta as the standard localizing display |
+| [Higgins et al. 2012, Research Synthesis Methods](https://doi.org/10.1002/jrsm.1044) | formalizes inconsistency as design-by-treatment interaction, which is the model against which any design-level attribution has to be defined and which bounds what is identifiable |
+| [Dias et al. 2010, Statistics in Medicine](https://doi.org/10.1002/sim.3767) | node splitting: a calibrated local test of direct against indirect evidence for one comparison, with no network-wide display and no design-level attribution |
+| [Veroniki et al. 2014, BMC Medical Research Methodology](https://doi.org/10.1186/1471-2288-14-106) | quantifies by simulation which loop characteristics govern detection and estimation of inconsistency, giving the design factors any evaluation of a replacement diagnostic must vary |
+| [Sasaki and Noma 2026, Statistics in Medicine](https://doi.org/10.1002/sim.70614) | proposes leave-one-design-out influence diagnostics, including an averaged studentized residual and MDFFITS, plus a summary value for prioritizing designs and a test based on the same framework, and reports that they located sources of inconsistency accurately in simulation |
+| [Wilson et al. 2026, Research Synthesis Methods](https://doi.org/10.1017/rsm.2026.10082) | supplies a visualization combining direct and indirect effect sizes with their relative contributions, the difference and its uncertainty, and the direction of disagreement, which is close to the graphical-plus-formal combination the critique asked for; implemented in netmeta |
+
+:::
+
+## Probable solution or research direction
+
+Evaluate the 2026 proposals on the design that discredited the incumbent: fix a true inconsistency in one loop, add loops one at a time, and report detection rate and false attribution rate for the influence measures, the summary value and the new display as the network grows, with multi-arm designs and non-zero heterogeneity present. Make the identification boundary explicit in the output by marking designs that belong to a single loop as unattributable rather than assigning them a color or a rank. Give the plotted quantity a calibrated reference, either a null distribution obtained by parametric bootstrap under the consistency model or a threshold expressed on the effect scale, so a displayed cell can be read as a test rather than as a hue. Whatever survives should ship next to the net heat plot with a documented statement of what each display can and cannot detect, since the incumbent's failure mode is invisible to its users.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Partially addressed. One reader proposed it from a single paper, and the reviewer accepted that the evidence directly supports the unreliability of the net heat plot and that a validated localizing diagnostic remains a genuine need. It is partially-addressed rather than open because two candidate replacements were published in 2026, a leave-one-design-out influence framework and a local-consistency visualization now in netmeta, neither of which has been tested against the loop-count masking that motivated the critique.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [DIA-24 — No reference distribution says when inconsistency is large](DIA-24-no-reference-distribution-says-when-inconsistency-is-large.qmd)
+- [HET-04 — Node splitting compares paths without standardizing to a target](HET-04-node-splitting-compares-paths-without-standardizing-to-a-tar.qmd)
+- [IDN-01 — Transitivity and conditional constancy cannot be tested in-sample](IDN-01-transitivity-and-conditional-constancy-cannot-be-tested-in-s.qmd)
+- [SFW-15 — netmeta and gemtc carry no target-population representation](SFW-15-netmeta-and-gemtc-carry-no-target-population-representation.qmd)
+:::
+
+## Source
+
+Derived from reading:nma-28 of the reviewed corpus.

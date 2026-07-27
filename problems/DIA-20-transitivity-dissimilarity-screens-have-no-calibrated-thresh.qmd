@@ -1,0 +1,66 @@
+---
+title: "Transitivity dissimilarity screens have no calibrated threshold"
+description: "Quantitative transitivity screens now reduce a network's study-level effect-modifier table to within- and between-comparison dissimilarity summaries, and the decision rule they need is a threshold separating tolerable from concerning dissimilarity. No threshold has been derived from dissimilarity data. The published thresholds are read off empirically driven predictive distributions for the I-squared statistic, a statistical-heterogeneity quantity on a different scale from a Gower dissimilarity, and the authors say so and call the choice a tentative suggestion necessitated by the lack of an empirical study of non-statistical heterogeneity across healthcare fields. The consequence is that the substantive conclusion is threshold-driven: across a corpus of 209 published networks, the median-based threshold declares likely intransitivity in every dataset while the third-quartile threshold leaves 26 networks with transitivity likely present. What is missing is a field-, outcome- and comparator-indexed reference distribution of observed study-level dissimilarities, from which a value could be reported as a percentile, together with evidence linking a dissimilarity value to anything downstream: realized inconsistency, indirect-comparison bias or transport error. Without that link the screen returns a number whose sign of trouble is set by an analogy, the same network can be declared concerning or acceptable by changing a defensible convention, and the flag rate is unknown. The raw material for the calibration already exists, since the tracenma R package holds study-level clinical and methodological characteristics extracted from those 209 reviews, and nobody has computed the dissimilarity distribution over it as a reference or related it to any downstream error."
+pid: "DIA-20"
+topic: "Diagnostics & empirical validation"
+categories: ["Diagnostics & empirical validation", "Medium-high priority", "Confirmed open"]
+priority: "Medium-high"
+prank: 3
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Emerging"
+tractability: 4
+---
+::: {.problem-meta}
+[DIA-20]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[Medium-high priority]{.chip .chip-priority-medium-high}
+[Emerging]{.chip .chip-maturity-emerging}
+[Tractability 4/5]{.chip}
+:::
+## Statement
+
+Quantitative transitivity screens now reduce a network's study-level effect-modifier table to within- and between-comparison dissimilarity summaries, and the decision rule they need is a threshold separating tolerable from concerning dissimilarity. No threshold has been derived from dissimilarity data. The published thresholds are read off empirically driven predictive distributions for the I-squared statistic, a statistical-heterogeneity quantity on a different scale from a Gower dissimilarity, and the authors say so and call the choice a tentative suggestion necessitated by the lack of an empirical study of non-statistical heterogeneity across healthcare fields. The consequence is that the substantive conclusion is threshold-driven: across a corpus of 209 published networks, the median-based threshold declares likely intransitivity in every dataset while the third-quartile threshold leaves 26 networks with transitivity likely present. What is missing is a field-, outcome- and comparator-indexed reference distribution of observed study-level dissimilarities, from which a value could be reported as a percentile, together with evidence linking a dissimilarity value to anything downstream: realized inconsistency, indirect-comparison bias or transport error. Without that link the screen returns a number whose sign of trouble is set by an analogy, the same network can be declared concerning or acceptable by changing a defensible convention, and the flag rate is unknown. The raw material for the calibration already exists, since the tracenma R package holds study-level clinical and methodological characteristics extracted from those 209 reviews, and nobody has computed the dissimilarity distribution over it as a reference or related it to any downstream error.
+
+## Why it is open
+
+The obvious calibration target is not observable. A dissimilarity threshold should sit where indirect estimates start to go wrong, but the bias of an indirect estimate is exactly what a network cannot measure: transitivity is untestable in-sample, so the only available proxies are inconsistency in closed loops, which needs the loops the screen exists to protect, and comparison against a gold-standard estimate that most networks do not have. The right object is also not a single cutoff, because tolerable dissimilarity depends on outcome subjectivity, comparator type and study size, which the empirical work already varies informally, so calibration means estimating a family of thresholds and requires a corpus large enough to support that stratification. The scale itself is not comparable across networks, since a Gower dissimilarity depends on which characteristics the systematic review happened to extract, so a percentile computed over a corpus inherits the corpus's extraction habits unless the extraction set is standardized first. And the borrowed heterogeneity distributions are not a careless choice; they were adopted precisely because no empirical study of clinical and methodological heterogeneity across healthcare fields exists to replace them, so the calibration study has to be built before the threshold can be.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Spineli, Papadimitropoulou and Kalyvas 2025, Statistics in Medicine](https://doi.org/10.1002/sim.70068) | Proposes the dissimilarity-and-clustering approach to transitivity: computes within- and between-comparison dissimilarities from study-level participant and methodological characteristics and applies hierarchical clustering to locate hot spots of potential intransitivity. States that its thresholds, taken from predictive distributions of I-squared, are a tentative suggestion necessitated by the absence of an empirical study of non-statistical heterogeneity across healthcare fields. |
+| [Spineli 2024, BMC Medical Research Methodology](https://doi.org/10.1186/s12874-024-02436-7) | Applies the dissimilarity approach across 209 published networks, showing likely intransitivity in all of them under the median threshold and in all but 26 under the third-quartile threshold, and calls for dissimilarity thresholds customized to the healthcare field and to design characteristics such as outcome and treatment-comparator type. |
+| [tracenma R package](https://cran.r-project.org/package=tracenma) | The released database of study-level aggregate clinical and methodological characteristics extracted from 209 published systematic reviews with network meta-analysis. This is the corpus a reference distribution of dissimilarities would be computed from, and it is already public. |
+| [Rhodes, Turner and Higgins 2016, Research Synthesis Methods](https://doi.org/10.1002/jrsm.1193) | Supplies the empirically driven predictive distributions that are currently used as the dissimilarity thresholds. They describe statistical inconsistency and heterogeneity among studies in pairwise meta-analysis, which is a different quantity on a different scale from a study-characteristic dissimilarity. |
+| [Turner et al. 2012, International Journal of Epidemiology](https://doi.org/10.1093/ije/dys041) | Derives predictive distributions for between-study heterogeneity from 14,886 Cochrane meta-analyses, stratified by outcome type and intervention comparison. This is the template a dissimilarity reference corpus would follow, and the reason distributions of this shape were available to borrow in the first place. |
+| [Nikolakopoulou et al. 2020, PLOS Medicine](https://doi.org/10.1371/journal.pmed.1003082) | CINeMA, whose indirectness and heterogeneity domains currently absorb what a calibrated transitivity screen would report. Its judgments are qualitative and carry no threshold either, so it is an alternative reporting route rather than a calibration. |
+
+:::
+
+## Probable solution or research direction
+
+Compute the reference distribution first, since the corpus is already released: run the dissimilarity calculation over the tracenma networks and publish the distribution of within- and between-comparison dissimilarity stratified by healthcare field, outcome subjectivity, comparator type and study size, so that a value can be reported as a percentile instead of being compared with a borrowed cutoff. Standardize the set of study characteristics that feeds the dissimilarity, because a percentile is only comparable across networks when the same characteristics enter it. Then calibrate against something downstream: in the subset of networks with closed loops, relate dissimilarity to realized inconsistency; where a contrast has both direct and indirect evidence, relate it to the direct-versus-indirect discrepancy; and in simulation, generate effect-modifier distributions of known imbalance and report the dissimilarity value at which indirect-estimate bias exceeds a stated fraction of the effect. Report the screen as a classifier, with false-positive and false-negative rates at each candidate threshold, rather than as a prevalence statement whose answer is fixed by the cutoff.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Two independent readers proposed this from the two papers that define and apply the screen, and the reviewer accepted both, holding it distinct from the in-principle untestability of transitivity because it asks for a reference distribution and calibration against consequential indirect-estimate error. Both primary sources state the calibration is missing: one calls its borrowed thresholds a tentative suggestion necessitated by the absence of an empirical study, the other names field- and design-specific thresholds as deserving investigation and shows its own prevalence result flipping with the cutoff.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [IDN-01 — Transitivity and conditional constancy cannot be tested in-sample](IDN-01-transitivity-and-conditional-constancy-cannot-be-tested-in-s.qmd)
+- [DIA-03 — PAIC diagnostics are not evaluated as classifiers of realized error](DIA-03-paic-diagnostics-are-not-evaluated-as-classifiers-of-realize.qmd)
+- [DIA-19 — NMA outlier and influence screens have no calibrated null](DIA-19-nma-outlier-and-influence-screens-have-no-calibrated-null.qmd)
+- [HET-01 — Design and conduct differences survive baseline covariate balancing](HET-01-design-and-conduct-differences-survive-baseline-covariate-ba.qmd)
+:::
+
+## Source
+
+Derived from reading:nma-04, reading:nma-08 of the reviewed corpus.

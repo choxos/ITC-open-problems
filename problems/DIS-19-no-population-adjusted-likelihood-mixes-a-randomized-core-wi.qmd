@@ -1,0 +1,67 @@
+---
+title: "No population-adjusted likelihood mixes a randomized core with single-arm evidence"
+description: "Population-adjustment methods split cleanly by connectivity: multilevel network meta-regression and network meta-analysis require a connected randomized network, while unanchored MAIC, STC and multilevel unanchored meta-regression assume fully disjoint evidence and buy identification with cross-treatment structural assumptions such as the shared prognostic factor assumption. Health technology assessment evidence bases routinely contain both at once, a connected set of randomized comparisons plus one or more single-arm studies for the new therapy. No published population-adjusted model places both in one likelihood, and no theory states how the randomized part should constrain the unanchored part: whether connected evidence partially identifies the prognostic coefficients the single-arm evidence needs, how far it can relax the shared prognostic factor assumption, and what identified set for the target contrast survives. Weaker versions of the architecture exist. Aggregate-data bridges hold connected and disconnected evidence in separate likelihood blocks with separate heterogeneity variances, which protects the randomized part but deliberately prevents it from informing the bridge (Thom et al. 2022, doi:10.1177/0272989X221097081); an arm-based Bayesian network meta-analysis borrows variance rather than mean information from single-arm trials through a commensurate prior (Wang et al. 2021, doi:10.1214/21-aoas1469); and an unmerged multinma branch adds baseline synthesis with mixed individual and aggregate data and single-arm handling. None of them adjusts for covariate imbalance across the two kinds of evidence, and none labels which reported contrasts rest on randomization and which on structural assumption."
+pid: "DIS-19"
+topic: "Disconnected networks & bridges"
+categories: ["Disconnected networks & bridges", "High priority", "Partially addressed"]
+priority: "High"
+prank: 2
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
+maturity: "Emerging"
+tractability: 3
+---
+::: {.problem-meta}
+[DIS-19]{.problem-id}
+[Partially addressed]{.verdict .verdict-partially-addressed}
+[High priority]{.chip .chip-priority-high}
+[Emerging]{.chip .chip-maturity-emerging}
+[Tractability 3/5]{.chip}
+:::
+## Statement
+
+Population-adjustment methods split cleanly by connectivity: multilevel network meta-regression and network meta-analysis require a connected randomized network, while unanchored MAIC, STC and multilevel unanchored meta-regression assume fully disjoint evidence and buy identification with cross-treatment structural assumptions such as the shared prognostic factor assumption. Health technology assessment evidence bases routinely contain both at once, a connected set of randomized comparisons plus one or more single-arm studies for the new therapy. No published population-adjusted model places both in one likelihood, and no theory states how the randomized part should constrain the unanchored part: whether connected evidence partially identifies the prognostic coefficients the single-arm evidence needs, how far it can relax the shared prognostic factor assumption, and what identified set for the target contrast survives. Weaker versions of the architecture exist. Aggregate-data bridges hold connected and disconnected evidence in separate likelihood blocks with separate heterogeneity variances, which protects the randomized part but deliberately prevents it from informing the bridge (Thom et al. 2022, doi:10.1177/0272989X221097081); an arm-based Bayesian network meta-analysis borrows variance rather than mean information from single-arm trials through a commensurate prior (Wang et al. 2021, doi:10.1214/21-aoas1469); and an unmerged multinma branch adds baseline synthesis with mixed individual and aggregate data and single-arm handling. None of them adjusts for covariate imbalance across the two kinds of evidence, and none labels which reported contrasts rest on randomization and which on structural assumption.
+
+## Why it is open
+
+The two halves are identified by different arguments, so combining them requires deciding how far a randomized contrast is allowed to discipline an assumption-identified one, and the single-arm part is nonidentified in exactly the directions the randomized part cannot see, which means no data-driven answer exists. A joint likelihood also forces a shared parameterization of study effects: unanchored models typically need a common intercept because study effects are not separable from treatment effects there, which conflicts with the study-specific baselines that make the randomized part safe. There is no reporting convention for a mixed analysis, so even a correct model would produce a table whose rows mean different things under one heading. The problem is recent, named as future work by the authors of the newest unanchored method, and the components that exist were built separately in the aggregate-data and population-adjusted literatures with no reason to meet.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Chandler and Ishak 2026, Anchors Away: Navigating Unanchored Indirect Comparisons with Multilevel Unanchored Meta-Regression (arXiv:2606.20341)](https://arxiv.org/abs/2606.20341) | extends multilevel network meta-regression to fully disconnected single-arm evidence with an explicit assumption ledger, and names partially connected networks as the second priority for future work, stating that connected evidence can help identify relative effects and separate them from study-level differences while disconnected single-arm evidence enters through explicit assumptions about baseline risk, prognostic factors and effect modifiers |
+| [Thom et al. 2022, Medical Decision Making](https://doi.org/10.1177/0272989X221097081) | keeps connected evidence, disconnected trials and single-arm studies in separate likelihood blocks with separate heterogeneity variances, showing that the connected part can be protected from the bridge, and measures the price: bias for disconnected treatments an order of magnitude larger than for connected ones |
+| [Wang et al. 2021, Annals of Applied Statistics](https://doi.org/10.1214/21-aoas1469) | places randomized and single-arm trials in one arm-based Bayesian network meta-analysis using a commensurate prior that borrows variance rather than mean information, an explicit choice of how much the single-arm evidence is allowed to move the answer |
+| [Phillippo et al. 2020, Journal of the Royal Statistical Society Series A](https://doi.org/10.1111/rssa.12579) | gives the connected-network population-adjusted likelihood, modeling individual data conditionally and integrating the model over each aggregate study's covariate distribution, which is the framework a partially connected model would extend |
+| [Phillippo et al. 2018, Medical Decision Making](https://doi.org/10.1177/0272989X17725740) | sets out the anchored and unanchored split that the connectivity boundary follows, and describes the unanchored assumptions as much stronger and widely regarded as infeasible, which is why mixing the two kinds of identification needs labeling rather than averaging |
+| [multinma pull request #68](https://github.com/dmphillippo/multinma/pull/68) | adds fixed and random baseline connections, baseline synthesis and mixed individual, aggregate and single-arm handling to a population-adjusted package, the closest existing implementation; open rather than merged as recorded in DIS-10 |
+| [Beliveau et al. 2017, Research Synthesis Methods](https://doi.org/10.1002/jrsm.1256) | fits random baseline treatment effects across disconnected components and validates by disconnecting connected networks, the deletion design a partially connected model should be scored on |
+
+:::
+
+## Probable solution or research direction
+
+Derive the identification result first: for a network with a randomized core and one or more single-arm studies, state which functionals of the outcome model are identified by randomization, which require the shared prognostic factor assumption, and which are identified only up to a bias parameter, then give the identified set for the target contrast as a function of that parameter. Build the joint likelihood inside the multilevel network meta-regression framework, letting the randomized studies estimate the prognostic coefficients the single-arm study needs while allowing a study-specific deviation with a declared prior, and report how much the connected evidence actually narrows the unanchored contrast. Evaluate by deletion on connected networks: convert randomized arms into single-arm evidence, refit the mixed model, and score the recovered contrast against the connected analysis across degrees of overlap and modifier imbalance. Require every reported contrast to carry a provenance label, randomization-identified, transport-identified or prior-identified, because a single likelihood is exactly what makes the distinction invisible in the output.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Partially addressed. One reader proposed it from the discussion of a single preprint, and the reviewer accepted a unified partially connected likelihood with clearly labeled contributions as a distinct target from choosing a bridge for a wholly disconnected network. It is partially-addressed rather than open because separate likelihood blocks, commensurate-prior borrowing from single-arm trials and an unmerged baseline-synthesis branch each supply part of the architecture; what is missing is the population-adjusted joint likelihood, the theory of how the randomized core constrains the unanchored part, and provenance labeling of the result.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [DEC-08 — No provenance label separates bridged from prior-driven contrasts](DEC-08-no-provenance-label-separates-bridged-from-prior-driven-cont.qmd)
+- [DIS-01 — Cross-gap contrasts are absent from the randomized likelihood](DIS-01-cross-gap-contrasts-are-absent-from-the-randomized-likelihoo.qmd)
+- [DIS-10 — multinma's baseline-synthesis bridge is an unmerged pull request](DIS-10-multinma-s-baseline-synthesis-bridge-is-an-unmerged-pull-req.qmd)
+- [SFW-07 — multinma lacks partial IPD, missing data and a data-informed bridge](SFW-07-multinma-lacks-partial-ipd-missing-data-and-a-data-informed-.qmd)
+:::
+
+## Source
+
+Derived from reading:core-07 of the reviewed corpus.

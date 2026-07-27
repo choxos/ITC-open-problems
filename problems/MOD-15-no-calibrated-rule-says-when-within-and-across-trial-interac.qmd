@@ -1,0 +1,65 @@
+---
+title: "No calibrated rule says when within- and across-trial interactions may be pooled"
+description: "An individual participant data network meta-analysis carries two sources of information about a treatment-covariate interaction: the within-trial contrast between participants in the same trial, and the across-trial association between trial-level covariate means and trial-level effects. Standard practice separates them and rests modifier claims on the within-trial part, because the across-trial part is identified only under an untestable assumption of no unmeasured trial-level confounding. Pooling the two buys precision, and the only published criterion for deciding whether they agree closely enough to be pooled is a visual comparison plus a rule that the within-trial estimate should lie within half a standard error of the across-trial estimate, described in its source as relatively strict and justified by pointing at interactions later debunked rather than by any calibration. No study reports the operating characteristics of that rule or of any alternative: not its power to detect a real discrepancy, not its false-positive rate, and not the coverage of the combined estimate conditional on having passed. The decision changes conclusions rather than sharpening them; in the worked example that accompanies the rule, pooling would have moved a chemotherapy-plus-surgery interaction from +0.172 to -0.120, reversing its sign. The problem is not confined to full individual-data networks, since any mixed-granularity model that lets aggregate covariate variation inform an interaction makes the same pooling decision, usually without making it explicitly."
+pid: "MOD-15"
+topic: "Model specification, double robustness & targeted learning"
+categories: ["Model specification, double robustness & targeted learning", "High priority", "Confirmed open"]
+priority: "High"
+prank: 2
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Promising"
+tractability: 4
+---
+::: {.problem-meta}
+[MOD-15]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[High priority]{.chip .chip-priority-high}
+[Promising]{.chip .chip-maturity-promising}
+[Tractability 4/5]{.chip}
+:::
+## Statement
+
+An individual participant data network meta-analysis carries two sources of information about a treatment-covariate interaction: the within-trial contrast between participants in the same trial, and the across-trial association between trial-level covariate means and trial-level effects. Standard practice separates them and rests modifier claims on the within-trial part, because the across-trial part is identified only under an untestable assumption of no unmeasured trial-level confounding. Pooling the two buys precision, and the only published criterion for deciding whether they agree closely enough to be pooled is a visual comparison plus a rule that the within-trial estimate should lie within half a standard error of the across-trial estimate, described in its source as relatively strict and justified by pointing at interactions later debunked rather than by any calibration. No study reports the operating characteristics of that rule or of any alternative: not its power to detect a real discrepancy, not its false-positive rate, and not the coverage of the combined estimate conditional on having passed. The decision changes conclusions rather than sharpening them; in the worked example that accompanies the rule, pooling would have moved a chemotherapy-plus-surgery interaction from +0.172 to -0.120, reversing its sign. The problem is not confined to full individual-data networks, since any mixed-granularity model that lets aggregate covariate variation inform an interaction makes the same pooling decision, usually without making it explicitly.
+
+## Why it is open
+
+The identifying assumption behind the across-trial component is not testable from the data being pooled, so agreement between the two estimates is evidence about that assumption in one direction only: disagreement can come from ecological confounding or from sampling noise, and agreement can occur under confounding whenever the bias is small next to the standard errors. Any threshold rule therefore has operating characteristics that depend on the between-trial variance and the number of trials, and both are small in exactly the networks where the extra precision is wanted. Calibrating a rule requires simulating networks in which the ecological bias is set and varied, which requires a generative model for trial-level confounding that this literature has not standardized. There is also no agreement on what a pooling rule should protect: a test tuned to preserve coverage of the interaction coefficient is not the same as one tuned to protect the downstream decision that uses the modifier to select patients or to transport an effect.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Freeman, Fisher, Tierney & Carpenter 2018, Research Synthesis Methods 9(3):393-407](https://doi.org/10.1002/jrsm.1300) | Framework for identifying treatment-covariate interactions in individual participant data network meta-analysis, separating within-trial from across-trial information and supplying the only published pooling criterion: agreement is taken to be shown if the within-trial interaction lies within half a standard error of the across-trial interaction. |
+| [Hua, Burke, Crowther, Ensor et al. 2017, Statistics in Medicine 36(5):772-789](https://doi.org/10.1002/sim.7171) | Shows that one-stage individual participant data meta-analysis models must separate within-trial from across-trial information to avoid ecological bias in treatment-covariate interactions, which is the step that creates the pooling decision this problem is about. |
+| [Riley, Debray, Fisher, Hattle et al. 2020, Statistics in Medicine 39(15):2115-2137](https://doi.org/10.1002/sim.8516) | Statistical recommendations for conduct and planning of individual participant data meta-analysis of treatment-covariate interactions, which set the default of relying on within-trial information; they do not supply a calibrated rule for when across-trial information may be added. |
+| [Berlin, Santanna, Schmid, Szczech et al. 2002, Statistics in Medicine 21(3):371-387](https://doi.org/10.1002/sim.1023) | Demonstrates that group-level meta-regression can misattribute an ecological association to individual-level effect modification, which is the harm a pooling rule has to prevent. |
+| [Fisher, Copas, Tierney & Parmar 2011, Journal of Clinical Epidemiology 64(9):949-967](https://doi.org/10.1016/j.jclinepi.2010.11.016) | Critical review of methods for assessing patient-level interactions in individual participant data meta-analysis with guidance for practitioners; catalogues the estimation options without proposing an agreement test with known operating characteristics. |
+
+:::
+
+## Probable solution or research direction
+
+Specify the decision as a test with a stated null and a stated alternative: the null that the within-trial and across-trial interaction estimate the same quantity, the alternative indexed by an ecological bias term. Simulate networks in which that bias term is set, crossing the number of trials, the between-trial variance of the covariate means, the covariate distribution overlap and the strength of the true within-trial interaction, and report for the half-standard-error rule and for candidate alternatives the rejection rate under the null, the power at each bias size, and the coverage and bias of the pooled interaction conditional on a pass. Compare threshold rules against continuous alternatives, such as a hierarchical model that shrinks the across-trial contribution toward the within-trial estimate with a data-driven weight, and against simply never pooling. Report the results in terms of the quantity the interaction is used for, namely the transported treatment effect in a target population, so that a rule can be chosen on decision cost rather than on interaction coverage alone.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. One reader proposed this and the reviewer accepted it as the distinct decision problem that begins once within-trial and across-trial information have been separated, noting that the quoted half-standard-error rule is explicitly heuristic. The evidence is a single methodological framework paper, which is a weaker basis than a multi-source proposal; the claim that no calibrated rule exists rests on the absence of any competing published rule.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [MOD-03 — Ecological versus within-study effect modification](MOD-03-ecological-versus-within-study-effect-modification.qmd)
+- [IDN-06 — ML-NMR interactions can rest solely on aggregate-data variation](IDN-06-ml-nmr-interactions-can-rest-solely-on-aggregate-data-variat.qmd)
+- [CMP-13 — Shared Gamma conflates within- and between-study modification](CMP-13-shared-gamma-conflates-within-and-between-study-modification.qmd)
+- [COV-01 — Deciding which covariates are true effect modifiers](COV-01-deciding-which-covariates-are-true-effect-modifiers.qmd)
+:::
+
+## Source
+
+Derived from reading:nma-30 of the reviewed corpus.

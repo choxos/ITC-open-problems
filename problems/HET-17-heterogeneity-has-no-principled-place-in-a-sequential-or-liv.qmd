@@ -1,0 +1,67 @@
+---
+title: "Heterogeneity has no principled place in a sequential or living NMA boundary"
+description: "A sequential monitoring boundary for a cumulative or living network meta-analysis is a function of the statistical information accumulated so far against a maximum information target, and both quantities depend directly on the between-study heterogeneity variance. In the early updates that decide when a boundary is first crossed, that variance is estimated from a handful of trials and is unstable, so re-estimating it at every update makes the boundary itself a noisy random object, while fixing it at an external value makes the stopping decision partly an artifact of an imported constant. The leading empirical evaluation of living network meta-analysis took the second route across 49 comparisons from 44 networks, imputing the heterogeneity variance at the median of the empirical Cochrane predictive distributions, 0.049, for the primary analysis and re-estimating it only in sensitivity analysis, and it named the appropriate handling of heterogeneity in a sequential meta-analysis as an outstanding methodological priority. No method establishes how heterogeneity should enter a sequential network boundary, how the stopping decision inherits heterogeneity uncertainty, or what type I error is actually realized under either convention. The question compounds in a network relative to a pairwise sequential analysis, because a single network-wide variance sets the information clock for every comparison at once and indirect evidence contributes through the same parameter."
+pid: "HET-17"
+topic: "Heterogeneity, consistency & multi-arm structure"
+categories: ["Heterogeneity, consistency & multi-arm structure", "High priority", "Confirmed open"]
+priority: "High"
+prank: 2
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Emerging"
+tractability: 3
+---
+::: {.problem-meta}
+[HET-17]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[High priority]{.chip .chip-priority-high}
+[Emerging]{.chip .chip-maturity-emerging}
+[Tractability 3/5]{.chip}
+:::
+## Statement
+
+A sequential monitoring boundary for a cumulative or living network meta-analysis is a function of the statistical information accumulated so far against a maximum information target, and both quantities depend directly on the between-study heterogeneity variance. In the early updates that decide when a boundary is first crossed, that variance is estimated from a handful of trials and is unstable, so re-estimating it at every update makes the boundary itself a noisy random object, while fixing it at an external value makes the stopping decision partly an artifact of an imported constant. The leading empirical evaluation of living network meta-analysis took the second route across 49 comparisons from 44 networks, imputing the heterogeneity variance at the median of the empirical Cochrane predictive distributions, 0.049, for the primary analysis and re-estimating it only in sensitivity analysis, and it named the appropriate handling of heterogeneity in a sequential meta-analysis as an outstanding methodological priority. No method establishes how heterogeneity should enter a sequential network boundary, how the stopping decision inherits heterogeneity uncertainty, or what type I error is actually realized under either convention. The question compounds in a network relative to a pairwise sequential analysis, because a single network-wide variance sets the information clock for every comparison at once and indirect evidence contributes through the same parameter.
+
+## Why it is open
+
+The two available answers fail in opposite directions and nothing arbitrates between them: a plug-in estimate makes maximum information a random variable that the alpha-spending calculus treats as fixed, while an imported constant fixes it at a value the accumulating data may contradict, and both choices are made before the boundary has any data to be judged against. Sequential methods for random-effects meta-analysis exist in the pairwise case, including a treatment that carries uncertainty in the heterogeneity parameter and the trial sequential analysis convention of inflating required information by a heterogeneity or diversity factor, but neither has been carried into a network where one variance serves many comparisons and where information arrives along indirect paths the analyst never planned. Establishing the realized error rate requires simulating the entire update process including the arrival order of trials, so the evaluation is expensive and its answer depends on arrival assumptions that are themselves unvalidated. Living reviews are run as a service commitment rather than as a methods project, so their operators need software now and adopt whatever convention the available package implements.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Nikolakopoulou, Mavridis, Furukawa, Cipriani, Tricco, Straus, Siontis, Egger and Salanti 2018, BMJ](https://doi.org/10.1136/bmj.k585) | Compares living network with living pairwise meta-analysis across 49 comparisons from 44 networks using alpha-spending monitoring boundaries, imputes the heterogeneity variance at the empirical median of 0.049 for the primary analysis, and states that the most appropriate approach to dealing with heterogeneity in a sequential meta-analysis is an outstanding priority. |
+| [Nikolakopoulou, Mavridis, Egger and Salanti 2018, Statistical Methods in Medical Research](https://doi.org/10.1177/0962280216659896) | Adapts alpha-spending sequential monitoring to continuously updated network meta-analysis, defining the statistical information and maximum information used to construct the boundaries; the method whose heterogeneity handling is unresolved. |
+| [Higgins, Whitehead and Simmonds 2011, Statistics in Medicine](https://doi.org/10.1002/sim.4088) | Develops sequential methods for random-effects meta-analysis, including treatments that acknowledge the heterogeneity parameter is estimated rather than known; the pairwise precursor that has not been extended to a network. |
+| [Wetterslev, Thorlund, Brok and Gluud 2009, BMC Medical Research Methodology](https://doi.org/10.1186/1471-2288-9-86) | Defines required information size in trial sequential analysis inflated by a measure of between-trial variation, the established pairwise convention for letting heterogeneity enter an information target. |
+| [Simmonds, Salanti, McKenzie and Elliott 2017, Journal of Clinical Epidemiology](https://doi.org/10.1016/j.jclinepi.2017.08.008) | Reviews statistical methods for updating meta-analyses in living systematic reviews, including repeated testing and its error control, without settling how heterogeneity should be handled across updates. |
+| [Turner, Jackson, Wei, Thompson and Higgins 2015, Statistics in Medicine](https://doi.org/10.1002/sim.6381) | The empirical predictive distributions whose median supplied the imported heterogeneity value used in the living network evaluation; the source of the constant whose influence on the stopping decision has not been measured. |
+| [Salanti, Nikolakopoulou, Sutton, Reichenbach, Trelle, Naci and Egger 2018, Trials](https://doi.org/10.1186/s13063-018-2740-2) | Plans a future randomized trial from a network of past trials using the same information accounting, so it shares the dependence on the heterogeneity assumption and shows the decision consequences reach study design as well as reporting. |
+
+:::
+
+## Probable solution or research direction
+
+Simulate the update process rather than argue about it: generate networks with known heterogeneity, add trials in realistic arrival orders, and compare three rules, re-estimating at every update, fixing at an empirical median, and carrying a prior on the variance and spending alpha against the posterior predictive information, on realized type I error, power and expected time to boundary crossing. Derive a boundary that treats heterogeneity as uncertain rather than known, for example by defining maximum information through the posterior predictive precision so the boundary widens while the variance is poorly determined and tightens as it becomes identified. Report a heterogeneity-adjusted repeated confidence interval alongside any boundary crossing, so a stopping claim can be inspected for its dependence on the assumed variance rather than presented as a binary. Then ship the surviving rule in the software that living reviews actually run, because the convention in force today is whichever one the package defaults to.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. One reader proposed this and the reviewer accepted it because heterogeneity affects both information accumulation and the stopping boundary, and its uncertainty is most consequential early in a living network. The direct evidence is a single paper, but it is the field's main empirical evaluation of living network meta-analysis, it had to sidestep the problem by imputation, and it names the gap as a priority.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [HET-03 — Single shared heterogeneity variance across classes and populations](HET-03-single-shared-heterogeneity-variance-across-classes-and-popu.qmd)
+- [HET-12 — No empirical prior exists for residual heterogeneity after covariate adjustment](HET-12-no-empirical-prior-exists-for-residual-heterogeneity-after-c.qmd)
+- [HET-16 — Exchangeable and comparison-specific heterogeneity priors are blocked by the covariance constraint](HET-16-exchangeable-and-comparison-specific-heterogeneity-priors-ar.qmd)
+- [DEC-01 — Method evaluations score estimator error, not decision error](DEC-01-method-evaluations-score-estimator-error-not-decision-error.qmd)
+:::
+
+## Source
+
+Derived from reading:nma-32 of the reviewed corpus.

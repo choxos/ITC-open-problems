@@ -3,16 +3,16 @@ title: "Additivity model selection can be unstable"
 description: "Forward selection of component and interaction structures, as implemented in the netmeta CNMA workflow, makes a sequence of data-driven decisions whose uncertainty is not carried into the reported intervals. Petropoulou et al. 2023 measured the failure in disconnected networks: forward selection recovered the correct interaction model in only 12.0 to 15.2 percent of runs under mild additivity violation and 21.6 to 26.3 percent under strong violation, and tended to select sparse, often additive, models even when additivity was violated. In connected networks the measured coverage penalty was modest. Where an analyst selects a structure externally and then reports intervals conditional on it, those intervals omit selection uncertainty and are optimistic."
 pid: "CMP-04"
 topic: "Component methods (CNMA and component PAIC)"
-categories: ["Component methods (CNMA and component PAIC)", "High priority", "Confirmed open"]
+categories: ["Component methods (CNMA and component PAIC)", "High priority", "Partially addressed"]
 priority: "High"
 prank: 2
-verdict: "Confirmed open"
-verdictslug: "confirmed-open"
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
 maturity: "Promising"
 ---
 ::: {.problem-meta}
 [CMP-04]{.problem-id}
-[Confirmed open]{.verdict .verdict-confirmed-open}
+[Partially addressed]{.verdict .verdict-partially-addressed}
 [High priority]{.chip .chip-priority-high}
 [Promising]{.chip .chip-maturity-promising}
 :::
@@ -42,11 +42,16 @@ Replace forward selection with shrinkage priors, projection predictive inference
 ## Verification
 
 ::: {.verification-trail}
-**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+**Verdict.** Partially addressed. Auditors agreed the problem is open and no counterevidence surfaced. Reopened by the full-text reading: 2 findings from 2 papers survived both the reader and an independent second reviewer, so the verdict moves from confirmed-open to partially-addressed.
 
 **The source said.** "Selecting which components and which interactions enter the additive model by forward selection inflates optimism and can fail outright in sparse disconnected graphs. The uncertainty introduced by the selection step is not carried into the reported intervals."
 
 **What was wrong with it.** The source attributed the selection step to cpaic. GPT-5.6 Sol read choxos/cpaic@9d150e9 and found no forward, stepwise, projection-predictive, or stacking routine there: the package builds a fixed binary component matrix from the supplied treatment labels, so there is no in-package selection whose uncertainty could be propagated, and the problem belongs to the analyst's upstream choice and to netmeta's forward-selection workflow; the literature auditor supplied the missing source and the measured failure rates, doi:10.1186/s12874-023-01959-9.
+
+**Revised by the full-text reading.** Applied 2026-07-26 full-text reading of the consolidated library (687 papers).
+
+Verdict changed
+:   **confirmed-open -> partially-addressed** 2 surviving findings from: Bayesian models for aggregate and individual patient data co; Supplementary appendix to Furukawa et al., Dismantling, opti. New citations: 10.1002/sim.9372, 10.1016/S2215-0366(21)00077-8 (parent article; the supplement itself carries no DOI)
 
 Literature and prior-art check
 :   **open / supported-with-caveat.** The entry cites only 'netmeta' but the claim has a direct published evidence base it does not cite: Petropoulou, Rucker, Weibel, Kranke, Schwarzer 2023 evaluated the forward CNMA selection strategy in 1000 simulated connected and disconnected networks. Their disconnected-network result is stronger than the entry's: forward selection recovered the correct interaction model in only 12.0-15.2 percent (mild violation) and 21.6-26.3 percent (strong violation) of runs, and 'Forward selection tended to select sparse (often additive) CNMA models for disconnected networks even if additivity was mildly or strongly violated.' So 'can fail in sparse disconnected graphs' is established, not conjectural. Caveat on 'inflates optimism': in CONNECTED networks the measured penalty was modest - coverage for the selected CNMA fell outside Monte-Carlo limits only at moderate heterogeneity, and per-comparison coverage was 'somewhat smaller ... however, not dramatically different'. Selection-uncertainty propagation is still unsolved, so the problem stands. 'Projection predictive inference and stacking have not been applied to component NMA' - I found no counterexample, but absence is unverifiable.
@@ -63,10 +68,61 @@ Decision path
 
 :::
 
+## How the evidence falls in time
+
+30 papers in the reviewed corpus bear on this problem, published 2016 to 2026. Partial progress is on the record, and later work still calls this open. Both belong in view.
+
+This problem is **recurrent**: three or more papers spanning at least eight years assert it independently. Sustained restatement by authors who mostly do not cite each other is the strongest evidence this reading can offer that a gap is real rather than one group's framing.
+
+It is also being **closed in pieces**: partial results come from more than one paper in more than one year, each covering a different part.
+
+::: {.table-scroll}
+
+| Year | Says | Paper |
+|---|---|---|
+| 2016 | confirms it is open | Practical Bayesian model evaluation using leave-one-out cross-validation and WAIC |
+| 2018 | confirms it is open | Component network meta-analysis identifies the most effective components of psychological preparation for adults undergoing surgery under general anesthesia |
+| 2019 | confirms it is open | Network meta-analysis of multicomponent interventions |
+| 2020 | confirms it is open | Supporting information (Bayesian analysis) to Ruecker, Petropoulou and Schwarzer, Network meta-analysis of multicomponent interventions |
+| 2020 | confirms it is open | Interventions for adults with a history of complex traumatic events: the INCiTE mixed-methods systematic review |
+| 2020 | confirms it is open | Psychological and pharmacological interventions for posttraumatic stress disorder and comorbid mental health problems following complex traumatic events: Systematic review and component network meta-analysis |
+| 2021 | partly addresses it | Supplementary appendix to Furukawa et al., Dismantling, optimising, and personalising internet cognitive behavioural therapy for depression: a systematic review and component network meta-analysis using individual participant data |
+| 2021 | confirms it is open | Behavioural interventions for smoking cessation: an overview and network meta-analysis |
+| 2021 | confirms it is open | Component network meta-analysis compared to a matching method in a disconnected network: A case study |
+| 2021 | confirms it is open | Relative effectiveness of non-surgical interventions for pain management in knee osteoarthritis: a protocol for a component network meta-analysis of randomised controlled trials |
+| 2022 | partly addresses it | Bayesian models for aggregate and individual patient data component network meta-analysis |
+| 2022 | confirms it is open | Meta-Research: Methods and Protocols (Evangelou E, Veroniki AA, eds), Methods in Molecular Biology vol. 2345 |
+| 2022 | confirms it is open | Bayesian unanchored additive models for component network meta-analysis |
+| 2023 | confirms it is open | The efficacy and adverse events of arsenic trioxide for the patients with myelodysplastic syndrome: a systematic review and component network meta-analysis |
+| 2023 | confirms it is open | Impact of pharmacological interventions on intrapulmonary shunt during one-lung ventilation in adult thoracic surgery: a systematic review and component network meta-analysis |
+| 2023 | confirms it is open | Dismantling cognitive-behavioural therapy components for attention-deficit hyperactivity disorder in adolescents and adults: protocol for a network meta-analysis |
+| 2023 | confirms it is open | Model selection for component network meta-analysis in connected and disconnected networks: a simulation study |
+| 2023 | confirms it is open | Model selection for component network meta-analysis in connected and disconnected networks: a simulation study |
+| 2024 | confirms it is open | Relative efficacy of prehabilitation components on postoperative outcomes: systematic review with network and component network meta-analyses |
+| 2024 | confirms it is open | Components and Delivery Formats of Cognitive Behavioral Therapy for Chronic Insomnia in Adults: A Systematic Review and Component Network Meta-Analysis |
+| 2024 | confirms it is open | A collaborative network trial to evaluate the effectiveness of implementation strategies to maximize adoption of a school-based healthy lunchbox program: a study protocol |
+| 2025 | confirms it is open | Community-based interventions for the prevention or management of dental caries in children (Protocol) |
+| 2025 | confirms it is open | Dismantling behavioural weight management interventions: component network meta-analysis of randomised controlled trials and real-world services |
+| 2025 | confirms it is open | Regional anaesthesia modalities for primary total hip arthroplasty: a systematic review and component network meta-analysis |
+| 2025 | confirms it is open | Comparative efficacy and adverse effects of beta3-agonists and antimuscarinics in overactive bladder: a network and component network meta-analysis |
+| 2025 | confirms it is open | Optimal daratumumab-based regimen for patients with newly diagnosed and previously untreated multiple myeloma: systematic review and component network meta-analysis |
+| 2026 | confirms it is open | Creating Treatment and Component Hierarchies in Component Network Meta-Analysis |
+| 2026 | confirms it is open | Effectiveness of interventions to increase vaccine uptake: component network meta-analysis |
+| 2026 | confirms it is open | Mapping components of behavioural weight management interventions using electronic survey and component selection by expert consensus: the BE:COME Study |
+| 2026 | confirms it is open | BEhavioural Weight Management: COMponents of Effectiveness (BE:COME) Synopsis |
+| 2026 | confirms it is open | Analysing complex interventions using component network meta-analysis |
+
+:::
+
 ## Related problems
 
 ::: {.related-links}
+- [CMP-29 — No component-level transitivity and coherence assessment](CMP-29-no-component-level-transitivity-and-coherence-assessment.qmd)
+- [CMP-30 — No diagnostic for anchor choice in additive component models](CMP-30-no-diagnostic-for-anchor-choice-in-additive-component-models.qmd)
+- [CMP-31 — No practical-identification diagnostic for component effects](CMP-31-no-practical-identification-diagnostic-for-component-effects.qmd)
+- [CMP-34 — No sensitivity or reporting standard for discretionary component coding](CMP-34-no-sensitivity-or-reporting-standard-for-discretionary-compo.qmd)
 - [DEC-11 — Intervals omit selection, reconstruction and target-summary error](DEC-11-intervals-omit-selection-reconstruction-and-target-summary-e.qmd)
+- [DEC-15 — No certainty-of-evidence framework rates component effects](DEC-15-no-certainty-of-evidence-framework-rates-component-effects.qmd)
 - [DIA-15 — Coding-error bias, rank reversal and drift calibration go unscored](DIA-15-coding-error-bias-rank-reversal-and-drift-calibration-go-uns.qmd)
 :::
 

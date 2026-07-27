@@ -1,0 +1,65 @@
+---
+title: "No criterion chooses pooled or arm-separate matching in anchored MAIC"
+description: "In an anchored matching-adjusted indirect comparison the analyst may estimate one weight vector matching the pooled individual patient data trial to the pooled aggregate trial, or two weight vectors matching the active arm to the aggregate active arm and the control arm to the aggregate control arm separately. The two choices identify different quantities and fail in opposite directions. Arm-separate matching reproduces whatever arm imbalance the aggregate trial had and was more precise and less biased in the simulation that introduced it; it also reweights the two arms of a randomized trial by different functions, so the within-trial balance that randomization supplied on covariates outside the matching set is no longer guaranteed. The evaluation that introduced it recommends it while stating that the approach might break the randomization, that covariates might be imbalanced after weighting, and that further investigation under a more diverse array of situations is needed. No diagnostic reports whether randomization-induced balance on unmatched covariates survived a particular arm-separate weighting, and no rule maps the observed arm imbalance in the aggregate trial and the prognostic strength of unmatched covariates onto a choice. Because arm-level aggregate summaries are routinely published the choice arises in most anchored analyses, it is exposed as an ungoverned user option in the tooling built around the method, and no reporting requirement asks which was used."
+pid: "MOD-16"
+topic: "Model specification, double robustness & targeted learning"
+categories: ["Model specification, double robustness & targeted learning", "High priority", "Confirmed open"]
+priority: "High"
+prank: 2
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Established"
+tractability: 5
+---
+::: {.problem-meta}
+[MOD-16]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[High priority]{.chip .chip-priority-high}
+[Established]{.chip .chip-maturity-established}
+[Tractability 5/5]{.chip}
+:::
+## Statement
+
+In an anchored matching-adjusted indirect comparison the analyst may estimate one weight vector matching the pooled individual patient data trial to the pooled aggregate trial, or two weight vectors matching the active arm to the aggregate active arm and the control arm to the aggregate control arm separately. The two choices identify different quantities and fail in opposite directions. Arm-separate matching reproduces whatever arm imbalance the aggregate trial had and was more precise and less biased in the simulation that introduced it; it also reweights the two arms of a randomized trial by different functions, so the within-trial balance that randomization supplied on covariates outside the matching set is no longer guaranteed. The evaluation that introduced it recommends it while stating that the approach might break the randomization, that covariates might be imbalanced after weighting, and that further investigation under a more diverse array of situations is needed. No diagnostic reports whether randomization-induced balance on unmatched covariates survived a particular arm-separate weighting, and no rule maps the observed arm imbalance in the aggregate trial and the prognostic strength of unmatched covariates onto a choice. Because arm-level aggregate summaries are routinely published the choice arises in most anchored analyses, it is exposed as an ungoverned user option in the tooling built around the method, and no reporting requirement asks which was used.
+
+## Why it is open
+
+The two options trade one bias against another and neither bias is estimable from the data at hand: matching each arm separately protects the comparison against arm-level covariate differences that a pooled match would average away, while differential reweighting of randomized arms can introduce confounding through covariates that were never in the matching set. A diagnostic for the second failure would have to demonstrate balance on covariates that are by construction not reported for the comparator trial, so the check needs precisely the information the design lacks. The two published simulation-based positions were generated under different data-generating mechanisms, so reading them against each other cannot settle which is right; a resolution requires a study whose factors include the size of the aggregate trial's arm imbalance and the prognostic strength of unmatched covariates, which is the combination nobody has crossed. Practice leaves no trail either, since submissions need not state which weighting was used, so the field cannot learn retrospectively which choice moved which result.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Petto, Kadziola, Brnabic, Saure et al. 2019, Value in Health 22(1):85-91](https://doi.org/10.1016/j.jval.2018.06.018) | Introduces and evaluates weighting each arm of the individual-data trial to the corresponding arm of the aggregate trial via the common comparator, reports better precision and lower bias than pooled matching in simulation, and states that the approach might break the randomization, that covariates might be imbalanced after weighting, and that further investigation across a more diverse array of situations is needed. |
+| [Jiang, Cappelleri, Gamalo, Chen, Thomas & Chu 2024, Research Synthesis Methods 15(4):671-686](https://doi.org/10.1002/jrsm.1709) | Comprehensive review of matching-adjusted indirect comparison, its derivation, assumptions and connection to calibration estimation in survey sampling, accompanied by the Shiny-MAIC application that offers anchored and unanchored analyses and alternative variance estimators as user settings. Reproduces the weighting options without adjudicating between them. |
+| [Remiro-Azocar 2022, BMC Medical Research Methodology 22:217](https://doi.org/10.1186/s12874-022-01692-9) | Two-stage matching-adjusted indirect comparison, the closest formal treatment of arm-differential weighting: a treatment-assignment model inside the individual-data trial produces inverse probability weights that are combined with trial-assignment odds weights, so arms are weighted differently in order to correct chance imbalance in the randomized trial rather than to reproduce the aggregate trial's imbalance. |
+| [Signorovitch, Wu, Yu, Gerrits et al. 2010, PharmacoEconomics 28(10):935-945](https://doi.org/10.2165/11538370-000000000-00000) | The original matching-adjusted indirect comparison, which matches on pooled trial-level summaries and so sets the pooled option as the default from which the arm-separate variant departs. |
+| [Phillippo, Ades, Dias, Palmer, Abrams & Welton 2018, Medical Decision Making 38(2):200-211](https://doi.org/10.1177/0272989X17725740) | The appraisal-facing framework for population-adjusted indirect comparison, which sets out what an anchored analysis is assumed to preserve; it does not address how the weighting problem should be partitioned across randomized arms. |
+
+:::
+
+## Probable solution or research direction
+
+Run one simulation study whose factors are the ones that separate the two options: the size and direction of arm imbalance in the aggregate trial, the prognostic strength and the number of covariates outside the matching set, the effective sample size after weighting, and the true effect modification. Score bias, coverage and precision for pooled and arm-separate weighting together with balance on the unmatched covariates, so the randomization-breaking failure appears as a measured quantity rather than a warning. Derive and report the estimand each option targets, since a comparison that reproduces the aggregate trial's arm imbalance and one that removes it are answers to different questions, and state which corresponds to the decision population. Where the choice cannot be made on evidence, make it disclosable: require that the weighting partition, the resulting per-arm effective sample sizes and the balance achieved on all covariates be reported, and offer both fits as a standard sensitivity pair.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. One reader proposed this and the reviewer accepted it as a real and consequential design choice inside anchored matching, narrower than covariate selection or trimming and with competing implications for target-population alignment, precision and preservation of randomized balance. It rests on a single primary paper, whose own discussion calls for the investigation that has not been done; the conflicting recommendation elsewhere in the literature is reproduced in review rather than resolved.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [EST-06 — The MAIC paradox: swapping the IPD trial can reverse the comparison](EST-06-the-maic-paradox-swapping-the-ipd-trial-can-reverse-the-comp.qmd)
+- [OVL-04 — Weight trimming silently changes the estimand](OVL-04-weight-trimming-silently-changes-the-estimand.qmd)
+- [DEC-09 — Modifier selection and target moments reported without provenance](DEC-09-modifier-selection-and-target-moments-reported-without-prove.qmd)
+- [HET-02 — Multi-arm covariance is lost when contrasts are adjusted pairwise](HET-02-multi-arm-covariance-is-lost-when-contrasts-are-adjusted-pai.qmd)
+:::
+
+## Source
+
+Derived from reading:core-05 of the reviewed corpus.

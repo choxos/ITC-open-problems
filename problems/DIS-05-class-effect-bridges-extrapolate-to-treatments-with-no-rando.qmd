@@ -1,6 +1,6 @@
 ---
 title: "Class-effect bridges extrapolate to treatments with no randomized link"
-description: "Hierarchical class models group treatments into classes and borrow strength across them, and can stabilize sparse or disconnected evidence where a network is disconnected at the treatment level but connected at the class level, as Perren et al. 2026 state in their practical guide and four-step model-selection algorithm. Class definitions are contestable and can hide genuine between-treatment heterogeneity. Observed class members can inform and sometimes challenge the hierarchy: Perren et al. assess it by comparing model fit statistics and between-study and between-treatment standard deviations, and advise looking for alternative methods when the class assumption is not supported. What cannot be validated is extrapolation of that learned relationship to a treatment whose cross-gap effect has no independent randomized identification."
+description: "Hierarchical class models group treatments into classes and borrow strength across them, and can stabilize sparse or disconnected evidence where a network is disconnected at the treatment level but connected at the class level, as Perren et al. 2026 state in their practical guide and four-step model-selection algorithm. Class definitions are contestable and can hide genuine between-treatment heterogeneity. Observed class members can inform and sometimes challenge the hierarchy: Perren et al. assess it by comparing model fit statistics and between-study and between-treatment standard deviations, and advise looking for alternative methods when the class assumption is not supported. What cannot be validated is extrapolation of that learned relationship to a treatment whose cross-gap effect has no independent randomized identification. The same vulnerability appears in ordinary connected networks, where a hierarchical or class-structured model shrinks contrasts that are already identified: the declared partition sets how far each contrast is pulled toward the pooled mean, and the separate decision of which treatments are admitted to the network at all silently changes the amount of borrowing, so a review-scope decision becomes an estimation decision. What is missing there is not only a diagnostic but a sensitivity convention reporting how conclusions vary over plausible partitions, and a validated elicitation protocol; the elicitation device on offer is two informal yes-or-no questions."
 pid: "DIS-05"
 topic: "Disconnected networks & bridges"
 categories: ["Disconnected networks & bridges", "High priority", "Confirmed open"]
@@ -18,7 +18,7 @@ maturity: "Promising"
 :::
 ## Statement
 
-Hierarchical class models group treatments into classes and borrow strength across them, and can stabilize sparse or disconnected evidence where a network is disconnected at the treatment level but connected at the class level, as Perren et al. 2026 state in their practical guide and four-step model-selection algorithm. Class definitions are contestable and can hide genuine between-treatment heterogeneity. Observed class members can inform and sometimes challenge the hierarchy: Perren et al. assess it by comparing model fit statistics and between-study and between-treatment standard deviations, and advise looking for alternative methods when the class assumption is not supported. What cannot be validated is extrapolation of that learned relationship to a treatment whose cross-gap effect has no independent randomized identification.
+Hierarchical class models group treatments into classes and borrow strength across them, and can stabilize sparse or disconnected evidence where a network is disconnected at the treatment level but connected at the class level, as Perren et al. 2026 state in their practical guide and four-step model-selection algorithm. Class definitions are contestable and can hide genuine between-treatment heterogeneity. Observed class members can inform and sometimes challenge the hierarchy: Perren et al. assess it by comparing model fit statistics and between-study and between-treatment standard deviations, and advise looking for alternative methods when the class assumption is not supported. What cannot be validated is extrapolation of that learned relationship to a treatment whose cross-gap effect has no independent randomized identification. The same vulnerability appears in ordinary connected networks, where a hierarchical or class-structured model shrinks contrasts that are already identified: the declared partition sets how far each contrast is pulled toward the pooled mean, and the separate decision of which treatments are admitted to the network at all silently changes the amount of borrowing, so a review-scope decision becomes an estimation decision. What is missing there is not only a diagnostic but a sensitivity convention reporting how conclusions vary over plausible partitions, and a validated elicitation protocol; the elicitation device on offer is two informal yes-or-no questions.
 
 ## Why it is open
 
@@ -31,6 +31,10 @@ The class mean and variance supply the cross-gap information, so a treatment on 
 | Work | What it contributes |
 |---|---|
 | [Perren et al. 2026](https://doi.org/10.1177/0272989X251389887) | publishes a practical class-effects guide and four-step model-selection algorithm, states that class effect models can estimate relative effects in networks disconnected at the treatment level but connected at the class level, and documents the implementation of class effects in multinma |
+| [Efthimiou and White 2020, Research Synthesis Methods](https://doi.org/10.1002/jrsm.1377) | Proposes Bayesian network models that shrink treatment effects toward a common mean or toward class means as a remedy for multiplicity, and concedes the grouping problem in the same paper: the decision of which treatments to include in the network, and how to group them in the class models, matters more than in standard network meta-analysis; including an older less efficacious drug can make estimates about newer drugs more conservative; exchangeability may be false where drugs act through different biological pathways; and exchangeability is hard to convey to clinicians, for which the offered device is two informal yes-or-no questions rather than a validated elicitation protocol. |
+| [Owen, Tincello and Keith 2015, Value in Health](https://doi.org/10.1016/j.jval.2014.10.006) | A three-level hierarchical network model in which treatments are grouped and dose-related constraints imposed; an example of a partition declared a priori on clinical grounds and never scored against an alternative partition. |
+| [Del Giovane, Vacchi, Mavridis, Filippini and Salanti 2013, Statistics in Medicine](https://doi.org/10.1002/sim.5512) | Network models that account for variability in treatment definitions, applied to dose; demonstrates directly that how treatments are grouped into nodes and classes changes the estimates, which is the effect a sensitivity convention would have to display. |
+| [Caldwell and Welton 2016, Evidence-Based Mental Health](https://doi.org/10.1136/eb-2015-102275) | Sets out lumping and splitting choices for synthesizing complex interventions, the informal practice that a partition sensitivity standard would replace with a reported range. |
 
 :::
 
@@ -49,6 +53,14 @@ Let clinically prespecified classes constrain the candidate structures and use t
 
 **What was wrong with it.** The source said class exchangeability cannot be tested from the disconnected data; GPT-5.6 Sol narrowed this to the extrapolation, since with several observed treatments per class the data can inform class means, between-treatment variance, outliers, and the relative fit of candidate hierarchies, and since class variance is normally estimated with uncertainty rather than fixed at a supposedly correct value. The literature auditor confirmed doi:10.1177/0272989X251389887 and noted that leave-one-treatment-out validation, class-outlier probability, and the preference for clinical over algorithmic class definition are the catalog's own proposals rather than findings of that paper; class effects also already ship in multinma 0.8.0.
 
+**Revised by the full-text reading.** Applied full-text reading.
+
+merged-in
+:   **absorbed a proposal the reading raised separately: No validation or sensitivity standard for exchangeability partitions in hierarchical NMA** 4 citation(s) added. The drafter disagreed with placing it here: The merge is defensible, since analyst-defined classes set the borrowing structure in both settings and the subjectivity of class definition is the same vulnerability. One correction should travel with it. DIS-05 is framed around extrapolation across a disconnection, and its why-open turns on leave-one-treatment-out validation working only when the held-out effect stays independently identifiable after deletion, which fails across a gap. In a connected network that validation is available, so the connected case is strictly more tractable than DIS-05 currently implies, and absorbing this proposal without saying so would import DIS-05's pessimism into a setting where held-out scoring of a partition is the obvious first experiment.
+
+Citation corrected
+:   **normalized a citation year: 'Efthimiou and White 2019, Research Synthesis Methods' -> 'Efthimiou and White 2020, Research Synthesis Methods'** 10.1002/jrsm.1377 is cited with two different years across the registry. CrossRef gives 2019 online and 2020 in print; the issue year is used throughout.
+
 Literature and prior-art check
 :   **open / supported-with-caveat.** I read the Perren et al. 2026 open-access text. The citation is accurate: it is a practical guide with a four-step model-selection algorithm, and it does claim disconnected-network utility: 'In some cases, class effect models can also facilitate the estimation of relative effects in evidence networks that are disconnected at the treatment level, as long as they are connected at the class level.' Two caveats. First, the entry's claim that class exchangeability 'cannot be tested from the disconnected evidence itself' is the entry's own inference, not Perren's; Perren instead offers assessment by comparing model fit statistics and between-study/between-treatment standard deviations, and warns that 'if the network is disconnected at the treatment level but a class model assumption is not supported, we may need to look for alternative methods'. Second, the paper does not prescribe algorithmic versus clinical class definition, so claim 9 is the entry's recommendation, not a finding. Neither leave-one-treatment-out validation nor a class-outlier probability appears in Perren. Class effects shipped in multinma 0.8.0, which the entry does not note.
     Cites 10.1177/0272989X251389887: Confirms the citation and supplies the disconnected-network caveat the entry paraphrases; also documents implementation of class effects in multinma.
@@ -61,10 +73,32 @@ Decision path
 
 :::
 
+## How the evidence falls in time
+
+7 papers in the reviewed corpus bear on this problem, published 2016 to 2025. Every paper found here asserts the problem is open; none reports progress.
+
+This problem is **recurrent**: three or more papers spanning at least eight years assert it independently. Sustained restatement by authors who mostly do not cite each other is the strongest evidence this reading can offer that a gap is real rather than one group's framing.
+
+::: {.table-scroll}
+
+| Year | Says | Paper |
+|---|---|---|
+| 2016 | confirms it is open | Network Meta-analysis for Clinical Practice Guidelines: A Case Study on First-Line Medical Therapies for Primary Open-Angle Glaucoma |
+| 2019 | confirms it is open | The dark side of the force: Multiplicity issues in network meta-analysis and how to address them |
+| 2020 | confirms it is open | Evidence synthesis in pulmonary arterial hypertension: a systematic review and critical appraisal |
+| 2022 | confirms it is open | A dose-effect network meta-analysis model with application in antidepressants using restricted cubic splines |
+| 2022 | confirms it is open | The Value of Indirect Comparisons of Systemic Biologics for Psoriasis: Interpretation of Efficacy Findings |
+| 2023 | confirms it is open | Bayesian hierarchical model-based network meta-analysis to overcome survival extrapolation challenges caused by data immaturity |
+| 2025 | confirms it is open | Network Meta-Analysis With Class Effects: A Practical Guide and Model Selection Algorithm |
+
+:::
+
 ## Related problems
 
 ::: {.related-links}
 - [CMP-05 — No versioned intervention ontology maps onto CNMA component matrices](CMP-05-no-versioned-intervention-ontology-maps-onto-cnma-component-.qmd)
+- [HET-15 — Composite comparator nodes are collapsed rather than modeled as reported mixtures](HET-15-composite-comparator-nodes-are-collapsed-rather-than-modeled.qmd)
+- [IDN-19 — No principled basis for shared effect-modifier treatment classes](IDN-19-no-principled-basis-for-shared-effect-modifier-treatment-cla.qmd)
 :::
 
 ## Source

@@ -1,0 +1,71 @@
+---
+title: "Global inconsistency diagnostics lack calibrated operating characteristics"
+description: "The global statistics used to interrogate the consistency assumption in network meta-analysis, namely the graph-theoretical Q statistics with their I-squared analogues, residual-deviance and DIC comparison of a consistency model against an inconsistency model, and stepwise removal of studies flagged in a leverage plot, are deployed as screens without a decision rule of known error rates. The one study that measured them found none acceptable: across networks of three to five treatments, residual deviance and stepwise leverage removal declared inconsistency in 37.8 to 66.1 percent and 32.2 to 87.8 percent of replications when none was present, DIC almost never gave a false positive (0.7 to 2.5 percent) but detected true inconsistency in at most 28.3 percent of replications, and detection by the total Q statistic of a fixed injected inconsistency rose from 6.9 to 63.1 percent purely by raising tau-squared from 0.01 to 0.1 (Kiefer et al. 2020, doi:10.1186/s12874-020-0917-3). That last result is the structural one: these statistics respond to heterogeneity and to inconsistency together, so a screen cannot report which of the two it has found. What is missing is not another statistic but a decision rule with stated false-positive and detection rates over the range of network sizes, sparsity and heterogeneity that published networks occupy, and practice acts on these screens regardless, since prevalence estimates, CINeMA and GRADE inconsistency ratings and the decision whether to pool at all rest on them. The evidence for the calibration itself is also thin: a single simulation with at most five treatments, two-arm studies only, five studies per direct comparison and tau-squared of 0.01 or 0.1, so the operating characteristics of these screens outside that grid are unmeasured rather than known to be bad."
+pid: "IDN-15"
+topic: "Identification, transitivity & conditional constancy"
+categories: ["Identification, transitivity & conditional constancy", "High priority", "Partially addressed"]
+priority: "High"
+prank: 2
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
+maturity: "Promising"
+tractability: 4
+---
+::: {.problem-meta}
+[IDN-15]{.problem-id}
+[Partially addressed]{.verdict .verdict-partially-addressed}
+[High priority]{.chip .chip-priority-high}
+[Promising]{.chip .chip-maturity-promising}
+[Tractability 4/5]{.chip}
+:::
+## Statement
+
+The global statistics used to interrogate the consistency assumption in network meta-analysis, namely the graph-theoretical Q statistics with their I-squared analogues, residual-deviance and DIC comparison of a consistency model against an inconsistency model, and stepwise removal of studies flagged in a leverage plot, are deployed as screens without a decision rule of known error rates. The one study that measured them found none acceptable: across networks of three to five treatments, residual deviance and stepwise leverage removal declared inconsistency in 37.8 to 66.1 percent and 32.2 to 87.8 percent of replications when none was present, DIC almost never gave a false positive (0.7 to 2.5 percent) but detected true inconsistency in at most 28.3 percent of replications, and detection by the total Q statistic of a fixed injected inconsistency rose from 6.9 to 63.1 percent purely by raising tau-squared from 0.01 to 0.1 (Kiefer et al. 2020, doi:10.1186/s12874-020-0917-3). That last result is the structural one: these statistics respond to heterogeneity and to inconsistency together, so a screen cannot report which of the two it has found. What is missing is not another statistic but a decision rule with stated false-positive and detection rates over the range of network sizes, sparsity and heterogeneity that published networks occupy, and practice acts on these screens regardless, since prevalence estimates, CINeMA and GRADE inconsistency ratings and the decision whether to pool at all rest on them. The evidence for the calibration itself is also thin: a single simulation with at most five treatments, two-arm studies only, five studies per direct comparison and tau-squared of 0.01 or 0.1, so the operating characteristics of these screens outside that grid are unmeasured rather than known to be bad.
+
+## Why it is open
+
+Heterogeneity and inconsistency both inflate the same residual variation, and separating them requires either replication within designs or an assumption about how the two variance components relate, so a global statistic built on total discrepancy is confounded by construction rather than by carelessness. Calibrating a screen requires a known truth, so the work has to be done in simulation, and the scenario grid needed is large: topology, number of studies per design, multi-arm structure, heterogeneity, and the size and placement of the injected inconsistency all move the answer, and the one published grid varied only a few of them. Multi-arm trials, present in 142 of 201 surveyed networks, were excluded from that simulation for ease of implementation, so the structure most common in practice is the least examined. There is also no agreed operating point to calibrate to: global consistency tests are known to have low power, so a threshold that controls false positives leaves the screen nearly useless while one that detects inconsistency flags networks that are merely heterogeneous, and nobody has stated which error the field prefers to make. The absence goes unfelt in applied work because a screen returns a p-value or a fit comparison that reads as a result, and no reference standard exists in a real network against which the verdict could be checked.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Kiefer, Sturtz and Bender 2020, A simulation study to compare different estimation approaches for network meta-analysis and corresponding methods to evaluate the consistency assumption, BMC Medical Research Methodology 20](https://doi.org/10.1186/s12874-020-0917-3) | Measures false-positive and detection rates for the standard global consistency screens for the first time, concludes that none is suitable, and states that reliable methods for evaluating the consistency assumption in complex networks are missing; the grid covers at most five treatments, two-arm studies and tau-squared of 0.01 or 0.1. |
+| [Veroniki, Tsokani, White, Schwarzer et al. 2021, Prevalence of evidence of inconsistency and its association with network structural characteristics in 201 published networks of interventions, BMC Medical Research Methodology 21](https://doi.org/10.1186/s12874-021-01401-y) | Gives the empirical landscape a calibration study would have to reproduce: median 20 studies and seven interventions per network, median three loops, multi-arm trials in 142 of 201 networks, and 92.5 percent of networks containing at least one comparison informed by a single study. |
+| [Krahn, Binder and Konig 2013, A graphical tool for locating inconsistency in network meta-analyses, BMC Medical Research Methodology 13:35](https://doi.org/10.1186/1471-2288-13-35) | Derives the decomposition of the network Q statistic into within-design and between-design parts and the net heat plot built on it, the screen whose false-positive behavior is at issue. |
+| [Balduzzi, Rucker, Nikolakopoulou, Papakonstantinou et al. 2023, netmeta: An R Package for Network Meta-Analysis Using Frequentist Methods, Journal of Statistical Software 106(2)](https://doi.org/10.18637/jss.v106.i02) | Documents the implementations that make these screens the default in applied work, including the design decomposition and node splitting, with conventional significance thresholds and no calibration guidance. |
+| [Spineli 2021, A Revised Framework to Evaluate the Consistency Assumption Globally in a Network of Interventions, Medical Decision Making 42:637-648](https://doi.org/10.1177/0272989X211068005) | Repairs the unrelated mean effects model so multi-arm trials are accommodated and all observed comparisons are estimated, and adds deviance-contribution plots; it improves the diagnostic without attaching error rates to any decision rule based on it. |
+| [Spineli 2024, Local inconsistency detection using the Kullback-Leibler divergence measure, Systematic Reviews 13](https://doi.org/10.1186/s13643-024-02680-4) | Replaces the significance test for local inconsistency with an average Kullback-Leibler divergence between direct and indirect estimates compared against what the work itself calls a semi-objective threshold; it shows how far test-based verdicts and divergence-based verdicts diverge, and inherits the absence of calibrated error rates. |
+| [Nikolakopoulou, Higgins, Papakonstantinou, Chaimani et al. 2020, CINeMA: An approach for assessing confidence in the results of a network meta-analysis, PLOS Medicine 17:e1003082](https://doi.org/10.1371/journal.pmed.1003082) | The downstream consumer that converts an inconsistency screen result into a confidence rating for a network estimate, so the screen's unmeasured error rates propagate into a graded conclusion. |
+| [Zarin, Veroniki, Nincic, Vafaei et al. 2017, Characteristics and knowledge synthesis approach for 456 network meta-analyses: a scoping review, BMC Medicine 15](https://doi.org/10.1186/s12916-016-0764-6) | Supplies the published network structures needed to build a calibration grid from real topologies instead of constructed examples; the nmadb package that served them programmatically was archived from CRAN on 2025-01-23, and the 217 datasets in tracenma are a maintained alternative. |
+
+:::
+
+## Probable solution or research direction
+
+Run the calibration study the field has never run: fix the decision rules currently in use, then measure false-positive and detection rates over a scenario grid built from real topologies, using the published network collections rather than constructed examples, crossed with heterogeneity and with the size and placement of an injected inconsistency, and including multi-arm trials rather than excluding them. Report the two error rates as functions of the design characteristics an analyst can see before testing, so the output is a statement of when a screen can be believed rather than a global verdict on the screen. Separate the two signals rather than only measuring their confusion: statistics computed from within-design replication alone, or from the difference between consistency and inconsistency fits at a fixed heterogeneity, are candidates that are not confounded by construction and have never been compared on this criterion. Choose the operating point explicitly, since a screen used to license pooling and a screen used to trigger investigation need different thresholds, and both should be prespecified with measured error rates attached rather than inherited from a 0.05 or 0.10 convention. Where a screen cannot be calibrated, say so in the guidance that consumes it, because CINeMA and GRADE currently turn an uncalibrated test result into a confidence rating.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Partially addressed. One reader proposed this from a single simulation study, and the reviewer accepted the gap while noting that the absolute claim that these operating characteristics are unreported is overstated, since the cited simulation reports them. Partially addressed is the accurate reading: false-positive and detection rates have been measured once and found unacceptable, but only for networks of at most five treatments with two-arm studies, so no calibrated decision rule exists for the networks these screens are actually applied to.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [DIA-01 — No diagnostic can falsify unmeasured effect modification in PAIC](DIA-01-no-diagnostic-can-falsify-unmeasured-effect-modification-in-.qmd)
+- [DIA-03 — PAIC diagnostics are not evaluated as classifiers of realized error](DIA-03-paic-diagnostics-are-not-evaluated-as-classifiers-of-realize.qmd)
+- [HET-04 — Node splitting compares paths without standardizing to a target](HET-04-node-splitting-compares-paths-without-standardizing-to-a-tar.qmd)
+- [HET-20 — The design-by-treatment inconsistency test has no small-sample null](HET-20-the-design-by-treatment-inconsistency-test-has-no-small-samp.qmd)
+- [IDN-01 — Transitivity and conditional constancy cannot be tested in-sample](IDN-01-transitivity-and-conditional-constancy-cannot-be-tested-in-s.qmd)
+- [IDN-16 — Covariate-indexed consistency has no calibrated licensed region](IDN-16-covariate-indexed-consistency-has-no-calibrated-licensed-reg.qmd)
+- [MIS-05 — Missing-outcome methods do not cover NMA inconsistency and rankings](MIS-05-missing-outcome-methods-do-not-cover-nma-inconsistency-and-r.qmd)
+:::
+
+## Source
+
+Derived from reading:nma-23 of the reviewed corpus.

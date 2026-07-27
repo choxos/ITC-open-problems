@@ -3,17 +3,17 @@ title: "Target population and joint-distribution uncertainty"
 description: "Aggregate publications report marginal means or proportions, so analysts copy correlations from the IPD source into a single reconstructed target population and treat it as known; Ren et al. 2025 (doi:10.1017/rsm.2025.13) do exactly that, taking the marginals from the comparator publication and the correlation structure from their own trial. Published marginal summaries identify a target-standardized effect only when they determine the expectations of every basis function the outcome model uses, which nonlinearity generally defeats; the converse does not hold, since under an identity-link model with a treatment-by-U interaction the target mean of U can suffice despite effect modification, and correlation is irrelevant to a purely additive linear expectation. The target is also commonly the comparator-study population by data availability rather than the reimbursement-relevant population, and Chandler and Ishak (arXiv:2602.17041) show that pairwise PAIC identifies an effect defined in the comparator population, so applying it elsewhere is an additional transport step; because marginal effects are population-dependent on non-collapsible scales, this is not a labeling issue."
 pid: "QBA-10"
 topic: "Quantitative bias analysis for unanchored PAIC"
-categories: ["Quantitative bias analysis for unanchored PAIC", "Very high priority", "Confirmed open"]
+categories: ["Quantitative bias analysis for unanchored PAIC", "Very high priority", "Partially addressed"]
 priority: "Very high"
 prank: 1
-verdict: "Confirmed open"
-verdictslug: "confirmed-open"
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
 maturity: "Emerging"
 tractability: 4
 ---
 ::: {.problem-meta}
 [QBA-10]{.problem-id}
-[Confirmed open]{.verdict .verdict-confirmed-open}
+[Partially addressed]{.verdict .verdict-partially-addressed}
 [Very high priority]{.chip .chip-priority-very-high}
 [Emerging]{.chip .chip-maturity-emerging}
 [Tractability 4/5]{.chip}
@@ -44,13 +44,18 @@ Replace the single reconstructed target with a set of jointly compatible target 
 ## Verification
 
 ::: {.verification-trail}
-**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+**Verdict.** Partially addressed. Auditors agreed the problem is open and no counterevidence surfaced. Reopened by the full-text reading: 2 findings from 2 papers survived both the reader and an independent second reviewer, so the verdict moves from confirmed-open to partially-addressed.
 
 **The source said.** "Aggregate publications report only marginal means or proportions, so analysts copy correlations from the IPD source into a single reconstructed target population and then treat it as known, although the copula family, tail dependence and higher moments are not identified by published marginals. The target is also commonly the comparator-study population by data availability rather than the reimbursement-relevant population, and both the primary analysis and its sensitivity layer inherit that default."
 
 **What was wrong with it.** GPT-5.6 Sol found the entry's sufficiency condition stated backwards: target means fail when they do not determine the outcome model's relevant expectations, not automatically whenever the outcome is nonlinear, the omitted variable interacts with treatment or it correlates with measured covariates. The claim that a joint distribution is unidentified by aggregate data was narrowed to marginal summaries, since sufficiently detailed joint tables or cross-moments can identify dependence features, and a sensitivity analysis should vary jointly compatible target laws in the features that affect the estimand rather than mechanically vary every listed quantity. The entry cited nothing; the literature auditor supplied Ren et al. 2025 (doi:10.1017/rsm.2025.13) for current practice and Chandler and Ishak (arXiv:2602.17041) for the target-population point.
 
 **Dissent.** literature dissented (supported): Claims 1 to 3 and 6 to 8 are well supported by retrieved literature the entry cites nothing for. Ren et al. 2025 confirms current practice exactly: their NORTA construction takes 'the marginal distribution of O_i ... based on the reported mean for O_j from Study A' but 'the correlation structure from Study B', i.e. correlations are copied from the IPD source into the reconstructed target and then treated as known, and they flag that the resulting estimand is 'the marginal treatment effect in the comparator trial population, which is different from the marginal treatment effect in the RCT population'. Claim 8 is independently and strongly supported by Chandler and Ishak (arXiv 2602.17041), which shows 'pairwise PAIC approaches typically identify effects defined in the comparator population and that applying these estimates to other populations entails an additional, often implicit, transport step requiring further assumptions', and that marginal effects on non-collapsible scales are population-dependent so the labelling is not cosmetic. Claim 4 (QBA should range over copula families and higher moments) is a normative proposal and I found no published PAIC implementation of distributional-uncertainty-set or copula sensitivity, so the problem is open.
+
+**Revised by the full-text reading.** Applied 2026-07-26 full-text reading of the consolidated library (687 papers).
+
+Verdict changed
+:   **confirmed-open -> partially-addressed** 2 surviving findings from: Anchors Away: Navigating Unanchored Indirect Comparisons wit; Network meta-interpolation: Effect modification adjustment i. New citations: 10.1002/jrsm.1608
 
 Literature and prior-art check
 :   **open / supported.** Claims 1 to 3 and 6 to 8 are well supported by retrieved literature the entry cites nothing for. Ren et al. 2025 confirms current practice exactly: their NORTA construction takes 'the marginal distribution of O_i ... based on the reported mean for O_j from Study A' but 'the correlation structure from Study B', i.e. correlations are copied from the IPD source into the reconstructed target and then treated as known, and they flag that the resulting estimand is 'the marginal treatment effect in the comparator trial population, which is different from the marginal treatment effect in the RCT population'. Claim 8 is independently and strongly supported by Chandler and Ishak (arXiv 2602.17041), which shows 'pairwise PAIC approaches typically identify effects defined in the comparator population and that applying these estimates to other populations entails an additional, often implicit, transport step requiring further assumptions', and that marginal effects on non-collapsible scales are population-dependent so the labelling is not cosmetic. Claim 4 (QBA should range over copula families and higher moments) is a normative proposal and I found no published PAIC implementation of distributional-uncertainty-set or copula sensitivity, so the problem is open.
@@ -61,6 +66,26 @@ GPT-5.6 Sol, technical and source-code lens
 
 Decision path
 :   `R5:default-open → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## How the evidence falls in time
+
+5 papers in the reviewed corpus bear on this problem, published 2021 to 2026. The most recent paper to touch this reports progress on it, and every paper calling it open is older.
+
+It is also being **closed in pieces**: partial results come from more than one paper in more than one year, each covering a different part.
+
+**Does the later work answer the earlier work?** Put to an independent reviewer with the older and newer claims side by side, it judged that the later work answers a component of it, leaving a named part (high confidence). Later work directly addresses one component by varying plausible correlation assumptions and examining the consequences of moderate dependence misspecification. It does not identify the target joint distribution from published marginals, quantify its full uncertainty, or resolve target-population choice and the additional transport problem. What remains: Uncertainty in target marginals and multivariate dependence structures, sensitivity over more than one correlation parameter, and the distinction between comparator-defined and decision-relevant target populations remain unresolved.
+
+::: {.table-scroll}
+
+| Year | Says | Paper |
+|---|---|---|
+| 2021 | confirms it is open | Individual Participant Data Meta-Analysis: A Handbook for Healthcare Research (Riley, Tierney, Stewart, eds.; Wiley Series in Statistics in Practice, 2021) |
+| 2022 | confirms it is open | Parametric G-computation for compatible indirect treatment comparisons with limited individual patient data |
+| 2023 | partly addresses it | Network meta-interpolation: Effect modification adjustment in network meta-analysis using subgroup analyses (Harari, Soltanifar, Cappelleri, Verhoek, Ouwens, Daly, Heeg; Research Synthesis Methods 2023;14(2):211-233) |
+| 2025 | confirms it is open | Quantitative bias analysis for unmeasured confounding in unanchored population-adjusted indirect comparisons |
+| 2026 | partly addresses it | Anchors Away: Navigating Unanchored Indirect Comparisons with Multilevel Unanchored Meta-Regression (ML-UMR) (Chandler & Ishak; arXiv:2606.20341v1). The batch file points at media/media/Table1.pdf; the full LaTeX source mlumr.tex sits in the same arXiv package and was read. |
 
 :::
 

@@ -1,0 +1,70 @@
+---
+title: "Evidence contribution has no definition inside a Bayesian fit"
+description: "The proportion contribution matrix, evidence flow and per-study importance are all defined from the frequentist two-stage projection matrix H, and no analogue to H exists in Bayesian network meta-analysis; the derivation states that limitation itself and offers the construction as a source of useful approximations rather than as a Bayesian quantity. This matters beyond bookkeeping: CINeMA's per-comparison within-study-bias and indirectness judgments are computed from that matrix, so the GRADE-style certainty machinery the field relies on is frequentist-only. Bayesian synthesis is the framework used for most health technology assessment submissions and the only one available for multilevel network meta-regression and component models, so contributions there are obtained by refitting the network frequentist-style and importing the answer. Nothing validates that the imported number approximates how the Bayesian posterior actually depends on each study, and no study characterizes the discrepancy as a function of the heterogeneity prior, network sparsity or prior informativeness. The nearest Bayesian-native quantity is a posterior-to-prior variance ratio for a disconnected contrast, which measures how far the data move the prior but does not attribute the movement to studies or comparisons. Every subsequent contribution method, including shortest-path and leave-one-out contribution analysis for component networks, extends the frequentist construction rather than replacing it. There is therefore no posterior-native, validated study or comparison contribution measure, and no reported column for the prior, which in a Bayesian fit is itself a source of the estimate."
+pid: "DEC-19"
+topic: "Decision analysis, regulation & reporting"
+categories: ["Decision analysis, regulation & reporting", "High priority", "Confirmed open"]
+priority: "High"
+prank: 2
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Promising"
+tractability: 3
+---
+::: {.problem-meta}
+[DEC-19]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[High priority]{.chip .chip-priority-high}
+[Promising]{.chip .chip-maturity-promising}
+[Tractability 3/5]{.chip}
+:::
+## Statement
+
+The proportion contribution matrix, evidence flow and per-study importance are all defined from the frequentist two-stage projection matrix H, and no analogue to H exists in Bayesian network meta-analysis; the derivation states that limitation itself and offers the construction as a source of useful approximations rather than as a Bayesian quantity. This matters beyond bookkeeping: CINeMA's per-comparison within-study-bias and indirectness judgments are computed from that matrix, so the GRADE-style certainty machinery the field relies on is frequentist-only. Bayesian synthesis is the framework used for most health technology assessment submissions and the only one available for multilevel network meta-regression and component models, so contributions there are obtained by refitting the network frequentist-style and importing the answer. Nothing validates that the imported number approximates how the Bayesian posterior actually depends on each study, and no study characterizes the discrepancy as a function of the heterogeneity prior, network sparsity or prior informativeness. The nearest Bayesian-native quantity is a posterior-to-prior variance ratio for a disconnected contrast, which measures how far the data move the prior but does not attribute the movement to studies or comparisons. Every subsequent contribution method, including shortest-path and leave-one-out contribution analysis for component networks, extends the frequentist construction rather than replacing it. There is therefore no posterior-native, validated study or comparison contribution measure, and no reported column for the prior, which in a Bayesian fit is itself a source of the estimate.
+
+## Why it is open
+
+H exists because the frequentist network estimate is a fixed linear map of the direct estimates; a posterior is not a linear function of the data, so there is no matrix to decompose and no unique way to divide the posterior among studies. Under a random-effects model with a prior on heterogeneity the weight a study receives is itself a random quantity, so any contribution figure is a posterior summary and requires a prior decision about which functional is being summarized. The candidate replacements, namely leave-one-study-out posterior distance, Kullback-Leibler divergence and prior-to-posterior variance decomposition, each answer a different question, none is on the same zero-to-one-hundred-percent scale as the contribution matrix, and none has published operating characteristics. Meanwhile the frequentist import is cheap and produces a number CINeMA accepts, so nothing in practice forces the harder derivation. The problem is also invisible in output: a contribution table computed by refitting looks identical to one computed from the model that produced the reported estimates.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Papakonstantinou et al. 2018, Estimating the contribution of studies in network meta-analysis: paths, flows and streams, F1000Research](https://doi.org/10.12688/f1000research.14770.3) | Derives the proportion contribution matrix from the frequentist hat matrix and states that deriving the contribution of evidence sources in a Bayesian network meta-analysis is not straightforward because no analogue to H exists, offering the method only as a source of useful approximations. |
+| [Papakonstantinou et al. 2020, In network meta-analysis, most of the information comes from indirect evidence: empirical study, Journal of Clinical Epidemiology](https://doi.org/10.1016/j.jclinepi.2020.04.009) | Applies the contribution matrix across 213 published network meta-analyses, establishing it as the field's working provenance quantity; the computation is frequentist throughout. |
+| [Nikolakopoulou et al. 2020, CINeMA: An approach for assessing confidence in the results of a network meta-analysis, PLOS Medicine](https://doi.org/10.1371/journal.pmed.1003082) | Builds per-comparison confidence judgments for within-study bias and indirectness on the contribution matrix, which is what makes the frequentist-only construction consequential for certainty assessment. |
+| [Rucker et al. 2020, The statistical importance of a study for a network meta-analysis estimate, BMC Medical Research Methodology](https://doi.org/10.1186/s12874-020-01075-y) | Defines study importance for a network estimate through the change induced by removing a study, again from the frequentist design rather than from a posterior. |
+| [Beliveau and Gustafson 2021, A Theoretical Investigation of How Evidence Flows in Bayesian Network Meta-Analysis of Disconnected Networks, Bayesian Analysis](https://doi.org/10.1214/20-BA1224) | Supplies the closest Bayesian-native evidence-flow quantity, the ratio of posterior to prior variance for a disconnected contrast, and shows evidence cannot flow across a true disconnection under weak priors; it measures prior versus data influence and does not attribute information to individual studies. |
+| [Yang et al. 2026, Evidence contributions in component network meta-analysis from the shortest-path approach, BMC Medical Research Methodology](https://doi.org/10.1186/s12874-026-02766-8) | Extends evidence-contribution tracing to component network meta-analysis by adapting the shortest-path decomposition, keeping the frequentist projection as the foundation. |
+| [Mao et al. 2025, A leave-one-out algorithm for contribution analysis in component network meta-analysis, BMC Medical Research Methodology](https://doi.org/10.1186/s12874-025-02619-w) | Gives a leave-one-out route to contribution in component networks, showing the alternative constructions the field is exploring are still defined on the frequentist fit. |
+| [Donegan et al. 2018, Graphs of study contributions and covariate distributions for network meta-regression, Research Synthesis Methods](https://doi.org/10.1002/jrsm.1292) | Displays study contributions alongside covariate distributions for network meta-regression, the reporting form a Bayesian contribution measure would have to reproduce. |
+
+:::
+
+## Probable solution or research direction
+
+Define contribution as a functional of the posterior rather than of a design matrix: for each decision contrast report the movement of the posterior when a study is removed or downweighted, anchored so that removing nothing scores zero and removing all direct evidence for that contrast scores one, using a symmetric divergence rather than Kullback-Leibler alone. The standardized information-sharing metrics that anchor a borrowing measure between splitting and lumping supply a working template for that anchoring and can be adapted from population sharing to study-level attribution within a network. Validate by simulating networks in which the frequentist contribution is known, computing the posterior-based quantity, and reporting the discrepancy as a function of the heterogeneity prior, network sparsity and prior informativeness, which also tells current CINeMA users how much error the frequentist import carries. Add an explicit prior column, since in a Bayesian fit the prior contributes information and the frequentist matrix has no cell for it.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. One reader proposed this and the reviewer accepted it on the ground that the quoted paper states the absence of an H analogue and characterizes what it offers as an approximation rather than a Bayesian contribution calculation. The evidence is a single methods paper, which is a weaker basis than a survey, although the frequentist-only construction is visible in every contribution method published since.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [CMU-02 — Priors, not data, can drive posteriors in weakly identified models](CMU-02-priors-not-data-can-drive-posteriors-in-weakly-identified-mo.qmd)
+- [DEC-08 — No provenance label separates bridged from prior-driven contrasts](DEC-08-no-provenance-label-separates-bridged-from-prior-driven-cont.qmd)
+- [DEC-22 — No confidence rating covers a network that mixes designs](DEC-22-no-confidence-rating-covers-a-network-that-mixes-designs.qmd)
+- [DEC-23 — The treatment hierarchy is published without a certainty rating](DEC-23-the-treatment-hierarchy-is-published-without-a-certainty-rat.qmd)
+- [DEC-24 — Borrowing intensity has no scale that spans sharing mechanisms](DEC-24-borrowing-intensity-has-no-scale-that-spans-sharing-mechanis.qmd)
+- [MOD-13 — No reporting convention exposes prior-dominated contrasts in PAIC](MOD-13-no-reporting-convention-exposes-prior-dominated-contrasts-in.qmd)
+:::
+
+## Source
+
+Derived from reading:nma-31 of the reviewed corpus.

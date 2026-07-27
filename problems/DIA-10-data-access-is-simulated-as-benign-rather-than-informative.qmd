@@ -3,16 +3,16 @@ title: "Data access is simulated as benign rather than informative"
 description: "No PAIC simulation varies informative IPD availability, selective baseline or outcome reporting, MNAR covariate or outcome missingness, informative censoring, differential loss to follow-up, or sampling error on published target summaries, so access-driven error goes unmeasured and is attributed to method failure by default. Two parts of the original claim need narrowing. A simulate-digitize-reconstruct evaluation design for digitization error already exists in the reconstruction literature (doi:10.1177/23814683221077643); what is missing is its propagation into PAIC estimator performance. And a sponsor holding IPD for its own trial makes access treatment-dependent without making it depend on the study-specific treatment effect, so an explicit availability model is needed when inference generalizes over studies and availability depends on effect-relevant study characteristics, not automatically."
 pid: "DIA-10"
 topic: "Diagnostics & empirical validation"
-categories: ["Diagnostics & empirical validation", "High priority", "Confirmed open"]
+categories: ["Diagnostics & empirical validation", "High priority", "Partially addressed"]
 priority: "High"
 prank: 2
-verdict: "Confirmed open"
-verdictslug: "confirmed-open"
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
 maturity: "Promising"
 ---
 ::: {.problem-meta}
 [DIA-10]{.problem-id}
-[Confirmed open]{.verdict .verdict-confirmed-open}
+[Partially addressed]{.verdict .verdict-partially-addressed}
 [High priority]{.chip .chip-priority-high}
 [Promising]{.chip .chip-maturity-promising}
 :::
@@ -41,11 +41,16 @@ Add data-access mechanisms to the generator: reconstruction error using the exis
 ## Verification
 
 ::: {.verification-trail}
-**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+**Verdict.** Partially addressed. Auditors agreed the problem is open and no counterevidence surfaced. Reopened by the full-text reading: 1 finding from 1 paper survived both the reader and an independent second reviewer, so the verdict moves from confirmed-open to partially-addressed, on a single finding.
 
 **The source said.** "Simulation designs treat data access as benign: IPD is assumed available at random, published target summaries are treated as fixed and known, and pseudo-IPD is treated as exact. MAR and MNAR covariate missingness, outcome missingness and informative censoring, selective baseline and outcome reporting, informative IPD availability, digitization error, sampling error in target summaries and differential loss to follow-up are not varied."
 
 **What was wrong with it.** The source treated digitization error as having no standard generator and sponsor-held IPD as automatically informative; the literature auditor found an established simulate-digitize-reconstruct evaluation design (doi:10.1177/23814683221077643), and GPT-5.6 Sol separated structurally asymmetric access from an effect-informative availability mechanism and noted that fixed target summaries are appropriate when the target is the realized comparator-trial sample rather than a superpopulation.
+
+**Revised by the full-text reading.** Applied 2026-07-26 full-text reading of the consolidated library (687 papers).
+
+Verdict changed
+:   **confirmed-open -> partially-addressed** 1 surviving finding from: A Bayesian hierarchical model for network meta-analysis of m. New citations: 10.1093/biostatistics/kxx025
 
 Literature and prior-art check
 :   **open / supported-with-caveat.** I found no PAIC simulation that varies informative IPD availability, selective baseline or outcome reporting, MNAR covariate or outcome missingness, informative censoring, differential loss to follow-up, or sampling error on published target summaries, so the core of the entry stands. The digitization sub-claim needs narrowing: the pseudo-IPD reconstruction literature does have a standard evaluation design in which curves are simulated, digitized and reconstructed and hazard ratios and survival quantiles are compared with the originals, and there is recent work propagating reconstruction uncertainty into downstream synthesis by bootstrapping pseudo-IPD. So a digitization-error generator is not absent from evidence synthesis generally; what is absent is its propagation into PAIC estimator performance. I retrieved these reconstruction items at title/summary level only, hence the moderate confidence.
@@ -59,12 +64,31 @@ Decision path
 
 :::
 
+## How the evidence falls in time
+
+6 papers in the reviewed corpus bear on this problem, published 2018 to 2021. Partial progress is on the record, and later work still calls this open. Both belong in view.
+
+::: {.table-scroll}
+
+| Year | Says | Paper |
+|---|---|---|
+| 2018 | partly addresses it | A Bayesian hierarchical model for network meta-analysis of multiple diagnostic tests |
+| 2019 | confirms it is open | Participants' outcomes gone missing within a network of interventions: Bayesian modeling strategies |
+| 2019 | confirms it is open | Selective reporting bias in randomised controlled trials from two network meta-analyses: comparison of clinical trial registrations and their respective publications |
+| 2020 | confirms it is open | Assessing the performance of population adjustment methods for anchored indirect comparisons: A simulation study |
+| 2020 | confirms it is open | Performance of unanchored matching-adjusted indirect comparison (MAIC) for the evidence synthesis of single-arm trials with time-to-event outcomes |
+| 2021 | confirms it is open | Individual Participant Data Meta-Analysis: A Handbook for Healthcare Research (Riley, Tierney, Stewart, eds.; Wiley Series in Statistics in Practice, 2021) |
+
+:::
+
 ## Related problems
 
 ::: {.related-links}
 - [CMP-22 — IPD availability may be informative rather than random](CMP-22-ipd-availability-may-be-informative-rather-than-random.qmd)
 - [DEC-09 — Modifier selection and target moments reported without provenance](DEC-09-modifier-selection-and-target-moments-reported-without-prove.qmd)
+- [DIS-18 — Unequal dose coverage moves a dose-response bridge one way](DIS-18-unequal-dose-coverage-moves-a-dose-response-bridge-one-way.qmd)
 - [EVB-05 — No reporting standard covers what population adjustment needs](EVB-05-no-reporting-standard-covers-what-population-adjustment-need.qmd)
+- [EVB-08 — Network small-study-effects diagnostics lack an assumption-light default](EVB-08-network-small-study-effects-diagnostics-lack-an-assumption-l.qmd)
 - [OUT-13 — Reconstruction uncertainty from digitized Kaplan-Meier curves](OUT-13-reconstruction-uncertainty-from-digitized-kaplan-meier-curve.qmd)
 :::
 

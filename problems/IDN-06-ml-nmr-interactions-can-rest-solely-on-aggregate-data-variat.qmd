@@ -3,16 +3,16 @@ title: "ML-NMR interactions can rest solely on aggregate-data variation"
 description: "In mixed IPD and aggregate-data ML-NMR, interaction directions without adequate within-study IPD support may be weakly identified or nonidentified and are then sensitive to aggregate-study variation, shared-interaction restrictions and priors, and one coefficient forced to carry both within-study and between-study variation conflates individual-level effect modification with an ecological gradient. How far this bites is design- and parameter-specific rather than a categorical property of the method. The auditors disagreed on scope and the disagreement stands: the literature auditor found each claim confirmed almost verbatim by the ML-NMR authors, who report that the secukinumab interaction estimates rest solely on aggregate data and that the shared-interaction restriction was required to identify the model (doi:10.1177/0272989X221117162), while the source-code auditor judged the diagnostic void overstated, because cpaic, an unreleased development package on GitHub that cannot be installed from CRAN, already labels whether a row is identified by IPD, by between-study gradients or by neither, and flags posteriors that simply reproduce their priors."
 pid: "IDN-06"
 topic: "Identification, transitivity & conditional constancy"
-categories: ["Identification, transitivity & conditional constancy", "Very high priority", "Unverifiable"]
+categories: ["Identification, transitivity & conditional constancy", "Very high priority", "Partially addressed"]
 priority: "Very high"
 prank: 1
-verdict: "Unverifiable"
-verdictslug: "unverifiable"
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
 maturity: "Promising"
 ---
 ::: {.problem-meta}
 [IDN-06]{.problem-id}
-[Unverifiable]{.verdict .verdict-unverifiable}
+[Partially addressed]{.verdict .verdict-partially-addressed}
 [Very high priority]{.chip .chip-priority-very-high}
 [Promising]{.chip .chip-maturity-promising}
 :::
@@ -43,7 +43,7 @@ Do not rebuild the flags; make them standard and test them. Evaluate in simulati
 ## Verification
 
 ::: {.verification-trail}
-**Verdict.** Unverifiable. Auditors disagreed and the disagreement was evidence-bearing on both sides.
+**Verdict.** Partially addressed. Auditors disagreed and the disagreement was evidence-bearing on both sides. Reopened by the full-text reading: 5 findings from 5 papers survived both the reader and an independent second reviewer, so the verdict moves from unverifiable to partially-addressed.
 
 **The source titled this.** "ML-NMR interaction parameters are only partially identified" The title states partial identification as a categorical property of the method, which the audit found to be design- and parameter-specific.
 
@@ -52,6 +52,11 @@ Do not rebuild the flags; make them standard and test them. Evaluate in simulati
 **What was wrong with it.** The source stated partial identifiability as a categorical weakness and said nothing in standard output separates a parameter learned from data from one supplied by the prior. The source-code auditor found identifiability parameter- and design-specific and found both flags already implemented in cpaic at commit 9d150e9, while the literature auditor found the claims confirmed by the ML-NMR authors themselves; the entry is published as unverifiable because both readings carry evidence, and it is now sourced to doi:10.1177/0272989X221117162, for which it previously cited nothing.
 
 **Dissent.** codex dissented (overstated): C1 and C2 are technically sound: ML-NMR transports conditional relative-effect models and must integrate aggregate-study likelihood contributions over specified covariate distributions. C3 is too categorical. Interaction identifiability is parameter- and design-specific: interactions may be well identified by adequate within-trial IPD variation, weakly identified, or nonidentified. Aggregate arms can identify model-dependent integrated functionals and sometimes interaction combinations, rather than supplying only a generic ecological gradient. C4 is correct as a possibility when one coefficient is forced to represent both within-study and between-study variation. The report also overstates the diagnostic void for cpaic at 9d150e9: estimable_effects_at() labels whether information is from IPD, aggregate gradients, or neither, while plot_prior_posterior() exposes parameters whose posteriors reproduce their priors. These diagnostics flag rather than solve the underlying identification problem.
+
+**Revised by the full-text reading.** Applied 2026-07-26 full-text reading of the consolidated library (687 papers).
+
+Verdict changed
+:   **unverifiable -> partially-addressed** 5 surviving findings from: A framework for identifying treatment-covariate interactions; An overview of methods for network meta-analysis using indiv; Comparing the use of aggregate data and various methods of i; Individual Participant Data Meta-Analysis: A Handbook for He; Network meta-analysis combining individual patient and aggre. New citations: 10.1002/jrsm.1300, 10.1177/0962280216660741, 10.1186/s12874-015-0007-0, 10.1186/s12874-021-01254-5
 
 Literature and prior-art check
 :   **open / supported.** This entry has no prior_work at all, yet every one of its four claims is confirmed almost verbatim by a paper by the ML-NMR authors themselves, which I read in full. On partial identifiability: in the psoriasis network the secukinumab interaction estimates 'are much more uncertain than for the ixekizumab regimens, as the secukinumab parameters are based solely on AgD, and the ixekizumab data largely drive the interaction estimates in the common interaction model', and the shared-interaction restriction was 'required to identify the model'. On within-versus-between conflation, Phillippo et al. state the ecological-bias mechanism explicitly and flag the entry's own proposed remedy as unexplored: 'it is possible to fit ML-NMR models where the interaction terms are split in this manner (given sufficient data), and this is an interesting avenue for further research.' That is a source asserting the gap, which is the strongest evidence a 'this is open' claim can have. The integration-distribution requirement is intrinsic to ML-NMR and restated in the general-likelihood extension (arXiv 2401.12640 / JRSS-A 10.1093/jrsssa/qnaf169). I recommend the catalog attach Phillippo et al. 2023 as prior_work rather than publishing this entry unsourced.
@@ -64,11 +69,43 @@ Decision path
 
 :::
 
+## How the evidence falls in time
+
+15 papers in the reviewed corpus bear on this problem, published 2013 to 2024. Partial progress is on the record, and later work still calls this open. Both belong in view.
+
+This problem is **recurrent**: three or more papers spanning at least eight years assert it independently. Sustained restatement by authors who mostly do not cite each other is the strongest evidence this reading can offer that a gap is real rather than one group's framing.
+
+It is also being **closed in pieces**: partial results come from more than one paper in more than one year, each covering a different part.
+
+::: {.table-scroll}
+
+| Year | Says | Paper |
+|---|---|---|
+| 2013 | confirms it is open | Evidence synthesis for decision making 3: heterogeneity - subgroups, meta-regression, bias, and bias-adjustment |
+| 2014 | confirms it is open | Network meta-analysis of (individual patient) time to event data alongside (aggregate) count data |
+| 2015 | partly addresses it | Network meta-analysis combining individual patient and aggregate data from a mixture of study designs with an application to pulmonary arterial hypertension |
+| 2016 | partly addresses it | An overview of methods for network meta-analysis using individual participant data: when do benefits arise? |
+| 2017 | confirms it is open | Network meta-analysis including treatment by covariate interactions: Consistency can vary across covariate values |
+| 2018 | partly addresses it | A framework for identifying treatment-covariate interactions in individual participant data network meta-analysis |
+| 2020 | confirms it is open | Multilevel network meta-regression for population-adjusted treatment comparisons |
+| 2021 | partly addresses it | Individual Participant Data Meta-Analysis: A Handbook for Healthcare Research (Riley, Tierney, Stewart, eds.; Wiley Series in Statistics in Practice, 2021) |
+| 2021 | partly addresses it | Comparing the use of aggregate data and various methods of integrating individual patient data to network meta-analysis and its application to first-line ART |
+| 2021 | confirms it is open | A frequentist one-step model for a simple network meta-analysis of time-to-event data in presence of an effect modifier |
+| 2022 | confirms it is open | Validating the Assumptions of Population Adjustment: Application of Multilevel Network Meta-regression to a Network of Treatments for Plaque Psoriasis |
+| 2022 | confirms it is open | Calibrating a network meta-analysis of diabetes trials of sodium glucose cotransporter 2 inhibitors, glucagon-like peptide-1 receptor analogues and dipeptidyl peptidase-4 inhibitors to a representative routine population: a systematic review protocol |
+| 2023 | confirms it is open | Individual participant data from digital sources informed and improved precision in the evaluation of predictive biomarkers in Bayesian network meta-analysis |
+| 2024 | confirms it is open | Methods for Indirect Treatment Comparison: Results from a Systematic Literature Review |
+| 2024 | confirms it is open | Comparing the efficacy of cipaglucosidase alfa plus miglustat with other enzyme replacement therapies for late-onset Pompe disease: a network meta-analysis utilizing patient-level and aggregate data |
+
+:::
+
 ## Related problems
 
 ::: {.related-links}
 - [CMP-25 — Component ML-NMR integration has no parallel or adaptive scheme](CMP-25-component-ml-nmr-integration-has-no-parallel-or-adaptive-sch.qmd)
+- [IDN-19 — No principled basis for shared effect-modifier treatment classes](IDN-19-no-principled-basis-for-shared-effect-modifier-treatment-cla.qmd)
 - [MOD-03 — Ecological versus within-study effect modification](MOD-03-ecological-versus-within-study-effect-modification.qmd)
+- [MOD-15 — No calibrated rule says when within- and across-trial interactions may be pooled](MOD-15-no-calibrated-rule-says-when-within-and-across-trial-interac.qmd)
 :::
 
 ## Source

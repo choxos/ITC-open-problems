@@ -1,0 +1,71 @@
+---
+title: "Match acceptance thresholds are uncalibrated against bridge bias"
+description: "When single-arm or aggregate studies are matched on reported baseline summaries to manufacture an edge that randomization did not supply, the analyst must set a maximum admissible dissimilarity, and nothing ties that cutoff to the bias it induces in the bridged contrast. The one empirical anchor available points the other way: arms of the same randomized trial differ by an average distance of 0.01, range 0.00 to 0.03, on a clinician-weighted covariate index, roughly an order of magnitude tighter than the threshold of 0.1 used in practice, and only one of eight admitted matches in a multiple myeloma network would have survived a randomized-trial-comparable cutoff (Schmitz et al. 2018, doi:10.1186/s12874-018-0509-7). The cutoff also decides which cross-gap comparisons exist at all, since 8 of 56 candidate pairings fell below it and 5 of those connected the two subnetworks, so one number silently fixes both the point estimate and the reported comparison set. What the choice can cost is visible where an external check exists: on one contrast the matched analysis returned a hazard ratio of 1.15 (0.77 to 1.74) against 0.73 (0.52 to 1.03) and 0.60 (0.35 to 1.01) from individual-patient analyses, putting the bridged estimate on the opposite side of the null with the widest interval. A loose threshold matches studies that are not comparable while a tight one leaves the network disconnected or admits so few matches that uncertainty is understated, and nothing trades the two off. The distance metric, its covariate weights, its normalization and the threshold are all analyst choices with no standard, and a released implementation now exposes them as ordinary function arguments."
+pid: "DIS-21"
+topic: "Disconnected networks & bridges"
+categories: ["Disconnected networks & bridges", "High priority", "Confirmed open"]
+priority: "High"
+prank: 2
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Emerging"
+tractability: 4
+---
+::: {.problem-meta}
+[DIS-21]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[High priority]{.chip .chip-priority-high}
+[Emerging]{.chip .chip-maturity-emerging}
+[Tractability 4/5]{.chip}
+:::
+## Statement
+
+When single-arm or aggregate studies are matched on reported baseline summaries to manufacture an edge that randomization did not supply, the analyst must set a maximum admissible dissimilarity, and nothing ties that cutoff to the bias it induces in the bridged contrast. The one empirical anchor available points the other way: arms of the same randomized trial differ by an average distance of 0.01, range 0.00 to 0.03, on a clinician-weighted covariate index, roughly an order of magnitude tighter than the threshold of 0.1 used in practice, and only one of eight admitted matches in a multiple myeloma network would have survived a randomized-trial-comparable cutoff (Schmitz et al. 2018, doi:10.1186/s12874-018-0509-7). The cutoff also decides which cross-gap comparisons exist at all, since 8 of 56 candidate pairings fell below it and 5 of those connected the two subnetworks, so one number silently fixes both the point estimate and the reported comparison set. What the choice can cost is visible where an external check exists: on one contrast the matched analysis returned a hazard ratio of 1.15 (0.77 to 1.74) against 0.73 (0.52 to 1.03) and 0.60 (0.35 to 1.01) from individual-patient analyses, putting the bridged estimate on the opposite side of the null with the widest interval. A loose threshold matches studies that are not comparable while a tight one leaves the network disconnected or admits so few matches that uncertainty is understated, and nothing trades the two off. The distance metric, its covariate weights, its normalization and the threshold are all analyst choices with no standard, and a released implementation now exposes them as ordinary function arguments.
+
+## Why it is open
+
+Calibrating a cutoff against bias requires knowing the bridged contrast for candidate pairs at each level of dissimilarity, which is exactly what a disconnection removes; the calibration can only be borrowed from settings where the answer is known, and no such reference collection has been assembled. The index itself is not standard, since covariate choice, weighting and normalization vary by application, so a threshold calibrated on one index does not transfer to another. The two failure modes are not commensurable, one biasing the point estimate and the other understating uncertainty while shrinking the reported comparison set, and no loss function has been written that trades them against each other. Individual-level matching solved the analogous problem with caliper widths calibrated by simulation against mean squared error, but the study-level version has more covariates, no individual data, and a distance defined on reported summaries rather than on an estimated propensity score, so the existing result does not port.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Schmitz et al. 2018, BMC Medical Research Methodology](https://doi.org/10.1186/s12874-018-0509-7) | builds the matching bridge with a clinician-weighted covariate distance, states that no guidance exists on how similar is similar enough, adopts 0.1, then measures within-randomized-trial distances an order of magnitude smaller and reports the resulting sensitivity of between-network rankings to which matches are admitted |
+| [Thom et al. 2022, Medical Decision Making](https://doi.org/10.1177/0272989X221097081) | extends aggregate-level matching to whole disconnected trials using Euclidean covariate distance and quantifies its bias and coverage by simulation, supplying the bias scale against which a threshold would have to be calibrated |
+| [Rucker et al. 2021, Biometrical Journal](https://doi.org/10.1002/bimj.201900339) | compares component network meta-analysis against the matching bridge on the same disconnected network, the only head-to-head evidence on what admitting a manufactured edge buys relative to an alternative bridge |
+| [Austin 2011, Pharmaceutical Statistics](https://doi.org/10.1002/pst.433) | derives optimal caliper widths for propensity-score matching by simulation against mean squared error, the individual-level template for the calibration that study-level matching lacks |
+| [Austin 2009, Statistics in Medicine](https://doi.org/10.1002/sim.3697) | sets out standardized differences as balance diagnostics and the conventional 0.1 rule of thumb, which is a balance convention rather than a calibration against bias and has no study-level analogue |
+| [closeloop 0.1.0 (CRAN, 2024)](https://cran.r-project.org/package=closeloop) | implements the distance-based admission of single-arm observational studies into a network, leaving covariate set, weights and cutoff to the user with no default calibration, so the uncalibrated choice is now a routine software argument |
+
+:::
+
+## Probable solution or research direction
+
+Calibrate on networks where the answer is known: take connected networks with covariate reporting, delete edges to create artificial gaps, admit matches over a grid of thresholds, and report bias, interval coverage and decision reversal in the bridged contrast as a function of dissimilarity, separately for each index definition. Publish the resulting curve rather than a single number, so an analyst can read the expected bias at the threshold being proposed and see how many comparisons survive it. Standardize the index first, since a calibrated threshold means nothing without a fixed covariate set, weighting rule and normalization; the distribution of within-randomized-trial distances is the natural unit, so express thresholds as multiples of it. Report the whole admissible match space as a sensitivity analysis rather than one admitted set, and state the comparison set as a function of the threshold so that comparisons existing only at loose cutoffs are visibly conditional on it.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. One reader proposed it and the reviewer accepted the admission cutoff as an estimand-defining decision rather than an overlap diagnostic or a covariate-selection question, noting that the reported within-trial distances show the threshold is consequential while providing no calibration from threshold to bias. The basis is a single applied network, which measured the within-randomized-trial distance distribution, found its own threshold an order of magnitude looser, and reported no way to trade the two failure modes.
+
+**Revised by the full-text reading.** Applied 2026-07-26 full-text reading of the consolidated library (687 papers).
+
+Citation corrected
+:   **normalized a citation year: 'Rucker et al. 2020, Biometrical Journal' -> 'Rucker et al. 2021, Biometrical Journal'** 10.1002/bimj.201900339 is cited with two different years across the registry. CrossRef gives 2020 online and 2021 in print; the issue year is used throughout.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [DIS-03 — Baseline risk is not a neutral anchor for disconnected evidence](DIS-03-baseline-risk-is-not-a-neutral-anchor-for-disconnected-evide.qmd)
+- [DIS-07 — External-control bridges become cross-design causal synthesis](DIS-07-external-control-bridges-become-cross-design-causal-synthesi.qmd)
+- [DIS-13 — Bridge-ensemble weights cannot be learned for cross-gap accuracy](DIS-13-bridge-ensemble-weights-cannot-be-learned-for-cross-gap-accu.qmd)
+- [IDN-01 — Transitivity and conditional constancy cannot be tested in-sample](IDN-01-transitivity-and-conditional-constancy-cannot-be-tested-in-s.qmd)
+:::
+
+## Source
+
+Derived from reading:nma-33 of the reviewed corpus.

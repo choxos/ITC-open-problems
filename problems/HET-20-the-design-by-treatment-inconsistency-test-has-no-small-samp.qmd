@@ -1,0 +1,73 @@
+---
+title: "The design-by-treatment inconsistency test has no small-sample null"
+description: "The design-by-treatment interaction model is the standard global consistency check in network meta-analysis, and it is applied by referring a Wald statistic for all inconsistency parameters to a chi-squared distribution with degrees of freedom equal to their number. That reference distribution is derived treating the within-design heterogeneity variance as known, so its accuracy improves as the degrees of freedom rise and as within-design heterogeneity falls; the failure is therefore directional, since with few degrees of freedom and appreciable within-design heterogeneity a small p-value read as evidence of inconsistency can be an artifact of the approximation rather than a direct-indirect conflict. The configuration that would make the approximation safe is not the one real networks have: across 201 published networks the median number of loops was three and the median number of inconsistency parameters four, 186 of 201 networks (92.5 percent) contained at least one comparison informed by a single study, and the test returned p below 0.05 in 14 percent of networks and below 0.10 in 20 percent (Veroniki et al. 2021, doi:10.1186/s12874-021-01401-y). No corrected null, small-sample or resampling calibration, or reported type I error rate exists for the test as it is run in netmeta and in the Stata network suite. The nearest measurement covers a different regime: false-positive rates of 15.2 to 22.8 percent were reported for the graph-theoretical between-designs Q statistic at a nominal 0.20 level, but only for networks of at most five treatments with five two-arm studies per direct comparison and tau-squared fixed at 0.01 or 0.1 (Kiefer et al. 2020, doi:10.1186/s12874-020-0917-3), which is the well-determined end of the range rather than the sparse, heterogeneous end where the approximation is suspect. This is a different problem from the documented low power of global inconsistency tests, which concerns false negatives under a correct null; what is unknown here is whether the null holds at all."
+pid: "HET-20"
+topic: "Heterogeneity, consistency & multi-arm structure"
+categories: ["Heterogeneity, consistency & multi-arm structure", "High priority", "Confirmed open"]
+priority: "High"
+prank: 2
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Established"
+tractability: 4
+---
+::: {.problem-meta}
+[HET-20]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[High priority]{.chip .chip-priority-high}
+[Established]{.chip .chip-maturity-established}
+[Tractability 4/5]{.chip}
+:::
+## Statement
+
+The design-by-treatment interaction model is the standard global consistency check in network meta-analysis, and it is applied by referring a Wald statistic for all inconsistency parameters to a chi-squared distribution with degrees of freedom equal to their number. That reference distribution is derived treating the within-design heterogeneity variance as known, so its accuracy improves as the degrees of freedom rise and as within-design heterogeneity falls; the failure is therefore directional, since with few degrees of freedom and appreciable within-design heterogeneity a small p-value read as evidence of inconsistency can be an artifact of the approximation rather than a direct-indirect conflict. The configuration that would make the approximation safe is not the one real networks have: across 201 published networks the median number of loops was three and the median number of inconsistency parameters four, 186 of 201 networks (92.5 percent) contained at least one comparison informed by a single study, and the test returned p below 0.05 in 14 percent of networks and below 0.10 in 20 percent (Veroniki et al. 2021, doi:10.1186/s12874-021-01401-y). No corrected null, small-sample or resampling calibration, or reported type I error rate exists for the test as it is run in netmeta and in the Stata network suite. The nearest measurement covers a different regime: false-positive rates of 15.2 to 22.8 percent were reported for the graph-theoretical between-designs Q statistic at a nominal 0.20 level, but only for networks of at most five treatments with five two-arm studies per direct comparison and tau-squared fixed at 0.01 or 0.1 (Kiefer et al. 2020, doi:10.1186/s12874-020-0917-3), which is the well-determined end of the range rather than the sparse, heterogeneous end where the approximation is suspect. This is a different problem from the documented low power of global inconsistency tests, which concerns false negatives under a correct null; what is unknown here is whether the null holds at all.
+
+## Why it is open
+
+The statistic's distribution depends on a nuisance parameter, the within-design heterogeneity variance, that is estimated and then conditioned on as though known, and it is least well determined precisely when designs contribute one or two studies each, so the approximation error is largest where the test is most used. Refinements for exactly this difficulty exist one level up, in multivariate meta-analysis and meta-regression with an estimated between-study covariance matrix (Jackson and Riley 2013, doi:10.1002/sim.5957), but nobody has carried them into the design-by-treatment decomposition or shown what they cost in effective degrees of freedom when the number of designs is small. Simulation work on network consistency screening has scored decision rates for a menu of statistics rather than the null calibration of any one of them, so the type I error rate of the design-by-treatment test at realistic network topologies is not among the quantities anyone has measured. Nothing in practice forces the issue, because a global test that returns a small p-value is read as a finding rather than as a diagnostic of its own approximation, and the two candidate explanations produce identical output. The test meanwhile feeds prevalence estimates, CINeMA and GRADE inconsistency ratings and the decision whether a network may be pooled at all, so a miscalibrated null propagates into appraisal without ever surfacing as a statistical failure.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Higgins, Jackson, Barrett, Lu, Ades and White 2012, Consistency and inconsistency in network meta-analysis: concepts and models for multi-arm studies, Research Synthesis Methods 3:98-110](https://doi.org/10.1002/jrsm.1044) | Defines the design-by-treatment interaction model, the framework in which all inconsistency parameters are tested jointly; the model is stated without a small-sample distributional theory for the resulting test. |
+| [White, Barrett, Jackson and Higgins 2012, Consistency and inconsistency in network meta-analysis: model estimation using multivariate meta-regression, Research Synthesis Methods 3:111-125](https://doi.org/10.1002/jrsm.1045) | Gives the multivariate meta-regression estimation route and the Wald test of all inconsistency parameters that constitutes the global check in practice, with the heterogeneity variance plugged in. |
+| [Jackson, Barrett, Rice, White and Higgins 2014, A design-by-treatment interaction model for network meta-analysis with random inconsistency effects, Statistics in Medicine 33:3639-3654](https://doi.org/10.1002/sim.6188) | Extends the model to random inconsistency effects, adding a second variance component that is also estimated and then conditioned on when the global test is formed. |
+| [Veroniki, Tsokani, White, Schwarzer et al. 2021, Prevalence of evidence of inconsistency and its association with network structural characteristics in 201 published networks of interventions, BMC Medical Research Methodology 21](https://doi.org/10.1186/s12874-021-01401-y) | Applies the test to 201 published networks, reports the structural characteristics that make the chi-squared reference doubtful (median three loops, median four inconsistency parameters, 92.5 percent of networks with at least one single-study comparison), and states in its limitations that validity improves with more degrees of freedom and smaller within-design heterogeneity, without proposing a remedy. |
+| [Kiefer, Sturtz and Bender 2020, A simulation study to compare different estimation approaches for network meta-analysis and corresponding methods to evaluate the consistency assumption, BMC Medical Research Methodology 20](https://doi.org/10.1186/s12874-020-0917-3) | The only simulation reporting false-positive rates for global consistency screens; the between-designs Q statistic gave 15.2 to 22.8 percent at a nominal 0.20 level, but only for networks of at most five treatments, two-arm studies, five studies per direct comparison and tau-squared of 0.01 or 0.1, which does not cover the sparse, heterogeneous regime at issue. |
+| [Jackson and Riley 2014, A refined method for multivariate meta-analysis and meta-regression, Statistics in Medicine 33:541-554](https://doi.org/10.1002/sim.5957) | Improves inference in multivariate meta-analysis and meta-regression when the between-study covariance matrix is estimated rather than known; this is the closest available template for a corrected null and it has not been carried into the design-by-treatment decomposition. |
+| [Krahn, Binder and Konig 2013, A graphical tool for locating inconsistency in network meta-analyses, BMC Medical Research Methodology 13:35; implemented as decomp.design() in netmeta 3.6-1](https://doi.org/10.1186/1471-2288-13-35) | The decomposition of the network Q statistic into within-design heterogeneity and between-design inconsistency that netmeta reports, with chi-squared p-values and no small-sample correction. |
+| [Zarin, Veroniki, Nincic, Vafaei et al. 2017, Characteristics and knowledge synthesis approach for 456 network meta-analyses: a scoping review, BMC Medicine 15](https://doi.org/10.1186/s12916-016-0764-6) | The assembled collection of published networks from which the 201-network sample was drawn, so real topologies and design sparsity are available as a simulation grid rather than having to be invented; it was served programmatically by the nmadb package, which was archived from CRAN on 2025-01-23 and is now available only from the archive. |
+
+:::
+
+## Probable solution or research direction
+
+Derive or approximate the null distribution of the design-by-treatment Wald statistic with the within-design heterogeneity variance estimated rather than known, taking the refined multivariate meta-analysis and meta-regression inference of Jackson and Riley as the starting template and reporting the effective degrees of freedom it implies. Where an analytic correction is unattractive, calibrate by parametric bootstrap or by permutation across designs, and ship the corrected p-value alongside decomp.design so that the corrected version is what practice actually uses. Then measure what is missing: simulate at the topologies that occur, drawing network structures from the published collections that already exist rather than constructing five-treatment examples, and report type I error as a function of inconsistency degrees of freedom, within-design heterogeneity and the presence of multi-arm trials, so the region in which the chi-squared reference is safe can be stated rather than assumed. Until that exists, report the inconsistency degrees of freedom and the estimated within-design heterogeneity next to every design-by-treatment p-value, since those are the two quantities that decide whether the p-value can be believed.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. One reader proposed this and the reviewer accepted it as a well-posed calibration problem specific to the design-by-treatment test, distinct from low power and from the general non-testability of transitivity. The evidence is a single empirical study whose authors record the concern in a limitations paragraph and propose no remedy, which is a thin basis; the accompanying network characteristics and the absence of any published calibration make the gap credible rather than proven.
+
+**Revised by the full-text reading.** Applied 2026-07-26 full-text reading of the consolidated library (687 papers).
+
+Citation corrected
+:   **normalized a citation year: 'Jackson and Riley 2013, A refined method for multivariate meta-analysis and meta-regression, Statistics in Medicine 33:541-554' -> 'Jackson and Riley 2014, A refined method for multivariate meta-analysis and meta-regression, Statistics in Medicine 33:541-554'** 10.1002/sim.5957 is cited with two different years across the registry. CrossRef gives 2013 online and 2014 in print; the issue year is used throughout.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [HET-03 — Single shared heterogeneity variance across classes and populations](HET-03-single-shared-heterogeneity-variance-across-classes-and-popu.qmd)
+- [HET-04 — Node splitting compares paths without standardizing to a target](HET-04-node-splitting-compares-paths-without-standardizing-to-a-tar.qmd)
+- [IDN-01 — Transitivity and conditional constancy cannot be tested in-sample](IDN-01-transitivity-and-conditional-constancy-cannot-be-tested-in-s.qmd)
+- [IDN-15 — Global inconsistency diagnostics lack calibrated operating characteristics](IDN-15-global-inconsistency-diagnostics-lack-calibrated-operating-c.qmd)
+:::
+
+## Source
+
+Derived from reading:nma-22 of the reviewed corpus.

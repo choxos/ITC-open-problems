@@ -1,0 +1,69 @@
+---
+title: "No component-level transitivity and coherence assessment"
+description: "The transitivity and coherence machinery of network meta-analysis is defined over treatment contrasts: design-by-treatment interaction models, node-splitting, back-calculation of direct against indirect estimates, and comparison of effect-modifier distributions across the studies contributing to a contrast. None of it has a component-level analogue. A component effect is a linear functional of the whole design matrix that no single trial estimates, so there is no loop structure over components from which an incoherence statistic could be formed, and the transitivity threat is component-specific because which components a trial implements is associated with study-level context such as era, setting, case mix and funder, an association randomization within trials does not break. BMJ methods guidance on component network meta-analysis states the point in its own limitations: the assessment of transitivity and consistency in the network is an open methodological question, alongside certainty of evidence for component effects, which this catalog treats as a separate problem. The consequence is visible in applied reports, where a component hierarchy is presented with no assessment of whether transitivity holds at component level, while the intervention-level estimates in the same paper carry full GRADE or CINeMA ratings. What exists on the estimation side is a global additivity check, the likelihood-ratio comparison of the additive component model against the standard network model, which is one number for the whole network and localizes nothing, plus contribution analyses that decompose each component estimate into direct and additivity-derived evidence proportions without turning that decomposition into a coherence or transitivity judgment."
+pid: "CMP-29"
+topic: "Component methods (CNMA and component PAIC)"
+categories: ["Component methods (CNMA and component PAIC)", "High priority", "Confirmed open"]
+priority: "High"
+prank: 2
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Emerging"
+tractability: 3
+---
+::: {.problem-meta}
+[CMP-29]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[High priority]{.chip .chip-priority-high}
+[Emerging]{.chip .chip-maturity-emerging}
+[Tractability 3/5]{.chip}
+:::
+## Statement
+
+The transitivity and coherence machinery of network meta-analysis is defined over treatment contrasts: design-by-treatment interaction models, node-splitting, back-calculation of direct against indirect estimates, and comparison of effect-modifier distributions across the studies contributing to a contrast. None of it has a component-level analogue. A component effect is a linear functional of the whole design matrix that no single trial estimates, so there is no loop structure over components from which an incoherence statistic could be formed, and the transitivity threat is component-specific because which components a trial implements is associated with study-level context such as era, setting, case mix and funder, an association randomization within trials does not break. BMJ methods guidance on component network meta-analysis states the point in its own limitations: the assessment of transitivity and consistency in the network is an open methodological question, alongside certainty of evidence for component effects, which this catalog treats as a separate problem. The consequence is visible in applied reports, where a component hierarchy is presented with no assessment of whether transitivity holds at component level, while the intervention-level estimates in the same paper carry full GRADE or CINeMA ratings. What exists on the estimation side is a global additivity check, the likelihood-ratio comparison of the additive component model against the standard network model, which is one number for the whole network and localizes nothing, plus contribution analyses that decompose each component estimate into direct and additivity-derived evidence proportions without turning that decomposition into a coherence or transitivity judgment.
+
+## Why it is open
+
+Incoherence in a network is defined by comparing two estimates of the same contrast built from disjoint evidence paths, and a component effect admits no such duplication: every study containing the component also contains others, so the evidence does not partition into two independent estimates of the same component to compare. The global additivity test exists precisely because the local one does not, and it answers a different question. Transitivity at component level is an assumption about the joint distribution of effect modifiers across studies grouped by component presence, and that grouping is not randomized, so any check must be an observational meta-regression that is underpowered in exactly the sparse networks where component models are used. There is also no consumer specifying what such a diagnostic should output, because the component certainty framework that would consume it has not been defined. Methods work on component models has concentrated on estimation, model selection and estimability, leaving the appraisal layer untouched.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Veroniki et al. 2026, BMJ](https://doi.org/10.1136/bmj-2024-083075) | methods guidance on analyzing complex interventions with component network meta-analysis; states in its limitations that CINeMA and GRADE have not been formally extended to component estimates and that the assessment of transitivity and consistency in the network remains an open methodological question |
+| [Mao et al. 2025, BMC Medical Research Methodology](https://doi.org/10.1186/s12874-025-02619-w) | leave-one-out contribution analysis for component network meta-analysis, decomposing each component estimate into direct and additivity-derived evidence proportions; supplies the evidence-structure input a component-level indirectness or imprecision judgment would need |
+| [Yang et al. 2026, BMC Medical Research Methodology](https://doi.org/10.1186/s12874-026-02766-8) | shortest-path evidence contributions in component network meta-analysis; positions itself as groundwork toward assessing certainty in component models, which confirms that the target does not yet exist |
+| [Rucker, Petropoulou and Schwarzer 2020, Biometrical Journal](https://doi.org/10.1002/bimj.201800167) | provides the likelihood-ratio comparison of the additive component model against the standard network model, the only additivity check in routine use; it is global rather than per component |
+| [Petropoulou et al. 2023, BMC Medical Research Methodology](https://doi.org/10.1186/s12874-023-01959-9) | simulates connected and disconnected component networks and measures how often additivity is wrongly rejected as heterogeneity rises, the closest thing to an operating characteristic for the global check and the natural test bed for a local one |
+| [Higgins et al. 2012, Research Synthesis Methods](https://doi.org/10.1002/jrsm.1044) | the design-by-treatment interaction model for incoherence, defined over treatment contrasts and designs, with no component analogue |
+| [Dias et al. 2010, Statistics in Medicine](https://doi.org/10.1002/sim.3767) | node-splitting, the local incoherence check that separates direct from indirect evidence for one contrast; the template a component-level split would have to replace, since components have no loops |
+| [Nikolakopoulou et al. 2020, PLOS Medicine](https://doi.org/10.1371/journal.pmed.1003082) | CINeMA, which rates confidence in a network estimate by aggregating study-level bias, heterogeneity, incoherence, indirectness and imprecision over the studies contributing to a treatment contrast; the framework whose inputs a component-level diagnostic would have to supply |
+
+:::
+
+## Probable solution or research direction
+
+Define a per-component coherence statistic by splitting the evidence along a line the design supplies rather than a loop: compare the estimate obtained from the trials that vary the component within a randomization against the estimate obtained from the rest of the network, which is the component analogue of node-splitting, and derive or simulate its null distribution under additivity. Specify a component-level transitivity check as a standard output: report, for each component, the distribution of candidate effect modifiers across the studies contributing to it, and test whether component presence is associated with those modifiers after conditioning on the fitted model. Wire the existing contribution analyses into a reported direct-versus-additivity-derived proportion for every component effect a review interprets, since that quantity is already computable and is the natural input to an indirectness judgment. Evaluate all three on the published connected and disconnected component simulation designs, scoring them as classifiers of true additivity violation rather than by recovery of a known model.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. One reader proposed it and the reviewer accepted it; the evidentiary basis is a single source, which is a weaker footing, but that source is BMJ methods guidance stating in its own limitations that transitivity and consistency assessment in component network meta-analysis is an open methodological question, and two contribution-analysis papers from 2025 and 2026 position themselves as groundwork toward it.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [CMP-01 — Cross-subnetwork component constancy is the untestable bridge](CMP-01-cross-subnetwork-component-constancy-is-the-untestable-bridg.qmd)
+- [CMP-03 — Strict component additivity may be clinically false](CMP-03-strict-component-additivity-may-be-clinically-false.qmd)
+- [CMP-04 — Additivity model selection can be unstable](CMP-04-additivity-model-selection-can-be-unstable.qmd)
+- [CMP-33 — No screen separates randomized from between-study component identification](CMP-33-no-screen-separates-randomized-from-between-study-component-.qmd)
+- [DEC-15 — No certainty-of-evidence framework rates component effects](DEC-15-no-certainty-of-evidence-framework-rates-component-effects.qmd)
+:::
+
+## Source
+
+Derived from reading:core-05 of the reviewed corpus.

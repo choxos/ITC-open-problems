@@ -32,7 +32,7 @@ Estimability in component models is a property of a design matrix crossed with a
 |---|---|
 | [Petropoulou et al. 2023, Model selection for component network meta-analysis in connected and disconnected networks: a simulation study](https://doi.org/10.1186/s12874-023-01959-9) | Implements an algorithm to identify inestimable interactions and reports inestimable cross-subnetwork contrasts in simulation and in a real Cochrane network, where eleven combinations of two interventions yield only ten estimable two-way interactions. |
 | [Mao et al. 2025, A leave-one-out algorithm for contribution analysis in component network meta-analysis](https://doi.org/10.1186/s12874-025-02619-w) | Identifies which direct comparisons are essential for component identifiability and defines behavior when their removal makes a component unidentifiable. |
-| [Rucker et al. 2019, Network meta-analysis of multicomponent interventions](https://doi.org/10.1002/bimj.201800167) | Formalizes the component design as the product of the comparison design matrix and the treatment-by-component combination matrix, the structure the entry's rank and nullity claim refers to. |
+| [Rucker et al. 2020, Network meta-analysis of multicomponent interventions](https://doi.org/10.1002/bimj.201800167) | Formalizes the component design as the product of the comparison design matrix and the treatment-by-component combination matrix, the structure the entry's rank and nullity claim refers to. |
 | [Graphical evaluation of evidence structure within a component network meta-analysis, 2023](https://doi.org/10.1002/jrsm.1623) | Addresses evidence structure and component identifiability in component network meta-analysis. The literature auditor could not retrieve the full text and relied on title and venue only, so no claim is made about its exact content. |
 | [cpaic (development version), commit 9d150e9](https://github.com/choxos/cpaic/commit/9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca) | Unreleased development package on GitHub, not available from CRAN. Implements target-dependent augmented row-space estimability classification with exact, first-order and not-identified labels, suppresses nonidentified contrasts rather than reporting finite posterior summaries, and refits under tighter and looser priors as an identification diagnostic. It does not supply the five-class scenario library or the identification performance measures. |
 
@@ -55,6 +55,11 @@ Build the canonical scenario library with known ground truth over the five estim
 
 **Dissent.** codex dissented (overstated): Structural estimability is genuinely critical, and C2, C3, C6, C9, and C12 are technically defensible. C4 is sloppy: scalar rank and nullity give dimensions, but the orientation of the row or null space determines which particular contrasts are estimable. C1 is true only for a functional lying wholly in a likelihood-null direction; a generally non-estimable contrast can contain a data-informed row-space projection plus a prior-determined null-space projection. C7 is also too absolute: bias, RMSE, and coverage can reveal poor behavior for selected simulation truths, but they cannot certify structural identification or whether a method should abstain. A smallest singular value is informative only after specifying weighting and parameter scaling, and prior-to-posterior contraction is a useful diagnostic rather than a proof of identification. At cpaic 9d150e9, the blanket title is already stale: the package implements target-dependent augmented row-space screening, labels results as exact, first-order screen, or not identified, suppresses nonidentified estimates, provides prior-sensitivity refits, and tests several structural scenarios. It does not yet provide the proposed canonical five-class simulation library or the full performance-measure suite. Literature-existence claims C5 and C8 were not adjudicated.
 
+**Revised by the full-text reading.** Applied 2026-07-26 full-text reading of the consolidated library (687 papers).
+
+Citation corrected
+:   **normalized a citation year: 'Rucker et al. 2019, Network meta-analysis of multicomponent interventions' -> 'Rucker et al. 2020, Network meta-analysis of multicomponent interventions'** 10.1002/bimj.201800167 is cited with two different years across the registry. CrossRef gives 2019 online and 2020 in print; the issue year is used throughout.
+
 Literature and prior-art check
 :   **partially-solved / supported-with-caveat.** I read Petropoulou et al. 2023 in full. Estimability in component networks is neither unstudied nor unimplemented: the paper states 'we describe an algorithm to identify inestimable interactions in the supplement as only estimable interactions should be considered in interaction CNMA models', and in the Cochrane application reports 'The network has eleven combinations of two interventions, however, only ten 2-way interactions are estimable', with specific cross-subnetwork contrasts reported as inestimable in the simulated and applied disconnected networks. Rucker et al. 2019 gives the B and C design matrices whose product defines the CNMA design, so the rank/nullity claim is correct and already formalized. Mao et al. 2025 adds explicit redistribution rules for the case where removing a comparison renders a component unidentifiable. What genuinely remains open is a canonical, published scenario library spanning the five estimability classes with target-dependent estimability, and the identification-focused performance measures (false finite-estimate rate, smallest singular value, prior-only versus likelihood-informed contraction, target mass outside support), none of which I found reported anywhere.
     Cites 10.1186/s12874-023-01959-9: Demonstrates an implemented estimability screen for component interactions and reports inestimable cross-subnetwork contrasts in both simulation and a real Cochrane network..
@@ -72,10 +77,43 @@ Decision path
 
 :::
 
+## How the evidence falls in time
+
+17 papers in the reviewed corpus bear on this problem, published 2020 to 2026. Every paper found here asserts the problem is open; none reports progress.
+
+::: {.table-scroll}
+
+| Year | Says | Paper |
+|---|---|---|
+| 2020 | confirms it is open | Psychological and pharmacological interventions for posttraumatic stress disorder and comorbid mental health problems following complex traumatic events: Systematic review and component network meta-analysis |
+| 2021 | confirms it is open | Cognitive effects and acceptability of non-invasive brain stimulation on Alzheimer's disease and mild cognitive impairment: a component network meta-analysis (online supplementary data and main article) |
+| 2021 | confirms it is open | Non-pharmacological interventions for preventing delirium in hospitalised non-ICU patients |
+| 2021 | confirms it is open | Supplement 4 (eResults) to Fujii et al., Effect of adjunctive vitamin C, glucocorticoids, and vitamin B1 on longer-term mortality in adults with sepsis or septic shock: a systematic review and a component network meta-analysis |
+| 2021 | confirms it is open | Relative effectiveness of non-surgical interventions for pain management in knee osteoarthritis: a protocol for a component network meta-analysis of randomised controlled trials |
+| 2021 | confirms it is open | Understanding the effectiveness and underlying mechanisms of lifestyle modification interventions in adults with learning disabilities: protocol for a mixed-methods systematic review |
+| 2022 | confirms it is open | Low FODMAP Diet and Probiotics in Irritable Bowel Syndrome: A Systematic Review With Network Meta-analysis |
+| 2022 | confirms it is open | Pharmacological and non-pharmacological treatments for restless legs syndrome in end-stage kidney disease: a systematic review and component network meta-analysis (supplementary file and main article) |
+| 2023 | confirms it is open | The efficacy and adverse events of arsenic trioxide for the patients with myelodysplastic syndrome: a systematic review and component network meta-analysis |
+| 2023 | confirms it is open | Understanding the effectiveness of different exercise training programme designs on VO2peak in COPD: a component network meta-analysis |
+| 2024 | confirms it is open | Network meta-analysis examining efficacy of components of cognitive behavioural therapy for insomnia |
+| 2024 | confirms it is open | Comparing interventions for early psychosis: a systematic review and component network meta-analysis |
+| 2024 | confirms it is open | Comparative effects of behaviour change techniques using eHealth and mHealth in promoting dietary behaviour: protocol for a systematic review and component network meta-analysis |
+| 2024 | confirms it is open | The effectiveness of delivery modalities of non-pharmacological diabetes prevention programs: A systematic review and component network meta-analysis |
+| 2024 | confirms it is open | Effects of non-pharmacological interventions for adults with subjective cognitive decline: a network meta-analysis and component network meta-analysis |
+| 2026 | confirms it is open | Creating Treatment and Component Hierarchies in Component Network Meta-Analysis |
+| 2026 | confirms it is open | Cognitive Behavioral Interventions for Children and Adolescents With Overweight or Obesity: A Systematic Review and Component Network Meta-Analysis |
+
+:::
+
 ## Related problems
 
 ::: {.related-links}
 - [CMP-14 — Aggregate-data-only interactions may be prior-driven](CMP-14-aggregate-data-only-interactions-may-be-prior-driven.qmd)
+- [CMP-31 — No practical-identification diagnostic for component effects](CMP-31-no-practical-identification-diagnostic-for-component-effects.qmd)
+- [CMP-32 — No sample-size or allocation method for component NMA](CMP-32-no-sample-size-or-allocation-method-for-component-nma.qmd)
+- [CMP-33 — No screen separates randomized from between-study component identification](CMP-33-no-screen-separates-randomized-from-between-study-component-.qmd)
+- [CMP-35 — No unique definition of evidence contribution for component estimates](CMP-35-no-unique-definition-of-evidence-contribution-for-component-.qmd)
+- [DEC-31 — Evaluating a treatment strategy can disconnect the network it is evaluated on](DEC-31-evaluating-a-treatment-strategy-can-disconnect-the-network-i.qmd)
 - [MOD-13 — No reporting convention exposes prior-dominated contrasts in PAIC](MOD-13-no-reporting-convention-exposes-prior-dominated-contrasts-in.qmd)
 - [QBA-19 — Latent-U Bayesian QBA hides nonidentification behind a proper prior](QBA-19-latent-u-bayesian-qba-hides-nonidentification-behind-a-prope.qmd)
 :::

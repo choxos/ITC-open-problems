@@ -1,0 +1,69 @@
+---
+title: "The effect-preservation fraction is not calibrated to indirect bias"
+description: "When no direct reference-versus-placebo trial exists, equivalence and non-inferiority margins in biosimilar development are derived by applying the fixed-margin (95-95) method to an anchored indirect estimate and then retaining a conventional fraction of the effect. The fraction is selected by clinical justification rather than derived: in a published biosimilar case study, retaining 40%, 50%, 60% and 70% of the effect yields equivalence margins of (0.688, 1.454), (0.732, 1.366), (0.779, 1.283) and (0.829, 1.206), and 60% is chosen on the stated ground that it accounts for potential departure from the constancy assumption. Nothing links the size of that fraction to the size of the departure the indirect route can actually carry, so the same 60% is used whether the common comparator is nearly identical across the two trials or substantially different. Summing the two trials' variances widens the interval and moves the margin conservatively, but that prices sampling error only; population and treatment-version differences between the anchor trials do not shrink with sample size. No method maps an assumed violation of cross-trial transportability into the derived margin, and no convention reports the margin as an identified set or as the violation at which the equivalence conclusion would flip. Because the margin is prespecified and fixed before the confirmatory trial reads out, an error in it cannot be corrected afterwards and determines directly whether biosimilarity is declared."
+pid: "DEC-21"
+topic: "Decision analysis, regulation & reporting"
+categories: ["Decision analysis, regulation & reporting", "High priority", "Confirmed open"]
+priority: "High"
+prank: 2
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Emerging"
+tractability: 4
+---
+::: {.problem-meta}
+[DEC-21]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[High priority]{.chip .chip-priority-high}
+[Emerging]{.chip .chip-maturity-emerging}
+[Tractability 4/5]{.chip}
+:::
+## Statement
+
+When no direct reference-versus-placebo trial exists, equivalence and non-inferiority margins in biosimilar development are derived by applying the fixed-margin (95-95) method to an anchored indirect estimate and then retaining a conventional fraction of the effect. The fraction is selected by clinical justification rather than derived: in a published biosimilar case study, retaining 40%, 50%, 60% and 70% of the effect yields equivalence margins of (0.688, 1.454), (0.732, 1.366), (0.779, 1.283) and (0.829, 1.206), and 60% is chosen on the stated ground that it accounts for potential departure from the constancy assumption. Nothing links the size of that fraction to the size of the departure the indirect route can actually carry, so the same 60% is used whether the common comparator is nearly identical across the two trials or substantially different. Summing the two trials' variances widens the interval and moves the margin conservatively, but that prices sampling error only; population and treatment-version differences between the anchor trials do not shrink with sample size. No method maps an assumed violation of cross-trial transportability into the derived margin, and no convention reports the margin as an identified set or as the violation at which the equivalence conclusion would flip. Because the margin is prespecified and fixed before the confirmatory trial reads out, an error in it cannot be corrected afterwards and determines directly whether biosimilarity is declared.
+
+## Why it is open
+
+The preservation fraction was invented for the direct-evidence case, where it discounts sampling uncertainty and the constancy of the active comparator's historical effect; carrying it to an indirect estimate silently asks one number to absorb a second and different assumption. The size of a transitivity violation is not identified from the two trials that produced the estimate, so a derived fraction would have to be a function of an assumed bias rather than an estimated one, which converts a single agreed number into a sensitivity analysis that regulators would have to be willing to accept in a prespecified protocol. Margin setting is negotiated with an agency case by case, so a fraction that has survived review before needs no justification beyond having survived review. The tipping-point machinery that would express the answer exists and is implemented for network meta-analysis decisions, but it has never been applied to a prespecified regulatory margin, where the quantity to be tipped is fixed in advance rather than read off a fitted model.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Hemmelmann et al. 2025, Implementation of the Anchor-Based Indirect Comparison Method for Equivalence Margin Derivation in Biosimilar Development, Pharmaceuticals](https://doi.org/10.3390/ph18030285) | Implements anchored indirect margin derivation for a biosimilar, tabulates the equivalence margin at 40%, 50%, 60% and 70% preservation, and selects 60% on clinical justification as covering potential departure from the constancy assumption; the departure itself is never quantified. |
+| [FDA guidance for industry, Non-Inferiority Clinical Trials to Establish Effectiveness (2016)](https://www.fda.gov/regulatory-information/search-fda-guidance-documents/non-inferiority-clinical-trials) | Defines the fixed-margin (95-95) approach and the practice of preserving a fraction of the active comparator's effect, for the setting in which a direct comparator-versus-placebo estimate exists. |
+| [EMA, Guideline on the choice of the non-inferiority margin (CPMP/EWP/2158/99)](https://www.ema.europa.eu/en/choice-non-inferiority-margin-scientific-guideline) | The European guidance on margin selection; it treats constancy of the historical effect as a judgment about the comparator rather than as a quantity that could be varied and priced. |
+| [Rothmann et al. 2002, Design and analysis of non-inferiority mortality trials in oncology, Statistics in Medicine](https://doi.org/10.1002/sim.1400) | Derives the fixed-margin construction and the retention-fraction argument that the indirect application reuses without modification. |
+| [Snapinn and Jiang 2007, Preservation of effect and the regulatory approval of new treatments on the basis of non-inferiority trials, Statistics in Medicine](https://doi.org/10.1002/sim.3073) | Analyzes what preservation of effect means for approval, establishing that the fraction encodes a policy judgment about acceptable loss rather than a statistical correction, which is why it does not absorb a transportability violation. |
+| [Phillippo et al. 2018, Sensitivity of treatment recommendations to bias in network meta-analysis, Journal of the Royal Statistical Society Series A](https://doi.org/10.1111/rssa.12341) | Derives decision-invariant bias-adjustment thresholds, the smallest change in the evidence that flips a decision; this is the machinery a derived margin would use, developed for network decisions rather than for a prespecified regulatory margin. |
+| [Bucher et al. 1997, The results of direct and indirect treatment comparisons in meta-analysis of randomized controlled trials, Journal of Clinical Epidemiology](https://doi.org/10.1016/S0895-4356(97)00049-8) | The anchored estimator whose summed variance is the only channel through which uncertainty about the indirect route currently reaches the margin. |
+| [Hashim et al. 2021, A systematic review of noninferiority margins in oncology clinical trials, Journal of Comparative Effectiveness Research](https://doi.org/10.2217/cer-2020-0200) | Documents the range of retention fractions and justifications used in practice, showing how weakly the fraction is tied to any measured quantity even in the direct-evidence case. |
+
+:::
+
+## Probable solution or research direction
+
+Derive the fraction rather than negotiate it: write the margin as a function of an assumed transportability violation on the log scale, and define the preservation fraction as the value that holds the type I error of the equivalence claim at the nominal level across a stated range of that violation. Report the pair consisting of the margin and the violation at which the equivalence conclusion flips, which is threshold analysis applied to a prespecified regulatory quantity rather than to a fitted network estimate. Calibrate the plausible range from observable evidence: the same common comparator appears in both anchor trials, so the difference in its arm outcomes bounds part of the violation and is visible before the confirmatory trial starts. Simulate the operating characteristics of 50% and 60% preservation under realistic anchor mismatch to establish whether the conventional fractions are conservative or anticonservative for the indirect case, since at present neither has been checked.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. One reader proposed this and the reviewer accepted that conventional preservation fractions provide no formal mapping from a quantified constancy or transportability departure to the derived margin. The evidence is a single applied methods paper, though its own tabulation of margins across preservation fractions makes the sensitivity of the answer to an unjustified choice explicit.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [DEC-20 — No rule says what proves similarity from an indirect comparison](DEC-20-no-rule-says-what-proves-similarity-from-an-indirect-compari.qmd)
+- [DEC-12 — Nothing requires showing how far a conclusion is assumption-driven](DEC-12-nothing-requires-showing-how-far-a-conclusion-is-assumption-.qmd)
+- [IDN-01 — Transitivity and conditional constancy cannot be tested in-sample](IDN-01-transitivity-and-conditional-constancy-cannot-be-tested-in-s.qmd)
+- [QBA-29 — No agreed parameterization or format for unanchored PAIC sensitivity](QBA-29-no-agreed-parameterization-or-format-for-unanchored-paic-sen.qmd)
+- [EST-10 — Bucher ITC and aggregate-data NMA name no target population](EST-10-bucher-itc-and-aggregate-data-nma-name-no-target-population.qmd)
+:::
+
+## Source
+
+Derived from reading:nma-04 of the reviewed corpus.

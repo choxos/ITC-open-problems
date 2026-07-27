@@ -1,0 +1,70 @@
+---
+title: "No calibrated small-study interval method for population-adjusted NMA"
+description: "Random-effects inference in multivariate and contrast-based network meta-analysis rests on a large-sample approximation in the number of studies, and it fails when that number is small: across 24 scenarios with 8, 12 and 16 studies, coverage of extended DerSimonian-Laird, maximum likelihood and restricted maximum likelihood confidence regions fell materially below the nominal 95 percent, worst for joint inference and, among marginal inferences, at small study counts with large heterogeneity. Exact permutation regions repair this for aggregate-data multivariate and contrast-based models. The repair does not carry to population-adjusted synthesis: a network fed by matching-adjusted or simulated treatment comparison estimates, or fitted as multilevel network meta-regression, combines estimated weights or a fitted outcome surface with a handful of studies, so the exchangeability under permutation of study labels that the exact method needs does not hold, and weights estimated from one individual-patient dataset supply several contrasts at once. Variance estimation for a single matching-adjusted comparison has been benchmarked across 108 scenarios, with sample size, population overlap and outcome type identified as what decides whether a given estimator is adequate, but that is a within-comparison question and says nothing about the interval for a network estimate assembled from few such comparisons under heterogeneity. No published work reports the realized coverage of population-adjusted network intervals as a function of the number of studies, and no exact, permutation-based or small-sample-calibrated alternative has been derived for that setting. Population-adjusted networks are where study counts are smallest, commonly two to a dozen trials, so this is the regime the methods are used in rather than an edge case."
+pid: "HET-10"
+topic: "Heterogeneity, consistency & multi-arm structure"
+categories: ["Heterogeneity, consistency & multi-arm structure", "High priority", "Partially addressed"]
+priority: "High"
+prank: 2
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
+maturity: "Promising"
+tractability: 3
+---
+::: {.problem-meta}
+[HET-10]{.problem-id}
+[Partially addressed]{.verdict .verdict-partially-addressed}
+[High priority]{.chip .chip-priority-high}
+[Promising]{.chip .chip-maturity-promising}
+[Tractability 3/5]{.chip}
+:::
+## Statement
+
+Random-effects inference in multivariate and contrast-based network meta-analysis rests on a large-sample approximation in the number of studies, and it fails when that number is small: across 24 scenarios with 8, 12 and 16 studies, coverage of extended DerSimonian-Laird, maximum likelihood and restricted maximum likelihood confidence regions fell materially below the nominal 95 percent, worst for joint inference and, among marginal inferences, at small study counts with large heterogeneity. Exact permutation regions repair this for aggregate-data multivariate and contrast-based models. The repair does not carry to population-adjusted synthesis: a network fed by matching-adjusted or simulated treatment comparison estimates, or fitted as multilevel network meta-regression, combines estimated weights or a fitted outcome surface with a handful of studies, so the exchangeability under permutation of study labels that the exact method needs does not hold, and weights estimated from one individual-patient dataset supply several contrasts at once. Variance estimation for a single matching-adjusted comparison has been benchmarked across 108 scenarios, with sample size, population overlap and outcome type identified as what decides whether a given estimator is adequate, but that is a within-comparison question and says nothing about the interval for a network estimate assembled from few such comparisons under heterogeneity. No published work reports the realized coverage of population-adjusted network intervals as a function of the number of studies, and no exact, permutation-based or small-sample-calibrated alternative has been derived for that setting. Population-adjusted networks are where study counts are smallest, commonly two to a dozen trials, so this is the regime the methods are used in rather than an edge case.
+
+## Why it is open
+
+The permutation argument needs a null under which study-level contributions are exchangeable, and a two-stage weighting workflow breaks it structurally, because the weights are estimated from one individual-patient dataset that supplies several contrasts, so the studies are not independent units and permuting their labels does not leave the null distribution unchanged. A one-stage mixed-granularity likelihood does not obviously possess the symmetry either, since individual-level and aggregate-level studies enter through different terms and are not interchangeable. Bayesian population-adjusted intervals do not escape by construction, because with a handful of studies the heterogeneity variance is determined by its prior, so the interval inherits a choice rather than the data. The natural fallbacks from pairwise meta-analysis, the Hartung-Knapp adjustment and its relatives, have no derivation for a network whose inputs carry estimated weights, and importing them would produce an interval of unknown coverage in exactly the situation where coverage is the question. Measuring the problem is cheap and nobody has done it, which is the more awkward half: the realized coverage of population-adjusted network intervals as a function of the number of studies is a simulation, not a theorem.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Noma, Nagashima and Furukawa 2020, Biometrics](https://doi.org/10.1111/biom.13134) | Demonstrates serious undercoverage of extended DerSimonian-Laird, maximum likelihood and restricted maximum likelihood confidence regions across 24 scenarios at 8, 12 and 16 studies, and supplies exact permutation-based joint and marginal inference for multivariate meta-analysis and contrast-based network meta-analysis; the remedy that does not transfer to estimated-weight settings. |
+| [Chandler and Proskorovsky 2024, Research Synthesis Methods](https://doi.org/10.1002/jrsm.1759) | Monte Carlo comparison of variance estimators across 108 anchored and unanchored matching-adjusted indirect comparison scenarios, covering conventional estimators with raw and with effective-sample-size weights, sandwich estimators with and without finite-sample adjustment, and bootstrap variants, and finding that raw-weight conventional estimators understate variability under poor overlap while bootstrapping is unstable at small sample sizes; settles the single-comparison part of the problem and leaves the few-studies network part untouched. |
+| [IntHout, Ioannidis and Borm 2014, BMC Medical Research Methodology](https://doi.org/10.1186/1471-2288-14-25) | Shows the Hartung-Knapp-Sidik-Jonkman method substantially outperforms DerSimonian-Laird for random-effects meta-analysis with few studies; the small-study interval fix that has no population-adjusted network analogue. |
+| [Noma, Nagashima, Maruo, Gosho and Furukawa 2018, Statistics in Medicine](https://doi.org/10.1002/sim.7578) | Bartlett-type corrections and bootstrap adjustments to likelihood-based inference for network meta-analysis; the other small-sample route for aggregate-data networks, likewise derived without estimated weights or a mixed-granularity likelihood. |
+| [Higgins and Thompson 2004, Statistics in Medicine](https://doi.org/10.1002/sim.1752) | Permutation approach to meta-regression to control spurious findings from few studies; the origin of the exchangeability argument that population adjustment breaks. |
+| [Phillippo et al. 2020, Journal of the Royal Statistical Society Series A](https://doi.org/10.1111/rssa.12579) | Multilevel network meta-regression, the one-stage mixed-granularity likelihood in which individual and aggregate studies enter through different terms; its small-sample interval behavior as a function of the number of studies has not been studied. |
+| [Remiro-Azocar, Heath and Baio 2021, Research Synthesis Methods](https://doi.org/10.1002/jrsm.1511) | Review and simulation study of population adjustment with limited individual patient data, reporting bias and precision for the competing estimators; does not report coverage as a function of the number of studies in a network, which is the quantity at issue. |
+| [Remiro-Azocar 2022, BMC Medical Research Methodology](https://doi.org/10.1186/s12874-022-01692-9) | Two-stage matching-adjusted indirect comparison, which separates weight estimation from outcome modeling; the workflow whose estimated weights and reused individual-patient data destroy the permutation symmetry the exact method needs. |
+| [Phillippo, Ades, Dias, Palmer, Abrams and Welton 2018, Medical Decision Making](https://doi.org/10.1177/0272989X17725740) | Methods guidance for population-adjusted indirect comparisons in health technology appraisal; establishes that these comparisons are routinely built from very few studies, which is the regime in which the asymptotic interval is never justified. |
+
+:::
+
+## Probable solution or research direction
+
+Measure first: simulate population-adjusted networks over the number of studies from two upward, the number of individual-patient studies, population overlap and heterogeneity, and report realized coverage and interval width for the intervals actually used, namely sandwich and bootstrap matching-adjusted contrasts combined in a network and credible intervals from multilevel network meta-regression under standard heterogeneity priors. Then derive the calibration: the promising route is a bootstrap that resamples at the level of the study and re-estimates the weights inside each replicate, giving a null that respects the dependence a naive permutation destroys, together with a Hartung-Knapp-style variance inflation whose degrees of freedom account for the estimated weights. Establish whether any permutation scheme is exact for the one-stage mixed-granularity likelihood, because if none is, the field should stop waiting for one and calibrate approximations instead. Report everything by number of studies rather than averaged over it, since the small-count regime is the point of the exercise, and state a minimum study count below which no population-adjusted network interval should be presented as calibrated.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Partially addressed. One reader proposed this and the reviewer accepted it as a distinct interval-calibration problem rather than a heterogeneity-parameterization or omitted-uncertainty-source problem, while noting that the cited evidence establishes undercoverage for conventional networks rather than the absence of all relevant population-adjusted methods. It is partially addressed because the aggregate-data half has both a demonstration and an exact remedy and single-comparison matching-adjusted variance estimation has been benchmarked across 108 scenarios; the intersection, a calibrated interval for a population-adjusted network with few studies, has neither a derivation nor a coverage measurement.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [DEC-11 — Intervals omit selection, reconstruction and target-summary error](DEC-11-intervals-omit-selection-reconstruction-and-target-summary-e.qmd)
+- [HET-02 — Multi-arm covariance is lost when contrasts are adjusted pairwise](HET-02-multi-arm-covariance-is-lost-when-contrasts-are-adjusted-pai.qmd)
+- [HET-03 — Single shared heterogeneity variance across classes and populations](HET-03-single-shared-heterogeneity-variance-across-classes-and-popu.qmd)
+- [HET-05 — Additive and multiplicative heterogeneity models have not been compared in NMA](HET-05-additive-and-multiplicative-heterogeneity-models-have-not-be.qmd)
+- [MIS-03 — Nothing propagates sampling error in reported target moments](MIS-03-nothing-propagates-sampling-error-in-reported-target-moments.qmd)
+:::
+
+## Source
+
+Derived from reading:nma-29 of the reviewed corpus.

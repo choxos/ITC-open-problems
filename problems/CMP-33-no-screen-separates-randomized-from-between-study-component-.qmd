@@ -1,0 +1,68 @@
+---
+title: "No screen separates randomized from between-study component identification"
+description: "In a component network meta-analysis the component design is the product of the comparison design matrix and the treatment-by-component matrix, so a component coefficient is a linear combination of study-level contrasts. When a component's indicator varies across the arms of at least one trial, its coefficient inherits randomized identification; when the indicator is constant within every trial and varies only across trials or across subgroups defined by background therapy, the same coefficient is identified by a between-study comparison and is observational. Existing estimability machinery answers a different question, whether a target contrast lies in the row space of the full design, and returns estimable in both cases. No implementation partitions the component parameter space into the subspace supported by within-study randomized variation and its complement, and no applied report states which of its component effects fall in which part, so randomized and non-randomized component columns are presented on one forest plot under one interpretation. The stakes are concrete: a 2024 heart failure network defined beta-blocker and renin-angiotensin-system-inhibitor components from trial-level background-therapy prevalence, counting a population as exposed when at least 50 percent of it was on the drug class at baseline, a quantity that cannot vary within a randomization, and then reported a quadruple combination including beta-blockers as the most effective regimen. The partition is computable from the design alone: restrict the comparison design matrix to within-study contrasts, form the resulting component design, and ask which component contrasts lie in its row space."
+pid: "CMP-33"
+topic: "Component methods (CNMA and component PAIC)"
+categories: ["Component methods (CNMA and component PAIC)", "High priority", "Confirmed open"]
+priority: "High"
+prank: 2
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Promising"
+tractability: 5
+---
+::: {.problem-meta}
+[CMP-33]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[High priority]{.chip .chip-priority-high}
+[Promising]{.chip .chip-maturity-promising}
+[Tractability 5/5]{.chip}
+:::
+## Statement
+
+In a component network meta-analysis the component design is the product of the comparison design matrix and the treatment-by-component matrix, so a component coefficient is a linear combination of study-level contrasts. When a component's indicator varies across the arms of at least one trial, its coefficient inherits randomized identification; when the indicator is constant within every trial and varies only across trials or across subgroups defined by background therapy, the same coefficient is identified by a between-study comparison and is observational. Existing estimability machinery answers a different question, whether a target contrast lies in the row space of the full design, and returns estimable in both cases. No implementation partitions the component parameter space into the subspace supported by within-study randomized variation and its complement, and no applied report states which of its component effects fall in which part, so randomized and non-randomized component columns are presented on one forest plot under one interpretation. The stakes are concrete: a 2024 heart failure network defined beta-blocker and renin-angiotensin-system-inhibitor components from trial-level background-therapy prevalence, counting a population as exposed when at least 50 percent of it was on the drug class at baseline, a quantity that cannot vary within a randomization, and then reported a quadruple combination including beta-blockers as the most effective regimen. The partition is computable from the design alone: restrict the comparison design matrix to within-study contrasts, form the resulting component design, and ask which component contrasts lie in its row space.
+
+## Why it is open
+
+The presumption that a network of randomized trials yields randomized comparisons holds for treatment contrasts and fails for component contrasts formed across trials, and because nobody has flagged the difference nobody has asked for the partition. The obstacle is not derivation, which is a short linear-algebra exercise, but consequence: the screen would label a substantial share of published component effects as observational, and there is no established way to present the two kinds side by side or to downgrade the second, because the component certainty framework that would consume the label does not exist. The components that never vary within a trial, background therapy, setting, delivery context and era, are also the ones reviews most want to compare, so the labeling cost falls precisely on the results people care about. The general result that across-trial associations for treatment effect modifiers are ecological and can differ from within-trial ones is long established, but it has been carried into covariate interaction models rather than into the component design matrix.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Zafeiropoulos et al. 2024, JACC: Heart Failure](https://doi.org/10.1016/j.jchf.2023.07.014) | defines background-therapy components from trial-level prevalence with a 50 percent threshold and reports combination regimens built from them, an applied instance in which component columns carry no within-trial randomized variation |
+| [Rucker, Petropoulou and Schwarzer 2020, Biometrical Journal](https://doi.org/10.1002/bimj.201800167) | gives the component design as the product of the comparison design matrix and the treatment-by-component matrix, which is exactly the factorization the proposed partition would restrict |
+| [Petropoulou et al. 2023, BMC Medical Research Methodology](https://doi.org/10.1186/s12874-023-01959-9) | screens component and interaction estimability by row-space membership of the full design, returning the same verdict whether the support is within-study or between-study |
+| [Berlin et al. 2002, Statistics in Medicine](https://doi.org/10.1002/sim.1023) | shows that group-level meta-regressions for treatment effect modifiers are subject to ecological bias and can differ from the individual-level relationship, the general result this problem applies to component columns |
+| [Phillippo et al. 2020, Journal of the Royal Statistical Society Series A](https://doi.org/10.1111/rssa.12579) | multilevel network meta-regression avoids aggregation bias for covariate interactions by integrating an individual-level model over each study's covariate distribution, the precedent for taking within-study versus across-study information seriously at covariate level |
+| [Mao et al. 2025, BMC Medical Research Methodology](https://doi.org/10.1186/s12874-025-02619-w) | leave-one-out contribution analysis for component estimates; supplies the machinery for the continuous version of the partition, namely the share of information about each component contrast coming from within-study contrasts |
+
+:::
+
+## Probable solution or research direction
+
+Implement the partition and report three verdicts instead of two. Restrict the comparison design matrix to within-study contrasts, form the within-study component design, and classify each requested component contrast as randomized if it lies in the row space of that restricted design, between-study if it lies only in the row space of the full design, and inestimable otherwise. Report a continuous version alongside the categorical one, namely the proportion of the information about each component contrast that comes from within-study contrasts, which existing component contribution analysis can compute. Require applied component reviews to state the verdict for each reported component effect and to accompany every between-study component effect with the transitivity discussion an observational meta-regression would demand. Use the screen prospectively as well, since it identifies exactly which component contrasts a proposed new trial would move from the between-study subspace into the randomized one.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. One reader proposed it and the reviewer accepted it, agreeing that full-design estimability does not reveal whether a component contrast rests on within-trial randomized contrasts or only on between-study variation and that general cautions about the causal reading of component coefficients supply neither the subspace diagnostic nor a reporting rule; the evidence is a single applied network, a weaker basis than a methods source, although the design argument is checkable without it.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [CMP-07 — Causal meaning of a component effect is ambiguous](CMP-07-causal-meaning-of-a-component-effect-is-ambiguous.qmd)
+- [CMP-08 — Identification beyond row-space screens in nonlinear component ML-NMR](CMP-08-identification-beyond-row-space-screens-in-nonlinear-compone.qmd)
+- [CMP-29 — No component-level transitivity and coherence assessment](CMP-29-no-component-level-transitivity-and-coherence-assessment.qmd)
+- [CMP-31 — No practical-identification diagnostic for component effects](CMP-31-no-practical-identification-diagnostic-for-component-effects.qmd)
+- [CMP-32 — No sample-size or allocation method for component NMA](CMP-32-no-sample-size-or-allocation-method-for-component-nma.qmd)
+- [DIA-11 — No scenario library or performance measures for estimability failure](DIA-11-no-scenario-library-or-performance-measures-for-estimability.qmd)
+:::
+
+## Source
+
+Derived from reading:cnma-03 of the reviewed corpus.

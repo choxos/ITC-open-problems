@@ -3,16 +3,16 @@ title: "No support diagnostic aggregates over a PAIC target distribution"
 description: "Outcome-regression PAIC such as STC, ML-NMR and parametric g-computation can rely on predictions at target covariate profiles that are sparsely represented or unsupported in the source data, and weight-concentration summaries such as ESS do not diagnose that reliance. General support diagnostics do exist and can be applied to a regression: covariate distance, convex-hull membership, density, prediction variance and classical leverage all flag risk, though none certifies that a transported causal effect is identified. What is missing is the PAIC-specific layer: aggregating those measures over a target distribution that is often known only as published moments, reporting them for a target-standardized marginal contrast rather than for a single prediction, and calibrating rules that map a flag to abstention, an explicit sensitivity model, or target redefinition. Two auditors searched and found no application of conformal prediction or representation-space out-of-distribution scoring to STC, ML-NMR or g-computation-based population adjustment; that is a negative search result rather than a verified absence."
 pid: "OVL-03"
 topic: "Positivity, overlap & extrapolation"
-categories: ["Positivity, overlap & extrapolation", "High priority", "Confirmed open"]
+categories: ["Positivity, overlap & extrapolation", "High priority", "Partially addressed"]
 priority: "High"
 prank: 2
-verdict: "Confirmed open"
-verdictslug: "confirmed-open"
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
 maturity: "Emerging"
 ---
 ::: {.problem-meta}
 [OVL-03]{.problem-id}
-[Confirmed open]{.verdict .verdict-confirmed-open}
+[Partially addressed]{.verdict .verdict-partially-addressed}
 [High priority]{.chip .chip-priority-high}
 [Emerging]{.chip .chip-maturity-emerging}
 :::
@@ -42,13 +42,18 @@ Start from the support diagnostics that already exist for regression, namely cov
 ## Verification
 
 ::: {.verification-trail}
-**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+**Verdict.** Partially addressed. Auditors agreed the problem is open and no counterevidence surfaced. Reopened by the full-text reading: 1 finding from 1 paper survived both the reader and an independent second reviewer, so the verdict moves from confirmed-open to partially-addressed, on a single finding.
 
 **The source titled this.** "No support diagnostics for outcome-regression population adjustment" The title claims no support diagnostics exist for outcome-regression PAIC, which the audit judged overstated since distance, convex-hull, density, prediction-variance and leverage measures all apply.
 
 **The source said.** "Weight-based overlap diagnostics do not transfer to outcome-regression PAIC such as STC, ML-NMR and g-computation, where an outcome model silently produces predictions at target covariate profiles with no empirical support. The report calls for extrapolation-leverage diagnostics and treats conformal prediction and representation-space out-of-distribution scores as speculative but useful flags whose role is abstention, never certification of extrapolation."
 
 **What was wrong with it.** The source's title and framing claimed that no support diagnostics exist for outcome-regression PAIC; GPT-5.6 Sol judged that overstated, since covariate-distance, convex-hull, density, prediction-variance and classical leverage diagnostics can all be applied, and since model-based standard errors are not necessarily narrow outside support because prediction variance rises with leverage, and it also struck the claim that conformal prediction flags unsupported profiles, because under unsupported covariate shift ordinary conformal prediction loses its exchangeability guarantee and need not flag the profile at all. The literature auditor recorded the load-bearing absence claim as unverifiable rather than verified, and noted that Remiro-Azocar, Heath and Baio 2022 (doi:10.1002/jrsm.1565) treat extrapolation as the capability that lets regression outperform MAIC exactly where overlap is worst.
+
+**Revised by the full-text reading.** Applied 2026-07-26 full-text reading of the consolidated library (687 papers).
+
+Verdict changed
+:   **confirmed-open -> partially-addressed** 1 surviving finding from: Graphs of study contributions and covariate distributions fo. New citations: 10.1002/jrsm.1292
 
 Literature and prior-art check
 :   **open / supported-with-caveat.** I searched arXiv (full-text and abstract queries pairing conformal/out-of-distribution with transportability, generalizability and external validity) and PubMed, and found no application of conformal prediction or representation-space OOD scoring to STC, ML-NMR or g-computation-based population adjustment, and no extrapolation-leverage diagnostic for outcome-regression PAIC. So the entry's own hedge that these tools are 'speculative rather than established' matches what I could retrieve, and the problem is open. Two caveats. First, the load-bearing negative claim (no support diagnostics exist for outcome-regression PAIC) is an absence claim and no source I retrieved asserts it, so it is unverifiable rather than verified. Second, the entry's framing of extrapolation as pure hazard is one-sided: Remiro-Azocar et al. 2022 present extrapolation as the capability that lets regression-based adjustment beat MAIC exactly where overlap is worst, reporting that parametric G-computation is 'more precise and more accurate than MAIC, particularly when covariate overlap is poor.' The diagnostic gap is real; the implied verdict on outcome regression is not established.
@@ -58,6 +63,22 @@ GPT-5.6 Sol, technical and source-code lens
 
 Decision path
 :   `R5:default-open → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## How the evidence falls in time
+
+5 papers in the reviewed corpus bear on this problem, published 2017 to 2023. Partial progress is on the record, and later work still calls this open. Both belong in view.
+
+::: {.table-scroll}
+
+| Year | Says | Paper |
+|---|---|---|
+| 2017 | confirms it is open | Network meta-analysis including treatment by covariate interactions: Consistency can vary across covariate values |
+| 2018 | partly addresses it | Graphs of study contributions and covariate distributions for network meta-regression |
+| 2020 | confirms it is open | Extending inferences from a randomized trial to a new target population (Dahabreh, Robertson, Steingrimsson, Stuart, Hernan; tutorial, arXiv:1805.00550v3) |
+| 2022 | confirms it is open | Parametric G-computation for compatible indirect treatment comparisons with limited individual patient data |
+| 2023 | confirms it is open | Comparison of indirect treatment methods in migraine prevention to address differences in mode of administration |
 
 :::
 

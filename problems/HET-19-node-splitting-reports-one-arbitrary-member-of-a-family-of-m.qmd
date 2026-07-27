@@ -1,0 +1,69 @@
+---
+title: "Node splitting reports one arbitrary member of a family of multi-arm parameterizations"
+description: "When the comparison being split appears in k multi-arm trials that contain both of its treatments, the network of indirect evidence can be parameterized in 2^k + 1 non-equivalent ways: 2^k mixtures of dropping one or the other of the two treatments trial by trial, plus a single model that drops both from every such trial. These are not relabelings of one another; they use different data and give different indirect estimates, different inconsistency p-values and different heterogeneity estimates, and the choice of which arm to retain can change the results even when every option yields an indirect estimate at all. Exploring the whole family is described as generally infeasible, and even fitting the two pure options is treated as undesirable on computational grounds, so in practice one member is chosen arbitrarily; gemtc generates the model that drops both split treatments from multi-arm trials, which is the member that retains the least evidence. No rule selects among the parameterizations, no aggregation across them has been defined, no study reports how far conclusions move over the family, and no implementation reports more than one. Because a node-splitting p-value functions in practice as a gate on whether a network meta-analysis may be reported at all, that gate rests on a modeling choice that is neither justified nor disclosed."
+pid: "HET-19"
+topic: "Heterogeneity, consistency & multi-arm structure"
+categories: ["Heterogeneity, consistency & multi-arm structure", "Medium-high priority", "Confirmed open"]
+priority: "Medium-high"
+prank: 3
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Established"
+tractability: 4
+---
+::: {.problem-meta}
+[HET-19]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[Medium-high priority]{.chip .chip-priority-medium-high}
+[Established]{.chip .chip-maturity-established}
+[Tractability 4/5]{.chip}
+:::
+## Statement
+
+When the comparison being split appears in k multi-arm trials that contain both of its treatments, the network of indirect evidence can be parameterized in 2^k + 1 non-equivalent ways: 2^k mixtures of dropping one or the other of the two treatments trial by trial, plus a single model that drops both from every such trial. These are not relabelings of one another; they use different data and give different indirect estimates, different inconsistency p-values and different heterogeneity estimates, and the choice of which arm to retain can change the results even when every option yields an indirect estimate at all. Exploring the whole family is described as generally infeasible, and even fitting the two pure options is treated as undesirable on computational grounds, so in practice one member is chosen arbitrarily; gemtc generates the model that drops both split treatments from multi-arm trials, which is the member that retains the least evidence. No rule selects among the parameterizations, no aggregation across them has been defined, no study reports how far conclusions move over the family, and no implementation reports more than one. Because a node-splitting p-value functions in practice as a gate on whether a network meta-analysis may be reported at all, that gate rests on a modeling choice that is neither justified nor disclosed.
+
+## Why it is open
+
+The alternatives are not nested and do not condition on the same data, so the usual model-selection apparatus does not apply: information criteria would compare fits to different datasets, and averaging estimates that use different evidence has no agreed target. The family grows exponentially in the number of multi-arm trials carrying the split comparison, which puts exhaustive fitting out of reach for the Bayesian implementations that dominate applied use, and no cheap approximation to the spread has been derived. The global alternatives that sidestep the ambiguity, notably the design-by-treatment interaction model, answer a different question, testing the network rather than localizing a conflict to a comparison, so they do not remove the demand for a per-comparison split. And nobody has measured the spread, so there is no evidence that the problem is large; measuring it is the missing first step rather than a preliminary to a fix that already exists.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [van Valkenhoef, Dias, Ades and Welton 2015, Research Synthesis Methods](https://doi.org/10.1002/jrsm.1167) | Proves an unambiguous decision rule for which comparisons to split and shows model generation is trivial for those comparisons, while stating that the parameterization ambiguity survives: the family has 2^k + 1 members, exploring it is generally infeasible, one member is chosen arbitrarily in practice, and gemtc generates the option that includes neither split treatment from multi-arm trials. |
+| [Dias, Welton, Caldwell and Ades 2010, Statistics in Medicine](https://doi.org/10.1002/sim.3767) | The original node-splitting method for checking consistency in mixed treatment comparisons, in which only the two pure arm-dropping options are considered and the mixtures are not raised. |
+| [Dias, Welton, Sutton, Caldwell, Lu and Ades 2013, Medical Decision Making (NICE DSU TSD 4)](https://doi.org/10.1177/0272989X12455847) | The applied protocol for assessing inconsistency in networks of interventions, which is what turns a node-splitting p-value into a gate on reporting and therefore what makes the parameterization choice decision-relevant. |
+| [van Valkenhoef, Lu, de Brock, Hillege, Ades and Welton 2012, Research Synthesis Methods](https://doi.org/10.1002/jrsm.1054) | Automates model generation for network meta-analysis and establishes that basic-parameter choice is arbitrary for consistency models but not for inconsistency models, which is the asymmetry that creates the node-splitting ambiguity. |
+| [Higgins, Jackson, Barrett, Lu, Ades and White 2012, Research Synthesis Methods](https://doi.org/10.1002/jrsm.1044) | The design-by-treatment interaction model, a global inconsistency test that handles multi-arm trials without an arm-dropping choice; it avoids the ambiguity but does not localize inconsistency to a comparison. |
+| [White, Barrett, Jackson and Higgins 2012, Research Synthesis Methods](https://doi.org/10.1002/jrsm.1045) | Estimates the design-by-treatment interaction model by multivariate meta-regression, the frequentist implementation of the global alternative that applied reviewers run alongside node splitting. |
+| [Tu 2016, Value in Health](https://doi.org/10.1016/j.jval.2016.07.005) | Recasts node splitting as a generalized linear mixed model, an estimation route fast enough that fitting several members of the family becomes practical rather than prohibitive. |
+| [Veroniki, Vasiliadis, Higgins and Salanti 2013, International Journal of Epidemiology](https://doi.org/10.1093/ije/dys222) | Evaluates inconsistency across published networks with several methods and shows detection depends on the method chosen, establishing that inconsistency conclusions are already known to be fragile to analytic choices. |
+| [gemtc: Network Meta-Analysis Using Bayesian Methods, CRAN](https://cran.r-project.org/package=gemtc) | The implementation in which the parameterization is fixed: node-splitting models are generated by dropping both split treatments from multi-arm trials, so an applied user cannot see the alternatives without writing their own model. |
+
+:::
+
+## Probable solution or research direction
+
+Measure the spread before proposing a rule: on a database of published networks, enumerate the family wherever k is small enough to fit exhaustively and sample the mixtures where it is not, then report the range of the inconsistency p-value, the indirect estimate and the heterogeneity estimate across the family, together with how often the gate decision at conventional thresholds changes. If the spread is material, define the target explicitly rather than by default, either a single defensible member such as the mixture that maximizes the evidence retained in the indirect network, which is computable from the graph before any model is fitted, or a summary across the family under a stated weighting. Report the spread rather than a point in any case, since a p-value that moves across the family is itself the finding a reader needs. The enabling software step is to let implementations expose the choice: the dominant package fixes one member, so nothing else can be reported until the pure and mixed options are generated and summarized together.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. One reader proposed this and the reviewer accepted it because the arm representation chosen for multi-arm trials can change the indirect evidence and hence the local inconsistency result. The evidence is a single paper, but it is the definitive treatment of node-splitting model generation, it enumerates the family and states that the choice is made arbitrarily, and no later work reports how far conclusions move across it.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [HET-04 — Node splitting compares paths without standardizing to a target](HET-04-node-splitting-compares-paths-without-standardizing-to-a-tar.qmd)
+- [HET-14 — No evidence base or reporting rule governs the heterogeneity versus inconsistency split](HET-14-no-evidence-base-or-reporting-rule-governs-the-heterogeneity.qmd)
+- [HET-02 — Multi-arm covariance is lost when contrasts are adjusted pairwise](HET-02-multi-arm-covariance-is-lost-when-contrasts-are-adjusted-pai.qmd)
+- [MIS-04 — Model and bridge selection uncertainty never enters the interval](MIS-04-model-and-bridge-selection-uncertainty-never-enters-the-inte.qmd)
+:::
+
+## Source
+
+Derived from reading:nma-39 of the reviewed corpus.

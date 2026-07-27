@@ -1,0 +1,74 @@
+---
+title: "No empirical prior exists for residual heterogeneity after covariate adjustment"
+description: "The empirically derived predictive distributions that supply informative heterogeneity priors describe unadjusted random-effects heterogeneity: Turner et al. 2012 built them from 14,886 Cochrane meta-analyses, Turner et al. 2015 published 80 log-normal distributions for binary outcomes indexed by outcome type and comparison type, and Rhodes et al. 2015 did the same on the standardized mean difference scale. Network meta-regression and multilevel network meta-regression estimate a residual heterogeneity after conditioning on a specific covariate set, which is a different quantity whose plausible magnitude depends on which covariates were adjusted for. No empirical distribution exists for that residual, and no principle deflates an unadjusted distribution by the adjustment made. Turner et al. 2018 state that the same prior machinery carries to network meta-regression but that prior evidence for the residual is unlikely to be available, and note that reusing an unadjusted empirical distribution is conservative in only one direction, supporting larger heterogeneity than necessary. Population-adjusted network methods inherit the problem in full, since ML-NMR fits a single network-wide residual tau alongside the interaction model. The analyst is therefore left choosing between a prior known to be too diffuse and a vague prior that leaves the residual variance close to unidentified in exactly the sparse networks where adjustment is used."
+pid: "HET-12"
+topic: "Heterogeneity, consistency & multi-arm structure"
+categories: ["Heterogeneity, consistency & multi-arm structure", "Medium-high priority", "Confirmed open"]
+priority: "Medium-high"
+prank: 3
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Promising"
+tractability: 4
+---
+::: {.problem-meta}
+[HET-12]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[Medium-high priority]{.chip .chip-priority-medium-high}
+[Promising]{.chip .chip-maturity-promising}
+[Tractability 4/5]{.chip}
+:::
+## Statement
+
+The empirically derived predictive distributions that supply informative heterogeneity priors describe unadjusted random-effects heterogeneity: Turner et al. 2012 built them from 14,886 Cochrane meta-analyses, Turner et al. 2015 published 80 log-normal distributions for binary outcomes indexed by outcome type and comparison type, and Rhodes et al. 2015 did the same on the standardized mean difference scale. Network meta-regression and multilevel network meta-regression estimate a residual heterogeneity after conditioning on a specific covariate set, which is a different quantity whose plausible magnitude depends on which covariates were adjusted for. No empirical distribution exists for that residual, and no principle deflates an unadjusted distribution by the adjustment made. Turner et al. 2018 state that the same prior machinery carries to network meta-regression but that prior evidence for the residual is unlikely to be available, and note that reusing an unadjusted empirical distribution is conservative in only one direction, supporting larger heterogeneity than necessary. Population-adjusted network methods inherit the problem in full, since ML-NMR fits a single network-wide residual tau alongside the interaction model. The analyst is therefore left choosing between a prior known to be too diffuse and a vague prior that leaves the residual variance close to unidentified in exactly the sparse networks where adjustment is used.
+
+## Why it is open
+
+The residual is defined relative to a covariate set chosen anew in every analysis, so there is no single target quantity around which a corpus can be indexed; a database organized by outcome type and comparison type would additionally have to be organized by adjustment set, and adjustment sets are not comparable across reviews. The empirical ratio of adjusted to unadjusted heterogeneity cannot be recovered from the published literature at scale, because meta-regressions rarely report both variances side by side, so the corpus would have to be built by refitting rather than by extraction. Study-level meta-regressions are fitted with few studies, so each adjusted tau estimate is itself imprecise, and a predictive distribution assembled from such estimates is a distribution of noise unless the extraction model is hierarchical. The conservative fallback is not neutral either: an over-diffuse heterogeneity prior widens intervals and weakens shrinkage, which is not uniformly the safe direction once the output feeds a decision rule.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Turner, Dominguez-Islas, Jackson, Rhodes and White 2019, Statistics in Medicine](https://doi.org/10.1002/sim.8044) | Builds four ways of attaching externally derived informative priors to heterogeneity variances in a network, and states in its discussion that the same approaches apply to network meta-regression but that prior evidence for the residual heterogeneity after adjustment for a specific covariate combination is unlikely to be available, with the unadjusted distributions serving only as a conservative substitute. |
+| [Turner, Davey, Clarke, Thompson and Higgins 2012, International Journal of Epidemiology](https://doi.org/10.1093/ije/dys041) | Derives predictive distributions for between-study heterogeneity from 14,886 meta-analyses in the Cochrane Database of Systematic Reviews, indexed by outcome type and intervention comparison type; this is the corpus method that would have to be repeated for an adjusted parameter. |
+| [Turner, Jackson, Wei, Thompson and Higgins 2015, Statistics in Medicine](https://doi.org/10.1002/sim.6381) | Publishes log-normal predictive distributions for heterogeneity in 80 settings defined by outcome and comparison type, usable directly as priors; these are the unadjusted distributions currently reused in adjusted models. |
+| [Rhodes, Turner and Higgins 2015, Journal of Clinical Epidemiology](https://doi.org/10.1016/j.jclinepi.2014.08.012) | Supplies the corresponding predictive distributions for continuous outcomes on the standardized mean difference scale, extending the coverage of the unadjusted corpus without addressing adjustment. |
+| [Rhodes, Turner, White, Jackson, Spiegelhalter and Higgins 2016, Statistics in Medicine](https://doi.org/10.1002/sim.7090) | Gives a pseudo-data device for implementing informative log-normal heterogeneity priors inside standard meta-analysis and meta-regression software; it transfers the priors into a regression setting but does not recalibrate them for the adjustment. |
+| [Dias, Sutton, Welton and Ades 2013, Medical Decision Making (NICE DSU TSD 3)](https://doi.org/10.1177/0272989X13485157) | The standard applied account of network meta-regression and of residual heterogeneity after covariate adjustment; it defines the parameter whose prior is missing without supplying evidence about its magnitude. |
+| [Phillippo, Dias, Ades, Belger, Brnabic, Schacht, Saure, Kadziola and Welton 2020, Journal of the Royal Statistical Society Series A](https://doi.org/10.1111/rssa.12579) | Defines multilevel network meta-regression, which fits an individual-level regression with treatment-covariate interactions and a single network-wide residual heterogeneity term; the parameter that needs the missing prior in the population-adjusted setting. |
+| [Rover, Bender, Dias, Schmid, Schmidli, Sturtz, Weber and Friede 2021, Research Synthesis Methods](https://doi.org/10.1002/jrsm.1475) | Guidance on weakly informative heterogeneity priors when very few studies contribute, the current fallback when an empirical prior is judged inapplicable; it is calibrated for unadjusted heterogeneity as well. |
+
+:::
+
+## Probable solution or research direction
+
+Build the missing evidence by refitting rather than by extraction: take a sample of published networks and pairwise meta-analyses that carry the covariates needed for meta-regression, fit each with and without adjustment under matched weakly informative priors, and report the distribution of the ratio of residual to unadjusted heterogeneity, stratified by the kind of adjustment (a single study-level covariate, baseline risk, a patient-level effect modifier in ML-NMR). Fit that extraction hierarchically so each network's imprecision is carried into the predictive distribution rather than averaged away, and validate the resulting deflation factor by leave-one-network-out prediction against both the unadjusted prior and a vague prior. Until that exists, make prior sensitivity a reporting requirement for adjusted networks: fit with the unadjusted empirical prior, a deflated version of it, and a weakly informative prior, and report how far the treatment contrasts and the interval widths move. Because the residual variance also absorbs unmodeled inconsistency, estimate the deflation inside models that keep heterogeneity and inconsistency separate, otherwise the deflation factor will be contaminated by whatever inconsistency the adjustment failed to explain.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. One reader proposed this and the reviewer accepted it on the ground that the quoted passage distinguishes residual heterogeneity after a specified covariate adjustment from the unadjusted empirical distributions used for existing priors. The evidence is a single paper, which is a weaker basis, but that paper is the state of the art for external heterogeneity priors in networks and names the absence itself.
+
+**Revised by the full-text reading.** Applied 2026-07-26 full-text reading of the consolidated library (687 papers).
+
+Citation corrected
+:   **normalized a citation year: 'Turner, Dominguez-Islas, Jackson, Rhodes and White 2018, Statistics in Medicine' -> 'Turner, Dominguez-Islas, Jackson, Rhodes and White 2019, Statistics in Medicine'** 10.1002/sim.8044 is cited with two different years across the registry. CrossRef gives 2018 online and 2019 in print; the issue year is used throughout.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [CMU-02 — Priors, not data, can drive posteriors in weakly identified models](CMU-02-priors-not-data-can-drive-posteriors-in-weakly-identified-mo.qmd)
+- [HET-03 — Single shared heterogeneity variance across classes and populations](HET-03-single-shared-heterogeneity-variance-across-classes-and-popu.qmd)
+- [HET-13 — No corpus-derived prior distributions exist for the NMA inconsistency variance](HET-13-no-corpus-derived-prior-distributions-exist-for-the-nma-inco.qmd)
+- [HET-16 — Exchangeable and comparison-specific heterogeneity priors are blocked by the covariance constraint](HET-16-exchangeable-and-comparison-specific-heterogeneity-priors-ar.qmd)
+- [HET-17 — Heterogeneity has no principled place in a sequential or living NMA boundary](HET-17-heterogeneity-has-no-principled-place-in-a-sequential-or-liv.qmd)
+:::
+
+## Source
+
+Derived from reading:nma-32 of the reviewed corpus.

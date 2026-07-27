@@ -1,0 +1,69 @@
+---
+title: "No missing-evidence appraisal for bridged cross-gap contrasts"
+description: "Instruments for risk of bias due to missing evidence work by weighting per-comparison judgments about unreported and unpublished studies through the contribution each direct comparison makes to a network estimate. That machinery presupposes a connected network: contribution is defined by evidence flow along observed edges, and opposing biases can be argued to offset around a loop. Where the estimate of interest is a cross-gap contrast supplied by a bridge, there is no contribution path and no loop, so no existing tool assigns it a judgment; the one instrument built for networks states that it is not applicable when an intervention is disconnected and recommends appraising each subnetwork separately, which produces judgments for contrasts nobody needed and none for the contrast the analysis exists to produce. Nothing states how selective non-reporting inside a subnetwork propagates into a shared component effect, a shared baseline model, a class mean or a dose-response curve, nor in which direction it moves the bridged contrast. The propagation is not a routine extension of the connected case: a bridge parameter is estimated from the studies present in each subnetwork, so a subnetwork whose small unfavorable trials went unpublished contributes a biased bridge, and no second path exists through which the distortion could be detected or offset."
+pid: "EVB-11"
+topic: "Evidence-base construction & data access"
+categories: ["Evidence-base construction & data access", "High priority", "Confirmed open"]
+priority: "High"
+prank: 2
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Emerging"
+tractability: 3
+---
+::: {.problem-meta}
+[EVB-11]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[High priority]{.chip .chip-priority-high}
+[Emerging]{.chip .chip-maturity-emerging}
+[Tractability 3/5]{.chip}
+:::
+## Statement
+
+Instruments for risk of bias due to missing evidence work by weighting per-comparison judgments about unreported and unpublished studies through the contribution each direct comparison makes to a network estimate. That machinery presupposes a connected network: contribution is defined by evidence flow along observed edges, and opposing biases can be argued to offset around a loop. Where the estimate of interest is a cross-gap contrast supplied by a bridge, there is no contribution path and no loop, so no existing tool assigns it a judgment; the one instrument built for networks states that it is not applicable when an intervention is disconnected and recommends appraising each subnetwork separately, which produces judgments for contrasts nobody needed and none for the contrast the analysis exists to produce. Nothing states how selective non-reporting inside a subnetwork propagates into a shared component effect, a shared baseline model, a class mean or a dose-response curve, nor in which direction it moves the bridged contrast. The propagation is not a routine extension of the connected case: a bridge parameter is estimated from the studies present in each subnetwork, so a subnetwork whose small unfavorable trials went unpublished contributes a biased bridge, and no second path exists through which the distortion could be detected or offset.
+
+## Why it is open
+
+Contribution-based appraisal is defined on evidence flow through observed edges, and a disconnection is precisely the absence of such edges, so the weighting step has nothing to weight; a judgment for a bridged contrast has to be built on a different object, namely the bridge parameter, and nobody has defined the analogue of a contribution matrix on it. The direction of the distortion is bridge-specific rather than generic: unpublished small unfavorable trials shift a class mean, an additive component effect and a dose-response slope in different ways, so one general rule cannot be written and each family needs its own derivation. There is also no observable check, because the diagnostic that catches reporting bias in a connected network is the disagreement between two paths, and a disconnected network has one path by construction. And the appraisal instruments in use were designed around the study as the unit contributing to a synthesized comparison, so extending them requires changing what the unit of judgment is, not adding a signaling question.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Chiocchia et al. 2021, BMC Medicine](https://doi.org/10.1186/s12916-021-02166-3) | ROB-MEN, the only tool giving per-comparison risk-of-bias judgments for missing evidence in a network; states explicitly that it is not applicable when an intervention of interest is disconnected and recommends evaluating each subnetwork separately. |
+| [Page et al. 2023, BMJ](https://doi.org/10.1136/bmj-2023-076754) | ROB-ME, the pairwise instrument ROB-MEN adapts, framed around studies that are missing from a synthesis of a single comparison; it inherits the same assumption that the estimate of interest has contributing studies. |
+| [Nikolakopoulou et al. 2020, PLOS Medicine](https://doi.org/10.1371/journal.pmed.1003082) | CINeMA grades confidence in each network comparison across domains including reporting bias, using contributions from direct comparisons; it has no items for a bridge across a disconnection. |
+| [Papakonstantinou et al. 2018, F1000Research](https://doi.org/10.12688/f1000research.14770.3) | Defines the contribution of each study and each direct comparison to a network estimate through paths, flows and streams; the machinery that has no value to assign when the contrast has no path. |
+| [Mavridis et al. 2014, Statistics in Medicine](https://doi.org/10.1002/sim.6321) | Selection model for a full network meta-analysis that could in principle propagate selective publication into any shared parameter, but has been formulated and applied only for connected networks and ordinary treatment effects. |
+| [Goring et al. 2016, Research Synthesis Methods](https://doi.org/10.1002/jrsm.1204) | Sets out the analytic options for treatment networks having no common comparator, defining the class of bridged analyses for which no missing-evidence appraisal exists. |
+| [Beliveau et al. 2017, Research Synthesis Methods](https://doi.org/10.1002/jrsm.1256) | Evaluates random baseline treatment effects as a way of joining disconnected networks and shows how strongly the cross-gap contrast depends on the studies supplying the baseline model in each subnetwork. |
+| [Pedder et al. 2021, Medical Decision Making](https://doi.org/10.1177/0272989X20983315) | Links disconnected networks through dose-response model-based network meta-analysis; a concrete bridge whose parameter is estimated from whichever dose arms happen to have been published in each subnetwork. |
+| [Page et al. 2021, Research Synthesis Methods](https://doi.org/10.1002/jrsm.1468) | Review of publication and other reporting biases in meta-analysis, summarizing what detection and adjustment methods exist and how little is known about their behavior. |
+
+:::
+
+## Probable solution or research direction
+
+Move the unit of judgment from the contrast to the bridge parameter: for each bridge family, state which studies in each subnetwork identify that parameter, then define the analogue of a contribution matrix on it so that per-study missing-evidence judgments can be weighted into a judgment about the bridge. Derive the sign of the distortion for the common families, since selective non-publication of small unfavorable trials moves a class mean, an additive component effect, a baseline model and a dose-response slope in directions that are predictable from the family's algebra rather than arbitrary. Add bridge-specific signaling items to the existing instruments: whether the bridge parameter is identified in both subnetworks, how many studies in each supply it, and whether the two subnetworks differ in evidence completeness, since asymmetric completeness is what makes the distortion one-sided. Feed the resulting bias into the drift machinery already used for bridge uncertainty, so a reported interval carries reporting-bias-induced drift alongside structural drift rather than treating them as separate reports. Validate on connected networks analyzed as if disconnected, where the bridged and the observed contrasts can both be computed and the missing-evidence judgment can be scored against the discrepancy it was supposed to predict.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. One reader proposed this from the single instrument paper whose authors state that disconnected interventions were out of scope, and the reviewer accepted it on the grounds that appraising subnetworks separately does not appraise the bridged estimand. Resting on one instrument paper plus the disconnected-network literature, the gap is documented by explicit scope exclusion rather than by a demonstration that a bridge-level appraisal would be hard to build.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [EVB-08 — Network small-study-effects diagnostics lack an assumption-light default](EVB-08-network-small-study-effects-diagnostics-lack-an-assumption-l.qmd)
+- [DIS-14 — Reported intervals condition on the bridge being exactly true](DIS-14-reported-intervals-condition-on-the-bridge-being-exactly-tru.qmd)
+- [DEC-04 — No PAIC-specific reporting standard or credibility appraisal tool](DEC-04-no-paic-specific-reporting-standard-or-credibility-appraisal.qmd)
+- [DIS-12 — No standard ledger names the parameter carrying the gap](DIS-12-no-standard-ledger-names-the-parameter-carrying-the-gap.qmd)
+:::
+
+## Source
+
+Derived from reading:nma-22 of the reviewed corpus.

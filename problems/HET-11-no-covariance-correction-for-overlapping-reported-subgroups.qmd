@@ -1,0 +1,68 @@
+---
+title: "No covariance correction for overlapping reported subgroups"
+description: "Trial publications report a treatment effect for the whole randomized population and separately within the levels of each of several covariates, so a single patient contributes to the overall row and to one row per covariate split. Methods that exploit those reports to adjust for effect modification, network meta-interpolation in particular, enter the subgroup contrasts into a multivariable regression as independent observations, which reuses the same patients across rows and understates the variance of the resulting balanced estimate. No published method supplies the within-study covariance matrix that overlapping marginal subgroups induce, and no correction, bound or robust alternative has been derived or evaluated for the intervals that follow. The dependence is a different object from the shared-arm covariance of a multi-arm trial and from the covariance induced by a shared weighting step: it arises in a two-arm trial with a single weight set as soon as two covariate splits are reported, because the two splits partition the same patients. It is also distinct from unreported target moments, since here the inputs are present and the problem is that they are correlated. The practical consequence is a narrower interval for a population-adjusted comparison presented to a decision maker as calibrated."
+pid: "HET-11"
+topic: "Heterogeneity, consistency & multi-arm structure"
+categories: ["Heterogeneity, consistency & multi-arm structure", "High priority", "Confirmed open"]
+priority: "High"
+prank: 2
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Emerging"
+tractability: 4
+---
+::: {.problem-meta}
+[HET-11]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[High priority]{.chip .chip-priority-high}
+[Emerging]{.chip .chip-maturity-emerging}
+[Tractability 4/5]{.chip}
+:::
+## Statement
+
+Trial publications report a treatment effect for the whole randomized population and separately within the levels of each of several covariates, so a single patient contributes to the overall row and to one row per covariate split. Methods that exploit those reports to adjust for effect modification, network meta-interpolation in particular, enter the subgroup contrasts into a multivariable regression as independent observations, which reuses the same patients across rows and understates the variance of the resulting balanced estimate. No published method supplies the within-study covariance matrix that overlapping marginal subgroups induce, and no correction, bound or robust alternative has been derived or evaluated for the intervals that follow. The dependence is a different object from the shared-arm covariance of a multi-arm trial and from the covariance induced by a shared weighting step: it arises in a two-arm trial with a single weight set as soon as two covariate splits are reported, because the two splits partition the same patients. It is also distinct from unreported target moments, since here the inputs are present and the problem is that they are correlated. The practical consequence is a narrower interval for a population-adjusted comparison presented to a decision maker as calibrated.
+
+## Why it is open
+
+The covariance is a function of quantities the publication does not print, namely the joint distribution of the covariates that define the splits and the outcome covariance within cells of that joint distribution, so it cannot be computed from the reported margins alone. Bounds are available in principle, since the overlap between two marginal splits of the same patients is constrained by Frechet-type inequalities on the compatible joint tables, but nobody has derived them for this setting or shown how much wider the resulting intervals become. Robust variance estimation was built for exactly this shape of dependence and needs no covariance matrix, but it was calibrated for many independent studies contributing clustered estimates, whereas a population-adjusted comparison has a handful of studies, which is the regime in which the small-sample corrections for those estimators are themselves approximations. Methods that consume marginal subgroups are recent and used mainly in submissions rather than in the methods literature, so the independence assumption has been raised as a caution by a second group rather than tested, and the response to that caution is to avoid marginal subgroup data or relax assumptions one covariate at a time, which indicates that no correction is available.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Chandler and Ishak 2026, Anchors Away: Navigating Unanchored Indirect Comparisons with Multilevel Unanchored Meta-Regression (ML-UMR), preprint](https://arxiv.org/abs/2606.20341) | Proposes multilevel unanchored meta-regression for disconnected evidence and names the problem: network meta-interpolation treats marginal subgroups as independent in a multivariable regression, which may underestimate uncertainty by effectively double-counting patients across overlapping subgroups, with the same caution applying to incorporating marginal subgroup data within the new method; supplies the caution and no correction. |
+| [Harari, Soltanifar, Cappelleri, Verhoek, Ouwens, Daly and Heeg 2023, Research Synthesis Methods](https://doi.org/10.1002/jrsm.1608) | Network meta-interpolation, which adjusts for effect modification using subgroup analyses reported in aggregate publications together with their standard errors; the method whose independence assumption across overlapping subgroup rows is at issue. |
+| [Hedges, Tipton and Johnson 2010, Research Synthesis Methods](https://doi.org/10.1002/jrsm.5) | Robust variance estimation for meta-regression with dependent effect size estimates; the assumption-light route that yields valid standard errors without knowing the covariance, and the natural off-the-shelf fallback here. |
+| [Tipton 2015, Psychological Methods](https://doi.org/10.1037/met0000011) | Small-sample corrections for robust variance estimation in meta-regression; identifies the number of independent studies as the binding constraint, which is exactly what a population-adjusted comparison lacks. |
+| [Pustejovsky and Tipton 2022, Prevention Science](https://doi.org/10.1007/s11121-021-01246-3) | Expands the range of working models for robust variance estimation, giving the menu of dependence structures a correction for overlapping subgroups could be specified within. |
+| [Riley 2009, Journal of the Royal Statistical Society Series A](https://doi.org/10.1111/j.1467-985X.2008.00593.x) | Quantifies the consequences of ignoring within-study correlation in multivariate meta-analysis; the closest measured analogue of the error made by treating correlated rows from one trial as independent. |
+| [Wei and Higgins 2013, Statistics in Medicine](https://doi.org/10.1002/sim.5679) | Methods for estimating within-study covariances in multivariate meta-analysis when they are not reported; the template for deriving the missing covariance from quantities publications do print. |
+| [Phillippo et al. 2020, Journal of the Royal Statistical Society Series A](https://doi.org/10.1111/rssa.12579) | Multilevel network meta-regression, which sidesteps the problem where individual patient data exist by modeling at the individual level and integrating over the aggregate covariate distribution; it does not solve it for the aggregate-only comparator whose subgroup rows are the only covariate information available. |
+
+:::
+
+## Probable solution or research direction
+
+Derive the covariance in the case that can be done exactly first: for a two-arm trial reporting an overall effect and two marginal splits, write the covariance of the reported contrasts as a function of the cell counts of the joint covariate distribution, then establish what is identified when only the margins are reported and give sharp bounds over the compatible joint tables. Feed those bounds into network meta-interpolation as an interval-valued weight matrix, so that the reported uncertainty covers the worst compatible dependence rather than assuming none. Quantify the current error with a simulation in which the joint distribution is known: fit the method under the independence assumption and under the true covariance, and report the ratio of interval widths and the realized coverage across realistic numbers of covariates and split proportions, since the magnitude of the problem is not currently known. Benchmark robust variance estimation with a small-sample correction against the derived covariance on the same simulations as the immediate fallback, and test borrowing the joint covariate distribution from a trial that does have individual patient data as a calibrated approximation for the trials that do not.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. One reader proposed this and the reviewer accepted overlapping marginal subgroup reports as a within-study dependence structure distinct from shared-arm and shared-weighting covariance, affecting both regression weighting and interval calibration. The base is a single preprint, which identifies the independent-row treatment and its double-counting consequence while offering no correction, so the entry rests on a stated caution rather than on a measured error.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [HET-02 — Multi-arm covariance is lost when contrasts are adjusted pairwise](HET-02-multi-arm-covariance-is-lost-when-contrasts-are-adjusted-pai.qmd)
+- [CMP-12 — No two-stage adjusted estimator carries multi-arm covariance](CMP-12-no-two-stage-adjusted-estimator-carries-multi-arm-covariance.qmd)
+- [EST-07 — Reported target moments are treated as known constants](EST-07-reported-target-moments-are-treated-as-known-constants.qmd)
+- [DEC-11 — Intervals omit selection, reconstruction and target-summary error](DEC-11-intervals-omit-selection-reconstruction-and-target-summary-e.qmd)
+:::
+
+## Source
+
+Derived from reading:core-07 of the reviewed corpus.

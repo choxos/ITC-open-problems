@@ -1,0 +1,69 @@
+---
+title: "Added bias uncertainty can narrow rather than widen a pooled interval"
+description: "Propagating an extra study-level uncertainty layer in a random-effects synthesis, whether an assumed departure from missing-at-random, a measurement-error term or a curve-reconstruction term, enters the model as an addition to each study's within-study variance. Between-study variance is estimated as the excess of observed dispersion over the within-study variances, so raising the latter is arithmetically subtracted from the heterogeneity estimate, and the two movements push the pooled variance in opposite directions with no general rule for which dominates. The pooled interval can therefore narrow as the assumed bias grows: in the pairwise and network models for missing continuous outcomes the summary interval contracts as the missingness-uncertainty parameter increases until the estimated heterogeneity is driven to zero, at roughly a standard deviation of 3 on the informative-missingness difference-of-means scale or 0.2 on the ratio-of-means scale, and only widens beyond that point. No reporting or modeling convention addresses this. Nothing states how to separate genuine heterogeneity from heterogeneity absorbed by the bias layer, which between-study variance estimator to use when a sensitivity parameter is in play, or how to present a sensitivity analysis whose interval moved toward greater apparent precision. The practical consequence is that checking whether the interval widened is not a valid test that uncertainty was propagated, and it is the check most readers apply."
+pid: "QBA-30"
+topic: "Quantitative bias analysis for unanchored PAIC"
+categories: ["Quantitative bias analysis for unanchored PAIC", "High priority", "Confirmed open"]
+priority: "High"
+prank: 2
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Promising"
+tractability: 4
+---
+::: {.problem-meta}
+[QBA-30]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[High priority]{.chip .chip-priority-high}
+[Promising]{.chip .chip-maturity-promising}
+[Tractability 4/5]{.chip}
+:::
+## Statement
+
+Propagating an extra study-level uncertainty layer in a random-effects synthesis, whether an assumed departure from missing-at-random, a measurement-error term or a curve-reconstruction term, enters the model as an addition to each study's within-study variance. Between-study variance is estimated as the excess of observed dispersion over the within-study variances, so raising the latter is arithmetically subtracted from the heterogeneity estimate, and the two movements push the pooled variance in opposite directions with no general rule for which dominates. The pooled interval can therefore narrow as the assumed bias grows: in the pairwise and network models for missing continuous outcomes the summary interval contracts as the missingness-uncertainty parameter increases until the estimated heterogeneity is driven to zero, at roughly a standard deviation of 3 on the informative-missingness difference-of-means scale or 0.2 on the ratio-of-means scale, and only widens beyond that point. No reporting or modeling convention addresses this. Nothing states how to separate genuine heterogeneity from heterogeneity absorbed by the bias layer, which between-study variance estimator to use when a sensitivity parameter is in play, or how to present a sensitivity analysis whose interval moved toward greater apparent precision. The practical consequence is that checking whether the interval widened is not a valid test that uncertainty was propagated, and it is the check most readers apply.
+
+## Why it is open
+
+The arithmetic is a property of the standard moment and likelihood estimators of between-study variance rather than a defect of one implementation: any layer that raises within-study variances is subtracted from the heterogeneity estimate, and whether the subtraction or the addition dominates depends on the observed dispersion, the number of studies and the estimator, so there is no single adjustment factor to publish. The direction can differ between contrasts of the same network, so the effect does not cancel across a synthesis and cannot be summarized once for an analysis. The decomposition that would fix it is not identified: genuine between-study heterogeneity and unmodeled study-level bias appear in the same observed dispersion, so separating them requires an external estimate of one of them rather than a better estimator. The effect also inverts the intended reading of a sensitivity analysis, because a decision can move toward greater apparent certainty as the analyst assumes a larger bias, which is exactly the incentive a bias analysis exists to remove; naming the problem therefore means conceding that the field's informal audit of sensitivity analyses does not work. Nobody has taken it up because the behavior is noticed as a curiosity inside individual papers and treated as a property of one model, rather than as a general feature of adding variance to a random-effects synthesis.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Mavridis, White, Higgins, Cipriani and Salanti 2015, Allowing for uncertainty due to missing continuous outcome data in pairwise and network meta-analysis, Statistics in Medicine 34(5):721-741](https://doi.org/10.1002/sim.6365) | builds informative-missingness difference-of-means and ratio-of-means sensitivity models for pairwise and network meta-analysis and documents the narrowing directly, reporting that the reduction in between-study variance outweighs the increase in within-study variance so the intervals contract as the missingness uncertainty grows; it records the behavior without proposing how to report or estimate around it |
+| [White, Higgins and Wood 2008, Allowing for uncertainty due to missing data in meta-analysis, Part 1: Two-stage methods, Statistics in Medicine 27(5):711-727](https://doi.org/10.1002/sim.3008) | the two-stage construction in which an informative-missingness parameter and its uncertainty inflate each study's variance before pooling, which is the mechanism that later subtracts from the heterogeneity estimate |
+| [White, Welton, Wood, Ades and Higgins 2008, Allowing for uncertainty due to missing data in meta-analysis, Part 2: Hierarchical models, Statistics in Medicine 27(5):728-745](https://doi.org/10.1002/sim.3007) | the hierarchical counterpart, in which the missingness parameter is given a distribution inside the model; it shows the layer can be placed either inside the likelihood or in the variance, a distinction that determines whether the heterogeneity estimate absorbs it |
+| [Turner, Spiegelhalter, Smith and Thompson 2009, Bias modelling in evidence synthesis, Journal of the Royal Statistical Society Series A 172(1):21-47](https://doi.org/10.1111/j.1467-985x.2008.00547.x) | the general framework for adding additive and proportional bias terms with elicited variances to studies in a synthesis; it separates a bias shift from a bias variance, which is the distinction a convention would have to enforce, and does not analyze the interaction with the heterogeneity estimate |
+| [Welton, Ades, Carlin, Altman and Sterne 2009, Models for potentially biased evidence in meta-analysis using empirically based priors, Journal of the Royal Statistical Society Series A 172(1):119-136](https://doi.org/10.1111/j.1467-985x.2008.00548.x) | supplies empirically grounded priors for bias magnitude and variance from meta-epidemiological data, which is where the size of an added layer would come from in practice |
+| [Veroniki et al. 2016, Methods to estimate the between-study variance and its uncertainty in meta-analysis, Research Synthesis Methods 7(1):55-79](https://doi.org/10.1002/jrsm.1164) | catalogs the available between-study variance estimators and their behavior; the estimator determines how much of an added within-study variance is absorbed and how quickly the heterogeneity estimate reaches its lower bound, so the choice is the lever this problem turns on |
+| [DerSimonian and Laird 1986, Meta-analysis in clinical trials, Controlled Clinical Trials 7(3):177-188](https://doi.org/10.1016/0197-2456(86)90046-2) | the moment estimator that defines between-study variance as observed dispersion minus the within-study variances and truncates at zero; it is the source of the subtraction and of the boundary at which the narrowing stops |
+| [Riley, Higgins and Deeks 2011, Interpretation of random effects meta-analyses, BMJ 342:d549](https://doi.org/10.1136/bmj.d549) | argues for reporting a prediction interval alongside the confidence interval for the summary effect; the two respond differently to variance moving between the within-study and between-study components, which makes the pair a candidate reporting fix |
+
+:::
+
+## Probable solution or research direction
+
+Derive the boundary rather than describing the phenomenon: for each common between-study variance estimator, write the derivative of the pooled variance with respect to an added within-study variance and identify the region in observed dispersion, number of studies and added variance where it is negative, so an analyst can tell in advance which side of the boundary a synthesis sits on. Require any sensitivity analysis that adds an uncertainty layer to report the estimated between-study variance and the within-study variances before and after, next to the pooled interval, so that a narrowing is legible as heterogeneity absorption rather than as gained precision. Report the prediction interval alongside the confidence interval and mark the value of the sensitivity parameter at which the heterogeneity estimate reaches zero, which is a natural landmark and the point past which the interval behaves as expected again. Compare heterogeneity estimators under a sensitivity parameter by simulation, since moment, restricted maximum likelihood, Paule-Mandel and Bayesian estimators with weakly informative priors absorb different amounts of the added variance, and make the estimator choice on that basis rather than by default. Where the layer represents a bias rather than extra noise, model it as a shift with its own variance component outside the within-study variance, so that it cannot be netted off against the heterogeneity estimate at all.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. One reader proposed this from a single paper, which documents the narrowing explicitly, and the reviewer accepted it on the ground that the reporting and estimation consequences are distinct from the requirement that uncertainty layers be propagated at all. A single-paper basis is weaker than a multi-reader one; what supports the verdict is that the mechanism is a property of standard heterogeneity estimators rather than of that model, and no convention, estimator recommendation or reporting rule for it exists.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [QBA-23 — Propagating every uncertainty layer without prohibitive cost](QBA-23-propagating-every-uncertainty-layer-without-prohibitive-cost.qmd)
+- [QBA-03 — QBA modes and interval semantics are routinely conflated](QBA-03-qba-modes-and-interval-semantics-are-routinely-conflated.qmd)
+- [HET-03 — Single shared heterogeneity variance across classes and populations](HET-03-single-shared-heterogeneity-variance-across-classes-and-popu.qmd)
+- [DEC-11 — Intervals omit selection, reconstruction and target-summary error](DEC-11-intervals-omit-selection-reconstruction-and-target-summary-e.qmd)
+- [MIS-03 — Nothing propagates sampling error in reported target moments](MIS-03-nothing-propagates-sampling-error-in-reported-target-moments.qmd)
+:::
+
+## Source
+
+Derived from reading:nma-41 of the reviewed corpus.

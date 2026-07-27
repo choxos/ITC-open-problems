@@ -1,0 +1,66 @@
+---
+title: "Covariate-indexed consistency has no calibrated licensed region"
+description: "When a network meta-analysis includes treatment-by-covariate interactions, the direct-indirect discrepancy is itself a function of the covariate, so the output of a consistency assessment is a set of covariate values over which the model's estimates may be used rather than a single pass or fail. No procedure defines that set formally. In the demonstration that established the phenomenon, the region was read off a handful of integer covariate values using pointwise two-sample tests at a 10 percent level chosen to err on the side of caution, with no adjustment for testing several comparisons at several covariate values, no evaluation of power against a covariate-dependent discrepancy, and no stated rule for propagation, even though a single failure at age 1 in one comparison was taken to bring the results at that covariate value for every comparison into question (Donegan et al. 2017, doi:10.1002/jrsm.1257). What does not exist is an estimand for the licensed region, a selection procedure with a stated error rate over the covariate range and over the comparisons tested, and any evaluation of how often such a procedure recovers the true region. The decision consequence is direct, because the region determines which patients an interaction network meta-analysis is permitted to make recommendations for, and a region chosen by uncorrected pointwise testing will be too small where the covariate is finely sampled and too large where power is low. Only Bonferroni correction has been offered as an aid, and it has never been evaluated in this setting."
+pid: "IDN-16"
+topic: "Identification, transitivity & conditional constancy"
+categories: ["Identification, transitivity & conditional constancy", "Medium-high priority", "Confirmed open"]
+priority: "Medium-high"
+prank: 3
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Emerging"
+tractability: 3
+---
+::: {.problem-meta}
+[IDN-16]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[Medium-high priority]{.chip .chip-priority-medium-high}
+[Emerging]{.chip .chip-maturity-emerging}
+[Tractability 3/5]{.chip}
+:::
+## Statement
+
+When a network meta-analysis includes treatment-by-covariate interactions, the direct-indirect discrepancy is itself a function of the covariate, so the output of a consistency assessment is a set of covariate values over which the model's estimates may be used rather than a single pass or fail. No procedure defines that set formally. In the demonstration that established the phenomenon, the region was read off a handful of integer covariate values using pointwise two-sample tests at a 10 percent level chosen to err on the side of caution, with no adjustment for testing several comparisons at several covariate values, no evaluation of power against a covariate-dependent discrepancy, and no stated rule for propagation, even though a single failure at age 1 in one comparison was taken to bring the results at that covariate value for every comparison into question (Donegan et al. 2017, doi:10.1002/jrsm.1257). What does not exist is an estimand for the licensed region, a selection procedure with a stated error rate over the covariate range and over the comparisons tested, and any evaluation of how often such a procedure recovers the true region. The decision consequence is direct, because the region determines which patients an interaction network meta-analysis is permitted to make recommendations for, and a region chosen by uncorrected pointwise testing will be too small where the covariate is finely sampled and too large where power is low. Only Bonferroni correction has been offered as an aid, and it has never been evaluated in this setting.
+
+## Why it is open
+
+The quantity being selected is a set rather than a parameter, so ordinary error control does not transfer: what needs controlling is the probability that the reported region contains covariate values at which the direct and indirect evidence in fact conflict, and that criterion has not been written down. The tests are correlated in two directions at once, across covariate values within a comparison and across comparisons through the shared network structure, so a correction that treats them as independent is wrong by an amount that depends on the design matrix. Power is worst exactly where the region's boundary sits, because the boundary is where the discrepancy crosses zero, so the covariate values that determine the answer are the ones the test can least resolve. Interaction networks are rare and usually require individual patient data, so there is very little material on which a procedure could be evaluated; the originating demonstration used one 17-site individual-patient dataset with four treatments. Nothing forces the issue, because reporting a covariate range is not required: an interaction network meta-analysis can present estimates across the whole observed covariate range without stating where consistency was assessed at all.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Donegan, Welton, Tudur Smith, D'Alessandro and Dias 2017, Network meta-analysis including treatment by covariate interactions: Consistency can vary across covariate values, Research Synthesis Methods 8:485-495](https://doi.org/10.1002/jrsm.1257) | Establishes that consistency is covariate-dependent, assesses it by visual inspection, inconsistency estimates and pointwise tests at a 10 percent level across selected covariate values, names the multiple-testing problem, and offers Bonferroni correction as an untested aid. |
+| [Donegan, Williamson, D'Alessandro and Tudur Smith 2013, Assessing key assumptions of network meta-analysis: a review of methods, Research Synthesis Methods 4:291-323](https://doi.org/10.1002/jrsm.1085) | Catalogues the available methods for checking similarity, homogeneity and consistency; none of them defines a covariate region over which the network's estimates are licensed. |
+| [Cooper, Sutton, Morris, Ades and Welton 2009, Addressing between-study heterogeneity and inconsistency in mixed treatment comparisons: Application to stroke prevention treatments in individuals with non-rheumatic atrial fibrillation, Statistics in Medicine 28:1861-1881](https://doi.org/10.1002/sim.3594) | Sets out the network meta-regression models with treatment-by-covariate interactions in which the problem arises, including the shared-interaction and independent-interaction variants. |
+| [Potthoff 1964, On the Johnson-Neyman Technique and Some Extensions Thereof, Psychometrika 29:241-256](https://doi.org/10.1007/BF02289721) | The existing formal machinery for exactly this shape of problem outside evidence synthesis: a region of a moderator over which a contrast is declared non-null, with simultaneous rather than pointwise error control; it has not been adapted to a network where comparisons are correlated through the design matrix. |
+| [Phillippo, Dias, Ades, Welton et al. 2023, Validating the Assumptions of Population Adjustment: Application of Multilevel Network Meta-regression to a Network of Treatments for Plaque Psoriasis, Medical Decision Making](https://doi.org/10.1177/0272989X221117162) | Assesses residual heterogeneity and inconsistency inside a covariate-adjusted network model and relaxes the shared interaction assumption one covariate at a time; the assessment is model-level rather than a region over covariate values. |
+| [multinma R package, nma(consistency = "nodesplit") with a regression formula](https://cran.r-project.org/package=multinma) | Allows a node split to be fitted inside a covariate-adjusted network model, so a covariate-indexed inconsistency estimate can be produced; it reports the estimate rather than selecting a region with a controlled error rate. |
+
+:::
+
+## Probable solution or research direction
+
+Define the estimand first: the licensed region is the set of covariate values at which the direct-indirect discrepancy is within a stated tolerance, and a procedure should be judged by the probability that the region it reports contains no value where the discrepancy exceeds that tolerance, not by pointwise p-values at selected integers. Build the selection procedure from simultaneous inference over the covariate range rather than from pointwise tests, taking the Johnson-Neyman construction and its simultaneous extensions as the template and carrying the correlation across comparisons induced by the network's design matrix. Evaluate it against a known answer: generate networks with a covariate-dependent inconsistency of known support and report how often the recovered region admits a true conflict and how much of the true licensed region it discards, as functions of network size, covariate range and interaction magnitude. Fix the propagation rule explicitly, since a failure at one covariate value in one comparison currently invalidates all comparisons at that value by argument rather than by a stated criterion. Finally, require an interaction network meta-analysis to report the covariate range over which consistency was assessed alongside any estimate it presents.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. One reader proposed this from a single methodological paper, and the reviewer accepted it as a distinct inferential problem created by testing consistency across a covariate continuum. The evidence for the gap is the originating work's own limitations, namely a named multiplicity problem, an untested Bonferroni suggestion and a single-dataset demonstration, rather than an independent survey or a failed attempt at a solution.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [HET-04 — Node splitting compares paths without standardizing to a target](HET-04-node-splitting-compares-paths-without-standardizing-to-a-tar.qmd)
+- [IDN-05 — The shared effect modifier check has low and uncalibrated power](IDN-05-the-shared-effect-modifier-check-has-low-and-uncalibrated-po.qmd)
+- [IDN-15 — Global inconsistency diagnostics lack calibrated operating characteristics](IDN-15-global-inconsistency-diagnostics-lack-calibrated-operating-c.qmd)
+- [COV-01 — Deciding which covariates are true effect modifiers](COV-01-deciding-which-covariates-are-true-effect-modifiers.qmd)
+:::
+
+## Source
+
+Derived from reading:nma-34 of the reviewed corpus.

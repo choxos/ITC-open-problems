@@ -1,0 +1,66 @@
+---
+title: "Effect-modifier selection does not check interaction consistency"
+description: "Treatment-by-covariate interaction coefficients satisfy a consistency equation of their own, and when it fails, direct and indirect evidence can carry interactions of opposite sign that cancel in a pooled network meta-regression, so the fit reports no effect modification for a covariate that strongly modifies the effect within each evidence path. Donegan, Dias and Welton 2019 construct the case explicitly: in a fabricated antimalarial network the interaction coefficients from direct evidence were 0.0000 (95 percent credible interval -0.0115 to 0.0116) while the corresponding indirect coefficients were 0.0399, -0.0400 and 0.0800, and the network meta-regression concluded that no interaction exists. The ordinary consistency check passes at the same time: the posterior probability that direct and indirect evidence agree was 0.9976 to 1.000 for the log odds ratios and 0 for the interaction coefficients, so an analyst who checks treatment effects for inconsistency sees nothing wrong. Effect-modifier sets for population adjustment are routinely assembled from meta-regression, network meta-regression and published interaction estimates, and no selection procedure, guidance document or software checks the consistency of the interaction coefficients before a covariate is accepted or rejected. The result is a matching-adjusted indirect comparison, simulated treatment comparison or multilevel network meta-regression balanced on a modifier set that omits a real modifier because it was cancelled rather than absent, and the omission is invisible to every downstream balance, overlap and effective sample size diagnostic, all of which are computed after the set is fixed."
+pid: "COV-10"
+topic: "Covariates: selection, target moments, measurement"
+categories: ["Covariates: selection, target moments, measurement", "High priority", "Confirmed open"]
+priority: "High"
+prank: 2
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Promising"
+tractability: 3
+---
+::: {.problem-meta}
+[COV-10]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[High priority]{.chip .chip-priority-high}
+[Promising]{.chip .chip-maturity-promising}
+[Tractability 3/5]{.chip}
+:::
+## Statement
+
+Treatment-by-covariate interaction coefficients satisfy a consistency equation of their own, and when it fails, direct and indirect evidence can carry interactions of opposite sign that cancel in a pooled network meta-regression, so the fit reports no effect modification for a covariate that strongly modifies the effect within each evidence path. Donegan, Dias and Welton 2019 construct the case explicitly: in a fabricated antimalarial network the interaction coefficients from direct evidence were 0.0000 (95 percent credible interval -0.0115 to 0.0116) while the corresponding indirect coefficients were 0.0399, -0.0400 and 0.0800, and the network meta-regression concluded that no interaction exists. The ordinary consistency check passes at the same time: the posterior probability that direct and indirect evidence agree was 0.9976 to 1.000 for the log odds ratios and 0 for the interaction coefficients, so an analyst who checks treatment effects for inconsistency sees nothing wrong. Effect-modifier sets for population adjustment are routinely assembled from meta-regression, network meta-regression and published interaction estimates, and no selection procedure, guidance document or software checks the consistency of the interaction coefficients before a covariate is accepted or rejected. The result is a matching-adjusted indirect comparison, simulated treatment comparison or multilevel network meta-regression balanced on a modifier set that omits a real modifier because it was cancelled rather than absent, and the omission is invisible to every downstream balance, overlap and effective sample size diagnostic, all of which are computed after the set is fixed.
+
+## Why it is open
+
+The methods that would detect this exist only as bespoke Bayesian models. Donegan, Dias and Welton extend node splitting, the design-by-treatment interaction model and the unrelated mean effects model to carry treatment-by-covariate interactions, and state that before their paper no method had been introduced for assessing the consistency assumptions underlying network meta-regression; those models are not implemented in netmeta, gemtc, multinma or any population-adjustment package, so running the check means writing the code by hand. The check also needs a covariate that varies across trials and enough studies on each of the direct and indirect paths to estimate two interaction coefficients, which is rarely available in the small sparse networks where population adjustment is used, and it inherits the low power that afflicts every inconsistency test, so a null result is weak evidence either way. Above all, modifier selection is treated as an input to the analysis rather than as an inference: the candidate set is fixed before any network model is fitted, so the workflow never creates an occasion at which a network-level diagnostic on the set could be run. Population adjustment then compounds the problem, because the shared effect modifier assumption it usually relies on presumes the interaction structure is coherent across the network, which is exactly what goes untested.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Donegan, Dias and Welton 2019, Assessing the consistency assumptions underlying network meta-regression using aggregate data, Research Synthesis Methods 10:207-224](https://doi.org/10.1002/jrsm.1327) | Extends node splitting, the design-by-treatment interaction model and the unrelated mean effects model to include treatment-by-covariate interactions for aggregate data, demonstrates that an interaction present in both direct and indirect evidence can be masked by inconsistency in the pooled fit, and states that no method for assessing the consistency assumptions underlying network meta-regression existed before it. The models are not implemented in standard software. |
+| [Dias, Welton, Caldwell and Ades 2010, Checking consistency in mixed treatment comparison meta-analysis, Statistics in Medicine 29:932-944](https://doi.org/10.1002/sim.3767) | Establishes node splitting for treatment effects, the machinery the interaction check extends. It tests agreement of effects across direct and indirect paths, which is precisely the check that passes while the interaction structure is inconsistent. |
+| [Donegan, Williamson, D'Alessandro and Tudur Smith 2013, Assessing key assumptions of network meta-analysis: a review of methods, Research Synthesis Methods 4:291-323](https://doi.org/10.1002/jrsm.1085) | Surveys the methods available for assessing similarity, homogeneity and consistency, showing that the assessment literature is aimed at treatment effects rather than at the interaction coefficients that determine which covariates are modifiers. |
+| [Saramago, Sutton, Cooper and Manca 2012, Mixed treatment comparisons using aggregate and individual participant level data, Statistics in Medicine 31:3516-3536](https://doi.org/10.1002/sim.5442) | Shows how individual participant data recover within-trial interactions that aggregate-level covariate summaries confound with across-trial associations, which is the other way an interaction estimate can be wrong and is separately catalogued; it does not address cancellation across evidence paths. |
+| [Phillippo et al. 2020, Multilevel Network Meta-Regression for Population-Adjusted Treatment Comparisons, Journal of the Royal Statistical Society Series A 183:1189-1210](https://doi.org/10.1111/rssa.12579) | Fits one network-level interaction model that removes aggregation bias and, in small networks, assumes effect modifier interactions are shared across treatments. That assumption presumes the interaction structure is consistent across the network rather than providing a way to test it. |
+| [Phillippo, Ades, Dias, Palmer, Abrams and Welton 2018, Methods for Population-Adjusted Indirect Comparisons in Health Technology Appraisal, Medical Decision Making 38:200-211 (the peer-reviewed account of NICE DSU TSD 18)](https://doi.org/10.1177/0272989X17725740) | Specifies how effect modifiers should be handled once selected and points to literature review and clinical expert discussion as the routes to selecting them. No network-level coherence check on the candidate set appears anywhere in the workflow. |
+
+:::
+
+## Probable solution or research direction
+
+Make the interaction consistency check part of modifier selection rather than a separate methodological exercise: implement interaction node splitting and the interaction design-by-treatment model in a maintained package so a candidate covariate can be screened against the network before it is accepted or discarded, and report the direct and indirect interaction coefficients side by side with the posterior probability that they agree. Establish operating characteristics before recommending it, since the diagnostic will be used to keep covariates as well as to drop them: simulate networks with opposing path-specific interactions of known size and report the probability of recovering the masked modifier as a function of the number of trials per path, the between-trial variation in the covariate and the size of the cancellation. Where the network is too sparse to split, require the report to state that the check could not be run instead of citing the pooled coefficient as evidence of no modification. Define the action when the check fires: a covariate whose interaction differs across paths is a modifier on at least one of them, so balancing on it is defensible even though the pooled coefficient says otherwise, and the analysis should say which path drove the decision.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. One reader proposed this and the reviewer accepted it on the ground that the cited paper demonstrates masking while ordinary treatment-effect consistency checks pass, and that integrating such a check into modifier selection is a distinct unresolved problem. The evidence is a single methods paper, which supplies the diagnostic models but not their implementation, their power, or any link to selection practice; that is a narrow base for the workflow half of the claim.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [COV-01 — Deciding which covariates are true effect modifiers](COV-01-deciding-which-covariates-are-true-effect-modifiers.qmd)
+- [IDN-05 — The shared effect modifier check has low and uncalibrated power](IDN-05-the-shared-effect-modifier-check-has-low-and-uncalibrated-po.qmd)
+- [MOD-03 — Ecological versus within-study effect modification](MOD-03-ecological-versus-within-study-effect-modification.qmd)
+- [HET-04 — Node splitting compares paths without standardizing to a target](HET-04-node-splitting-compares-paths-without-standardizing-to-a-tar.qmd)
+:::
+
+## Source
+
+Derived from reading:nma-31 of the reviewed corpus.

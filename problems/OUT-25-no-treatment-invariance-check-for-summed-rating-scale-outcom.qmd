@@ -1,0 +1,67 @@
+---
+title: "No treatment-invariance check for summed rating-scale outcomes"
+description: "Where the outcome entering an indirect comparison is a summed multi-item rating scale, the total score measures the intended construct equally across the treatments compared only if every item responds to each treatment through that construct. When a drug moves items through a side-effect channel such as sedation, appetite or weight, the sum records that movement as efficacy, and the resulting ranking is in part a ranking on side-effect profile rather than on the construct the network claims to compare. The magnitude is measured rather than hypothetical: in an item-based patient-level analysis of 5974 participants, the advantage of mirtazapine over selective serotonin reuptake inhibitors on the 17-item Hamilton sum disappeared once the three sleep items, the appetite item and the weight item were removed, with effect sizes between -0.02 and 0.07 across weeks 1 to 6 and no significant difference at any timepoint, while on the remaining core-symptom items the comparators were never inferior. That summed score is the outcome on which mirtazapine places among the most efficacious agents in the 21-drug antidepressant network meta-analysis. No indirect-comparison method, appraisal tool or reporting standard requires a composite outcome to be shown invariant across the treatments being compared, and no diagnostic with known operating characteristics exists for detecting differential item response by treatment."
+pid: "OUT-25"
+topic: "Outcome-specific problems"
+categories: ["Outcome-specific problems", "High priority", "Confirmed open"]
+priority: "High"
+prank: 2
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Emerging"
+tractability: 3
+---
+::: {.problem-meta}
+[OUT-25]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[High priority]{.chip .chip-priority-high}
+[Emerging]{.chip .chip-maturity-emerging}
+[Tractability 3/5]{.chip}
+:::
+## Statement
+
+Where the outcome entering an indirect comparison is a summed multi-item rating scale, the total score measures the intended construct equally across the treatments compared only if every item responds to each treatment through that construct. When a drug moves items through a side-effect channel such as sedation, appetite or weight, the sum records that movement as efficacy, and the resulting ranking is in part a ranking on side-effect profile rather than on the construct the network claims to compare. The magnitude is measured rather than hypothetical: in an item-based patient-level analysis of 5974 participants, the advantage of mirtazapine over selective serotonin reuptake inhibitors on the 17-item Hamilton sum disappeared once the three sleep items, the appetite item and the weight item were removed, with effect sizes between -0.02 and 0.07 across weeks 1 to 6 and no significant difference at any timepoint, while on the remaining core-symptom items the comparators were never inferior. That summed score is the outcome on which mirtazapine places among the most efficacious agents in the 21-drug antidepressant network meta-analysis. No indirect-comparison method, appraisal tool or reporting standard requires a composite outcome to be shown invariant across the treatments being compared, and no diagnostic with known operating characteristics exists for detecting differential item response by treatment.
+
+## Why it is open
+
+The failure is across treatment arms rather than across studies, so none of the cross-trial harmonization machinery applies: the instrument, endpoint definition, follow-up and analysis population can be identical in every trial and the contamination survives intact. Population adjustment cannot repair it either, because the problem sits in the outcome definition rather than in the covariate distribution, so balancing baseline characteristics leaves the contaminated contrast exactly where it was. Running the check requires item-level responses by arm, and publications report the total score, so the diagnostic cannot be computed from the aggregate data a network normally uses; the demonstration above needed sponsor individual patient data for 5974 participants, which is why the check is not made routinely. Measurement-invariance and differential-item-functioning theory is built for groups defined before treatment, and it does not transfer without modification to arms defined by a randomized intervention that is expected to change some items: an item moving under treatment is not by itself non-invariance, so the criterion has to separate a construct-mediated item response from a side-effect-mediated one, and that criterion has not been written for a treatment contrast. Core-symptom subscales exist for several instruments, but selecting one after seeing the result is a researcher degree of freedom, and no rule says when a network should be run on a subscale rather than on the full sum.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Hieronymus, Lisinski and Eriksson 2024, Impact of sedative and appetite-increasing properties on the apparent antidepressant efficacy of mirtazapine, selective serotonin reuptake inhibitors and amitriptyline: an item-based, patient-level meta-analysis, eClinicalMedicine 77:102904](https://doi.org/10.1016/j.eclinm.2024.102904) | removes the sleep, appetite and weight items from the 17-item Hamilton sum in patient-level data and finds the mirtazapine advantage over selective serotonin reuptake inhibitors reduced to effect sizes of -0.02 to 0.07, non-significant at every week from 1 to 6; it demonstrates the contamination for one drug class and does not define a general invariance criterion or a diagnostic others can run |
+| [Hieronymus, Lisinski, Eriksson and Østergaard 2021, Do side effects of antidepressants impact efficacy estimates based on the Hamilton Depression Rating Scale? A pooled patient-level analysis, Translational Psychiatry 11:249](https://doi.org/10.1038/s41398-021-01364-0) | tests directly whether side-effect-driven item movement inflates measured antidepressant efficacy on the Hamilton scale using pooled patient-level data, establishing the mechanism as an empirical question rather than a theoretical worry |
+| [Hieronymus, Lisinski, Nilsson and Eriksson 2018, Efficacy of selective serotonin reuptake inhibitors in the absence of side effects: a mega-analysis of citalopram and paroxetine in adult depression, Molecular Psychiatry 23(8):1731-1736](https://doi.org/10.1038/mp.2017.147) | separates efficacy from side-effect experience within trials of two drugs, which is the within-arm analogue of the invariance question; it does not carry the separation into an indirect comparison or a network |
+| [Cipriani et al. 2018, Comparative efficacy and acceptability of 21 antidepressant drugs for the acute treatment of adults with major depressive disorder: a systematic review and network meta-analysis, The Lancet 391(10128):1357-1366](https://doi.org/10.1016/S0140-6736(17)32802-7) | the reference network whose efficacy outcome is the change in a summed depression rating scale; it is the setting in which an item-composition artifact would propagate into published rankings, and it applies no invariance check to the composite |
+| [Fried and Nesse 2015, Depression sum-scores don't add up: why analyzing specific depression symptoms is essential, BMC Medicine 13:72](https://doi.org/10.1186/s12916-015-0325-4) | shows that individual symptoms of a summed depression scale differ in their response and argues for symptom-level rather than sum-level analysis; it makes the case at the level of a single trial and does not state what a network or an indirect comparison should require |
+| [Meredith 1993, Measurement Invariance, Factor Analysis and Factorial Invariance, Psychometrika 58(4):525-543](https://doi.org/10.1007/BF02294825) | the standard formalization of measurement invariance as equality of a measurement model's parameters across groups; it is the machinery a treatment-invariance criterion would be built from, defined for groups fixed before measurement rather than for randomized arms whose treatment is expected to move some items |
+
+:::
+
+## Probable solution or research direction
+
+State the criterion first: a composite is treatment-invariant for a contrast when the treatment's effect on the total score is mediated entirely through the latent construct, which is a testable restriction in a measurement model that carries treatment as an exogenous variable, with a treatment-specific direct effect on an item as the parameter of interest. Specify the diagnostic and the data it needs, namely item-by-arm means and their covariance, and report the difference between the full-sum contrast and the construct-restricted contrast as an explicit item-contamination term alongside the estimate. Establish operating characteristics by simulation: how large a side-effect-mediated item shift must be to move a rank in a network of a given size and connectivity, and what power an item-level test has at the trial sizes typical of psychiatry and rheumatology. Fix the aggregate-data case separately, by requiring trials with composite primary outcomes to publish item-level or prespecified subscale results, and, until they do, by running the network on a prespecified core-symptom subscale alongside the full sum and reporting both. Where only summed scores exist, bound the contamination from external estimates of the side-effect-mediated item shift for the drug classes involved and report the bound as a quantitative bias analysis rather than as a limitation paragraph.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. One reader proposed this and the evidence is a single item-level patient-level analysis, which is a weaker basis than a multi-reader gap; the reviewer accepted it on the ground that an identical summed instrument can still reflect treatment-specific effects on components outside the intended construct. No criterion, diagnostic or reporting requirement for treatment invariance of a composite entering a network was found in the category or in the wider synthesis literature.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [OUT-04 — Different instruments and standardized mean difference transport](OUT-04-different-instruments-and-standardized-mean-difference-trans.qmd)
+- [OUT-06 — Change scores, trajectories, and responder-threshold estimands](OUT-06-change-scores-trajectories-and-responder-threshold-estimands.qmd)
+- [OUT-19 — No multivariate population-adjusted model for correlated outcomes](OUT-19-no-multivariate-population-adjusted-model-for-correlated-out.qmd)
+- [EVB-03 — Trials combined under one outcome label are not one estimand](EVB-03-trials-combined-under-one-outcome-label-are-not-one-estimand.qmd)
+- [DEC-07 — Estimand, effect scale and absolute target outcomes go undeclared](DEC-07-estimand-effect-scale-and-absolute-target-outcomes-go-undecl.qmd)
+:::
+
+## Source
+
+Derived from reading:nma-09 of the reviewed corpus.

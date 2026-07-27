@@ -1,0 +1,65 @@
+---
+title: "Network meta-interpolation has no stated estimand and no implementation"
+description: "Network meta-interpolation adjusts for effect modification by using published subgroup results to impute treatment effects at a covariate profile common to every trial, through a best linear unbiased predictor, and then running a standard network meta-analysis on the interpolated contrasts. Its inputs are the marginal contrasts trials publish, while the interpolation equations treat those contrasts as conditional at a covariate value, so the quantity the fitted network returns is neither a population-average marginal effect nor a conditional effect at a declared profile, and it yields no absolute predictions. The only simulation evidence is the development study itself: across two four-treatment networks it reported root mean squared error of 0.228 for interpolation against 0.241 for standard network meta-analysis, 0.447 for multilevel network meta-regression and 0.541 for aggregate network meta-regression in the base-case non-shared-modifier scenario, with credible interval coverage following a similar pattern. No evaluation separates bias from variance or asks whether the variance propagated through the interpolation step is adequate, and no independent group has replicated the comparison. There is no package: every application adapts bespoke code, which a 2026 oncology application states explicitly while noting that its comparator method ships in multinma. Missing are a statement of what interpolation identifies, an independent evaluation reporting bias and variance separately across overlap, subgroup completeness and covariate type, and a maintained implementation."
+pid: "MOD-14"
+topic: "Model specification, double robustness & targeted learning"
+categories: ["Model specification, double robustness & targeted learning", "High priority", "Partially addressed"]
+priority: "High"
+prank: 2
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
+maturity: "Emerging"
+tractability: 4
+---
+::: {.problem-meta}
+[MOD-14]{.problem-id}
+[Partially addressed]{.verdict .verdict-partially-addressed}
+[High priority]{.chip .chip-priority-high}
+[Emerging]{.chip .chip-maturity-emerging}
+[Tractability 4/5]{.chip}
+:::
+## Statement
+
+Network meta-interpolation adjusts for effect modification by using published subgroup results to impute treatment effects at a covariate profile common to every trial, through a best linear unbiased predictor, and then running a standard network meta-analysis on the interpolated contrasts. Its inputs are the marginal contrasts trials publish, while the interpolation equations treat those contrasts as conditional at a covariate value, so the quantity the fitted network returns is neither a population-average marginal effect nor a conditional effect at a declared profile, and it yields no absolute predictions. The only simulation evidence is the development study itself: across two four-treatment networks it reported root mean squared error of 0.228 for interpolation against 0.241 for standard network meta-analysis, 0.447 for multilevel network meta-regression and 0.541 for aggregate network meta-regression in the base-case non-shared-modifier scenario, with credible interval coverage following a similar pattern. No evaluation separates bias from variance or asks whether the variance propagated through the interpolation step is adequate, and no independent group has replicated the comparison. There is no package: every application adapts bespoke code, which a 2026 oncology application states explicitly while noting that its comparator method ships in multinma. Missing are a statement of what interpolation identifies, an independent evaluation reporting bias and variance separately across overlap, subgroup completeness and covariate type, and a maintained implementation.
+
+## Why it is open
+
+The estimand question cannot be settled by simulation, because a simulation scores an estimator against a target that has already been named, and this target has not been. The freedom that makes the method attractive is the same freedom that makes its target hard to write down: it deliberately avoids the shared effect modifier assumption, and the covariate profile it interpolates to is fixed by whichever subgroup breakdowns the trials happened to publish, so the estimand is set by reporting practice rather than by the decision. An independent evaluation needs a data-generating mechanism that produces realistic subgroup summaries, including partially reported and mutually incompatible breakdowns, and no published simulation framework in this literature supplies one. Packaging is unattractive work: a usable implementation must own the subgroup data model, the imputation and its variance, and the handover to a network fit, which is three components for a method with a small user base and a published correction rather than a maintained code base.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Harari, Soltanifar, Cappelleri, Verhoek, Ouwens, Daly & Heeg 2023, Research Synthesis Methods 14(2):211-233](https://doi.org/10.1002/jrsm.1608) | Introduces network meta-interpolation: subgroup and study-level treatment effects are converted by best linear unbiased prediction into effects and standard errors at effect-modifier values common to all studies, without assuming shared effect modification, then synthesized by standard network meta-analysis. Reports the simulation study that is still the only evaluation, scoring root mean squared error and credible interval coverage against standard NMA, network meta-regression and ML-NMR. |
+| [Correction to Network Meta-Interpolation, Research Synthesis Methods 2024;15(2):369](https://doi.org/10.1002/jrsm.1712) | Published correction to the method article, which is the closest thing the method has to maintenance. |
+| [Phillippo, Remiro-Azocar, Heath & Baio 2025, Research Synthesis Methods](https://doi.org/10.1017/rsm.2025.2) | Review of marginal and conditional estimands for decision making that assesses network meta-interpolation directly: it mixes incompatible estimates within the model, cannot produce marginal effects or absolute predictions, and its properties are not yet fully understood because simulation studies have not directly investigated bias or the adequacy of variance estimation. |
+| [Shore, Morgans, Paracha & Thom 2026, Journal of Comparative Effectiveness Research](https://doi.org/10.57264/cer-2025-0100) | Applies interpolation alongside ML-NMR to a decision-relevant metastatic castration-sensitive prostate cancer network and records that no package currently exists to implement it, while ML-NMR is available in multinma and saves the user from developing custom code. |
+| [Phillippo, Ades, Dias, Palmer, Abrams & Welton 2018, Medical Decision Making 38(2):200-211](https://doi.org/10.1177/0272989X17725740) | Sets out the population-adjustment framework for health technology appraisal and the shared effect modifier assumption that interpolation is designed to avoid, which is the benchmark against which its estimand claim has to be judged. |
+
+:::
+
+## Probable solution or research direction
+
+Write the estimand down first: state, for a given collection of published subgroup summaries, what function of the trial populations the interpolated contrast at a common covariate profile equals, and the conditions under which the interpolation is unbiased for it. Then run an evaluation that is not by the developers, reporting bias, empirical standard error, model-based standard error and coverage separately, crossing departure from shared effect modification with subgroup completeness, number of reported modifiers, continuous versus categorical modifiers, and the correlation of modifiers across trials, with ML-NMR fitted on matched information as the comparator. Score it on the marginal target-standardized quantity a decision needs as well as on the interpolated contrast, so an estimand mismatch shows up in the performance table instead of being absorbed into root mean squared error. Package the imputation and the network fit together, exposing the subgroup data model, the imputation variance and the propagated standard errors, so that an analysis using it can be reproduced and audited.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Partially addressed. One reader proposed this and the reviewer accepted it as an estimator-level gap distinct from the general marginal-versus-conditional estimand problem, because it concerns this method's particular interpolation construction and variance calculation. The verdict is partially-addressed rather than confirmed-open because the development study does contain an extensive simulation reporting root mean squared error and coverage; what is absent is any independent evaluation, any separation of bias from variance, a statement of the estimand, and an implementation.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [MOD-09 — No criterion says when ML-NMR should be preferred to MAIC or STC](MOD-09-no-criterion-says-when-ml-nmr-should-be-preferred-to-maic-or.qmd)
+- [EST-04 — Methods return incompatible marginal and conditional estimands](EST-04-methods-return-incompatible-marginal-and-conditional-estiman.qmd)
+- [IDN-05 — The shared effect modifier check has low and uncalibrated power](IDN-05-the-shared-effect-modifier-check-has-low-and-uncalibrated-po.qmd)
+- [SFW-01 — No package unifies PAIC, transport, estimands and reporting](SFW-01-no-package-unifies-paic-transport-estimands-and-reporting.qmd)
+:::
+
+## Source
+
+Derived from reading:core-01 of the reviewed corpus.

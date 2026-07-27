@@ -3,16 +3,16 @@ title: "No minimum validation standard for ITC and PAIC packages"
 description: "The report specifies ten items every methodological ITC/PAIC package should contain, and the literature auditor confirmed the list is exactly ten and matches the source at section 16.5 item for item. The requirements are sound but scale with a package's model surface rather than applying uniformly: simulation-based calibration applies to Bayesian generative implementations rather than thin wrappers around already validated engines, and the multi-arm, separation, correlation-matrix and Stan toolchain items apply only where those features or dependencies exist. No package is documented as meeting the whole bar, but parts of it are met in practice: the literature auditor found multinma runs continuous integration and ships 13 test files reproducing published NICE TSD and paper examples, with no visible simulation-based calibration, non-estimability assertion or model card, and GPT-5.6 Sol found analytic estimability, deliberate non-estimability, multi-arm and cross-package equivalence tests in cpaic, an unreleased development package on GitHub that is not on CRAN."
 pid: "SFW-03"
 topic: "Software, benchmarks & interface standards"
-categories: ["Software, benchmarks & interface standards", "Very high priority", "Confirmed open"]
+categories: ["Software, benchmarks & interface standards", "Very high priority", "Partially addressed"]
 priority: "Very high"
 prank: 1
-verdict: "Confirmed open"
-verdictslug: "confirmed-open"
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
 maturity: "Emerging"
 ---
 ::: {.problem-meta}
 [SFW-03]{.problem-id}
-[Confirmed open]{.verdict .verdict-confirmed-open}
+[Partially addressed]{.verdict .verdict-partially-addressed}
 [Very high priority]{.chip .chip-priority-very-high}
 [Emerging]{.chip .chip-maturity-emerging}
 :::
@@ -42,11 +42,16 @@ Publish the bar as a conditional standard: name the items that apply to every me
 ## Verification
 
 ::: {.verification-trail}
-**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+**Verdict.** Partially addressed. Auditors agreed the problem is open and no counterevidence surfaced. Reopened by the full-text reading: 1 finding from 1 paper survived both the reader and an independent second reviewer, so the verdict moves from confirmed-open to partially-addressed, on a single finding.
 
 **The source said.** "The report specifies ten items every methodological ITC/PAIC package should contain: analytic unit tests for special cases; simulation-based calibration for Bayesian models; numerical equivalence tests against established software where models coincide; tests that non-estimable contrasts return no data-driven estimate; tests for multi-arm covariance; deliberate failure tests for separation, poor overlap, invalid target moments and non-positive-definite correlations; reproducible vignettes with tracked simulation code; model cards recording estimand, target, priors, integration and assumptions; versioned expected outputs; and continuous integration across R and Stan/toolchain versions. No package in the field is documented as meeting this bar."
 
 **What was wrong with it.** GPT-5.6 Sol judged the universal framing overstated: several of the ten items are conditional on a package having the relevant model feature or dependency, model cards are desirable rather than a condition for mathematical correctness, and versioned expected outputs become brittle unless stochastic tolerances and inferential invariants are specified. The claim that no package meets the bar also needs qualifying, since the auditors found multinma's continuous integration and published-example suite and cpaic's analytic, non-estimability and cross-package equivalence tests already meeting parts of it.
+
+**Revised by the full-text reading.** Applied 2026-07-26 full-text reading of the consolidated library (687 papers).
+
+Verdict changed
+:   **confirmed-open -> partially-addressed** 1 surviving finding from: Validating Bayesian Inference Algorithms with Simulation-Bas
 
 Literature and prior-art check
 :   **open / supported.** I retrieved section 16.5 of the source document (lines 2309-2322). It contains exactly ten numbered items and they match the ten claims_to_check one for one, in order, including 'simulation-based calibration for Bayesian models', 'tests that non-estimable contrasts return no data-driven estimate', 'model cards recording estimand, target, priors, integration, and assumptions' and 'continuous integration across R and Stan/toolchain versions'. The 'exactly ten items' claim is exact. On the empirical claim that no package meets the bar, I inspected the strongest candidate: multinma has GitHub Actions for R-CMD-check, R-CMD-check-HTML5, rhub and test-coverage, and 34 testthat files of which 13 are test-example_*.R reproductions of published NICE TSD and paper examples. That is CI plus published-example reproduction, with no visible simulation-based calibration, non-estimability assertion or model card, which is precisely the pattern the entry describes. Claims 1-10 are normative and not falsifiable by literature.
@@ -59,14 +64,31 @@ Decision path
 
 :::
 
+## How the evidence falls in time
+
+2 papers in the reviewed corpus bear on this problem, published 2014 to 2018. The most recent paper to touch this reports progress on it, and every paper calling it open is older.
+
+**Does the later work answer the earlier work?** Put to an independent reviewer with the older and newer claims side by side, it judged that the later work answers a component of it, leaving a named part (medium confidence). Simulation-based calibration is one concrete validation component, and the later paper makes that component substantially more actionable. It neither defines nor demonstrates the full ITC/PAIC package-validation standard, especially for non-Bayesian features, failure behavior, estimability, and package documentation. What remains: A package-level, feature-conditional minimum validation standard covering the full ten-item bar, plus evidence that ITC or PAIC packages meet it.
+
+::: {.table-scroll}
+
+| Year | Says | Paper |
+|---|---|---|
+| 2014 | confirms it is open | A Microsoft-Excel-based tool for running and critically appraising network meta-analyses: an overview and application of NetMetaXL |
+| 2018 | partly addresses it | Validating Bayesian Inference Algorithms with Simulation-Based Calibration (Talts, Betancourt, Simpson, Vehtari, Gelman; arXiv:1804.06788v2) |
+
+:::
+
 ## Related problems
 
 ::: {.related-links}
 - [CMP-26 — Unreleased cpaic has no tracked simulation benchmark or replication](CMP-26-unreleased-cpaic-has-no-tracked-simulation-benchmark-or-repl.qmd)
 - [DEC-04 — No PAIC-specific reporting standard or credibility appraisal tool](DEC-04-no-paic-specific-reporting-standard-or-credibility-appraisal.qmd)
 - [DIS-10 — multinma's baseline-synthesis bridge is an unmerged pull request](DIS-10-multinma-s-baseline-synthesis-bridge-is-an-unmerged-pull-req.qmd)
+- [EST-16 — Synthetic-patient indirect comparisons lack a validation standard](EST-16-synthetic-patient-indirect-comparisons-lack-a-validation-sta.qmd)
 - [OVL-02 — ESS is an insufficient overlap diagnostic and no battery is agreed](OVL-02-ess-is-an-insufficient-overlap-diagnostic-and-no-battery-is-.qmd)
 - [QBA-28 — Reference QBA software and a minimum reporting standard](QBA-28-reference-qba-software-and-a-minimum-reporting-standard.qmd)
+- [SFW-17 — No end-to-end error propagation study for automated synthesis pipelines](SFW-17-no-end-to-end-error-propagation-study-for-automated-synthesi.qmd)
 :::
 
 ## Source

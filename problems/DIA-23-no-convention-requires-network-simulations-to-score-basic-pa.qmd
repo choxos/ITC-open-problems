@@ -1,0 +1,65 @@
+---
+title: "No convention requires network simulations to score basic parameters"
+description: "In a network meta-analysis the contrast of interest is usually a functional parameter, assembled from basic parameters through the consistency equation, so correlated bias in two basic parameters can subtract out and leave the reported contrast looking nearly unbiased. Nothing in the simulation literature requires bias, coverage and interval width to be reported for the full set of basic parameters alongside the target contrast, and no performance measure quantifies how much of the reported number depends on cancellation. The effect is documented rather than hypothetical: in simulated triangle networks of a new treatment, an old treatment and placebo analyzed by one-stage and two-stage pattern-mixture models for missing outcome data, both placebo-referenced basic parameters were substantially underestimated by both approaches while the new-versus-old contrast carried a bias of about 0.03 for the two-stage approach (Spineli et al. 2021, doi:10.1186/s12874-020-01205-6). Cancellation is method-dependent, so a head-to-head ranking built on the functional parameter alone can invert relative to a ranking on the whole parameter vector. The problem grows with the network, because the number of estimable contrasts greatly exceeds the number of basic parameters and any single reported comparison is one of many possible cancellation paths, while treatment rankings, absolute-outcome predictions and economic models consume the contrasts that were never scored. ADEMP indexes performance by estimator and by estimand and says nothing about linear dependence among the estimands produced by one fit."
+pid: "DIA-23"
+topic: "Diagnostics & empirical validation"
+categories: ["Diagnostics & empirical validation", "Medium-high priority", "Confirmed open"]
+priority: "Medium-high"
+prank: 3
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Established"
+tractability: 5
+---
+::: {.problem-meta}
+[DIA-23]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[Medium-high priority]{.chip .chip-priority-medium-high}
+[Established]{.chip .chip-maturity-established}
+[Tractability 5/5]{.chip}
+:::
+## Statement
+
+In a network meta-analysis the contrast of interest is usually a functional parameter, assembled from basic parameters through the consistency equation, so correlated bias in two basic parameters can subtract out and leave the reported contrast looking nearly unbiased. Nothing in the simulation literature requires bias, coverage and interval width to be reported for the full set of basic parameters alongside the target contrast, and no performance measure quantifies how much of the reported number depends on cancellation. The effect is documented rather than hypothetical: in simulated triangle networks of a new treatment, an old treatment and placebo analyzed by one-stage and two-stage pattern-mixture models for missing outcome data, both placebo-referenced basic parameters were substantially underestimated by both approaches while the new-versus-old contrast carried a bias of about 0.03 for the two-stage approach (Spineli et al. 2021, doi:10.1186/s12874-020-01205-6). Cancellation is method-dependent, so a head-to-head ranking built on the functional parameter alone can invert relative to a ranking on the whole parameter vector. The problem grows with the network, because the number of estimable contrasts greatly exceeds the number of basic parameters and any single reported comparison is one of many possible cancellation paths, while treatment rankings, absolute-outcome predictions and economic models consume the contrasts that were never scored. ADEMP indexes performance by estimator and by estimand and says nothing about linear dependence among the estimands produced by one fit.
+
+## Why it is open
+
+The omission is structural rather than an oversight: a simulation reports the quantity whose estimator is being recommended, and in evidence synthesis that is one contrast, even though the model that produced it estimated the whole network. Scoring every contrast forces a decision about what truth is for parameters the data-generating mechanism defines only implicitly, and the split between basic and functional parameters is a modeling convention rather than a property of the data, so a reporting requirement has to be stated over contrasts rather than over a favored parameter set. No agreed summary of cancellation exists, so an author who wanted to report it would have to invent the measure, and no journal or reporting item set asks for one. Nothing corrects the record afterward, because a functional parameter that is unbiased through cancellation looks identical to one that is unbiased because the model is right.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Spineli et al. 2021, BMC Medical Research Methodology](https://doi.org/10.1186/s12874-020-01205-6) | documents the failure directly: in a simulated triangle network both placebo-referenced basic parameters were substantially underestimated by one-stage and two-stage pattern-mixture network meta-analysis while the target contrast showed small bias, and warns that presenting only the functional parameters of interest may be misleading when the bias cancels through the consistency equation |
+| [Morris et al. 2019, Statistics in Medicine](https://doi.org/10.1002/sim.8086) | ADEMP, the reference framework for planning and reporting simulation studies; performance measures are indexed by estimator and estimand and no item addresses dependence among several estimands estimated from the same fit |
+| [Lu and Ades 2004, Statistics in Medicine](https://doi.org/10.1002/sim.1875) | introduces the basic-versus-functional parameter distinction and the consistency equations that make functional parameters linear combinations of basic ones, which is the mechanism through which bias cancels |
+| [White et al. 2019, Statistics in Medicine](https://doi.org/10.1002/sim.8360) | compares arm-based and contrast-based parameterizations, showing that which parameters count as basic is a modeling choice, so any reporting rule must be phrased over the set of contrasts rather than over one parameterization |
+| [Karahalios et al. 2025, Research Synthesis Methods](https://doi.org/10.1017/rsm.2025.18) | empirically investigates where contrast-synthesis and arm-synthesis models diverge across networks, giving the applied scale of the parameterization dependence a reporting requirement has to survive |
+
+:::
+
+## Probable solution or research direction
+
+Change the reporting unit: require simulation studies of network methods to report bias, empirical standard error, coverage and interval width for every estimable contrast, or for a declared basis together with the target, and to publish the full matrix rather than a single row. Add an explicit cancellation measure, for example the ratio of the bias in the target contrast to the norm of the bias vector over a declared basis, so a reader can see whether an apparently unbiased contrast rests on offsetting errors. Existing simulation code can supply this at no extra computational cost, since the parameters are already estimated on every replicate; what changes is what is stored and printed. Score rankings and absolute predictions too, since those functionals depend on the contrasts that go unreported, and file the requirement as an evidence-synthesis extension item to ADEMP so that reviewers have something to ask for.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. One reader proposed it and the reviewer accepted it as a real simulation-reporting failure, distinct from generic performance-measure inventories, after a registry search returned no entry mentioning basic parameters, functional parameters or the consistency equation. The evidence is a single study that observed the cancellation in its own results and warned about it, which is a weaker basis than a demonstrated pattern across the simulation literature.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [DIA-04 — ADEMP has no identification map for simulation estimands](DIA-04-ademp-has-no-identification-map-for-simulation-estimands.qmd)
+- [DIA-05 — No shared benchmark platform with common scenarios, seeds and truth](DIA-05-no-shared-benchmark-platform-with-common-scenarios-seeds-and.qmd)
+- [DIA-15 — Coding-error bias, rank reversal and drift calibration go unscored](DIA-15-coding-error-bias-rank-reversal-and-drift-calibration-go-uns.qmd)
+- [DEC-01 — Method evaluations score estimator error, not decision error](DEC-01-method-evaluations-score-estimator-error-not-decision-error.qmd)
+:::
+
+## Source
+
+Derived from reading:nma-22 of the reviewed corpus.

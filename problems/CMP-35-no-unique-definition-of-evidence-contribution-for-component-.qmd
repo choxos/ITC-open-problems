@@ -1,0 +1,67 @@
+---
+title: "No unique definition of evidence contribution for component estimates"
+description: "Two published algorithms compute the contribution of a direct comparison to a component effect in component network meta-analysis, and they measure different quantities. Yang et al. 2026 adapt the shortest-path approach: a pseudo-path is a set of directed edges whose non-negative linear combination isolates one component, flow is allocated to pseudo-paths in order of increasing length using the component-level hat matrix, and the flow-weighted sum of pseudo-path estimates reproduces the fitted component effect within numerical tolerance. Mao et al. 2025 instead delete each direct comparison in turn, recompute the variance of every component effect, and normalize the induced precision leverage to sum to one hundred percent per component; the later of the two papers states that precision leverage and pathway-based evidence flow are distinct conceptual dimensions of contribution rather than approximations of a common target, and its own validation found no inherent relationship between precision leverage and linear weighting, agreeing closely in an artificial network where every comparison was given variance one (R-squared 0.99) and only loosely in a real network with heterogeneous variances (R-squared 0.67). Neither definition has an axiomatic characterization, no criterion says which one to report, and no study measures how far they disagree on the same network. The flow allocation is additionally order-dependent: when several pseudo-paths have equal length, the order in which they are selected can change the resulting allocation because edge flow is exhausted before all paths are explored, so the published proportions are not a function of the fitted model alone. The leave-one-out redistribution rules that apply when deleting an edge destroys component identifiability are described by their own authors as empirically justified but resting on heuristic assumptions without a rigorous mathematical foundation. Contribution numbers are the intended input to certainty assessment for component conclusions, so what a certainty rating rests on currently depends on which of two algorithms was run and, for one of them, on an enumeration order."
+pid: "CMP-35"
+topic: "Component methods (CNMA and component PAIC)"
+categories: ["Component methods (CNMA and component PAIC)", "Medium-high priority", "Confirmed open"]
+priority: "Medium-high"
+prank: 3
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Emerging"
+tractability: 4
+---
+::: {.problem-meta}
+[CMP-35]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[Medium-high priority]{.chip .chip-priority-medium-high}
+[Emerging]{.chip .chip-maturity-emerging}
+[Tractability 4/5]{.chip}
+:::
+## Statement
+
+Two published algorithms compute the contribution of a direct comparison to a component effect in component network meta-analysis, and they measure different quantities. Yang et al. 2026 adapt the shortest-path approach: a pseudo-path is a set of directed edges whose non-negative linear combination isolates one component, flow is allocated to pseudo-paths in order of increasing length using the component-level hat matrix, and the flow-weighted sum of pseudo-path estimates reproduces the fitted component effect within numerical tolerance. Mao et al. 2025 instead delete each direct comparison in turn, recompute the variance of every component effect, and normalize the induced precision leverage to sum to one hundred percent per component; the later of the two papers states that precision leverage and pathway-based evidence flow are distinct conceptual dimensions of contribution rather than approximations of a common target, and its own validation found no inherent relationship between precision leverage and linear weighting, agreeing closely in an artificial network where every comparison was given variance one (R-squared 0.99) and only loosely in a real network with heterogeneous variances (R-squared 0.67). Neither definition has an axiomatic characterization, no criterion says which one to report, and no study measures how far they disagree on the same network. The flow allocation is additionally order-dependent: when several pseudo-paths have equal length, the order in which they are selected can change the resulting allocation because edge flow is exhausted before all paths are explored, so the published proportions are not a function of the fitted model alone. The leave-one-out redistribution rules that apply when deleting an edge destroys component identifiability are described by their own authors as empirically justified but resting on heuristic assumptions without a rigorous mathematical foundation. Contribution numbers are the intended input to certainty assessment for component conclusions, so what a certainty rating rests on currently depends on which of two algorithms was run and, for one of them, on an enumeration order.
+
+## Why it is open
+
+Both paradigms are legitimate and they answer different questions: flow allocation asks which randomized comparisons a component estimate is algebraically assembled from, while leave-one-out precision leverage asks how much precision each comparison supplies, and nothing external adjudicates between how much evidence and how much information. In ordinary network meta-analysis the analogous ambiguity is a choice among path weightings on a real treatment graph, where graph-theoretic intuition and an interpretable notion of a path are available; in component networks the paths are algebraic constructs with fractional coefficients over a design matrix, so the intuition that grounds the treatment-level choice does not carry over and there is no obvious axiom to appeal to. The order dependence is not a numerical tolerance issue: it is intrinsic to a greedy algorithm that exhausts edge capacity, so removing it requires either a canonical tie-breaking rule with a justification or an allocation that is invariant by construction. Nobody has run the empirical comparison that would settle how often the two rankings differ, and neither author group has an incentive to, since each published its definition as the answer to the same question.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Mao et al. 2025, A leave-one-out algorithm for contribution analysis in component network meta-analysis, BMC Medical Research Methodology 25](https://doi.org/10.1186/s12874-025-02619-w) | Defines contribution as normalized precision leverage: each direct comparison is deleted in turn, the variances of all component effects are recomputed, and the induced variance inflation is normalized to sum to one hundred percent per component. Reports that precision leverage has no inherent relationship to linear weighting (R-squared 0.99 under equal variances, 0.67 in real data), and states that its redistribution rules for edges whose removal destroys identifiability rest on heuristic assumptions. |
+| [Yang et al. 2026, Evidence contributions in component network meta-analysis from the shortest-path approach, BMC Medical Research Methodology 26](https://doi.org/10.1186/s12874-026-02766-8) | Defines contribution as evidence flow over pseudo-paths, sets of directed edges whose non-negative linear combination isolates a component, allocated iteratively from the component-level hat matrix; the flow-weighted sum reproduces the fitted component effect within numerical tolerance. States as a limitation that when multiple pseudo-paths of equal length exist, the order of selection can alter the flow allocation. |
+| [Papakonstantinou et al. 2018, Estimating the contribution of studies in network meta-analysis: paths, flows and streams, F1000Research 7:610](https://doi.org/10.12688/f1000research.14770.3) | Establishes the flow-network proportion contribution matrix for treatment-level network meta-analysis that the component version generalizes, including the equal-split approximation for stream flow that the component setting inherits. |
+| [Rucker et al. 2020, The statistical importance of a study for a network meta-analysis estimate, BMC Medical Research Methodology 20](https://doi.org/10.1186/s12874-020-01075-y) | Gives a uniquely defined per-study importance measure as the reduction in the variance of a specified network estimate when the study is added, and emphasizes that it is not a percentage contribution summing to one hundred percent and must not be read as a weight for effect estimation. This is the variance-paradigm ancestor of the component leave-one-out measure and shows that uniqueness is achievable once the target quantity is pinned down. |
+| [Nikolakopoulou et al. 2020, CINeMA: An approach for assessing confidence in the results of a network meta-analysis, PLOS Medicine 17:e1003082](https://doi.org/10.1371/journal.pmed.1003082) | Consumes contribution percentages as the input to per-comparison certainty judgments, which is the downstream use that makes the choice of definition consequential rather than descriptive. |
+| [Rucker, Petropoulou and Schwarzer 2020, Network meta-analysis of multicomponent interventions, Biometrical Journal 62:808-821](https://doi.org/10.1002/bimj.201800167) | Formalizes the component design as the product of the comparison design matrix and the treatment-by-component combination matrix, the structure over which both contribution definitions are computed and the reason component pseudo-paths carry fractional coefficients. |
+
+:::
+
+## Probable solution or research direction
+
+Write down the axioms a contribution allocation for component effects should satisfy before choosing between the two candidates: efficiency, so shares recompose the estimate or sum to one; a null-edge property, so a comparison that cannot affect the component receives zero; symmetry under relabeling; and invariance to the order in which pseudo-paths are enumerated. Then check which published definition satisfies which, and note that a Shapley value over edges, with the characteristic function taken as the precision of the component effect obtainable from a subset, is order-independent by construction and is the obvious repair for the variance paradigm. In parallel run both algorithms over the same set of published component networks and report the rank correlation and the number of comparisons whose contribution rank changes, since that is the quantity a certainty assessor needs and it requires no new theory. For the flow method specifically, either adopt a canonical enumeration of equal-length pseudo-paths and prove the allocation invariant to it, or average over enumerations and report the spread. Require every published contribution table to name the definition used and, where flow is used, the tie-breaking rule.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. One reader proposed this and the reviewer accepted it, judging that pathway-based flow and leave-one-out precision leverage are distinct notions rather than interchangeable estimators and that a criterion for selecting, reconciling or labeling them is a genuine gap. The evidence is a single paper, which is a narrow base; what strengthens it is that the paper it contrasts itself with is separately published and that each of the two states the relevant defect, order dependence and heuristic redistribution, in its own limitations.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [ADJ-19 — Shapley attribution of regimen effects to treatment components](ADJ-19-shapley-attribution-of-regimen-effects-to-treatment-componen.qmd)
+- [CMP-24 — Edge influence is approximate for multi-arm and random effects](CMP-24-edge-influence-is-approximate-for-multi-arm-and-random-effec.qmd)
+- [DEC-08 — No provenance label separates bridged from prior-driven contrasts](DEC-08-no-provenance-label-separates-bridged-from-prior-driven-cont.qmd)
+- [DEC-17 — Evidence-provenance measures do not propagate heterogeneity uncertainty](DEC-17-evidence-provenance-measures-do-not-propagate-heterogeneity-.qmd)
+- [DIA-11 — No scenario library or performance measures for estimability failure](DIA-11-no-scenario-library-or-performance-measures-for-estimability.qmd)
+:::
+
+## Source
+
+Derived from reading:core-05 of the reviewed corpus.

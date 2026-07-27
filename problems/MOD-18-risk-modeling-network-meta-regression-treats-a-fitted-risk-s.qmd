@@ -1,0 +1,65 @@
+---
+title: "Risk-modeling network meta-regression treats a fitted risk score as observed"
+description: "Risk-modeling approaches to treatment effect heterogeneity fit a prognostic model for baseline risk in one dataset, optionally recalibrate it in the trial data, then enter the fitted risk score into a network meta-regression as a prognostic covariate and as an effect modifier. Where the stages are fitted separately the synthesis conditions on that score as though it were observed, so the sampling and shrinkage uncertainty of the prognostic model and of the recalibration never reaches the treatment-effect posterior. This is the generated-regressor problem arriving in evidence synthesis: standard errors computed as if an estimated regressor were data are too small, and the understatement grows where the regressor is least well estimated, which in risk modeling is the tails of the risk distribution and therefore exactly where risk-stratified treatment recommendations are made. The three-stage version that combines a cohort-based prognostic model, recalibration in the trials, and a network meta-regression on the resulting score names a single Bayesian model implementing all three stages as the way to incorporate uncertainty from all stages and avoid spuriously overprecise conclusions, and does not build it; no published risk-modeling meta-analysis or network meta-analysis does. The magnitude of the interval understatement has not been quantified for any published network, so the reported credible intervals on risk-stratified benefit are too narrow by an unknown amount."
+pid: "MOD-18"
+topic: "Model specification, double robustness & targeted learning"
+categories: ["Model specification, double robustness & targeted learning", "Medium-high priority", "Confirmed open"]
+priority: "Medium-high"
+prank: 3
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Emerging"
+tractability: 3
+---
+::: {.problem-meta}
+[MOD-18]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[Medium-high priority]{.chip .chip-priority-medium-high}
+[Emerging]{.chip .chip-maturity-emerging}
+[Tractability 3/5]{.chip}
+:::
+## Statement
+
+Risk-modeling approaches to treatment effect heterogeneity fit a prognostic model for baseline risk in one dataset, optionally recalibrate it in the trial data, then enter the fitted risk score into a network meta-regression as a prognostic covariate and as an effect modifier. Where the stages are fitted separately the synthesis conditions on that score as though it were observed, so the sampling and shrinkage uncertainty of the prognostic model and of the recalibration never reaches the treatment-effect posterior. This is the generated-regressor problem arriving in evidence synthesis: standard errors computed as if an estimated regressor were data are too small, and the understatement grows where the regressor is least well estimated, which in risk modeling is the tails of the risk distribution and therefore exactly where risk-stratified treatment recommendations are made. The three-stage version that combines a cohort-based prognostic model, recalibration in the trials, and a network meta-regression on the resulting score names a single Bayesian model implementing all three stages as the way to incorporate uncertainty from all stages and avoid spuriously overprecise conclusions, and does not build it; no published risk-modeling meta-analysis or network meta-analysis does. The magnitude of the interval understatement has not been quantified for any published network, so the reported credible intervals on risk-stratified benefit are too narrow by an unknown amount.
+
+## Why it is open
+
+Fitting the stages jointly requires a likelihood linking the prognostic cohort to the trials, and whether that joint model is identified depends on whether the same score means the same thing in both, which is a transportability assumption rather than a modeling detail; where it fails, the recalibration parameters carry the difference and there is no settled answer on whether they should be shared, stratified or partially pooled across trials. Two requirements then conflict. The prognostic cohort is usually far larger than the trials, so a fully joint fit lets a handful of trials influence the prognostic model in ways the analysis did not intend, which is the standard motivation for cutting feedback; cutting feedback is precisely what discards the uncertainty at issue. A bootstrap over the prognostic model is available in principle but has to be propagated through recalibration and a Bayesian network fit for every replicate, which is expensive enough that nobody has reported it. Because nobody has measured the understatement, there is also no demonstrated harm to motivate paying that cost.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Chalkou, Hamza, Benkert, Kuhle et al. 2024, Research Synthesis Methods 15(4):641-656](https://doi.org/10.1002/jrsm.1717) | The three-stage model: a prognostic model for baseline risk fitted in a large cohort, recalibrated for trial participants, then used as an effect modifier in a network meta-regression combining aggregate and individual randomized data. States that implementing the three stages in a single Bayesian model would naturally incorporate uncertainty from all stages and avoid spuriously overprecise conclusions, and stops short of doing so. |
+| [Chalkou, Steyerberg, Egger, Manca et al. 2021, Statistics in Medicine 40(20):4362-4375](https://doi.org/10.1002/sim.9034) | The two-stage predecessor, in which a baseline risk score from a prognostic model enters a network meta-regression as a single prognostic factor and effect modifier; establishes the design in which a fitted score is treated as a covariate. |
+| [Kent, Paulus, van Klaveren, D'Agostino et al. 2020, Annals of Internal Medicine 172(1):35-45](https://doi.org/10.7326/M18-3667) | The PATH statement, which establishes risk modeling as the recommended route to treatment effect heterogeneity and therefore drives the use of fitted risk scores as covariates in synthesis; it does not address how the uncertainty of the fitted score should propagate. |
+| [Pagan 1984, International Economic Review 25(1):221-247](https://doi.org/10.2307/2648877) | The generated-regressor result: when a regressor is an estimate from a first-stage model, conventional second-stage standard errors are wrong, and the correction depends on the first-stage covariance. This is the general statement of the failure and the reason it is not a small-sample artifact. |
+| [Plummer 2015, Statistics and Computing 25(1):37-43](https://doi.org/10.1007/s11222-014-9503-z) | Cuts in Bayesian graphical models: a formal account of what happens when feedback from one module to another is cut, showing the cut distribution is not a posterior and has no general convergence guarantee. This is the trade-off any staged risk-modeling synthesis is implicitly making. |
+
+:::
+
+## Probable solution or research direction
+
+Quantify the understatement first, because it is cheap and decides whether the rest is worth doing: refit a published risk-modeling network meta-regression with the prognostic model and recalibration bootstrapped, and report how much the credible intervals on risk-stratified treatment effects widen, separately at the median and at the tails of the risk distribution. Then write the joint model: one Bayesian specification in which the cohort likelihood, the recalibration and the network meta-regression share parameters, and state the conditions under which the treatment-by-risk interaction is identified when the cohort and the trials differ in population. Compare the joint fit against a cut-feedback fit and against the staged fit on interval width, calibration of the predicted benefit and stability of the recalibration parameters, so the cost of protecting the prognostic model from trial feedback is measured rather than assumed. Report the risk score with its own uncertainty in the output, so that a stratified recommendation at the tail can be seen to rest on a weakly estimated score.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. One reader proposed this and the reviewer accepted it, noting that the quoted passage directly acknowledges that the staged approach yields spuriously overprecise final inferences and identifies joint modeling as an unimplemented remedy. It rests on a single methods paper within evidence synthesis, although the generated-regressor result it instantiates is long established outside it.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [EST-07 — Reported target moments are treated as known constants](EST-07-reported-target-moments-are-treated-as-known-constants.qmd)
+- [MIS-03 — Nothing propagates sampling error in reported target moments](MIS-03-nothing-propagates-sampling-error-in-reported-target-moments.qmd)
+- [DEC-11 — Intervals omit selection, reconstruction and target-summary error](DEC-11-intervals-omit-selection-reconstruction-and-target-summary-e.qmd)
+- [DIS-03 — Baseline risk is not a neutral anchor for disconnected evidence](DIS-03-baseline-risk-is-not-a-neutral-anchor-for-disconnected-evide.qmd)
+:::
+
+## Source
+
+Derived from reading:nma-08 of the reviewed corpus.

@@ -1,0 +1,68 @@
+---
+title: "No inference is reported for an estimated optimal-treatment boundary"
+description: "When an effect measure is non-collapsible and effect modification is present, the population-average conditional and population-average marginal estimands can rank treatments oppositely; a worked logistic example gives conditional log odds ratios of -4 and -3 favoring one treatment while the marginal effects of -2.36 and -2.49 favor another, so deciding on the marginal effect assigns the inferior treatment to 75% of the population. The published resolution is to stratify the decision: boundaries between optimal treatment choices can be determined mathematically in the L-dimensional effect-modifier space, and cut-points are read off plots of fitted individual-level effects. Both the covariate that defines the partition and the location of the cut-point are therefore functions of estimated interaction coefficients, yet the resulting subgroup recommendation is issued as a point statement. No population-adjustment implementation reports a posterior or bootstrap distribution over the boundary, a probability that a given covariate profile lies on the recommended side of it, or subgroup-specific contrast intervals that account for the partition having been estimated from the same data. Applied work inherits the omission: a two-stage network meta-regression prediction model reports which treatment is preferable for high-risk and for low-risk patients, and a cost-effectiveness model built on risk-specific network estimates reports that one drug carries the higher net monetary benefit up to a baseline risk of 55% after which another takes over, neither with an interval on where the switch occurs. The missing object is inference on a partition rather than on a contrast, and the two are not interchangeable: a narrow interval on every contrast is compatible with a boundary that could sit almost anywhere."
+pid: "DEC-28"
+topic: "Decision analysis, regulation & reporting"
+categories: ["Decision analysis, regulation & reporting", "High priority", "Confirmed open"]
+priority: "High"
+prank: 2
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Emerging"
+tractability: 4
+---
+::: {.problem-meta}
+[DEC-28]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[High priority]{.chip .chip-priority-high}
+[Emerging]{.chip .chip-maturity-emerging}
+[Tractability 4/5]{.chip}
+:::
+## Statement
+
+When an effect measure is non-collapsible and effect modification is present, the population-average conditional and population-average marginal estimands can rank treatments oppositely; a worked logistic example gives conditional log odds ratios of -4 and -3 favoring one treatment while the marginal effects of -2.36 and -2.49 favor another, so deciding on the marginal effect assigns the inferior treatment to 75% of the population. The published resolution is to stratify the decision: boundaries between optimal treatment choices can be determined mathematically in the L-dimensional effect-modifier space, and cut-points are read off plots of fitted individual-level effects. Both the covariate that defines the partition and the location of the cut-point are therefore functions of estimated interaction coefficients, yet the resulting subgroup recommendation is issued as a point statement. No population-adjustment implementation reports a posterior or bootstrap distribution over the boundary, a probability that a given covariate profile lies on the recommended side of it, or subgroup-specific contrast intervals that account for the partition having been estimated from the same data. Applied work inherits the omission: a two-stage network meta-regression prediction model reports which treatment is preferable for high-risk and for low-risk patients, and a cost-effectiveness model built on risk-specific network estimates reports that one drug carries the higher net monetary benefit up to a baseline risk of 55% after which another takes over, neither with an interval on where the switch occurs. The missing object is inference on a partition rather than on a contrast, and the two are not interchangeable: a narrow interval on every contrast is compatible with a boundary that could sit almost anywhere.
+
+## Why it is open
+
+The optimal-treatment partition is defined by an argmax over treatments, so the parameters indexing it are nonregular wherever two treatments are close, and standard bootstrap and Taylor-series arguments break down exactly at the boundary, which is the region the decision turns on. The remedies developed for that nonregularity live in the single-dataset dynamic-regime literature and have never been carried into evidence synthesis, where the interaction coefficients come from a network rather than from one trial. Selection compounds it: which covariate defines the partition is chosen by comparing induced variation in individual effects, subgroup-detection analyses have low power and invite spurious findings when many candidate factors are screened, and reporting the cut-point the same data produced leaves any subgroup interval too narrow. In a network the interaction is estimated partly from across-study variation, which is ecologically confounded, so part of the boundary's error is not sampling error at all and will not show up in a posterior width. Only multilevel network meta-regression produces the individual-level event probabilities the boundary needs; matching-adjusted indirect comparison and simulated treatment comparison return population averages, so for most submitted analyses the object cannot be computed at all.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Phillippo et al. 2025, Research Synthesis Methods](https://doi.org/10.1017/rsm.2025.2) | Proves that population-average conditional and marginal estimands can rank treatments oppositely, and only when individual treatment effects cross within the population; recommends treating rank conflict as a signal to stratify the decision and states that boundaries between optimal choices can be determined mathematically in the effect-modifier space, with no uncertainty statement attached to them. |
+| [Phillippo et al. 2020, Journal of the Royal Statistical Society Series A](https://doi.org/10.1111/rssa.12579) | Multilevel network meta-regression, the only population-adjustment method producing individual-level predicted probabilities for an arbitrary target population and therefore the only one whose posterior could be turned into a distribution over the boundary; its reported output object is a treatment effect, not a partition. |
+| [Chalkou et al. 2021, Statistics in Medicine](https://doi.org/10.1002/sim.9034) | Two-stage model combining a prognostic baseline risk score with network meta-regression to give risk-specific treatment effects; concludes that the relapse-minimizing treatment differs between high-risk and low-risk patients without an interval on where the preference changes. |
+| [Hamza et al. 2026, Value in Health](https://doi.org/10.1016/j.jval.2026.03.2245) | Carries risk-specific network meta-regression effects into a cost-effectiveness model, reporting incremental cost-effectiveness ratios across baseline risk quintiles and a net monetary benefit crossing point at a baseline risk of 55%; the crossing point is reported as a point estimate. |
+| [Chakraborty, Laber and Zhao 2013, Biometrics](https://doi.org/10.1111/biom.12052) | Adaptive m-out-of-n bootstrap giving asymptotically correct confidence sets for the parameters indexing an optimal treatment regime under the nonsmoothness that argmax operations create; the closest available inference technology, built for single-study data. |
+| [Luedtke and van der Laan 2016, Annals of Statistics](https://doi.org/10.1214/15-AOS1384) | Inference for the mean outcome under a possibly non-unique optimal treatment strategy, addressing the nonregularity that arises when treatments are effectively tied over a region of covariate space. |
+| [Foster, Taylor and Ruberg 2011, Statistics in Medicine](https://doi.org/10.1002/sim.4322) | Virtual Twins subgroup identification with cross-validated and bootstrap bias-corrected estimates of the enhanced-effect subgroup; the single-trial analogue of correcting a subgroup effect for the search that found it. |
+
+:::
+
+## Probable solution or research direction
+
+Define the estimand before the estimator: the optimal-treatment partition as a functional of the fitted interaction vector, and for each covariate profile the posterior probability that a named treatment is optimal, which is smooth even where the argmax is not and can be mapped over a declared target population directly from existing multilevel network meta-regression draws. Report that probability map alongside any cut-point, with a pointwise credible band obtained by recomputing the boundary in every posterior draw, and state which part of its variability comes from within-study and which from across-study interaction estimation. Score the procedure in a simulation crossing modifier strength, overlap and network topology, using the probability of assigning the wrong treatment at profiles near the boundary and the coverage of subgroup contrast intervals when the same data chose the partition. For frequentist population adjustment, port the m-out-of-n bootstrap to the boundary parameters and check whether its coverage survives the extra layer of target-population standardization. Then make it a reporting requirement, so that a stratified recommendation cannot be published as a bare cut-point.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. One reader proposed this from a single 2025 methods review, and the reviewer accepted that an estimated optimal-treatment boundary is a post-estimation functional of uncertain interaction parameters, distinct from covariate selection, model selection and assumption stress testing. The base is one methods paper plus applied analyses that display the omission, which is a narrower foundation than most entries in this category.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [DEC-11 — Intervals omit selection, reconstruction and target-summary error](DEC-11-intervals-omit-selection-reconstruction-and-target-summary-e.qmd)
+- [MOD-04 — No post-selection inference for model choice in population adjustment](MOD-04-no-post-selection-inference-for-model-choice-in-population-a.qmd)
+- [MOD-03 — Ecological versus within-study effect modification](MOD-03-ecological-versus-within-study-effect-modification.qmd)
+- [COV-04 — Selection uncertainty in PAIC interaction shrinkage is uncalibrated](COV-04-selection-uncertainty-in-paic-interaction-shrinkage-is-uncal.qmd)
+- [EST-03 — Non-collapsible marginal effects are not portable across populations](EST-03-non-collapsible-marginal-effects-are-not-portable-across-pop.qmd)
+:::
+
+## Source
+
+Derived from reading:core-01 of the reviewed corpus.

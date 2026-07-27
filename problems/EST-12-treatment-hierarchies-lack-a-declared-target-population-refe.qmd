@@ -1,0 +1,69 @@
+---
+title: "Treatment hierarchies lack a declared target-population referent"
+description: "Ranking metrics in network meta-analysis, SUCRA, P-scores, probability of being best and rankograms, are functionals of the whole set of relative effects, so they inherit the population dependence of every contrast in the network at once. No ranking metric is defined with respect to a declared target covariate distribution, and no journal or health technology assessment template requires a published hierarchy to name the population it refers to. The dependence is demonstrated rather than theoretical: reweighting the trial samples in a four-medication cocaine dependence network to resemble successive target populations reordered the medications in both directions, with the medication ranked worst for abstinence becoming second best, while every pairwise interval still overlapped, so a reader of the unweighted hierarchy had no signal that the ordering was population-specific. Wigle and Moodie 2026 supply the conditional version, a hierarchy evaluated at one covariate profile from an individual participant data network meta-analysis with treatment-covariate interactions, and report a combination therapy ranked first for one hypothetical patient and fourth of six for another; they explicitly advise against the aggregate-data meta-regression route for this purpose because of ecological confounding, which closes it to the aggregate-only networks most submissions contain. What does not exist is the target-standardized version: a hierarchy computed from relative effects averaged over a named target population's joint covariate distribution, a requirement that the population referent be stated, and a diagnostic that separates rank movement caused by sampling noise from rank movement caused by the choice of target."
+pid: "EST-12"
+topic: "Estimands & target populations"
+categories: ["Estimands & target populations", "High priority", "Confirmed open"]
+priority: "High"
+prank: 2
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Promising"
+tractability: 4
+---
+::: {.problem-meta}
+[EST-12]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[High priority]{.chip .chip-priority-high}
+[Promising]{.chip .chip-maturity-promising}
+[Tractability 4/5]{.chip}
+:::
+## Statement
+
+Ranking metrics in network meta-analysis, SUCRA, P-scores, probability of being best and rankograms, are functionals of the whole set of relative effects, so they inherit the population dependence of every contrast in the network at once. No ranking metric is defined with respect to a declared target covariate distribution, and no journal or health technology assessment template requires a published hierarchy to name the population it refers to. The dependence is demonstrated rather than theoretical: reweighting the trial samples in a four-medication cocaine dependence network to resemble successive target populations reordered the medications in both directions, with the medication ranked worst for abstinence becoming second best, while every pairwise interval still overlapped, so a reader of the unweighted hierarchy had no signal that the ordering was population-specific. Wigle and Moodie 2026 supply the conditional version, a hierarchy evaluated at one covariate profile from an individual participant data network meta-analysis with treatment-covariate interactions, and report a combination therapy ranked first for one hypothetical patient and fourth of six for another; they explicitly advise against the aggregate-data meta-regression route for this purpose because of ecological confounding, which closes it to the aggregate-only networks most submissions contain. What does not exist is the target-standardized version: a hierarchy computed from relative effects averaged over a named target population's joint covariate distribution, a requirement that the population referent be stated, and a diagnostic that separates rank movement caused by sampling noise from rank movement caused by the choice of target.
+
+## Why it is open
+
+The ingredients sit on both sides of a join nobody has made. Population adjustment already returns population-average effects for a declared target from a mixed individual and aggregate network, and ranking metrics are computable from any posterior or covariance of relative effects, but the ranking machinery lives in packages that carry no target-population representation and the adjustment machinery ships no ranking output. The estimand is also awkward in a way a pairwise effect is not: a hierarchy is a discontinuous ordering, so uncertainty in the reported target moments propagates non-smoothly and a small change in the target distribution can flip ranks without moving any effect materially. There is no agreed answer to which population a hierarchy should refer to when one review serves several decision-makers, so the honest output is a family of hierarchies indexed by target rather than the single ordering that made rankings popular in the first place. Nothing forces the issue either: no reporting standard asks for the population referent, so an unlabeled hierarchy is never rejected.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Wigle and Moodie 2026, Research Synthesis Methods](https://doi.org/10.1017/rsm.2026.10089) | states that a standard hierarchy is not personalized to any patient and depends on the covariate distribution of the population, and adapts SUCRA to a single covariate profile from an individual participant data network meta-analysis with treatment-covariate interactions; conditional rather than target-standardized, and advised against for aggregate-data networks |
+| [Susukida et al. 2018, International Journal of Methods in Psychiatric Research](https://doi.org/10.1002/mpr.1609) | holds the evidence base fixed and reweights the trial samples to resemble target populations, showing that the ranking of four medications for cocaine dependence changes with the target alone |
+| [Salanti, Ades and Ioannidis 2011, Journal of Clinical Epidemiology](https://doi.org/10.1016/j.jclinepi.2010.03.016) | defines SUCRA and rankograms as summaries of the posterior of relative effects, with no target covariate distribution anywhere in the definition |
+| [Rucker and Schwarzer 2015, BMC Medical Research Methodology](https://doi.org/10.1186/s12874-015-0060-8) | gives the frequentist P-score as a resampling-free analogue of SUCRA, computed from the point estimates and standard errors of relative effects and inheriting the same unstated population referent |
+| [Trinquart et al. 2016, Annals of Internal Medicine](https://doi.org/10.7326/M15-2521) | reanalyzes published network meta-analyses to show how much sampling uncertainty rankings carry; quantifies the noise component of rank instability, which a target-sensitivity analysis would have to be separated from |
+| [Phillippo et al. 2020, Journal of the Royal Statistical Society Series A](https://doi.org/10.1111/rssa.12579) | multilevel network meta-regression produces population-average effects for an arbitrary declared target from a mixed individual and aggregate network, supplying the effect draws a target-standardized hierarchy would be computed from, but returns no ranking output |
+| [Wigle et al. 2026, arXiv:2605.15142](https://arxiv.org/abs/2605.15142) | extends hierarchy construction to component network meta-analysis, including which hierarchy questions are estimable from a given design; extends the object without attaching a population referent to it |
+| [Phillippo et al. 2018, Medical Decision Making (NICE DSU TSD18)](https://doi.org/10.1177/0272989X17725740) | requires the target population to be stated explicitly for population-adjusted indirect comparisons, the precedent this problem asks to be extended from effect estimates to hierarchies |
+
+:::
+
+## Probable solution or research direction
+
+Define SUCRA, P-score and probability of being best as functionals of target-standardized relative effects and compute them from a fit that already returns population-average effects for an arbitrary covariate distribution, so the hierarchy inherits a named target instead of an implicit one. Add a target-sensitivity display: recompute the hierarchy over a prespecified set of plausible targets, each contributing trial population, the pooled network population and the jurisdictional decision population, and report each treatment's rank range across that set alongside its rank interval from sampling variability. Implement it where the target representation already exists, as a ranking method applied to the marginal effect draws produced by multilevel network meta-regression, so no new inferential machinery is needed. Require any reported hierarchy to state the population it refers to, in the way the target population is already required for population-adjusted effects in health technology appraisal.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Two independent readers proposed it from different literatures, a methods paper on personalized hierarchies and an applied reweighting study, and the reviewer accepted both, noting that a hierarchy can technically be calculated from target-standardized draws without the target-population ranking estimand having been defined, reported or implemented as a standard method.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [EST-01 — Target population is unnamed and set by data availability](EST-01-target-population-is-unnamed-and-set-by-data-availability.qmd)
+- [EST-04 — Methods return incompatible marginal and conditional estimands](EST-04-methods-return-incompatible-marginal-and-conditional-estiman.qmd)
+- [EST-06 — The MAIC paradox: swapping the IPD trial can reverse the comparison](EST-06-the-maic-paradox-swapping-the-ipd-trial-can-reverse-the-comp.qmd)
+- [EST-10 — Bucher ITC and aggregate-data NMA name no target population](EST-10-bucher-itc-and-aggregate-data-nma-name-no-target-population.qmd)
+- [DIA-15 — Coding-error bias, rank reversal and drift calibration go unscored](DIA-15-coding-error-bias-rank-reversal-and-drift-calibration-go-uns.qmd)
+:::
+
+## Source
+
+Derived from reading:nma-03, reading:nma-31 of the reviewed corpus.

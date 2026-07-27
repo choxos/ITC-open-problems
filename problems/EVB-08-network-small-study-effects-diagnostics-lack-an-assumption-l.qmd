@@ -1,0 +1,70 @@
+---
+title: "Network small-study-effects diagnostics lack an assumption-light default"
+description: "The comparison-adjusted funnel plot is the applied default for detecting small-study effects in a network, and it requires the analyst to prespecify an ordering of comparisons encoding the direction in which small studies are expected to be biased, typically newer drug versus older drug or active versus placebo. Where no such ordering can be justified, which is common outside that case, the plot cannot be drawn and no assumption-light substitute is available; reviewers then judge reporting bias from the completeness of their literature search, which speaks to retrieval rather than to selective publication. Six Cochrane reviews sharing one prespecified protocol each record that no meaningful order of comparisons could be found, so the plot was not produced and search completeness was substituted for the assessment. Selection models for a full network meta-analysis do exist in the methods literature, but they are not in the applied toolchain those reviews used and they require an assumed selection function or direction, so they relocate the assumption rather than removing it. What is missing is a diagnostic whose null does not depend on an assumed direction of bias: a statistic, or a bound on how much small-study effects can move a given network estimate, that is invariant to how the comparisons are labeled."
+pid: "EVB-08"
+topic: "Evidence-base construction & data access"
+categories: ["Evidence-base construction & data access", "Medium-high priority", "Confirmed open"]
+priority: "Medium-high"
+prank: 3
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Established"
+tractability: 4
+---
+::: {.problem-meta}
+[EVB-08]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[Medium-high priority]{.chip .chip-priority-medium-high}
+[Established]{.chip .chip-maturity-established}
+[Tractability 4/5]{.chip}
+:::
+## Statement
+
+The comparison-adjusted funnel plot is the applied default for detecting small-study effects in a network, and it requires the analyst to prespecify an ordering of comparisons encoding the direction in which small studies are expected to be biased, typically newer drug versus older drug or active versus placebo. Where no such ordering can be justified, which is common outside that case, the plot cannot be drawn and no assumption-light substitute is available; reviewers then judge reporting bias from the completeness of their literature search, which speaks to retrieval rather than to selective publication. Six Cochrane reviews sharing one prespecified protocol each record that no meaningful order of comparisons could be found, so the plot was not produced and search completeness was substituted for the assessment. Selection models for a full network meta-analysis do exist in the methods literature, but they are not in the applied toolchain those reviews used and they require an assumed selection function or direction, so they relocate the assumption rather than removing it. What is missing is a diagnostic whose null does not depend on an assumed direction of bias: a statistic, or a bound on how much small-study effects can move a given network estimate, that is invariant to how the comparisons are labeled.
+
+## Why it is open
+
+Small-study effects are detectable only as an association between a study's precision and its effect, and in a network the effects sit on different comparisons, so they must be projected onto a common axis before any association can be read; the prespecified ordering is that projection, and estimating it from the data would assume the thing being tested. A direction-free alternative has to give up resolution: a statistic invariant to relabeling can indicate that asymmetry exists somewhere in the network without saying which contrast it distorts, and the contrast is what a review needs. The selection-model route is identified only through its parametric selection function, whose sensitivity parameters are precisely the judgment the reviewers said they could not make. A separate and equally binding constraint is operational: these assessments are made by review authors inside review software that offers no such method, so a diagnostic requiring a bespoke Bayesian selection model will not be run whatever its properties.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Chaimani and Salanti 2012, Research Synthesis Methods](https://doi.org/10.1002/jrsm.57) | Introduces the comparison-adjusted funnel plot for networks and states the requirement that comparisons be ordered by a prespecified expectation about the direction of small-study effects. |
+| [Chaimani et al. 2013, PLoS ONE](https://doi.org/10.1371/journal.pone.0076654) | Provides the Stata implementation that made the comparison-adjusted funnel plot the applied default, including the user-supplied ordering as a required input. |
+| [Mavridis et al. 2013, Statistics in Medicine](https://doi.org/10.1002/sim.5494) | Extends the Copas selection model to network meta-analysis in a fully Bayesian formulation, adjusting network estimates for publication bias given an assumed selection mechanism. |
+| [Mavridis et al. 2014, Statistics in Medicine](https://doi.org/10.1002/sim.6321) | Selection model for a full network meta-analysis in which the probability of publication depends on the study's p-value; the closest thing to a network-level statistical adjustment, still requiring an assumed selection function. |
+| [Trinquart, Chatellier and Ravaud 2012, BMC Medical Research Methodology](https://doi.org/10.1186/1471-2288-12-150) | Applies reporting-bias adjustment to a network of antidepressant trials, showing how much a network's conclusions can move once selective publication is modeled. |
+| [Copas and Shi 2000, Biostatistics](https://doi.org/10.1093/biostatistics/1.3.247) | The pairwise selection-model sensitivity analysis that the network extensions generalize, with the selection parameter varied over a range rather than estimated. |
+| [Rucker et al. 2011, Biostatistics](https://doi.org/10.1093/biostatistics/kxq046) | Limit meta-analysis, which adjusts a pairwise effect for small-study effects by extrapolating to infinite precision without positing a publication mechanism; the assumption-light pairwise method that has no network form requiring no ordering. |
+| [Egger et al. 1997, BMJ](https://doi.org/10.1136/bmj.315.7109.629) | The regression test for funnel-plot asymmetry that the comparison-adjusted plot generalizes, and the source of the precision-versus-effect framing. |
+| [Chiocchia et al. 2021, BMC Medicine](https://doi.org/10.1186/s12916-021-02166-3) | ROB-MEN gives per-comparison risk-of-bias judgments for missing evidence in a network without requiring an ordering, but it is a structured judgment framework rather than a statistical diagnostic, and it does not apply to disconnected interventions. |
+| [Page et al. 2021, Research Synthesis Methods](https://doi.org/10.1002/jrsm.1468) | Review of methods for investigating publication and other reporting biases in meta-analyses, setting out what is available and how weak the evidence for each method's operating characteristics is. |
+
+:::
+
+## Probable solution or research direction
+
+Build the direction-free statistic first: a relabeling-invariant measure of the association between precision and effect across a whole network, calibrated by simulation so that its size and power are known under a null of no small-study effects and under alternatives differing in how many comparisons are affected and how strongly. Pair it with a bound rather than a test: for a selection function whose strength is swept across a range, report how far each network estimate can move, attributing the movement through the contribution matrix to the comparisons that actually supply the contrast. Establish the operating characteristics of the comparison-adjusted funnel plot under a misspecified ordering, which is what a reviewer risks by choosing one anyway; nothing currently says whether a wrong order is worse than no plot at all. Ship whatever survives in the packages reviewers already use, with a default that runs without a user-supplied ordering, since a diagnostic that has to be commissioned separately will not be run. Use the six reviews sharing one protocol as the benchmark case, where the same recorded failure and the same fallback to search completeness give a clean comparison for anything new.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. One reader proposed this from a family of Cochrane reviews sharing a protocol, all of which record that no ordering of comparisons could be justified, and the reviewer accepted it on the grounds that existing selection models do not supply an assumption-light applied default. The evidence is applied rather than methodological, so it documents that the diagnostic is unavailable in practice rather than proving that no direction-free statistic could be constructed.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [EVB-02 — Evidence-set assembly can favor the sponsor before modeling begins](EVB-02-evidence-set-assembly-can-favor-the-sponsor-before-modeling-.qmd)
+- [EVB-07 — NMA does not model informative trial-design selection](EVB-07-nma-does-not-model-informative-trial-design-selection.qmd)
+- [EVB-11 — No missing-evidence appraisal for bridged cross-gap contrasts](EVB-11-no-missing-evidence-appraisal-for-bridged-cross-gap-contrast.qmd)
+- [DIA-10 — Data access is simulated as benign rather than informative](DIA-10-data-access-is-simulated-as-benign-rather-than-informative.qmd)
+:::
+
+## Source
+
+Derived from reading:nma-35 of the reviewed corpus.

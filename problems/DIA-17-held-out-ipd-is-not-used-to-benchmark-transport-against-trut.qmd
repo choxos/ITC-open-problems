@@ -31,7 +31,7 @@ Both designs require multi-trial IPD, which sits with sponsors and consortia rat
 | Work | What it contributes |
 |---|---|
 | [Signorovitch et al. 2023, Matching-adjusted indirect comparison (MAIC) results confirmed by head-to-head trials: a case study in psoriasis](https://doi.org/10.1080/09546634.2023.2169574) | Benchmarks published MAIC estimates against subsequently completed head-to-head randomized trials on PASI 90 risk differences; a real-data check with a known answer, though a single sponsor-authored case study rather than a standing benchmark. |
-| [Phillippo et al. 2022, Validating the Assumptions of Population Adjustment: Application of Multilevel Network Meta-regression to a Network of Treatments for Plaque Psoriasis](https://doi.org/10.1177/0272989X221117162) | The closest existing multi-IPD validation of population adjustment; validates through residual heterogeneity and inconsistency checks and shared-modifier relaxation, with no held-out trial and no predicted-versus-observed absolute arm outcome check. |
+| [Phillippo et al. 2023, Validating the Assumptions of Population Adjustment: Application of Multilevel Network Meta-regression to a Network of Treatments for Plaque Psoriasis](https://doi.org/10.1177/0272989X221117162) | The closest existing multi-IPD validation of population adjustment; validates through residual heterogeneity and inconsistency checks and shared-modifier relaxation, with no held-out trial and no predicted-versus-observed absolute arm outcome check. |
 | [cpaic (development version), commit 9d150e9](https://github.com/choxos/cpaic/commit/9d150e9cad88f2e6fbcd94dbb92c3dee3b7c2dca) | Unreleased development package on GitHub, not available from CRAN. Cited by GPT-5.6 Sol to show the estimand distinction that determines the correct benchmark: cstc() returns a conditional effect at the target covariate values while cmaic() returns a marginal weighted effect in the target population. |
 
 :::
@@ -51,6 +51,14 @@ Establish standing IPD-masking benchmarks on shared multi-trial datasets with a 
 
 **Dissent.** codex dissented (overstated): C1 is sound only if 'known target' means a prespecified reference analysis, not known causal truth. A full-IPD estimate remains finite-sample uncertain and may depend on its outcome and transport models. C3 must be estimand-specific. Marginal target standardization is the appropriate comparator for a marginal PAIC estimand, but conditional STC or cML-NMR output requires a corresponding conditional benchmark. This distinction is material on non-collapsible scales. The cpaic source confirms that cstc() is conditional and cmaic() is marginal, while cML-NMR's current effect path is conditional rather than marginally standardized. C4 requires more than two IPD populations: absolute arm prediction needs an identified baseline-risk model, compatible outcomes and follow-up, positivity, and cross-trial transportability of absolute risks; a shared arm can provide calibration. Observed arm outcomes are noisy benchmarks and should be compared using uncertainty-aware predictions. C6 is correct because common baseline-risk errors can cancel in a contrast. C2 and C5 are literature-practice assertions outside this audit. The validation agenda remains valuable, but its benchmark is neither universal nor unambiguous.
 
+**Revised by the full-text reading.** Applied 2026-07-26 full-text reading of the consolidated library (687 papers).
+
+Verdict left unchanged
+:   **verdict left unchanged** Later work reports progress, but on the chronology review the second reviewer judged it 'different-question' at high confidence: The later study uses leave-one-registry-out validation of patient-level prediction models and compares predictions with observed outcomes. That is useful external-validation methodology, but it neither creates the aggregate-data information constraint nor evaluates population-adjusted indirect-comparison transport estimators.
+
+Citation corrected
+:   **normalized a citation year: 'Phillippo et al. 2022, Validating the Assumptions of Population Adjustment: Application of Multilevel Network Meta-regression to a Network of Treatments for Plaque Psoriasis' -> 'Phillippo et al. 2023, Validating the Assumptions of Population Adjustment: Application of Multilevel Network Meta-regression to a Network of Treatments for Plaque Psoriasis'** 10.1177/0272989X221117162 is cited with two different years across the registry. CrossRef gives 2022 online and 2023 in print; the issue year is used throughout.
+
 Literature and prior-art check
 :   **open / supported-with-caveat.** I found no study that masks selected trials of a multi-trial IPD dataset down to aggregate data and scores PAIC estimates against the full-IPD target-standardized analysis, so the core claim holds. Two caveats. First, real-data benchmarking of PAIC against randomized evidence does exist and the entry does not acknowledge it: Signorovitch et al. 2023 compared previously published guselkumab MAIC estimates against the subsequently completed ECLIPSE and IXORA-R head-to-head trials on PASI 90 risk differences (14.4% in ECLIPSE vs 9.4% in the MAIC at week 48; 0.0% vs 0.7% at week 24). That is a one-off sponsor-authored case study, not a standing benchmark, which is consistent with the entry's 'not standard practice' framing. Second, the population-shift design is not entirely unexercised: Phillippo et al. 2022 fit ML-NMR to a plaque psoriasis network with IPD from several trials and produce absolute target-population predictions, but explicitly do not hold out a trial or compare predicted with observed absolute arm outcomes, which confirms the entry's arm-level calibration claim.
     Cites 10.1080/09546634.2023.2169574: A real-data benchmark of PAIC against randomized evidence with a known answer, which the entry does not acknowledge; it is a single sponsor-authored case study rather than the standing masked-IPD benchmark the entry calls for..
@@ -61,6 +69,21 @@ GPT-5.6 Sol, technical and source-code lens
 
 Decision path
 :   `R5:default-open → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## How the evidence falls in time
+
+2 papers in the reviewed corpus bear on this problem, published 2019 to 2022. The most recent paper to touch this reports progress on it, and every paper calling it open is older.
+
+**Does the later work answer the earlier work?** Put to an independent reviewer with the older and newer claims side by side, it judged that the later work is about a different question and leaves the earlier gap untouched (high confidence). The later study uses leave-one-registry-out validation of patient-level prediction models and compares predictions with observed outcomes. That is useful external-validation methodology, but it neither creates the aggregate-data information constraint nor evaluates population-adjusted indirect-comparison transport estimators. What remains: A PAIC-specific benchmark that masks trials from multi-trial IPD to aggregate summaries and compares PAIC estimates with an estimand-matched full-IPD target-standardized reference remains unperformed.
+
+::: {.table-scroll}
+
+| Year | Says | Paper |
+|---|---|---|
+| 2019 | confirms it is open | Creating historical controls using data from a previous line of treatment - two non-standard approaches |
+| 2022 | partly addresses it | Combining individual patient data from randomized and non-randomized studies to predict real-world effectiveness of interventions |
 
 :::
 

@@ -3,16 +3,16 @@ title: "Scenario grids omit network topology and information placement"
 description: "PAIC simulations are built on two-trial or three-treatment templates with no topology factor and index information by participants per arm, so their results cannot be extrapolated to the networks that submissions actually contain. A topology scenario generator does already exist in the wider network meta-analysis literature: Petropoulou et al. 2023 (doi:10.1186/s12874-023-01959-9) publishes a procedure with R code that builds families of connected and disconnected topologies from a seed network, but it has not been wired to PAIC estimators. Two of the entry's design prescriptions need narrowing: information for binary and survival outcomes depends on events plus non-events, allocation, baseline risk, risk sets, censoring and timing rather than on events per contrast alone, and post-weighting effective sample size is a method-dependent output that can be a calibration target but cannot be crossed as an independent data-generating factor."
 pid: "DIA-07"
 topic: "Diagnostics & empirical validation"
-categories: ["Diagnostics & empirical validation", "High priority", "Confirmed open"]
+categories: ["Diagnostics & empirical validation", "High priority", "Partially addressed"]
 priority: "High"
 prank: 2
-verdict: "Confirmed open"
-verdictslug: "confirmed-open"
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
 maturity: "Promising"
 ---
 ::: {.problem-meta}
 [DIA-07]{.problem-id}
-[Confirmed open]{.verdict .verdict-confirmed-open}
+[Partially addressed]{.verdict .verdict-partially-addressed}
 [High priority]{.chip .chip-priority-high}
 [Promising]{.chip .chip-maturity-promising}
 :::
@@ -41,13 +41,21 @@ Adapt the published topology generator to drive PAIC and component-PAIC estimato
 ## Verification
 
 ::: {.verification-trail}
-**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+**Verdict.** Partially addressed. Auditors agreed the problem is open and no counterevidence surfaced. Reopened by the full-text reading: 9 findings from 9 papers survived both the reader and an independent second reviewer, so the verdict moves from confirmed-open to partially-addressed.
 
 **The source said.** "Simulation designs are built on the two-trial anchored template and index information by participants per arm, so they span neither the topologies HTA networks actually have (3 to 20 treatments, varying trial density, two-arm versus multi-arm trials, connected, weakly connected and disconnected graphs, 2 to 4 subnetworks, star, chain, loop-rich and hub-and-spoke shapes, articulation edges and treatments, unequal allocation, classes and doses) nor the quantities that actually carry information (events per contrast, studies per component, post-weighting ESS, IPD study placement, AgD precision, integration points and prior informativeness)."
 
 **What was wrong with it.** The source said no shared platform provides a topology scenario generator; the literature auditor found one already published with code in the component network meta-analysis literature (Petropoulou et al. 2023, doi:10.1186/s12874-023-01959-9), which is simply not connected to PAIC estimators. GPT-5.6 Sol corrected the information index for binary and survival outcomes and the treatment of post-weighting ESS as a crossable design factor.
 
 **Dissent.** codex dissented (overstated): Topology and information placement matter through the design matrix, its row space, and the contrast-specific information matrix, so C4, C5, and C7 are sound. Articulation edges and treatments are reasonable fragility factors, but the specific treatment counts and two-to-four-subnetwork grid are not universal requirements. C6 is too strong: binary-outcome information depends on both events and non-events, allocation, and baseline risk; survival information depends on event counts plus risk sets, censoring, timing, and allocation. Post-weighting ESS is endogenous and method-specific, so it cannot generally be crossed as an independent data-generating factor, although scenarios can be calibrated to target an ESS range. Integration points are a numerical-convergence factor only for models requiring numerical integration, and prior informativeness is relevant when Bayesian robustness is an aim, not a mandatory factor in every simulation. Field-wide claims that particular grids or articulation effects have never been evaluated are unsupported here.
+
+**Revised by the full-text reading.** Applied 2026-07-26 full-text reading of the consolidated library (687 papers).
+
+Corrected
+:   **an auditor opinion cites a simulation that does not exist; the opinion text is left as recorded** The rationale cited a Kiefer, Sturtz and Bender simulation with no year or DOI. The Kiefer, Sturtz and Bender paper in the corpus (doi:10.3238/arztebl.2015.0803) contains no simulation; it is a narrative review producing an appraisal checklist. The citation is unresolvable as written and has been withdrawn from the rationale.
+
+Verdict changed
+:   **confirmed-open -> partially-addressed** 9 surviving findings from: A scoping review of indirect comparison methods and applicat; Bias in identification of the best treatment in a Bayesian n; Characteristics of a loop of evidence that affect detection ; Characteristics of networks of interventions: a description ; Extending DerSimonian and Laird's methodology to perform net; Model selection for component network meta-analysis in conne; Network meta-analysis in psychology and educational sciences; The attractiveness of network meta-analysis: a comprehensive; When does the use of individual patient data in network meta. New citations: 10.1002/sim.6752, 10.1186/1471-2288-14-106, 10.1186/s12874-016-0146-y, 10.1186/s12874-020-01198-2, 10.1186/s12874-023-01959-9, 10.1371/journal.pone.0086754, 10.2147/clep.s69660, 10.3758/s13428-022-01905-5
 
 Literature and prior-art check
 :   **open / supported-with-caveat.** The gap is real for PAIC specifically: the retrieved PAIC simulations (Phillippo 2020, Remiro-Azocar 2021, Hatswell 2020, Liu 2025, Serret-Larmande 2025) are all built on two-trial or three-treatment templates with no topology factor and index information by participants. But the entry's framing ignores that the broader NMA simulation literature already varies topology deliberately: Kiefer, Sturtz & Bender's simulation spans networks with several interventions and inconsistency structures, degree-irregularity work simulates multiple network geometries and scores rank-probability bias, and Petropoulou et al. 2023 build an explicit generator that constructs many distinct connected and disconnected topologies from one seed network under a retain-all-interventions constraint. So a scenario generator over topology exists, just not one wired to PAIC estimators. Most remaining sub-claims ('a comprehensive program must vary...', 'ESS should be a controlled design factor') are normative design assertions rather than checkable facts, and the integration-points and prior-informativeness claims I could not verify.
@@ -61,9 +69,52 @@ Decision path
 
 :::
 
+## How the evidence falls in time
+
+25 papers in the reviewed corpus bear on this problem, published 2011 to 2025. Partial progress is on the record, and later work still calls this open. Both belong in view.
+
+This problem is **recurrent**: three or more papers spanning at least eight years assert it independently. Sustained restatement by authors who mostly do not cite each other is the strongest evidence this reading can offer that a gap is real rather than one group's framing.
+
+It is also being **closed in pieces**: partial results come from more than one paper in more than one year, each covering a different part.
+
+::: {.table-scroll}
+
+| Year | Says | Paper |
+|---|---|---|
+| 2011 | confirms it is open | Conducting indirect-treatment-comparison and network-meta-analysis studies: report of the ISPOR Task Force on Indirect Treatment Comparisons Good Research Practices: part 2 |
+| 2012 | confirms it is open | Consistency and inconsistency in network meta-analysis: concepts and models for multi-arm studies |
+| 2012 | confirms it is open | Simulation evaluation of statistical properties of methods for indirect and mixed treatment comparisons |
+| 2013 | confirms it is open | The effects of excluding treatments from network meta-analyses: survey |
+| 2014 | partly addresses it | Bias in identification of the best treatment in a Bayesian network meta-analysis for binary outcome: a simulation study |
+| 2014 | partly addresses it | Characteristics of a loop of evidence that affect detection and estimation of inconsistency: a simulation study |
+| 2014 | partly addresses it | Characteristics of networks of interventions: a description of a database of 186 published networks |
+| 2015 | partly addresses it | Extending DerSimonian and Laird's methodology to perform network meta-analyses with random inconsistency effects |
+| 2015 | partly addresses it | The attractiveness of network meta-analysis: a comprehensive systematic and narrative review |
+| 2015 | confirms it is open | Ranking treatments in frequentist network meta-analysis works without resampling methods |
+| 2016 | partly addresses it | A scoping review of indirect comparison methods and applications using individual patient data |
+| 2017 | confirms it is open | Methods for Population-Adjusted Indirect Comparisons in Health Technology Appraisal |
+| 2017 | confirms it is open | Paule-Mandel estimators for network meta-analysis with random inconsistency effects |
+| 2018 | confirms it is open | Automated methods to test connectedness and quantify indirectness of evidence in network meta-analysis |
+| 2019 | confirms it is open | Description of network meta-analysis geometry: A metrics design study |
+| 2020 | confirms it is open | Assessing the performance of population adjustment methods for anchored indirect comparisons: A simulation study |
+| 2020 | confirms it is open | Comparison of Methods for Estimating Therapy Effects by Indirect Comparisons: A Simulation Study |
+| 2021 | partly addresses it | When does the use of individual patient data in network meta-analysis make a difference? A simulation study |
+| 2021 | confirms it is open | Penalized Poisson model for network meta-analysis of individual patient time-to-event data |
+| 2021 | confirms it is open | Prevalence of evidence of inconsistency and its association with network structural characteristics in 201 published networks of interventions |
+| 2022 | partly addresses it | Network meta-analysis in psychology and educational sciences: A systematic review of their characteristics |
+| 2022 | confirms it is open | Preventing persistent postsurgical pain: A systematic review and component network meta-analysis |
+| 2022 | confirms it is open | Challenges of modelling approaches for network meta-analysis of time-to-event outcomes in the presence of non-proportional hazards to aid decision making: Application to a melanoma network |
+| 2023 | partly addresses it | Model selection for component network meta-analysis in connected and disconnected networks: a simulation study |
+| 2025 | confirms it is open | Network connectivity, between-study heterogeneity and timepoint challenges in generalized myasthenia gravis: a feasibility assessment of indirect treatment comparisons |
+
+:::
+
 ## Related problems
 
 ::: {.related-links}
+- [DEC-29 — Ranking metrics reward imprecision and no correction exists](DEC-29-ranking-metrics-reward-imprecision-and-no-correction-exists.qmd)
+- [DIA-22 — Empirical method comparisons exclude the networks where methods diverge](DIA-22-empirical-method-comparisons-exclude-the-networks-where-meth.qmd)
+- [EVB-07 — NMA does not model informative trial-design selection](EVB-07-nma-does-not-model-informative-trial-design-selection.qmd)
 - [OVL-06 — No standardized sample-size planning guidance or software for PAIC](OVL-06-no-standardized-sample-size-planning-guidance-or-software-fo.qmd)
 :::
 

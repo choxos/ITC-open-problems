@@ -1,0 +1,65 @@
+---
+title: "Evaluating a treatment strategy can disconnect the network it is evaluated on"
+description: "Evaluating a personalized treatment strategy against a network of trials requires restricting to strategy-congruent participants, those whose received treatment matches what the strategy would have recommended. That subset is a function of the strategy's decision thresholds, so as the thresholds move the retained network changes: arms drop out, the reference arm can vanish, retained studies can become single-arm, and the network can disconnect. Where it disconnects the strategy's net benefit is not estimable and the affected threshold region is simply blank on the decision curve; in the published multiple sclerosis application the uncomputable region was the lower threshold range the consulting neurologists considered clinically relevant. The available fallback, admitting single-arm studies to the synthesis, reintroduces exactly the non-randomized comparison the congruent-subset construction exists to avoid. The construction is also information-hungry: the congruent data set there held 652 of roughly 2,000 randomized participants, and the discarded non-congruent randomized arms carry information about the same relative effects that nothing currently uses. Missing are an estimator of strategy net benefit that survives disconnection of the congruent subnetwork, a principled way to use the discarded arms, and a support diagnostic reporting which parts of the threshold space are unsupported rather than leaving them empty. The failure is general to any decision-analytic evaluation of a treatment-selection rule against a network of trials, not specific to one clinical application."
+pid: "DEC-31"
+topic: "Decision analysis, regulation & reporting"
+categories: ["Decision analysis, regulation & reporting", "Medium-high priority", "Confirmed open"]
+priority: "Medium-high"
+prank: 3
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Emerging"
+tractability: 3
+---
+::: {.problem-meta}
+[DEC-31]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[Medium-high priority]{.chip .chip-priority-medium-high}
+[Emerging]{.chip .chip-maturity-emerging}
+[Tractability 3/5]{.chip}
+:::
+## Statement
+
+Evaluating a personalized treatment strategy against a network of trials requires restricting to strategy-congruent participants, those whose received treatment matches what the strategy would have recommended. That subset is a function of the strategy's decision thresholds, so as the thresholds move the retained network changes: arms drop out, the reference arm can vanish, retained studies can become single-arm, and the network can disconnect. Where it disconnects the strategy's net benefit is not estimable and the affected threshold region is simply blank on the decision curve; in the published multiple sclerosis application the uncomputable region was the lower threshold range the consulting neurologists considered clinically relevant. The available fallback, admitting single-arm studies to the synthesis, reintroduces exactly the non-randomized comparison the congruent-subset construction exists to avoid. The construction is also information-hungry: the congruent data set there held 652 of roughly 2,000 randomized participants, and the discarded non-congruent randomized arms carry information about the same relative effects that nothing currently uses. Missing are an estimator of strategy net benefit that survives disconnection of the congruent subnetwork, a principled way to use the discarded arms, and a support diagnostic reporting which parts of the threshold space are unsupported rather than leaving them empty. The failure is general to any decision-analytic evaluation of a treatment-selection rule against a network of trials, not specific to one clinical application.
+
+## Why it is open
+
+The disconnection is induced by the object under evaluation, so unlike an ordinary disconnected network it cannot be repaired once: the support gap moves as the decision thresholds move, and any bridge would have to be indexed by the threshold. Restricting to congruent participants conditions on a function of the treatment actually received, so the retained comparison is randomized only if the recommendation is independent of arm assignment; nobody has stated the conditions under which a congruent-subset contrast recovers the strategy's causal net benefit, and the existing formulation reads arm event rates from a pooled control rate multiplied by network estimates rather than from a randomized contrast inside the congruent set. Using the discarded non-congruent arms requires a model relating congruent and non-congruent populations, which is the effect-modification assumption the decision curve is meant to interrogate, so the obvious fix is circular unless that model is identified elsewhere. Decision curve analysis over a network is a new construction used by a handful of groups, so the failure mode has attracted no attention beyond the analysis that ran into it. Reporting conventions conceal it as well: a decision curve that stops short of a threshold range reads as a design choice rather than as an estimability failure.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Chalkou et al. 2023, Medical Decision Making](https://doi.org/10.1177/0272989X221143058) | Extends decision curve analysis from a single randomized trial to a network, defining the congruent data set and the net benefit of a model-based strategy against treat-all and treat-none alternatives; records that for some threshold combinations the congruent set holds only single-arm studies so net benefit is not estimable, that omitting them discards potentially relevant information, and names both as needing further research. |
+| [Vickers and Elkin 2006, Medical Decision Making](https://doi.org/10.1177/0272989X06295361) | Original decision curve analysis: net benefit as a function of the threshold probability, defined for a single dataset and two options. |
+| [Chalkou et al. 2021, Statistics in Medicine](https://doi.org/10.1002/sim.9034) | The two-stage prediction model whose recommendations the network decision curve evaluates: a prognostic baseline risk score used as the single effect modifier in a network meta-regression. |
+| [Beliveau et al. 2017, Research Synthesis Methods](https://doi.org/10.1002/jrsm.1256) | Random baseline treatment effects as a bridge for disconnected networks, validated by deliberately disconnecting two published networks and scoring the reconstructed comparisons; the standard response to disconnection, developed for networks that arrive disconnected rather than for a subnetwork that disconnects as a function of the rule being evaluated. |
+| [Hamza et al. 2026, Value in Health](https://doi.org/10.1016/j.jval.2026.03.2245) | Carries risk-specific network meta-regression effects into a cost-effectiveness model, reporting incremental cost-effectiveness ratios and net monetary benefit across the baseline risk distribution without conditioning on treatment congruence; an alternative route to a personalized decision that avoids the subsetting but does not evaluate a rule's clinical usefulness. |
+
+:::
+
+## Probable solution or research direction
+
+Write the estimand down first: the net benefit of a strategy is a contrast of expected outcomes under the strategy and under fixed alternatives in a named population, and it is a function of the whole network rather than of the congruent subset alone. Estimated that way, by predicting each participant's outcome under the recommended treatment from the fitted network model instead of subsetting to those who happened to receive it, the disconnection problem is replaced by an explicit extrapolation whose assumptions can be stated and stress-tested. Compare that estimator against the congruent-subset estimator on a simulated network with known truth, scored on net-benefit bias and on how much of the threshold space each can cover. Where subsetting is retained, ship a support diagnostic that plots, over the threshold grid, whether the congruent subnetwork is connected, how many arms and participants survive, and where the reference arm is lost, so an empty region of a decision curve is labeled rather than silent. Report the congruent sample size alongside every net benefit, since the current construction discards most of the randomized evidence.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. One reader proposed this from a single application paper whose own authors hit the failure and named it as needing research, and the reviewer accepted it as a specific failure induced by the congruent-treatment restriction rather than an ordinary disconnected-network problem. The evidence is one paper and no second group has reported the same failure, which makes this a weaker base than most entries here.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [DIS-01 — Cross-gap contrasts are absent from the randomized likelihood](DIS-01-cross-gap-contrasts-are-absent-from-the-randomized-likelihoo.qmd)
+- [DIS-16 — No design method chooses which edge to add across a disconnected gap](DIS-16-no-design-method-chooses-which-edge-to-add-across-a-disconne.qmd)
+- [DIA-11 — No scenario library or performance measures for estimability failure](DIA-11-no-scenario-library-or-performance-measures-for-estimability.qmd)
+- [QBA-25 — Decision QBA: net benefit, tipping surfaces and extrapolation](QBA-25-decision-qba-net-benefit-tipping-surfaces-and-extrapolation.qmd)
+:::
+
+## Source
+
+Derived from reading:nma-16 of the reviewed corpus.

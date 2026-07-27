@@ -1,0 +1,68 @@
+---
+title: "No consistency test for vector-valued effects in survival NMA"
+description: "Where proportional hazards fails, the recommended alternative to a single hazard ratio is a multi-parameter survival synthesis in which each arm is summarized by the parameters of a fitted survival function, such as fractional-polynomial or parametric hazard parameters, and the vector of parameter differences is what the network pools and compares indirectly. Consistency in such a network is a condition on several correlated parameters per contrast, and the standard machinery does not apply: loop inconsistency, node splitting and the design-by-treatment interaction model are all defined for a scalar contrast. Nothing states what it means for a direct and an indirect estimate to agree when each is a curve that may coincide early and diverge late, and nothing calibrates a test of that agreement. Adjacent pieces exist rather than the thing itself. Multivariate network meta-analysis with random inconsistency effects has been built for vectors of contrasts across multiple outcomes, and consistency of direct against indirect evidence has been tested inside a one-step individual participant data Royston-Parmar network carrying a treatment-by-log-time interaction, which needs individual data and covers a single interaction term. What is absent is a definition and a calibrated test for the aggregate-data multi-parameter case, so a network fitted in the model class that non-proportional hazards forces on the analyst returns cross-treatment estimates with no way to detect direct-versus-indirect conflict, which is the check that legitimizes ordinary network meta-analysis."
+pid: "OUT-22"
+topic: "Outcome-specific problems"
+categories: ["Outcome-specific problems", "High priority", "Partially addressed"]
+priority: "High"
+prank: 2
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
+maturity: "Promising"
+tractability: 3
+---
+::: {.problem-meta}
+[OUT-22]{.problem-id}
+[Partially addressed]{.verdict .verdict-partially-addressed}
+[High priority]{.chip .chip-priority-high}
+[Promising]{.chip .chip-maturity-promising}
+[Tractability 3/5]{.chip}
+:::
+## Statement
+
+Where proportional hazards fails, the recommended alternative to a single hazard ratio is a multi-parameter survival synthesis in which each arm is summarized by the parameters of a fitted survival function, such as fractional-polynomial or parametric hazard parameters, and the vector of parameter differences is what the network pools and compares indirectly. Consistency in such a network is a condition on several correlated parameters per contrast, and the standard machinery does not apply: loop inconsistency, node splitting and the design-by-treatment interaction model are all defined for a scalar contrast. Nothing states what it means for a direct and an indirect estimate to agree when each is a curve that may coincide early and diverge late, and nothing calibrates a test of that agreement. Adjacent pieces exist rather than the thing itself. Multivariate network meta-analysis with random inconsistency effects has been built for vectors of contrasts across multiple outcomes, and consistency of direct against indirect evidence has been tested inside a one-step individual participant data Royston-Parmar network carrying a treatment-by-log-time interaction, which needs individual data and covers a single interaction term. What is absent is a definition and a calibrated test for the aggregate-data multi-parameter case, so a network fitted in the model class that non-proportional hazards forces on the analyst returns cross-treatment estimates with no way to detect direct-versus-indirect conflict, which is the check that legitimizes ordinary network meta-analysis.
+
+## Why it is open
+
+A vector test must choose its metric before it can have a size, and the candidates are not equivalent: agreement of the parameter vector, agreement of the survival function over a stated window, and agreement of a decision summary such as restricted mean survival are three different null hypotheses with different power against the same departure, and the field has not chosen among them. Whichever is chosen, the components are strongly correlated within an arm and their covariance has to come from the same fit whose coherence is under test, so the reference distribution is not free of the model being checked. Aggregate networks in this class are small while the parameter vector per contrast is long, so a joint test is close to unidentified: with a handful of trials there are often fewer independent loops than parameters, and the between-study variance for each component is estimated from very little. Tooling reinforces the gap, since the packages that implement inconsistency assessment operate on scalar contrasts, so anyone fitting a multi-parameter survival network leaves that stack behind and has nothing to fall back on.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Batson, Greenall & Hudson 2016, PLOS ONE 11(5):e0154870](https://doi.org/10.1371/journal.pone.0154870) | Reviews survival reporting in randomized trials and its consequences for meta-analysis, and states with a citation that although meta-analysis of survival data based on multi-dimensional treatment effects has been published, a method for evaluating consistency within networks for that methodology has not yet been developed. |
+| [Ouwens, Philips & Jansen 2010, Research Synthesis Methods 1(3-4):258-271](https://doi.org/10.1002/jrsm.25) | Network meta-analysis of parametric survival curves, which defines the multi-parameter treatment effect whose consistency cannot currently be checked. |
+| [Jansen 2011, BMC Medical Research Methodology 11:61](https://doi.org/10.1186/1471-2288-11-61) | Fractional polynomial network meta-analysis of survival data, the most widely used member of the multi-parameter class, in which each contrast is a vector of power-specific coefficients. |
+| [Jansen & Cope 2012, BMC Medical Research Methodology 12:152](https://doi.org/10.1186/1471-2288-12-152) | Extends multidimensional survival network meta-analysis with study-level covariates to explain heterogeneity and reduce inconsistency and confounding bias. It adjusts inconsistency away rather than testing for it, and offers no statistic that would say whether what remains is compatible with consistency. |
+| [Dias, Welton, Caldwell & Ades 2010, Statistics in Medicine 29(7-8):932-944](https://doi.org/10.1002/sim.3767) | Node splitting for mixed treatment comparison, the standard check that separates direct from indirect evidence for a scalar contrast; it is the method whose vector generalization is missing. |
+| [Higgins, Jackson, Barrett, Lu et al. 2012, Research Synthesis Methods 3(2):98-110](https://doi.org/10.1002/jrsm.1044) | The design-by-treatment interaction model, the global inconsistency framework for multi-arm networks, again formulated for scalar contrasts. |
+| [Jackson, Bujkiewicz, Law, Riley & White 2018, Biometrics 74(2):548-556](https://doi.org/10.1111/biom.12762) | A matrix-based method of moments for multivariate network meta-analysis with multiple outcomes and random inconsistency effects. This is the existing machinery for vector-valued inconsistency; it is developed for vectors indexed by outcome, where the components are separately meaningful, not for vectors of survival-function parameters whose components are only interpretable together. |
+| [Freeman & Carpenter 2017, Research Synthesis Methods 8(4):451-464](https://doi.org/10.1002/jrsm.1253) | Bayesian one-step individual participant data network meta-analysis with Royston-Parmar models, which demonstrates a global test for proportional hazards through a treatment-by-log-time interaction and shows how to test consistency of direct and indirect evidence in that model. The nearest existing solution; it requires individual participant data and covers a two-parameter time-varying effect rather than a general parameter vector. |
+
+:::
+
+## Probable solution or research direction
+
+Define consistency for this class explicitly, preferably on the survival function rather than on the parameters: state the direct and indirect implied survival or hazard curves for a contrast over a declared time window and define the discrepancy as a functional of their difference, so that the null does not depend on the parameterization the analyst happened to choose. Build the test as a vector node split with the contrast covariance taken from the fitted network, and calibrate it by simulation over network size, number of parameters per contrast, correlation between components, degree of non-proportionality and the number of independent loops, reporting type I error and power against departures that appear early, late and only in the extrapolated region. Compare it against the cheaper alternative of testing consistency on a decision summary such as restricted mean survival at a fixed horizon, which reduces the vector to a scalar at a stated cost in power against shape-only conflict. Ship the result in the packages that fit these models, so an analyst who is pushed into a multi-parameter survival model does not simultaneously lose access to the coherence check.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Partially addressed. One reader proposed this and the reviewer accepted it as specific and well posed, noting that scalar inconsistency diagnostics do not by themselves specify or calibrate a test for correlated vectors of survival-function parameters, and that later literature would need checking before the absence is treated as permanent. The verdict is partially-addressed because vector-valued inconsistency machinery exists for multivariate networks across outcomes and a consistency test has been demonstrated inside an individual-data Royston-Parmar network; neither has been defined or calibrated for aggregate-data multi-parameter survival contrasts.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [OUT-11 — Non-proportional hazards and the transported hazard ratio](OUT-11-non-proportional-hazards-and-the-transported-hazard-ratio.qmd)
+- [HET-04 — Node splitting compares paths without standardizing to a target](HET-04-node-splitting-compares-paths-without-standardizing-to-a-tar.qmd)
+- [MOD-19 — No valid selection criterion for cut points and powers in time-varying survival NMA](MOD-19-no-valid-selection-criterion-for-cut-points-and-powers-in-ti.qmd)
+- [SFW-15 — netmeta and gemtc carry no target-population representation](SFW-15-netmeta-and-gemtc-carry-no-target-population-representation.qmd)
+:::
+
+## Source
+
+Derived from reading:nma-38 of the reviewed corpus.

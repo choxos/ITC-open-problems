@@ -1,0 +1,70 @@
+---
+title: "Arm-based between-treatment correlations are imposed as exchangeable with no way to test or vary the structure"
+description: "Arm-based network meta-analysis models the study-specific treatment effects as a multivariate normal vector whose covariance carries a correlation matrix among treatments. In practice that matrix is forced to be exchangeable, a single scalar shared by every treatment pair, because typical networks are too sparse to identify unequal correlations, and the prior on the scalar is bounded below at minus one over the number of treatments minus one so the matrix stays positive definite. The restriction is consequential rather than technical, because the correlation governs how much absolute-effect information is borrowed across arms and therefore how much relative effects are shrunk: moving it within its own posterior range flips the interval conclusion for 13 of 112 treatment pairs, 11.6%, across 14 real networks, and moves the point estimate by more than 15% for 29 pairs, 25.9%. The posterior median correlation across those 14 networks runs from 0.266 to 0.996, so the shared scalar is neither near-constant across settings nor pinned at a boundary, and the default cannot be defended as harmless. No method estimates, screens or performs sensitivity analysis over a heterogeneous correlation structure in a sparse network, and no evidence establishes how large or how well connected a network must be before competing correlation structures can be distinguished at all."
+pid: "HET-18"
+topic: "Heterogeneity, consistency & multi-arm structure"
+categories: ["Heterogeneity, consistency & multi-arm structure", "Medium-high priority", "Confirmed open"]
+priority: "Medium-high"
+prank: 3
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Promising"
+tractability: 3
+---
+::: {.problem-meta}
+[HET-18]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[Medium-high priority]{.chip .chip-priority-medium-high}
+[Promising]{.chip .chip-maturity-promising}
+[Tractability 3/5]{.chip}
+:::
+## Statement
+
+Arm-based network meta-analysis models the study-specific treatment effects as a multivariate normal vector whose covariance carries a correlation matrix among treatments. In practice that matrix is forced to be exchangeable, a single scalar shared by every treatment pair, because typical networks are too sparse to identify unequal correlations, and the prior on the scalar is bounded below at minus one over the number of treatments minus one so the matrix stays positive definite. The restriction is consequential rather than technical, because the correlation governs how much absolute-effect information is borrowed across arms and therefore how much relative effects are shrunk: moving it within its own posterior range flips the interval conclusion for 13 of 112 treatment pairs, 11.6%, across 14 real networks, and moves the point estimate by more than 15% for 29 pairs, 25.9%. The posterior median correlation across those 14 networks runs from 0.266 to 0.996, so the shared scalar is neither near-constant across settings nor pinned at a boundary, and the default cannot be defended as harmless. No method estimates, screens or performs sensitivity analysis over a heterogeneous correlation structure in a sparse network, and no evidence establishes how large or how well connected a network must be before competing correlation structures can be distinguished at all.
+
+## Why it is open
+
+The correlation is only weakly informed by the data in exactly the networks where arm-based models are most attractive, star-shaped or thinly connected ones, so a richer structure is at best nominally identified and its posterior is driven by the prior rather than by the evidence. Any structured alternative must keep the covariance positive definite, which restricts what can even be posed: block correlations by class, or correlations decaying with some notion of treatment distance, are not automatically valid matrices and need constructions rather than declarations. Screening for a heterogeneous structure requires a model comparison whose power at realistic network sizes has never been established, so a null result from such a screen currently cannot be interpreted as evidence that exchangeability holds. The restriction is understood rather than overlooked: it is named as the first limitation of the tipping-point method and attributed explicitly to sparse data, which means the obstacle is identification and not oversight.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Wang, Murray, Han, Lin, Siegel and Chu 2025, Research Synthesis Methods](https://doi.org/10.1017/rsm.2025.24) | Develops a Bayesian tipping-point analysis for the shared correlation parameter in arm-based network meta-analysis, reports tipping points in 13 of 112 treatment pairs for interval conclusions and 29 for magnitude change across 14 networks with posterior median correlations from 0.266 to 0.996, and names the exchangeable structure as its first limitation, attributed to sparse data. |
+| [Han, Wang, Xiao, He, Chu and Lin 2024, BMC Medical Research Methodology](https://doi.org/10.1186/s12874-024-02263-w) | Tipping-point analysis for the between-arm correlation in a two-arm arm-based evidence synthesis, the precursor that fixed the sensitivity-analysis format later carried to networks. |
+| [Zhang, Carlin, Neaton, Soon, Nie, Kane, Virnig and Chu 2014, Clinical Trials](https://doi.org/10.1177/1740774513498322) | Sets out the arm-based network meta-analysis formulation with a correlated multivariate random-effects vector across treatments, which is where the correlation matrix at issue is introduced. |
+| [Hong, Chu, Zhang and Carlin 2016, Research Synthesis Methods](https://doi.org/10.1002/jrsm.1153) | A Bayesian missing-data framework for generalized arm-based mixed treatment comparisons, extending the same covariance structure to multiple outcomes and making the correlation assumption load-bearing for more parameters. |
+| [Wang, Lin, Hodges and Chu 2020, Statistics in Medicine](https://doi.org/10.1002/sim.8580) | Examines how the choice of covariance prior affects arm-based Bayesian network meta-analysis with binary outcomes, which establishes that the covariance specification is influential but keeps the exchangeable structure fixed. |
+| [Wang, Lin, Hodges, MacLehose and Chu 2021, Statistical Methods in Medical Research](https://doi.org/10.1177/0962280220945731) | A variance shrinkage method for arm-based Bayesian network meta-analysis, the current answer to sparse estimation of the standard deviations, with the correlation still handled by a single shared parameter. |
+| [Lin, Zhang, Hodges and Chu 2017, Journal of Statistical Software](https://doi.org/10.18637/jss.v080.i05) | The pcnetmeta implementation of arm-based network meta-analysis, which fixes the exchangeable correlation as what an applied analyst can actually fit. |
+| [White, Turner, Karahalios and Salanti 2019, Statistics in Medicine](https://doi.org/10.1002/sim.8360) | Compares arm-based and contrast-based network models and shows where their assumptions diverge, which locates the correlation parameter as a structure with no contrast-based analogue and therefore no borrowed evidence base. |
+| [Lewandowski, Kurowicka and Joe 2009, Journal of Multivariate Analysis](https://doi.org/10.1016/j.jmva.2009.04.008) | Vine and onion constructions for random correlation matrices, the machinery available for posing a structured alternative that is positive definite by construction rather than by constraint checking. |
+| [Lu and Ades 2009, Biostatistics](https://doi.org/10.1093/biostatistics/kxp032) | The contrast-based analogue of structuring the between-trial covariance under a validity constraint, which shows both the form the arm-based work would take and how long the corresponding contrast-side question has been open. |
+
+:::
+
+## Probable solution or research direction
+
+Establish distinguishability first, because without it neither a screen nor a structured fit can be interpreted: simulate arm-based networks under known heterogeneous structures, block correlations by treatment class, a single outlying treatment, and decay with treatment distance, and report the number of studies, treatments and loops at which a model comparison separates them from exchangeable at useful power. Pose the alternatives through the separation strategy, putting a vine or onion prior on the correlation matrix with a hierarchical or class-blocked mean, so positive definiteness holds by construction and the borrowing strength is not controlled by a single degrees-of-freedom parameter. Extend the tipping-point analysis from a scalar to a structure, reporting which treatment pairs' conclusions are sensitive to relaxing exchangeability rather than only to moving a common correlation. Make the sensitivity output a default of the arm-based packages, since an analysis that reports only the exchangeable fit gives its reader no way to see that one interval conclusion in nine is at stake.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. One reader proposed this and the reviewer accepted it because the between-study correlation structure in arm-based models is distinct from within-study multi-arm covariance and from a common heterogeneity variance. The evidence is a single paper, which is a weaker basis, but it quantifies the decision impact across 14 networks and names the restriction as its own first limitation.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [HET-02 — Multi-arm covariance is lost when contrasts are adjusted pairwise](HET-02-multi-arm-covariance-is-lost-when-contrasts-are-adjusted-pai.qmd)
+- [HET-03 — Single shared heterogeneity variance across classes and populations](HET-03-single-shared-heterogeneity-variance-across-classes-and-popu.qmd)
+- [HET-16 — Exchangeable and comparison-specific heterogeneity priors are blocked by the covariance constraint](HET-16-exchangeable-and-comparison-specific-heterogeneity-priors-ar.qmd)
+- [CMU-02 — Priors, not data, can drive posteriors in weakly identified models](CMU-02-priors-not-data-can-drive-posteriors-in-weakly-identified-mo.qmd)
+:::
+
+## Source
+
+Derived from reading:nma-07 of the reviewed corpus.

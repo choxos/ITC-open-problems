@@ -1,0 +1,67 @@
+---
+title: "Empirical method comparisons exclude the networks where methods diverge"
+description: "Empirical comparisons of network meta-analysis models filter the corpus on an inconsistency test before comparing anything. The largest such study drew on a curated database of 456 published networks and retained 118, requiring for any network containing a loop that the design-by-treatment interaction test return a p value above 0.10, on the stated ground that the models being fitted do not allow for inconsistency. The screen is a noisy proxy for the property it selects on: the design-by-treatment interaction test is known to have low power, which is why the cut-off was set at 0.10 rather than 0.05, so the retained set still contains inconsistency while excluding some networks that are consistent. The models under comparison differ precisely in how they propagate loop conflict and how they relate arms across studies, so screening out loop conflict removes the regime in which they would most diverge, and the resulting agreement statistics understate how much model choice matters in the networks analysts actually submit. No published empirical comparison stratifies its agreement measures by degree of inconsistency; the network characteristics investigated to date are connectedness and rareness of events. The result is a literature reporting broadly reassuring agreement between contrast-synthesis and arm-synthesis models without having examined the case where the choice would bite."
+pid: "DIA-22"
+topic: "Diagnostics & empirical validation"
+categories: ["Diagnostics & empirical validation", "Medium-high priority", "Confirmed open"]
+priority: "Medium-high"
+prank: 3
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Established"
+tractability: 4
+---
+::: {.problem-meta}
+[DIA-22]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[Medium-high priority]{.chip .chip-priority-medium-high}
+[Established]{.chip .chip-maturity-established}
+[Tractability 4/5]{.chip}
+:::
+## Statement
+
+Empirical comparisons of network meta-analysis models filter the corpus on an inconsistency test before comparing anything. The largest such study drew on a curated database of 456 published networks and retained 118, requiring for any network containing a loop that the design-by-treatment interaction test return a p value above 0.10, on the stated ground that the models being fitted do not allow for inconsistency. The screen is a noisy proxy for the property it selects on: the design-by-treatment interaction test is known to have low power, which is why the cut-off was set at 0.10 rather than 0.05, so the retained set still contains inconsistency while excluding some networks that are consistent. The models under comparison differ precisely in how they propagate loop conflict and how they relate arms across studies, so screening out loop conflict removes the regime in which they would most diverge, and the resulting agreement statistics understate how much model choice matters in the networks analysts actually submit. No published empirical comparison stratifies its agreement measures by degree of inconsistency; the network characteristics investigated to date are connectedness and rareness of events. The result is a literature reporting broadly reassuring agreement between contrast-synthesis and arm-synthesis models without having examined the case where the choice would bite.
+
+## Why it is open
+
+The exclusion is defensible on its own terms, which is why it has persisted: fitting a consistency model to an inconsistent network estimates a quantity the model does not represent, and there is no agreed estimand for what a consistency model returns on an inconsistent network, so a study admitting such networks would first have to say what its agreement measures were about. A replacement design has to index inconsistency on a continuous scale, but the available indices are estimates with low power in exactly the sparse networks where the question matters, so stratifying on measured inconsistency stratifies partly on noise. Real networks carry no known degree of inconsistency, so ground truth is available only in simulation, which trades away the realism that motivates empirical comparison in the first place, and no design gets both. The corpus is a fixed resource of published networks, so widening the inclusion criteria changes composition on size, sparsity and clinical field simultaneously, confounding the comparison with the very characteristics already known to predict discordance. Finally, an empirical comparison can measure disagreement but never error, so even a study covering inconsistent networks could not say which model was right there.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Karahalios et al. 2017, Systematic Reviews](https://doi.org/10.1186/s13643-017-0511-x) | Protocol for the empirical evaluation: prespecifies five models, five comparison metrics and four candidate modifiers of discordance, states the consistency restriction and its rationale, and separately records that the design-by-treatment interaction test has low power, which is why the cut-off is 0.10. |
+| [Karahalios et al. 2025, Research Synthesis Methods](https://doi.org/10.1017/rsm.2025.18) | The completed evaluation: 118 networks re-analyzed with three contrast-synthesis and two arm-synthesis models, comparing log odds ratios, standard errors, ranking measures and heterogeneity, and finding that model choice can change the ranking; the network characteristics investigated are connectedness and event rarity, and nothing is stratified by inconsistency because inconsistent networks were excluded. |
+| [Higgins et al. 2012, Research Synthesis Methods](https://doi.org/10.1002/jrsm.1044) | The design-by-treatment interaction model that supplies the screening test, framed as a global check on consistency for networks that include multi-arm studies. |
+| [Veroniki et al. 2014, BMC Medical Research Methodology](https://doi.org/10.1186/1471-2288-14-106) | Simulation of which loop characteristics affect detection and estimation of inconsistency; establishes the low power that makes any screen on a consistency test noisy. |
+| [Veroniki et al. 2013, International Journal of Epidemiology](https://doi.org/10.1093/ije/dys222) | Evaluation of the available methods for assessing inconsistency in networks of interventions and how they behave when applied to real networks. |
+| [Song et al. 2011, BMJ](https://doi.org/10.1136/bmj.d4909) | Meta-epidemiological study of disagreement between direct and indirect comparisons across many networks; the empirical base rate of loop conflict that a representative corpus would have to reproduce. |
+| [White et al. 2019, Statistics in Medicine](https://doi.org/10.1002/sim.8360) | Analytic comparison of arm-based and contrast-based models showing the substantive difference is whether study intercepts are fixed or random, and that random intercepts bring in between-study information that can bias; establishes why the two families would be expected to diverge where evidence conflicts. |
+
+:::
+
+## Probable solution or research direction
+
+Re-run the existing comparison over the full corpus without the consistency screen, reporting agreement as a function of a continuous inconsistency index rather than as one pooled statistic, and report the previously excluded stratum separately rather than not at all. Pair it with a simulation calibrated to the distribution of loop conflict measured in that corpus, so that where the empirical study can only measure disagreement, the simulation can attribute it to error. Prespecify inconsistency as a modifier of discordance in the same multilevel model that already carries connectedness and event rarity, which needs no new machinery. Publish the network-level inconsistency estimates alongside the agreement measures so that later work can restratify; the corpus, the code and the fitted models already exist, so the cost is re-analysis rather than development.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. One reader proposed this from the protocol's own statement of the exclusion and its rationale, and the reviewer accepted the selection mechanism as a distinct empirical-methods gap while noting that the claim that all stratified comparisons are absent would need a systematic check. The audit confirmed the completed evaluation kept the screen, retaining 118 of 456 networks and stratifying only on connectedness and event rarity.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [DIA-05 — No shared benchmark platform with common scenarios, seeds and truth](DIA-05-no-shared-benchmark-platform-with-common-scenarios-seeds-and.qmd)
+- [DIA-07 — Scenario grids omit network topology and information placement](DIA-07-scenario-grids-omit-network-topology-and-information-placeme.qmd)
+- [HET-04 — Node splitting compares paths without standardizing to a target](HET-04-node-splitting-compares-paths-without-standardizing-to-a-tar.qmd)
+- [CMU-08 — No cross-package benchmark or reference pipeline for ITC software](CMU-08-no-cross-package-benchmark-or-reference-pipeline-for-itc-sof.qmd)
+:::
+
+## Source
+
+Derived from reading:nma-33 of the reviewed corpus.

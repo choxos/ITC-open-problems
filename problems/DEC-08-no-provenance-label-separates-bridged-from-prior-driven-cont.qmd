@@ -53,6 +53,11 @@ Extend contribution-matrix reporting to the disconnected case rather than build 
 
 **What was wrong with it.** The source said no convention or software output currently produces a per-contrast provenance label, so even a willing analyst has nothing to fill in. The literature auditor found the contribution matrix has been in netmeta and CINeMA since 2018 and now extends to component networks, leaving only the disconnected case; GPT-5.6 Sol added that a single four-way label can itself conceal a mixture of direct, indirect, structural and prior information, and that per-contrast estimability is already implemented in cpaic.
 
+**Revised by the full-text reading.** Applied 2026-07-26 full-text reading of the consolidated library (687 papers).
+
+Flagged for reopening
+:   **16 findings from the reading assert this problem is open while the registry carries `overstated`** Flagged, not applied: reversing an earlier audit's closure needs the closure's own evidence re-examined alongside this, which the reading did not do. See documentation/audit/reading/PROPOSED.md.
+
 Literature and prior-art check
 :   **partially-solved / overstated.** The claim 'No convention or software output currently produces a per-contrast provenance label ... so even a willing analyst has nothing to fill in' is wrong for connected networks. Papakonstantinou et al. 2018 (F1000Research, doi 10.12688/f1000research.14770.3) derived the proportion contribution matrix showing 'how much each direct treatment effect contributes to each treatment effect estimate from network meta-analysis'; it is shipped as netmeta::netcontrib, whose documentation I retrieved ('generates the contribution of direct comparisons to every network treatment comparison ... rows represent network treatment effects and columns represent the contribution of direct treatment effects'), and it is the engine behind CINeMA's per-comparison within-study-bias and indirectness judgments. Papakonstantinou et al. 2020 (doi 10.1016/j.jclinepi.2020.04.009) applied it across 213 published NMAs, finding 33% of information from direct evidence, 47% from length-2 paths and 20% from length-3. Yang et al. 2026 (doi 10.1186/s12874-026-02766-8) extends evidence-flow tracing to component NMA via pseudo-paths, addressing the treatment-versus-component-network claim. What genuinely remains: labels distinguishing 'structurally bridged' from 'prior-driven' for disconnected evidence, and the bridge ledger itself.
     Cites 10.12688/f1000research.14770.3: Provides contrast-specific evidence provenance (direct vs indirect decomposition per network estimate) rather than a global rank statistic..
@@ -68,11 +73,50 @@ Decision path
 
 :::
 
+## How the evidence falls in time
+
+16 papers in the reviewed corpus bear on this problem, published 2013 to 2026. The most recent paper to touch this reports progress on it, and every paper calling it open is older.
+
+It is also being **closed in pieces**: partial results come from more than one paper in more than one year, each covering a different part.
+
+**Does the later work answer the earlier work?** Put to an independent reviewer with the older and newer claims side by side, it judged that the later work answers a component of it, leaving a named part (high confidence). Later work establishes usable provenance displays and contribution calculations for connected NMA, component effects, and some disconnected CNMA settings. It still does not identify prior-driven contrasts separately or attach a complete bridge-assumption ledger to each affected contrast. What remains: A contrast-level label that distinguishes structurally bridged inference from purely prior-driven inference across a disconnection, plus an explicit per-gap ledger of the identifying assumptions and information carriers.
+
+::: {.table-scroll}
+
+| Year | Says | Paper |
+|---|---|---|
+| 2013 | partly addresses it | Graphical tools for network meta-analysis in STATA |
+| 2014 | partly addresses it | Evaluating the quality of evidence from a network meta-analysis |
+| 2014 | partly addresses it | Visualizing inconsistency in network meta-analysis by independent path decomposition |
+| 2014 | confirms it is open | Reporting of results from network meta-analyses: methodological systematic review |
+| 2015 | confirms it is open | Network Meta-analysis: Users' Guide for Surgeons: Part I - Credibility |
+| 2017 | confirms it is open | Rituximab biosimilar evaluated by network meta-analysis |
+| 2017 | confirms it is open | Rituximab biosimilar in rheumatoid arthritis: an enhanced-evidence assessment to evaluate equivalence with the originator based on network meta-analysis |
+| 2018 | partly addresses it | Estimating the contribution of studies in network meta-analysis: paths, flows and streams |
+| 2018 | partly addresses it | Graphs of study contributions and covariate distributions for network meta-regression |
+| 2020 | confirms it is open | Combining Correlated Outcomes and Surrogate Endpoints in a Network Meta-Analysis of Colorectal Cancer Treatments |
+| 2020 | confirms it is open | The statistical importance of a study for a network meta-analysis estimate |
+| 2021 | confirms it is open | A Revised Framework to Evaluate the Consistency Assumption Globally in a Network of Interventions |
+| 2022 | partly addresses it | Network meta-analysis and random walks |
+| 2023 | partly addresses it | Data visualisation approaches for component network meta-analysis: visualising the data structure |
+| 2025 | partly addresses it | A leave-one-out algorithm for contribution analysis in component network meta-analysis |
+| 2026 | partly addresses it | Evidence contributions in component network meta-analysis from the shortest-path approach |
+
+:::
+
 ## Related problems
 
 ::: {.related-links}
+- [CMP-35 — No unique definition of evidence contribution for component estimates](CMP-35-no-unique-definition-of-evidence-contribution-for-component-.qmd)
+- [DEC-15 — No certainty-of-evidence framework rates component effects](DEC-15-no-certainty-of-evidence-framework-rates-component-effects.qmd)
+- [DEC-17 — Evidence-provenance measures do not propagate heterogeneity uncertainty](DEC-17-evidence-provenance-measures-do-not-propagate-heterogeneity-.qmd)
+- [DEC-19 — Evidence contribution has no definition inside a Bayesian fit](DEC-19-evidence-contribution-has-no-definition-inside-a-bayesian-fi.qmd)
+- [DEC-30 — ROB-MEN reliability is unmeasured and CINeMA agreement collapses on large networks](DEC-30-rob-men-reliability-is-unmeasured-and-cinema-agreement-colla.qmd)
+- [DIA-21 — Competing contribution measures disagree and none is agreed correct](DIA-21-competing-contribution-measures-disagree-and-none-is-agreed-.qmd)
+- [DIA-25 — Rival study-contribution definitions feed the same certainty rating](DIA-25-rival-study-contribution-definitions-feed-the-same-certainty.qmd)
 - [DIS-01 — Cross-gap contrasts are absent from the randomized likelihood](DIS-01-cross-gap-contrasts-are-absent-from-the-randomized-likelihoo.qmd)
 - [DIS-12 — No standard ledger names the parameter carrying the gap](DIS-12-no-standard-ledger-names-the-parameter-carrying-the-gap.qmd)
+- [DIS-19 — No population-adjusted likelihood mixes a randomized core with single-arm evidence](DIS-19-no-population-adjusted-likelihood-mixes-a-randomized-core-wi.qmd)
 - [SFW-02 — No machine-readable specification standard for ITC analyses](SFW-02-no-machine-readable-specification-standard-for-itc-analyses.qmd)
 :::
 

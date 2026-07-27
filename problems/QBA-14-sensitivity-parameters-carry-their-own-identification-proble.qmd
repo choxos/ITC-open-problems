@@ -3,16 +3,16 @@ title: "Sensitivity parameters carry their own identification problem"
 description: "Source IPD can identify the omitted variable's outcome association in the arm it observes, but with one treatment per study the data cannot decompose that slope into a treatment-invariant prognostic component and treatment-specific modification, cannot identify the comparator-arm slope, and cannot establish that either transports to the comparator study or the decision target. A sensitivity analysis that imports such a coefficient, or a prevalence or correlation taken from an external registry or clinical study report, therefore carries a second untestable transport assumption of its own. Ren et al. 2025 (doi:10.1017/rsm.2025.13) do exactly this and concede the analysis may be biased if the assumed values for the unmeasured confounders differ from those observed in the IPD study, offering expert elicitation and external-data regression as remedies whose own transport is untested."
 pid: "QBA-14"
 topic: "Quantitative bias analysis for unanchored PAIC"
-categories: ["Quantitative bias analysis for unanchored PAIC", "Very high priority", "Confirmed open"]
+categories: ["Quantitative bias analysis for unanchored PAIC", "Very high priority", "Partially addressed"]
 priority: "Very high"
 prank: 1
-verdict: "Confirmed open"
-verdictslug: "confirmed-open"
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
 maturity: "Emerging"
 ---
 ::: {.problem-meta}
 [QBA-14]{.problem-id}
-[Confirmed open]{.verdict .verdict-confirmed-open}
+[Partially addressed]{.verdict .verdict-partially-addressed}
 [Very high priority]{.chip .chip-priority-very-high}
 [Emerging]{.chip .chip-maturity-emerging}
 :::
@@ -41,11 +41,16 @@ Report the transport of each sensitivity parameter as an assumption rather than 
 ## Verification
 
 ::: {.verification-trail}
-**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+**Verdict.** Partially addressed. Auditors agreed the problem is open and no counterevidence surfaced. Reopened by the full-text reading: 1 finding from 1 paper survived both the reader and an independent second reviewer, so the verdict moves from confirmed-open to partially-addressed, on a single finding.
 
 **The source said.** "An omitted-variable outcome association estimated in the source study, or a prevalence or correlation taken from an external registry or clinical study report, is imported into the target as if it transported, so the sensitivity analysis carries a second untestable transport assumption of its own. In an unanchored design with one treatment per study the primary data also cannot separate a study effect, a prognostic effect of the omitted variable and treatment-effect modification by it."
 
 **What was wrong with it.** GPT-5.6 Sol narrowed the identification claim: a study intercept cannot generally mimic a within-source slope for the omitted variable, so a study effect, a prognostic effect and effect modification are not all equally indistinguishable. Importing one coefficient into both potential outcomes is a valid scenario under an explicit no-effect-modification and transport assumption rather than an error, and the entry's proposal to build transportability diagnostics for bias parameters cannot work as stated, because no diagnostic using the same primary data can test equality of an unobserved target association. The entry cited nothing; the literature auditor supplied Ren et al. 2025 (doi:10.1017/rsm.2025.13).
+
+**Revised by the full-text reading.** Applied 2026-07-26 full-text reading of the consolidated library (687 papers).
+
+Verdict changed
+:   **confirmed-open -> partially-addressed** 1 surviving finding from: Sensitivity analysis for an unobserved moderator in RCT-to-t. New citations: 10.1214/16-AOAS1001
 
 Literature and prior-art check
 :   **open / supported.** No prior_work is given, but claims 1 to 6 are corroborated by primary sources I retrieved. Ren et al. 2025 fix the outcome association of the omitted covariate from the IPD source and simply assume it applies in the comparator population; they concede the resulting analysis 'may be biased, particularly when the sample size is small, if the assumed mean values for the unmeasured confounders differ significantly from the observed values in the IPD study', and their proposed remedies (expert elicitation, external-data regression prediction) are all extrapolations whose transport is untested. Claim 4 is a structural identification fact for the one-treatment-per-study layout and is correct. Claims 7 to 9 are the open part: claim 9 ('no accepted procedure for assessing whether a bias parameter transports') is a no-method-exists assertion; my searches found transportability diagnostics for treatment effects but none for bias parameters, so I treat claim 9 as unfalsified rather than positively verified. Note that a structurally untestable transport assumption for a nonidentified parameter cannot be resolved by any paper, so this entry should remain open indefinitely and be framed as a reporting requirement rather than a solvable estimation problem.
@@ -55,6 +60,22 @@ GPT-5.6 Sol, technical and source-code lens
 
 Decision path
 :   `R5:default-open → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## How the evidence falls in time
+
+5 papers in the reviewed corpus bear on this problem, published 2017 to 2025. Partial progress is on the record, and later work still calls this open. Both belong in view.
+
+::: {.table-scroll}
+
+| Year | Says | Paper |
+|---|---|---|
+| 2017 | partly addresses it | Sensitivity analysis for an unobserved moderator in RCT-to-target-population generalization of treatment effects (Nguyen, Ebnesajjad, Cole, Stuart; arXiv:1610.06943v1, published Annals of Applied Statistics 2017;11(1):225-247) |
+| 2018 | confirms it is open | Sensitivity analyses for effect modifiers not observed in the target population when generalizing treatment effects from a randomized controlled trial: Assumptions, models, effect scales, data scenarios, and implementation details (Nguyen, Ackerman, Schmid, Cole, Stuart, PLoS ONE 2018;13(12):e0208795) |
+| 2020 | confirms it is open | Performance of unanchored matching-adjusted indirect comparison (MAIC) for the evidence synthesis of single-arm trials with time-to-event outcomes |
+| 2021 | confirms it is open | Applying Quantitative Bias Analysis to Epidemiologic Data, Second Edition (Fox, MacLehose, Lash; Springer, Statistics for Biology and Health, 2021) |
+| 2025 | confirms it is open | Quantitative bias analysis for unmeasured confounding in unanchored population-adjusted indirect comparisons |
 
 :::
 

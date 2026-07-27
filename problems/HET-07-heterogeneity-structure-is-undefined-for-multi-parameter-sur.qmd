@@ -1,0 +1,69 @@
+---
+title: "Heterogeneity structure is undefined for multi-parameter survival NMA"
+description: "Fractional polynomial, piecewise exponential and parametric survival network models carry several treatment-effect parameters per contrast: a scale contrast plus one or more time-varying shape contrasts, and the shape contrasts are what allow the hazard ratio to change over follow-up. A between-study covariance across the whole parameter vector was specified when fractional polynomial network synthesis was introduced, as an unstructured multivariate normal assumed constant across all treatment comparisons, and spline formulations likewise place a random effect on the full coefficient vector. Practice has not followed the specification: a current survival network application places a random effect on the scale coefficient alone, stating that the methodology for including all heterogeneity parameters still needs development, and offers piecewise exponential models in fixed-effect form only. Nothing establishes which of the parameters a realistic network can identify heterogeneity for, what covariance structure they should share, whether the assumption that the covariance is common across comparisons survives contact with data, or what it costs to place the random effect on the wrong subset. The consequence is specific rather than generic: constraining the shape contrasts to be common across studies imposes a single time profile of the treatment effect on the entire network, which is the assumption these models were adopted in order to relax, and it does so silently because the fitted model still reports a heterogeneity parameter."
+pid: "HET-07"
+topic: "Heterogeneity, consistency & multi-arm structure"
+categories: ["Heterogeneity, consistency & multi-arm structure", "High priority", "Partially addressed"]
+priority: "High"
+prank: 2
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
+maturity: "Promising"
+tractability: 3
+---
+::: {.problem-meta}
+[HET-07]{.problem-id}
+[Partially addressed]{.verdict .verdict-partially-addressed}
+[High priority]{.chip .chip-priority-high}
+[Promising]{.chip .chip-maturity-promising}
+[Tractability 3/5]{.chip}
+:::
+## Statement
+
+Fractional polynomial, piecewise exponential and parametric survival network models carry several treatment-effect parameters per contrast: a scale contrast plus one or more time-varying shape contrasts, and the shape contrasts are what allow the hazard ratio to change over follow-up. A between-study covariance across the whole parameter vector was specified when fractional polynomial network synthesis was introduced, as an unstructured multivariate normal assumed constant across all treatment comparisons, and spline formulations likewise place a random effect on the full coefficient vector. Practice has not followed the specification: a current survival network application places a random effect on the scale coefficient alone, stating that the methodology for including all heterogeneity parameters still needs development, and offers piecewise exponential models in fixed-effect form only. Nothing establishes which of the parameters a realistic network can identify heterogeneity for, what covariance structure they should share, whether the assumption that the covariance is common across comparisons survives contact with data, or what it costs to place the random effect on the wrong subset. The consequence is specific rather than generic: constraining the shape contrasts to be common across studies imposes a single time profile of the treatment effect on the entire network, which is the assumption these models were adopted in order to relax, and it does so silently because the fitted model still reports a heterogeneity parameter.
+
+## Why it is open
+
+An unstructured covariance over a scale contrast and one or two shape contrasts carries three to six free parameters, and survival networks routinely hold fewer than ten studies, so the full specification is at best weakly identified and its posterior is governed by the covariance prior. The shape contrasts are also the least well determined parts of each study's own fit, since they depend on the tail of follow-up where events are scarce and where reconstructed patient data are least reliable, so a between-study variance for them is estimated on top of large and unequal within-study uncertainty. Any structured alternative must keep the covariance positive semidefinite while sharing information across comparisons, and there is no accepted family for doing so over a parameter vector whose elements are not exchangeable, because a scale contrast and a shape contrast mean different things and should not be shrunk toward a common variance. Model comparison cannot arbitrate, since deviance-based criteria have little power to distinguish covariance structures at these sample sizes. And the restriction is currently made inside software defaults rather than in an analysis plan, so it is not reported as an assumption at all.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Shao, Zhao, Shi, Rui and Tang 2025, Research Synthesis Methods (NMAsurv)](https://doi.org/10.1017/rsm.2025.10020) | Survival network meta-analysis application covering fractional polynomial, piecewise exponential, parametric and Cox models, which models a heterogeneity parameter for the scale coefficient only because the methodology for including all heterogeneity parameters still needs further development, and which offers piecewise exponential models in fixed-effect form only. |
+| [Jansen 2011, BMC Medical Research Methodology](https://doi.org/10.1186/1471-2288-11-61) | Introduces fractional polynomial network meta-analysis with a multi-dimensional treatment effect and specifies a full between-study covariance matrix over the fractional polynomial parameters, with variances for each parameter and correlations between them, assumed constant across all treatment comparisons; the specification exists, its identifiability at realistic network sizes does not. |
+| [Ouwens, Philips and Jansen 2010, Research Synthesis Methods](https://doi.org/10.1002/jrsm.25) | Network meta-analysis of parametric survival curves, where each contrast again carries several parameters and the between-study structure over them is a modeling choice rather than a settled convention. |
+| [Jansen and Cope 2012, BMC Medical Research Methodology](https://doi.org/10.1186/1471-2288-12-152) | Adds covariates to the multi-dimensional survival contrast so that systematic differences across comparisons are explained rather than absorbed into a random effect; the meta-regression alternative to enlarging the heterogeneity structure. |
+| [Heinecke, Tallarita and De Iorio 2020, BMC Medical Research Methodology](https://doi.org/10.1186/s12874-020-01113-9) | Bayesian splines versus fractional polynomials in network meta-analysis, decomposing the whole coefficient vector into a study-specific random effect and an arm deviation from the reference treatment; demonstrates that a full-vector random effect is implementable. |
+| [Cope, Chan and Jansen 2020, Research Synthesis Methods](https://doi.org/10.1002/jrsm.1405) | Multivariate network meta-analysis of survival function parameters, treating the parameter vector jointly; the closest existing treatment of the covariance across survival parameters, approached from the correlation side rather than the identifiability side. |
+| [Wiksten, Hawkins, Piepho and Gsteiger 2020, Value in Health](https://doi.org/10.1016/j.jval.2020.03.010) | Efficient strategies for building and selecting non-proportional-hazards network models; supplies the model-building workflow into which a heterogeneity-structure decision would have to be inserted, and does not itself resolve which parameters may carry heterogeneity. |
+| [Freeman and Carpenter 2017, Research Synthesis Methods](https://doi.org/10.1002/jrsm.1253) | One-step Bayesian individual-patient-data network synthesis of time-to-event data with Royston-Parmar models, in which the between-study structure over the spline coefficients is again chosen rather than derived. |
+| [Phillippo, Dias, Ades and Welton 2024, preprint](https://arxiv.org/abs/2401.12640) | Multilevel network meta-regression for general likelihoods with applications to survival analysis; carries the same multi-parameter contrast into the population-adjusted setting and therefore inherits the same unresolved heterogeneity structure. |
+
+:::
+
+## Probable solution or research direction
+
+Establish identifiability before proposing structure: derive, for fractional polynomial and piecewise exponential contrasts, how many studies and how many events per study are needed before a two-parameter or three-parameter between-study covariance is estimable rather than prior-driven, and publish that as a table an analyst can look up. Then compare candidate structures on the same networks, namely a scale-only random effect, a diagonal covariance across scale and shape, an unstructured covariance, and a hierarchical structure that shrinks the shape variances toward zero while leaving the scale variance free, scoring them on bias in the time-varying hazard ratio, coverage of survival differences and of restricted mean survival, and on extrapolated survival where the shape contrasts dominate. Simulate the misplacement directly by generating data with heterogeneity in the shape contrasts and fitting the scale-only model, so the cost of the current default becomes a number rather than a concern. Make the heterogeneity structure an explicit argument in survival network software rather than a fixed internal choice, and require an analysis plan to name it.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Partially addressed. One reader proposed this and the reviewer accepted it as a concrete modeling problem specific to multi-parameter time-varying survival contrasts rather than a restatement of the shared-scalar-heterogeneity entry. It is partially addressed because a full between-study covariance across the parameter vector was specified when fractional polynomial network synthesis was introduced and full-vector random effects are implemented for spline formulations; what is open is which parameters a real network identifies, what structure they should share, and what restricting to the scale coefficient costs, with the evidence for the restriction being a single current implementation.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [HET-03 — Single shared heterogeneity variance across classes and populations](HET-03-single-shared-heterogeneity-variance-across-classes-and-popu.qmd)
+- [HET-09 — Multivariate NMA inconsistency covariance is unidentifiable in sparse networks](HET-09-multivariate-nma-inconsistency-covariance-is-unidentifiable-.qmd)
+- [OUT-11 — Non-proportional hazards and the transported hazard ratio](OUT-11-non-proportional-hazards-and-the-transported-hazard-ratio.qmd)
+- [OUT-12 — Survival extrapolation is unidentified beyond the observed follow-up](OUT-12-survival-extrapolation-is-unidentified-beyond-the-observed-f.qmd)
+:::
+
+## Source
+
+Derived from reading:nma-05 of the reviewed corpus.

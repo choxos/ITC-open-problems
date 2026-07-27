@@ -1,6 +1,6 @@
 ---
 title: "Routine NMA output omits graph diagnostics and value of information"
-description: "Most of the quantities this entry calls computable but not computed are computed and published. Connectivity and minimal path length between treatments are in Thom et al. (doi:10.1002/jrsm.1329); contrast-specific evidence paths and per-study contribution are in Papakonstantinou et al. (doi:10.12688/f1000research.14770.3) and shipped as netmeta::netcontrib; component estimability has a signal-flow graph in Li, Shih and Tu (doi:10.1002/jrsm.1623), written in answer to the same complaint this entry makes; and precision-based ranking of the next study design is in Nikolakopoulou et al. (doi:10.1002/sim.6608). The development package cpaic, which lives on GitHub and cannot be installed from CRAN, already computes connectedness, subnetworks, bridging components, component-design rank and null space, per-contrast estimability and contrast-specific edge influence. What is genuinely open is that these diagnostics are not routinely reported in NMA outputs, that articulation and minimal cut-set enumeration and removal vulnerability are still missing, and that there is no value-of-information machinery for deciding which study's individual data to acquire."
+description: "Most of the quantities this entry calls computable but not computed are computed and published. Connectivity and minimal path length between treatments are in Thom et al. (doi:10.1002/jrsm.1329); contrast-specific evidence paths and per-study contribution are in Papakonstantinou et al. (doi:10.12688/f1000research.14770.3) and shipped as netmeta::netcontrib; component estimability has a signal-flow graph in Li, Shih and Tu (doi:10.1002/jrsm.1623), written in answer to the same complaint this entry makes; and precision-based ranking of the next study design is in Nikolakopoulou et al. (doi:10.1002/sim.6608). The development package cpaic, which lives on GitHub and cannot be installed from CRAN, already computes connectedness, subnetworks, bridging components, component-design rank and null space, per-contrast estimability and contrast-specific edge influence. What is genuinely open is that these diagnostics are not routinely reported in NMA outputs, that articulation and minimal cut-set enumeration are still missing, and that there is no value-of-information machinery for deciding which study's individual data to acquire."
 pid: "ADJ-12"
 topic: "Adjacent-field methods"
 categories: ["Adjacent-field methods", "Very high priority", "Overstated"]
@@ -18,7 +18,7 @@ maturity: "Promising"
 :::
 ## Statement
 
-Most of the quantities this entry calls computable but not computed are computed and published. Connectivity and minimal path length between treatments are in Thom et al. (doi:10.1002/jrsm.1329); contrast-specific evidence paths and per-study contribution are in Papakonstantinou et al. (doi:10.12688/f1000research.14770.3) and shipped as netmeta::netcontrib; component estimability has a signal-flow graph in Li, Shih and Tu (doi:10.1002/jrsm.1623), written in answer to the same complaint this entry makes; and precision-based ranking of the next study design is in Nikolakopoulou et al. (doi:10.1002/sim.6608). The development package cpaic, which lives on GitHub and cannot be installed from CRAN, already computes connectedness, subnetworks, bridging components, component-design rank and null space, per-contrast estimability and contrast-specific edge influence. What is genuinely open is that these diagnostics are not routinely reported in NMA outputs, that articulation and minimal cut-set enumeration and removal vulnerability are still missing, and that there is no value-of-information machinery for deciding which study's individual data to acquire.
+Most of the quantities this entry calls computable but not computed are computed and published. Connectivity and minimal path length between treatments are in Thom et al. (doi:10.1002/jrsm.1329); contrast-specific evidence paths and per-study contribution are in Papakonstantinou et al. (doi:10.12688/f1000research.14770.3) and shipped as netmeta::netcontrib; component estimability has a signal-flow graph in Li, Shih and Tu (doi:10.1002/jrsm.1623), written in answer to the same complaint this entry makes; and precision-based ranking of the next study design is in Nikolakopoulou et al. (doi:10.1002/sim.6608). The development package cpaic, which lives on GitHub and cannot be installed from CRAN, already computes connectedness, subnetworks, bridging components, component-design rank and null space, per-contrast estimability and contrast-specific edge influence. What is genuinely open is that these diagnostics are not routinely reported in NMA outputs, that articulation and minimal cut-set enumeration are still missing, and that there is no value-of-information machinery for deciding which study's individual data to acquire.
 
 ## Why it is open
 
@@ -42,7 +42,7 @@ The quantities exist in papers and in scattered implementations but not in stand
 
 ## Probable solution or research direction
 
-Make the existing diagnostics routine rather than rebuilding them: bring connectivity, contribution, component estimability and design-precision tools into standard reporting for treatment and component networks, and add what is genuinely missing, articulation and minimal cut-set enumeration and removal vulnerability. Build expected-value-of-information methods on top by specifying the target contrast, population, sampling model, priors and decision utility, so candidate new edges, individual-data acquisitions and bridging studies can be scored by their effect on identification and on the decision. Existing value-of-information work for multi-comparator trial design (doi:10.1007/s40273-024-01372-0) is the natural starting point.
+Make the existing diagnostics routine rather than rebuilding them: bring connectivity, contribution, component estimability and design-precision tools into standard reporting for treatment and component networks, and add what is genuinely missing, articulation and minimal cut-set enumeration. Build expected-value-of-information methods on top by specifying the target contrast, population, sampling model, priors and decision utility, so candidate new edges, individual-data acquisitions and bridging studies can be scored by their effect on identification and on the decision. Existing value-of-information work for multi-comparator trial design (doi:10.1007/s40273-024-01372-0) is the natural starting point.
 
 ## Verification
 
@@ -56,6 +56,19 @@ Make the existing diagnostics routine rather than rebuilding them: bring connect
 **What was wrong with it.** The source listed articulation treatments, minimal bridge sets, null-space dimension, contrast-specific information paths and vulnerability to study removal as computable but not computed. The literature auditor found four published methods covering most of them, one of which ships in netmeta, and GPT-5.6 Sol found rank, null space, bridging components, per-contrast estimability and edge influence already implemented in the unreleased cpaic development package; what survives is routine reporting and value of information for individual-data acquisition.
 
 **Dissent.** grok dissented (supported-with-caveat): Pieces of the agenda already exist; the integrated reporting-and-design stack does not. Value-of-information methods for multi-comparator / network-aware research prioritization and trial design are active (e.g. Heath, Manolopoulou, Baio, Welton, PharmacoEconomics 2024 on VOI when all relevant comparators matter; longer Welton/Ades-style EVSI tradition). That partially substantiates ranking candidate bridging trials or evidence acquisitions by expected information for decision. Graph algorithms can in principle compute articulation points, bridges, and related connectivity; NMA practice already has leave-one-out / influence style checks and geometry plots (netmeta and CINeMA ecosystem). What remains open is the report’s full computable suite as standard output: articulation treatments and components, minimal bridge sets, component-design-matrix null-space dimension, contrast-specific component information paths, IPD-placement centrality, and design scores tied to those quantities. I found no 2024–2026 package release or merged PR that implements that diagnostic battery for treatment and component networks as routine reporting. Design still cannot invent missing likelihood for a contrast.
+
+**Revised by the full-text reading.** Applied 2026-07-26 full-text reading of the consolidated library (687 papers).
+
+Corrected
+:   **statement: corrected a factual claim** netmeta exports netimpact(), which measures a study's importance by the loss of precision when it is removed, citing Rucker et al. 2020. Removal vulnerability has shipped on CRAN for years and does not belong on a list of what is missing.
+    Previously: "Most of the quantities this entry calls computable but not computed are computed and published. Connectivity and minimal path length between treatments are in Thom et al. (doi:10.1002/jrsm.1329); contrast-specific evidence paths and per-study contribution are in Papakonstantinou et al. (doi:10.12688/f1000research.14770.3) and shipped as netmeta::netcontrib; component estimability has a signal-flow graph in Li, Shih and Tu (doi:10.1002/jrsm.1623), written in answer to the same complaint this entry makes; and precision-based ranking of the next study design is in Nikolakopoulou et al. (doi:10.10"
+
+Corrected
+:   **proposed_direction: corrected a factual claim** Same correction as the statement: removal vulnerability is implemented.
+    Previously: "Make the existing diagnostics routine rather than rebuilding them: bring connectivity, contribution, component estimability and design-precision tools into standard reporting for treatment and component networks, and add what is genuinely missing, articulation and minimal cut-set enumeration and removal vulnerability. Build expected-value-of-information methods on top by specifying the target contrast, population, sampling model, priors and decision utility, so candidate new edges, individual-data acquisitions and bridging studies can be scored by their effect on identification and on the deci"
+
+Flagged for reopening
+:   **24 findings from the reading assert this problem is open while the registry carries `overstated`** Flagged, not applied: reversing an earlier audit's closure needs the closure's own evidence re-examined alongside this, which the reading did not do. See documentation/audit/reading/PROPOSED.md.
 
 Literature and prior-art check
 :   **partially-solved / overstated.** Most of the listed 'computable but not computed' quantities are computed, published and shipped. Connectivity, indirect connection and the minimum number of steps between a treatment pair: Thom, White, Welton & Lu, Res Synth Methods 2019;10:113-124 (doi:10.1002/jrsm.1329), with R code and a Stata implementation. Contrast-specific paths of information and vulnerability to removing a study: Papakonstantinou et al., F1000Res 2018;7:610 (doi:10.12688/f1000research.14770.3), the proportion contribution matrix, shipped as netmeta::netcontrib. Component estimability specifically: Li, Shih & Tu, Res Synth Methods 2023;14:596-607 (doi:10.1002/jrsm.1623), a signal-flow graph over components, motivated by the exact complaint in this entry's why_open. Freeman et al. (BMC Med Res Methodol 2023;23:208) add CNMA-UpSet, heat map and circle plots. Design-side: Nikolakopoulou, Mavridis & Salanti (Stat Med 2016;35:219, doi:10.1002/sim.6608) compute which study design and sample size to run next from NMA precision, extended in Trials 2019 (doi:10.1186/s13063-018-2740-2). Genuinely open: null-space dimension reporting, centrality of IPD placement, and formal VOI for IPD acquisition.
@@ -79,11 +92,55 @@ Decision path
 
 :::
 
+## How the evidence falls in time
+
+24 papers in the reviewed corpus bear on this problem, published 2013 to 2024. Partial progress is on the record, and later work still calls this open. Both belong in view.
+
+This problem is **recurrent**: three or more papers spanning at least eight years assert it independently. Sustained restatement by authors who mostly do not cite each other is the strongest evidence this reading can offer that a gap is real rather than one group's framing.
+
+It is also being **closed in pieces**: partial results come from more than one paper in more than one year, each covering a different part.
+
+::: {.table-scroll}
+
+| Year | Says | Paper |
+|---|---|---|
+| 2013 | partly addresses it | Graphical tools for network meta-analysis in STATA |
+| 2014 | partly addresses it | Network-meta analysis made easy: detection of inconsistency using factorial analysis-of-variance models |
+| 2014 | partly addresses it | Visualizing inconsistency in network meta-analysis by independent path decomposition |
+| 2014 | confirms it is open | Bias in identification of the best treatment in a Bayesian network meta-analysis for binary outcome: a simulation study |
+| 2014 | confirms it is open | Reporting of results from network meta-analyses: methodological systematic review |
+| 2015 | partly addresses it | Extending Treatment Networks in Health Technology Assessment: How Far Should We Go? |
+| 2016 | partly addresses it | Continuously updated network meta-analysis and statistical monitoring for timely decision-making |
+| 2016 | partly addresses it | Using the contribution matrix to evaluate complex study limitations in a network meta-analysis: a case study of bipolar maintenance pharmacotherapy review |
+| 2017 | partly addresses it | Multivariate and network meta-analysis of multiple outcomes and multiple treatments: rationale, concepts, and examples |
+| 2017 | confirms it is open | Deriving percentage study weights in multi-parameter meta-analysis models: with application to meta-regression, network meta-analysis and one-stage individual participant data models |
+| 2017 | confirms it is open | The INVEST project: investigating the use of evidence synthesis in the design and analysis of clinical trials |
+| 2018 | partly addresses it | Estimating the contribution of studies in network meta-analysis: paths, flows and streams |
+| 2018 | partly addresses it | Automated methods to test connectedness and quantify indirectness of evidence in network meta-analysis |
+| 2018 | partly addresses it | Quantifying and presenting overall evidence in network meta-analysis |
+| 2018 | confirms it is open | Borrowing of strength from indirect evidence in 40 network meta-analyses |
+| 2018 | confirms it is open | History and publication trends in the diffusion and early uptake of indirect comparison meta-analytic methods to study drugs: animated coauthorship networks over time |
+| 2018 | confirms it is open | Mapping the characteristics of network meta-analyses on drug therapy: A systematic review |
+| 2019 | partly addresses it | Two new approaches for the visualisation of models for network meta-analysis |
+| 2019 | confirms it is open | Description of network meta-analysis geometry: A metrics design study |
+| 2020 | partly addresses it | Degree irregularity and rank probability bias in network meta-analysis |
+| 2020 | partly addresses it | The statistical importance of a study for a network meta-analysis estimate |
+| 2022 | partly addresses it | Network meta-analysis and random walks |
+| 2023 | confirms it is open | Methodological quality of network meta-analysis in dentistry: a meta-research |
+| 2024 | confirms it is open | Graphical Presentations in Systemic Anticancer Treatment Network Meta-Analyses: A Systematic Review |
+
+:::
+
 ## Related problems
 
 ::: {.related-links}
 - [CMP-08 — Identification beyond row-space screens in nonlinear component ML-NMR](CMP-08-identification-beyond-row-space-screens-in-nonlinear-compone.qmd)
 - [DEC-03 — Value of information is not extended to IPD or bridge acquisition](DEC-03-value-of-information-is-not-extended-to-ipd-or-bridge-acquis.qmd)
+- [DEC-17 — Evidence-provenance measures do not propagate heterogeneity uncertainty](DEC-17-evidence-provenance-measures-do-not-propagate-heterogeneity-.qmd)
+- [DEC-26 — Nothing predicts whether a network will beat separate comparisons](DEC-26-nothing-predicts-whether-a-network-will-beat-separate-compar.qmd)
+- [DEC-29 — Ranking metrics reward imprecision and no correction exists](DEC-29-ranking-metrics-reward-imprecision-and-no-correction-exists.qmd)
+- [DIA-21 — Competing contribution measures disagree and none is agreed correct](DIA-21-competing-contribution-measures-disagree-and-none-is-agreed-.qmd)
+- [DIA-25 — Rival study-contribution definitions feed the same certainty rating](DIA-25-rival-study-contribution-definitions-feed-the-same-certainty.qmd)
 - [DIS-10 — multinma's baseline-synthesis bridge is an unmerged pull request](DIS-10-multinma-s-baseline-synthesis-bridge-is-an-unmerged-pull-req.qmd)
 :::
 

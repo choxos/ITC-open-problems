@@ -1,0 +1,77 @@
+---
+title: "Nothing predicts whether a network will beat separate comparisons"
+description: "The choice between a network meta-analysis and a set of separate comparisons against a common comparator is made on the theoretical ground that the network uses more data, not on any criterion evaluated before the models are fitted. The network can add nothing: in a 261-trial, 39,753-patient acute postoperative pain review covering 52 drug and dose combinations, the network and the placebo-anchored Cochrane estimates differed by an average of 0.04 number-needed-to-treat units, with no significant difference for almost all comparisons apart from those with small patient numbers or small effects. It can also make matters worse: across 40 published networks and 915 possible comparisons, 484 (53%) had no direct evidence at all, and among the 181 comparisons informed by a single head-to-head study the network estimate was less precise than the direct estimate for 104 (57.5%), with reliable gains appearing only where at least two head-to-head studies existed. What does not exist is a rule that takes observable features of the assembled evidence, such as the number of head-to-head studies per contrast, loop structure, homogeneity of outcome definition and trial quality, and predicts before fitting whether the network will change a decision. Nor is there a reporting convention requiring both estimates where it will not, although both empirical studies recommend one. The choice is consequential because the network carries transitivity and consistency assumptions across the whole graph that the separate anchored comparisons only partly incur."
+pid: "DEC-26"
+topic: "Decision analysis, regulation & reporting"
+categories: ["Decision analysis, regulation & reporting", "Medium-high priority", "Confirmed open"]
+priority: "Medium-high"
+prank: 3
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Emerging"
+tractability: 4
+---
+::: {.problem-meta}
+[DEC-26]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[Medium-high priority]{.chip .chip-priority-medium-high}
+[Emerging]{.chip .chip-maturity-emerging}
+[Tractability 4/5]{.chip}
+:::
+## Statement
+
+The choice between a network meta-analysis and a set of separate comparisons against a common comparator is made on the theoretical ground that the network uses more data, not on any criterion evaluated before the models are fitted. The network can add nothing: in a 261-trial, 39,753-patient acute postoperative pain review covering 52 drug and dose combinations, the network and the placebo-anchored Cochrane estimates differed by an average of 0.04 number-needed-to-treat units, with no significant difference for almost all comparisons apart from those with small patient numbers or small effects. It can also make matters worse: across 40 published networks and 915 possible comparisons, 484 (53%) had no direct evidence at all, and among the 181 comparisons informed by a single head-to-head study the network estimate was less precise than the direct estimate for 104 (57.5%), with reliable gains appearing only where at least two head-to-head studies existed. What does not exist is a rule that takes observable features of the assembled evidence, such as the number of head-to-head studies per contrast, loop structure, homogeneity of outcome definition and trial quality, and predicts before fitting whether the network will change a decision. Nor is there a reporting convention requiring both estimates where it will not, although both empirical studies recommend one. The choice is consequential because the network carries transitivity and consistency assumptions across the whole graph that the separate anchored comparisons only partly incur.
+
+## Why it is open
+
+The comparison has been answered retrospectively and neither answer transfers: the pain review attributes the agreement after the fact to stringent trial quality criteria and consistent outcome definitions, which are properties visible only once the review is complete. Borrowing of strength is computed from the fitted network, so the quantity that would drive a rule is available after the analysis rather than before it, and turning it into a prediction requires modeling what the network would produce from study counts and graph structure alone. The assumption side cannot be predicted at all, since transitivity and consistency are not testable in sample, so a criterion could at best price the precision half of the trade. Nothing penalizes running the more complex analysis, and only the network yields a ranking, so the incentive runs one way regardless of what the precision comparison would have shown.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Moore et al. 2018, Estimating relative efficacy in acute postoperative pain: network meta-analysis is consistent with indirect comparison to placebo alone, Pain](https://doi.org/10.1097/j.pain.0000000000001322) | Compares a 261-trial, 39,753-patient network across 52 drug and dose combinations with the corresponding placebo-anchored analyses, finds an average difference of 0.04 number-needed-to-treat units, and concludes that neither this network nor other pain networks produced insights beyond what was already known. |
+| [Lin et al. 2019, Borrowing of strength from indirect evidence in 40 network meta-analyses, Journal of Clinical Epidemiology](https://doi.org/10.1016/j.jclinepi.2018.10.007) | Quantifies the incremental precision of network over pairwise analysis in 40 networks and 915 comparisons, finds reduced precision for 104 of 181 comparisons with a single direct study, and recommends that both analyses be reported routinely. |
+| [Jackson et al. 2017, Borrowing of strength and study weights in multivariate and network meta-analysis, Statistical Methods in Medical Research](https://doi.org/10.1177/0962280215611702) | Defines the borrowing of strength statistic that quantifies the gain a network delivers over direct evidence, the quantity a prospective criterion would have to predict. |
+| [Caldwell, Ades and Higgins 2005, Simultaneous comparison of multiple treatments: combining direct and indirect evidence, BMJ](https://doi.org/10.1136/bmj.331.7521.897) | Makes the standing theoretical case for the network over separate comparisons, which is the argument currently used in place of a criterion. |
+| [Song et al. 2009, Methodological problems in the use of indirect comparisons for evaluating healthcare interventions: survey of published systematic reviews, BMJ](https://doi.org/10.1136/bmj.b1147) | Surveys how indirect comparisons are used and misused, establishing that the choice between synthesis strategies is made without a stated rule. |
+| [Thom et al. 2019, Automated methods to test connectedness and quantify indirectness of evidence in network meta-analysis, Research Synthesis Methods](https://doi.org/10.1002/jrsm.1329) | Supplies connectedness tests and indirectness measures computable from the graph before any effect model is fitted, which are the natural inputs to a prospective criterion. |
+| [Ye et al. 2023, When we shouldn't borrow information from an existing network of trials for planning a new trial, Frontiers in Pharmacology](https://doi.org/10.3389/fphar.2023.1157708) | Identifies conditions under which borrowing from a network is inappropriate, the closest existing attempt at a prospective rule, posed for trial planning rather than for choosing the analysis. |
+| [Shourick and Garbayo-Salmons 2026, A tale of two meta-analyses: Similarity, consistency and avoiding overinterpretation in network meta-analysis, Journal of the European Academy of Dermatology and Venereology](https://doi.org/10.1111/jdv.70367) | Shows two syntheses of the same evidence reaching different presentations, illustrating that the analysis choice is consequential even where the underlying trials are fixed. |
+
+:::
+
+## Probable solution or research direction
+
+Build the predictor from quantities available before fitting: direct-study counts per contrast, path lengths, the indirectness measures already computable from the graph, and a prior on heterogeneity, then calibrate it against realized borrowing of strength in a database of published networks such as nmadb. Score the criterion on decision change rather than on precision: for each network in the calibration set, record whether the network and the anchored analysis would have produced the same recommendation, and ask whether the pre-fit features predict that. Make the fallback explicit, so that where the predicted gain is small a report must show both estimates, which is what both empirical studies recommend and no guidance requires. Keep the assumption side separate, since a criterion that predicts a precision gain says nothing about whether transitivity holds; preferring the network should require both a predicted gain and an argument for the assumption, reported as two conditions rather than one.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. One reader proposed this and the reviewer accepted it, noting that the cited review is a strong counterexample to the assumption that a full network necessarily adds decision-relevant information over a common-comparator analysis. The evidence is two empirical studies, both retrospective; neither attempts a prospective criterion and both recommend only that the two analyses be reported side by side.
+
+**Revised by the full-text reading.** Applied 2026-07-26 full-text reading of the consolidated library (687 papers).
+
+Citation corrected
+:   **normalized a citation year: 'Thom et al. 2018, Automated methods to test connectedness and quantify indirectness of evidence in network meta-analysis, Research Synthesis Methods' -> 'Thom et al. 2019, Automated methods to test connectedness and quantify indirectness of evidence in network meta-analysis, Research Synthesis Methods'** 10.1002/jrsm.1329 is cited with two different years across the registry. CrossRef gives 2018 online and 2019 in print; the issue year is used throughout.
+
+Citation corrected
+:   **normalized a citation year: 'Jackson et al. 2015, Borrowing of strength and study weights in multivariate and network meta-analysis, Statistical Methods in Medical Research' -> 'Jackson et al. 2017, Borrowing of strength and study weights in multivariate and network meta-analysis, Statistical Methods in Medical Research'** 10.1177/0962280215611702 is cited with two different years across the registry. CrossRef gives 2015 online and 2017 in print; the issue year is used throughout.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [DEC-24 — Borrowing intensity has no scale that spans sharing mechanisms](DEC-24-borrowing-intensity-has-no-scale-that-spans-sharing-mechanis.qmd)
+- [DEC-27 — No rule says which of three conflicting estimates to use](DEC-27-no-rule-says-which-of-three-conflicting-estimates-to-use.qmd)
+- [IDN-01 — Transitivity and conditional constancy cannot be tested in-sample](IDN-01-transitivity-and-conditional-constancy-cannot-be-tested-in-s.qmd)
+- [EVB-04 — No decision-value method chooses which IPD or bridging trial to get](EVB-04-no-decision-value-method-chooses-which-ipd-or-bridging-trial.qmd)
+- [ADJ-12 — Routine NMA output omits graph diagnostics and value of information](ADJ-12-routine-nma-output-omits-graph-diagnostics-and-value-of-info.qmd)
+:::
+
+## Source
+
+Derived from reading:nma-31 of the reviewed corpus.

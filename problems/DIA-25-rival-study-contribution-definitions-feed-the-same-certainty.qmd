@@ -1,0 +1,69 @@
+---
+title: "Rival study-contribution definitions feed the same certainty rating"
+description: "At least four published measures of how much a study contributes to a network meta-analysis estimate return materially different numbers for the same network: hat-matrix off-diagonals, the flow-based proportion contribution matrix, percentage weights from a Fisher-information decomposition, and variance-reduction importance. The differences are structural rather than estimation error. Importance is a variance ratio conditional on the rest of the network, so it equals 1 for every study that is an essential link and can equal 1 for several studies at once, whereas flow-based contributions divide a fixed 100 percent among studies; where three studies form the only path between two treatments the first returns 1 for each and the second one third for each. In the thrombolytics network the sole trial containing one treatment has importance 1 for the contrast involving that treatment against a 67.13 percent Fisher-information contribution, and percentage contributions summing to 100 percent may not exist for network meta-analysis at all (Rucker et al. 2020, doi:10.1186/s12874-020-01075-y). One of these measures, the proportion contribution matrix, is the weighting with which CINeMA aggregates study-level risk of bias into a per-comparison confidence rating, and netmeta now ships two different contribution constructions side by side. No study establishes which definition is appropriate for that use, and none reports how many confidence ratings change when one definition is substituted for another."
+pid: "DIA-25"
+topic: "Diagnostics & empirical validation"
+categories: ["Diagnostics & empirical validation", "High priority", "Partially addressed"]
+priority: "High"
+prank: 2
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
+maturity: "Established"
+tractability: 5
+---
+::: {.problem-meta}
+[DIA-25]{.problem-id}
+[Partially addressed]{.verdict .verdict-partially-addressed}
+[High priority]{.chip .chip-priority-high}
+[Established]{.chip .chip-maturity-established}
+[Tractability 5/5]{.chip}
+:::
+## Statement
+
+At least four published measures of how much a study contributes to a network meta-analysis estimate return materially different numbers for the same network: hat-matrix off-diagonals, the flow-based proportion contribution matrix, percentage weights from a Fisher-information decomposition, and variance-reduction importance. The differences are structural rather than estimation error. Importance is a variance ratio conditional on the rest of the network, so it equals 1 for every study that is an essential link and can equal 1 for several studies at once, whereas flow-based contributions divide a fixed 100 percent among studies; where three studies form the only path between two treatments the first returns 1 for each and the second one third for each. In the thrombolytics network the sole trial containing one treatment has importance 1 for the contrast involving that treatment against a 67.13 percent Fisher-information contribution, and percentage contributions summing to 100 percent may not exist for network meta-analysis at all (Rucker et al. 2020, doi:10.1186/s12874-020-01075-y). One of these measures, the proportion contribution matrix, is the weighting with which CINeMA aggregates study-level risk of bias into a per-comparison confidence rating, and netmeta now ships two different contribution constructions side by side. No study establishes which definition is appropriate for that use, and none reports how many confidence ratings change when one definition is substituted for another.
+
+## Why it is open
+
+The measures answer different mathematical questions, so no calculation adjudicates between them; picking one is a decision about what contribution should mean when it is used as a weight for a certainty judgment, and that decision has never been posed as a research question. What has been resolved is a different ambiguity: the random-walk construction gives closed-form proportion contributions without the path-selection arbitrariness of the original algorithm, and the path-weight framework then shows that the underlying linear system generally admits infinitely many solutions, of which shortest-path and random-walk are two. Because a substitution changes a rating rather than an estimate, nothing in the analysis looks wrong when the wrong definition is used, and the downstream object has no ground truth against which a definition could be validated. Running the comparison needs a corpus of networks with study-level risk-of-bias judgments attached, which exists inside CINeMA projects but has not been assembled for this purpose.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Rucker et al. 2020, BMC Medical Research Methodology](https://doi.org/10.1186/s12874-020-01075-y) | defines the importance of a study for a contrast as the relative loss of precision when the study is dropped, implements it as netmeta::netimpact(), shows importances systematically exceed Fisher-information percentage contributions, and argues that a breakdown of indirect evidence into percentage contributions summing to 100 may not exist |
+| [Papakonstantinou et al. 2018, F1000Research](https://doi.org/10.12688/f1000research.14770.3) | defines the flow-based proportion contribution matrix by decomposing evidence flow into paths and streams; this is the measure CINeMA uses to propagate study-level risk of bias |
+| [Riley et al. 2018, Statistical Methods in Medical Research](https://doi.org/10.1177/0962280216688033) | derives percentage study weights for multi-parameter models including network meta-analysis from a decomposition of the Fisher information, giving a third and numerically different answer |
+| [Jackson et al. 2017, Statistical Methods in Medical Research](https://doi.org/10.1177/0962280215611702) | gives the borrowing-of-strength statistic, quantifying how much of an estimate's precision comes from evidence other than the direct comparison, a fourth quantity often read as contribution |
+| [Konig et al. 2013, Statistics in Medicine](https://doi.org/10.1002/sim.6001) | builds the evidence flow network from the hat matrix and defines the direct evidence proportion, mean path length and minimal parallelism, the hat-matrix family from which the later measures diverge |
+| [Davies et al. 2022, Statistics in Medicine](https://doi.org/10.1002/sim.9346) | derives closed-form proportion contributions from a random walk on the evidence flow network, removing the path-selection ambiguity of the original algorithm; implemented in netmeta alongside the earlier definition |
+| [Rucker et al. 2024, Statistics in Medicine](https://doi.org/10.1002/sim.10177) | formulates path contributions as a linear system on the path-design matrix, shows shortest-path and random-walk are two special solutions minimizing the sum of absolute path contributions, and shows the general solution set is infinite |
+| [Papakonstantinou et al. 2020, Journal of Clinical Epidemiology](https://doi.org/10.1016/j.jclinepi.2020.04.009) | applies the flow-based contributions across a large sample of published networks, establishing how much of the field's evidence is indirect and how routinely the measure is now used |
+| [Nikolakopoulou et al. 2020, PLOS Medicine](https://doi.org/10.1371/journal.pmed.1003082) | CINeMA, which converts study-level risk of bias into a per-comparison confidence rating using contributions as weights, making the choice of definition consequential for a published judgment |
+
+:::
+
+## Probable solution or research direction
+
+Run the substitution study: take a corpus of published networks with study-level risk-of-bias judgments, compute each candidate contribution measure, propagate each into a CINeMA-style within-study-bias rating, and report how many comparison-level ratings change and in which direction. This is feasible now, since netmeta implements the flow-based and random-walk contributions and netimpact() implements importance, so the experiment is a loop over existing datasets. Then settle the normative question: state what property a measure must have to be a legitimate weight for aggregating study-level bias, for example that a study whose removal leaves the estimate and its variance unchanged receives zero weight, and check which measures satisfy it. Where no measure dominates, report the rating under each definition, or report the range, rather than presenting one rating as the rating.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Partially addressed. One reader proposed it from a single methods paper, and the reviewer accepted that the measures answer different mathematical questions and that the choice becomes consequential once it feeds a CINeMA risk-of-bias judgment. It is partially-addressed rather than open because the path-selection ambiguity within the flow-based family has since been resolved analytically and the admissible solution space characterized; what has not been done is any evaluation of which definition is appropriate for risk-of-bias propagation, or any sensitivity analysis of confidence ratings to the choice.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [ADJ-12 — Routine NMA output omits graph diagnostics and value of information](ADJ-12-routine-nma-output-omits-graph-diagnostics-and-value-of-info.qmd)
+- [CMP-24 — Edge influence is approximate for multi-arm and random effects](CMP-24-edge-influence-is-approximate-for-multi-arm-and-random-effec.qmd)
+- [DEC-08 — No provenance label separates bridged from prior-driven contrasts](DEC-08-no-provenance-label-separates-bridged-from-prior-driven-cont.qmd)
+- [DIA-15 — Coding-error bias, rank reversal and drift calibration go unscored](DIA-15-coding-error-bias-rank-reversal-and-drift-calibration-go-uns.qmd)
+:::
+
+## Source
+
+Derived from reading:nma-26 of the reviewed corpus.

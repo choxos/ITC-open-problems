@@ -1,0 +1,68 @@
+---
+title: "No evidence base or reporting rule governs the heterogeneity versus inconsistency split"
+description: "In a network meta-analysis with random inconsistency effects the excess variation must be apportioned between a between-study heterogeneity variance and an inconsistency variance, and three classical estimators are available to do it: a generalization of DerSimonian and Laird, a generalization of Paule and Mandel, and REML. Which one is used can change the apportionment qualitatively. On a network of nine cognitive enhancers for Alzheimer's dementia with 41 studies, Paule-Mandel returns 0.51 for heterogeneity and 0.91 for inconsistency, REML returns 0.68 and 0.54 with profile-likelihood intervals of (0.31, 1.55) and (0, 2.94), and DerSimonian-Laird returns 1.20 and zero, so the fitted model collapses to the consistency model and produces markedly smaller standard errors for the treatment effects. On an osteoarthritis-of-the-knee network Paule-Mandel returns a heterogeneity variance of 0.35 while DerSimonian-Laird and REML both return 0.18, and the Paule-Mandel value lies above the REML profile-likelihood interval of (0.09, 0.31). REML is nominated as the gold standard and Paule-Mandel as a semiparametric sensitivity analysis, but no simulation or empirical study establishes in which networks the decomposition is estimator-sensitive, and no reporting convention requires the alternatives to be shown. Since an estimated zero inconsistency variance is read in practice as a license to pool, an estimator-dependent zero is a decision-relevant artifact rather than a nuance."
+pid: "HET-14"
+topic: "Heterogeneity, consistency & multi-arm structure"
+categories: ["Heterogeneity, consistency & multi-arm structure", "Medium-high priority", "Partially addressed"]
+priority: "Medium-high"
+prank: 3
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
+maturity: "Established"
+tractability: 4
+---
+::: {.problem-meta}
+[HET-14]{.problem-id}
+[Partially addressed]{.verdict .verdict-partially-addressed}
+[Medium-high priority]{.chip .chip-priority-medium-high}
+[Established]{.chip .chip-maturity-established}
+[Tractability 4/5]{.chip}
+:::
+## Statement
+
+In a network meta-analysis with random inconsistency effects the excess variation must be apportioned between a between-study heterogeneity variance and an inconsistency variance, and three classical estimators are available to do it: a generalization of DerSimonian and Laird, a generalization of Paule and Mandel, and REML. Which one is used can change the apportionment qualitatively. On a network of nine cognitive enhancers for Alzheimer's dementia with 41 studies, Paule-Mandel returns 0.51 for heterogeneity and 0.91 for inconsistency, REML returns 0.68 and 0.54 with profile-likelihood intervals of (0.31, 1.55) and (0, 2.94), and DerSimonian-Laird returns 1.20 and zero, so the fitted model collapses to the consistency model and produces markedly smaller standard errors for the treatment effects. On an osteoarthritis-of-the-knee network Paule-Mandel returns a heterogeneity variance of 0.35 while DerSimonian-Laird and REML both return 0.18, and the Paule-Mandel value lies above the REML profile-likelihood interval of (0.09, 0.31). REML is nominated as the gold standard and Paule-Mandel as a semiparametric sensitivity analysis, but no simulation or empirical study establishes in which networks the decomposition is estimator-sensitive, and no reporting convention requires the alternatives to be shown. Since an estimated zero inconsistency variance is read in practice as a license to pool, an estimator-dependent zero is a decision-relevant artifact rather than a nuance.
+
+## Why it is open
+
+The two components are weakly separated by construction: the inconsistency variance is informed only by the loops, of which a typical network has few, so the likelihood surface has a near-flat ridge along which heterogeneity and inconsistency trade off, and different estimating equations settle at different points on it. The mature evidence on variance estimators, including the comprehensive review of between-study variance methods and the large simulation comparing them, concerns a single variance in pairwise meta-analysis, and the ordering it produces does not transfer to a two-component decomposition where the second component is boundary-prone. The people who generalized the estimators state that the large-scale simulation and empirical investigation needed to turn the observation into guidance is beyond the scope of a methods paper and encourage others to do it, and no one has; the models involved are still uncommon in applied practice, so there is no user base demanding the answer. Guidance would also have to settle what an analyst does when the estimators disagree, which is a reporting question with no natural home in an estimation paper.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Jackson, Veroniki, Law, Tricco and Baker 2017, Research Synthesis Methods](https://doi.org/10.1002/jrsm.1244) | Extends the Paule-Mandel estimator to network meta-analysis with random inconsistency effects, applies all three classical estimators to four networks, documents the qualitative disagreements including a collapse to the consistency model under DerSimonian-Laird, recommends REML as the gold standard with Paule-Mandel as a sensitivity analysis, and states that the simulation and large-scale empirical work needed is beyond its scope. |
+| [Law, Jackson, Turner, Rhodes and Viechtbauer 2016, BMC Medical Research Methodology](https://doi.org/10.1186/s12874-016-0184-5) | Provides the Bayesian importance-sampling route and the REML plus profile-likelihood route for the same two-variance model, including the code used to compute the intervals against which the semiparametric estimates are judged. |
+| [Jackson, Barrett, Rice, White and Higgins 2014, Statistics in Medicine](https://doi.org/10.1002/sim.6188) | Defines the model and the original method-of-moments estimator that the DerSimonian-Laird generalization implements, so it fixes what is being estimated in each component. |
+| [Higgins, Jackson, Barrett, Lu, Ades and White 2012, Research Synthesis Methods](https://doi.org/10.1002/jrsm.1044) | The design-by-treatment interaction model that gives inconsistency its own variance component, and the framework within which the split is defined for multi-arm studies. |
+| [White, Barrett, Jackson and Higgins 2012, Research Synthesis Methods](https://doi.org/10.1002/jrsm.1045) | Estimates the same consistency and inconsistency structure by multivariate meta-regression, giving a fourth estimation route whose behavior in the decomposition has likewise not been compared with the others. |
+| [Veroniki, Jackson, Viechtbauer, Bender, Bowden, Knapp, Kuss, Higgins, Langan and Salanti 2016, Research Synthesis Methods](https://doi.org/10.1002/jrsm.1164) | Reviews the available estimators of the between-study variance and its uncertainty in pairwise meta-analysis and issues recommendations; the univariate template whose conclusions do not settle the two-component case. |
+| [Langan, Higgins, Jackson, Bowden, Veroniki, Kontopantelis, Viechtbauer and Simmonds 2019, Research Synthesis Methods](https://doi.org/10.1002/jrsm.1316) | The large simulation comparing heterogeneity variance estimators in pairwise meta-analysis; the design that the missing network study would extend to a two-variance decomposition. |
+| [Jackson, White and Riley 2013, Biometrical Journal](https://doi.org/10.1002/bimj.201200152) | The matrix-based method of moments for multivariate random-effects meta-analysis and meta-regression that the network DerSimonian-Laird estimator generalizes, which is where its boundary behavior originates. |
+
+:::
+
+## Probable solution or research direction
+
+Run the simulation that was deferred: vary the number of designs, the number of independent loops, the replication within designs, and the true pair of variances including boundary cases where one is zero, and report for each estimator the bias in each component, the frequency of a spurious zero inconsistency variance, the coverage of the treatment-effect intervals that follow, and how often the three estimators disagree about whether inconsistency is present. Pair it with an empirical pass over a database of published networks reporting how often the three disagree about a zero and how far the treatment-effect standard errors move when they do. Turn the result into a reporting rule rather than a single recommendation, since the informative output is whether the pooling decision is invariant to the estimator: report all three decompositions, or report REML with a profile-likelihood interval for the inconsistency variance so that a zero is presented with its uncertainty instead of as a point. Extending profile-likelihood or bootstrap intervals to the semiparametric estimators is the enabling step, since at present only the likelihood route can attach an interval to either component.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Partially addressed. One reader proposed this and the reviewer accepted it because alternative standard estimators demonstrably change the decomposition and the resulting uncertainty. It is scored partially-addressed rather than confirmed-open because a weak ordering does exist, REML as gold standard with Paule-Mandel as a semiparametric sensitivity analysis, and the estimator-comparison literature for a single variance is mature; what is absent is any evidence on the two-variance decomposition and any convention for reporting sensitivity to the choice.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [HET-13 — No corpus-derived prior distributions exist for the NMA inconsistency variance](HET-13-no-corpus-derived-prior-distributions-exist-for-the-nma-inco.qmd)
+- [HET-19 — Node splitting reports one arbitrary member of a family of multi-arm parameterizations](HET-19-node-splitting-reports-one-arbitrary-member-of-a-family-of-m.qmd)
+- [HET-03 — Single shared heterogeneity variance across classes and populations](HET-03-single-shared-heterogeneity-variance-across-classes-and-popu.qmd)
+- [HET-16 — Exchangeable and comparison-specific heterogeneity priors are blocked by the covariance constraint](HET-16-exchangeable-and-comparison-specific-heterogeneity-priors-ar.qmd)
+:::
+
+## Source
+
+Derived from reading:nma-35 of the reviewed corpus.

@@ -1,0 +1,68 @@
+---
+title: "Shifted-null margins are not calibrated to residual adjustment bias"
+description: "European joint clinical assessment guidance directs that a population-adjusted indirect comparison be judged against a null shifted away from no effect, so the result counts only if the whole interval clears the shifted threshold, and the shift is intended to absorb residual bias from unmeasured effect modification. Nothing connects the margin to the bias it stands for. No method derives it from the plausible magnitude of modifier imbalance, from which covariates were left unadjusted, from the effective sample size or covariate overlap achieved, or from the effect scale on which the comparison is reported. No benchmark values exist and threshold setting is left to individual member states, so the same analysis can clear the hurdle in one jurisdiction and fail in another; a developer is expected to defend a clinically meaningful threshold such as a 10% relative risk reduction with no standard to defend it against. The requirement therefore converts an unquantified assumption into a numerical hurdle whose value nobody can justify, which is the failure mode a bias analysis exists to prevent. What is missing is a mapping from a stated assumption violation to a margin on the reported scale, together with decision operating characteristics for the shifted-null rule against the tipping-point and quantitative bias analysis alternatives it is being used in place of."
+pid: "QBA-31"
+topic: "Quantitative bias analysis for unanchored PAIC"
+categories: ["Quantitative bias analysis for unanchored PAIC", "Very high priority", "Confirmed open"]
+priority: "Very high"
+prank: 1
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Emerging"
+tractability: 4
+---
+::: {.problem-meta}
+[QBA-31]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[Very high priority]{.chip .chip-priority-very-high}
+[Emerging]{.chip .chip-maturity-emerging}
+[Tractability 4/5]{.chip}
+:::
+## Statement
+
+European joint clinical assessment guidance directs that a population-adjusted indirect comparison be judged against a null shifted away from no effect, so the result counts only if the whole interval clears the shifted threshold, and the shift is intended to absorb residual bias from unmeasured effect modification. Nothing connects the margin to the bias it stands for. No method derives it from the plausible magnitude of modifier imbalance, from which covariates were left unadjusted, from the effective sample size or covariate overlap achieved, or from the effect scale on which the comparison is reported. No benchmark values exist and threshold setting is left to individual member states, so the same analysis can clear the hurdle in one jurisdiction and fail in another; a developer is expected to defend a clinically meaningful threshold such as a 10% relative risk reduction with no standard to defend it against. The requirement therefore converts an unquantified assumption into a numerical hurdle whose value nobody can justify, which is the failure mode a bias analysis exists to prevent. What is missing is a mapping from a stated assumption violation to a margin on the reported scale, together with decision operating characteristics for the shifted-null rule against the tipping-point and quantitative bias analysis alternatives it is being used in place of.
+
+## Why it is open
+
+The margin is fixed before any model is fitted and outside the analysis that produces the estimate, so no estimator can price it; it is a policy parameter bolted onto a statistical output, and nothing in the estimation machinery has a place to put it. Deriving one requires committing to a model for the residual imbalance, naming which modifiers remain unadjusted, how large their imbalance is and how they covary, and that model is precisely what is unavailable, since the covariates driving residual bias are by construction the unmeasured ones. The induced bias is scale-dependent, and on the odds-ratio and hazard-ratio scales it interacts with non-collapsibility, so one number cannot be carried between scales or between contrasts, while the guidance sets a scalar. The requirement is already binding on submissions, which creates pressure to argue a margin down case by case rather than to derive one, and delegating the value to member states removes any single body's incentive to fund a common derivation. Two independent 2026 reviews of the guidance reach the same conclusion and neither can point to any calibration literature to cite.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Aballéa et al. 2026, Between Rigor and Relevance: Why the EU HTA Guidelines on Indirect Comparisons Miss the Mark, Journal of Market Access & Health Policy 14(2):30](https://doi.org/10.3390/jmahp14020030) | critical review of the EU HTA Coordination Group guidelines on direct and indirect comparisons; identifies shifted null hypothesis testing among the substantial new operational requirements for health technology developers and states that the clinically meaningful threshold must be defended without a standard benchmark, leaving room for inconsistent assessments across member states |
+| [Parkitny, Aballéa, Wojciechowski and Toumi 2026, Can We Trust PAICs in Rare Diseases? Methodological Challenges and Limitations, Journal of Market Access & Health Policy 14(1):14](https://doi.org/10.3390/jmahp14010014) | reaches the same conclusion from the rare-disease side, where small samples and limited overlap make residual bias largest, and calls for formal frameworks to quantify bias and systematically assess robustness rather than for a threshold; it identifies the absence of guidance relating shift margins to the expected magnitude of bias and supplies none |
+| [Phillippo, Dias, Ades and Welton 2020, Assessing the performance of population adjustment methods for anchored indirect comparisons: A simulation study, Statistics in Medicine 39(30):4885-4911](https://doi.org/10.1002/sim.8759) | quantifies the bias in anchored population-adjusted comparisons under omitted effect modifiers and imbalance across a simulation grid; this is the quantity a margin would have to represent, but the results are reported as method performance rather than converted into a decision threshold |
+| [Remiro-Azócar, Heath and Baio 2021, Methods for population adjustment with limited access to individual patient data: A review and simulation study, Research Synthesis Methods 12(6):750-775](https://doi.org/10.1002/jrsm.1511) | measures how far population-adjustment estimators move under covariate overlap failure and misspecification, giving empirical magnitudes for residual bias as a function of overlap that a margin could be anchored to |
+| [Ding and VanderWeele 2016, Sensitivity Analysis Without Assumptions, Epidemiology 27(3):368-377](https://doi.org/10.1097/EDE.0000000000000457) | gives assumption-free bounds mapping the strength of an unmeasured confounder into a multiplicative bias factor on the risk-ratio scale; it is the general machinery a margin derivation would instantiate, stated for confounding rather than for effect-modifier imbalance in a population-adjusted contrast |
+| [VanderWeele and Ding 2017, Sensitivity Analysis in Observational Research: Introducing the E-Value, Annals of Internal Medicine 167(4):268-274](https://doi.org/10.7326/M16-2607) | runs the mapping in the direction a committee can act on, converting an estimate and its interval into the minimum unmeasured association that would explain it away; the population-adjusted analogue, the smallest residual modifier imbalance that would erase a transported effect, has not been derived |
+| [Skipka, Wieseler, Kaiser, Thomas, Bender, Windeler and Lange 2016, Methodological approach to determine minor, considerable, and major treatment effects in the early benefit assessment of new drugs, Biometrical Journal 58(1):43-58](https://doi.org/10.1002/bimj.201300274) | the existing worked example of a jurisdiction deriving decision thresholds on a relative effect scale and defending them explicitly; the derivation is anchored to effect magnitude and outcome severity rather than to a bias allowance, which is the transferable part and the missing part respectively |
+
+:::
+
+## Probable solution or research direction
+
+Derive the mapping: for a stated model of residual modifier imbalance, a set of unadjusted modifiers with their standardized differences between source and target and their interaction coefficients, compute the induced bias in the anchored population-adjusted contrast on each reported scale, then define the margin as a quantile of that induced bias under a declared distribution over the imbalance parameters. Anchor those imbalance parameters empirically rather than by assertion, using the distribution of measured modifier imbalances and interaction sizes across published trial pairs in the therapeutic area as the reference for what an unmeasured one plausibly looks like. Report the inverse alongside the margin, namely the smallest residual imbalance that would erase the observed effect, so an appraisal committee judges plausibility of an imbalance rather than the arithmetic of a threshold. Settle the decision operating characteristics by simulation, reporting the false-negative rate for genuinely effective treatments and the false-positive rate under stated bias, for the shifted-null rule against tipping-point analysis and probabilistic bias analysis, across overlap and effective-sample-size regimes. Publish reference margins by effect scale, therapeutic area and design so member states start from a common derivation and any departure is an explicit policy choice rather than an unexamined one.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. One reader proposed this, with a single review as the primary evidence and a second independent 2026 review reaching the same conclusion; the reviewer accepted it on the ground that a shifted decision threshold meant to represent residual bias needs a defensible mapping from plausible assumption violations to the reported effect scale. Neither review can cite any calibration literature, and none was found.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [QBA-17 — Partial identification and robust decision regions for HTA](QBA-17-partial-identification-and-robust-decision-regions-for-hta.qmd)
+- [QBA-25 — Decision QBA: net benefit, tipping surfaces and extrapolation](QBA-25-decision-qba-net-benefit-tipping-surfaces-and-extrapolation.qmd)
+- [QBA-27 — Prespecification and outcome-driven choice of sensitivity ranges](QBA-27-prespecification-and-outcome-driven-choice-of-sensitivity-ra.qmd)
+- [QBA-29 — No agreed parameterization or format for unanchored PAIC sensitivity](QBA-29-no-agreed-parameterization-or-format-for-unanchored-paic-sen.qmd)
+- [DEC-12 — Nothing requires showing how far a conclusion is assumption-driven](DEC-12-nothing-requires-showing-how-far-a-conclusion-is-assumption-.qmd)
+:::
+
+## Source
+
+Derived from reading:core-01 of the reviewed corpus.

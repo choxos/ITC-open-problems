@@ -1,0 +1,68 @@
+---
+title: "No reference distribution says when inconsistency is large"
+description: "Network meta-analysis reports an estimated inconsistency parameter, or a set of loop and node-splitting discrepancies, with no reference distribution or effect-scale threshold that says whether an estimate of a given size is negligible, moderate or decision-relevant. Presence or absence is therefore decided by whether the discrepancy's interval excludes zero, a test whose power depends on how much direct and indirect information the loop carries rather than on the size of the discrepancy, so a large discrepancy in a sparse loop is declared absent while a trivial one in a dense loop is declared present. The heterogeneity analogue exists and is used routinely: empirical predictive distributions for the between-study variance by outcome type and clinical area (Turner et al. 2012, doi:10.1093/ije/dys041; Rhodes et al. 2015) let an analyst call an estimate low or substantial, and one such distribution supplied the thresholds of 0.28 on the log odds ratio scale and 0.17 on the standardized mean difference scale used to judge robustness in 107 pairwise and 33 network analyses (Spineli et al. 2021, doi:10.1186/s12916-021-02195-y). Nothing equivalent has been assembled for inconsistency. The empirical record reports prevalence rather than magnitude: 2 to 9 percent of 303 loops in 40 published networks were statistically inconsistent depending on effect measure and heterogeneity estimator, and 16 of 112 trial networks showed statistically significant direct-versus-indirect disagreement. CINeMA supplies the decision half by asking whether direct and indirect estimates differ enough to change a conclusion relative to a user-specified range of equivalence, but that range is elicited case by case and no calibration relates a discrepancy of a given size to a probability of a wrong recommendation."
+pid: "DIA-24"
+topic: "Diagnostics & empirical validation"
+categories: ["Diagnostics & empirical validation", "High priority", "Partially addressed"]
+priority: "High"
+prank: 2
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
+maturity: "Promising"
+tractability: 4
+---
+::: {.problem-meta}
+[DIA-24]{.problem-id}
+[Partially addressed]{.verdict .verdict-partially-addressed}
+[High priority]{.chip .chip-priority-high}
+[Promising]{.chip .chip-maturity-promising}
+[Tractability 4/5]{.chip}
+:::
+## Statement
+
+Network meta-analysis reports an estimated inconsistency parameter, or a set of loop and node-splitting discrepancies, with no reference distribution or effect-scale threshold that says whether an estimate of a given size is negligible, moderate or decision-relevant. Presence or absence is therefore decided by whether the discrepancy's interval excludes zero, a test whose power depends on how much direct and indirect information the loop carries rather than on the size of the discrepancy, so a large discrepancy in a sparse loop is declared absent while a trivial one in a dense loop is declared present. The heterogeneity analogue exists and is used routinely: empirical predictive distributions for the between-study variance by outcome type and clinical area (Turner et al. 2012, doi:10.1093/ije/dys041; Rhodes et al. 2015) let an analyst call an estimate low or substantial, and one such distribution supplied the thresholds of 0.28 on the log odds ratio scale and 0.17 on the standardized mean difference scale used to judge robustness in 107 pairwise and 33 network analyses (Spineli et al. 2021, doi:10.1186/s12916-021-02195-y). Nothing equivalent has been assembled for inconsistency. The empirical record reports prevalence rather than magnitude: 2 to 9 percent of 303 loops in 40 published networks were statistically inconsistent depending on effect measure and heterogeneity estimator, and 16 of 112 trial networks showed statistically significant direct-versus-indirect disagreement. CINeMA supplies the decision half by asking whether direct and indirect estimates differ enough to change a conclusion relative to a user-specified range of equivalence, but that range is elicited case by case and no calibration relates a discrepancy of a given size to a probability of a wrong recommendation.
+
+## Why it is open
+
+Building the reference distribution requires a corpus of networks with comparable outcome definitions and loops of comparable information, and the discrepancy estimated in any one loop is imprecise, so the observed spread of realized discrepancies is confounded with their sampling error; separating the two needs a hierarchical model across networks rather than a tabulation. An inconsistency of a given size also carries no fixed decision meaning, since whether it matters depends on the contrast, the effect scale, the competing treatments and the decision threshold, so a universal cutoff is the wrong object and a decision-indexed criterion needs the economic model that the synthesis does not contain. The test-based habit is self-reinforcing: software prints p-values for node splitting and for the design-by-treatment interaction, and nothing prints an effect-scale comparator. Because inconsistency is a property of a loop rather than of a study, a magnitude judged meaningful for one contrast cannot simply be carried to another contrast in the same network.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Spineli et al. 2021, BMC Medicine](https://doi.org/10.1186/s12916-021-02195-y) | builds a divergence-based robustness index for missing outcome data and calibrates it against an empirical heterogeneity distribution, then names the inconsistency case as the outstanding one, stating that no recommendations exist for interpreting the estimated inconsistency parameter and that analysts consequently rely on its statistical significance |
+| [Turner et al. 2012, International Journal of Epidemiology](https://doi.org/10.1093/ije/dys041) | derives empirical predictive distributions for between-study heterogeneity from the Cochrane database, indexed by outcome type and intervention comparison; the construction an inconsistency analogue would copy |
+| [Rhodes et al. 2015, Journal of Clinical Epidemiology](https://doi.org/10.1016/j.jclinepi.2014.08.012) | supplies the same empirical predictive distributions for continuous outcomes on the standardized mean difference scale |
+| [Turner et al. 2019, Statistics in Medicine](https://doi.org/10.1002/sim.8044) | carries external empirical evidence on heterogeneity into network meta-analysis, demonstrating that the borrowing of an empirical reference distribution into the network setting is feasible; no counterpart exists for the inconsistency variance |
+| [Veroniki et al. 2013, International Journal of Epidemiology](https://doi.org/10.1093/ije/dys222) | evaluates 303 loops from 40 published networks and reports statistical inconsistency in 2 to 9 percent of loops depending on effect measure and heterogeneity estimator, a prevalence rather than a distribution of magnitudes |
+| [Song et al. 2011, BMJ](https://doi.org/10.1136/bmj.d4909) | measures inconsistency as the difference in log odds ratio between direct and indirect estimates across 112 independent trial networks and reports statistically significant disagreement in 16 of them, the closest existing empirical basis for a reference distribution |
+| [Veroniki et al. 2014, BMC Medical Research Methodology](https://doi.org/10.1186/1471-2288-14-106) | shows by simulation which loop characteristics drive detection and estimation of inconsistency, establishing that the significance verdict tracks loop information rather than discrepancy size |
+| [Nikolakopoulou et al. 2020, PLOS Medicine](https://doi.org/10.1371/journal.pmed.1003082) | CINeMA, whose incoherence domain compares direct and indirect estimates against a user-specified range of equivalence and against the significance of their difference; the decision framework exists but the range is supplied case by case and no empirical reference is provided |
+
+:::
+
+## Probable solution or research direction
+
+Assemble the empirical half first: refit a large corpus of published networks, estimate loop and design-by-treatment discrepancies with their uncertainty, and fit a hierarchical model across networks that separates realized inconsistency from sampling error, reported by outcome type, effect measure and clinical area. Publish the resulting predictive distributions the way heterogeneity priors are published, so an analyst can state where an estimated discrepancy sits among discrepancies observed in comparable networks, and so that a Bayesian analysis can use them as priors on the inconsistency variance. Anchor the decision half separately: for a given network compute the discrepancy that would flip the recommended treatment or move incremental net benefit past its threshold, and report the estimate against that quantity rather than against zero. Both halves are computable from existing collections of published network datasets, and both belong in the software output that currently prints only a p-value.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Partially addressed. One reader proposed it from a single paper, and the reviewer accepted it as distinct from whether inconsistency can be detected and from whether transitivity is identifiable, since it concerns the magnitude and decision relevance of a detected discrepancy. It is partially-addressed rather than open because CINeMA already asks whether a direct-versus-indirect discrepancy matters relative to a declared range of equivalence and two meta-epidemiological studies report how often inconsistency is detected; what is absent is a magnitude reference distribution and any calibration from discrepancy size to decision error.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [DIA-03 — PAIC diagnostics are not evaluated as classifiers of realized error](DIA-03-paic-diagnostics-are-not-evaluated-as-classifiers-of-realize.qmd)
+- [DIA-26 — No validated diagnostic localizes inconsistency to a design](DIA-26-no-validated-diagnostic-localizes-inconsistency-to-a-design.qmd)
+- [HET-04 — Node splitting compares paths without standardizing to a target](HET-04-node-splitting-compares-paths-without-standardizing-to-a-tar.qmd)
+- [IDN-01 — Transitivity and conditional constancy cannot be tested in-sample](IDN-01-transitivity-and-conditional-constancy-cannot-be-tested-in-s.qmd)
+:::
+
+## Source
+
+Derived from reading:nma-21 of the reviewed corpus.

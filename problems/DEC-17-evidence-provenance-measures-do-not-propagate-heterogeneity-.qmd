@@ -1,0 +1,67 @@
+---
+title: "Evidence-provenance measures do not propagate heterogeneity uncertainty"
+description: "Every measure now used to attribute a network estimate to its sources is computed with the between-study variance and any residual variances fixed at their point estimates: the proportion contribution matrix built from the hat matrix, percentage study weights, the borrowing-of-strength statistic, the pseudo-path and leave-one-out contribution measures for component networks, and edge-influence calculations in population-adjusted work. Riley et al. 2018, deriving percentage study weights for multi-parameter meta-analysis models, state the omission outright: the derivation ignores uncertainty in variance parameter estimates and assumes the information matrix for the mean parameters is independent of that for the residual and between-study variances, with variance components held fixed at their full-model values when the per-study information matrices are formed, and further consideration of the issue is needed. The reported provenance of a contrast is therefore a conditional quantity whose own uncertainty is neither propagated nor reported, and nothing is known about how far the attributed shares move across the plausible range of tau. That matters because tau is typically estimated from a handful of studies and is itself very imprecise, and because contribution figures are decision-relevant outputs rather than descriptions: they drive per-comparison certainty judgments in CINeMA and are used to justify excluding or downweighting a dominant study. No interval, no sensitivity curve and no reporting convention exists for a contribution percentage."
+pid: "DEC-17"
+topic: "Decision analysis, regulation & reporting"
+categories: ["Decision analysis, regulation & reporting", "Medium-high priority", "Confirmed open"]
+priority: "Medium-high"
+prank: 3
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Promising"
+tractability: 4
+---
+::: {.problem-meta}
+[DEC-17]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[Medium-high priority]{.chip .chip-priority-medium-high}
+[Promising]{.chip .chip-maturity-promising}
+[Tractability 4/5]{.chip}
+:::
+## Statement
+
+Every measure now used to attribute a network estimate to its sources is computed with the between-study variance and any residual variances fixed at their point estimates: the proportion contribution matrix built from the hat matrix, percentage study weights, the borrowing-of-strength statistic, the pseudo-path and leave-one-out contribution measures for component networks, and edge-influence calculations in population-adjusted work. Riley et al. 2018, deriving percentage study weights for multi-parameter meta-analysis models, state the omission outright: the derivation ignores uncertainty in variance parameter estimates and assumes the information matrix for the mean parameters is independent of that for the residual and between-study variances, with variance components held fixed at their full-model values when the per-study information matrices are formed, and further consideration of the issue is needed. The reported provenance of a contrast is therefore a conditional quantity whose own uncertainty is neither propagated nor reported, and nothing is known about how far the attributed shares move across the plausible range of tau. That matters because tau is typically estimated from a handful of studies and is itself very imprecise, and because contribution figures are decision-relevant outputs rather than descriptions: they drive per-comparison certainty judgments in CINeMA and are used to justify excluding or downweighting a dominant study. No interval, no sensitivity curve and no reporting convention exists for a contribution percentage.
+
+## Why it is open
+
+Contribution measures are functions of a weight matrix that itself depends on the estimated variance components, so their sampling distribution is a nonlinear function of a variance estimate whose own distribution is skewed and badly approximated when the number of studies is small; a delta-method interval would be deployed exactly where the delta method is least trustworthy. The obvious alternatives are expensive or unavailable: a nonparametric bootstrap has to refit the whole network and re-estimate tau for every replicate, and in the Bayesian setting there is no analogue of the hat matrix, so the flow-based machinery cannot simply be evaluated draw by draw without first being redefined. There is also no agreed target quantity: it is unsettled whether what should be reported is the contribution at the estimated tau, its posterior distribution, or its range over a plausible tau interval, and the three license different statements to a committee. And because contributions are read as descriptive summaries rather than as estimates, nobody has felt obliged to attach uncertainty to them, so the omission has propagated from the original derivation into every measure built on top of it.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Riley, Ensor, Jackson and Burke 2018, Deriving percentage study weights in multi-parameter meta-analysis models, Statistical Methods in Medical Research 27:2885-2905](https://doi.org/10.1177/0962280216688033) | Derives percentage study weights for meta-regression, network meta-analysis and one-stage individual participant data models by decomposing Fisher's information for the mean parameters, with variance components held fixed. States explicitly that the derivation ignores uncertainty in variance parameter estimates and that further consideration of the issue is needed. |
+| [Jackson, White, Price, Copas and Riley 2017, Borrowing of strength and study weights in multivariate and network meta-analysis, Statistical Methods in Medical Research 26:2853-2868](https://doi.org/10.1177/0962280215611702) | Defines the borrowing-of-strength statistic as the percentage reduction in the variance of a summary result attributable to indirect or correlated evidence. It is computed from the same fitted variance components and inherits the same conditioning. |
+| [Papakonstantinou et al. 2018, Estimating the contribution of studies in network meta-analysis: paths, flows and streams, F1000Research 7:610](https://doi.org/10.12688/f1000research.14770.3) | Builds the proportion contribution matrix from the hat matrix, whose entries depend on the degree of between-study heterogeneity. Notes that no analogue of the hat matrix exists in a Bayesian network meta-analysis, which is why a per-draw version of the measure is not simply available. |
+| [Rucker et al. 2020, The statistical importance of a study for a network meta-analysis estimate, BMC Medical Research Methodology 20](https://doi.org/10.1186/s12874-020-01075-y) | Defines per-study importance as the variance reduction from adding a study, uniquely defined and easily calculated for one-stage and two-stage models. It is exact given the variance components and silent about their uncertainty. |
+| [Nikolakopoulou et al. 2020, CINeMA: An approach for assessing confidence in the results of a network meta-analysis, PLOS Medicine 17:e1003082](https://doi.org/10.1371/journal.pmed.1003082) | Uses contribution percentages as the input to per-comparison certainty judgments, which is the mechanism by which the unreported conditionality reaches a decision. |
+| [Mao et al. 2025, A leave-one-out algorithm for contribution analysis in component network meta-analysis, BMC Medical Research Methodology 25](https://doi.org/10.1186/s12874-025-02619-w) | Computes component-effect contribution as normalized variance inflation under deletion of each direct comparison, at a single fitted heterogeneity value. The newest members of this family inherit the same conditioning. |
+| [Yang et al. 2026, Evidence contributions in component network meta-analysis from the shortest-path approach, BMC Medical Research Methodology 26](https://doi.org/10.1186/s12874-026-02766-8) | Computes component-effect contribution as flow over pseudo-paths derived from the component-level hat matrix, which depends on the fitted between-study variance in the same way the treatment-level hat matrix does. |
+
+:::
+
+## Probable solution or research direction
+
+Start with the sensitivity question, which needs no new theory and settles whether the rest is worth doing: recompute the contribution matrix, the percentage study weights and the borrowing-of-strength statistic across the confidence or credible interval for tau in a set of published networks, and report how often the identity of the top contributing comparison changes and how far individual shares move. For inference, extend the information-matrix decomposition to include the block for the variance parameters rather than assuming independence between it and the block for the mean parameters, and benchmark the resulting intervals against a parametric bootstrap that re-estimates tau in each replicate. For Bayesian fits, define contribution per posterior draw through a draw-specific weight matrix, which delivers a posterior distribution for the contribution directly and gives the component-network measures an interval at the same time. Then require contribution tables used in certainty assessment to carry an interval, or an explicit statement that they are conditional on a single heterogeneity estimate, in the same way that effect estimates are required to carry one.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. One reader proposed this and the reviewer accepted it, noting that the quoted derivation names the ignored variance-parameter uncertainty itself and that provenance measures can be decision-relevant outputs rather than descriptive calculations. The evidence is a single methods paper; what carries it beyond that is that the same conditioning is visible in each of the other contribution measures named here, none of which reports uncertainty in its shares.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [DEC-08 — No provenance label separates bridged from prior-driven contrasts](DEC-08-no-provenance-label-separates-bridged-from-prior-driven-cont.qmd)
+- [CMP-24 — Edge influence is approximate for multi-arm and random effects](CMP-24-edge-influence-is-approximate-for-multi-arm-and-random-effec.qmd)
+- [CMP-35 — No unique definition of evidence contribution for component estimates](CMP-35-no-unique-definition-of-evidence-contribution-for-component-.qmd)
+- [ADJ-12 — Routine NMA output omits graph diagnostics and value of information](ADJ-12-routine-nma-output-omits-graph-diagnostics-and-value-of-info.qmd)
+:::
+
+## Source
+
+Derived from reading:nma-34 of the reviewed corpus.

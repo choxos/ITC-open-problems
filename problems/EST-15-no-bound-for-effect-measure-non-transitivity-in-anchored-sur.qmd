@@ -1,0 +1,70 @@
+---
+title: "No bound for effect-measure non-transitivity in anchored survival comparisons"
+description: "An anchored indirect comparison presumes that the chosen effect measure is statistically transitive, so that the common comparator cancels and the A versus B effect equals the A versus C effect minus the B versus C effect on that scale. The Cox hazard ratio does not have this property in general: it holds in expectation if and only if hazards are proportional across all three arms, because each pairwise Cox fit conditions on its own nuisance baseline hazard, so the anchor does not cancel. This is a third identification requirement alongside comparator comparability and effect-modifier balance, and it bites when the two trial populations are identical and the comparator drug is the same, which places it outside every population-adjustment remedy. A simulated three-arm case with 2000 patients per arm produces a direct hazard ratio of 0.896 (95% CI 0.840 to 0.956) favoring one drug and an indirect hazard ratio of 1.296 (95% CI 1.117 to 1.440) favoring the other, so the sign of the comparison reverses and the answer depends on which treatment serves as the anchor. What does not exist is a bound or sensitivity parameter for the magnitude of the non-transitivity bias in a given analysis, a procedure that estimates it from the digitized comparator survival curve and reported follow-up, or any account of how it interacts with reweighting in a population-adjusted comparison."
+pid: "EST-15"
+topic: "Estimands & target populations"
+categories: ["Estimands & target populations", "Very high priority", "Confirmed open"]
+priority: "Very high"
+prank: 1
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Promising"
+tractability: 3
+---
+::: {.problem-meta}
+[EST-15]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[Very high priority]{.chip .chip-priority-very-high}
+[Promising]{.chip .chip-maturity-promising}
+[Tractability 3/5]{.chip}
+:::
+## Statement
+
+An anchored indirect comparison presumes that the chosen effect measure is statistically transitive, so that the common comparator cancels and the A versus B effect equals the A versus C effect minus the B versus C effect on that scale. The Cox hazard ratio does not have this property in general: it holds in expectation if and only if hazards are proportional across all three arms, because each pairwise Cox fit conditions on its own nuisance baseline hazard, so the anchor does not cancel. This is a third identification requirement alongside comparator comparability and effect-modifier balance, and it bites when the two trial populations are identical and the comparator drug is the same, which places it outside every population-adjustment remedy. A simulated three-arm case with 2000 patients per arm produces a direct hazard ratio of 0.896 (95% CI 0.840 to 0.956) favoring one drug and an indirect hazard ratio of 1.296 (95% CI 1.117 to 1.440) favoring the other, so the sign of the comparison reverses and the answer depends on which treatment serves as the anchor. What does not exist is a bound or sensitivity parameter for the magnitude of the non-transitivity bias in a given analysis, a procedure that estimates it from the digitized comparator survival curve and reported follow-up, or any account of how it interacts with reweighting in a population-adjusted comparison.
+
+## Why it is open
+
+The condition that would license the anchored subtraction is proportionality across all three arms jointly, and in the usual data configuration the third arm is never observed alongside the other two: the comparator trial publishes a hazard ratio and at best a Kaplan-Meier curve, so the cross-trial proportionality that matters cannot be tested. Where a proportional-hazards test can be run at all it is underpowered, so failing to reject is not evidence of transitivity. The remedy the literature offers is to change measure, to a difference in restricted mean survival time or in absolute survival probability, which does not help when the decision requires a hazard ratio as an input to an extrapolation or when the comparator publishes nothing else. Bounding the bias needs a class of departures from proportionality that is both parameterized and pinned down by what gets published, and the natural candidates such as an arbitrary time-varying log hazard ratio are not identified from a single reported summary. The failure is also invisible in standard output: each pairwise Cox fit is internally well behaved, and no diagnostic in the anchored workflow inspects whether the anchor cancels.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Jiang et al. 2025, Research Synthesis Methods](https://doi.org/10.1017/rsm.2025.10059) | Proves that statistical transitivity of the Cox hazard ratio holds if and only if hazards are proportional across all arms, exhibits a simulated three-arm case in which the direct and indirect comparisons have opposite signs, and recommends switching to a transitive measure; concedes the enabling condition is untestable in the usual configuration. |
+| [Bucher et al. 1997, Journal of Clinical Epidemiology](https://doi.org/10.1016/S0895-4356(97)00049-8) | The adjusted indirect comparison whose validity rests on the assumed algebraic cancellation of the common comparator; the estimator whose scale requirement this problem names. |
+| [Hernan 2010, Epidemiology](https://doi.org/10.1097/EDE.0b013e3181c1ea43) | Shows that a hazard ratio at any time conditions on survivors, so it carries a built-in selection component and varies over time even under randomization; the mechanism that makes the Cox coefficient a fit-specific summary. |
+| [Aalen, Cook and Roysland 2015, Lifetime Data Analysis](https://doi.org/10.1007/s10985-015-9335-y) | Demonstrates that Cox analysis of a randomized survival study does not in general return a causal treatment effect, because frailty selection in the risk set makes the hazard contrast depend on the accumulated history. |
+| [Martinussen, Vansteelandt and Andersen 2020, Lifetime Data Analysis](https://doi.org/10.1007/s10985-020-09501-5) | Formal account of what hazard contrasts identify and why they are not causal contrasts in a fixed population; the theory a bias functional for non-transitivity would build on. |
+| [Daniel, Zhang and Farewell 2021, Biometrical Journal](https://doi.org/10.1002/bimj.201900297) | Sets out the consequences of comparing non-collapsible effect estimators fitted with different covariate sets, the closest existing treatment of why two hazard-ratio estimates need not be on a common footing. |
+| [Uno et al. 2014, Journal of Clinical Oncology](https://doi.org/10.1200/JCO.2014.55.2208) | Argues for restricted mean survival time as a between-group summary that does not require proportional hazards; the class of measures the switch-the-measure remedy points to. |
+| [Wiksten et al. 2020, Value in Health](https://doi.org/10.1016/j.jval.2020.03.010) | Model-building and analysis strategies for non-proportional hazards in network meta-analysis, showing how far the synthesis literature has gone in relaxing proportionality without addressing anchor cancellation. |
+| [Ouwens, Philips and Jansen 2010, Research Synthesis Methods](https://doi.org/10.1002/jrsm.25) | Network meta-analysis of parametric survival curves, synthesizing whole hazard functions rather than one hazard ratio, so no cancellation of a scalar anchor is required. |
+| [Jansen 2011, BMC Medical Research Methodology](https://doi.org/10.1186/1471-2288-11-61) | Fractional polynomial network meta-analysis of survival data, giving time-varying contrasts from published Kaplan-Meier information; the whole-curve alternative to a transported hazard ratio. |
+
+:::
+
+## Probable solution or research direction
+
+Write the non-transitivity bias down as a functional: with arm-specific hazard functions, express the difference between the population Cox coefficient for A versus B and the difference of the two pairwise Cox coefficients, then parameterize departures from proportionality, for instance a piecewise-constant or log-linear time-varying log hazard ratio, and derive the induced bias as a function of those parameters, the follow-up and the censoring distribution. Bound that functional over the set of hazard shapes compatible with the published comparator Kaplan-Meier curve, its reconstructed pseudo-individual data and the reported censoring pattern, so that the reported output is an interval rather than a point. Establish how the bias behaves under population adjustment, since reweighting changes the composition of the risk set and therefore the weights the Cox coefficient places on the time-varying contrast. Add an anchor-invariance check to the anchored workflow: refit the comparison with each available common comparator in turn and report the spread, which is a computable lower bound on the problem wherever more than one anchor exists. Where the decision needs a survival curve, synthesize whole curves and report a hazard ratio only as a derived summary with the time window it applies to stated explicitly.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. One reader proposed this from a single 2025 methods paper that proves the if-and-only-if condition and demonstrates a sign reversal, and the reviewer accepted it as distinct from OUT-11 because comparator-dependent failure of the anchor to cancel arises with zero population difference. The identification result itself is not in dispute; resting on one paper, what is undocumented is how large the bias is in real appraisals and whether it can be bounded from published summaries.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [OUT-11 — Non-proportional hazards and the transported hazard ratio](OUT-11-non-proportional-hazards-and-the-transported-hazard-ratio.qmd)
+- [OUT-13 — Reconstruction uncertainty from digitized Kaplan-Meier curves](OUT-13-reconstruction-uncertainty-from-digitized-kaplan-meier-curve.qmd)
+- [EST-08 — Effect scales chosen by convention rather than transportability](EST-08-effect-scales-chosen-by-convention-rather-than-transportabil.qmd)
+- [IDN-01 — Transitivity and conditional constancy cannot be tested in-sample](IDN-01-transitivity-and-conditional-constancy-cannot-be-tested-in-s.qmd)
+:::
+
+## Source
+
+Derived from reading:core-03 of the reviewed corpus.

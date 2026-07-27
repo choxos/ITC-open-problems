@@ -1,24 +1,24 @@
 ---
 title: "Bayesian component ML-NMR and bridge models lack SBC validation"
-description: "Simulation-based calibration checks that an implementation recovers its own generative model: draw parameters from the exact fitted prior, simulate data, refit, and test rank uniformity of the true value among posterior draws (Talts et al., arXiv:1804.06788). No such study has been found for Bayesian component ML-NMR or bridge models; the code auditor confirmed that cpaic, an unreleased development package on GitHub and not on CRAN, has no SBC harness in its tracked source, and the literature and recency auditors searched and found nothing published, which is unrefuted absence rather than proof. The criterion itself needs updating: Modrak et al. (arXiv:2211.02383) show that rank uniformity of parameter draws alone cannot detect a posterior equal to the prior, which is precisely the failure mode of CMU-02, so data-dependent test quantities such as the joint log-likelihood have to be added. Passing SBC in any form validates code and computation, not the scientific assumptions."
+description: "Simulation-based calibration checks that an implementation recovers its own generative model: draw parameters from the exact fitted prior, simulate data, refit, and test rank uniformity of the true value among posterior draws (Talts et al., arXiv:1804.06788). No such study has been found for Bayesian component ML-NMR or bridge models; the code auditor confirmed that cpaic, an unreleased development package on GitHub and not on CRAN, has no SBC harness in its tracked source, and the literature and recency auditors searched and found nothing published, which is unrefuted absence rather than proof. The criterion itself needs updating: Modrak et al. (arXiv:2211.02383) show that rank uniformity of parameter draws alone cannot detect a posterior equal to the prior, which is precisely the failure mode of CMU-02, so data-dependent test quantities such as the joint log-likelihood have to be added. Passing SBC in any form validates code and computation, not the scientific assumptions. The procedure also carries an unstated design choice. For an ML-NMR or component ML-NMR aggregate arm, an SBC replicate can either simulate individual covariates and outcomes and then re-aggregate and re-reconstruct them, which validates the model together with the whole integration and reconstruction pipeline, or draw directly from the approximate aggregate likelihood as coded, which validates only the code implementing that approximation and is blind to integration and reconstruction error by construction. A passing rank histogram therefore means different things under the two choices, and nothing prescribes which to use or requires the choice to be reported."
 pid: "CMU-03"
 topic: "Computation & reproducibility"
-categories: ["Computation & reproducibility", "High priority", "Unverifiable"]
+categories: ["Computation & reproducibility", "High priority", "Partially addressed"]
 priority: "High"
 prank: 2
-verdict: "Unverifiable"
-verdictslug: "unverifiable"
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
 maturity: "Established"
 ---
 ::: {.problem-meta}
 [CMU-03]{.problem-id}
-[Unverifiable]{.verdict .verdict-unverifiable}
+[Partially addressed]{.verdict .verdict-partially-addressed}
 [High priority]{.chip .chip-priority-high}
 [Established]{.chip .chip-maturity-established}
 :::
 ## Statement
 
-Simulation-based calibration checks that an implementation recovers its own generative model: draw parameters from the exact fitted prior, simulate data, refit, and test rank uniformity of the true value among posterior draws (Talts et al., arXiv:1804.06788). No such study has been found for Bayesian component ML-NMR or bridge models; the code auditor confirmed that cpaic, an unreleased development package on GitHub and not on CRAN, has no SBC harness in its tracked source, and the literature and recency auditors searched and found nothing published, which is unrefuted absence rather than proof. The criterion itself needs updating: Modrak et al. (arXiv:2211.02383) show that rank uniformity of parameter draws alone cannot detect a posterior equal to the prior, which is precisely the failure mode of CMU-02, so data-dependent test quantities such as the joint log-likelihood have to be added. Passing SBC in any form validates code and computation, not the scientific assumptions.
+Simulation-based calibration checks that an implementation recovers its own generative model: draw parameters from the exact fitted prior, simulate data, refit, and test rank uniformity of the true value among posterior draws (Talts et al., arXiv:1804.06788). No such study has been found for Bayesian component ML-NMR or bridge models; the code auditor confirmed that cpaic, an unreleased development package on GitHub and not on CRAN, has no SBC harness in its tracked source, and the literature and recency auditors searched and found nothing published, which is unrefuted absence rather than proof. The criterion itself needs updating: Modrak et al. (arXiv:2211.02383) show that rank uniformity of parameter draws alone cannot detect a posterior equal to the prior, which is precisely the failure mode of CMU-02, so data-dependent test quantities such as the joint log-likelihood have to be added. Passing SBC in any form validates code and computation, not the scientific assumptions. The procedure also carries an unstated design choice. For an ML-NMR or component ML-NMR aggregate arm, an SBC replicate can either simulate individual covariates and outcomes and then re-aggregate and re-reconstruct them, which validates the model together with the whole integration and reconstruction pipeline, or draw directly from the approximate aggregate likelihood as coded, which validates only the code implementing that approximation and is blind to integration and reconstruction error by construction. A passing rank histogram therefore means different things under the two choices, and nothing prescribes which to use or requires the choice to be reported.
 
 ## Why it is open
 
@@ -32,6 +32,8 @@ SBC requires drawing from the exact prior used in fitting, which is awkward when
 |---|---|
 | [Talts et al. 2018](https://arxiv.org/abs/1804.06788) | defines simulation-based calibration via rank-uniformity of true parameters in posterior draws, and states explicitly that the calibration is limited to the computational aspect of the analysis |
 | [Modrak et al., Bayesian Analysis (arXiv:2211.02383)](https://doi.org/10.1214/23-BA1404) | shows that rank uniformity of parameter draws alone cannot detect a posterior equal to the prior, and adds data-dependent test quantities, notably the joint log-likelihood, to make SBC able in principle to detect any posterior problem |
+| [Phillippo et al. 2020, Multilevel Network Meta-Regression for Population-Adjusted Treatment Comparisons, Journal of the Royal Statistical Society Series A 183:1189-1210](https://doi.org/10.1111/rssa.12579) | Defines the aggregate-arm likelihood as a numerical integral of an individual-level model over a covariate distribution reconstructed from published marginals using assumed parametric margins, a copula and quasi-Monte Carlo points. That construction is the reason an SBC replicate has to choose between simulating individual data and re-aggregating, or drawing from the coded approximate likelihood. |
+| [Guyot, Ades, Ouwens and Welton 2012, Enhanced secondary analysis of survival data: reconstructing the data from published Kaplan-Meier survival curves, BMC Medical Research Methodology 12:9](https://doi.org/10.1186/1471-2288-12-9) | The reconstruction algorithm that produces the pseudo-individual survival data on which the survival likelihood is evaluated. An end-to-end SBC replicate for a survival model would have to include this step; a replicate drawn from the coded likelihood cannot see reconstruction error at all. |
 
 :::
 
@@ -42,13 +44,21 @@ Run SBC on component ML-NMR and bridge implementations using the exact fitted pr
 ## Verification
 
 ::: {.verification-trail}
-**Verdict.** Unverifiable. Auditors disagreed and the disagreement was evidence-bearing on both sides.
+**Verdict.** Partially addressed. Auditors disagreed and the disagreement was evidence-bearing on both sides. Reopened by the full-text reading: 1 finding from 1 paper survived both the reader and an independent second reviewer, so the verdict moves from unverifiable to partially-addressed, on a single finding.
 
 **The source said.** "Bayesian component ML-NMR and bridge models have not been put through simulation-based calibration: drawing parameters from the exact fitted prior, simulating network, IPD, aggregate and target data, refitting, and verifying rank-uniformity of the true parameter positions among posterior draws. A second failure mode sits next to the first, because passing SBC validates the code and the computation, not the scientific assumptions."
 
 **What was wrong with it.** The source's stated SBC criterion is out of date. The literature auditor found that Modrak et al. (arXiv:2211.02383, Bayesian Analysis doi:10.1214/23-BA1404) show parameter-rank uniformity 'could never detect large classes of problems including when the posterior is equal to the prior', so an SBC run as the source specifies it would miss the exact case this catalog worries about; the code auditor narrowed 'have not been validated' to what can actually be shown, which is cpaic's tracked source.
 
 **Dissent.** literature dissented (supported-with-caveat): I read Talts et al. 2018 (arXiv 1804.06788) in full. Every attribution the entry makes to it is literally present: rank-statistic uniformity is Theorem 1 and Algorithm 1; the generative-model/prior-draw requirement is stated; and the scope limitation is explicit ('this calibration is limited exclusively to the computational aspect of our analysis'), with posterior predictive checks named as the complement. The citation is accurate and load-bearing, not decorative. Two caveats. First, the criterion as stated is out of date: Modrak et al. (arXiv 2211.02383, Bayesian Analysis) show rank uniformity of parameter draws alone 'could never detect large classes of problems including when the posterior is equal to the prior' and add data-dependent test quantities, notably the joint log-likelihood. That is directly consequential here because posterior-equals-prior is exactly the CMU-02 failure mode, so an SBC run on the entry's stated criterion would not catch it. The entry should cite Modrak. Second, 'have not been validated with SBC' is an absence claim; multinma's tests/testthat contains no SBC file, which is suggestive but not proof.
+
+**Revised by the full-text reading.** Applied full-text reading.
+
+merged-in
+:   **absorbed a proposal the reading raised separately: Simulation-based calibration is undefined for reconstructed aggregate-data likelihoods** 2 citation(s) added
+
+Verdict changed
+:   **unverifiable -> partially-addressed** 1 surviving finding from: Validating Bayesian Inference Algorithms with Simulation-Bas
 
 Literature and prior-art check
 :   **open / supported-with-caveat.** I read Talts et al. 2018 (arXiv 1804.06788) in full. Every attribution the entry makes to it is literally present: rank-statistic uniformity is Theorem 1 and Algorithm 1; the generative-model/prior-draw requirement is stated; and the scope limitation is explicit ('this calibration is limited exclusively to the computational aspect of our analysis'), with posterior predictive checks named as the complement. The citation is accurate and load-bearing, not decorative. Two caveats. First, the criterion as stated is out of date: Modrak et al. (arXiv 2211.02383, Bayesian Analysis) show rank uniformity of parameter draws alone 'could never detect large classes of problems including when the posterior is equal to the prior' and add data-dependent test quantities, notably the joint log-likelihood. That is directly consequential here because posterior-equals-prior is exactly the CMU-02 failure mode, so an SBC run on the entry's stated criterion would not catch it. The entry should cite Modrak. Second, 'have not been validated with SBC' is an absence claim; multinma's tests/testthat contains no SBC file, which is suggestive but not proof.
@@ -61,6 +71,18 @@ Grok 4.5, recency lens
 
 Decision path
 :   `R5:default-open → R7:counter-and-support-both-present`
+
+:::
+
+## How the evidence falls in time
+
+1 paper in the reviewed corpus bears on this problem, published 2018. Every paper found here reports progress; none asserts the problem is open.
+
+::: {.table-scroll}
+
+| Year | Says | Paper |
+|---|---|---|
+| 2018 | partly addresses it | Validating Bayesian Inference Algorithms with Simulation-Based Calibration (Talts, Betancourt, Simpson, Vehtari, Gelman; arXiv:1804.06788v2) |
 
 :::
 

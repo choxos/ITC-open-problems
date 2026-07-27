@@ -3,16 +3,16 @@ title: "Privacy guarantees and governance for shared trial-level data"
 description: "Differential privacy would let data holders publish richer target-population summaries under a formal guarantee, and adjacent work exists: differentially private covariate balancing propagates privacy noise into weighted treatment-effect estimators (arXiv:2410.14789), FedECA delivers federated inverse-probability-weighted external-control analysis without pooling individual data (arXiv:2311.16984), and methods exist for choosing the privacy parameter for trial data release (PMC11031247). None calibrates a budget for the target moments PAIC needs, and no PAIC estimator treats released summaries as noisy inputs and propagates that noise into the transported effect. Two claims need narrowing: a correctly calibrated guarantee does not cease to hold because an arm is small, with utility rather than validity the casualty, and the assertion that no governance framework exists in evidence synthesis was not verifiable by any auditor."
 pid: "ADJ-15"
 topic: "Adjacent-field methods"
-categories: ["Adjacent-field methods", "High priority", "Confirmed open"]
+categories: ["Adjacent-field methods", "High priority", "Partially addressed"]
 priority: "High"
 prank: 2
-verdict: "Confirmed open"
-verdictslug: "confirmed-open"
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
 maturity: "Emerging"
 ---
 ::: {.problem-meta}
 [ADJ-15]{.problem-id}
-[Confirmed open]{.verdict .verdict-confirmed-open}
+[Partially addressed]{.verdict .verdict-partially-addressed}
 [High priority]{.chip .chip-priority-high}
 [Emerging]{.chip .chip-maturity-emerging}
 :::
@@ -44,11 +44,16 @@ Characterize the privacy attack surface of evidence synthesis when trial arms ar
 ## Verification
 
 ::: {.verification-trail}
-**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+**Verdict.** Partially addressed. Auditors agreed the problem is open and no counterevidence surfaced. Reopened by the full-text reading: 2 findings from 2 papers survived both the reader and an independent second reviewer, so the verdict moves from confirmed-open to partially-addressed.
 
 **The source said.** "Differential privacy is proposed so data holders can publish richer target-population summaries, including more moments, correlations and joint structure, under a formal guarantee, while the report separately names privacy attacks arising from small trial arms and the governance of cross-sponsor analyses as key open questions. Together these determine what can safely be released and who is accountable for the result."
 
 **What was wrong with it.** The source implied that small trial arms defeat formal privacy guarantees and that no cross-sponsor governance framework exists. GPT-5.6 Sol pointed out that a correctly calibrated guarantee still applies at small n and that the universal governance claim is not established, and the literature auditor could not verify it either; Grok 4.5 supplied the adjacent differentially private causal work the source did not cite.
+
+**Revised by the full-text reading.** Applied 2026-07-26 full-text reading of the consolidated library (687 papers).
+
+Verdict changed
+:   **confirmed-open -> partially-addressed** 2 surviving findings from: Arbitrated Indirect Treatment Comparisons; Identifying back pain subgroups: developing and applying app. New citations: 10.1007/s43441-026-00976-2, 10.3310/pgfar04100
 
 Literature and prior-art check
 :   **open / supported.** I found differential privacy applied to clinical trial data sharing, including a data-driven method for choosing the privacy parameter for trial data release (PMC11031247) and a scoping review of DP in health research (PMC8449619), plus the standard precedent that published aggregate summaries alone permitted large-scale reconstruction of the 2010 US Census. Nothing I retrieved releases DP-protected target-population moments and propagates the injected noise through a PAIC estimator, which is the entry's specific gap, and nothing establishes what privacy budget still yields target moments precise enough to change a PAIC conclusion. The privacy-utility trade-off, the requirement to account for injected noise, and the elevated re-identification risk of statistics computed on small arms are all standard and documented. The governance claim ('no such framework exists in evidence synthesis') is a no-method-exists assertion; I found no source stating the absence, so treat that specific sentence as unverified rather than verified.
@@ -61,6 +66,25 @@ Grok 4.5, recency lens
 
 Decision path
 :   `R5:default-open → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## How the evidence falls in time
+
+4 papers in the reviewed corpus bear on this problem, published 2015 to 2026. The most recent paper to touch this reports progress on it, and every paper calling it open is older.
+
+It is also being **closed in pieces**: partial results come from more than one paper in more than one year, each covering a different part.
+
+**Does the later work answer the earlier work?** Put to an independent reviewer with the older and newer claims side by side, it judged that the later work answers a component of it, leaving a named part (high confidence). The later work provides practical governance and no-transfer arrangements for trial data, addressing part of the earlier disclosure-and-governance concern. Neither provides a formal privacy guarantee or the required statistical treatment of privacy-induced release noise in PAIC. What remains: A formal differential-privacy budget calibrated to PAIC-required target moments, plus a PAIC estimator that propagates released-summary noise into the transported effect.
+
+::: {.table-scroll}
+
+| Year | Says | Paper |
+|---|---|---|
+| 2015 | confirms it is open | Network meta-analysis incorporating randomized controlled trials and non-randomized comparative cohort studies for assessing the safety and effectiveness of medical treatments: challenges and opportunities |
+| 2016 | partly addresses it | Identifying back pain subgroups: developing and applying approaches using individual patient data collected within clinical trials |
+| 2025 | confirms it is open | A critical assessment of matching-adjusted indirect comparisons in relation to target populations |
+| 2026 | partly addresses it | Arbitrated Indirect Treatment Comparisons |
 
 :::
 

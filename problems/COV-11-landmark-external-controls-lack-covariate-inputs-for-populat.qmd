@@ -1,0 +1,65 @@
+---
+title: "Landmark external controls lack covariate inputs for population adjustment"
+description: "A growing family of external controls is defined at a post-baseline landmark rather than at randomization: post-progression survival from a prior-line trial, time to progression on a patient's own previous line of therapy, or any cohort whose time zero is a disease event. Population adjustment of such a control requires the distribution of effect modifiers and prognostic factors as they stood at that landmark, but trials publish, and frequently only collect, baseline characteristics measured at their own randomization; Hatswell and Sullivan 2020, proposing two such constructions, state that adjustment here is more complicated than in a standard cross-trial comparison because data on patient characteristics are not routinely collected or reported at disease progression. Two distinct problems follow. There is no target moment vector at the landmark, so matching-adjusted indirect comparison has nothing to weight toward, simulated treatment comparison has nothing to plug in, and standardization has no distribution to integrate over. And the index trial applies its eligibility criteria at its own baseline, so patients who deteriorated between the prior-line landmark and that baseline are present in the external cohort but would have been screened out of the index trial; the worked instance is a trial of ofatumumab requiring ECOG performance status 0 or 1 at entry while the alemtuzumab cohort supplying the historical control is observed at progression, when some of those patients had deteriorated. That selection is a function of post-landmark evolution, so no baseline covariate set can capture it. No method and no reporting convention addresses either half."
+pid: "COV-11"
+topic: "Covariates: selection, target moments, measurement"
+categories: ["Covariates: selection, target moments, measurement", "High priority", "Confirmed open"]
+priority: "High"
+prank: 2
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Emerging"
+tractability: 2
+---
+::: {.problem-meta}
+[COV-11]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[High priority]{.chip .chip-priority-high}
+[Emerging]{.chip .chip-maturity-emerging}
+[Tractability 2/5]{.chip}
+:::
+## Statement
+
+A growing family of external controls is defined at a post-baseline landmark rather than at randomization: post-progression survival from a prior-line trial, time to progression on a patient's own previous line of therapy, or any cohort whose time zero is a disease event. Population adjustment of such a control requires the distribution of effect modifiers and prognostic factors as they stood at that landmark, but trials publish, and frequently only collect, baseline characteristics measured at their own randomization; Hatswell and Sullivan 2020, proposing two such constructions, state that adjustment here is more complicated than in a standard cross-trial comparison because data on patient characteristics are not routinely collected or reported at disease progression. Two distinct problems follow. There is no target moment vector at the landmark, so matching-adjusted indirect comparison has nothing to weight toward, simulated treatment comparison has nothing to plug in, and standardization has no distribution to integrate over. And the index trial applies its eligibility criteria at its own baseline, so patients who deteriorated between the prior-line landmark and that baseline are present in the external cohort but would have been screened out of the index trial; the worked instance is a trial of ofatumumab requiring ECOG performance status 0 or 1 at entry while the alemtuzumab cohort supplying the historical control is observed at progression, when some of those patients had deteriorated. That selection is a function of post-landmark evolution, so no baseline covariate set can capture it. No method and no reporting convention addresses either half.
+
+## Why it is open
+
+The information is destroyed by the design rather than merely unreported: a trial whose covariate collection ends at randomization never measures performance status, laboratory values or disease burden at the landmark, so no reanalysis of the published record can recover the target moments and the fix has to be prospective. Existing work on time-zero problems in external controls treats index-date misalignment, immortal time and delayed entry as biases in the survival contrast and assumes the adjustment inputs exist; here the contrast may be aligned correctly and still be unadjustable. The eligibility-timing half is worse than an ordinary covariate imbalance, because the selection operates on the trajectory between the landmark and the index trial's baseline, a quantity unobserved in both data sources, so it cannot be balanced, weighted or standardized even in principle without a model for how patients evolve after the landmark event. Landmark analysis as a statistical device is well established, but it was built to remove immortal time within one cohort, not to make two cohorts with different time origins comparable on covariates, so there is nothing to borrow.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Hatswell and Sullivan 2020, Creating historical controls using data from a previous line of treatment: two non-standard approaches, Statistical Methods in Medical Research 29:1563-1572](https://doi.org/10.1177/0962280219826609) | Proposes two historical-control constructions from a previous line of treatment, using either a patient's own time to progression on the prior line or published outcomes for that line extrapolated forward, and states the obstruction as an unresolved limitation of its own proposal: characteristics are not routinely collected or reported at progression, and eligibility applied at the index trial's baseline can exclude patients who had deteriorated by the landmark. |
+| [Dafni 2011, Landmark Analysis at the 25-Year Landmark Point, Circulation: Cardiovascular Quality and Outcomes 4:363-371](https://doi.org/10.1161/CIRCOUTCOMES.110.957951) | Gives the standard treatment of landmark analysis, conditioning on survival to a fixed time point within one cohort to remove guarantee-time bias. It says nothing about transporting covariate distributions between cohorts whose time origins differ. |
+| [Suissa 2008, Immortal Time Bias in Pharmacoepidemiology, American Journal of Epidemiology 167:492-499](https://doi.org/10.1093/aje/kwm324) | Characterizes the outcome-side consequence of misaligned time zero, the problem that landmark and delayed-entry methods address. It is a bias in the effect estimate, not an absence of the covariate summaries needed to adjust for population differences. |
+| [Hernan and Robins 2016, Using Big Data to Emulate a Target Trial When a Randomized Trial Is Not Available, American Journal of Epidemiology 183:758-764](https://doi.org/10.1093/aje/kwv254) | Requires eligibility assessment, treatment assignment and start of follow-up to be aligned at a single time zero, which names the defect precisely. It offers no repair for the case where covariates at that time zero were never measured in one of the two data sources. |
+| [Phillippo, Ades, Dias, Palmer, Abrams and Welton 2018, Methods for Population-Adjusted Indirect Comparisons in Health Technology Appraisal, Medical Decision Making 38:200-211 (the peer-reviewed account of NICE DSU TSD 18)](https://doi.org/10.1177/0272989X17725740) | Specifies matching-adjusted indirect comparison and simulated treatment comparison as requiring published summaries of effect modifiers and prognostic variables in the comparator population. There is no variant for a comparator population defined at a post-baseline landmark, and no statement of what should be done when the summaries refer to a different time point than the cohort does. |
+
+:::
+
+## Probable solution or research direction
+
+Act in two directions, because neither alone is sufficient. Prospectively, specify a short list of characteristics to be re-recorded at progression or at any other landmark likely to define a future external control, covering performance status, key laboratory values, disease burden and time since randomization, and add it to trial data standards and to what comparator publications are asked to report, so a prior-line cohort can serve as an adjustable control at all. Analytically, derive a transport estimator for a landmark-defined cohort that uses baseline summaries plus an explicit model for covariate evolution between baseline and the landmark, fitted wherever individual participant data from a comparable cohort exist, and state what it identifies under what assumptions about that evolution. Treat the eligibility-timing selection as a separate, explicit selection model: express the index trial's entry criteria as a function of landmark covariates and report bounds, or a single interpretable sensitivity parameter, for the fraction of the external cohort that would have failed screening. Until either exists, require any report using a landmark-defined comparator to state that the target moments are unavailable at the landmark rather than silently substituting the comparator trial's randomization-time summaries.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. One reader proposed this and the reviewer accepted it, judging that QBA-08 covers time-zero bias in the survival contrast but not the absence of landmark covariate distributions or the eligibility selection driven by post-baseline evolution. The evidence is a single methods paper, which states the obstruction as an unresolved complication of its own proposal rather than solving it; no counter-evidence of a method for this case surfaced.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [QBA-08 — Index-date, immortal time and delayed entry in external comparators](QBA-08-index-date-immortal-time-and-delayed-entry-in-external-compa.qmd)
+- [EVB-05 — No reporting standard covers what population adjustment needs](EVB-05-no-reporting-standard-covers-what-population-adjustment-need.qmd)
+- [DIS-07 — External-control bridges become cross-design causal synthesis](DIS-07-external-control-bridges-become-cross-design-causal-synthesi.qmd)
+- [OUT-14 — Pseudo-IPD cannot express delayed entry or assessment windows](OUT-14-pseudo-ipd-cannot-express-delayed-entry-or-assessment-window.qmd)
+:::
+
+## Source
+
+Derived from reading:core-04 of the reviewed corpus.

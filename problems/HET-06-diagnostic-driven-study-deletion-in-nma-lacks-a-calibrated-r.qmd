@@ -1,0 +1,69 @@
+---
+title: "Diagnostic-driven study deletion in NMA lacks a calibrated rule"
+description: "When a network shows substantial heterogeneity in a contrast or poor fit under the consistency model, one response used in health technology assessment is to delete the offending studies or arms, refit, and repeat until the diagnostics pass, then report the surviving network as the primary result. Detection tooling for this is mature: influence and outlier diagnostics, forward-search monitoring and mixture models all identify which studies drive heterogeneity and inconsistency. What is missing is everything after detection: no stopping criterion for the iteration, no principled ceiling on how much evidence may be removed, no requirement to report which contrasts became data-poor as a result, and no simulation quantifying the bias, interval coverage or ranking distortion that fit-driven deletion introduces. A worked instance in an antidepressant network, deleting until residual deviance plus leverage fell to 3 or less for every study arm, reports 7 changes in direction of effect and 7 changes in statistical significance across the 78 possible contrasts, and in every one of those 7 significance changes the effect became significant only after deletion; the 20 percent exclusion ceiling used to bound the damage is itself acknowledged to be open to the criticism that it is arbitrary. The alternatives to deletion, namely bias-adjusted synthesis, meta-regression on the offending study feature, down-weighting rather than removal, and excluding a whole node, have not been compared against deletion on coverage, bias or agreement with the correct decision. Nothing in a reported credible interval records that the network was selected to be consistent."
+pid: "HET-06"
+topic: "Heterogeneity, consistency & multi-arm structure"
+categories: ["Heterogeneity, consistency & multi-arm structure", "High priority", "Partially addressed"]
+priority: "High"
+prank: 2
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
+maturity: "Promising"
+tractability: 4
+---
+::: {.problem-meta}
+[HET-06]{.problem-id}
+[Partially addressed]{.verdict .verdict-partially-addressed}
+[High priority]{.chip .chip-priority-high}
+[Promising]{.chip .chip-maturity-promising}
+[Tractability 4/5]{.chip}
+:::
+## Statement
+
+When a network shows substantial heterogeneity in a contrast or poor fit under the consistency model, one response used in health technology assessment is to delete the offending studies or arms, refit, and repeat until the diagnostics pass, then report the surviving network as the primary result. Detection tooling for this is mature: influence and outlier diagnostics, forward-search monitoring and mixture models all identify which studies drive heterogeneity and inconsistency. What is missing is everything after detection: no stopping criterion for the iteration, no principled ceiling on how much evidence may be removed, no requirement to report which contrasts became data-poor as a result, and no simulation quantifying the bias, interval coverage or ranking distortion that fit-driven deletion introduces. A worked instance in an antidepressant network, deleting until residual deviance plus leverage fell to 3 or less for every study arm, reports 7 changes in direction of effect and 7 changes in statistical significance across the 78 possible contrasts, and in every one of those 7 significance changes the effect became significant only after deletion; the 20 percent exclusion ceiling used to bound the damage is itself acknowledged to be open to the criticism that it is arbitrary. The alternatives to deletion, namely bias-adjusted synthesis, meta-regression on the offending study feature, down-weighting rather than removal, and excluding a whole node, have not been compared against deletion on coverage, bias or agreement with the correct decision. Nothing in a reported credible interval records that the network was selected to be consistent.
+
+## Why it is open
+
+Deletion selected by a fit statistic removes exactly the studies that disagree with the rest of the network, so the network is consistent by construction afterward and the estimate is pulled toward the majority of the evidence whether or not the majority is right; the diagnostic that licensed the deletion cannot then be used to check it. Pricing the deletion in the interval is a post-selection inference problem in which the selection event is a sequence of data-dependent refits rather than a single variable-selection step, and the valid post-selection machinery developed for regression has no network analogue. A defensible ceiling would have to be a function of network topology and information contribution rather than a single percentage, because removing a tenth of the studies from a densely connected network and a tenth from a star-shaped one do different amounts of damage, and no work characterizes that dependence. There is also a genuine conflict of requirements: pooling across grossly heterogeneous studies is itself indefensible, so a rule forbidding all deletion is not the answer, and no criterion distinguishes removal that is repair from removal that is selection. The practice leaves no trace in the reported output, so nobody is forced to defend it.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Reken, Sturtz, Kiefer, Bohler and Wieseler 2016, PLOS ONE](https://doi.org/10.1371/journal.pone.0160712) | The worked instance and the numbers: stepwise exclusion of studies and arms until residual deviance plus leverage is at most 3 for every study arm, a 20 percent exclusion ceiling conceded to be open to the criticism that it is arbitrary, and 7 changes in direction of effect plus 7 changes in statistical significance across 78 contrasts when the consistent network is compared with the pre-deletion one, all 7 significance changes running toward significance after deletion. |
+| [Noma, Gosho, Ishii, Oba and Furukawa 2020, Research Synthesis Methods](https://doi.org/10.1002/jrsm.1455) | Outlier and influence diagnostics for network meta-analysis; supplies the detection half of the problem with no accompanying deletion policy or post-deletion inference. |
+| [Petropoulou, Salanti, Rucker, Schwarzer, Moustaki and Mavridis 2021, Statistics in Medicine](https://doi.org/10.1002/sim.9145) | Forward search algorithm for detecting extreme study effects in network meta-analysis, with monitoring plots and the NMAoutlier package; explicitly a visual diagnostic that identifies candidate sources of heterogeneity and inconsistency rather than a rule for removing them. |
+| [Viechtbauer and Cheung 2010, Research Synthesis Methods](https://doi.org/10.1002/jrsm.11) | Outlier and influence diagnostics for pairwise meta-analysis; the origin of the tooling, and the source of the standing advice that flagged studies prompt investigation rather than automatic exclusion. |
+| [Beath 2014, Research Synthesis Methods](https://doi.org/10.1002/jrsm.1114) | Finite mixture model that accommodates outlying studies by assigning them to a separate component instead of deleting them; a concrete alternative to removal that has never been benchmarked against removal in a network. |
+| [Turner, Spiegelhalter, Smith and Thompson 2009, Journal of the Royal Statistical Society Series A](https://doi.org/10.1111/j.1467-985X.2008.00547.x) | Bias-adjusted synthesis with elicited, design-stratified priors for internal and external bias; the down-weighting-by-belief alternative to deletion, defined for meta-analysis and never compared with deletion on decision agreement. |
+| [Berk, Brown, Buja, Zhang and Zhao 2013, The Annals of Statistics](https://doi.org/10.1214/12-AOS1077) | Valid post-selection inference for linear models; the framework whose network analogue would price an iterative deletion sequence in the reported interval, and which does not currently extend to selection over which studies to retain. |
+| [Salanti, Del Giovane, Chaimani, Caldwell and Higgins 2014, PLOS ONE](https://doi.org/10.1371/journal.pone.0099682) | Framework for rating the quality of evidence from a network, downgrading for heterogeneity and incoherence; the alternative response in which disagreement lowers confidence in the estimate rather than removing the evidence that produced it. |
+| [Nikolakopoulou et al. 2020, PLOS Medicine (CINeMA)](https://doi.org/10.1371/journal.pmed.1003082) | Operationalizes confidence in network estimates with heterogeneity and incoherence as scored domains; a deletion sequence that clears both domains improves the rating without the rating recording that it was cleared by removing evidence. |
+
+:::
+
+## Probable solution or research direction
+
+Simulate the policies rather than argue about them: generate networks with known heterogeneity and known inconsistency, apply each candidate policy (no deletion, delete until a fit threshold passes, delete at most a fixed fraction, down-weight by influence, model the offending feature as a covariate, bias-adjust with an elicited prior) and report bias, interval coverage, rank stability and agreement with the true decision, broken out by network topology and by whether the flagged studies were genuinely aberrant or merely the minority. That produces the missing object, a stopping criterion with known operating characteristics and a ceiling defined by topology and information contribution rather than by a round percentage. Pending it, make the practice visible: require the full deletion sequence with diagnostics before and after each step, report the pre-deletion estimate alongside the post-deletion one, and label contrasts whose direct evidence was removed. Bootstrapping the entire deletion algorithm, selection included, is the crude but immediate way to obtain an interval that prices the search, and it can be assembled today from existing packages.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Partially addressed. One reader proposed this and the reviewer accepted post-fit deletion as a selection mechanism distinct from evidence-set eligibility and from model-selection uncertainty, while noting that the claim it is standard practice is broader than the single worked example supports. It is partially addressed because detection of influential and outlying studies in networks is published, evaluated and implemented; what has no published rule, stopping criterion or performance evaluation is the deletion policy itself and its cost in coverage.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [EVB-02 — Evidence-set assembly can favor the sponsor before modeling begins](EVB-02-evidence-set-assembly-can-favor-the-sponsor-before-modeling-.qmd)
+- [HET-08 — Inconsistency conclusions depend on an uncalibrated heterogeneity error specification](HET-08-inconsistency-conclusions-depend-on-an-uncalibrated-heteroge.qmd)
+- [MOD-04 — No post-selection inference for model choice in population adjustment](MOD-04-no-post-selection-inference-for-model-choice-in-population-a.qmd)
+- [HET-04 — Node splitting compares paths without standardizing to a target](HET-04-node-splitting-compares-paths-without-standardizing-to-a-tar.qmd)
+:::
+
+## Source
+
+Derived from reading:nma-36 of the reviewed corpus.

@@ -3,16 +3,16 @@ title: "Methods return incompatible marginal and conditional estimands"
 description: "MAIC targets a marginal effect while a regression-based analysis returns a conditional one, so results from different population-adjustment methods are not directly comparable, and effect modification together with non-collapsibility can drive conditional and marginal estimates to conflicting treatment rankings (Phillippo et al. 2025, doi:10.1017/rsm.2025.2). The source's description of standard STC as yielding a clean conditional effect is wrong: in typical use it subtracts a published marginal comparator contrast from a conditional coefficient, and is biased for either estimand (Phillippo et al. 2021, doi:10.1002/sim.8965). The reconciliation the source proposes already exists and has been evaluated: parametric G-computation (doi:10.1002/jrsm.1565) and multiple imputation marginalization (doi:10.1186/s12874-024-02157-x) marginalize an outcome regression over a target population, and outstandR ships both (arxiv:2601.07532). What is left is discipline in use rather than a missing method: comparative evaluations still have to hold the estimand fixed, and some implementations return only one of the two quantities."
 pid: "EST-04"
 topic: "Estimands & target populations"
-categories: ["Estimands & target populations", "Very high priority", "Unverifiable"]
+categories: ["Estimands & target populations", "Very high priority", "Partially addressed"]
 priority: "Very high"
 prank: 1
-verdict: "Unverifiable"
-verdictslug: "unverifiable"
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
 maturity: "Promising"
 ---
 ::: {.problem-meta}
 [EST-04]{.problem-id}
-[Unverifiable]{.verdict .verdict-unverifiable}
+[Partially addressed]{.verdict .verdict-partially-addressed}
 [Very high priority]{.chip .chip-priority-very-high}
 [Promising]{.chip .chip-maturity-promising}
 :::
@@ -54,13 +54,18 @@ Use the existing marginalization routes instead of proposing them as new work: p
 ## Verification
 
 ::: {.verification-trail}
-**Verdict.** Unverifiable. Auditors disagreed and the disagreement was evidence-bearing on both sides.
+**Verdict.** Partially addressed. Auditors disagreed and the disagreement was evidence-bearing on both sides. Reopened by the full-text reading: 4 findings from 4 papers survived both the reader and an independent second reviewer, so the verdict moves from unverifiable to partially-addressed.
 
 **The source said.** "MAIC usually targets a marginal effect while standard STC often yields a conditional effect, and ML-NMR may return yet another quantity, so results from different population-adjustment methods are not directly comparable. The report states this mismatch can produce conflicting decisions if it is ignored."
 
 **What was wrong with it.** The claim was unattributed in the source and is now sourced: the literature auditor supplied Phillippo et al. 2025 (doi:10.1017/rsm.2025.2) for the conflicting-decisions claim and for reporting both estimands, and Remiro-Azocar et al. 2021, Research Synthesis Methods 12(6):750-775, for the marginal versus conditional mismatch between MAIC and STC. The same auditor found the proposed reconciliation already built and benchmarked (doi:10.1002/jrsm.1565; doi:10.1186/s12874-024-02157-x), and both auditors rejected the description of typical STC as a clean conditional estimand. GPT-5.6 Sol added that in cpaic, an unreleased development package on GitHub that is not installable from CRAN, cML-NMR at commit 9d150e9 has no marginal standardization path at all, so the mismatch is live in that package even though the labeling is correct.
 
 **Dissent.** literature dissented (supported): This entry is flagged SOURCE-A-UNSOURCED; I can supply real sources for every claim. Phillippo, Remiro-Azocar, Heath, Baio, Dias, Ades & Welton, Research Synthesis Methods 16(2):323-349 (2025) is a direct source for the 'conflicting decisions' claim ('effect modification can result in conflicting treatment rankings between conditional and marginal estimates') and for reporting both ('pragmatic comparisons of both conditional and marginal estimates in the decision target population'). Remiro-Azocar et al., Res Synth Methods 12(6):750-775 (2021) sources the MAIC-marginal / STC-conditional mismatch directly. But the methods half of the problem is largely solved, not open: parametric G-computation (Res Synth Methods 2022) and multiple imputation marginalization (BMC Med Res Methodol 2024) were built precisely to bring conditional regressions onto a compatible marginal scale, both with simulation evaluation, and outstandR (arXiv:2601.07532) ships both. multinma returns conditional and marginal population-average effects as separately named outputs. Caveat: Phillippo et al. contest the framing that typical STC yields a clean conditional effect - they say it mixes conditional and marginal quantities and is biased for either. codex dissented (supported-with-caveat): C1 is a placeholder, not a claim. C2 is correct for conventional anchored MAIC. C3 is correct only for the IPD regression contrast: a conventional anchored STC indirect comparison often subtracts a marginal published comparator contrast from that conditional coefficient and is therefore a hybrid, not a clean conditional A-versus-B estimand. C4, C5, and the possibility in C7 are sound. C6 is too vague to rank technically: ML-NMR can integrate nonlinear outcome models, but its reported estimand is implementation-specific. At cpaic@9d150e9, cmaic() returns a marginal weighted effect, cstc() a conditional effect at target means, and cmlnmr() only a conditional profile contrast; NAMESPACE has no marginal_effects export. C8 is valid under a correctly specified outcome model, a defined target joint law, and support; it estimates a compatible marginal functional rather than making conditional and marginal parameters identical. C9 is sensible. This mismatch can be decision-critical on non-collapsible scales, but established G-computation and multiple-imputation marginalization make it partly solved rather than a wholly open very-high-priority method gap.
+
+**Revised by the full-text reading.** Applied 2026-07-26 full-text reading of the consolidated library (687 papers).
+
+Verdict changed
+:   **unverifiable -> partially-addressed** 4 surviving findings from: Effect modification and non-collapsibility together may lead; Methods for population adjustment with limited access to ind; Parametric G-computation for compatible indirect treatment c; Validating the Assumptions of Population Adjustment: Applica. New citations: 10.1002/jrsm.1511, 10.1002/jrsm.1565, 10.1017/rsm.2025.2, 10.1177/0272989X221117162
 
 Literature and prior-art check
 :   **partially-solved / supported.** This entry is flagged SOURCE-A-UNSOURCED; I can supply real sources for every claim. Phillippo, Remiro-Azocar, Heath, Baio, Dias, Ades & Welton, Research Synthesis Methods 16(2):323-349 (2025) is a direct source for the 'conflicting decisions' claim ('effect modification can result in conflicting treatment rankings between conditional and marginal estimates') and for reporting both ('pragmatic comparisons of both conditional and marginal estimates in the decision target population'). Remiro-Azocar et al., Res Synth Methods 12(6):750-775 (2021) sources the MAIC-marginal / STC-conditional mismatch directly. But the methods half of the problem is largely solved, not open: parametric G-computation (Res Synth Methods 2022) and multiple imputation marginalization (BMC Med Res Methodol 2024) were built precisely to bring conditional regressions onto a compatible marginal scale, both with simulation evaluation, and outstandR (arXiv:2601.07532) ships both. multinma returns conditional and marginal population-average effects as separately named outputs. Caveat: Phillippo et al. contest the framing that typical STC yields a clean conditional effect - they say it mixes conditional and marginal quantities and is biased for either.
@@ -80,11 +85,40 @@ Decision path
 
 :::
 
+## How the evidence falls in time
+
+11 papers in the reviewed corpus bear on this problem, published 2013 to 2025. Progress and a fresh assertion of openness land in the same year.
+
+This problem is **recurrent**: three or more papers spanning at least eight years assert it independently. Sustained restatement by authors who mostly do not cite each other is the strongest evidence this reading can offer that a gap is real rather than one group's framing.
+
+It is also being **closed in pieces**: partial results come from more than one paper in more than one year, each covering a different part.
+
+::: {.table-scroll}
+
+| Year | Says | Paper |
+|---|---|---|
+| 2013 | confirms it is open | Variance reduction in randomised trials by inverse probability weighting using the propensity score |
+| 2020 | confirms it is open | A Review of Two Regulatory Approved Anti-CD19 CAR T-Cell Therapies in Diffuse Large B-Cell Lymphoma: Why Are Indirect Treatment Comparisons Not Feasible? |
+| 2021 | partly addresses it | Methods for population adjustment with limited access to individual patient data: A review and simulation study |
+| 2022 | partly addresses it | Validating the Assumptions of Population Adjustment: Application of Multilevel Network Meta-regression to a Network of Treatments for Plaque Psoriasis |
+| 2022 | partly addresses it | Parametric G-computation for compatible indirect treatment comparisons with limited individual patient data |
+| 2022 | confirms it is open | Bayesian models for aggregate and individual patient data component network meta-analysis |
+| 2023 | confirms it is open | The Personalised Randomized Controlled Trial: Evaluation of a new trial design |
+| 2024 | confirms it is open | A comprehensive review and shiny application on the matching-adjusted indirect comparison |
+| 2025 | partly addresses it | Effect modification and non-collapsibility together may lead to conflicting treatment decisions: A review of marginal and conditional estimands and recommendations for decision-making |
+| 2025 | confirms it is open | An investigation of the impact of using contrast- and arm-synthesis models for network meta-analysis |
+| 2025 | confirms it is open | Lord's Paradox and two network meta-analysis models |
+
+:::
+
 ## Related problems
 
 ::: {.related-links}
 - [COV-02 — No evidence on how the modifier set changes across effect scales](COV-02-no-evidence-on-how-the-modifier-set-changes-across-effect-sc.qmd)
+- [DEC-23 — The treatment hierarchy is published without a certainty rating](DEC-23-the-treatment-hierarchy-is-published-without-a-certainty-rat.qmd)
+- [EST-12 — Treatment hierarchies lack a declared target-population referent](EST-12-treatment-hierarchies-lack-a-declared-target-population-refe.qmd)
 - [MOD-01 — Conventional STC reports a conditional effect at target means](MOD-01-conventional-stc-reports-a-conditional-effect-at-target-mean.qmd)
+- [MOD-14 — Network meta-interpolation has no stated estimand and no implementation](MOD-14-network-meta-interpolation-has-no-stated-estimand-and-no-imp.qmd)
 - [OUT-01 — Target-standardized marginal risks are not the HTA reporting default](OUT-01-target-standardized-marginal-risks-are-not-the-hta-reporting.qmd)
 :::
 

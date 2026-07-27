@@ -1,0 +1,66 @@
+---
+title: "Additive and multiplicative heterogeneity models have not been compared in NMA"
+description: "Network meta-analysis is fitted almost universally with additive random effects, in which the variance of an observed contrast is the within-study variance plus a between-study variance. The multiplicative alternative instead inflates the within-study variance by a factor, so the total variance is phi times sigma squared rather than sigma squared plus tau squared; additive therefore treats within- and between-study variation as independent, while multiplicative treats between-study variation as proportional to within-study variation. Both are available for networks: a structural equation formulation fits a network with a common inflation factor or with contrast-specific inflation factors, and a penalized-likelihood network model for rare events uses a multiplicative overdispersion term precisely because an additive heterogeneity parameter is unworkable there. What does not exist is any comparison of the two in a network on the criteria that matter, namely coverage, interval width, treatment rankings and inconsistency assessment, under the conditions networks actually present: few studies per contrast, contrasts informed only indirectly, multi-arm trials, and heterogeneity that differs by comparison. In pairwise meta-analysis the comparison has been made twice, and both times the multiplicative model produced systematically narrower intervals, so the choice is not neutral. In a network it also propagates, because the variance parameterization enters the consistency equations and therefore reaches every indirectly informed contrast, so a convention adopted for one comparison changes estimates for comparisons in which no study was ever run."
+pid: "HET-05"
+topic: "Heterogeneity, consistency & multi-arm structure"
+categories: ["Heterogeneity, consistency & multi-arm structure", "Medium-high priority", "Confirmed open"]
+priority: "Medium-high"
+prank: 3
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Promising"
+tractability: 5
+---
+::: {.problem-meta}
+[HET-05]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[Medium-high priority]{.chip .chip-priority-medium-high}
+[Promising]{.chip .chip-maturity-promising}
+[Tractability 5/5]{.chip}
+:::
+## Statement
+
+Network meta-analysis is fitted almost universally with additive random effects, in which the variance of an observed contrast is the within-study variance plus a between-study variance. The multiplicative alternative instead inflates the within-study variance by a factor, so the total variance is phi times sigma squared rather than sigma squared plus tau squared; additive therefore treats within- and between-study variation as independent, while multiplicative treats between-study variation as proportional to within-study variation. Both are available for networks: a structural equation formulation fits a network with a common inflation factor or with contrast-specific inflation factors, and a penalized-likelihood network model for rare events uses a multiplicative overdispersion term precisely because an additive heterogeneity parameter is unworkable there. What does not exist is any comparison of the two in a network on the criteria that matter, namely coverage, interval width, treatment rankings and inconsistency assessment, under the conditions networks actually present: few studies per contrast, contrasts informed only indirectly, multi-arm trials, and heterogeneity that differs by comparison. In pairwise meta-analysis the comparison has been made twice, and both times the multiplicative model produced systematically narrower intervals, so the choice is not neutral. In a network it also propagates, because the variance parameterization enters the consistency equations and therefore reaches every indirectly informed contrast, so a convention adopted for one comparison changes estimates for comparisons in which no study was ever run.
+
+## Why it is open
+
+Nobody has run the comparison, and the reasons it is unattractive are ordinary rather than deep: it is a simulation study whose deliverable is a table of coverages, it requires fitting the multiplicative model in a network estimator that mainstream applied packages do not expose, and it yields no new method to name. The two parameterizations also give similar point estimates, which makes the difference easy to dismiss as second order even though it lands on interval width, which is what a decision reads. Model comparison statistics cannot settle it from data at realistic network sizes, since the two models carry the same number of variance parameters and differ in a shape assumption that few studies per contrast cannot resolve, so the choice has to be defended on operating characteristics rather than on fit. And because the additive model is the default in every mainstream network package, it is the multiplicative option that an analyst must justify, so the burden of evidence has never been placed on the default.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Tu and Wu 2017, BMC Medical Research Methodology](https://doi.org/10.1186/s12874-017-0390-9) | Fits network meta-analysis as a structural equation model, including the unrestricted weighted least squares form of the multiplicative model with a common or contrast-specific inflation factor, sets out that additive treats within- and between-study heterogeneity as independent while multiplicative treats them as related, and states that comparison of their performance in networks has not been done. |
+| [Stanley and Doucouliagos 2015, Statistics in Medicine](https://doi.org/10.1002/sim.6481) | Develops the unrestricted weighted least squares multiplicative estimator for meta-analysis as an alternative to both fixed and additive random effects. |
+| [Stanley and Doucouliagos 2017, Research Synthesis Methods](https://doi.org/10.1002/jrsm.1211) | Extends the multiplicative weighted least squares approach to meta-regression, which is the form a network model with covariates would need. |
+| [Mawdsley, Higgins, Sutton and Abrams 2017, Research Synthesis Methods](https://doi.org/10.1002/jrsm.1216) | Empirical comparison of additive and multiplicative heterogeneity models across pairwise meta-analyses, reporting broadly concordant point estimates with narrower intervals under the multiplicative model; this is the study that has never been repeated for networks. |
+| [Evrenoglou, White, Afach, Mavridis and Chaimani 2022, Statistics in Medicine](https://doi.org/10.1002/sim.9562) | Penalized-likelihood network model for rare events that accounts for heterogeneity through a multiplicative overdispersion term in a two-stage approach, because an additive heterogeneity parameter is not available in that model; demonstrates multiplicative heterogeneity already operating inside a network estimator. |
+| [Jackson, Law, Stijnen, Viechtbauer and White 2018, Statistics in Medicine](https://doi.org/10.1002/sim.7588) | Compares seven random-effects models for the summary odds ratio in pairwise meta-analysis on bias, coverage and interval width; the template for the comparison this entry asks for, executed one level below the network. |
+
+:::
+
+## Probable solution or research direction
+
+Run the comparison as a preregistered network simulation: vary the number of studies per contrast from two upward, the proportion of contrasts informed only indirectly, the presence of three-arm and four-arm studies, and heterogeneity that is constant across the network versus contrast-specific, and generate data under both an additive and a multiplicative truth so that each model is scored when it is right and when it is wrong. Report coverage and width for contrast intervals, the stability of rank probabilities and SUCRA, and the size of the design-by-treatment inconsistency test under each parameterization, since the error term of that test is exactly what the parameterization changes. Add an empirical arm over a database of published networks, refitting each under both models and recording how often the conclusion for the decision-relevant contrast changes; that frequency is what a guideline would need in order to recommend either as a default. Expose the multiplicative option in a mainstream network package so the answer is actionable rather than a paper, and state the network size above which each parameterization should be preferred.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. One reader proposed this and the reviewer accepted that the network consequences cannot be read off the pairwise results, because the parameterization propagates through the consistency equations into indirectly informed contrasts and into rankings. The evidence is a single methods paper's stated research need; what makes the gap conspicuous rather than speculative is that the pairwise version of the same comparison has been published twice and the multiplicative model has already been fitted inside a network estimator.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [HET-03 — Single shared heterogeneity variance across classes and populations](HET-03-single-shared-heterogeneity-variance-across-classes-and-popu.qmd)
+- [HET-08 — Inconsistency conclusions depend on an uncalibrated heterogeneity error specification](HET-08-inconsistency-conclusions-depend-on-an-uncalibrated-heteroge.qmd)
+- [HET-09 — Multivariate NMA inconsistency covariance is unidentifiable in sparse networks](HET-09-multivariate-nma-inconsistency-covariance-is-unidentifiable-.qmd)
+- [HET-10 — No calibrated small-study interval method for population-adjusted NMA](HET-10-no-calibrated-small-study-interval-method-for-population-adj.qmd)
+:::
+
+## Source
+
+Derived from reading:nma-36 of the reviewed corpus.

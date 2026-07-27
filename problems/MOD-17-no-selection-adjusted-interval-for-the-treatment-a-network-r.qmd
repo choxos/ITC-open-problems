@@ -1,0 +1,67 @@
+---
+title: "No selection-adjusted interval for the treatment a network ranks best"
+description: "Applied network meta-analyses routinely report the effect of the treatment their own output identifies as best, using the ordinary interval for that contrast, computed as if the treatment had been named before the data were seen. Taking the maximum of a set of correlated estimates biases the selected estimate away from the null, and the exaggeration is a property of the selection rather than of the ranking metric, so it arises with SUCRA, P-scores, probability best or any other measure used to pick the winner. The size is not negligible: in a published multiplicity simulation the best-versus-reference effect was estimated at 2.37 when the true value was 1.00. The available mitigation is shrinkage through exchangeable priors on relative effects, which lowers mean absolute error and reduces average exaggeration but is not calibrated to the selection event, since the degree of shrinkage is governed by a between-treatment variance estimated from the same data and by an analyst-chosen exchangeability partition. No estimator supplies a conditional or selection-adjusted interval for the selected contrast with demonstrated coverage in a network, and no reporting convention requires the selection step to be declared, so a reader cannot tell whether the reported contrast was pre-specified or won a competition."
+pid: "MOD-17"
+topic: "Model specification, double robustness & targeted learning"
+categories: ["Model specification, double robustness & targeted learning", "High priority", "Confirmed open"]
+priority: "High"
+prank: 2
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Emerging"
+tractability: 3
+---
+::: {.problem-meta}
+[MOD-17]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[High priority]{.chip .chip-priority-high}
+[Emerging]{.chip .chip-maturity-emerging}
+[Tractability 3/5]{.chip}
+:::
+## Statement
+
+Applied network meta-analyses routinely report the effect of the treatment their own output identifies as best, using the ordinary interval for that contrast, computed as if the treatment had been named before the data were seen. Taking the maximum of a set of correlated estimates biases the selected estimate away from the null, and the exaggeration is a property of the selection rather than of the ranking metric, so it arises with SUCRA, P-scores, probability best or any other measure used to pick the winner. The size is not negligible: in a published multiplicity simulation the best-versus-reference effect was estimated at 2.37 when the true value was 1.00. The available mitigation is shrinkage through exchangeable priors on relative effects, which lowers mean absolute error and reduces average exaggeration but is not calibrated to the selection event, since the degree of shrinkage is governed by a between-treatment variance estimated from the same data and by an analyst-chosen exchangeability partition. No estimator supplies a conditional or selection-adjusted interval for the selected contrast with demonstrated coverage in a network, and no reporting convention requires the selection step to be declared, so a reader cannot tell whether the reported contrast was pre-specified or won a competition.
+
+## Why it is open
+
+Selection-adjusted and conditional inference exist in other fields, but the machinery is built for independent or simply structured estimates, whereas a network's contrasts are correlated through shared arms, multi-arm trials and a common between-study variance, and that correlation is estimated rather than known. Conditioning on the event that a given contrast was the maximum has no closed form in that setting, and resampling schemes must repeat the entire fit, including variance estimation and the ranking step, inside every replicate. Shrinkage and selection adjustment answer different questions and are frequently conflated: shrinkage improves average error over all contrasts, while a selection-adjusted interval has to cover the particular contrast that won, which shrinkage does not guarantee. There is also no agreement on what the selection event is, since reporting the top-ranked treatment, reporting the top two, and reporting a pre-specified treatment that happened to rank first are three different selection rules requiring three different corrections, and nothing in current practice records which one occurred.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Efthimiou & White 2020, Research Synthesis Methods 11(1):105-122](https://doi.org/10.1002/jrsm.1377) | Documents multiplicity in network meta-analysis and shows that identifying the best or worst treatment risks overestimating the corresponding effect regardless of the measure used to identify it, with a simulation in which the selected best-versus-reference effect is 2.37 against a true 1.00. Proposes exchangeable priors as mitigation; reports no coverage or bias for the selected contrast conditional on selection. |
+| [Salanti, Ades & Ioannidis 2011, Journal of Clinical Epidemiology 64(2):163-171](https://doi.org/10.1016/j.jclinepi.2010.03.016) | Defines the ranking summaries, including SUCRA, that turn a fitted network into the statement of which treatment is best; the selection whose consequences are unadjusted starts here. |
+| [Rucker & Schwarzer 2015, BMC Medical Research Methodology 15:58](https://doi.org/10.1186/s12874-015-0060-8) | Frequentist ranking by P-scores without resampling, showing the ranking step is cheap and therefore ubiquitous; the ranking is delivered without any adjustment to the interval of the contrast that is subsequently reported. |
+| [Trinquart, Attiche, Bafeta, Porcher et al. 2016, Annals of Internal Medicine 164(10):666-673](https://doi.org/10.7326/M15-2521) | Reanalysis of published network meta-analyses showing that ranking uncertainty is large and that rankings are unstable, which is the empirical counterpart of the selection problem; it quantifies uncertainty in the rank rather than correcting the effect estimate for having been selected. |
+| [Andrews, Kitagawa & McCloskey 2024, Quarterly Journal of Economics 139(1):305-358](https://doi.org/10.1093/qje/qjad043) | Inference on winners: conditional and hybrid confidence intervals with correct coverage for a parameter selected as the maximum of a set of correlated estimates. This is the machinery the network problem needs, developed for a known covariance and not adapted to a network with multi-arm trials and an estimated heterogeneity variance. |
+| [Benjamini & Yekutieli 2005, Journal of the American Statistical Association 100(469):71-81](https://doi.org/10.1198/016214504000001907) | False coverage-statement rate intervals for selected parameters, the alternative framework in which the guarantee is over the set of reported intervals rather than conditional on the selection event. |
+| [Efron 2011, Journal of the American Statistical Association 106(496):1602-1614](https://doi.org/10.1198/jasa.2011.tm11181) | Tweedie's formula and selection bias, the empirical Bayes correction that explains why shrinkage reduces average exaggeration and why the amount of correction depends on an estimated prior, which is the reason shrinkage does not by itself calibrate the selected interval. |
+
+:::
+
+## Probable solution or research direction
+
+Define the selection event that applied practice actually performs, namely reporting the contrast that maximizes a named ranking statistic in the fitted network, and derive the conditional distribution of that contrast given the event under the standard normal-likelihood network model, taking the contrast covariance from the fit. Build both a conditional interval and a hybrid interval that trades some conditioning for length, then evaluate them by simulation over network size, heterogeneity, number of treatments, multi-arm structure and the true gap between the best and second-best treatment, reporting coverage conditional on selection and expected length. Compare against the exchangeable-prior shrinkage already in use, so the choice between a Bayesian mitigation and a frequentist correction rests on measured conditional coverage. Alongside the estimator, add a reporting requirement that any network reporting a best treatment declare whether that treatment was pre-specified, since the correction depends on the selection rule and no correction is possible when the rule is not recorded.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. One reader proposed this and the reviewer accepted it as a genuine post-selection problem distinct from selecting a model or a bridge, because here the reported contrast itself is data-dependent while the estimand is unchanged. It rests on a single network meta-analysis methods paper for the magnitude, which establishes winner's-curse exaggeration and offers a prior-based mitigation rather than conditional coverage.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [MOD-04 — No post-selection inference for model choice in population adjustment](MOD-04-no-post-selection-inference-for-model-choice-in-population-a.qmd)
+- [MIS-04 — Model and bridge selection uncertainty never enters the interval](MIS-04-model-and-bridge-selection-uncertainty-never-enters-the-inte.qmd)
+- [DIA-15 — Coding-error bias, rank reversal and drift calibration go unscored](DIA-15-coding-error-bias-rank-reversal-and-drift-calibration-go-uns.qmd)
+- [DEC-01 — Method evaluations score estimator error, not decision error](DEC-01-method-evaluations-score-estimator-error-not-decision-error.qmd)
+:::
+
+## Source
+
+Derived from reading:nma-30 of the reviewed corpus.

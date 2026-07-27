@@ -3,16 +3,16 @@ title: "No standard ledger names the parameter carrying the gap"
 description: "A bridge ledger should name, for each bridge in use, the identifiable cross-gap functional carrying the information, the identifying assumptions, and a prespecified sensitivity parameter appropriate to that model. Shared baselines, shared component effects, component-by-modifier interactions, class deviations, dose-response transport deviations, and external-control bias functions are defensible examples; the literature auditor checked those rows against Beliveau et al. 2017 and Thom et al. 2022 for baselines, Petropoulou et al. 2023 for additivity, Perren et al. 2026 for class effects, Pedder et al. 2021 for dose-response transport, and Hussein et al. 2023 for the external-control bias parameter. The sensitivity parameters are analysis-specific rather than canonical: a baseline heterogeneity standard deviation estimated from the data is not automatically a sensitivity parameter, and systematic subnetwork nonexchangeability is better represented by a location shift or bias function. In rank-deficient component models the carrying object may be an identifiable row-space functional rather than any individual shared coefficient."
 pid: "DIS-12"
 topic: "Disconnected networks & bridges"
-categories: ["Disconnected networks & bridges", "Very high priority", "Confirmed open"]
+categories: ["Disconnected networks & bridges", "Very high priority", "Partially addressed"]
 priority: "Very high"
 prank: 1
-verdict: "Confirmed open"
-verdictslug: "confirmed-open"
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
 maturity: "Promising"
 ---
 ::: {.problem-meta}
 [DIS-12]{.problem-id}
-[Confirmed open]{.verdict .verdict-confirmed-open}
+[Partially addressed]{.verdict .verdict-partially-addressed}
 [Very high priority]{.chip .chip-priority-very-high}
 [Promising]{.chip .chip-maturity-promising}
 :::
@@ -47,11 +47,16 @@ Develop the ledger as a reporting object with one row per bridge, naming the ide
 ## Verification
 
 ::: {.verification-trail}
-**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+**Verdict.** Partially addressed. Auditors agreed the problem is open and no counterevidence surfaced. Reopened by the full-text reading: 3 findings from 3 papers survived both the reader and an independent second reviewer, so the verdict moves from confirmed-open to partially-addressed.
 
 **The source said.** "Every disconnected analysis should include a bridge ledger listing, for each bridge used, the parameter carrying information across the gap, the empirical evidence supporting it, the untestable part, the sensitivity parameter, and the impact on the target contrast. The report supplies a six-row template covering baseline synthesis, component additivity, component effect modification, class effects, dose response, and external controls; no such object is currently required."
 
 **What was wrong with it.** The source presented a fixed six-row ledger with canonical sensitivity parameters; GPT-5.6 Sol found the mapping is not uniquely determined, that a baseline-drift standard deviation is the wrong canonical choice, and that class-outlier probability is underdefined without an outlier distribution and magnitude. The literature auditor confirmed the ledger content against the primary literature but flagged class-outlier probability as the catalog's own coinage, absent from Perren et al., and treated the claim that no reporting standard requires naming the carrying parameter as unproven rather than established: a reporting and risk-of-bias framework for population-adjusted comparisons does exist (Ishak et al. 2025, doi:10.1007/s40273-025-01503-1), and the PRISMA-NMA update is at scoping-review and Delphi stage.
+
+**Revised by the full-text reading.** Applied 2026-07-26 full-text reading of the consolidated library (687 papers).
+
+Verdict changed
+:   **confirmed-open -> partially-addressed** 3 surviving findings from: Anchors Away: Navigating Unanchored Indirect Comparisons wit; Evidence contributions in component network meta-analysis fr; Network meta-analysis of multiple outcome measures accountin. New citations: 10.1186/1471-2288-14-92, 10.1186/s12874-026-02766-8
 
 Literature and prior-art check
 :   **open / supported-with-caveat.** I checked each of the six ledger rows against the primary literature rather than the report. Baseline synthesis: the carrying parameter is the baseline effect and the untestable part is baseline exchangeability, consistent with Beliveau 2017 and Thom 2022. Additivity across a gap: consistent with Petropoulou 2023. Class: consistent with Perren 2026, though 'class-outlier probability' as the sensitivity parameter is the entry's coinage and appears nowhere in Perren. Dose-response transport: consistent with Pedder 2021. External control residual confounding with a bias function: consistent with the bias-parameter formulation in Hussein et al. 2023. So the ledger content is technically sound. The final claim, that no reporting standard requires naming the parameter that carries the gap, is an absence claim; I confirmed PRISMA-NMA has no such item and that its update is only now at scoping-review and Delphi stage for early 2026, but absence of a requirement cannot be positively verified, so treat it as unproven rather than established.
@@ -64,11 +69,35 @@ Decision path
 
 :::
 
+## How the evidence falls in time
+
+7 papers in the reviewed corpus bear on this problem, published 2014 to 2026. The most recent paper to touch this reports progress on it, and every paper calling it open is older.
+
+It is also being **closed in pieces**: partial results come from more than one paper in more than one year, each covering a different part.
+
+**Does the later work answer the earlier work?** Put to an independent reviewer with the older and newer claims side by side, it judged that the later work answers a component of it, leaving a named part (high confidence). The later work provides substantive ledger entries for particular bridge families: contribution flows for component NMA and an assumption-plus-delta sensitivity formulation for unanchored meta-regression. It does not establish the general ledger or make its use a standard reporting requirement across bridge types. What remains: A cross-family reporting standard that requires every bridge analysis to name its carrying functional, identifying assumptions, and prespecified sensitivity parameter.
+
+::: {.table-scroll}
+
+| Year | Says | Paper |
+|---|---|---|
+| 2014 | partly addresses it | Network meta-analysis of multiple outcome measures accounting for borrowing of information across outcomes |
+| 2019 | confirms it is open | Creating historical controls using data from a previous line of treatment - two non-standard approaches |
+| 2021 | confirms it is open | Component network meta-analysis compared to a matching method in a disconnected network: A case study |
+| 2025 | confirms it is open | A leave-one-out algorithm for contribution analysis in component network meta-analysis |
+| 2025 | confirms it is open | Risk of Bias in Network Meta-Analysis (RoB NMA) tool |
+| 2026 | partly addresses it | Evidence contributions in component network meta-analysis from the shortest-path approach |
+| 2026 | partly addresses it | Anchors Away: Navigating Unanchored Indirect Comparisons with Multilevel Unanchored Meta-Regression (ML-UMR) (Chandler & Ishak; arXiv:2606.20341v1). The batch file points at media/media/Table1.pdf; the full LaTeX source mlumr.tex sits in the same arXiv package and was read. |
+
+:::
+
 ## Related problems
 
 ::: {.related-links}
 - [DEC-05 — Committees get no one-page statement of what an estimate rests on](DEC-05-committees-get-no-one-page-statement-of-what-an-estimate-res.qmd)
 - [DEC-08 — No provenance label separates bridged from prior-driven contrasts](DEC-08-no-provenance-label-separates-bridged-from-prior-driven-cont.qmd)
+- [DIS-17 — Cross-outcome borrowing is a bridge with no diagnostic](DIS-17-cross-outcome-borrowing-is-a-bridge-with-no-diagnostic.qmd)
+- [EVB-11 — No missing-evidence appraisal for bridged cross-gap contrasts](EVB-11-no-missing-evidence-appraisal-for-bridged-cross-gap-contrast.qmd)
 :::
 
 ## Source

@@ -3,16 +3,16 @@ title: "Weak overlap leaves target regions the source data cannot support"
 description: "Weak overlap between the source individual patient data and the target population can produce highly variable MAIC weights, a low effective sample size and unstable inference, and can push outcome-regression predictions into regions where they rely heavily on extrapolation; applied work contains exactly this, with 93 pooled patients reduced to an effective sample size of 29 (doi:10.1016/j.clcc.2026.04.003). These are consequences that can occur, not necessities: finite-moment MAIC can retain a healthy effective sample size while still failing to cover unsupported regions or unbalanced features, so a comfortable ESS is not evidence of support. ESS is itself only a concentration functional of the weights, and Phillippo et al. 2018 record that the Kish approximation 'is likely to be an underestimation of the true ESS' because the weights are estimated and correlated with the outcome (doi:10.1177/0272989X17725740); precision is additionally governed by estimator-specific influence, weighted outcome variance, treatment allocation, and for survival outcomes weighted risk-set and event information. What no estimator can fix is the nonparametric identification failure: where target covariate mass is absent from the source, reporting an effect requires stronger modeling assumptions, target redefinition, sensitivity analysis or abstention."
 pid: "OVL-01"
 topic: "Positivity, overlap & extrapolation"
-categories: ["Positivity, overlap & extrapolation", "Very high priority", "Confirmed open"]
+categories: ["Positivity, overlap & extrapolation", "Very high priority", "Partially addressed"]
 priority: "Very high"
 prank: 1
-verdict: "Confirmed open"
-verdictslug: "confirmed-open"
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
 maturity: "Established"
 ---
 ::: {.problem-meta}
 [OVL-01]{.problem-id}
-[Confirmed open]{.verdict .verdict-confirmed-open}
+[Partially addressed]{.verdict .verdict-partially-addressed}
 [Very high priority]{.chip .chip-priority-very-high}
 [Established]{.chip .chip-maturity-established}
 :::
@@ -52,13 +52,18 @@ Report precision in estimator-specific terms rather than through Kish ESS alone:
 ## Verification
 
 ::: {.verification-trail}
-**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+**Verdict.** Partially addressed. Auditors agreed the problem is open and no counterevidence surfaced. Reopened by the full-text reading: 1 finding from 1 paper survived both the reader and an independent second reviewer, so the verdict moves from confirmed-open to partially-addressed, on a single finding.
 
 **The source titled this.** "Weak overlap collapses effective sample size and destabilizes weights" The title states effective sample size collapse and unstable weights as necessary consequences, which the audit found to be possible rather than automatic.
 
 **The source said.** "When source and target covariate distributions overlap weakly, MAIC weights explode and the effective sample size collapses, regression-based methods extrapolate beyond the observed data, and the nominal target population becomes unsupported by the evidence. The report names weak overlap and unstable weighting as the first of the field's most important open problems and as a principal unresolved weakness of anchored MAIC."
 
 **What was wrong with it.** The source presented ESS collapse and exploding weights as necessary consequences of weak overlap and treated ESS as the operative precision metric; GPT-5.6 Sol judged both too strong, since finite-moment MAIC can retain a healthy ESS while leaving unsupported regions uncovered, and the literature auditor added that Phillippo et al. 2018 (doi:10.1177/0272989X17725740) call the reported Kish ESS a likely underestimate of the true ESS. The claim was unattributed in the source and is now sourced to that paper and to Remiro-Azocar, Heath and Baio 2022 (doi:10.1002/jrsm.1565), which treats regression extrapolation as a capability rather than as concealment and reports parametric G-computation as more precise and more accurate than MAIC particularly when covariate overlap is poor.
+
+**Revised by the full-text reading.** Applied 2026-07-26 full-text reading of the consolidated library (687 papers).
+
+Verdict changed
+:   **confirmed-open -> partially-addressed** 1 surviving finding from: Arbitrated Indirect Treatment Comparisons. New citations: 10.1007/s43441-026-00976-2
 
 Literature and prior-art check
 :   **open / supported-with-caveat.** Read the full text of Phillippo et al. 2018 (PMC5774635) and abstracts of Remiro-Azocar's simulation programme. The core claims are all sourceable, and I supply the sources below since prior_work was empty. Two caveats. (1) The entry treats ESS as 'the operative precision metric'; Phillippo et al. state the Kish ESS 'is only accurate if the weights are fixed and known, or if they are uncorrelated with the outcome - neither of which is true here. As such, this approximation is likely to be an underestimation of the true ESS.' The metric the entry leans on is a known-biased approximation, which the entry never says. (2) The entry frames regression extrapolation as concealment; Remiro-Azocar et al. 2022 frame it as a capability and find parametric G-computation 'more precise and more accurate than MAIC, particularly when covariate overlap is poor,' and the 162-scenario study concludes MAIC's 'bias reduction outweighs the loss in precision' at low overlap. Positivity itself is a property of the data and remains open; the precision consequence is partly addressed.
@@ -76,6 +81,34 @@ Decision path
 
 :::
 
+## How the evidence falls in time
+
+15 papers in the reviewed corpus bear on this problem, published 2017 to 2026. Progress and a fresh assertion of openness land in the same year.
+
+This problem is **recurrent**: three or more papers spanning at least eight years assert it independently. Sustained restatement by authors who mostly do not cite each other is the strongest evidence this reading can offer that a gap is real rather than one group's framing.
+
+::: {.table-scroll}
+
+| Year | Says | Paper |
+|---|---|---|
+| 2017 | confirms it is open | Can Matching-Adjusted Indirect Comparison Methods Mitigate Placebo Response Differences Among Patient Populations in Adjunctive Trials of Brivaracetam and Levetiracetam? |
+| 2018 | confirms it is open | Sensitivity analyses for effect modifiers not observed in the target population when generalizing treatment effects from a randomized controlled trial: Assumptions, models, effect scales, data scenarios, and implementation details (Nguyen, Ackerman, Schmid, Cole, Stuart, PLoS ONE 2018;13(12):e0208795) |
+| 2018 | confirms it is open | Comparing pharmacological treatments for cocaine dependence: Incorporation of methods for enhancing generalizability in meta-analytic studies |
+| 2019 | confirms it is open | Population Adjustment Methods for Indirect Comparisons: A Review of National Institute for Health and Care Excellence Technology Appraisals |
+| 2020 | confirms it is open | Assessing the performance of population adjustment methods for anchored indirect comparisons: A simulation study |
+| 2020 | confirms it is open | A Review of Two Regulatory Approved Anti-CD19 CAR T-Cell Therapies in Diffuse Large B-Cell Lymphoma: Why Are Indirect Treatment Comparisons Not Feasible? |
+| 2021 | confirms it is open | Methods for population adjustment with limited access to individual patient data: A review and simulation study |
+| 2022 | confirms it is open | Calibrating a network meta-analysis of diabetes trials of sodium glucose cotransporter 2 inhibitors, glucagon-like peptide-1 receptor analogues and dipeptidyl peptidase-4 inhibitors to a representative routine population: a systematic review protocol |
+| 2022 | confirms it is open | Comparative effectiveness of medical treatment vs. metabolic surgery for histologically proven non-alcoholic steatohepatitis and fibrosis: a matched network meta-analysis |
+| 2022 | confirms it is open | Feasibility Study of a Network Meta-Analysis and Unanchored Population-Adjusted Indirect Treatment Comparison of Niraparib, Olaparib, and Bevacizumab as Maintenance Therapies in Patients with Newly Diagnosed Advanced Ovarian Cancer |
+| 2023 | confirms it is open | A Critical Appraisal of Matching-Adjusted Indirect Comparisons in Spinal Muscular Atrophy |
+| 2024 | confirms it is open | Comparing the efficacy of cipaglucosidase alfa plus miglustat with other enzyme replacement therapies for late-onset Pompe disease: a network meta-analysis utilizing patient-level and aggregate data |
+| 2024 | confirms it is open | Feasibility of Indirect Treatment Comparisons Between Niraparib Plus Abiraterone Acetate and Other First-Line Poly ADP-Ribose Polymerase Inhibitor Treatment Regimens for Patients with BRCA1/2 Mutation-Positive Metastatic Castration-Resistant Prostate Cancer |
+| 2026 | partly addresses it | Arbitrated Indirect Treatment Comparisons |
+| 2026 | confirms it is open | Can We Trust PAICs in Rare Diseases? Methodological Challenges and Limitations |
+
+:::
+
 ## Related problems
 
 ::: {.related-links}
@@ -89,6 +122,8 @@ Decision path
 - [EST-02 — Anchored PAIC needs a second transport to the decision population](EST-02-anchored-paic-needs-a-second-transport-to-the-decision-popul.qmd)
 - [EST-06 — The MAIC paradox: swapping the IPD trial can reverse the comparison](EST-06-the-maic-paradox-swapping-the-ipd-trial-can-reverse-the-comp.qmd)
 - [EST-11 — No simulation crosses target choice with second-stage transport error](EST-11-no-simulation-crosses-target-choice-with-second-stage-transp.qmd)
+- [EST-16 — Synthetic-patient indirect comparisons lack a validation standard](EST-16-synthetic-patient-indirect-comparisons-lack-a-validation-sta.qmd)
+- [IDN-20 — No synthesis framework for treatment-specific eligibility patterns](IDN-20-no-synthesis-framework-for-treatment-specific-eligibility-pa.qmd)
 - [MOD-05 — No doubly robust PAIC estimator is indexed by bias parameters](MOD-05-no-doubly-robust-paic-estimator-is-indexed-by-bias-parameter.qmd)
 - [MOD-10 — Flexible interaction surfaces inside network evidence synthesis](MOD-10-flexible-interaction-surfaces-inside-network-evidence-synthe.qmd)
 - [QBA-18 — MAIC sensitivity grids: infeasible calibration and failed fits](QBA-18-maic-sensitivity-grids-infeasible-calibration-and-failed-fit.qmd)

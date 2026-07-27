@@ -3,16 +3,16 @@ title: "Published PAIC analyses do not record the choices that drive them"
 description: "The choices that determine a population-adjusted estimate (covariate selection and exclusion, weight trimming, priors, target population definition, survival curve reconstruction settings) are frequently not reported, and this is now documented rather than asserted: Truong et al. (doi:10.1002/jrsm.1653) reviewed 106 articles and 157 PAIC analyses and found conduct and reporting 'remarkably heterogeneous and suboptimal in current practice', Farinasso et al. (doi:10.1016/j.vhri.2025.101088) found 3 of 117 oncology MAICs met all NICE recommendations with weight distributions and effect-modifier evidence among the least reported items, and Phillippo et al. 2019 (PMID 31190671) documents covariate selection in NICE appraisals resting variously on availability, expert opinion, effective sample size, statistical significance or cross-validation. No released PAIC package emits a standalone analysis manifest or model card; cpaic, an unreleased development package on GitHub that is not on CRAN, stores priors, targets, selected covariates, seed and integration settings inside its fitted objects but exports no manifest and records neither the covariate-selection rationale nor upstream survival reconstruction. Shared executable code can recover many of these choices, so the failure is one of disclosure and machine-readability rather than of absolute irrecoverability."
 pid: "CMU-07"
 topic: "Computation & reproducibility"
-categories: ["Computation & reproducibility", "High priority", "Unverifiable"]
+categories: ["Computation & reproducibility", "High priority", "Partially addressed"]
 priority: "High"
 prank: 2
-verdict: "Unverifiable"
-verdictslug: "unverifiable"
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
 maturity: "Emerging"
 ---
 ::: {.problem-meta}
 [CMU-07]{.problem-id}
-[Unverifiable]{.verdict .verdict-unverifiable}
+[Partially addressed]{.verdict .verdict-partially-addressed}
 [High priority]{.chip .chip-priority-high}
 [Emerging]{.chip .chip-maturity-emerging}
 :::
@@ -51,13 +51,18 @@ The fitted objects already carry much of the specification, so the near-term wor
 ## Verification
 
 ::: {.verification-trail}
-**Verdict.** Unverifiable. Auditors disagreed and the disagreement was evidence-bearing on both sides.
+**Verdict.** Partially addressed. Auditors disagreed and the disagreement was evidence-bearing on both sides. Reopened by the full-text reading: 1 finding from 1 paper survived both the reader and an independent second reviewer, so the verdict moves from unverifiable to partially-addressed, on a single finding.
 
 **The source said.** "The choices that determine a population-adjusted estimate (covariate selection and exclusion, weight trimming, priors, target population definition, and survival curve reconstruction settings) are made outside the fitted object and are frequently left undocumented, and no package emits a manifest that records them. A published estimate therefore cannot be reconstructed or interrogated even when the code is shared."
 
 **What was wrong with it.** The source asserted that PAIC reporting is suboptimal without any citation; the entry was flagged source_unsourced and the literature auditor supplied three real references, so the claim is now sourced: Truong et al. 2023 (doi:10.1002/jrsm.1653), Farinasso et al. 2025 (doi:10.1016/j.vhri.2025.101088), and Phillippo et al. 2019 (PMID 31190671). The source-code auditor narrowed the software claim: fitted objects in cpaic already store much of the specification, so what is missing is a manifest export and the selection rationale rather than all provenance, and shared code makes the original 'cannot be reconstructed' too absolute.
 
 **Dissent.** literature dissented (open): This entry is marked source_unsourced, and the reporting-quality claims are in fact well supported by real literature I retrieved from PubMed, which converts them. Truong et al. 2023 (Res Synth Methods, doi 10.1002/jrsm.1653, PMID 37400080) reviewed 106 articles and 157 PAIC analyses and concludes conduct and reporting are 'remarkably heterogeneous and suboptimal in current practice', with model-fitting results adequately reported in only 3 of 18 analyses that required an outcome model. Farinasso et al. 2025 (doi 10.1016/j.vhri.2025.101088, PMID 39999561) reviewed 117 oncology MAICs and found only 3 met all NICE recommendations, with weight distributions and effect-modifier evidence among the least reported items. Phillippo et al. 2019 (doi 10.1017/S0266462319000333, PMID 31190671) documents that covariate selection in NICE appraisals rested on availability, expert opinion, effective sample size, statistical significance or cross-validation, i.e. heterogeneous undocumented practice. The manifest/model-card claims remain absence claims: I found no PAIC package emitting an analysis manifest (maicplus README and multinma R/ show none), so those are unrefuted rather than verified. codex dissented (overstated): C1 is a placeholder rather than an assessable claim. C2 and C4 are plausible practice concerns but are unsupported empirical generalizations here; C3 is explicitly a literature-coverage claim outside the assigned lens. C5 and C6 are universal negatives that cannot be established from cpaic or the supplied works. C7 is a reasonable proposal. C8 is too strong because a container is one environment-capture mechanism, not a necessary or sufficient condition for reproducibility. Source inspection materially narrows the statement: cpaic's cML-NMR object stores the complete prior specification, refit arguments, sampler seed, integration settings, and provenance; cMAIC and cSTC objects store their target and selected covariates. However, cMAIC omits target_sd, min_boot_success, and seed from its returned object; upstream survival reconstruction choices and covariate-selection rationale are not recorded; and no standalone manifest or model-card export exists. cpaic also has no trimming option, so there is no hidden package trimming setting to document. Shared executable code can reconstruct many choices even without a manifest, contrary to the report's absolute claim.
+
+**Revised by the full-text reading.** Applied 2026-07-26 full-text reading of the consolidated library (687 papers).
+
+Verdict changed
+:   **unverifiable -> partially-addressed** 1 surviving finding from: Addressing challenges with Matching-Adjusted Indirect Compar. New citations: 10.1186/s12874-025-02500-w
 
 Literature and prior-art check
 :   **open / supported.** This entry is marked source_unsourced, and the reporting-quality claims are in fact well supported by real literature I retrieved from PubMed, which converts them. Truong et al. 2023 (Res Synth Methods, doi 10.1002/jrsm.1653, PMID 37400080) reviewed 106 articles and 157 PAIC analyses and concludes conduct and reporting are 'remarkably heterogeneous and suboptimal in current practice', with model-fitting results adequately reported in only 3 of 18 analyses that required an outcome model. Farinasso et al. 2025 (doi 10.1016/j.vhri.2025.101088, PMID 39999561) reviewed 117 oncology MAICs and found only 3 met all NICE recommendations, with weight distributions and effect-modifier evidence among the least reported items. Phillippo et al. 2019 (doi 10.1017/S0266462319000333, PMID 31190671) documents that covariate selection in NICE appraisals rested on availability, expert opinion, effective sample size, statistical significance or cross-validation, i.e. heterogeneous undocumented practice. The manifest/model-card claims remain absence claims: I found no PAIC package emitting an analysis manifest (maicplus README and multinma R/ show none), so those are unrefuted rather than verified.
@@ -75,6 +80,28 @@ Grok 4.5, recency lens
 
 Decision path
 :   `R3:partially-solved(n=1) → R7:counter-and-support-both-present`
+
+:::
+
+## How the evidence falls in time
+
+9 papers in the reviewed corpus bear on this problem, published 2015 to 2026. Partial progress is on the record, and later work still calls this open. Both belong in view.
+
+This problem is **recurrent**: three or more papers spanning at least eight years assert it independently. Sustained restatement by authors who mostly do not cite each other is the strongest evidence this reading can offer that a gap is real rather than one group's framing.
+
+::: {.table-scroll}
+
+| Year | Says | Paper |
+|---|---|---|
+| 2015 | confirms it is open | An Assessment of the Methodological Quality of Published Network Meta-Analyses: A Systematic Review |
+| 2015 | confirms it is open | Heterogeneity, consistency and model fit should be assessed in Bayesian network meta-analysis |
+| 2016 | confirms it is open | A scoping review of indirect comparison methods and applications using individual patient data |
+| 2016 | confirms it is open | Review of the Reporting of Survival Analyses within Randomised Controlled Trials and the Implications for Meta-Analysis |
+| 2016 | confirms it is open | Use of network meta-analysis in systematic reviews: a survey of authors |
+| 2018 | confirms it is open | A systematic survey shows that reporting and handling of missing outcome data in networks of interventions is poor |
+| 2025 | partly addresses it | Addressing challenges with Matching-Adjusted Indirect Comparisons to demonstrate the comparative effectiveness of entrectinib in metastatic ROS-1 positive Non-Small Cell Lung Cancer |
+| 2025 | confirms it is open | Methodologies for network meta-analysis of randomised controlled trials in pain, anaesthesia, and perioperative medicine: a narrative review |
+| 2026 | confirms it is open | Comparing the efficacy of cipaglucosidase alfa plus miglustat with alglucosidase alfa for late-onset Pompe disease: an expanded network meta-analysis utilizing patient-level and aggregate data |
 
 :::
 

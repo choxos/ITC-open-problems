@@ -1,0 +1,69 @@
+---
+title: "Network intervals condition on plugged-in variance components"
+description: "Standard frequentist network meta-analysis estimates the between-study heterogeneity variance, and where fitted the inconsistency variance, then treats both as known when computing treatment-effect standard errors and confidence intervals, so the reported interval answers a question conditional on quantities that were themselves estimated from few designs. In sparse networks the omission is large rather than technical: in a Cochrane topical antibiotics network of 13 studies and four treatments the plug-in estimate of one contrast is -1.92 with standard error 0.64, where the Bayesian posterior for the same contrast under the same normal approximations has mean -2.07 and standard deviation 1.09 (Jackson et al. 2016, doi:10.1002/sim.6752). The univariate corrections do not transfer mechanically, because multi-arm trials make contrast-level estimates dependent and because a model carrying both a heterogeneity and an inconsistency variance requires the two to be handled jointly. What information there is about those variances comes from the number of distinct designs rather than the number of studies: coverage falls below nominal whenever inconsistency is present, 50 studies spread over 5 designs performed no better than 10 studies over the same 5 designs, and only a network with 10 designs approached nominal coverage. Part of the problem has since been solved for likelihood-based fits, where Kenward-Roger-type corrections and Bartlett-type or bootstrap adjustments restore coverage for restricted-maximum-likelihood network meta-analysis and meta-regression and are the defaults of one CRAN package. The moments-based case with two variance components, which is where the question was raised, remains unaddressed, and the most widely used frequentist implementation still reports random-effects intervals conditional on a plugged-in heterogeneity variance."
+pid: "EST-13"
+topic: "Estimands & target populations"
+categories: ["Estimands & target populations", "Medium-high priority", "Partially addressed"]
+priority: "Medium-high"
+prank: 3
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
+maturity: "Promising"
+tractability: 4
+---
+::: {.problem-meta}
+[EST-13]{.problem-id}
+[Partially addressed]{.verdict .verdict-partially-addressed}
+[Medium-high priority]{.chip .chip-priority-medium-high}
+[Promising]{.chip .chip-maturity-promising}
+[Tractability 4/5]{.chip}
+:::
+## Statement
+
+Standard frequentist network meta-analysis estimates the between-study heterogeneity variance, and where fitted the inconsistency variance, then treats both as known when computing treatment-effect standard errors and confidence intervals, so the reported interval answers a question conditional on quantities that were themselves estimated from few designs. In sparse networks the omission is large rather than technical: in a Cochrane topical antibiotics network of 13 studies and four treatments the plug-in estimate of one contrast is -1.92 with standard error 0.64, where the Bayesian posterior for the same contrast under the same normal approximations has mean -2.07 and standard deviation 1.09 (Jackson et al. 2016, doi:10.1002/sim.6752). The univariate corrections do not transfer mechanically, because multi-arm trials make contrast-level estimates dependent and because a model carrying both a heterogeneity and an inconsistency variance requires the two to be handled jointly. What information there is about those variances comes from the number of distinct designs rather than the number of studies: coverage falls below nominal whenever inconsistency is present, 50 studies spread over 5 designs performed no better than 10 studies over the same 5 designs, and only a network with 10 designs approached nominal coverage. Part of the problem has since been solved for likelihood-based fits, where Kenward-Roger-type corrections and Bartlett-type or bootstrap adjustments restore coverage for restricted-maximum-likelihood network meta-analysis and meta-regression and are the defaults of one CRAN package. The moments-based case with two variance components, which is where the question was raised, remains unaddressed, and the most widely used frequentist implementation still reports random-effects intervals conditional on a plugged-in heterogeneity variance.
+
+## Why it is open
+
+Variance-component uncertainty enters the treatment-effect interval through a nonlinear function of quantities that are poorly estimated exactly when the network is sparse, and it is the design count rather than the study count that governs how much information there is about them, so asymptotics in the number of studies do not describe the situation the correction is needed for. The moments-based estimator has no likelihood, so the Kenward-Roger and Bartlett machinery that repaired the restricted-maximum-likelihood case does not apply to it, and truncating negative variance estimates at zero introduces a positive bias that any interval method has to accommodate. Which resampling scheme is appropriate is itself unstudied for networks, since resampling studies changes the design structure and can drop a design or disconnect the network entirely. And because the plug-in interval is narrow rather than visibly wrong, nothing in the output signals the problem, and a wider Bayesian interval on the same data is usually attributed to the prior instead.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Jackson et al. 2016, Statistics in Medicine](https://doi.org/10.1002/sim.6752) | gives the moments-based estimator for a network model with separate heterogeneity and inconsistency variances, states that interval estimation for those components does not extend immediately to networks because multi-arm trials make estimates dependent and two variances are involved, offers bootstrapping as an unvalidated stopgap, and reports the coverage and design-count results |
+| [Hartung and Knapp 2001, Statistics in Medicine](https://doi.org/10.1002/sim.1009) | gives the refined variance estimator and t reference distribution for pairwise meta-analysis that accounts for estimation of the heterogeneity variance, the univariate fix whose network extension is the open question |
+| [Veroniki et al. 2019, Research Synthesis Methods](https://doi.org/10.1002/jrsm.1319) | inventories and compares methods for calculating uncertainty in the summary effect of a random-effects meta-analysis, the pairwise reference set for which no network counterpart exists |
+| [Jackson and Riley 2014, Statistics in Medicine](https://doi.org/10.1002/sim.5957) | supplies a refined multivariate meta-analysis and meta-regression method that allows for estimation of the between-study covariance matrix, the closest multivariate precedent for what a network version would need |
+| [Noma et al. 2018, Statistics in Medicine](https://doi.org/10.1002/sim.7578) | develops likelihood-ratio and score-based inference for network meta-analysis with Bartlett-type corrections and parametric bootstrap adjustments, showing that small-sample invalidity of the standard intervals can be corrected within the likelihood framework |
+| [Noma et al. 2023, Research Synthesis Methods](https://doi.org/10.1002/jrsm.1652) | gives Kenward-Roger-type corrected covariance estimators and t approximations for restricted-maximum-likelihood network meta-analysis and meta-regression, reporting that standard Wald intervals seriously underestimate error with few trials while the corrected intervals hold their nominal coverage |
+| [Noma et al. 2023, Research Synthesis Methods](https://doi.org/10.1002/jrsm.1651) | extends the same correction to prediction intervals for network meta-analysis through bootstrap and Kenward-Roger adjustments, with an implementation in the PINMA package |
+| [NMA (CRAN 3.1-1)](https://cran.r-project.org/package=NMA) | implements contrast-based network meta-analysis with the improved restricted-maximum-likelihood methods as defaults and also fits Jackson's random inconsistency model, so the corrected inference and the two-variance-component model are available in one package but have not been shown to work together |
+| [netmeta (CRAN 3.6-1)](https://cran.r-project.org/package=netmeta) | the most widely used frequentist implementation, whose random-effects estimates use the estimated heterogeneity variance as if known; neither its reference paper nor its package description lists a variance-component uncertainty correction |
+
+:::
+
+## Probable solution or research direction
+
+Take the two extensions in order. Derive an interval for the moments-based estimator that accounts for both variance components under dependent multi-arm contrasts, for example by constructing a Q-based confidence region for the pair of variances and taking the union of treatment-effect intervals over that region, and test it in the design-count regime where coverage is known to fail. Settle the resampling question by comparing study-level, design-level and parametric bootstraps on networks that lose designs when resampled, reporting coverage and interval width against the number of designs rather than the number of studies. Separately, check whether the Kenward-Roger and Bartlett corrections built for consistency models keep their coverage once a random inconsistency variance is added, since that is the model behind the applied question. Whatever survives belongs in the general-purpose frequentist packages as a default rather than in a specialist one as an option, and every reported interval should state which variance components were treated as known.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Partially addressed. One reader proposed it from a single methods paper whose discussion states the problem is open, and the reviewer accepted that the multi-arm and joint heterogeneity-inconsistency setting makes this more than a routine univariate correction. It is partially-addressed because Kenward-Roger-type and Bartlett-type corrections now restore coverage for likelihood-based network meta-analysis and ship as defaults in one CRAN package; the moments-based two-variance-component case and the mainstream implementations are untouched.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [DEC-11 — Intervals omit selection, reconstruction and target-summary error](DEC-11-intervals-omit-selection-reconstruction-and-target-summary-e.qmd)
+- [HET-02 — Multi-arm covariance is lost when contrasts are adjusted pairwise](HET-02-multi-arm-covariance-is-lost-when-contrasts-are-adjusted-pai.qmd)
+- [HET-03 — Single shared heterogeneity variance across classes and populations](HET-03-single-shared-heterogeneity-variance-across-classes-and-popu.qmd)
+- [MIS-04 — Model and bridge selection uncertainty never enters the interval](MIS-04-model-and-bridge-selection-uncertainty-never-enters-the-inte.qmd)
+:::
+
+## Source
+
+Derived from reading:nma-39 of the reviewed corpus.

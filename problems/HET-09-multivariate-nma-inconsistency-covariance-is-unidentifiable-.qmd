@@ -1,0 +1,71 @@
+---
+title: "Multivariate NMA inconsistency covariance is unidentifiable in sparse networks"
+description: "Multivariate network meta-analysis with random inconsistency effects carries two covariance matrices over the outcomes, one for between-study heterogeneity and one for inconsistency, and each has an explicit identification requirement: two or more studies of the same design must supply data on every pair of outcomes to identify the heterogeneity covariance, and two or more studies of different designs must do so to identify the inconsistency covariance. Published networks rarely satisfy either condition, because replication within and between designs is scarce and outcome reporting is incomplete. The workaround in use restores identifiability by data surgery: multi-arm trials are split into separate two-arm trials with the control arm halved, which manufactures the between-design replication the model requires out of studies that do not supply it, and it is adopted as an acknowledged pragmatic decision rather than defended. The stated fallbacks are to fit a lower-dimensional model or to assume consistency, both of which answer a different question from the one asked. What does not exist is a structured covariance family, a shrinkage prior or a regularized estimator that keeps the inconsistency covariance estimable at the replication levels real networks have, together with evidence on how much such a restriction moves the treatment effects it exists to protect."
+pid: "HET-09"
+topic: "Heterogeneity, consistency & multi-arm structure"
+categories: ["Heterogeneity, consistency & multi-arm structure", "Medium-high priority", "Confirmed open"]
+priority: "Medium-high"
+prank: 3
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Emerging"
+tractability: 3
+---
+::: {.problem-meta}
+[HET-09]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[Medium-high priority]{.chip .chip-priority-medium-high}
+[Emerging]{.chip .chip-maturity-emerging}
+[Tractability 3/5]{.chip}
+:::
+## Statement
+
+Multivariate network meta-analysis with random inconsistency effects carries two covariance matrices over the outcomes, one for between-study heterogeneity and one for inconsistency, and each has an explicit identification requirement: two or more studies of the same design must supply data on every pair of outcomes to identify the heterogeneity covariance, and two or more studies of different designs must do so to identify the inconsistency covariance. Published networks rarely satisfy either condition, because replication within and between designs is scarce and outcome reporting is incomplete. The workaround in use restores identifiability by data surgery: multi-arm trials are split into separate two-arm trials with the control arm halved, which manufactures the between-design replication the model requires out of studies that do not supply it, and it is adopted as an acknowledged pragmatic decision rather than defended. The stated fallbacks are to fit a lower-dimensional model or to assume consistency, both of which answer a different question from the one asked. What does not exist is a structured covariance family, a shrinkage prior or a regularized estimator that keeps the inconsistency covariance estimable at the replication levels real networks have, together with evidence on how much such a restriction moves the treatment effects it exists to protect.
+
+## Why it is open
+
+The identification conditions are properties of the design matrix rather than of the estimator, so no care in fitting recovers a covariance the network never observed; the only routes are to impose structure, to borrow strength across outcomes, or to accept partial identification. Imposing structure is not free, because restricting the covariance to a compound-symmetric or factor-analytic form changes the borrowing of strength between outcomes, which is the entire reason multivariate synthesis is used, and nobody has measured that trade. The Bayesian route has the tools, since correlation-matrix priors are standard, but with two or three studies per design the posterior for the inconsistency covariance is the prior, and no work reports how far the treatment effects move as that prior is varied. Trial splitting is convenient and leaves no trace in the output, which removes the pressure to solve the problem properly: the fitted model reports an inconsistency variance, and nothing in the report says it was made estimable by counting one control arm twice.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Jackson, Bujkiewicz, Law, Riley and White 2018, Biometrics](https://doi.org/10.1111/biom.12762) | Matrix-based method of moments for multivariate network meta-analysis with multiple outcomes and random inconsistency effects; states the identification conditions verbatim, meets them in the worked example by splitting three interferon-beta trials into separate two-arm trials with halved control arms as an explicitly pragmatic decision, and offers only lower dimension or the consistent model as alternatives. |
+| [Jackson, White and Riley 2013, Biometrical Journal](https://doi.org/10.1002/bimj.201200152) | Matrix-based method of moments for the multivariate random effects model in meta-analysis and meta-regression; the estimator the network version generalizes, where the same replication requirements first appear without the design dimension. |
+| [Jackson, Law, Barrett, Turner, Higgins, Salanti and White 2016, Statistics in Medicine](https://doi.org/10.1002/sim.6752) | Extends DerSimonian and Laird estimation to network meta-analysis with random inconsistency effects; the univariate model whose multivariate generalization creates the covariance that cannot be identified. |
+| [Riley 2009, Journal of the Royal Statistical Society Series A](https://doi.org/10.1111/j.1467-985X.2008.00593.x) | Quantifies what ignoring within-study correlation does to multivariate meta-analysis estimates and intervals; establishes that the covariance structure is not a nuisance detail whose misspecification can be assumed harmless. |
+| [Riley, Thompson and Abrams 2008, Biostatistics](https://doi.org/10.1093/biostatistics/kxm023) | Alternative bivariate random-effects model for when the within-study correlations are unknown, replacing separate within- and between-study correlations with a single overall correlation; the closest existing precedent for restructuring a covariance to restore estimability, at the bivariate rather than the network level. |
+| [Wei and Higgins 2013, Statistics in Medicine](https://doi.org/10.1002/sim.5679) | Methods for estimating within-study covariances in multivariate meta-analysis when they are not reported; supplies the template for deriving a covariance from reported quantities instead of requiring the design to identify it. |
+| [Achana, Cooper, Bujkiewicz, Hubbard, Kendrick and Jones 2014, BMC Medical Research Methodology](https://doi.org/10.1186/1471-2288-14-92) | Bayesian network synthesis of multiple outcome measures with explicit borrowing of information across outcomes; the hierarchical route through which a shrinkage prior on an inconsistency covariance would be built, applied to the heterogeneity side. |
+| [Bujkiewicz, Thompson, Sutton, Cooper, Harrison and Symmons 2013, Statistics in Medicine](https://doi.org/10.1002/sim.5831) | Bayesian multivariate meta-analysis of mixed outcomes with the covariance structure specified through priors rather than estimated freely; shows the prior-based regularization exists as a technique while leaving the inconsistency covariance untouched. |
+| [Efthimiou, Mavridis, Cipriani, Leucht, Bagos and Salanti 2014, Statistics in Medicine](https://doi.org/10.1002/sim.6117) | Models multiple correlated outcomes within a network of interventions using odds ratios; the applied multivariate network model whose covariance requirements this identification problem constrains. |
+| [Lewandowski, Kurowicka and Joe 2009, Journal of Multivariate Analysis](https://doi.org/10.1016/j.jmva.2009.04.008) | Vine-based prior for random correlation matrices, the standard regularizing prior available for a covariance of this shape; developed outside evidence synthesis and never evaluated for keeping a network inconsistency covariance estimable. |
+| [Nikolakopoulou, Chaimani, Veroniki, Vasiliadis, Schmid and Salanti 2014, PLOS ONE](https://doi.org/10.1371/journal.pone.0086754) | Characterizes 186 published networks by size, topology and replication; supplies the empirical distribution of designs against which any claimed estimator has to be tested and against which the identification conditions can be scored. |
+
+:::
+
+## Probable solution or research direction
+
+Characterize the failure before proposing a fix: using the published database of network topologies, compute for each real network how many designs would supply the replication required for a two-outcome and a three-outcome inconsistency covariance, so that the fraction of the literature in which the unstructured model is identified becomes a measured number. Then compare candidate restrictions on the same simulated networks, namely a scalar inconsistency variance shared across outcomes, a compound-symmetric or factor-analytic covariance, and a hierarchical prior shrinking the inconsistency covariance toward zero, scoring each on bias and coverage of the treatment effects and on how often it correctly detects true inconsistency. Include trial splitting as a comparator so its cost is measured rather than assumed, since it is the current default and the direction of the bias it introduces is unknown. Report the prior sensitivity of the Bayesian versions explicitly, and where nothing is identified, say so and fall back to the consistent model with a stated bound rather than to a model that reports an inconsistency variance it did not estimate.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. One reader proposed this and the reviewer accepted that the quoted identification conditions support the concern and that no existing catalog entry addresses multivariate inconsistency estimability, while cautioning that the wording must not claim regularized or prior-based approaches are wholly nonexistent; it is worded accordingly, naming the prior and structured-covariance tools that exist and have not been applied here. The evidence is a single paper, which is also the paper that states the conditions and adopts the splitting workaround.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [HET-03 — Single shared heterogeneity variance across classes and populations](HET-03-single-shared-heterogeneity-variance-across-classes-and-popu.qmd)
+- [HET-07 — Heterogeneity structure is undefined for multi-parameter survival NMA](HET-07-heterogeneity-structure-is-undefined-for-multi-parameter-sur.qmd)
+- [OUT-19 — No multivariate population-adjusted model for correlated outcomes](OUT-19-no-multivariate-population-adjusted-model-for-correlated-out.qmd)
+- [HET-05 — Additive and multiplicative heterogeneity models have not been compared in NMA](HET-05-additive-and-multiplicative-heterogeneity-models-have-not-be.qmd)
+:::
+
+## Source
+
+Derived from reading:nma-33 of the reviewed corpus.

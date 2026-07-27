@@ -1,0 +1,64 @@
+---
+title: "Threshold analysis can perturb an estimate's location but not its precision"
+description: "Threshold analysis is offered as the decision-linked alternative to GRADE for network meta-analysis: for each study estimate or contrast it computes how far the evidence would have to move before the recommendation changes and what the new recommendation would be, and the algebraic version needs only the network estimates and the decision rule. The machinery holds the uncertainty structure fixed and determines the influence of the evidence on the point estimates only, so any decision rule that depends on precision rather than on the expected effect has no analytic threshold: recommend only if an interval excludes the null, or excludes a minimally important difference, or if the probability of being best exceeds a cut-off. The influence of a study on the width of an interval, as opposed to its location, is therefore absent from the output, and nothing separates a recommendation that is fragile to bias from one that is fragile to imprecision. That distinction bites where recommendations are already marginal: in the migraine prophylaxis guideline used to introduce the method the smallest threshold was a change of 0.09 headache days on one contrast, and 6 of 11 studies had thresholds lying inside their own confidence intervals, so ordinary sampling variation would suffice to flip the recommendation. Numerical methods are named as the required route but none has been supplied, and no subsequent tipping-point work provides a precision-indexed threshold. Loss-based decision rules that price posterior uncertainty explicitly have since been proposed for network meta-analysis, which makes the omission more consequential rather than less, because such rules are precision-sensitive by construction."
+pid: "DEC-32"
+topic: "Decision analysis, regulation & reporting"
+categories: ["Decision analysis, regulation & reporting", "High priority", "Confirmed open"]
+priority: "High"
+prank: 2
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Established"
+tractability: 3
+---
+::: {.problem-meta}
+[DEC-32]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[High priority]{.chip .chip-priority-high}
+[Established]{.chip .chip-maturity-established}
+[Tractability 3/5]{.chip}
+:::
+## Statement
+
+Threshold analysis is offered as the decision-linked alternative to GRADE for network meta-analysis: for each study estimate or contrast it computes how far the evidence would have to move before the recommendation changes and what the new recommendation would be, and the algebraic version needs only the network estimates and the decision rule. The machinery holds the uncertainty structure fixed and determines the influence of the evidence on the point estimates only, so any decision rule that depends on precision rather than on the expected effect has no analytic threshold: recommend only if an interval excludes the null, or excludes a minimally important difference, or if the probability of being best exceeds a cut-off. The influence of a study on the width of an interval, as opposed to its location, is therefore absent from the output, and nothing separates a recommendation that is fragile to bias from one that is fragile to imprecision. That distinction bites where recommendations are already marginal: in the migraine prophylaxis guideline used to introduce the method the smallest threshold was a change of 0.09 headache days on one contrast, and 6 of 11 studies had thresholds lying inside their own confidence intervals, so ordinary sampling variation would suffice to flip the recommendation. Numerical methods are named as the required route but none has been supplied, and no subsequent tipping-point work provides a precision-indexed threshold. Loss-based decision rules that price posterior uncertainty explicitly have since been proposed for network meta-analysis, which makes the omission more consequential rather than less, because such rules are precision-sensitive by construction.
+
+## Why it is open
+
+The closed-form result exists because the recommendation is a function of the posterior mean through a linear map, so thresholds can be inverted algebraically; a rule that reads a variance or a tail probability breaks exactly that structure, which is why numerical methods are required and why nobody has produced them cheaply. A precision perturbation is also not one-dimensional in the way a bias perturbation is: changing one study's variance re-weights the whole network and shifts every other contrast's precision as well as its own, so there is no single scalar threshold to report and the analyst must first decide what to hold fixed. The interpretation is unsettled even if the computation were done, because a variance is not a quantity a reviewer can adjust on judgment the way a suspected bias is, and what a precision threshold would mean substantively, or what evidence would justify a given perturbation, has not been posed. The same method's other named limitation, that algebraic thresholds are unavailable for general cost-effectiveness decision rules, has also gone unaddressed, which suggests the numerical machinery both problems need has simply not been built.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Phillippo et al. 2019, Annals of Internal Medicine](https://doi.org/10.7326/M18-3542) | Argues threshold analysis should replace GRADE for assessing confidence in guideline recommendations based on network meta-analysis and demonstrates it on two NICE guidelines; states that the algebraic approach determines the influence of the evidence on the point estimates and not on the uncertainty, and that decision rules based on statistical significance require numerical methods. |
+| [Phillippo et al. 2018, Journal of the Royal Statistical Society Series A](https://doi.org/10.1111/rssa.12341) | The algebraic threshold analysis itself: invariant intervals for each data point or contrast, plus simultaneous multi-dimensional thresholds, all defined on the point estimates with the variance-covariance structure held fixed. |
+| [nmathresh, CRAN](https://cran.r-project.org/package=nmathresh) | Reference implementation of algebraic threshold analysis for network meta-analysis, computing study-level and contrast-level thresholds and invariant intervals; it has no facility for perturbing variances or for precision-indexed decision rules. |
+| [Ades et al. 2025, Research Synthesis Methods](https://doi.org/10.1017/rsm.2025.17) | Loss-adjusted expected value, a decision rule subtracting the Bayesian expected loss computed from the posterior of the contrast, evaluated on 10 NICE networks; a rule whose output depends directly on precision and for which no threshold analysis exists. |
+
+:::
+
+## Probable solution or research direction
+
+Specify the perturbation space explicitly: the natural object is a change in one study's variance, or in the between-study heterogeneity, with the point estimates held fixed, and the output is the smallest such change that flips the recommendation. Because the network re-weights under any variance change, this is a small numerical search rather than an inversion, and it is cheap enough to run over every study in a network with existing code. Report the two sensitivities side by side, how far a study's estimate must move and how much its precision must change to alter the recommendation, so a reviewer can tell whether the fragility is one an appraisal of bias could address at all. Define the corresponding threshold for interval-based, probability-based and loss-adjusted rules, and validate the resulting thresholds against brute-force recomputation on published networks. Where a recommendation proves precision-sensitive, the actionable output is a sample-size or further-research statement rather than a risk-of-bias judgment.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. One reader proposed this and the reviewer accepted that sensitivity of a decision to variance, interval width or ranking probability is materially different from sensitivity to point-estimate location. The claim rests on a single source, but that source is the method's own developers stating the limitation, and no subsequent work supplying a precision-indexed threshold was found.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [DEC-12 — Nothing requires showing how far a conclusion is assumption-driven](DEC-12-nothing-requires-showing-how-far-a-conclusion-is-assumption-.qmd)
+- [QBA-03 — QBA modes and interval semantics are routinely conflated](QBA-03-qba-modes-and-interval-semantics-are-routinely-conflated.qmd)
+- [QBA-25 — Decision QBA: net benefit, tipping surfaces and extrapolation](QBA-25-decision-qba-net-benefit-tipping-surfaces-and-extrapolation.qmd)
+- [DEC-29 — Ranking metrics reward imprecision and no correction exists](DEC-29-ranking-metrics-reward-imprecision-and-no-correction-exists.qmd)
+:::
+
+## Source
+
+Derived from reading:nma-30 of the reviewed corpus.

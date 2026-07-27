@@ -1,0 +1,70 @@
+---
+title: "NMA does not model informative trial-design selection"
+description: "Every standard network meta-analysis fits the arms a trial ran and says nothing about how the trial came to have those arms, which is a missing-data assumption on the design itself. The assumption differs by likelihood: a contrast-based model requires that design choice not depend on the unobserved contrasts given the observed ones, an arm-based model requires only that it not depend on the unobserved arm outcomes given the observed ones, and the two are not equivalent whenever the underlying risk that drives comparator choice also drives the size of the treatment effect, which is a transitivity violation. Where a sponsor or investigator selects the comparator with an eye to the expected control-arm event rate, network topology carries information about the parameters being estimated and neither assumption holds. No estimator both respects randomization and relaxes the requirement: the model valid under the arm-level assumption removed about half the missing-data bias in one constructed scenario and none in another, while introducing a second bias from compromising the within-trial randomized comparison. The arms a trial did not run are not modeled at all: their sizes, the allocation ratio, and the relation between the design decision and the underlying arm parameters appear in no published network likelihood."
+pid: "EVB-07"
+topic: "Evidence-base construction & data access"
+categories: ["Evidence-base construction & data access", "High priority", "Confirmed open"]
+priority: "High"
+prank: 2
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Emerging"
+tractability: 3
+---
+::: {.problem-meta}
+[EVB-07]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[High priority]{.chip .chip-priority-high}
+[Emerging]{.chip .chip-maturity-emerging}
+[Tractability 3/5]{.chip}
+:::
+## Statement
+
+Every standard network meta-analysis fits the arms a trial ran and says nothing about how the trial came to have those arms, which is a missing-data assumption on the design itself. The assumption differs by likelihood: a contrast-based model requires that design choice not depend on the unobserved contrasts given the observed ones, an arm-based model requires only that it not depend on the unobserved arm outcomes given the observed ones, and the two are not equivalent whenever the underlying risk that drives comparator choice also drives the size of the treatment effect, which is a transitivity violation. Where a sponsor or investigator selects the comparator with an eye to the expected control-arm event rate, network topology carries information about the parameters being estimated and neither assumption holds. No estimator both respects randomization and relaxes the requirement: the model valid under the arm-level assumption removed about half the missing-data bias in one constructed scenario and none in another, while introducing a second bias from compromising the within-trial randomized comparison. The arms a trial did not run are not modeled at all: their sizes, the allocation ratio, and the relation between the design decision and the underlying arm parameters appear in no published network likelihood.
+
+## Why it is open
+
+The counterfactual arms were never run, so the assumption cannot be checked from the data, and the diagnostics a review reports are silent about it: model fit, heterogeneity and inconsistency statistics are unchanged whether design selection is informative or not. Existing missing-not-at-random selection models for meta-analysis are built the wrong way round for this case, since they condition on the sizes of the missing arms being known and posit dependence on the event fraction in the unobserved arm, which cannot be the mechanism because design precedes recruitment. The realistic mechanism connects a decision taken at protocol time to the underlying arm parameters through the investigator's expectations, so identifying it needs external information about those expectations or a parametric link the network cannot test. The two candidate likelihoods also trade one bias for another: relaxing the missingness assumption by moving to an arm-based model imports between-trial comparisons into a within-trial contrast, so what is gained on selection is spent on confounding.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [White et al. 2019, Statistics in Medicine](https://doi.org/10.1002/sim.8360) | Separates the contrast-level and arm-level missing-at-random assumptions implicit in the two network likelihoods, shows they diverge when the reference-arm outcome is associated with both study design and the treatment contrast, and quantifies how much missing-data bias the arm-based model actually removes. |
+| [Rubin 1976, Biometrika](https://doi.org/10.1093/biomet/63.3.581) | The missing-at-random framework that the assumption on trial design instantiates, and the source of the distinction between ignorable and non-ignorable selection. |
+| [Hong et al. 2016, Research Synthesis Methods](https://doi.org/10.1002/jrsm.1153) | Casts arm-based network meta-analysis explicitly as a Bayesian missing-data problem in which unobserved arms are imputed, the framing under which a design-selection model would be written. |
+| [Zhang et al. 2014, Clinical Trials](https://doi.org/10.1177/1740774513498322) | Arm-based network model that reports absolute as well as relative summaries and treats arms absent from a trial as missing data to be recovered from the network. |
+| [Dias and Ades 2016, Research Synthesis Methods](https://doi.org/10.1002/jrsm.1184) | Argues that arm-based synthesis breaks randomization and that the contrast-based likelihood is the one preserving it; states the cost side of relaxing the missingness assumption. |
+| [Senn et al. 2013, Statistical Methods in Medical Research](https://doi.org/10.1177/0962280211432220) | Sets out why treating arms as exchangeable across trials is a stronger and different assumption from treating within-trial contrasts as exchangeable, which is the trade governing any arm-based fix. |
+| [Piepho, Williams and Madden 2012, Biometrics](https://doi.org/10.1111/j.1541-0420.2012.01786.x) | Gives the arm-based network model as a two-way linear mixed model, supplying the mixed-model machinery into which a selection component could be inserted. |
+| [Mavridis et al. 2014, Statistics in Medicine](https://doi.org/10.1002/sim.6321) | Selection model for a full network meta-analysis; models the probability that a study is published rather than the probability that a comparison is designed, and shows what a network-level selection component looks like. |
+| [Copas and Shi 2000, Biostatistics](https://doi.org/10.1093/biostatistics/1.3.247) | The sensitivity-analysis template for selection in meta-analysis, where a nonidentified selection parameter is varied across a range instead of being estimated; the pattern a design-selection analysis would follow. |
+
+:::
+
+## Probable solution or research direction
+
+Model the protocol decision rather than the outcome: let the probability that a trial compares treatments j and k, with given arm sizes and allocation ratio, depend on the investigator's expectation of the control-arm event rate and of the contrast, and write the network likelihood conditional on that design model. Because the mechanism is not identified from the network, treat its parameters as sensitivity parameters with elicited ranges and report each contrast as an interval over them, exactly as publication-bias selection models already do. Establish what is identified under weaker conditions: a network that already fits baseline-risk meta-regression absorbs part of the dependence between design and underlying risk, and the residual sensitivity should be quantified rather than assumed away. Simulate networks in which comparator choice is a function of the expected control-arm rate, crossing the strength of that dependence with network density and the number of trials per edge, and report bias, coverage and rank reversals for contrast-based, arm-based and selection-model fits. Add design provenance to reporting, since whether a comparator was mandated by a regulator, set by local standard of care, or chosen for expected performance is recorded nowhere and would sharply narrow the ranges an elicitation has to span.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. One reader proposed this from a single methodological comparison of arm-based and contrast-based network models, and the reviewer accepted it as distinct from analyst-side evidence-set assembly and from selective individual patient data availability. The result that ordinary network likelihoods can be biased under informative design selection is demonstrated in constructed scenarios rather than in an applied network, so the practical magnitude remains unmeasured.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [DIA-07 — Scenario grids omit network topology and information placement](DIA-07-scenario-grids-omit-network-topology-and-information-placeme.qmd)
+- [EVB-01 — Selective IPD availability threatens transport across the network](EVB-01-selective-ipd-availability-threatens-transport-across-the-ne.qmd)
+- [EVB-02 — Evidence-set assembly can favor the sponsor before modeling begins](EVB-02-evidence-set-assembly-can-favor-the-sponsor-before-modeling-.qmd)
+- [EVB-08 — Network small-study-effects diagnostics lack an assumption-light default](EVB-08-network-small-study-effects-diagnostics-lack-an-assumption-l.qmd)
+- [EVB-10 — No general NMA framework for non-parallel randomized trial designs](EVB-10-no-general-nma-framework-for-non-parallel-randomized-trial-d.qmd)
+:::
+
+## Source
+
+Derived from reading:nma-26 of the reviewed corpus.

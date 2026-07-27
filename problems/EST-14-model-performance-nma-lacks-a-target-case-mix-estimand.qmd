@@ -1,0 +1,68 @@
+---
+title: "Model-performance NMA lacks a target case-mix estimand"
+description: "Network meta-analysis has been extended from treatment contrasts to contrasts in prognostic-model performance, so that scores validated in different cohorts can be ranked against each other through a shared cohort acting as a common comparator. Discrimination measures are functionals of the validation cohort's case mix: the area under the ROC curve depends on the spread of predicted risk in the sample, so a difference in the area between two scores changes with the population even when both scores are applied without bias and both are correctly calibrated. The one published framework treats case-mix variation as a transitivity nuisance to be screened for balance across cohorts, naming characteristics such as the range of FEV1 percent predicted as variables that could affect discrimination in specific cohorts, and it reports a single pooled performance difference with no declared target population. Three objects do not exist: an estimand definition naming whose case mix a pooled performance contrast refers to, a standardization route that transports a performance difference to a declared target case mix, and a reporting rule showing how far the ranking of scores moves across the case mixes a decision might face. The single-cohort pieces have been built in the prediction-model literature, as benchmark values that separate a case-mix effect from incorrect coefficients and as a model-based concordance that predicts the c-statistic a model would attain under a different case mix. None of it has been carried into a network, where the contrast rather than the single score is the estimand and most nodes contribute only summaries."
+pid: "EST-14"
+topic: "Estimands & target populations"
+categories: ["Estimands & target populations", "Medium-high priority", "Confirmed open"]
+priority: "Medium-high"
+prank: 3
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Emerging"
+tractability: 4
+---
+::: {.problem-meta}
+[EST-14]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[Medium-high priority]{.chip .chip-priority-medium-high}
+[Emerging]{.chip .chip-maturity-emerging}
+[Tractability 4/5]{.chip}
+:::
+## Statement
+
+Network meta-analysis has been extended from treatment contrasts to contrasts in prognostic-model performance, so that scores validated in different cohorts can be ranked against each other through a shared cohort acting as a common comparator. Discrimination measures are functionals of the validation cohort's case mix: the area under the ROC curve depends on the spread of predicted risk in the sample, so a difference in the area between two scores changes with the population even when both scores are applied without bias and both are correctly calibrated. The one published framework treats case-mix variation as a transitivity nuisance to be screened for balance across cohorts, naming characteristics such as the range of FEV1 percent predicted as variables that could affect discrimination in specific cohorts, and it reports a single pooled performance difference with no declared target population. Three objects do not exist: an estimand definition naming whose case mix a pooled performance contrast refers to, a standardization route that transports a performance difference to a declared target case mix, and a reporting rule showing how far the ranking of scores moves across the case mixes a decision might face. The single-cohort pieces have been built in the prediction-model literature, as benchmark values that separate a case-mix effect from incorrect coefficients and as a model-based concordance that predicts the c-statistic a model would attain under a different case mix. None of it has been carried into a network, where the contrast rather than the single score is the estimand and most nodes contribute only summaries.
+
+## Why it is open
+
+Nothing forces the question, because a performance contrast looks like a treatment contrast: both are differences of study-level summaries, and network machinery accepts them without asking which population they refer to. Standardizing a discrimination measure to a target requires the joint distribution of predicted risk and outcome in that target, which external validation reports never publish; a single reported c-statistic does not determine what the same score would achieve elsewhere. The case-mix-corrected quantities that do exist were built for one model in one cohort and need individual data from that validation sample, so they do not compose across a network in which most cohorts supply only aggregate performance. And the decision the synthesis serves, which score to deploy in a named care setting, has no accepted target-performance estimand to be stated against, so nothing is violated when a pooled difference in discrimination is published with no population attached.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Haile et al. 2017, BMC Medical Research Methodology](https://doi.org/10.1186/s12874-017-0433-2) | Introduces Multiple Score Comparison, a network meta-analysis approach to comparing and externally validating prognostic scores across cohorts; handles case-mix variation by screening cohort characteristics for balance rather than by naming a target population for the pooled performance difference. |
+| [Vergouwe, Moons and Steyerberg 2010, American Journal of Epidemiology](https://doi.org/10.1093/aje/kwq223) | Uses benchmark values computed under the validation cohort's own case mix to separate a case-mix effect from incorrect model coefficients when a risk model performs differently on external validation; the single-study version of the standardization a network contrast would need. |
+| [van Klaveren et al. 2016, Statistics in Medicine](https://doi.org/10.1002/sim.6997) | Defines a model-based concordance that gives the c-statistic a model would attain under a stated case mix, making discrimination comparable across validation settings; requires individual data from the validation sample. |
+| [Debray et al. 2015, Journal of Clinical Epidemiology](https://doi.org/10.1016/j.jclinepi.2014.06.018) | Framework for interpreting external validation studies that quantifies the relatedness of development and validation populations and separates case-mix differences from differences in predictor-outcome associations. |
+| [Debray et al. 2017, BMJ](https://doi.org/10.1136/bmj.i6460) | Guide to systematic review and meta-analysis of prediction model performance; pools discrimination and calibration across validation studies and treats between-study variation in performance as heterogeneity to be summarized, not as a quantity to be transported to a target. |
+| [Debray et al. 2019, Statistical Methods in Medical Research](https://doi.org/10.1177/0962280218785504) | Meta-analysis framework for prediction model studies with binary and time-to-event outcomes, including random-effects pooling of the c-statistic with prediction intervals for performance in a new setting. |
+| [Pennells et al. 2014, American Journal of Epidemiology](https://doi.org/10.1093/aje/kwt298) | Assesses risk prediction models using individual participant data from multiple studies and shows that measures of discrimination vary systematically with the case mix of the contributing cohort. |
+| [Snell et al. 2016, Journal of Clinical Epidemiology](https://doi.org/10.1016/j.jclinepi.2015.05.009) | Multivariate meta-analysis of individual participant data to validate a model's discrimination and calibration jointly across studies, borrowing strength across performance measures. |
+
+:::
+
+## Probable solution or research direction
+
+Define the estimand before the estimator: write a pooled performance contrast as a functional of a declared target joint distribution of predictors and outcome, so that a difference in the area under the ROC curve, in the Brier score or in net benefit at a stated threshold is indexed by the population it is claimed for. Then derive the standardization: with individual data in at least one validation cohort, a model-based concordance evaluated under the target predictor distribution gives a transportable discrimination estimate, and aggregate-only cohorts can enter through the same integration over a covariate distribution that multilevel network meta-regression already uses for treatment effects. Simulate a network of validation cohorts whose case mixes differ in predicted-risk spread while the score coefficients are held fixed, and report how often the ranking of scores reverses between cohort-specific and target-standardized contrasts. Standardize reporting to require the target case mix, the distribution of predicted risk in each contributing cohort, and a ranking-stability curve across the targets a decision might face. Characterize which performance measures transport most stably, since calibration slope and threshold-specific net benefit have different case-mix dependence from discrimination and may serve better as the primary decision output.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. One reader proposed this from the single paper that introduced performance network meta-analysis, and the reviewer accepted it as a distinct estimand problem on the grounds that a performance contrast changes with the prediction cohort's case-mix distribution rather than only with effect-modifier imbalance. The basis is one framework paper plus the adjacent prediction-model validation literature, so the absence of a target-standardized network performance contrast is an absence-of-evidence finding rather than a demonstrated impossibility.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [EST-01 — Target population is unnamed and set by data availability](EST-01-target-population-is-unnamed-and-set-by-data-availability.qmd)
+- [EST-09 — No convention for reading divergence between estimand rungs](EST-09-no-convention-for-reading-divergence-between-estimand-rungs.qmd)
+- [EST-10 — Bucher ITC and aggregate-data NMA name no target population](EST-10-bucher-itc-and-aggregate-data-nma-name-no-target-population.qmd)
+- [COV-07 — Unknown target joint covariate distribution](COV-07-unknown-target-joint-covariate-distribution.qmd)
+:::
+
+## Source
+
+Derived from reading:nma-34 of the reviewed corpus.

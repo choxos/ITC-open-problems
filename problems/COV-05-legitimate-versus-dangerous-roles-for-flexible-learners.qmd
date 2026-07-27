@@ -3,16 +3,16 @@ title: "Legitimate versus dangerous roles for flexible learners"
 description: "Flexible learners such as BART, causal forests, Gaussian processes, neural additive models and super learner can estimate nuisance functions, outcome surfaces or heterogeneous effects inside an identified PAIC analysis, but numerically well-behaved predictions do not repair missing overlap or missing information about the target distribution, and generic predictive feature importance is not evidence of effect modification. Neither auditor found a PAIC-specific protocol separating the roles where these learners help from the roles where they mislead. Two of the source's prohibitions do not hold as written: causal forests are constructed for causal heterogeneity under assumptions rather than for prediction alone, and variable importance can be defined on the CATE itself with inference (PermuCATE, arxiv:2408.13002), so what is disqualified is predictive importance from an outcome model, not importance measures in general."
 pid: "COV-05"
 topic: "Covariates: selection, target moments, measurement"
-categories: ["Covariates: selection, target moments, measurement", "High priority", "Confirmed open"]
+categories: ["Covariates: selection, target moments, measurement", "High priority", "Partially addressed"]
 priority: "High"
 prank: 2
-verdict: "Confirmed open"
-verdictslug: "confirmed-open"
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
 maturity: "Promising"
 ---
 ::: {.problem-meta}
 [COV-05]{.problem-id}
-[Confirmed open]{.verdict .verdict-confirmed-open}
+[Partially addressed]{.verdict .verdict-partially-addressed}
 [High priority]{.chip .chip-priority-high}
 [Promising]{.chip .chip-maturity-promising}
 :::
@@ -41,11 +41,16 @@ Write the protocol conditionally rather than as a list of bans: name the target 
 ## Verification
 
 ::: {.verification-trail}
-**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+**Verdict.** Partially addressed. Auditors agreed the problem is open and no counterevidence surfaced. Reopened by the full-text reading: 1 finding from 1 paper survived both the reader and an independent second reviewer, so the verdict moves from confirmed-open to partially-addressed, on a single finding.
 
 **The source said.** "Flexible learners such as BART, causal forests, Gaussian processes, neural additive models and super learner can estimate complex outcome or participation models in PAIC, but their useful roles are narrow and their misuses are common. The report enumerates four legitimate roles and four dangerous ones, with no protocol enforcing the distinction."
 
 **What was wrong with it.** The source said interpreting machine-learning feature importance as causal effect modification is invalid, and that using one sample for discovery, tuning, estimation and uncertainty without cross-fitting invalidates the inference. The literature auditor cited PermuCATE (arxiv:2408.13002), a conditional-permutation importance measure defined directly on the CATE with inference, and the code auditor noted that valid inference can also rest on parametric or empirical-process restrictions, external training data, independent sample splitting, or a bootstrap that repeats tuning and estimation.
+
+**Revised by the full-text reading.** Applied 2026-07-26 full-text reading of the consolidated library (687 papers).
+
+Verdict changed
+:   **confirmed-open -> partially-addressed** 1 surviving finding from: Global sensitivity analysis for studies extending inferences. New citations: arXiv:2207.09982v1
 
 Literature and prior-art check
 :   **open / supported-with-caveat.** Most of the enumerated claims are standard causal-machine-learning knowledge rather than contested propositions: flexible learners as nuisance estimators inside AIPW/TMLE/DML and the cross-fitting requirement are the defining features of double machine learning, and extrapolation to unsupported regions is a general property of predictive fits. I found no PAIC-specific protocol separating legitimate from dangerous roles, but 'no protocol exists' is an absence claim I cannot verify, so I do not credit it. One claim is too blunt as worded. 'Interpreting machine-learning feature importance as causal effect modification is invalid' is right about predictive importance, but Paillard et al. (PermuCATE) develops conditional-permutation variable importance defined directly on the CATE with inference, i.e. a causally-defined importance measure for exactly this question. The defensible version is that predictive feature importance from an outcome model is not evidence of effect modification, not that no importance measure can be causal.
@@ -58,11 +63,28 @@ Decision path
 
 :::
 
+## How the evidence falls in time
+
+3 papers in the reviewed corpus bear on this problem, published 2018 to 2026. The most recent paper to touch this reports progress on it, and every paper calling it open is older.
+
+**Does the later work answer the earlier work?** Put to an independent reviewer with the older and newer claims side by side, it judged that the later work answers a component of it, leaving a named part (medium confidence). The later paper supplies a substantive rule for one setting: flexible outcome modeling can be useful, but prediction-optimized plug-in estimation can be biased for the target sensitivity functional and should be augmented with influence-function-based estimation. It does not provide the broader PAIC-specific framework requested, nor does it settle flexible-learning use for overlap or modifier selection. What remains: A PAIC-specific protocol covering the appropriate and inappropriate roles of flexible learners across nuisance estimation, overlap assessment, effect-modifier identification, sensitivity analysis, and inference, including the distinction between predictive and causal importance.
+
+::: {.table-scroll}
+
+| Year | Says | Paper |
+|---|---|---|
+| 2018 | confirms it is open | Comparing pharmacological treatments for cocaine dependence: Incorporation of methods for enhancing generalizability in meta-analytic studies |
+| 2020 | confirms it is open | Extending inferences from a randomized trial to a new target population (Dahabreh, Robertson, Steingrimsson, Stuart, Hernan; tutorial, arXiv:1805.00550v3) |
+| 2026 | partly addresses it | Global sensitivity analysis for studies extending inferences from a randomized trial to a target population |
+
+:::
+
 ## Related problems
 
 ::: {.related-links}
 - [ADJ-13 — Topology-only graph neural network output cannot identify effects](ADJ-13-topology-only-graph-neural-network-output-cannot-identify-ef.qmd)
 - [DIA-06 — Failure signatures across PAIC estimator families are uncharacterized](DIA-06-failure-signatures-across-paic-estimator-families-are-unchar.qmd)
+- [EST-16 — Synthetic-patient indirect comparisons lack a validation standard](EST-16-synthetic-patient-indirect-comparisons-lack-a-validation-sta.qmd)
 - [MOD-02 — Convenience functional forms and untested flexible alternatives](MOD-02-convenience-functional-forms-and-untested-flexible-alternati.qmd)
 - [MOD-08 — Cross-fitting folds and rate conditions undefined for PAIC](MOD-08-cross-fitting-folds-and-rate-conditions-undefined-for-paic.qmd)
 - [OVL-03 — No support diagnostic aggregates over a PAIC target distribution](OVL-03-no-support-diagnostic-aggregates-over-a-paic-target-distribu.qmd)

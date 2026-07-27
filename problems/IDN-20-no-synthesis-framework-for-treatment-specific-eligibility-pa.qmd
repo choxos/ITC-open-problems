@@ -1,0 +1,65 @@
+---
+title: "No synthesis framework for treatment-specific eligibility patterns"
+description: "Network meta-analysis is usually justified by joint randomizability, the claim that any patient in the network could in principle have been randomized to any of the compared treatments, but in many networks whole treatments are contraindicated for identifiable subsets of patients, so the claim is false by construction rather than merely uncertain. The trial-design literature has already stated the weaker sufficient condition: in a personalized randomized trial, where each patient is randomized only among the treatments they are eligible for, transitivity need hold only over the treatments not contraindicated for a given eligibility pattern, which is equivalent to requiring treatment effects to be common across patterns (Lee et al. 2023, doi:10.1002/sim.9663, on the design of Walker et al. 2021, doi:10.1016/S1473-3099(20)30791-X). Evidence synthesis has no corresponding statement. A pooled network estimate for a contrast is silently defined over whichever trial populations happened to admit both treatments, and there is no convention naming that sub-population, no diagnostic for how far eligibility patterns differ across the trials informing a contrast, and no way to report contrast-specific eligibility restrictions beside the estimate. Because the restriction differs by contrast, a single network-level target population statement cannot express it, so two contrasts in the same network can refer to non-overlapping sub-populations while appearing in the same league table and the same ranking. This is not covariate overlap: overlap is a support problem in covariate space that weighting or standardization can diagnose, whereas an eligibility restriction removes a treatment from a patient's choice set entirely, so there is no covariate distribution over which the excluded contrast is even defined."
+pid: "IDN-20"
+topic: "Identification, transitivity & conditional constancy"
+categories: ["Identification, transitivity & conditional constancy", "Medium-high priority", "Confirmed open"]
+priority: "Medium-high"
+prank: 3
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Emerging"
+tractability: 3
+---
+::: {.problem-meta}
+[IDN-20]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[Medium-high priority]{.chip .chip-priority-medium-high}
+[Emerging]{.chip .chip-maturity-emerging}
+[Tractability 3/5]{.chip}
+:::
+## Statement
+
+Network meta-analysis is usually justified by joint randomizability, the claim that any patient in the network could in principle have been randomized to any of the compared treatments, but in many networks whole treatments are contraindicated for identifiable subsets of patients, so the claim is false by construction rather than merely uncertain. The trial-design literature has already stated the weaker sufficient condition: in a personalized randomized trial, where each patient is randomized only among the treatments they are eligible for, transitivity need hold only over the treatments not contraindicated for a given eligibility pattern, which is equivalent to requiring treatment effects to be common across patterns (Lee et al. 2023, doi:10.1002/sim.9663, on the design of Walker et al. 2021, doi:10.1016/S1473-3099(20)30791-X). Evidence synthesis has no corresponding statement. A pooled network estimate for a contrast is silently defined over whichever trial populations happened to admit both treatments, and there is no convention naming that sub-population, no diagnostic for how far eligibility patterns differ across the trials informing a contrast, and no way to report contrast-specific eligibility restrictions beside the estimate. Because the restriction differs by contrast, a single network-level target population statement cannot express it, so two contrasts in the same network can refer to non-overlapping sub-populations while appearing in the same league table and the same ranking. This is not covariate overlap: overlap is a support problem in covariate space that weighting or standardization can diagnose, whereas an eligibility restriction removes a treatment from a patient's choice set entirely, so there is no covariate distribution over which the excluded contrast is even defined.
+
+## Why it is open
+
+Eligibility restrictions are properties of the protocol rather than of measured baseline covariates, so covariate balancing and population adjustment cannot recover them, and published reports give inclusion and exclusion criteria as prose rather than as an extractable eligibility pattern. The trial-design solution works because each patient's eligible set is observed; a synthesis of published trials observes only the union of criteria for a whole trial, so the distribution of patterns within a trial is unavailable and the sub-population a contrast refers to cannot be characterized from the record. Naming the sub-population per contrast also conflicts with the output format the field uses, since league tables and rankings presuppose one population, and a ranking over treatments whose contrasts refer to different sub-populations has no clear interpretation; adopting the honest estimand would mean changing what is reported. Adjacent machinery exists in target trial emulation, where eligibility is specified explicitly as part of the protocol, but it has not been brought to network synthesis and nobody has shown which parts survive when only trial-level criteria are observed. The problem is invisible in practice because contraindications appear as exclusion criteria that vary across trials for reasons indistinguishable from ordinary heterogeneity.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Lee, Turner, Thwaites, Walker and White 2023, The Personalised Randomized Controlled Trial: Evaluation of a new trial design, Statistics in Medicine 42:1156-1170](https://doi.org/10.1002/sim.9663) | States that joint randomizability and transitivity are clearly false when contraindicated treatments are not given, and supplies the weaker sufficient condition, transitivity restricted to non-contraindicated treatments within an eligibility pattern, together with analysis methods and a simulation of the resulting bias-variance trade-off. |
+| [Walker, White, Turner, Hsu et al. 2021, Personalised randomised controlled trial designs: a new paradigm to define optimal treatments for carbapenem-resistant infections, Lancet Infectious Diseases 21:e175-e181](https://doi.org/10.1016/S1473-3099(20)30791-X) | Proposes the design in which each patient receives a personalized randomization list of the regimens they are eligible for, making the eligibility pattern an observed variable; this is the observability that a synthesis of published trials lacks. |
+| [Salanti 2012, Indirect and mixed-treatment comparison, network, or multiple-treatments meta-analysis: many names, many benefits, many concerns for the next generation evidence synthesis tool, Research Synthesis Methods 3:80-97](https://doi.org/10.1002/jrsm.1037) | The statement of joint randomizability and transitivity that network meta-analysis is conventionally justified by, and the source of the phrasing that a patient could in principle be randomized to any of the alternative treatment options. |
+| [Hernan and Robins 2016, Using Big Data to Emulate a Target Trial When a Randomized Trial Is Not Available, American Journal of Epidemiology 183:758-764](https://doi.org/10.1093/aje/kwv254) | Requires eligibility criteria to be specified explicitly as a protocol component of the estimand; this is the closest existing template for making the eligible population part of what an estimate is labeled with, and it has not been applied at the level of a network contrast. |
+| [Donegan, Williamson, D'Alessandro and Tudur Smith 2013, Assessing key assumptions of network meta-analysis: a review of methods, Research Synthesis Methods 4:291-323](https://doi.org/10.1002/jrsm.1085) | Reviews the methods available for checking the assumptions underlying network meta-analysis; none of them examines whether the trials informing a contrast admitted comparable sets of eligible patients. |
+
+:::
+
+## Probable solution or research direction
+
+Define the contrast-specific estimand: for each contrast the target is the sub-population eligible for both treatments, and a network estimate should carry that sub-population as part of its label rather than inherit the network's nominal population. Extract eligibility patterns as data by coding each trial's inclusion and exclusion criteria into a structured eligibility vector over the network's treatments, which is a coding exercise on existing publications, and report the overlap of those vectors across the trials informing each contrast as a routine diagnostic. Import the weaker sufficient condition from the personalized randomized trial literature and state its synthesis analogue explicitly, namely transitivity restricted to eligibility patterns with effects assumed common across patterns, so the assumption can be relaxed and checked where patterns are crossed. Say what a league table means when its cells refer to different sub-populations, either by restricting the table to a common eligibility pattern or by annotating each cell with the pattern it is defined over, and treat any ranking computed across patterns as uninterpretable until that is settled. Reporting eligibility in machine-readable form is the only route that would make the within-trial pattern distribution recoverable, and it has to be asked of trialists rather than solved by analysts.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. One reader proposed this from a single trial-design paper, and the reviewer accepted structural treatment ineligibility as more specific than generic transitivity uncertainty, covariate overlap or an unnamed single target population, while asking that the claim of no relevant treatment-choice or target-trial literature be qualified. The identification result exists on the trial-design side; the absence of any synthesis-side statement rests on the reader's search rather than on a source asserting it, which makes this the weaker half of the claim.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [EST-01 — Target population is unnamed and set by data availability](EST-01-target-population-is-unnamed-and-set-by-data-availability.qmd)
+- [EST-10 — Bucher ITC and aggregate-data NMA name no target population](EST-10-bucher-itc-and-aggregate-data-nma-name-no-target-population.qmd)
+- [IDN-01 — Transitivity and conditional constancy cannot be tested in-sample](IDN-01-transitivity-and-conditional-constancy-cannot-be-tested-in-s.qmd)
+- [OVL-01 — Weak overlap leaves target regions the source data cannot support](OVL-01-weak-overlap-leaves-target-regions-the-source-data-cannot-su.qmd)
+:::
+
+## Source
+
+Derived from reading:nma-14 of the reviewed corpus.

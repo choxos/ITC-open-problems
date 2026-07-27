@@ -1,0 +1,69 @@
+---
+title: "Composite comparator nodes are collapsed rather than modeled as reported mixtures"
+description: "Networks increasingly turn on comparator nodes that are mixtures rather than treatments: best available therapy, standard of care, conventional care, physician's choice, best supportive care. Trials normally report the composition of that mixture, and it varies widely across them; in a polycythemia vera feasibility assessment the hydroxyurea share of best available therapy ran from 25% to 97% across six studies, with the remainder differing in interferon, anagrelide, pipobroman, immunomodulators and no active treatment. Current practice collapses each such node to a single vertex, which voids the protection the anchored design is supposed to give, because the anchor is a different intervention in each trial; population adjustment cannot repair it either, since the difference lies in the comparator regimen rather than in patient characteristics. The reported composition is usable information, and what is missing is a model that represents the node as a mixture over its constituent treatments with the reported proportions entering as data, a diagnostic that quantifies how far the target contrast moves over the observed composition spread, and a rule stating when the spread is large enough that the node must be split or the synthesis abandoned. Without those three, the only available responses are to assume the mixture away or to declare the network infeasible, which is what the polycythemia vera assessment did despite being able to construct a connected network. Pragmatic control arms are becoming more common, so the number of networks that hinge on such a node is growing."
+pid: "HET-15"
+topic: "Heterogeneity, consistency & multi-arm structure"
+categories: ["Heterogeneity, consistency & multi-arm structure", "High priority", "Confirmed open"]
+priority: "High"
+prank: 2
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Emerging"
+tractability: 4
+---
+::: {.problem-meta}
+[HET-15]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[High priority]{.chip .chip-priority-high}
+[Emerging]{.chip .chip-maturity-emerging}
+[Tractability 4/5]{.chip}
+:::
+## Statement
+
+Networks increasingly turn on comparator nodes that are mixtures rather than treatments: best available therapy, standard of care, conventional care, physician's choice, best supportive care. Trials normally report the composition of that mixture, and it varies widely across them; in a polycythemia vera feasibility assessment the hydroxyurea share of best available therapy ran from 25% to 97% across six studies, with the remainder differing in interferon, anagrelide, pipobroman, immunomodulators and no active treatment. Current practice collapses each such node to a single vertex, which voids the protection the anchored design is supposed to give, because the anchor is a different intervention in each trial; population adjustment cannot repair it either, since the difference lies in the comparator regimen rather than in patient characteristics. The reported composition is usable information, and what is missing is a model that represents the node as a mixture over its constituent treatments with the reported proportions entering as data, a diagnostic that quantifies how far the target contrast moves over the observed composition spread, and a rule stating when the spread is large enough that the node must be split or the synthesis abandoned. Without those three, the only available responses are to assume the mixture away or to declare the network infeasible, which is what the polycythemia vera assessment did despite being able to construct a connected network. Pragmatic control arms are becoming more common, so the number of networks that hinge on such a node is growing.
+
+## Why it is open
+
+Component and additive network models decompose an intervention that every patient in the arm received, whereas a composite comparator is a distribution over patients within a single arm, so the arm-level effect is a weighted average of constituent effects with weights that differ by study; the constituent effects are identified only insofar as those constituents also appear elsewhere in the network as nodes of their own. Where the mixture contains something that appears nowhere else, or where composition is confounded with calendar era or geography, the decomposition is not identified from the network at all and only bounds are available. The reported proportions describe treatment received rather than randomized allocation, so a mixture model built on them combines a randomized contrast with an observational one, a modeling decision that no existing method has had to price. Extraction is a further obstacle: composition appears in baseline tables in idiosyncratic formats, sometimes only for the most frequent components, and there is no reporting item that requires it, so the data that would drive the model are not collected systematically even though they are printed in the source publications.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Walden, Hummel, Kopiec, Maliszewska and Naslazi 2025, Journal of Comparative Effectiveness Research](https://doi.org/10.57264/cer-2025-0142) | Tabulates the composition of the best-available-therapy arm in each polycythemia vera trial, showing hydroxyurea shares from 25% to 97%, and concludes that the shared comparator does not represent a consistent treatment context, so the network was judged infeasible despite being connected. |
+| [Welton, Caldwell, Adamopoulos and Vedhara 2009, American Journal of Epidemiology](https://doi.org/10.1093/aje/kwp014) | Introduces mixed treatment comparison models for complex interventions in which the effect of a multi-component intervention is built from component effects; the additive machinery a mixture node model would adapt. |
+| [Rucker, Petropoulou and Schwarzer 2020, Biometrical Journal](https://doi.org/10.1002/bimj.201800167) | Develops frequentist component network meta-analysis for multicomponent interventions with additive and interaction models, implemented in netmeta; supplies the estimation route but assumes every patient in an arm receives the stated combination. |
+| [Petropoulou, Efthimiou, Rucker, Schwarzer, Furukawa, Pompoli, Koek, Del Giovane, Rodondi and Mavridis 2021, PLoS ONE](https://doi.org/10.1371/journal.pone.0246631) | Reviews the available methods for handling intervention components in meta-analysis, which establishes that none of them represents a node as a within-arm mixture with study-reported proportions. |
+| [Del Giovane, Vacchi, Mavridis, Filippini and Salanti 2013, Statistics in Medicine](https://doi.org/10.1002/sim.5512) | Builds network meta-analysis models that account for variability in treatment definitions, applied to dose, which is the closest existing treatment of a node that is not a single well-defined intervention. |
+| [Owen, Tincello and Keith 2015, Value in Health](https://doi.org/10.1016/j.jval.2014.10.006) | A three-level hierarchical network model with dose-related constraints, showing how a node label can be given internal structure rather than being treated as atomic. |
+| [Caldwell and Welton 2016, Evidence-Based Mental Health](https://doi.org/10.1136/eb-2015-102275) | Sets out the lumping and splitting choices for synthesizing complex interventions, which frames the node-granularity decision that a composition-based splitting rule would replace with a quantitative criterion. |
+| [Cipriani, Higgins, Geddes and Salanti 2013, Annals of Internal Medicine](https://doi.org/10.7326/0003-4819-159-2-201307160-00008) | States the conceptual requirements for defining network nodes and for transitivity across a common comparator, the assumptions a heterogeneous composite node violates in a way that is measurable from reported data. |
+
+:::
+
+## Probable solution or research direction
+
+Write the arm-level model explicitly: let the linear predictor of a composite arm be the study-reported-weight average over its constituent treatment effects, so the arm contributes information about constituents rather than about an ill-defined average, and derive the rank condition under which the constituent effects are identified from the rest of the network. Where that condition fails, report the target contrast as a range over the observed composition spread rather than as a point, so the synthesis produces bounds instead of nothing. Build the diagnostic alongside it: for the observed spread, report the implied variation in the anchor effect and hence in every contrast routed through the node, and calibrate a splitting threshold on simulated networks where the truth is known. Make the composition table a reporting item, since the proportion of patients receiving each constituent in each composite arm is already printed in trial publications and is the one input the model needs.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. One reader proposed this and the reviewer accepted it as a specific transitivity failure driven by observed within-node treatment mixtures rather than by generic clinical heterogeneity. The direct evidence is a single feasibility assessment, which is a weak base for prevalence claims, but it documents the composition spread quantitatively and the abandonment it caused, and the surrounding component-model literature confirms that no existing method takes reported proportions as data.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [HET-01 — Design and conduct differences survive baseline covariate balancing](HET-01-design-and-conduct-differences-survive-baseline-covariate-ba.qmd)
+- [HET-03 — Single shared heterogeneity variance across classes and populations](HET-03-single-shared-heterogeneity-variance-across-classes-and-popu.qmd)
+- [DIS-05 — Class-effect bridges extrapolate to treatments with no randomized link](DIS-05-class-effect-bridges-extrapolate-to-treatments-with-no-rando.qmd)
+- [CMP-03 — Strict component additivity may be clinically false](CMP-03-strict-component-additivity-may-be-clinically-false.qmd)
+- [QBA-12 — Treatment version, care context and subsequent-therapy drift](QBA-12-treatment-version-care-context-and-subsequent-therapy-drift.qmd)
+:::
+
+## Source
+
+Derived from reading:core-01 of the reviewed corpus.

@@ -1,0 +1,67 @@
+---
+title: "Component NMA has no dose-response dimension"
+description: "Component network meta-analysis codes each treatment as a binary incidence vector over components, so two regimens containing the same component at different doses, intensities, session counts or program durations receive identical rows of the combination matrix and their difference is absorbed into heterogeneity or into an interaction term. The frequentist component line and the dose-response line have remained separate in practice: a 2026 frequentist dose-response network meta-analysis had to exclude 80 multicomponent studies from a 282-trial Cochrane network because the two structures cannot presently be combined, and names the joint model as future work. One implementation now exists. cdtmbnma, released on CRAN in July 2026 in a single version, fits Bayesian component model-based network meta-analysis with explicit component dose-response and dose-dependent interaction surfaces, additive, bilinear or saturating pairwise interactions, and prediction at unobserved dose combinations, for arm-level continuous and binary outcomes. It is an unreviewed package with no methods paper of its own, no frequentist counterpart, no population-adjusted or survival route, and no identification results: nothing states when a dose-indexed component contrast is estimable, and the row-space screens in use are defined for a binary component design. The gap bites hardest in the disconnected case that motivates component models, where a shared component is the only bridge across the gap and is delivered at different doses on each side, so the additive bridge identifies the cross-gap contrast only under an unstated dose-invariance assumption that no current screen tests or records."
+pid: "CMP-28"
+topic: "Component methods (CNMA and component PAIC)"
+categories: ["Component methods (CNMA and component PAIC)", "High priority", "Partially addressed"]
+priority: "High"
+prank: 2
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
+maturity: "Emerging"
+tractability: 3
+---
+::: {.problem-meta}
+[CMP-28]{.problem-id}
+[Partially addressed]{.verdict .verdict-partially-addressed}
+[High priority]{.chip .chip-priority-high}
+[Emerging]{.chip .chip-maturity-emerging}
+[Tractability 3/5]{.chip}
+:::
+## Statement
+
+Component network meta-analysis codes each treatment as a binary incidence vector over components, so two regimens containing the same component at different doses, intensities, session counts or program durations receive identical rows of the combination matrix and their difference is absorbed into heterogeneity or into an interaction term. The frequentist component line and the dose-response line have remained separate in practice: a 2026 frequentist dose-response network meta-analysis had to exclude 80 multicomponent studies from a 282-trial Cochrane network because the two structures cannot presently be combined, and names the joint model as future work. One implementation now exists. cdtmbnma, released on CRAN in July 2026 in a single version, fits Bayesian component model-based network meta-analysis with explicit component dose-response and dose-dependent interaction surfaces, additive, bilinear or saturating pairwise interactions, and prediction at unobserved dose combinations, for arm-level continuous and binary outcomes. It is an unreviewed package with no methods paper of its own, no frequentist counterpart, no population-adjusted or survival route, and no identification results: nothing states when a dose-indexed component contrast is estimable, and the row-space screens in use are defined for a binary component design. The gap bites hardest in the disconnected case that motivates component models, where a shared component is the only bridge across the gap and is delivered at different doses on each side, so the additive bridge identifies the cross-gap contrast only under an unstated dose-invariance assumption that no current screen tests or records.
+
+## Why it is open
+
+A dose-indexed component model changes what estimability means. The design is no longer a binary incidence matrix whose row space settles the question, and the analogue for a component-by-dose design with a nonlinear shape per component has not been derived for any outcome family. Fitting a shape per component also multiplies the parameter count on networks that are already sparse, which pushes the model into the weak-identification regime, and nobody has characterized when such a model is identified at all rather than rescued by a prior. The covariate the model needs is frequently missing from the reports: dose, session count and contact time are extracted from heterogeneous intervention descriptions with no standard vocabulary, so an applied component review often cannot populate a dose column even where the estimator exists. The two machineries were also developed as alternative bridge families rather than as a joint structure, in the same package family but with no shared interface, so until 2026 there was no implementation to test any theory against.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Petropoulou, Rucker and Schwarzer 2026, BMC Medical Research Methodology](https://doi.org/10.1186/s12874-025-02754-4) | frequentist dose-response network meta-analysis; excludes 80 multicomponent studies and 3 studies lacking dose data from a 282-trial network because components and dose levels cannot presently be modeled jointly, and names the joint component and dose-response model as future work |
+| [Pitre 2026, cdtmbnma 0.2.1 (CRAN, published 2026-07-22)](https://doi.org/10.32614/cran.package.cdtmbnma) | Bayesian component model-based network meta-analysis with component dose-response and dose-dependent interaction surfaces, study-level random effects and prediction at unobserved dose combinations, for arm-level continuous and binary outcomes; a single-author package with no accompanying methods paper, no estimability screen and no simulation evidence |
+| [Rucker, Petropoulou and Schwarzer 2020, Biometrical Journal](https://doi.org/10.1002/bimj.201800167) | formalizes component network meta-analysis as the product of the comparison design matrix and the binary treatment-by-component matrix, the coding that makes dose invisible |
+| [Petropoulou and Schwarzer 2025, netdose (CRAN)](https://doi.org/10.32614/cran.package.netdose) | frequentist dose-response network meta-analysis in the same package family as netmeta, with no component design matrix and no interface to one |
+| [Mawdsley et al. 2016, CPT: Pharmacometrics and Systems Pharmacology](https://doi.org/10.1002/psp4.12091) | model-based network meta-analysis placing parametric dose-response functions on treatment effects; supplies the dose-response half of the joint model at treatment rather than component level |
+| [Pedder et al. 2019, Research Synthesis Methods](https://doi.org/10.1002/jrsm.1351) | model-based network meta-analysis of time-course relationships across multiple treatments; the closest existing precedent for placing a parametric shape on an effect inside a network |
+
+:::
+
+## Probable solution or research direction
+
+Derive estimability conditions for a component-by-dose design: state the analogue of the row-space condition for a specified shape family, linear, exponential, Emax or restricted cubic spline, by outcome family, and give the conditions under which a cross-subnetwork contrast is identified when the bridging component is observed at different doses on each side of the gap. Add a component-by-dose design option to the frequentist component workflow so the estimator exists outside one Bayesian package, and benchmark the two against a simulation in which the true component effect is dose-dependent, scoring the bias that binary coding induces as a function of the dose spread within each coded component. Require applied component reviews to report the distribution of dose, intensity and duration within every coded component, which makes the dose-invariance assumption that binary coding imposes visible even where the joint model cannot be fitted.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Partially addressed. One reader proposed it from a single methods source whose authors excluded multicomponent studies and named the joint model as future work, and the reviewer accepted it as a real methods gap; it is recorded as partially addressed because a Bayesian component dose-response implementation reached CRAN in July 2026, while the identification conditions, the frequentist and population-adjusted routes, and any empirical evaluation remain absent.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [CMP-01 — Cross-subnetwork component constancy is the untestable bridge](CMP-01-cross-subnetwork-component-constancy-is-the-untestable-bridg.qmd)
+- [CMP-03 — Strict component additivity may be clinically false](CMP-03-strict-component-additivity-may-be-clinically-false.qmd)
+- [CMP-05 — No versioned intervention ontology maps onto CNMA component matrices](CMP-05-no-versioned-intervention-ontology-maps-onto-cnma-component-.qmd)
+- [CMP-31 — No practical-identification diagnostic for component effects](CMP-31-no-practical-identification-diagnostic-for-component-effects.qmd)
+- [CMP-34 — No sensitivity or reporting standard for discretionary component coding](CMP-34-no-sensitivity-or-reporting-standard-for-discretionary-compo.qmd)
+:::
+
+## Source
+
+Derived from reading:nma-02 of the reviewed corpus.

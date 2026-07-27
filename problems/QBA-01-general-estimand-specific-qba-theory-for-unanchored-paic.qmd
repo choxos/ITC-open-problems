@@ -3,17 +3,17 @@ title: "General estimand-specific QBA theory for unanchored PAIC"
 description: "Quantitative bias analysis for unanchored population-adjusted indirect comparison is fragmented rather than absent: the published methods are each tied to one estimator, one outcome type or one bias mechanism, and they share no common notation, no benchmark and no rule for choosing among them. Generic summary-level bias formulas can already be applied to a MAIC or STC estimate, as Ren et al. 2025 (doi:10.1017/rsm.2025.13) state directly, so what is missing is a unified estimand-explicit parameterization and selection guidance, not a usable formula. The mathematics is narrower than the source claimed: under an additive identity-link conditional-mean model with a constant arm-specific coefficient for the omitted factor, arm-mean bias equals that coefficient times the difference in the omitted-factor prevalence the standardization actually uses, and on nonlinear or non-collapsible scales the correction requires integrating the conditional mean over the target covariate law, which finite summation, analytic formulas or quadrature can do exactly."
 pid: "QBA-01"
 topic: "Quantitative bias analysis for unanchored PAIC"
-categories: ["Quantitative bias analysis for unanchored PAIC", "Very high priority", "Confirmed open"]
+categories: ["Quantitative bias analysis for unanchored PAIC", "Very high priority", "Partially addressed"]
 priority: "Very high"
 prank: 1
-verdict: "Confirmed open"
-verdictslug: "confirmed-open"
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
 maturity: "Emerging"
 tractability: 4
 ---
 ::: {.problem-meta}
 [QBA-01]{.problem-id}
-[Confirmed open]{.verdict .verdict-confirmed-open}
+[Partially addressed]{.verdict .verdict-partially-addressed}
 [Very high priority]{.chip .chip-priority-very-high}
 [Emerging]{.chip .chip-maturity-emerging}
 [Tractability 4/5]{.chip}
@@ -49,13 +49,18 @@ Build one estimand-explicit notation covering MAIC, STC and ML-UMR with marginal
 ## Verification
 
 ::: {.verification-trail}
-**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+**Verdict.** Partially addressed. Auditors agreed the problem is open and no counterevidence surfaced. Reopened by the full-text reading: 2 findings from 2 papers survived both the reader and an independent second reviewer, so the verdict moves from confirmed-open to partially-addressed.
 
 **The source said.** "Quantitative bias analysis for unanchored population-adjusted indirect comparisons has no unified estimand-specific theory: the conventional primary analysis sets residual confounding, selection, measurement and design bias to exactly zero, and the few existing methods are each tied to one estimator, one outcome type or one bias mechanism. Six recognisable QBA families exist but share no notation, no common benchmark, and no rule for choosing among them."
 
 **What was wrong with it.** GPT-5.6 Sol found the mathematical claims overstated against Ren et al. 2025 (doi:10.1017/rsm.2025.13): covariate dependence does not break the additive decomposition, arm-specific coefficients already accommodate treatment interaction, exact correction needs only the conditional mean integrated over the target covariate law rather than simulation of the full outcome distribution, and collapsibility is neither sufficient nor necessary for a closed form. The literature auditor verified the Shi et al. 2024 counts (57 summary-level QBA methods, 4 designed for meta-analysis, doi:10.1016/j.jclinepi.2024.111507) but found the review never mentions indirect comparison, MAIC, STC, transportability or PAIC, so it cannot testify that none of the 57 is a mature PAIC framework.
 
 **Dissent.** codex dissented (overstated): The core need for estimand-specific sensitivity analysis remains real, but C15 and C17-C19 overstate the mathematics. The identity-link formula is exact only under an additive conditional-mean model with a constant arm-specific U coefficient and when p_S denotes the U prevalence actually induced by the standardization, not necessarily the raw source prevalence. Covariate dependence does not itself break that decomposition, and treatment interaction is already accommodated by using beta_U,a separately by arm, contrary to C18. For nonlinear or non-collapsible estimands, direct subtraction of a link-scale scalar is generally invalid, but one need only integrate the conditional mean over the target covariate law, not the full outcome distribution. Finite summation, analytic bias formulas, or quadrature may be exact; simulation is not required. Collapsibility is neither sufficient for a closed form nor necessary for exact calculation. C20 is a useful but overlapping, non-exhaustive taxonomy. At cpaic commit 9d150e9, NAMESPACE exposes bridge_fragility() for one bias mechanism but no general qba() interface, so the unification problem remains open. Publication-sparsity and no-framework claims were not used because literature coverage is outside this audit lens.
+
+**Revised by the full-text reading.** Applied 2026-07-26 full-text reading of the consolidated library (687 papers).
+
+Verdict changed
+:   **confirmed-open -> partially-addressed** 2 surviving findings from: Addressing challenges with Matching-Adjusted Indirect Compar; Performance of unanchored matching-adjusted indirect compari. New citations: 10.1186/s12874-020-01124-6, 10.1186/s12874-025-02500-w
 
 Literature and prior-art check
 :   **open / supported-with-caveat.** Retrieved Shi et al. 2024 (PMID 39197688) in full: 'Of the 57 QBA methods, 53 (93%) were explicitly designed for observational studies, and 4 (7%) for meta-analyses.' Claims 6 and 7 match exactly. Claim 8 is an inference from silence: the review never mentions indirect comparison, MAIC, STC, transportability or PAIC anywhere, so it cannot itself testify that none of the 57 is a mature PAIC framework; the citation is decorative for that specific claim. Claim 4 is independently corroborated by a source asserting the absence: Chandler and Ishak's ML-UMR paper says QBA 'could be adapted for ML-UMR by incorporating bias parameters or simulated unmeasured covariates into the outcome regression modelling and standardization steps' (i.e. not yet done). Retrieved Ren 2025, Soutar 2025, Nourredine 2025, Gray 2024, Leahy 2023: each is estimator-, outcome- or mechanism-specific, consistent with the statement. One misdescription: Gray et al. 2024's three biases are 'missing confounder, misclassification of exposure, and outcome evaluation', not index-date error (see QBA-08).
@@ -66,6 +71,25 @@ GPT-5.6 Sol, technical and source-code lens
 
 Decision path
 :   `R5:default-open → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## How the evidence falls in time
+
+6 papers in the reviewed corpus bear on this problem, published 2020 to 2026. Partial progress is on the record, and later work still calls this open. Both belong in view.
+
+It is also being **closed in pieces**: partial results come from more than one paper in more than one year, each covering a different part.
+
+::: {.table-scroll}
+
+| Year | Says | Paper |
+|---|---|---|
+| 2020 | partly addresses it | Performance of unanchored matching-adjusted indirect comparison (MAIC) for the evidence synthesis of single-arm trials with time-to-event outcomes |
+| 2024 | confirms it is open | Response to discussant comments on "NMA, the first 20 years" |
+| 2025 | partly addresses it | Addressing challenges with Matching-Adjusted Indirect Comparisons to demonstrate the comparative effectiveness of entrectinib in metastatic ROS-1 positive Non-Small Cell Lung Cancer |
+| 2025 | confirms it is open | Quantitative bias analysis for unmeasured confounding in unanchored population-adjusted indirect comparisons |
+| 2026 | confirms it is open | Between Rigor and Relevance: Why the EU HTA Guidelines on Indirect Comparisons Miss the Mark |
+| 2026 | confirms it is open | Anchors Away: Navigating Unanchored Indirect Comparisons with Multilevel Unanchored Meta-Regression (ML-UMR) (Chandler & Ishak; arXiv:2606.20341v1). The batch file points at media/media/Table1.pdf; the full LaTeX source mlumr.tex sits in the same arXiv package and was read. |
 
 :::
 

@@ -1,0 +1,66 @@
+---
+title: "Value-of-information output is conditional on the chosen synthesis structure"
+description: "Expected value of perfect information, expected value of sample information and expected net benefit of sampling are computed conditional on one chosen evidence-synthesis structure: splitting, lumping, a multi-level model, an informative prior, a mixture prior, a commensurate prior or a power prior, equivalently one choice of how much strength to borrow across populations, treatments, outcomes or study designs. That choice changes the research decision and not only the effect estimate. In a severe sepsis case study extending 17 adult trials with 11 pediatric trials, odds ratio estimates ranged from 0.55 to 0.90 across sharing methods, incremental cost-effectiveness ratios from about 16,000 to 52,000 pounds per quality-adjusted life year, the probability of cost-effectiveness moved from 0.80 to 0.10, and the optimal design moved from a trial of 1,940 patients per arm to no trial at all, while each individual analysis reported a definite optimal sample size. No method propagates uncertainty over the structural choice into research-prioritization output, so the recommended trial and its sample size are reported as though the borrowing model were known. Model averaging exists as a response for effect estimates but has not been carried into value-of-information or expected-net-benefit-of-sampling output, and the general decision-model literature on structural uncertainty has never been instantiated on synthesis structures. The specific obstacle is that these structures differ mainly in what they extrapolate, so averaging weights cannot be learned from the observed data."
+pid: "DEC-33"
+topic: "Decision analysis, regulation & reporting"
+categories: ["Decision analysis, regulation & reporting", "High priority", "Confirmed open"]
+priority: "High"
+prank: 2
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Promising"
+tractability: 3
+---
+::: {.problem-meta}
+[DEC-33]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[High priority]{.chip .chip-priority-high}
+[Promising]{.chip .chip-maturity-promising}
+[Tractability 3/5]{.chip}
+:::
+## Statement
+
+Expected value of perfect information, expected value of sample information and expected net benefit of sampling are computed conditional on one chosen evidence-synthesis structure: splitting, lumping, a multi-level model, an informative prior, a mixture prior, a commensurate prior or a power prior, equivalently one choice of how much strength to borrow across populations, treatments, outcomes or study designs. That choice changes the research decision and not only the effect estimate. In a severe sepsis case study extending 17 adult trials with 11 pediatric trials, odds ratio estimates ranged from 0.55 to 0.90 across sharing methods, incremental cost-effectiveness ratios from about 16,000 to 52,000 pounds per quality-adjusted life year, the probability of cost-effectiveness moved from 0.80 to 0.10, and the optimal design moved from a trial of 1,940 patients per arm to no trial at all, while each individual analysis reported a definite optimal sample size. No method propagates uncertainty over the structural choice into research-prioritization output, so the recommended trial and its sample size are reported as though the borrowing model were known. Model averaging exists as a response for effect estimates but has not been carried into value-of-information or expected-net-benefit-of-sampling output, and the general decision-model literature on structural uncertainty has never been instantiated on synthesis structures. The specific obstacle is that these structures differ mainly in what they extrapolate, so averaging weights cannot be learned from the observed data.
+
+## Why it is open
+
+Structures that share more information differ in parameters no study measures directly, so the likelihood cannot rank them; any weight over structures is a prior judgment, and a value-of-information figure computed under a weighted mixture absorbs that judgment into a single number that does not display it. The computation compounds: value of information is already a nested expectation, and expected value of sample information requires the data-generating and refitting step to be repeated, so ranging over candidate structures multiplies an expensive calculation by their number. Model fit does not help either, because poor fit under a sharing model may signal a conflict between evidence sources that is itself informative rather than a reason to discard the model, so selection on fit is not defensible here. The honest output may not be a single number: when structures disagree on whether to run a trial, a set of research decisions with the assumption supporting each is more informative than an averaged expectation, but funders and reimbursement processes ask for one recommendation and no reporting convention exists for the set. The parameters that index intermediate sharing are not stably interpretable either; the power-prior discount behaves non-monotonically under random effects and can impose more sharing than lumping, so there is no ordered scale along which to integrate.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Nikolaidis et al. 2025, Research Synthesis Methods](https://doi.org/10.1017/rsm.2024.17) | Implements splitting, lumping, multi-level, informative-prior, mixture-prior, commensurate-prior and power-prior models on one health technology assessment case study with cost-effectiveness and value-of-information output, introduces three metrics for the realized strength of sharing, and reports that the choice of method is a key determinant of the value of further research, including whether a trial is worth running at all. |
+| [Nikolaidis et al. 2021, BMC Medical Research Methodology](https://doi.org/10.1186/s12874-021-01292-z) | Classifies 89 information-sharing methods into functional, exchangeability-based, prior-based and multivariate relationships with the assumptions each imposes; the candidate set any averaging or robustness analysis would have to range over. |
+| [Jackson et al. 2019, Journal of the American Statistical Association](https://doi.org/10.1080/01621459.2018.1562932) | EVPPI and EVSI for Bayesian evidence-synthesis models fitted by MCMC, comparing candidate data sources and trading expected benefit against cost to choose a sample size; every quantity conditional on one synthesis model. |
+| [Strong, Oakley and Brennan 2014, Medical Decision Making](https://doi.org/10.1177/0272989X13505910) | Nonparametric regression estimator of multiparameter partial EVPI from a probabilistic sensitivity analysis sample; the computational route that would have to be repeated for each candidate structure. |
+| [Jackson et al. 2011, Medical Decision Making](https://doi.org/10.1177/0272989X11406986) | General framework for addressing structural uncertainty in decision models, including model averaging and discrepancy formulations; never instantiated on evidence-synthesis or borrowing structures. |
+| [Bojke et al. 2009, Value in Health](https://doi.org/10.1111/j.1524-4733.2008.00502.x) | Review and application of methods for characterizing structural uncertainty in decision-analytic models, including parameterizing the structural choice so that it can be integrated over rather than selected. |
+
+:::
+
+## Probable solution or research direction
+
+The first tractable step is a robustness report rather than an average: compute the full value-of-information output under every candidate sharing structure and publish the resulting set of research recommendations together with the realized-sharing metrics that place each structure on a scale, so a funder can see whether the recommendation to run a trial survives the structural choice. Where averaging is wanted, parameterize the structural choice as a continuous discount rather than a discrete list, elicit a distribution over it, integrate the value-of-information calculation over that distribution, and report the result explicitly as conditional on an elicited prior with sensitivity to it. Nested Monte Carlo cost can be held down with the existing regression-based EVPPI and EVSI estimators refitted per structure, so the obstacle is bookkeeping rather than new theory. Score the whole thing by what a decision-maker loses through conditioning on one structure: simulate an evidence base, take the trial each structure recommends, and report the realized net benefit of each research decision under the others.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. One reader proposed this from a single case study, and the reviewer accepted that structural synthesis uncertainty can change the value of future information and therefore the recommended study design, distinct from acquiring individual patient data and from interval coverage after model selection. The demonstration covers one clinical problem, so the typical magnitude elsewhere is unestablished, though the argument does not depend on it.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [DEC-03 — Value of information is not extended to IPD or bridge acquisition](DEC-03-value-of-information-is-not-extended-to-ipd-or-bridge-acquis.qmd)
+- [EVB-04 — No decision-value method chooses which IPD or bridging trial to get](EVB-04-no-decision-value-method-chooses-which-ipd-or-bridging-trial.qmd)
+- [MIS-04 — Model and bridge selection uncertainty never enters the interval](MIS-04-model-and-bridge-selection-uncertainty-never-enters-the-inte.qmd)
+- [DIS-02 — No data-driven criterion can rank candidate bridge families](DIS-02-no-data-driven-criterion-can-rank-candidate-bridge-families.qmd)
+:::
+
+## Source
+
+Derived from reading:nma-05 of the reviewed corpus.

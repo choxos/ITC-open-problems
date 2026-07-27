@@ -2,12 +2,19 @@
 // Renders the audited problem registry into Quarto source.
 //
 // Input   documentation/audit/registry/problems.json   (array of adjudicated records)
+//         documentation/audit/reading/timeline.json     (evidence in publication order)
+//         documentation/audit/reading/gap-chronology.json (recurring gaps by year)
 // Output  problems/<id>-<slug>.qmd                     (one page per problem)
 //         categories/<slug>.qmd                        (one listing page per category)
+//         chronology.qmd                               (what the dates say)
 //         references.bib                               (only cites that survived verification)
 //
 // The registry is the source of truth. These files are generated; edit the registry,
 // not the .qmd. Running this twice with the same registry produces identical output.
+//
+// The chronology inputs are optional. They come from the full-text reading, which is a
+// separate and much slower pass, and the site has to render without them: a missing
+// timeline.json costs the dated sections and nothing else.
 
 import { readFileSync, writeFileSync, mkdirSync, readdirSync, rmSync, existsSync } from 'node:fs'
 import { join, dirname } from 'node:path'
@@ -15,8 +22,17 @@ import { fileURLToPath } from 'node:url'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const REGISTRY = join(ROOT, 'documentation/audit/registry/problems.json')
+const READING = join(ROOT, 'documentation/audit/reading')
 const PROBLEMS_DIR = join(ROOT, 'problems')
 const CATEGORIES_DIR = join(ROOT, 'categories')
+
+const readJson = (p, fallback) =>
+  existsSync(p) ? JSON.parse(readFileSync(p, 'utf8')) : fallback
+
+// Populated in main(). Empty when the reading has not been run, which every
+// consumer below has to tolerate.
+let TIMELINE = {}
+let TIMELINE_VERDICT = {}
 
 export const CATEGORIES = [
   { code: 'EST', slug: 'estimands', name: 'Estimands & target populations',
@@ -58,6 +74,13 @@ export const CATEGORIES = [
 const BY_CODE = Object.fromEntries(CATEGORIES.map((c) => [c.code, c]))
 
 const PRIORITY_RANK = { 'Very high': 1, High: 2, 'Medium-high': 3, Medium: 4 }
+
+const EFFECT_LABEL = {
+  'supports-open': 'confirms it is open',
+  'partially-addresses': 'partly addresses it',
+  resolves: 'resolves it',
+  contradicts: 'contradicts its premise',
+}
 
 const VERDICT_LABEL = {
   'confirmed-open': 'Confirmed open',
@@ -193,6 +216,32 @@ function problemPage(p) {
   if (p.audit?.dissent) {
     out.push(`**Dissent.** ${p.audit.dissent}`, '')
   }
+
+  // What the full-text reading changed, including what it deliberately did not.
+  // A verdict that moves without a trail is worse than one that never moved: the
+  // page still reads as authoritative and there is nothing left to check it
+  // against. `verdict-held` rows exist for the same reason in reverse, so a
+  // reader who sees the evidence and not the decision does not assume it was
+  // missed.
+  const ru = p.reading_update
+  if (ru?.changes?.length) {
+    const LABEL = {
+      erratum: 'Corrected',
+      citation: 'Citation corrected',
+      verdict: 'Verdict changed',
+      'verdict-held': 'Verdict left unchanged',
+      'reopen-candidate': 'Flagged for reopening',
+    }
+    out.push(`**Revised by the full-text reading.** Applied ${ru.applied}.`, '')
+    for (const c of ru.changes) {
+      out.push(`${LABEL[c.kind] || c.kind}`)
+      out.push(`:   **${c.what}** ${c.evidence || ''}`)
+      if (c.previous_text) {
+        out.push(`    Previously: "${String(c.previous_text).slice(0, 600)}"`)
+      }
+      out.push('')
+    }
+  }
   // A definition list reads better than bullets here: each auditor is a named term with
   // its finding underneath, and the trail is meant to be skimmed by auditor.
   const opinions = p.audit?.opinions || []
@@ -218,6 +267,72 @@ function problemPage(p) {
     out.push('')
   }
   out.push(':::', '')
+
+  // The evidence in publication order. A pooled count of findings cannot show
+  // that a gap was named in 2013 and again in 2024, or that partial progress
+  // landed in between and later authors kept finding the gap anyway. Those are
+  // different states and they matter to anyone deciding what to work on.
+  const tl = TIMELINE[p.id]
+  if (tl) {
+    const span = tl.span ? `${tl.first} to ${tl.last}` : `${tl.first}`
+    const CLASS_LINE = {
+      'answered-later':
+        'The most recent paper to touch this reports progress on it, and every paper calling it open is older.',
+      'reasserted-after-progress':
+        'Partial progress is on the record, and later work still calls this open. Both belong in view.',
+      concurrent:
+        'Progress and a fresh assertion of openness land in the same year.',
+      'progress-only':
+        'Every paper found here reports progress; none asserts the problem is open.',
+      'open-only':
+        'Every paper found here asserts the problem is open; none reports progress.',
+    }
+    out.push('## How the evidence falls in time', '')
+    out.push(
+      `${tl.papers} paper${tl.papers === 1 ? '' : 's'} in the reviewed corpus bear` +
+        `${tl.papers === 1 ? 's' : ''} on this problem, published ${span}. ` +
+        (CLASS_LINE[tl.class] || ''),
+      ''
+    )
+    if (tl.flags?.includes('recurrent')) {
+      out.push(
+        'This problem is **recurrent**: three or more papers spanning at least eight years ' +
+          'assert it independently. Sustained restatement by authors who mostly do not cite ' +
+          'each other is the strongest evidence this reading can offer that a gap is real ' +
+          'rather than one group\'s framing.',
+        ''
+      )
+    }
+    if (tl.flags?.includes('piecewise')) {
+      out.push(
+        'It is also being **closed in pieces**: partial results come from more than one paper ' +
+          'in more than one year, each covering a different part.',
+        ''
+      )
+    }
+    const tv = TIMELINE_VERDICT[p.id]
+    if (tv) {
+      const VERD = {
+        answers: 'answers what the earlier work left open',
+        'answers-part': 'answers a component of it, leaving a named part',
+        'different-question': 'is about a different question and leaves the earlier gap untouched',
+        no: 'does not answer it',
+        uncertain: 'could not be judged from the claims alone',
+      }
+      out.push(
+        `**Does the later work answer the earlier work?** Put to an independent reviewer with ` +
+          `the older and newer claims side by side, it judged that the later work ` +
+          `${VERD[tv.verdict] || tv.verdict} (${tv.confidence} confidence). ${tv.reason}` +
+          (tv.what_remains ? ` What remains: ${tv.what_remains}` : ''),
+        ''
+      )
+    }
+    out.push('::: {.table-scroll}', '', '| Year | Says | Paper |', '|---|---|---|')
+    for (const e of tl.events) {
+      out.push(`| ${e.year} | ${EFFECT_LABEL[e.effect] || e.effect} | ${e.paper_title || e.paper} |`)
+    }
+    out.push('', ':::', '')
+  }
 
   if (p.related?.length) {
     out.push('## Related problems', '')
@@ -272,6 +387,149 @@ ${cat.blurb}
 `
 }
 
+// A problem's evidence read in publication order rather than pooled. The three
+// things this shows and a count cannot: whether later work answered what earlier
+// work left open, whether a gap kept being named after partial progress landed,
+// and whether a gap has simply sat there being restated.
+function chronologyPage(tl, gaps) {
+  const rows = tl.problems || []
+  const link = (id) => {
+    const t = REGISTRY_INDEX[id]
+    return t ? `[${id}](problems/${t.filename})` : id
+  }
+  const PROGRESS = new Set(['resolves', 'partially-addresses'])
+  const byClass = (k) => rows.filter((r) => r.class === k)
+  const recurrent = rows.filter((r) => r.flags?.includes('recurrent'))
+  const untouched = recurrent.filter((r) => !r.events.some((e) => PROGRESS.has(e.effect)))
+  const verdicts = Object.values(TIMELINE_VERDICT)
+  const vcount = (k) => verdicts.filter((v) => v.verdict === k).length
+
+  const out = [`---
+title: "The chronology of the evidence"
+subtitle: "What the dates say that a count of findings cannot"
+toc: true
+---
+
+Every finding in this catalog carries the publication year of the paper that made it,
+so a problem's evidence can be read as a sequence rather than a pile. That answers three
+questions a pooled count cannot: has later work answered what an earlier paper left open,
+is a problem being closed in pieces by different groups, and is a problem simply being
+restated across the years with nothing happening in between.
+
+${rows.length} problems carry at least one dated finding, drawn from a full-text reading of
+${gaps.gaps ? '687 papers' : 'the reviewed corpus'} published between 2010 and 2026.
+`]
+
+  if (verdicts.length) {
+    out.push(`## Did the later work answer the earlier work?
+
+${verdicts.length} problems had progress as their newest evidence and every assertion of
+openness older. Publication order alone proves nothing there: two papers can straddle a date
+and be about different questions, and a later paper can close a corner of a problem whose
+earlier statement was about something else. Each was put to an independent reviewer with the
+older and newer claims side by side, and without the classification, so it could not agree
+with the mechanism by reading its label.
+
+**None was fully answered.**
+
+| The later work | Problems |
+|---|---:|
+| answers what the earlier work left open | ${vcount('answers')} |
+| answers a component; a named part survives | ${vcount('answers-part')} |
+| is about a different question | ${vcount('different-question')} |
+| does not answer it | ${vcount('no')} |
+| could not be judged from the claims | ${vcount('uncertain')} |
+
+The five in the bottom two rows are where the dates mislead, and each is recorded on its own
+page alongside the reviewer's reasoning.
+`)
+  }
+
+  const reasserted = byClass('reasserted-after-progress')
+  if (reasserted.length) {
+    out.push(`## Reasserted after progress
+
+${reasserted.length} problems have partial progress on the record and a later paper still
+calling them open. These are the entries most likely to be reported as settled by someone
+reading only the newest method paper, and the ones whose prior work should cite both sides.
+
+::: {.table-scroll}
+
+| Problem | Registry says | Papers | Span | Chronology |
+|---|---|---:|---|---|`)
+    for (const r of reasserted.sort((a, b) => b.papers - a.papers).slice(0, 30)) {
+      out.push(`| ${link(r.id)} ${r.title} | ${VERDICT_LABEL[r.verdict] || r.verdict} | ${r.papers} | ${r.first} to ${r.last} | ${r.trail} |`)
+    }
+    out.push('', ':::', '')
+  }
+
+  if (untouched.length) {
+    out.push(`## Restated across the years, with nothing in between
+
+${untouched.length} problems were called open by at least three papers spanning at least
+eight years, and no paper in the corpus reports any progress on them at all. Independent
+restatement over a long period, by authors who mostly do not cite each other, is the
+strongest evidence this reading can give that a gap is real rather than an artifact of one
+author's framing.
+
+::: {.table-scroll}
+
+| Problem | Registry says | Papers | Span |
+|---|---|---:|---|`)
+    for (const r of untouched.sort((a, b) => b.papers - a.papers)) {
+      out.push(`| ${link(r.id)} ${r.title} | ${VERDICT_LABEL[r.verdict] || r.verdict} | ${r.papers} | ${r.first} to ${r.last} |`)
+    }
+    out.push('', ':::', '')
+  }
+
+  const themes = (gaps.themes || []).filter((t) => t.papers >= 3 && t.span >= 8)
+  if (themes.length) {
+    const dry = themes.filter((t) => !t.progress_years.length)
+    out.push(`## The same gap, named again and again
+
+Papers name the gaps they leave behind, in their own words. Across the corpus the same gap
+gets named repeatedly by authors who never cite each other, and that repetition is invisible
+while the gaps sit as free text under the paper that wrote them. Clustering the text does not
+find it, because a recurrence is a paraphrase rather than a near duplicate. So all
+${gaps.gaps} future-research gaps were read and attached to a theme instead, and the
+chronology falls out.
+
+${themes.length} themes were named by three or more papers across eight or more years;
+**${dry.length} of those have no paper in the corpus reporting any progress at all**.
+
+The most-restated of them are not registered problems yet. They are candidates from this
+reading, and they need the same scrutiny as any other entry before they become one.
+
+::: {.table-scroll}
+
+| Theme | Papers | Named in | Progress reported |
+|---|---:|---|---|`)
+    for (const t of themes.sort((a, b) => b.papers - a.papers).slice(0, 40)) {
+      const yrs = t.years.slice(0, 12).join(', ') + (t.years.length > 12 ? '…' : '')
+      out.push(`| ${link(t.theme)} ${t.title || ''} | ${t.papers} | ${yrs} | ${t.progress_years.join(', ') || 'none'} |`)
+    }
+    out.push('', ':::', '')
+  }
+
+  const years = Object.entries(tl.by_year || {}).sort((a, b) => Number(a[0]) - Number(b[0]))
+  if (years.length) {
+    out.push(`## Findings by publication year
+
+What the corpus says about these problems, by the year it was said.
+
+::: {.table-scroll}
+
+| Year | Confirms open | Partly addresses | Resolves | Contradicts |
+|---|---:|---:|---:|---:|`)
+    for (const [y, c] of years) {
+      out.push(`| ${y} | ${c['supports-open'] || 0} | ${c['partially-addresses'] || 0} | ${c.resolves || 0} | ${c.contradicts || 0} |`)
+    }
+    out.push('', ':::', '')
+  }
+
+  return out.join('\n')
+}
+
 let REGISTRY_INDEX = {}
 
 function main() {
@@ -280,6 +538,18 @@ function main() {
     process.exit(1)
   }
   const problems = JSON.parse(readFileSync(REGISTRY, 'utf8'))
+
+  const timeline = readJson(join(READING, 'timeline.json'), { problems: [], by_year: {} })
+  const gapChron = readJson(join(READING, 'gap-chronology.json'), { themes: [] })
+  TIMELINE = Object.fromEntries((timeline.problems || []).map((r) => [r.id, r]))
+  for (const f of existsSync(join(READING, 'review'))
+    ? readdirSync(join(READING, 'review')).filter((f) => /^verdict-timeline-\d+\.json$/.test(f))
+    : []) {
+    for (const v of readJson(join(READING, 'review', f), { verdicts: [] }).verdicts || []) {
+      const id = v.item?.problem_id
+      if (id) TIMELINE_VERDICT[id] = v
+    }
+  }
 
   // Filenames must start with the category code so the per-category listing glob works.
   REGISTRY_INDEX = Object.fromEntries(
@@ -301,6 +571,10 @@ function main() {
   for (const cat of CATEGORIES) {
     const mine = problems.filter((p) => p.category === cat.code)
     writeFileSync(join(CATEGORIES_DIR, `${cat.slug}.qmd`), categoryPage(cat, mine))
+  }
+
+  if (timeline.problems?.length) {
+    writeFileSync(join(ROOT, 'chronology.qmd'), chronologyPage(timeline, gapChron))
   }
 
   // ---- references, from every citation that survived verification ----

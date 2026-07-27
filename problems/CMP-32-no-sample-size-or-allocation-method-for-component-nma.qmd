@@ -1,0 +1,68 @@
+---
+title: "No sample-size or allocation method for component NMA"
+description: "Designing evidence for a component network requires knowing how much information a planned set of trials will supply about a component main effect or a component-by-component interaction, and how to allocate units across combination arms to obtain it. For a component design formed as the product of the comparison design matrix and the treatment-by-component matrix, the information about a component contrast depends on which combinations are randomized, in what proportions, with how many units, and on the between-study heterogeneity; it is not a function of total sample size. No published procedure computes the power or expected precision of a component contrast under a planned design, and none allocates units across combination arms so that a specified set of component main effects and interactions is estimable at a target precision. Groups now assembling component evidence prospectively design around the gap: a collaborative network trial of ten randomized implementation trials sized each trial for its own two-group logistic comparison and recorded that no established sample-size method exists for component network meta-analysis, even though the pooled component model with strategy-covariate interactions is the point of the collaboration. The two adjacent literatures each solve a different problem. Network meta-analysis design frameworks size and configure a new trial against an existing network in terms of treatment-level comparisons and say nothing about which combination arms make a component contrast estimable, while the component-side machinery, row-space screening and leave-one-comparison-out identifiability, is diagnostic on a design that already exists rather than prospective."
+pid: "CMP-32"
+topic: "Component methods (CNMA and component PAIC)"
+categories: ["Component methods (CNMA and component PAIC)", "Medium-high priority", "Confirmed open"]
+priority: "Medium-high"
+prank: 3
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Emerging"
+tractability: 4
+---
+::: {.problem-meta}
+[CMP-32]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[Medium-high priority]{.chip .chip-priority-medium-high}
+[Emerging]{.chip .chip-maturity-emerging}
+[Tractability 4/5]{.chip}
+:::
+## Statement
+
+Designing evidence for a component network requires knowing how much information a planned set of trials will supply about a component main effect or a component-by-component interaction, and how to allocate units across combination arms to obtain it. For a component design formed as the product of the comparison design matrix and the treatment-by-component matrix, the information about a component contrast depends on which combinations are randomized, in what proportions, with how many units, and on the between-study heterogeneity; it is not a function of total sample size. No published procedure computes the power or expected precision of a component contrast under a planned design, and none allocates units across combination arms so that a specified set of component main effects and interactions is estimable at a target precision. Groups now assembling component evidence prospectively design around the gap: a collaborative network trial of ten randomized implementation trials sized each trial for its own two-group logistic comparison and recorded that no established sample-size method exists for component network meta-analysis, even though the pooled component model with strategy-covariate interactions is the point of the collaboration. The two adjacent literatures each solve a different problem. Network meta-analysis design frameworks size and configure a new trial against an existing network in terms of treatment-level comparisons and say nothing about which combination arms make a component contrast estimable, while the component-side machinery, row-space screening and leave-one-comparison-out identifiability, is diagnostic on a design that already exists rather than prospective.
+
+## Why it is open
+
+The design question is combinatorial rather than scalar. The decision variable is a subset of the possible combination arms together with their allocations, and the objective is a function of the whole information matrix over several component contrasts at once, so this is a constrained optimal-design problem; nobody has written down the criterion, let alone solved it under feasibility constraints. The variance of a component contrast also depends on the between-study heterogeneity of a network that does not yet exist, so a planning input must be assumed; that is true of network design generally but bites harder here because heterogeneity and component structure enter through the same design matrix. Prospective component evidence is new: master protocols, collaborative network trials and multiphase optimization designs have only recently begun to be assembled around a pooled component model, so until now there was no consumer for the method. Factorial trial design solves the single-trial version but not the network version, in which combinations are spread across trials that differ in population and background care and the pooled analysis borrows across them.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Barnes et al. 2024, Frontiers in Public Health](https://doi.org/10.3389/fpubh.2024.1367017) | protocol for a collaborative network trial of ten randomized implementation trials feeding a pooled component analysis; states that there are no established methods for sample size calculations for component network meta-analysis, and sizes each trial for its own pairwise contrast instead |
+| [Salanti et al. 2018, Trials](https://doi.org/10.1186/s13063-018-2740-2) | conditional trial design: plans a future randomized trial against an existing network so that the updated network reaches a target precision or conclusiveness; expressed in treatment-level comparisons with no component structure |
+| [Nikolakopoulou, Mavridis and Salanti 2016, Statistics in Medicine](https://doi.org/10.1002/sim.6608) | plans future studies from the precision of network meta-analysis results, giving the network covariance machinery a component design method would reuse, again at treatment-contrast level |
+| [Hu, Wang and Ye 2022, BMC Medical Research Methodology](https://doi.org/10.1186/s12874-022-01792-6) | optimizes the power and sample allocation of a subsequent trial using information from an existing network meta-analysis; optimizes allocation across treatment arms of one new trial rather than across combination arms of a planned component network |
+| [Ye 2023, OssaNMA (CRAN)](https://doi.org/10.32614/cran.package.ossanma) | implements optimal sample size and allocation with a network meta-analysis, the closest available tooling; it has no component design matrix and no component contrast target |
+| [Rucker, Petropoulou and Schwarzer 2020, Biometrical Journal](https://doi.org/10.1002/bimj.201800167) | gives the component design as the product of the comparison design matrix and the treatment-by-component matrix, from which the information matrix a prospective design method needs is directly available |
+| [Petropoulou et al. 2023, BMC Medical Research Methodology](https://doi.org/10.1186/s12874-023-01959-9) | screens inestimable interactions in an existing component design and simulates connected and disconnected networks; diagnostic rather than prospective, and its scenario generator is the natural validation bed for a design method |
+
+:::
+
+## Probable solution or research direction
+
+State the problem as optimal design: given a candidate set of combination arms with allocations and an assumed heterogeneity and outcome model, compute the covariance of the fitted component contrasts from the component information matrix, then optimize the allocation under a c-optimality criterion targeting the specified component contrasts, with the row-space screen as a hard feasibility constraint and trial-level practicality as a side constraint. Deliver the power calculation first, because that is what trialists are blocked on: for a planned network, return the power to detect a specified component main effect or interaction at a stated heterogeneity. Build it by extending existing network planning tools rather than starting over, since conditional trial design and the methods for sizing a subsequent trial against a network already carry the network covariance; the change is to replace the treatment-contrast target with a component contrast through the combination matrix. Validate by simulation on the published component network scenario designs, reporting achieved power and estimability against the planned values.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. One reader proposed it from a single source, which is a weaker basis, but that source is a trial protocol whose authors state plainly that no established sample-size methods exist for component network meta-analysis and who therefore sized ten trials for pairwise contrasts; the reviewer accepted it, noting that factorial and treatment-level network planning methods address pieces of the problem without optimizing a planned network of combination arms for specified component contrasts.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [CMP-08 — Identification beyond row-space screens in nonlinear component ML-NMR](CMP-08-identification-beyond-row-space-screens-in-nonlinear-compone.qmd)
+- [CMP-31 — No practical-identification diagnostic for component effects](CMP-31-no-practical-identification-diagnostic-for-component-effects.qmd)
+- [CMP-33 — No screen separates randomized from between-study component identification](CMP-33-no-screen-separates-randomized-from-between-study-component-.qmd)
+- [DIA-11 — No scenario library or performance measures for estimability failure](DIA-11-no-scenario-library-or-performance-measures-for-estimability.qmd)
+- [EVB-04 — No decision-value method chooses which IPD or bridging trial to get](EVB-04-no-decision-value-method-chooses-which-ipd-or-bridging-trial.qmd)
+:::
+
+## Source
+
+Derived from reading:cnma-03 of the reviewed corpus.

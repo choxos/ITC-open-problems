@@ -1,0 +1,69 @@
+---
+title: "Component models cannot represent delivery order or sequencing"
+description: "The combination matrix in component network meta-analysis and component population-adjusted comparison records only whether a component is present in a regimen. Two regimens delivering the same components in a different order, or with different intra-regimen timing, occupy the same row, so they map to one node, one parameter and one estimate, and any ordering effect is absorbed into heterogeneity or into the component main effects with no diagnostic able to report that it has been. The distinction is not recoverable by relaxing additivity: two orderings of one component set have identical component sums and identical two-way interaction columns, so interaction component models cannot separate them, and the row-space estimability screen evaluates the contrast between them as the zero vector and reports no problem rather than reporting inestimability. The devices used in practice neither scale nor identify: an extra binary column such as phase-based is not separately identified whenever phasing co-occurs with a fixed component set and has no agreed definition, and an order indicator per component set grows factorially in the number of components. No published component model states what an order-indexed component parameter would be, no identification result says what evidence structure would estimate one, and no screen flags a network in which regimens sharing a component set but differing in order have been silently merged into one node. Applied reviews record the limitation and stop: an individual-participant component network meta-analysis protocol states that its model cannot discern the effect of component ordering and does not expect enough data to explore it, and a mixed-methods review of interventions for complex traumatic events reports that phasing appears to affect effectiveness while saying it does not know whether phasing is an intervention or a higher-order theoretical construct."
+pid: "CMP-27"
+topic: "Component methods (CNMA and component PAIC)"
+categories: ["Component methods (CNMA and component PAIC)", "Medium-high priority", "Confirmed open"]
+priority: "Medium-high"
+prank: 3
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Emerging"
+tractability: 3
+---
+::: {.problem-meta}
+[CMP-27]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[Medium-high priority]{.chip .chip-priority-medium-high}
+[Emerging]{.chip .chip-maturity-emerging}
+[Tractability 3/5]{.chip}
+:::
+## Statement
+
+The combination matrix in component network meta-analysis and component population-adjusted comparison records only whether a component is present in a regimen. Two regimens delivering the same components in a different order, or with different intra-regimen timing, occupy the same row, so they map to one node, one parameter and one estimate, and any ordering effect is absorbed into heterogeneity or into the component main effects with no diagnostic able to report that it has been. The distinction is not recoverable by relaxing additivity: two orderings of one component set have identical component sums and identical two-way interaction columns, so interaction component models cannot separate them, and the row-space estimability screen evaluates the contrast between them as the zero vector and reports no problem rather than reporting inestimability. The devices used in practice neither scale nor identify: an extra binary column such as phase-based is not separately identified whenever phasing co-occurs with a fixed component set and has no agreed definition, and an order indicator per component set grows factorially in the number of components. No published component model states what an order-indexed component parameter would be, no identification result says what evidence structure would estimate one, and no screen flags a network in which regimens sharing a component set but differing in order have been silently merged into one node. Applied reviews record the limitation and stop: an individual-participant component network meta-analysis protocol states that its model cannot discern the effect of component ordering and does not expect enough data to explore it, and a mixed-methods review of interventions for complex traumatic events reports that phasing appears to affect effectiveness while saying it does not know whether phasing is an intervention or a higher-order theoretical construct.
+
+## Why it is open
+
+The obstacle is representational before it is empirical. An additive model over a presence-absence design cannot express a permutation, so encoding order requires a new parameterization rather than an extra term, and the natural candidates all have identification problems: ordered component pairs multiply the parameter count, permutation indicators are unidentified unless several orders of the same set were randomized, and a single phase indicator is collinear with the component set in exactly the trials that motivate it. The evidence structure that would identify a precedence effect is a head-to-head randomization of two sequences of the same components, which is rare because trials are designed to test whether a package works rather than in which order to deliver it. What a component effect means under ordering is also undefined, since the causal reading of adding component c already requires a well-defined and stable component intervention, and a position index forces a decision about whether component c delivered first and delivered second are two versions of one component or two components. Because the design matrix reports no failure, the field gets no signal that anything is wrong: the analysis returns an estimate with an interval, and the merged orderings surface only as heterogeneity that a random-effects model absorbs without complaint.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Rucker, Petropoulou and Schwarzer 2020, Biometrical Journal](https://doi.org/10.1002/bimj.201800167) | Defines additive and interaction component network meta-analysis and implements both in netmeta by adding interaction columns to the combination matrix. The design remains presence-only, and the interaction columns are identical for two orderings of the same component set, so the extension that relaxes additivity does not touch order. |
+| [Welton et al. 2009, American Journal of Epidemiology](https://doi.org/10.1093/aje/kwp014) | The original component synthesis of complex interventions, classifying psychological interventions in coronary heart disease into six component types and estimating effects for components and their combinations. Establishes the presence-absence encoding that later component models inherit. |
+| [Efthimiou et al. 2022, Statistics in Medicine](https://doi.org/10.1002/sim.9372) | Bayesian component network meta-analysis for aggregate and individual patient data, presenting the ability to recombine components into a treatment never tested in a trial as a distinctive feature. The combination matrix carries no position index, so a recombined regimen has no delivery order either. |
+| [Furukawa et al. 2018, BMJ Open (protocol)](https://doi.org/10.1136/bmjopen-2018-026137) | States that the proposed component model cannot discern the effect of the ordering of the components and that enough relevant data are not expected, with a plan to modify the model only if enough data become available for the best-represented components. |
+| [Furukawa et al. 2021, Lancet Psychiatry](https://doi.org/10.1016/S2215-0366(21)00077-8) | The delivered individual-participant component network meta-analysis from that protocol, 76 randomized trials with 48 supplying individual data, reporting incremental effects of therapeutic components and delivery formats. No ordering or sequencing parameter appears in the model or the results. |
+| [Melton et al. 2020, Health Technology Assessment (INCiTE review)](https://doi.org/10.3310/hta24430) | Codes phasing as an additional binary component alongside the content components it reorders, reports that phasing as well as intervention content appears to affect effectiveness, and states that it is unclear whether phasing is itself an intervention or a higher-order theoretical construct. |
+| [Freeman et al. 2023, BMC Medical Research Methodology](https://doi.org/10.1186/s12874-023-02026-z) | Develops component-specific visualizations, the CNMA-UpSet plot, heat map and circle plot, that show which component combinations trial arms actually delivered. They display the presence-absence data structure faithfully, which is exactly why delivery order does not appear in them either. |
+
+:::
+
+## Probable solution or research direction
+
+Write the estimand first: define an order-indexed component parameter, for example a main effect per component plus a precedence effect for each ordered pair that co-occurs, and state whether component c delivered first and delivered second are one component in two versions or two components, because the identification argument differs. Then characterize identification by giving the condition on the observed set of ordered regimens under which a precedence contrast lies in the row space of the extended design, which is the direct analogue of the existing estimability screen and runs on the same machinery. Ship the cheap part immediately: a merge diagnostic that flags every node in a fitted component network whose contributing arms deliver the same component set in different documented orders, so silent merging becomes visible even where nothing can yet be estimated. Where precedence is not identified, bound it by reporting how far the target regimen contrast could move under a precedence effect of stated magnitude, in the way omitted-interaction bounds are proposed for additivity. Extraction has to change alongside the model, since trial reports would need to record delivery order and intra-regimen timing in a machine-comparable field before any of this has data behind it.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Two independent readers proposed this and the reviewer accepted both, holding that presence-only component encodings cannot distinguish protocols containing the same components in a different fixed order and that neither additivity tests nor ordinary component interactions solve it. Both sources are applied reviews stating the limitation of their own analyses rather than methods papers, which is a weaker basis than a methodological demonstration; the supporting observation is that no paper in the component methods literature proposes an order-indexed parameterization either.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [ADJ-20 — Reinforcement learning and dynamic regimes for adaptive sequences](ADJ-20-reinforcement-learning-and-dynamic-regimes-for-adaptive-sequ.qmd)
+- [CMP-03 — Strict component additivity may be clinically false](CMP-03-strict-component-additivity-may-be-clinically-false.qmd)
+- [CMP-05 — No versioned intervention ontology maps onto CNMA component matrices](CMP-05-no-versioned-intervention-ontology-maps-onto-cnma-component-.qmd)
+- [CMP-07 — Causal meaning of a component effect is ambiguous](CMP-07-causal-meaning-of-a-component-effect-is-ambiguous.qmd)
+- [CMP-08 — Identification beyond row-space screens in nonlinear component ML-NMR](CMP-08-identification-beyond-row-space-screens-in-nonlinear-compone.qmd)
+- [DEC-15 — No certainty-of-evidence framework rates component effects](DEC-15-no-certainty-of-evidence-framework-rates-component-effects.qmd)
+:::
+
+## Source
+
+Derived from reading:cnma-05, reading:core-06 of the reviewed corpus.

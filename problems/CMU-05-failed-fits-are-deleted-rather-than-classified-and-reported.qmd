@@ -3,16 +3,16 @@ title: "Failed fits are deleted rather than classified and reported"
 description: "Dropping failed or non-converged replicates makes every reported performance figure conditional on the method having worked, and when failure depends on scenario difficulty or on the size of the estimation error those figures can favor the more fragile method. The general solution is already published: Pawel et al. (arXiv:2409.18527; The American Statistician, doi:10.1080/00031305.2025.2540002) review 482 simulation studies, find that only 23% mention missingness at all, 19% report its frequency and 14% report how it was handled, propose a classification of failure types with handling options, and state the direction of the bias explicitly. What remains open is adoption in ITC and PAIC, where no equivalent review or typed failure reporting was found, plus one extension: their taxonomy does not separate a principled refusal to estimate a non-estimable contrast from a numerical convergence failure, and in this field that distinction carries scientific content."
 pid: "CMU-05"
 topic: "Computation & reproducibility"
-categories: ["Computation & reproducibility", "Very high priority", "Unverifiable"]
+categories: ["Computation & reproducibility", "Very high priority", "Partially addressed"]
 priority: "Very high"
 prank: 1
-verdict: "Unverifiable"
-verdictslug: "unverifiable"
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
 maturity: "Established"
 ---
 ::: {.problem-meta}
 [CMU-05]{.problem-id}
-[Unverifiable]{.verdict .verdict-unverifiable}
+[Partially addressed]{.verdict .verdict-partially-addressed}
 [Very high priority]{.chip .chip-priority-very-high}
 [Established]{.chip .chip-maturity-established}
 :::
@@ -42,13 +42,18 @@ Apply the Pawel et al. classification per scenario cell instead of inventing a n
 ## Verification
 
 ::: {.verification-trail}
-**Verdict.** Unverifiable. Auditors disagreed and the disagreement was evidence-bearing on both sides.
+**Verdict.** Partially addressed. Auditors disagreed and the disagreement was evidence-bearing on both sides. Reopened by the full-text reading: 4 findings from 4 papers survived both the reader and an independent second reviewer, so the verdict moves from unverifiable to partially-addressed.
 
 **The source said.** "Simulation studies silently drop non-converged or failed replicates instead of publishing a classification of the failures, so every reported performance figure is conditional on the method having worked. That condition fails precisely in the hard scenarios the study exists to probe."
 
 **What was wrong with it.** The source proposed a failure classification as new work. The literature auditor found that Pawel et al. 2025 (arXiv:2409.18527) already published one together with the empirical evidence that failures go unreported, so the residual gap is adoption in this field; the 'refusal to estimate' category is this entry's own extension and is not part of that taxonomy. The source-code auditor narrowed the bias claim: the direction follows only when failure is informative about difficulty or error, and it is not guaranteed as a theorem.
 
 **Dissent.** literature dissented (supported): I read the full PDF of Pawel, Bartos, Siepe & Lohmann, 'Handling Missingness, Failures, and Non-Convergence in Simulation Studies' (arXiv:2409.18527v3; The American Statistician, doi 10.1080/00031305.2025.2540002). It supports the entry's claims almost line for line and, crucially, it also does what the entry proposes: it reviews 482 simulation studies, finds only 23% mention missingness (19% report frequency, 14% report handling), proposes a classification of missingness types with handling options, and demonstrates in a case study that non-convergence is systematically driven by simulation factors. It states explicitly that deleting only the failing method's replicates biases results in favor of that method, and cites the Peduzzi 'ten events per variable' rule as an influential result later shown to be driven by non-convergence handling. So the general-methodology solution now exists (2025) and the residual gap is adoption in ITC/PAIC, where I found no equivalent review. Caveat: the taxonomy distinguishes data-generating, method and performance missingness; it does not separately name 'principled refusal to estimate a non-estimable contrast', so that sub-claim is an extension, not a citation. codex dissented (open): C1 and C3 are sound methodological cautions. If failures are omitted, bias, RMSE, and coverage describe performance conditional on successful estimation rather than unconditional operational performance. C2 requires an explicit condition: the failure mechanism must depend on scenario difficulty, the latent estimation error, or both. The direction and effect on method ranking are not guaranteed mathematically. C4 is correct because principled abstention for a nonidentified estimand is scientifically different from numerical non-convergence. The direction's request to report performance including failures also needs an operational definition: an absent estimate has no ordinary bias or interval coverage, so failure rates and conditional performance should be reported separately unless a prespecified loss or worst-case rule combines them. cpaic fails closed when too few MAIC bootstrap replicates succeed, but it does not retain and publish replicate-level failure categories, so the agenda item remains open.
+
+**Revised by the full-text reading.** Applied 2026-07-26 full-text reading of the consolidated library (687 papers).
+
+Verdict changed
+:   **unverifiable -> partially-addressed** 4 surviving findings from: Applying Quantitative Bias Analysis to Epidemiologic Data, S; Assessing the performance of population adjustment methods f; Paule-Mandel estimators for network meta-analysis with rando; Two-stage matching-adjusted indirect comparison. New citations: 10.1002/jrsm.1244, 10.1002/sim.8759, 10.1007/978-3-030-82673-4, 10.1186/s12874-022-01692-9
 
 Literature and prior-art check
 :   **partially-solved / supported.** I read the full PDF of Pawel, Bartos, Siepe & Lohmann, 'Handling Missingness, Failures, and Non-Convergence in Simulation Studies' (arXiv:2409.18527v3; The American Statistician, doi 10.1080/00031305.2025.2540002). It supports the entry's claims almost line for line and, crucially, it also does what the entry proposes: it reviews 482 simulation studies, finds only 23% mention missingness (19% report frequency, 14% report handling), proposes a classification of missingness types with handling options, and demonstrates in a case study that non-convergence is systematically driven by simulation factors. It states explicitly that deleting only the failing method's replicates biases results in favor of that method, and cites the Peduzzi 'ten events per variable' rule as an influential result later shown to be driven by non-convergence handling. So the general-methodology solution now exists (2025) and the residual gap is adoption in ITC/PAIC, where I found no equivalent review. Caveat: the taxonomy distinguishes data-generating, method and performance missingness; it does not separately name 'principled refusal to estimate a non-estimable contrast', so that sub-claim is an extension, not a citation.
@@ -63,6 +68,30 @@ Grok 4.5, recency lens
 
 Decision path
 :   `R3:partially-solved(n=1) → R7:counter-and-support-both-present`
+
+:::
+
+## How the evidence falls in time
+
+9 papers in the reviewed corpus bear on this problem, published 2012 to 2026. Partial progress is on the record, and later work still calls this open. Both belong in view.
+
+This problem is **recurrent**: three or more papers spanning at least eight years assert it independently. Sustained restatement by authors who mostly do not cite each other is the strongest evidence this reading can offer that a gap is real rather than one group's framing.
+
+It is also being **closed in pieces**: partial results come from more than one paper in more than one year, each covering a different part.
+
+::: {.table-scroll}
+
+| Year | Says | Paper |
+|---|---|---|
+| 2012 | confirms it is open | Simulation evaluation of statistical properties of methods for indirect and mixed treatment comparisons |
+| 2017 | partly addresses it | Paule-Mandel estimators for network meta-analysis with random inconsistency effects |
+| 2018 | confirms it is open | Hypothesis testing in Bayesian network meta-analysis |
+| 2020 | partly addresses it | Assessing the performance of population adjustment methods for anchored indirect comparisons: A simulation study |
+| 2021 | partly addresses it | Applying Quantitative Bias Analysis to Epidemiologic Data, Second Edition (Fox, MacLehose, Lash; Springer, Statistics for Biology and Health, 2021) |
+| 2021 | confirms it is open | Pattern-mixture model in network meta-analysis of binary missing outcome data: one-stage or two-stage approach? |
+| 2022 | partly addresses it | Two-stage matching-adjusted indirect comparison |
+| 2024 | confirms it is open | Methods for meta-analysis and meta-regression of binomial data: concepts and tutorial with Stata command metapreg |
+| 2026 | confirms it is open | Bayesian Network Meta-Analysis With One or Two Continuous Outcomes Measured at Multiple Time Points Using Gaussian Random Walks With Drift |
 
 :::
 

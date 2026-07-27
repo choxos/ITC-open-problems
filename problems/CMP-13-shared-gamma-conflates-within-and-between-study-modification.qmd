@@ -33,7 +33,7 @@ Between-study variation in covariate distributions is not randomized, so any ass
 | [Hua et al. 2017](https://doi.org/10.1002/sim.7171) | shows that centering patient-level covariates at their trial mean is required to separate within-trial from across-trial interaction information, with a worked reversal of an interaction estimate |
 | [Freeman et al. 2018](https://doi.org/10.1002/jrsm.1300) | extends the within-trial and across-trial separation to IPD network meta-analysis and gives a practical framework including consistency checks between the two sources |
 | [Phillippo et al. 2020](https://doi.org/10.1111/rssa.12579) | defines ML-NMR as integrating an individual-level model over each study's covariate distribution rather than regressing on covariate means, which is what avoids aggregation bias |
-| [Phillippo et al. 2022](https://doi.org/10.1177/0272989X221117162) | describes ML-NMR as coherently synthesizing IPD and AgD while avoiding aggregation bias and non-collapsibility bias |
+| [Phillippo et al. 2023](https://doi.org/10.1177/0272989X221117162) | describes ML-NMR as coherently synthesizing IPD and AgD while avoiding aggregation bias and non-collapsibility bias |
 | [cpaic 0.1.0 (development version, choxos/cpaic@9d150e9)](choxos/cpaic@9d150e9) | unreleased development R package on GitHub, not on CRAN; fits one shared Gamma across IPD and AgD, labels each target contrast as identified by IPD, aggregate evidence, or neither, and excludes aggregate-only elements from default rankings |
 
 :::
@@ -51,6 +51,14 @@ Port the established within-trial and across-trial separation into component ML-
 
 **What was wrong with it.** The source said aggregate covariate means identify ecological gradients in ML-NMR; that describes standard network meta-regression, not ML-NMR, which was built to avoid aggregation bias by integrating over the covariate distribution (doi:10.1111/rssa.12579; doi:10.1177/0272989X221117162). The literature auditor also found the fix already exists outside component models: trial-mean centering separates within-trial from across-trial interaction information (Hua et al. 2017; Freeman et al. 2018), and GPT-5.6 Sol added that nonlinear aggregate likelihoods carry curvature-based information about Gamma, so the aggregate contribution is not purely ecological.
 
+**Revised by the full-text reading.** Applied 2026-07-26 full-text reading of the consolidated library (687 papers).
+
+Flagged for reopening
+:   **10 findings from the reading assert this problem is open while the registry carries `overstated`** Flagged, not applied: reversing an earlier audit's closure needs the closure's own evidence re-examined alongside this, which the reading did not do. See documentation/audit/reading/PROPOSED.md.
+
+Citation corrected
+:   **normalized a citation year: 'Phillippo et al. 2022' -> 'Phillippo et al. 2023'** 10.1177/0272989X221117162 is cited with two different years across the registry. CrossRef gives 2022 online and 2023 in print; the issue year is used throughout.
+
 Literature and prior-art check
 :   **partially-solved / overstated.** Two problems. First, the mechanism attributed to ML-NMR is wrong: ML-NMR does not regress on aggregate covariate means. Phillippo et al. 2020 built it precisely because 'Existing meta-regression approaches incur aggregation bias', by integrating an individual-level model over the covariate distribution; Phillippo et al. 2022 describe ML-NMR as 'avoiding aggregation bias and noncollapsibility bias'. So 'Aggregate-data covariate means identify ecological gradients' describes standard network meta-regression, not ML-NMR. Second, the residual worry - that a single shared interaction does not separate within-trial from across-trial information - is real but already solved methodologically outside component models. Hua et al. 2017 show the fix ('it is crucial to centre patient-level covariates by their mean value in each trial, in order to separate out within-trial and across-trial information') with a worked reversal (interaction -0.011, p = 0.004 amalgamated, versus -0.007, p = 0.22 separated), and Freeman et al. 2018 give a full framework for IPD network meta-analysis. What is open is porting that separation into component ML-NMR.
     Cites doi:10.1002/sim.7171: Gives the established fix (trial-mean centring) that separates within-trial from across-trial interaction information; not yet applied to component or ML-NMR models..
@@ -66,10 +74,34 @@ Decision path
 
 :::
 
+## How the evidence falls in time
+
+10 papers in the reviewed corpus bear on this problem, published 2018 to 2022. Partial progress is on the record, and later work still calls this open. Both belong in view.
+
+It is also being **closed in pieces**: partial results come from more than one paper in more than one year, each covering a different part.
+
+::: {.table-scroll}
+
+| Year | Says | Paper |
+|---|---|---|
+| 2018 | partly addresses it | A framework for identifying treatment-covariate interactions in individual participant data network meta-analysis |
+| 2019 | confirms it is open | Dismantling, personalising and optimising internet cognitive-behavioural therapy for depression: a study protocol for individual participant data component network meta-analysis |
+| 2020 | confirms it is open | Multilevel network meta-regression for population-adjusted treatment comparisons |
+| 2021 | partly addresses it | Individual Participant Data Meta-Analysis: A Handbook for Healthcare Research (Riley, Tierney, Stewart, eds.; Wiley Series in Statistics in Practice, 2021) |
+| 2021 | confirms it is open | Behavioural interventions for smoking cessation: an overview and network meta-analysis |
+| 2021 | confirms it is open | Supplementary appendix to Furukawa et al., Dismantling, optimising, and personalising internet cognitive behavioural therapy for depression: a systematic review and component network meta-analysis using individual participant data |
+| 2022 | confirms it is open | Impact of program characteristics on weight loss in adult behavioral weight management interventions: systematic review and component network meta-analysis |
+| 2022 | confirms it is open | Meta-Research: Methods and Protocols (Evangelou E, Veroniki AA, eds), Methods in Molecular Biology vol. 2345 |
+| 2022 | confirms it is open | Validating the Assumptions of Population Adjustment: Application of Multilevel Network Meta-regression to a Network of Treatments for Plaque Psoriasis |
+| 2022 | confirms it is open | Bayesian models for aggregate and individual patient data component network meta-analysis |
+
+:::
+
 ## Related problems
 
 ::: {.related-links}
 - [MOD-03 — Ecological versus within-study effect modification](MOD-03-ecological-versus-within-study-effect-modification.qmd)
+- [MOD-15 — No calibrated rule says when within- and across-trial interactions may be pooled](MOD-15-no-calibrated-rule-says-when-within-and-across-trial-interac.qmd)
 :::
 
 ## Source

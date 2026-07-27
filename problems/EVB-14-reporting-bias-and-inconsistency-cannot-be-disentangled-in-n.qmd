@@ -1,0 +1,69 @@
+---
+title: "Reporting bias and inconsistency cannot be disentangled in NMA"
+description: "In a network with closed loops, comparison-specific reporting bias and design or loop inconsistency both surface as disagreement between what different evidence paths say about the same contrast, and no fitted model separates them. The two literatures rest on incompatible structure: network selection and small-study models assume the selection process is exchangeable across the network and take the direction of bias as an input, while design-by-treatment interaction and node-splitting models assign free per-design deviations and take the reported effects at face value. There is no estimator carrying both, no identifiability result stating what is estimable when both are present, and no study reporting whether a routine inconsistency test keeps its size and power under reporting bias or whether a bias adjustment is distorted by genuine inconsistency. The problem has a worked instance: adjusting a network of 12 antidepressants for reporting bias, where 74 trials existed in the US Food and Drug Administration database and only 51 were published, moved the pairwise effect sizes, the probabilities of being best and the rankings, and corrected the placebo-relative effects toward the full-data answer for some drugs but not others. Fitting the two models in sequence is not equivalent to fitting them jointly, because a discrepancy absorbed by whichever is fitted first is no longer available to the other. An analyst facing a loop conflict therefore has two explanations with opposite remedies, down-weighting the small studies or refusing to pool the loop, and nothing to choose between them."
+pid: "EVB-14"
+topic: "Evidence-base construction & data access"
+categories: ["Evidence-base construction & data access", "High priority", "Confirmed open"]
+priority: "High"
+prank: 2
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Promising"
+tractability: 3
+---
+::: {.problem-meta}
+[EVB-14]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[High priority]{.chip .chip-priority-high}
+[Promising]{.chip .chip-maturity-promising}
+[Tractability 3/5]{.chip}
+:::
+## Statement
+
+In a network with closed loops, comparison-specific reporting bias and design or loop inconsistency both surface as disagreement between what different evidence paths say about the same contrast, and no fitted model separates them. The two literatures rest on incompatible structure: network selection and small-study models assume the selection process is exchangeable across the network and take the direction of bias as an input, while design-by-treatment interaction and node-splitting models assign free per-design deviations and take the reported effects at face value. There is no estimator carrying both, no identifiability result stating what is estimable when both are present, and no study reporting whether a routine inconsistency test keeps its size and power under reporting bias or whether a bias adjustment is distorted by genuine inconsistency. The problem has a worked instance: adjusting a network of 12 antidepressants for reporting bias, where 74 trials existed in the US Food and Drug Administration database and only 51 were published, moved the pairwise effect sizes, the probabilities of being best and the rankings, and corrected the placebo-relative effects toward the full-data answer for some drugs but not others. Fitting the two models in sequence is not equivalent to fitting them jointly, because a discrepancy absorbed by whichever is fitted first is no longer available to the other. An analyst facing a loop conflict therefore has two explanations with opposite remedies, down-weighting the small studies or refusing to pool the loop, and nothing to choose between them.
+
+## Why it is open
+
+The two mechanisms compete for the same residual variation, so identifying both at once requires either an external anchor on the selection process or a restriction on the inconsistency structure, and the network data supply neither. Reporting-bias models are already fragile in sparse networks, since a selection or small-study component estimated from a handful of trials per comparison is weakly identified and driven by its prior and by the assumed weight function; adding free per-design inconsistency terms removes what identification remained. In the head-to-head part of a network the direction of bias is an assumption rather than an estimate, and plausible directions such as sponsorship bias and novelty bias can contradict one another around a single loop, which has no analogue in pairwise meta-analysis and no accepted resolution. Validation is also awkward, because the natural gold standard is a regulator's complete trial inventory, which exists for a small number of drug classes, so operating characteristics have to come from simulations that nobody has run.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Trinquart, Chatellier and Ravaud 2012, BMC Medical Research Methodology](https://doi.org/10.1186/1471-2288-12-150) | Builds two Bayesian network reporting-bias adjustments, a meta-regression of effect size on standard error and a selection model weighting up trials with low publication propensity, applies them to 12 antidepressants against the FDA record, and names the collision: disentangling the sources of bias on direct and indirect evidence is difficult when reporting bias and inconsistency are twisted together or when assumed bias directions conflict on a loop. |
+| [Mavridis, Sutton, Cipriani and Salanti 2013, Statistics in Medicine](https://doi.org/10.1002/sim.5494) | Fully Bayesian Copas selection model extended to network meta-analysis; supplies the selection-model branch that would have to be carried inside any joint model. |
+| [Mavridis, Welton, Sutton and Salanti 2014, Statistics in Medicine](https://doi.org/10.1002/sim.6321) | Selection model for publication bias fitted in a full network rather than comparison by comparison; the most developed reporting-bias machinery available for networks, with the consistency assumption left unmodeled. |
+| [Chaimani and Salanti 2012, Research Synthesis Methods](https://doi.org/10.1002/jrsm.57) | Comparison-adjusted funnel plot, the routine small-study-effects diagnostic for networks; descriptive, with no inconsistency term and no way to attribute an asymmetry to selection rather than to a loop conflict. |
+| [Higgins, Jackson, Barrett, Lu, Ades and White 2012, Research Synthesis Methods](https://doi.org/10.1002/jrsm.1044) | The design-by-treatment interaction model, the standard global inconsistency framework, in which reported effects are taken at face value and no bias-generating process appears in the likelihood. |
+| [Dias, Welton, Caldwell and Ades 2010, Statistics in Medicine](https://doi.org/10.1002/sim.3767) | Node splitting, the local direct-versus-indirect check whose output is exactly the discrepancy that reporting bias and inconsistency both produce. |
+| [Jackson, Barrett, Rice, White and Higgins 2014, Statistics in Medicine](https://doi.org/10.1002/sim.6188) | Design-by-treatment interaction model with random rather than fixed inconsistency effects; shows the inconsistency side is already parameterized as a variance component, which is what a joint model would have to keep separate from a selection component. |
+| [Rucker, Carpenter and Schwarzer 2011, Biometrical Journal](https://doi.org/10.1002/bimj.201000151) | Limit meta-analysis and related small-study-effect adjustments for pairwise meta-analysis; the pairwise ancestor of the small-study branch, developed where there are no loops and therefore no competing explanation. |
+| [Page, Sterne, Boutron et al. 2023, BMJ (ROB-ME)](https://doi.org/10.1136/bmj-2023-076754) | Structured judgement of risk of bias due to missing evidence in a meta-analysis; the qualitative response to the same threat, which records a concern rather than separating it from inconsistency in a fitted model. |
+
+:::
+
+## Probable solution or research direction
+
+Write one network likelihood carrying a selection or small-study component and design-by-treatment inconsistency terms at the same time, and do the identifiability analysis before the simulation: state which parameters are estimable from network data alone, which require an external anchor such as a regulatory trial inventory or a registry-derived publication probability, and which are only bounded. Then run the cross-contamination study in both directions, reporting the size and power of the standard inconsistency test under reporting bias of known magnitude and the bias of the standard reporting-bias adjustment under loop inconsistency of known magnitude; that pair of curves is the missing operating-characteristic evidence and it needs no new theory. Use the drug classes for which a regulator's complete trial set is available as the empirical anchor, refitting the joint model on published-only data and scoring it against the full-data answer. Where the two mechanisms cannot be separated, report the discrepancy as a partially identified region spanning both explanations rather than assigning it in full to whichever model happened to be fitted.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. One reader proposed this and the reviewer accepted the identification collision as distinct from a standalone reporting-bias adjustment and from a standalone inconsistency test. The primary evidence is a single paper's stated limitation, which is a narrow base, although it is the paper that builds the network bias adjustment and therefore reaches the wall from inside; a sweep of every catalog entry mentioning publication bias, reporting bias, small-study effects or funnel plots found none that models the two mechanisms together.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [EVB-15 — Selective non-publication of commissioned indirect comparisons is unmeasured](EVB-15-selective-non-publication-of-commissioned-indirect-compariso.qmd)
+- [HET-08 — Inconsistency conclusions depend on an uncalibrated heterogeneity error specification](HET-08-inconsistency-conclusions-depend-on-an-uncalibrated-heteroge.qmd)
+- [HET-04 — Node splitting compares paths without standardizing to a target](HET-04-node-splitting-compares-paths-without-standardizing-to-a-tar.qmd)
+- [EVB-02 — Evidence-set assembly can favor the sponsor before modeling begins](EVB-02-evidence-set-assembly-can-favor-the-sponsor-before-modeling-.qmd)
+:::
+
+## Source
+
+Derived from reading:nma-44 of the reviewed corpus.

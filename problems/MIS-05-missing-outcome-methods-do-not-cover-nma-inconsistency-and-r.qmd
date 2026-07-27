@@ -1,0 +1,68 @@
+---
+title: "Missing-outcome methods do not cover NMA inconsistency and rankings"
+description: "Methods and guidance for missing outcome data in evidence synthesis are built around the pairwise summary effect and the between-study variance, while in a network the same missingness additionally propagates into the direct-versus-indirect inconsistency statistic, the probabilistic comparability statements and the treatment ranking, because mishandled missingness in one comparison contaminates every contrast that comparison informs directly or indirectly. Part of this is now built: the rnmamod package carries informative-missingness parameters through every model it fits, including node splitting and a repaired unrelated mean effects model (Spineli 2021, doi:10.1177/0272989X211068005), and produces rankograms and SUCRA curves from those fits, while a robustness index compares re-analyses under alternative missingness mechanisms against the primary analysis using a calibrated threshold (doi:10.1002/jrsm.1478). What that index measures is the summary effect for each comparison; nothing corresponding exists for an inconsistency statistic or for a rank distribution, and no study has characterized how far a missing-not-at-random departure moves either. No guidance document covers the network-specific quantities, and no reporting standard requires missing-data assumptions to be carried through to a reported ranking. Practice sits far behind even the pairwise standard: across 387 systematic reviews with network meta-analysis, 16 (4.1 percent) planned any missing-outcome-data sensitivity analysis, the handling strategy could not be determined at all for 65 percent, and of the 198 reviews that assessed risk of bias from missing outcome data only 18 gave an explicitly justified judgment (Spineli et al. 2018, doi:10.1186/s12874-018-0576-9)."
+pid: "MIS-05"
+topic: "Missing data & uncertainty propagation"
+categories: ["Missing data & uncertainty propagation", "Medium-high priority", "Partially addressed"]
+priority: "Medium-high"
+prank: 3
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
+maturity: "Promising"
+tractability: 4
+---
+::: {.problem-meta}
+[MIS-05]{.problem-id}
+[Partially addressed]{.verdict .verdict-partially-addressed}
+[Medium-high priority]{.chip .chip-priority-medium-high}
+[Promising]{.chip .chip-maturity-promising}
+[Tractability 4/5]{.chip}
+:::
+## Statement
+
+Methods and guidance for missing outcome data in evidence synthesis are built around the pairwise summary effect and the between-study variance, while in a network the same missingness additionally propagates into the direct-versus-indirect inconsistency statistic, the probabilistic comparability statements and the treatment ranking, because mishandled missingness in one comparison contaminates every contrast that comparison informs directly or indirectly. Part of this is now built: the rnmamod package carries informative-missingness parameters through every model it fits, including node splitting and a repaired unrelated mean effects model (Spineli 2021, doi:10.1177/0272989X211068005), and produces rankograms and SUCRA curves from those fits, while a robustness index compares re-analyses under alternative missingness mechanisms against the primary analysis using a calibrated threshold (doi:10.1002/jrsm.1478). What that index measures is the summary effect for each comparison; nothing corresponding exists for an inconsistency statistic or for a rank distribution, and no study has characterized how far a missing-not-at-random departure moves either. No guidance document covers the network-specific quantities, and no reporting standard requires missing-data assumptions to be carried through to a reported ranking. Practice sits far behind even the pairwise standard: across 387 systematic reviews with network meta-analysis, 16 (4.1 percent) planned any missing-outcome-data sensitivity analysis, the handling strategy could not be determined at all for 65 percent, and of the 198 reviews that assessed risk of bias from missing outcome data only 18 gave an explicitly justified judgment (Spineli et al. 2018, doi:10.1186/s12874-018-0576-9).
+
+## Why it is open
+
+A ranking is a functional of the whole posterior over contrasts, so the effect of a missingness assumption on it is not a monotone function of its effect on any single contrast; a departure that leaves every summary effect inside its interval can still reorder treatments whose effects are close. An inconsistency statistic is a comparison of two fits, so a missingness parameter enters it twice and can move the direct and indirect estimates in the same direction, leaving the discrepancy unchanged while both estimates are wrong, or in opposite directions, manufacturing a discrepancy out of an assumption. Characterizing either requires simulation with a known missingness mechanism and a known truth for the network-level quantity, and the scenario space is large, because the mechanism has to be indexed by arm and by comparison and the placement of the informative missingness relative to the network's loops determines the answer. There is also no agreed target: a robustness statement about a ranking has to say what counts as a change, and the candidates, the top-ranked treatment, SUCRA displacement and the whole rank distribution, behave differently. Nothing in the reporting chain asks for any of it, and the survey evidence shows even the pairwise sensitivity analysis is rarely done, so no demand for the network-level version has materialized.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Spineli, Yepes-Nunez and Schunemann 2018, A systematic survey shows that reporting and handling of missing outcome data in networks of interventions is poor, BMC Medical Research Methodology 18](https://doi.org/10.1186/s12874-018-0576-9) | Surveys 387 systematic reviews with network meta-analysis, measures how rarely missing-outcome-data assumptions are stated or varied, and states that the existing pairwise recommendations can only partly assist because they do not reflect the additional network components, the consistency assumption and intervention ranking. |
+| [Higgins, White and Wood 2008, Imputation methods for missing outcome data in meta-analysis of clinical trials, Clinical Trials 5:225-239](https://doi.org/10.1177/1740774508091600) | Establishes the informative missingness odds ratio parameterization and the imputation strategies that missing-outcome-data sensitivity analysis in meta-analysis is built on; the target throughout is the pairwise summary effect. |
+| [Mavridis, White, Higgins, Cipriani and Salanti 2015, Allowing for uncertainty due to missing continuous outcome data in pairwise and network meta-analysis, Statistics in Medicine 34:721-741](https://doi.org/10.1002/sim.6365) | Extends informative-missingness modeling to continuous outcomes and to the network case, propagating the assumption into the summary effects; inconsistency assessment and ranking are not among the outputs it examines. |
+| [Spineli, Kalyvas and Pateras 2019, Participants' outcomes gone missing within a network of interventions: Bayesian modeling strategies, Statistics in Medicine 38:3861-3879](https://doi.org/10.1002/sim.8207) | Compares one-stage and two-stage Bayesian strategies for handling missing participant outcome data inside a network, establishing the modeling layer that the network-specific outputs would have to be evaluated on top of. |
+| [Spineli, Kalyvas and Papadimitropoulou 2021, Quantifying the robustness of primary analysis results: A case study on missing outcome data in pairwise and network meta-analysis, Research Synthesis Methods 12:475-490](https://doi.org/10.1002/jrsm.1478) | Defines a divergence-based robustness index comparing the whole distribution of the estimated treatment effect under primary and alternative missingness scenarios against an objective threshold; it is defined per comparison on the summary effect, which is the part of the problem that is solved. |
+| [Spineli, Kalyvas and Papadimitropoulou 2021, How robust are findings of pairwise and network meta-analysis in the presence of missing participant outcome data?, BMC Medicine 19](https://doi.org/10.1186/s12916-021-02195-y) | Applies that index empirically to 108 pairwise meta-analyses and 34 network meta-analyses and reports how often conclusions are frail; the conclusions assessed are about summary effects, not about inconsistency verdicts or rankings. |
+| [Spineli 2021, A Revised Framework to Evaluate the Consistency Assumption Globally in a Network of Interventions, Medical Decision Making 42:637-648](https://doi.org/10.1177/0272989X211068005) | Repairs the unrelated mean effects model so multi-arm trials and all observed comparisons are accommodated; this is the global consistency model that rnmamod fits with missingness parameters attached, making the propagation technically available. |
+| [rnmamod R package 0.5.1, Bayesian Network Meta-Analysis with Missing Participants](https://cran.r-project.org/package=rnmamod) | Addresses missing participant outcome data in every model it fits, including node splitting and the revised unrelated mean effects model, and produces rankograms, SUCRA curves and a robustness heatmap; the robustness index it exposes operates on summary effects per comparison, so the inconsistency and ranking outputs are produced under a missingness assumption but never assessed for sensitivity to it. |
+
+:::
+
+## Probable solution or research direction
+
+Extend the existing robustness index from the summary effect to the network-level outputs: define it on the rank distribution, as a divergence between rank-probability vectors under the primary and alternative missingness scenarios, and on the inconsistency statistic, and calibrate a threshold for each in the way the effect-level index was calibrated. Run the simulation that has not been run, with a known truth and informative missingness placed at chosen positions in the network, and report how often a missing-not-at-random departure of stated size flips a node-split verdict or changes the top-ranked treatment, as a function of where in the network the missingness sits and how much of it there is. Because the modeling and the software already exist, most of the remaining work is characterization and reporting rather than construction; the piece that must be built is a robustness statement for functionals of the whole posterior rather than for one contrast at a time. Write the missing-outcome-data guidance for networks that the existing pairwise recommendations explicitly do not cover, naming the consistency assessment and the ranking as outputs whose assumptions must be declared. Require reviews to state the missing-data model behind any ranking they present, since the survey evidence shows the strategy is currently undeterminable in most of them.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Partially addressed. One reader proposed this from a single systematic survey whose authors state both halves of the claim, and the reviewer accepted it as identifying consequences specific to network outputs rather than to pooled effects. Partially addressed rather than open: informative-missingness parameters now propagate through node splitting and unrelated mean effects models and into rankograms in released software, and a calibrated robustness index exists for summary effects, so what remains is a robustness statement for inconsistency statistics and rank distributions, the simulation evidence behind it, and guidance that names those outputs.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [MIS-01 — Missing aggregate summaries and unavailable IPD have no remedy](MIS-01-missing-aggregate-summaries-and-unavailable-ipd-have-no-reme.qmd)
+- [MIS-04 — Model and bridge selection uncertainty never enters the interval](MIS-04-model-and-bridge-selection-uncertainty-never-enters-the-inte.qmd)
+- [OUT-07 — Informative censoring and outcome-dependent missingness](OUT-07-informative-censoring-and-outcome-dependent-missingness.qmd)
+- [IDN-15 — Global inconsistency diagnostics lack calibrated operating characteristics](IDN-15-global-inconsistency-diagnostics-lack-calibrated-operating-c.qmd)
+:::
+
+## Source
+
+Derived from reading:nma-31 of the reviewed corpus.

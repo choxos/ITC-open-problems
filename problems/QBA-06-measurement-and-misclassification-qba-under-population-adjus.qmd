@@ -3,16 +3,16 @@ title: "Measurement and misclassification QBA under population adjustment"
 description: "Biomarker assays, severity scales, response definitions, cut-points and eligibility criteria can differ between the IPD source and the comparator study, and the matching parameters are mechanism-specific: sensitivity and specificity for binary misclassification, calibration slope and intercept and error variance for continuous proxies, and differential terms only where the error differs by study, treatment or outcome. Nourredine et al. 2025 (doi:10.1002/sim.70236) show what is at stake in an unweighted unanchored external-control design, where sensitivity and specificity of 0.9 still left roughly 67% relative bias and 79.6% interval coverage while a validation-informed likelihood held bias near zero at about 95.5% coverage with wider intervals. A joint latent measurement, outcome, target-distribution and weighting model can be written down in principle, so the gap is the absence of a validated PAIC-specific implementation and of the validation data that would inform it, not the absence of any joint form."
 pid: "QBA-06"
 topic: "Quantitative bias analysis for unanchored PAIC"
-categories: ["Quantitative bias analysis for unanchored PAIC", "Very high priority", "Confirmed open"]
+categories: ["Quantitative bias analysis for unanchored PAIC", "Very high priority", "Partially addressed"]
 priority: "Very high"
 prank: 1
-verdict: "Confirmed open"
-verdictslug: "confirmed-open"
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
 maturity: "Promising"
 ---
 ::: {.problem-meta}
 [QBA-06]{.problem-id}
-[Confirmed open]{.verdict .verdict-confirmed-open}
+[Partially addressed]{.verdict .verdict-partially-addressed}
 [Very high priority]{.chip .chip-priority-very-high}
 [Promising]{.chip .chip-maturity-promising}
 :::
@@ -42,13 +42,18 @@ Implement and validate the joint model that is already available on paper, speci
 ## Verification
 
 ::: {.verification-trail}
-**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+**Verdict.** Partially addressed. Auditors agreed the problem is open and no counterevidence surfaced. Reopened by the full-text reading: 1 finding from 1 paper survived both the reader and an independent second reviewer, so the verdict moves from confirmed-open to partially-addressed, on a single finding.
 
 **The source said.** "Biomarker assays, severity scales, response definitions, cut-points and eligibility criteria can differ between the IPD source and the comparator study, requiring sensitivity, specificity, calibration slope and intercept and differential-error parameters inside a measurement-error likelihood. Existing demonstrations sit in unweighted external-control designs and run as disconnected supplementary analyses, so no joint form exists for measurement correction and population adjustment, and the internal validation data that would supply the parameters are almost never available."
 
 **What was wrong with it.** GPT-5.6 Sol narrowed three things: the entry required every listed error parameter for every setting, asserted that no joint form of measurement correction and population adjustment exists when one is mathematically available and merely unimplemented, and stated that joint measurement QBA requires validation studies when explicit priors or bounds can also define a sensitivity analysis. It also rejected the entry's universal ranking of internal validation data above external sources, since a small or selected internal sample with a poor reference standard can be weaker than a well-matched external one. The literature auditor corrected the description of Gray et al. 2024 (doi:10.1002/pds.5796), whose three illustrated biases are missing confounder, misclassification of exposure and outcome evaluation, run one at a time rather than as a joint multiple-bias analysis.
 
 **Dissent.** codex dissented (overstated): Measurement non-equivalence is a genuine threat, but C1 wrongly requires every listed parameter. Binary misclassification uses sensitivity and specificity; continuous proxies typically use calibration parameters and error variance; differential-error parameters are needed only when error differs by study, treatment, or outcome. C2 is broadly right after adding structural assumptions as an alternative information source. C3-C6 are technically coherent for binary-outcome misclassification. C7-C8 overstate a universal evidence hierarchy: an internal validation sample is often highly relevant but can be too small, selected, or use a poor reference standard, while a well-matched external validation study can be stronger. C9 misuses multiple-bias analysis; separately running three one-at-a-time scenarios is not a joint multiple-bias analysis. Joint correction is preferable when mechanisms co-occur or interact, not an unconditional requirement. C12 is false because QBA can proceed using explicit priors or bounds without a validation study, although validation data improve identification. A coherent joint latent measurement and outcome model is mathematically available in principle, so the defensible gap is lack of a validated PAIC-specific implementation, not absence of any joint form. At cpaic 9d150e9, NAMESPACE exposes no measurement-error, misclassification, or validation-substudy interface, so that package does not close the implementation gap. Broader no-method claims were not assessed beyond cpaic.
+
+**Revised by the full-text reading.** Applied 2026-07-26 full-text reading of the consolidated library (687 papers).
+
+Verdict changed
+:   **confirmed-open -> partially-addressed** 1 surviving finding from: Applying Quantitative Bias Analysis to Epidemiologic Data, S. New citations: 10.1007/978-3-030-82673-4
 
 Literature and prior-art check
 :   **open / supported-with-caveat.** Retrieved Nourredine et al. 2025 (PMID 40930536, PMC12422847). Claims 3, 4 and 5 verified: the design is an unweighted unanchored external-control comparison with no MAIC, propensity weighting or matching; with sensitivity and specificity both at 0.9 the uncorrected estimator still showed roughly 67% relative bias and 79.6% CI coverage; and a validation-informed likelihood held bias near zero with about 95.5% coverage while empirical standard error rose (a 1.5-fold increase as specificity fell from 0.9 to 0.7). This is exactly the bias-versus-precision trade-off claim 5 asserts. The paper also targets a conditional indirect effect, reinforcing the entry's point that measurement correction and population adjustment have no established joint form. Caveat on claim 9: Gray et al. 2024's three illustrated biases are 'missing confounder, misclassification of exposure, and outcome evaluation'; secondary sources indicate the exposure scenario is misclassification of line of therapy, which does misspecify the index date and survival time, so calling it 'index-date error' is loose but not wrong. Claim 13 is a no-method-exists claim I could not verify by search; I treat it as unverified.
@@ -58,6 +63,18 @@ GPT-5.6 Sol, technical and source-code lens
 
 Decision path
 :   `R5:default-open → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## How the evidence falls in time
+
+1 paper in the reviewed corpus bears on this problem, published 2021. Every paper found here reports progress; none asserts the problem is open.
+
+::: {.table-scroll}
+
+| Year | Says | Paper |
+|---|---|---|
+| 2021 | partly addresses it | Applying Quantitative Bias Analysis to Epidemiologic Data, Second Edition (Fox, MacLehose, Lash; Springer, Statistics for Biology and Health, 2021) |
 
 :::
 

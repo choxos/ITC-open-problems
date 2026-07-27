@@ -1,0 +1,65 @@
+---
+title: "NMA outlier and influence screens have no calibrated null"
+description: "Outlier and influence diagnostics for network meta-analysis are proposed, implemented and illustrated, but none has a null reference distribution, a reported false-positive rate, or a power curve against a planted outlier of stated magnitude. The forward search for networks monitors standardized residuals, a network Cook's statistic, the COVRATIO of variance-covariance determinants, the heterogeneity variance, Q_total, Q_het, Q_inc and direct-versus-indirect z-values across a data-chosen nested sequence of subsets, and outliers are read off plots as sharp changes; simulation envelopes are named as the fix and not built, because each envelope would need hundreds of complete searches per analysis, and the available non-simulation asymptotic theory is derived for the linear regression model rather than for the graph-theoretic network model with back-calculated multi-arm weights and an estimated heterogeneity variance. The leave-one-trial-out family, comparison-specific studentized residuals, COVRATIO, the heterogeneity-covariance change measure and a mean-shift likelihood ratio test, has never been scored as a classifier in any simulation; its evidence is one antihypertensive network that happened to contain a trial already retracted for data falsification. Those measures are computed for every trial-by-contrast cell, 28 comparisons across 26 trials in the illustrating example, with no family-wise or false-discovery calibration, so the nominal 5 percent threshold is not the realized error rate of the screening procedure. The stakes are visible in that same example: excluding the flagged trials moved the heterogeneity standard deviation from 0.099 to 0.009, carried two comparisons across significance, reversed a ranking and removed two inconsistent edges. A screen used routinely as a sensitivity analysis therefore manufactures apparent precision, and the decision to exclude a trial carries no stated error control."
+pid: "DIA-19"
+topic: "Diagnostics & empirical validation"
+categories: ["Diagnostics & empirical validation", "Medium-high priority", "Confirmed open"]
+priority: "Medium-high"
+prank: 3
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Promising"
+tractability: 4
+---
+::: {.problem-meta}
+[DIA-19]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[Medium-high priority]{.chip .chip-priority-medium-high}
+[Promising]{.chip .chip-maturity-promising}
+[Tractability 4/5]{.chip}
+:::
+## Statement
+
+Outlier and influence diagnostics for network meta-analysis are proposed, implemented and illustrated, but none has a null reference distribution, a reported false-positive rate, or a power curve against a planted outlier of stated magnitude. The forward search for networks monitors standardized residuals, a network Cook's statistic, the COVRATIO of variance-covariance determinants, the heterogeneity variance, Q_total, Q_het, Q_inc and direct-versus-indirect z-values across a data-chosen nested sequence of subsets, and outliers are read off plots as sharp changes; simulation envelopes are named as the fix and not built, because each envelope would need hundreds of complete searches per analysis, and the available non-simulation asymptotic theory is derived for the linear regression model rather than for the graph-theoretic network model with back-calculated multi-arm weights and an estimated heterogeneity variance. The leave-one-trial-out family, comparison-specific studentized residuals, COVRATIO, the heterogeneity-covariance change measure and a mean-shift likelihood ratio test, has never been scored as a classifier in any simulation; its evidence is one antihypertensive network that happened to contain a trial already retracted for data falsification. Those measures are computed for every trial-by-contrast cell, 28 comparisons across 26 trials in the illustrating example, with no family-wise or false-discovery calibration, so the nominal 5 percent threshold is not the realized error rate of the screening procedure. The stakes are visible in that same example: excluding the flagged trials moved the heterogeneity standard deviation from 0.099 to 0.009, carried two comparisons across significance, reversed a ranking and removed two inconsistent edges. A screen used routinely as a sensitivity analysis therefore manufactures apparent precision, and the decision to exclude a trial carries no stated error control.
+
+## Why it is open
+
+The null is genuinely hard rather than merely unimplemented. In the forward search the monitored statistics are computed on a nested sequence of subsets that the data themselves choose, so their joint null behavior is not that of the corresponding one-shot statistics, and the search is additionally sensitive to the random starting subset, which can move a study from the final iteration into the initial one. The network model adds what the existing regression theory does not cover: an estimated between-study variance, correlated multi-arm contributions and weights back-calculated from the graph, so scaled forward residuals derived for linear regression do not transfer. Simulation envelopes are the honest fallback and are computationally prohibitive at analysis time, since one envelope requires hundreds of complete searches for the network in hand. Calibrating the leave-one-out family is much easier and has simply not been done: those measures were introduced with an illustration rather than a simulation study, and their multiplicity was acknowledged in a single sentence and set aside on the informal ground that the frequencies of detected trials exceeded the range of random error. Any calibration also has to settle what an outlier is in a network, because a trial can be extreme with respect to its own comparison, with respect to the consistency equations, or with respect to the heterogeneity estimate, and those are three different null hypotheses.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Petropoulou et al. 2021, Statistics in Medicine](https://doi.org/10.1002/sim.9145) | Extends the forward search algorithm to network meta-analysis, monitoring residuals, fit measures and test statistics along the search and identifying outliers by sharp changes in the plots. Names simulation envelopes as the reference bands that would be needed under a no-outlier null and does not construct them, and states that the same problem applies to backward deletion methods. |
+| [NMAoutlier R package](https://cran.r-project.org/package=NMAoutlier) | Released implementation of the forward search and its monitored statistics for network meta-analysis, so the screen is routinely available to applied analysts while its operating characteristics are not. |
+| [Noma et al. 2020, Research Synthesis Methods](https://doi.org/10.1002/jrsm.1455) | Introduces four leave-one-trial-out outlier and influence measures for the contrast-based network model with missing-outcome-aware degrees of freedom, and illustrates them on a network of antihypertensive drugs where omitting the flagged trials changed the comparative estimates and the drug ranking. Runs no simulation, and acknowledges the multiplicity across the evaluated comparisons in one sentence before setting it aside. |
+| [Viechtbauer and Cheung 2010, Research Synthesis Methods](https://doi.org/10.1002/jrsm.11) | Extends standard regression outlier and influence diagnostics to fixed- and random-effects meta-analysis, the pairwise ancestor of the network measures. Presented as diagnostics with conventional cutoffs rather than as tests with known size and power, so the calibration gap is inherited rather than introduced. |
+
+:::
+
+## Probable solution or research direction
+
+Take the leave-one-out family first, because each measure is a one-shot statistic per cell and its null is directly simulable: generate networks under a correctly specified model across topologies, heterogeneity levels and multi-arm structures, report the per-cell and network-wide false-positive rate of each measure at its proposed cutoff, and report power against planted outliers of stated magnitude so the four measures can be ranked by discrimination. Treat the trial-by-contrast cells as an explicit testing family and calibrate a false-discovery-rate rule over them using the network covariance matrix, then report the realized rate rather than the nominal one. For the forward search, derive or approximate the null band for the monitored statistics under the network model with estimated heterogeneity and correlated multi-arm contributions; if that fails, publish precomputed envelopes indexed by network size, topology and heterogeneity so an analyst does not have to run hundreds of searches. Score every candidate on the use the screen is actually put to: the rate at which a correctly specified network produces an exclusion, and the change in the reported treatment conclusion caused by acting on the flag.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. Two independent readers proposed this from the two methods papers that define the screens, and the reviewer accepted both, holding that data-adaptive search paths invalidate one-shot reference distributions and that trial-level screening creates a multiple-testing decision problem. The claim rests on the primary sources themselves: one names simulation envelopes as the missing reference band and does not build them, the other acknowledges multiplicity in a sentence and runs no simulation at all.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [CMP-24 — Edge influence is approximate for multi-arm and random effects](CMP-24-edge-influence-is-approximate-for-multi-arm-and-random-effec.qmd)
+- [DEC-16 — No joint error rate for the many claims a network asserts](DEC-16-no-joint-error-rate-for-the-many-claims-a-network-asserts.qmd)
+- [DIA-03 — PAIC diagnostics are not evaluated as classifiers of realized error](DIA-03-paic-diagnostics-are-not-evaluated-as-classifiers-of-realize.qmd)
+- [DIA-15 — Coding-error bias, rank reversal and drift calibration go unscored](DIA-15-coding-error-bias-rank-reversal-and-drift-calibration-go-uns.qmd)
+- [DIA-20 — Transitivity dissimilarity screens have no calibrated threshold](DIA-20-transitivity-dissimilarity-screens-have-no-calibrated-thresh.qmd)
+:::
+
+## Source
+
+Derived from reading:nma-20, reading:nma-25 of the reviewed corpus.

@@ -1,0 +1,69 @@
+---
+title: "No end-to-end error propagation study for automated synthesis pipelines"
+description: "Large language model pipelines now run trial retrieval, data extraction and network meta-analysis as a single workflow, and they are validated one stage at a time: retrieval by recall and precision against a reference trial list, extraction by field-level accuracy on a curated subset, and the synthesis by agreement with a manual analysis run on the same already-correct data. No study carries the measured stage error rates through to the quantities a decision rests on, so it is not known how far a retrieval recall of 82% or a stated extraction error rate moves a network estimate, a between-study variance or a treatment ranking. Agreement demonstrated on a pre-selected trial set bypasses the retrieval stage entirely, so it certifies the analysis code rather than the pipeline, and a pipeline built on proprietary model endpoints cannot be independently rerun at all. There is also no shared corpus of source documents with a settled eligible-trial set and field-level ground truth on which competing pipelines could be scored, so end-to-end numbers would not be comparable even if they were reported. What is missing is a validation design that injects retrieval and extraction errors at measured rates and observed error types into a synthesis and reports the induced distribution of estimates, heterogeneity and rankings, together with the benchmark corpus that design would be run on."
+pid: "SFW-17"
+topic: "Software, benchmarks & interface standards"
+categories: ["Software, benchmarks & interface standards", "High priority", "Confirmed open"]
+priority: "High"
+prank: 2
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Emerging"
+tractability: 4
+---
+::: {.problem-meta}
+[SFW-17]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[High priority]{.chip .chip-priority-high}
+[Emerging]{.chip .chip-maturity-emerging}
+[Tractability 4/5]{.chip}
+:::
+## Statement
+
+Large language model pipelines now run trial retrieval, data extraction and network meta-analysis as a single workflow, and they are validated one stage at a time: retrieval by recall and precision against a reference trial list, extraction by field-level accuracy on a curated subset, and the synthesis by agreement with a manual analysis run on the same already-correct data. No study carries the measured stage error rates through to the quantities a decision rests on, so it is not known how far a retrieval recall of 82% or a stated extraction error rate moves a network estimate, a between-study variance or a treatment ranking. Agreement demonstrated on a pre-selected trial set bypasses the retrieval stage entirely, so it certifies the analysis code rather than the pipeline, and a pipeline built on proprietary model endpoints cannot be independently rerun at all. There is also no shared corpus of source documents with a settled eligible-trial set and field-level ground truth on which competing pipelines could be scored, so end-to-end numbers would not be comparable even if they were reported. What is missing is a validation design that injects retrieval and extraction errors at measured rates and observed error types into a synthesis and reports the induced distribution of estimates, heterogeneity and rankings, together with the benchmark corpus that design would be run on.
+
+## Why it is open
+
+Component metrics and decision metrics are different currencies, and converting between them needs to know which trials and which fields were missed rather than how many: a missed large trial and a missed small one at identical recall have very different consequences, and a single recall figure does not index that. Building the corpus means curating documents with a settled eligible-trial set and field-level truth, which is the expensive half of a systematic review done a second time, and it decays as the literature moves and as eligibility judgments are revisited. Pipeline behavior is not stationary either: the underlying models are versioned and often proprietary, so a measured error rate attaches to a model snapshot rather than to a method, and any end-to-end score expires with the endpoint it was measured on. The incentives run the other way, because a pipeline is published on component accuracy and a concordance demonstration, and an end-to-end error study can only make the pipeline look worse than the stage-wise numbers already reported. The methodological template does exist, in the meta-research that measured human extraction error and re-ran the affected meta-analyses to see how far the results moved, but it has never been composed with automated retrieval, with a network rather than a pairwise comparison, or with rankings as the output of interest.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Livieratos et al. 2026, MetaMind: A multi-agent transformer-driven framework for automated network meta-analyses, PLOS ONE 21(2):e0342895](https://doi.org/10.1371/journal.pone.0342895) | runs retrieval, extraction and network meta-analysis as one multi-agent workflow and validates each stage separately, and concedes that this does not capture the potential compounding effects of errors across stages in a fully end-to-end deployment; the analysis concordance was obtained on a pre-selected trial set, so the retrieval stage was bypassed for it |
+| [Jones, Remmington, Williamson, Ashby and Smyth 2005, High prevalence but low impact of data extraction and reporting errors were found in Cochrane systematic reviews, Journal of Clinical Epidemiology 58(7):741-742](https://doi.org/10.1016/j.jclinepi.2004.11.024) | the design template this problem needs: measure extraction and reporting error prevalence, then re-run the affected meta-analyses to see how far the pooled results move; it covers human extraction into pairwise synthesis and takes the included-study set as settled |
+| [Gøtzsche, Hróbjartsson, Marić and Tendal 2007, Data extraction errors in meta-analyses that use standardized mean differences, JAMA 298(4):430-437](https://doi.org/10.1001/jama.298.4.430) | re-derives standardized mean differences for two randomly chosen trials in each of 27 published meta-analyses, finds errors in 17 of them and discrepancies of at least 0.1 in 10, and on rechecking those 10 in full finds 7 erroneous with a significant difference appearing or disappearing in 2; it is the field-and-error-type resolution an injection study would have to reproduce rather than symmetric noise |
+| [Gartlehner et al. 2024, Data extraction for evidence synthesis using a large language model: A proof-of-concept study, Research Synthesis Methods 15(4):576-589](https://doi.org/10.1002/jrsm.1710) | measures field-level accuracy of language model extraction against human reference extractions and records the error types, supplying the input rates an injection study would use; it stops at the extraction stage |
+| [Konet, Thomas, Gartlehner, Kahwati et al. 2024, Performance of two large language models for data extraction in evidence synthesis, Research Synthesis Methods 15(5):818-824](https://doi.org/10.1002/jrsm.1732) | compares two models on the same extraction task, establishing that the measured error rate is a property of the model version rather than of the method, which is why an end-to-end score has to be reported against a model snapshot |
+| [Gartlehner et al. 2025, From promise to practice: challenges and pitfalls in the evaluation of large language models for data extraction in evidence synthesis, BMJ Evidence-Based Medicine 30(6):385-389](https://doi.org/10.1136/bmjebm-2024-113199) | names the evaluation design problems in this literature, including reference-standard quality and the choice of accuracy metric; it argues for better stage-level evaluation rather than for propagation into synthesis outputs |
+| [Khraisha, Put, Kappenberg, Warraitch and Hadfield 2024, Can large language models replace humans in systematic reviews? Evaluating GPT-4's efficacy in screening and extracting data from peer-reviewed and grey literature in multiple languages, Research Synthesis Methods 15(4):616-626](https://doi.org/10.1002/jrsm.1715) | measures screening and extraction accuracy together across languages and literature types, giving the retrieval-stage error rates a propagation study would inject; the study ends at the accuracy figures and does not fit a synthesis |
+| [Marshall, Nye, Kuiper et al. 2020, Trialstreamer: A living, automatically updated database of clinical trial reports, Journal of the American Medical Informatics Association 27(12):1903-1912](https://doi.org/10.1093/jamia/ocaa163) | maintains an automatically updated corpus of trial reports with machine-extracted population, intervention and outcome fields and risk-of-bias assessments; it is the closest existing infrastructure to a shared document-to-dataset benchmark, though it carries no settled eligible-trial set for any given synthesis question and no field-level ground truth |
+
+:::
+
+## Probable solution or research direction
+
+Run the injection study first, since it needs no new corpus: take a completed network meta-analysis with a settled trial set and known extracted values, remove trials and perturb fields at the rates and error types the pipeline evaluations report, refit, and report the induced distribution of contrast estimates, between-study variance and rank probabilities, along with the fraction of resamples in which the top-ranked treatment changes. Make the perturbation mechanism explicit rather than uniform: model missed trials as a function of size, recency, language and indexing, because recall is not exchangeable across trials, and model extraction errors by field using the observed error types such as transposed arms, wrong denominators and wrong timepoints. Assemble a shared benchmark corpus of source documents with a settled eligible-trial set and field-level ground truth, versioned and citable, so that competing pipelines are scored on the same object and end-to-end results remain comparable across model snapshots. Require pipeline reports to state the model version, the retrieval and extraction metrics, the end-to-end result under the injection study, and whether any reported analysis concordance was obtained on a pre-selected trial set. Report an automated pipeline's output as an interval over the induced distribution rather than as a point network estimate, so retrieval and extraction error appears in the same place as statistical uncertainty instead of in a limitations paragraph.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. One reader proposed this from a single pipeline paper, which concedes in its own limitations that component-level validation does not capture compounding error across stages; the reviewer accepted it as a validation problem at the document-to-decision-output level, distinct from statistical package validation on a fixed dataset. A single-paper basis is weak, but the absence is confirmed by the wider evaluation literature, which reports stage-level accuracy and does not propagate it into synthesis outputs.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [SFW-03 — No minimum validation standard for ITC and PAIC packages](SFW-03-no-minimum-validation-standard-for-itc-and-paic-packages.qmd)
+- [SFW-04 — No neutral cross-package benchmark suite for PAIC implementations](SFW-04-no-neutral-cross-package-benchmark-suite-for-paic-implementa.qmd)
+- [CMU-08 — No cross-package benchmark or reference pipeline for ITC software](CMU-08-no-cross-package-benchmark-or-reference-pipeline-for-itc-sof.qmd)
+- [DIA-05 — No shared benchmark platform with common scenarios, seeds and truth](DIA-05-no-shared-benchmark-platform-with-common-scenarios-seeds-and.qmd)
+- [EVB-02 — Evidence-set assembly can favor the sponsor before modeling begins](EVB-02-evidence-set-assembly-can-favor-the-sponsor-before-modeling-.qmd)
+:::
+
+## Source
+
+Derived from reading:nma-02 of the reviewed corpus.

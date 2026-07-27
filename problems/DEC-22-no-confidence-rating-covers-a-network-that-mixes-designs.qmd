@@ -1,0 +1,70 @@
+---
+title: "No confidence rating covers a network that mixes designs"
+description: "Joint synthesis of randomized trials and real-world data in one network is now done at scale, and the instrument the field uses to rate confidence in network estimates does not accept it. A network combining individual participant data from the Finnish and Swedish national registries with aggregate randomized evidence on antipsychotic relapse prevention published its joint estimates with no formal appraisal at all, stating that CINeMA does not currently accommodate observational studies. CINeMA rates six domains per network estimate (within-study bias, reporting bias, indirectness, imprecision, heterogeneity, incoherence) and computes them from the contribution matrix over a randomized design, so there is no way to report, per contrast, how much of the confidence rests on randomized and how much on non-randomized contributions, and no way to downgrade a contrast carried entirely by registry edges. The synthesis side is not the gap: design-adjusted, bias-adjusted and hierarchical models for combining randomized and non-randomized evidence in a network have been published since 2013 and are now used in applied reviews. What is missing is the appraisal side, namely a within-study bias domain appropriate to non-randomized comparisons, a per-contrast contribution split by design, and a rule for combining the two into one confidence rating. In the absence of that instrument, ratings are either omitted, as here, or produced by applying a randomized-evidence instrument outside its stated scope."
+pid: "DEC-22"
+topic: "Decision analysis, regulation & reporting"
+categories: ["Decision analysis, regulation & reporting", "High priority", "Confirmed open"]
+priority: "High"
+prank: 2
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Promising"
+tractability: 4
+---
+::: {.problem-meta}
+[DEC-22]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[High priority]{.chip .chip-priority-high}
+[Promising]{.chip .chip-maturity-promising}
+[Tractability 4/5]{.chip}
+:::
+## Statement
+
+Joint synthesis of randomized trials and real-world data in one network is now done at scale, and the instrument the field uses to rate confidence in network estimates does not accept it. A network combining individual participant data from the Finnish and Swedish national registries with aggregate randomized evidence on antipsychotic relapse prevention published its joint estimates with no formal appraisal at all, stating that CINeMA does not currently accommodate observational studies. CINeMA rates six domains per network estimate (within-study bias, reporting bias, indirectness, imprecision, heterogeneity, incoherence) and computes them from the contribution matrix over a randomized design, so there is no way to report, per contrast, how much of the confidence rests on randomized and how much on non-randomized contributions, and no way to downgrade a contrast carried entirely by registry edges. The synthesis side is not the gap: design-adjusted, bias-adjusted and hierarchical models for combining randomized and non-randomized evidence in a network have been published since 2013 and are now used in applied reviews. What is missing is the appraisal side, namely a within-study bias domain appropriate to non-randomized comparisons, a per-contrast contribution split by design, and a rule for combining the two into one confidence rating. In the absence of that instrument, ratings are either omitted, as here, or produced by applying a randomized-evidence instrument outside its stated scope.
+
+## Why it is open
+
+A rating for a mixed network needs a contribution split by design before it can weight the domains, and the contribution matrix is defined over a randomized design, so the appraisal instrument is blocked on the same provenance quantity that has not been generalized. The two designs also fail differently: within-study bias in a trial concerns randomization integrity, allocation concealment and blinding, while in a registry it concerns confounding, time-varying treatment assignment and outcome ascertainment, so the domains have no common scale that could be averaged into one judgment. Bias-adjustment models already absorb design differences into the estimate, which makes double counting a live risk, because downgrading for non-randomized contribution after the model has adjusted for it penalizes the same problem twice, and no rule states whether the rating applies to the naively pooled or the adjusted estimate. GRADE's architecture assumes one body of evidence per comparison, so a per-contrast mixture of designs has no place in it. Meanwhile the analyses are being published regardless, so the omission carries no cost to anyone who publishes one.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Efthimiou et al. 2024, Efficacy and effectiveness of antipsychotics in schizophrenia: network meta-analyses combining evidence from randomised controlled trials and real-world data, The Lancet Psychiatry](https://doi.org/10.1016/S2215-0366(23)00366-8) | Combines Finnish and Swedish registry individual participant data with aggregate randomized evidence in one network and states that no formal appraisal of the joint network was performed because CINeMA does not currently accommodate observational studies; the joint estimates are published without a rating. |
+| [Nikolakopoulou et al. 2020, CINeMA: An approach for assessing confidence in the results of a network meta-analysis, PLOS Medicine](https://doi.org/10.1371/journal.pmed.1003082) | Defines the six-domain per-estimate confidence framework and its scope, which is randomized evidence; it is the instrument the joint analysis could not use. |
+| [Papakonstantinou et al. 2020, CINeMA: Software for semiautomated assessment of the confidence in the results of network meta-analysis, Campbell Systematic Reviews](https://doi.org/10.1002/cl2.1080) | Ships the framework as software and fixes its input format, so admitting non-randomized studies is a specification change and not only a conceptual one. |
+| [Efthimiou et al. 2017, Combining randomized and non-randomized evidence in network meta-analysis, Statistics in Medicine](https://doi.org/10.1002/sim.7223) | Sets out the design-adjustment, bias-adjustment and hierarchical options for synthesizing the two designs in one network, establishing that the estimation problem is solved while the appraisal problem is not. |
+| [Schmitz et al. 2013, Incorporating data from various trial designs into a mixed treatment comparison model, Statistics in Medicine](https://doi.org/10.1002/sim.5764) | Earlier model for admitting several trial designs into one mixed treatment comparison, showing how long the estimation side has been available. |
+| [Jenkins et al. 2021, Methods for the inclusion of real-world evidence in network meta-analysis, BMC Medical Research Methodology](https://doi.org/10.1186/s12874-021-01399-3) | Reviews the available routes for adding real-world evidence to a network, none of which is paired with a confidence-rating instrument. |
+| [Hussein et al. 2023, Hierarchical network meta-analysis models for synthesis of evidence from randomised and non-randomised studies, BMC Medical Research Methodology](https://doi.org/10.1186/s12874-023-01925-5) | Develops hierarchical models that treat design as a level, giving the structure from which a design-split contribution could in principle be read. |
+| [Sterne et al. 2016, ROBINS-I: a tool for assessing risk of bias in non-randomised studies of interventions, BMJ](https://doi.org/10.1136/bmj.i4919) | Supplies the study-level bias instrument for non-randomized studies that a mixed-design network framework would have to fold into a per-contrast rating. |
+| [Izcovich et al. 2023, A guide and pragmatic considerations for applying GRADE to network meta-analysis, BMJ](https://doi.org/10.1136/bmj-2022-074495) | Current practical guidance for rating certainty in network meta-analysis; its architecture assumes randomized evidence per comparison and offers no route for a per-contrast mixture of designs. |
+
+:::
+
+## Probable solution or research direction
+
+Build the split before the instrument: extend contribution accounting so that each network estimate reports the share of information arriving from randomized and from non-randomized edges, which is a design-matrix computation once non-randomized studies are admitted as rows. Define the within-study bias domain by design, applying a randomized-trial tool to randomized contributions and ROBINS-I to non-randomized ones, then combine them by contribution weight, which is exactly what CINeMA already does within the randomized case. State the double-counting rule explicitly, so that a rating declares whether it applies to a naively pooled estimate or to a bias-adjusted one and, in the latter case, downgrades for residual rather than total design bias. Validate against networks where a randomized-only answer is also available, checking whether the rating separates contrasts on which joint and randomized-only estimates agree from those on which they diverge; that is the operating characteristic a confidence rating for mixed evidence would have to demonstrate.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. One reader proposed this and the reviewer accepted it, noting that the application supplies direct evidence that CINeMA could not be used for a mixed randomized and observational network and that the joint estimates were published anyway. The evidence is a single application rather than a survey, but the statement it makes about the instrument's scope is a property of the instrument, not of that analysis.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [DEC-19 — Evidence contribution has no definition inside a Bayesian fit](DEC-19-evidence-contribution-has-no-definition-inside-a-bayesian-fi.qmd)
+- [DEC-04 — No PAIC-specific reporting standard or credibility appraisal tool](DEC-04-no-paic-specific-reporting-standard-or-credibility-appraisal.qmd)
+- [DEC-23 — The treatment hierarchy is published without a certainty rating](DEC-23-the-treatment-hierarchy-is-published-without-a-certainty-rat.qmd)
+- [DIS-07 — External-control bridges become cross-design causal synthesis](DIS-07-external-control-bridges-become-cross-design-causal-synthesi.qmd)
+- [EVB-01 — Selective IPD availability threatens transport across the network](EVB-01-selective-ipd-availability-threatens-transport-across-the-ne.qmd)
+:::
+
+## Source
+
+Derived from reading:nma-08 of the reviewed corpus.

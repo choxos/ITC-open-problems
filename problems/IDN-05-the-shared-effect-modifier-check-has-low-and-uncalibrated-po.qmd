@@ -50,6 +50,11 @@ The estimator and the diagnostic exist, so the work is characterization: establi
 
 **What was wrong with it.** The source called cross-trial replication with two IPD trials the only empirical check on offer and proposed hierarchical shrinkage of treatment-specific interactions as future work. Both auditors found the check published in 2023 as a within-network procedure needing no second IPD trial (doi:10.1177/0272989X221117162) and the shrinkage already shipped in multinma's class_interactions argument, so what remains open is power, calibration and a stability metric rather than the method itself.
 
+**Revised by the full-text reading.** Applied 2026-07-26 full-text reading of the consolidated library (687 papers).
+
+Flagged for reopening
+:   **16 findings from the reading assert this problem is open while the registry carries `overstated`** Flagged, not applied: reversing an earlier audit's closure needs the closure's own evidence re-examined alongside this, which the reading did not do. See documentation/audit/reading/PROPOSED.md.
+
 Literature and prior-art check
 :   **partially-solved / overstated.** I read the full text of Phillippo et al. 2023 (Med Decis Making), which the entry does not cite, and it directly contradicts the statement's 'only empirical check on offer'. They assess the shared effect modifier assumption inside a single 9-study network with no second IPD trial, by splitting the common class interaction into treatment-specific interactions one covariate at a time and comparing posteriors and DIC, and they report a result (weak evidence against sharing for weight). The entry's own proposed direction, hierarchical shrinkage of treatment-specific interactions, is already released software: multinma's nma() takes class_interactions = c("common", "exchangeable", "independent") (verified in man/nma.Rd), so exchangeable within-class interactions are fittable today. What remains genuinely open is exactly what Phillippo et al. concede: 'It is likely that this approach to assessing the shared effect modifier assumption has low power, particularly when data are lacking.' Power, calibration, a stability metric rather than a binary verdict, and the data conditions under which the check is informative are unresolved. So the problem is real but the framing overstates the void by roughly one decade and one R package.
     Cites 10.1177/0272989X221117162: Provides and applies a standardized within-network empirical check on the shared effect modifier assumption, not requiring two IPD trials.
@@ -64,13 +69,46 @@ Decision path
 
 :::
 
+## How the evidence falls in time
+
+16 papers in the reviewed corpus bear on this problem, published 2013 to 2026. Partial progress is on the record, and later work still calls this open. Both belong in view.
+
+This problem is **recurrent**: three or more papers spanning at least eight years assert it independently. Sustained restatement by authors who mostly do not cite each other is the strongest evidence this reading can offer that a gap is real rather than one group's framing.
+
+::: {.table-scroll}
+
+| Year | Says | Paper |
+|---|---|---|
+| 2013 | confirms it is open | Evidence synthesis for decision making 3: heterogeneity - subgroups, meta-regression, bias, and bias-adjustment |
+| 2014 | confirms it is open | The importance of baseline viral load when assessing relative efficacy in treatment-naive HBeAg-positive chronic hepatitis B: a systematic review and network meta-analysis |
+| 2015 | confirms it is open | Response to: 'Heterogeneity, consistency and model fit should be assessed in Bayesian network meta-analysis' by Wei et al. |
+| 2016 | confirms it is open | Exploratory Network Meta Regression Analysis of Stroke Prevention in Atrial Fibrillation Fails to Identify Any Interactions with Treatment Effect |
+| 2017 | confirms it is open | Methods for Population-Adjusted Indirect Comparisons in Health Technology Appraisal |
+| 2018 | partly addresses it | Assessing the consistency assumptions underlying network meta-regression using aggregate data |
+| 2021 | confirms it is open | Methods for population adjustment with limited access to individual patient data: A review and simulation study |
+| 2021 | confirms it is open | Individual Participant Data Meta-Analysis: A Handbook for Healthcare Research (Riley, Tierney, Stewart, eds.; Wiley Series in Statistics in Practice, 2021) |
+| 2022 | confirms it is open | Validating the Assumptions of Population Adjustment: Application of Multilevel Network Meta-regression to a Network of Treatments for Plaque Psoriasis |
+| 2022 | confirms it is open | A Response to: Letter to the Editor Regarding "Network Meta-analysis of Food and Drug Administration-approved Treatment Options for Adults with Aquaporin-4 Immunoglobulin G-positive Neuromyelitis Optica Spectrum Disorder" |
+| 2024 | confirms it is open | Implementing Multilevel Network Meta-Regression for Time-To-Event Outcomes: A Case Study in Relapsed Refractory Multiple Myeloma |
+| 2024 | confirms it is open | An empirical study on 209 networks of treatments revealed intransitivity to be common and multiple statistical tests suboptimal to assess transitivity |
+| 2024 | confirms it is open | Twenty years of network meta-analysis: Continuing controversies and recent developments |
+| 2025 | confirms it is open | A critical assessment of matching-adjusted indirect comparisons in relation to target populations |
+| 2026 | confirms it is open | Population-adjusted network meta-analyses provide new insights into the efficacy of treatment alternatives for metastatic castration-sensitive prostate cancer |
+| 2026 | confirms it is open | Reframing Population-Adjusted Indirect Comparisons as a Transportability Problem: An Estimand-Based Perspective and Implications for Health Technology Assessment (Chandler & Ishak; arXiv:2602.17041v3). The batch file points at media/media/Table_1_v2.pdf; the full LaTeX source Transportability_PAIC.tex sits in the same arXiv package and was read. |
+
+:::
+
 ## Related problems
 
 ::: {.related-links}
 - [CMP-02 — Adjusted component bridges need interaction constancy across the gap](CMP-02-adjusted-component-bridges-need-interaction-constancy-across.qmd)
 - [COV-01 — Deciding which covariates are true effect modifiers](COV-01-deciding-which-covariates-are-true-effect-modifiers.qmd)
+- [COV-10 — Effect-modifier selection does not check interaction consistency](COV-10-effect-modifier-selection-does-not-check-interaction-consist.qmd)
 - [DEC-09 — Modifier selection and target moments reported without provenance](DEC-09-modifier-selection-and-target-moments-reported-without-prove.qmd)
+- [IDN-16 — Covariate-indexed consistency has no calibrated licensed region](IDN-16-covariate-indexed-consistency-has-no-calibrated-licensed-reg.qmd)
+- [IDN-19 — No principled basis for shared effect-modifier treatment classes](IDN-19-no-principled-basis-for-shared-effect-modifier-treatment-cla.qmd)
 - [MOD-03 — Ecological versus within-study effect modification](MOD-03-ecological-versus-within-study-effect-modification.qmd)
+- [MOD-14 — Network meta-interpolation has no stated estimand and no implementation](MOD-14-network-meta-interpolation-has-no-stated-estimand-and-no-imp.qmd)
 :::
 
 ## Source

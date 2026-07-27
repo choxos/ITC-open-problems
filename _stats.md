@@ -1,17 +1,17 @@
 ::: {.callout-note appearance="simple"}
 ## What the audit found
 
-**232 problems** across 17 categories, carrying
+**331 problems** across 17 categories, carrying
 1904 individual claims that
 were checked.
 
 | Verdict | Entries | |
 |---|---:|---:|
-| [Confirmed open]{.verdict .verdict-confirmed-open} | 81 | 35% |
-| [Partially addressed]{.verdict .verdict-partially-addressed} | 67 | 29% |
-| [Overstated]{.verdict .verdict-overstated} | 53 | 23% |
-| [Unverifiable]{.verdict .verdict-unverifiable} | 27 | 12% |
-| [Not supported]{.verdict .verdict-not-supported} | 4 | 2% |
+| [Confirmed open]{.verdict .verdict-confirmed-open} | 121 | 37% |
+| [Partially addressed]{.verdict .verdict-partially-addressed} | 139 | 42% |
+| [Overstated]{.verdict .verdict-overstated} | 53 | 16% |
+| [Unverifiable]{.verdict .verdict-unverifiable} | 14 | 4% |
+| [Not supported]{.verdict .verdict-not-supported} | 4 | 1% |
 | [Resolved since report]{.verdict .verdict-resolved-since-report} | 0 | 0% |
 
 Roughly a third of the problems presented as open turn out to be partly addressed already,

@@ -3,16 +3,16 @@ title: "Benchmarking and negative controls as data-based calibration"
 description: "Two data-based routes to sensitivity parameters exist, and the first has been implemented for unanchored MAIC: Yi and Jiang 2025 (doi:10.57264/cer-2024-0235) build artificially risk-unbalanced groups with a predetermined hazard ratio of 1.8, reweight on the candidate prognostic factors and check whether the reweighted hazard ratio returns to one, reporting 0.9157 with all covariates included and 1.671 when one critical prognostic factor was omitted. It is a covariate-sufficiency diagnostic: it does not convert an induced bias into a sensitivity-parameter range and does not bound residual bias from unobserved structure. The second route, negative-control outcomes or exposures, needs a control that shares the relevant confounding and selection structure and has no causal relation to the outcome of interest, and it detects rather than quantifies, since a signal may instead reflect failure of the negative-control assumptions and a null signal does not establish absence of bias; converting an association into a bias-parameter range for the primary estimand requires further bridge, completeness or proportional-bias assumptions that have not been developed for population-adjusted comparisons."
 pid: "QBA-26"
 topic: "Quantitative bias analysis for unanchored PAIC"
-categories: ["Quantitative bias analysis for unanchored PAIC", "High priority", "Confirmed open"]
+categories: ["Quantitative bias analysis for unanchored PAIC", "High priority", "Partially addressed"]
 priority: "High"
 prank: 2
-verdict: "Confirmed open"
-verdictslug: "confirmed-open"
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
 maturity: "Promising"
 ---
 ::: {.problem-meta}
 [QBA-26]{.problem-id}
-[Confirmed open]{.verdict .verdict-confirmed-open}
+[Partially addressed]{.verdict .verdict-partially-addressed}
 [High priority]{.chip .chip-priority-high}
 [Promising]{.chip .chip-maturity-promising}
 :::
@@ -41,11 +41,16 @@ Treat a held-out benchmark as calibration by analogy that is neither an upper no
 ## Verification
 
 ::: {.verification-trail}
-**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+**Verdict.** Partially addressed. Auditors agreed the problem is open and no counterevidence surfaced. Reopened by the full-text reading: 2 findings from 2 papers survived both the reader and an independent second reviewer, so the verdict moves from confirmed-open to partially-addressed.
 
 **The source said.** "Two data-based routes to sensitivity parameters exist: removing a measured prognostic factor or effect modifier and estimating the bias its omission induces, and using negative-control outcomes or exposures to reveal selection, ascertainment or design differences not removed by adjusting for the measured covariates. Neither converts into a bound on the residual bias affecting the primary estimand."
 
 **What was wrong with it.** The entry cited nothing for a benchmarking route that has already been implemented for unanchored MAIC; the literature auditor supplied Yi and Jiang 2025 (doi:10.57264/cer-2024-0235), which does not close the problem but is prior art the entry should carry. GPT-5.6 Sol rejected the entry's proposal to treat a held-out benchmark as a lower reference point, since it is guaranteed to be neither a lower nor an upper bound, and noted that under explicit additional assumptions negative controls can calibrate an effect on the primary estimand rather than only detect a bias.
+
+**Revised by the full-text reading.** Applied 2026-07-26 full-text reading of the consolidated library (687 papers).
+
+Verdict changed
+:   **confirmed-open -> partially-addressed** 2 surviving findings from: A process to validate prognostic factors for unanchored matc; Adjustment for reporting bias in network meta-analysis of an. New citations: 10.1186/1471-2288-12-150, 10.57264/cer-2024-0235
 
 Literature and prior-art check
 :   **open / supported-with-caveat.** The held-out-variable benchmarking route in claim 1 has in fact been implemented for unanchored MAIC and the entry cites nothing for it: Yi and Jiang 2025 (J Comp Eff Res 14:e240235, PMID 40190245) propose a validation framework that builds two artificially risk-unbalanced groups with a predetermined HR of 1.8, reweights on the candidate prognostic factors, and checks whether the reweighted HR returns to one; with all covariates included HR was 0.9157 (95% CI 0.5629-2.493), and omitting one critical prognostic factor moved it to 1.671 (95% CI 1.194-2.340). That is precisely 'removing a measured prognostic factor and estimating the induced bias' in the unanchored MAIC setting. Crucially it does not falsify the entry: it is a pass/fail sufficiency diagnostic for covariate selection, it does not convert an induced bias into a sensitivity-parameter range, and it does not bound residual bias from unobserved structure, so claims 2, 3 and the problem itself stand. Claims 4 and 5 on negative controls are correct in substance; negative-control outcomes are essentially never reported in an aggregate comparator publication, which is the binding constraint.
@@ -56,6 +61,21 @@ GPT-5.6 Sol, technical and source-code lens
 
 Decision path
 :   `R5:default-open → R11:caveated(n=2)`
+
+:::
+
+## How the evidence falls in time
+
+2 papers in the reviewed corpus bear on this problem, published 2012 to 2025. Every paper found here reports progress; none asserts the problem is open.
+
+It is also being **closed in pieces**: partial results come from more than one paper in more than one year, each covering a different part.
+
+::: {.table-scroll}
+
+| Year | Says | Paper |
+|---|---|---|
+| 2012 | partly addresses it | Adjustment for reporting bias in network meta-analysis of antidepressant trials |
+| 2025 | partly addresses it | A process to validate prognostic factors for unanchored matching-adjusted indirect comparison of single-arm trials in oncology: a proof-of-concept study |
 
 :::
 

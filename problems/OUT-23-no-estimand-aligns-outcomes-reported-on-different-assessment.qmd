@@ -1,0 +1,66 @@
+---
+title: "No estimand aligns outcomes reported on different assessment schedules"
+description: "Trials of the same condition report longitudinal outcomes on incompatible assessment grids; in one recent feasibility assessment the principal timepoints across a network ranged from 4 to 52 weeks, and where dosing is cyclical a nominated week may fall at a peak or at a trough of effect. Every population-adjustment method takes the outcome at a nominated timepoint as given, so the analyst must first choose or manufacture a common timepoint before any weighting or outcome model is fitted. The devices in use are picking each trial's own principal timepoint, linear interpolation to an unreported timepoint, averaging over several timepoints, area under the curve, and carrying an earlier assessment forward to stand for a later one; published appraisals record a matching-adjusted comparison that carried 18-month motor-milestone results forward to represent 24 months, and another that compared 12-month results against a trial stopped at a mean of 9 months without using its extension data. None of these has a stated estimand, an identification argument from the summaries actually reported, or a variance that includes the alignment step. Time-course model-based network meta-analysis solves the aggregate-data version of the problem where trials report several timepoints each, and there is no population-adjusted counterpart and nothing at all for the common case in which each trial reports one timepoint, so the time-course shape is identified only by borrowing across trials. The choice is decision-relevant and signed, since reviewers report that the timepoint selected can favor one treatment over another."
+pid: "OUT-23"
+topic: "Outcome-specific problems"
+categories: ["Outcome-specific problems", "High priority", "Partially addressed"]
+priority: "High"
+prank: 2
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
+maturity: "Emerging"
+tractability: 3
+---
+::: {.problem-meta}
+[OUT-23]{.problem-id}
+[Partially addressed]{.verdict .verdict-partially-addressed}
+[High priority]{.chip .chip-priority-high}
+[Emerging]{.chip .chip-maturity-emerging}
+[Tractability 3/5]{.chip}
+:::
+## Statement
+
+Trials of the same condition report longitudinal outcomes on incompatible assessment grids; in one recent feasibility assessment the principal timepoints across a network ranged from 4 to 52 weeks, and where dosing is cyclical a nominated week may fall at a peak or at a trough of effect. Every population-adjustment method takes the outcome at a nominated timepoint as given, so the analyst must first choose or manufacture a common timepoint before any weighting or outcome model is fitted. The devices in use are picking each trial's own principal timepoint, linear interpolation to an unreported timepoint, averaging over several timepoints, area under the curve, and carrying an earlier assessment forward to stand for a later one; published appraisals record a matching-adjusted comparison that carried 18-month motor-milestone results forward to represent 24 months, and another that compared 12-month results against a trial stopped at a mean of 9 months without using its extension data. None of these has a stated estimand, an identification argument from the summaries actually reported, or a variance that includes the alignment step. Time-course model-based network meta-analysis solves the aggregate-data version of the problem where trials report several timepoints each, and there is no population-adjusted counterpart and nothing at all for the common case in which each trial reports one timepoint, so the time-course shape is identified only by borrowing across trials. The choice is decision-relevant and signed, since reviewers report that the timepoint selected can favor one treatment over another.
+
+## Why it is open
+
+With one reported timepoint per trial the time course is not identified within a trial, so every alignment device is an extrapolation that borrows shape from other trials, and the borrowing assumption is least defensible in exactly the networks whose timepoints differ most. Carry-forward and interpolation change the estimand rather than estimate it: an 18-month result standing in for 24 months answers a different question, and this is not a missing-data problem with a principled correction because the later measurement was never taken. A time-averaged or area-under-the-curve contrast is a defensible estimand but is not what trials report, and reconstructing it from a few published means requires both a functional form for the trajectory and a within-patient correlation that aggregate publications do not supply. Population adjustment compounds all of this, because the covariates that modify the effect at one timepoint need not be those that modify it at another, so an alignment step performed before weighting can silently change the modifier set the weights were built to balance.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Gilhus, Jacob, Hashim, Van Sanden et al. 2025, Journal of Comparative Effectiveness Research, e250009](https://doi.org/10.57264/cer-2025-0009) | Feasibility assessment of indirect treatment comparisons in generalized myasthenia gravis that documents the timepoint range across a real network and reviews the menu of responses in use, including a single reported timepoint, averaging across timepoints and area under the curve, and states that further investigation of the strengths and weaknesses of these approaches is needed and that multiple approaches should be explored to see how differences in timepoints affect results. |
+| [Pedder, Dias, Bennetts, Boucher & Welton 2019, Research Synthesis Methods 10(2):267-286](https://doi.org/10.1002/jrsm.1351) | Time-course model-based network meta-analysis for continuous summary outcomes, which models the effect as a parametric function of time so that trials reporting at different times contribute to a common curve. Solves the aggregate-data version where repeated measurements are reported; supplies no population adjustment and needs more than one timepoint per study to identify the shape without borrowing. |
+| [MBNMAtime: Run Time-Course Model-Based Network Meta-Analysis Models (CRAN)](https://doi.org/10.32614/CRAN.package.MBNMAtime) | The maintained implementation of time-course model-based network meta-analysis, which shows the aggregate-data route is usable in practice and marks the absence of any equivalent for population-adjusted comparisons. |
+| [Dakin, Welton, Ades, Collins et al. 2011, Statistics in Medicine 30(20):2511-2535](https://doi.org/10.1002/sim.4284) | Mixed treatment comparison of repeated measurements of a continuous endpoint, an early demonstration that repeated measurements across a network can be synthesized jointly rather than reduced to one timepoint per trial. |
+| [Trikalinos & Olkin 2012, Clinical Trials 9(5):610-620](https://doi.org/10.1177/1740774512453218) | Multivariate meta-analysis of effect sizes reported at multiple time points, which handles the within-study correlation between timepoints; requires that correlation to be known or assumed, which is the input aggregate publications withhold. |
+| [Musekiwa, Manda, Mwambi & Chen 2016, PLOS ONE 11(10):e0164898](https://doi.org/10.1371/journal.pone.0164898) | General linear mixed model for meta-analysis of effect sizes reported at multiple time points, an alternative route to the same aggregate-data problem, again defined for studies that report a series rather than one value. |
+
+:::
+
+## Probable solution or research direction
+
+Name the estimand before choosing a device: state whether the target is the contrast at a declared calendar time, the average contrast over a declared window, the area under the trajectory, or the contrast at a stated point in the dosing cycle, and note that these are different quantities that will not agree under a time-varying effect. For each device in use, derive the conditions under which the reported summaries identify that target, so that carry-forward and interpolation are either justified as estimating something or reclassified as estimand substitutions and reported as such. Build the population-adjusted counterpart of a time-course model, in which the trajectory parameters carry effect-modifier interactions and the target population is declared, so that alignment and weighting happen in one model rather than in sequence, and derive its variance including the alignment step. Then evaluate: simulate networks with a known trajectory and known modifiers, apply each device, and report bias and coverage for each named estimand, including the case that motivates this problem in which each trial reports a single timepoint.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Partially addressed. One reader proposed this and the reviewer accepted it as well posed and specific to population-adjusted comparisons built from separately reported longitudinal outcomes, noting that existing longitudinal meta-analytic models do not supply the estimand, the identification conditions from the available summaries, or the uncertainty propagation. It is partially-addressed because time-course model-based network meta-analysis covers the aggregate-data case where trials report repeated measurements; only one of the two applied sources described in the proposal carries a verifiable identifier, so the direct evidence here is a single paper.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [OUT-06 — Change scores, trajectories, and responder-threshold estimands](OUT-06-change-scores-trajectories-and-responder-threshold-estimands.qmd)
+- [EVB-03 — Trials combined under one outcome label are not one estimand](EVB-03-trials-combined-under-one-outcome-label-are-not-one-estimand.qmd)
+- [OUT-14 — Pseudo-IPD cannot express delayed entry or assessment windows](OUT-14-pseudo-ipd-cannot-express-delayed-entry-or-assessment-window.qmd)
+- [ADJ-20 — Reinforcement learning and dynamic regimes for adaptive sequences](ADJ-20-reinforcement-learning-and-dynamic-regimes-for-adaptive-sequ.qmd)
+:::
+
+## Source
+
+Derived from reading:core-03 of the reviewed corpus.

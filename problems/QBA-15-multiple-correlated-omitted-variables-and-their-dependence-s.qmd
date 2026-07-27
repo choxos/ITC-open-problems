@@ -3,16 +3,16 @@ title: "Multiple correlated omitted variables and their dependence structure"
 description: "Multiple omitted variables need a joint sensitivity specification whenever their dependence can affect the bias, and each may require its source and target distribution, its outcome association under each treatment, and its dependence with measured covariates and with the other omitted variables; the entry's five-quantity list double-counts, since source and target joint distributions determine the association with study membership and treatment-specific coefficients already encode effect modification. The two usual escapes are unvalidated here: independent variation can understate joint extremes when bias contributions are positively dependent and directionally aligned, though it can overstate them under negative dependence, and a scalar composite U is exact only when it is a sufficient index for selection and for every treatment-specific outcome regression, which nobody has characterized for unanchored PAIC. Ren et al. 2025 (doi:10.1017/rsm.2025.13) handle several omitted covariates and flag the problem their own elicitation route creates, noting that eliciting a distribution for each separately would ignore the correlation structure between them."
 pid: "QBA-15"
 topic: "Quantitative bias analysis for unanchored PAIC"
-categories: ["Quantitative bias analysis for unanchored PAIC", "Very high priority", "Confirmed open"]
+categories: ["Quantitative bias analysis for unanchored PAIC", "Very high priority", "Partially addressed"]
 priority: "Very high"
 prank: 1
-verdict: "Confirmed open"
-verdictslug: "confirmed-open"
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
 maturity: "Emerging"
 ---
 ::: {.problem-meta}
 [QBA-15]{.problem-id}
-[Confirmed open]{.verdict .verdict-confirmed-open}
+[Partially addressed]{.verdict .verdict-partially-addressed}
 [Very high priority]{.chip .chip-priority-very-high}
 [Emerging]{.chip .chip-maturity-emerging}
 :::
@@ -41,11 +41,16 @@ Develop copula, latent-factor and robust moment-set specifications so dependence
 ## Verification
 
 ::: {.verification-trail}
-**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+**Verdict.** Partially addressed. Auditors agreed the problem is open and no counterevidence surfaced. Reopened by the full-text reading: 2 findings from 2 papers survived both the reader and an independent second reviewer, so the verdict moves from confirmed-open to partially-addressed.
 
 **The source said.** "Each omitted variable requires at least five quantities (its source and target distribution, its association with study membership, its outcome association under each treatment, its treatment-effect modification, and its dependence with measured covariates and with other omitted variables), so a high-dimensional collection of omitted variables produces a sensitivity-parameter explosion. Varying each variable independently and collapsing everything into one composite U are the two usual escapes, and neither has been validated."
 
 **What was wrong with it.** GPT-5.6 Sol found several claims too broad: the five quantities double-count, specifying a common outcome coefficient is sufficient under an explicit no-interaction assumption rather than being an error, independence understates tail scenarios only under positive and directionally aligned dependence, and the cost objection confuses parameter count, which grows roughly linearly (or quadratically for an unrestricted covariance), with grid size, which grows as k to the power p. The entry cited nothing; the literature auditor supplied Ren et al. 2025 (doi:10.1017/rsm.2025.13), which raises the same dependence problem in the PAIC setting.
+
+**Revised by the full-text reading.** Applied 2026-07-26 full-text reading of the consolidated library (687 papers).
+
+Verdict changed
+:   **confirmed-open -> partially-addressed** 2 surviving findings from: Applying Quantitative Bias Analysis to Epidemiologic Data, S; Sensitivity analysis for an unobserved moderator in RCT-to-t. New citations: 10.1007/978-3-030-82673-4, 10.1214/16-AOAS1001
 
 Literature and prior-art check
 :   **open / supported.** No prior_work and no citations, but the substantive claims survive scrutiny. Ren et al. 2025 explicitly handle multiple omitted covariates (their L can exceed 1) and explicitly flag the dependence problem their own elicitation route creates: 'It may be easier to elicit a distribution for each U_i separately. However, this would ignore the correlation structure between the uncertain quantities U_i', pointing readers to multivariate elicitation methods. That is direct support for claims 1 and 3 in the PAIC setting and should be cited. Claim 5 (treatment-specific outcome associations) is consistent with the unanchored identification problem. Claims 6 and 7 (the single-composite-U reduction has not been validated against copula or latent-factor alternatives for unanchored PAIC) are no-work-exists claims; I found no such validation and no PAIC copula or latent-factor sensitivity specification, but absence of a finding is not proof, so I do not treat them as verified. The general single-U-versus-multiple-confounder literature outside PAIC does exist and the entry would be stronger if it engaged with it.
@@ -55,6 +60,21 @@ GPT-5.6 Sol, technical and source-code lens
 
 Decision path
 :   `R5:default-open → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## How the evidence falls in time
+
+2 papers in the reviewed corpus bear on this problem, published 2017 to 2021. Every paper found here reports progress; none asserts the problem is open.
+
+It is also being **closed in pieces**: partial results come from more than one paper in more than one year, each covering a different part.
+
+::: {.table-scroll}
+
+| Year | Says | Paper |
+|---|---|---|
+| 2017 | partly addresses it | Sensitivity analysis for an unobserved moderator in RCT-to-target-population generalization of treatment effects (Nguyen, Ebnesajjad, Cole, Stuart; arXiv:1610.06943v1, published Annals of Applied Statistics 2017;11(1):225-247) |
+| 2021 | partly addresses it | Applying Quantitative Bias Analysis to Epidemiologic Data, Second Edition (Fox, MacLehose, Lash; Springer, Statistics for Biology and Health, 2021) |
 
 :::
 

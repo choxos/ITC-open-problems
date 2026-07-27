@@ -1,0 +1,65 @@
+---
+title: "Competing contribution measures disagree and none is agreed correct"
+description: "Percentage-contribution matrices attribute each network meta-analysis or network meta-regression result to individual studies, and they are load-bearing: they drive CINeMA's per-comparison confidence judgments, feed ROB-MEN's risk-of-bias labels, and serve as provenance for indirect contrasts. Competing constructions disagree both numerically and in their properties. The evidence-flow family built on the hat matrix, which is what standard software ships, is not invariant to transformation of the data, so rescaling the data changes the contribution matrix; the multi-parameter study-weight construction derived from a decomposition of Fisher's information is invariant. On real networks the two disagree by up to 15.29 percentage points on one dataset and 18.64 on another, against trial contributions that themselves range from 0 to 49.86 percent, so the disagreement is a large fraction of the quantity being reported. A third position holds that unique percentage contributions may not exist for network meta-analysis at all: defining a study's importance as the relative loss of precision when it is omitted gives uniquely defined values that do not sum to one and therefore cannot be read as percentages. There is no agreed list of properties a contribution measure must satisfy, no criterion tying the choice of measure to the use it is put to, and no evaluation of how far a published per-comparison credibility judgment would move under an alternative definition."
+pid: "DIA-21"
+topic: "Diagnostics & empirical validation"
+categories: ["Diagnostics & empirical validation", "Medium-high priority", "Confirmed open"]
+priority: "Medium-high"
+prank: 3
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Established"
+tractability: 3
+---
+::: {.problem-meta}
+[DIA-21]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[Medium-high priority]{.chip .chip-priority-medium-high}
+[Established]{.chip .chip-maturity-established}
+[Tractability 3/5]{.chip}
+:::
+## Statement
+
+Percentage-contribution matrices attribute each network meta-analysis or network meta-regression result to individual studies, and they are load-bearing: they drive CINeMA's per-comparison confidence judgments, feed ROB-MEN's risk-of-bias labels, and serve as provenance for indirect contrasts. Competing constructions disagree both numerically and in their properties. The evidence-flow family built on the hat matrix, which is what standard software ships, is not invariant to transformation of the data, so rescaling the data changes the contribution matrix; the multi-parameter study-weight construction derived from a decomposition of Fisher's information is invariant. On real networks the two disagree by up to 15.29 percentage points on one dataset and 18.64 on another, against trial contributions that themselves range from 0 to 49.86 percent, so the disagreement is a large fraction of the quantity being reported. A third position holds that unique percentage contributions may not exist for network meta-analysis at all: defining a study's importance as the relative loss of precision when it is omitted gives uniquely defined values that do not sum to one and therefore cannot be read as percentages. There is no agreed list of properties a contribution measure must satisfy, no criterion tying the choice of measure to the use it is put to, and no evaluation of how far a published per-comparison credibility judgment would move under an alternative definition.
+
+## Why it is open
+
+The requirements conflict rather than merely being unstated: additivity to one and invariance under reparameterization cannot both hold for a general multi-parameter model, and the path decomposition that makes evidence flow interpretable is defined on a particular parameterization of the hat matrix. Contributions are not an estimand with a truth to recover, so no simulation can adjudicate between definitions; the choice has to be settled by first stating what question a contribution answers, which is a definitional exercise nobody has taken on. Within the flow family the answer is not even unique, because the decomposition of flow into paths is non-unique in networks with multiple loops and depends on the enumeration algorithm chosen. The disagreement is invisible downstream because the consumer is a qualitative label: no published CINeMA or ROB-MEN report shows how its judgment would change under an alternative contribution definition, so nothing in practice creates pressure to resolve it. The transformation-invariant alternative also does not yet cover the models that would need it, having not been extended to network meta-regression with exchangeable or common interactions, or to Bayesian models where an informative prior itself contributes.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Donegan et al. 2018, Research Synthesis Methods](https://doi.org/10.1002/jrsm.1292) | Derives the contribution each trial and covariate value makes to each network meta-regression quantity, for fixed and random effects, frequentist and Bayesian, and independent, exchangeable or common interactions, with graphical displays; benchmarks against the study-weight method and reports absolute differences of 0 to 15.29 percentage points on a malaria network and 0 to 18.64 on a fluoride network, and concedes that its own contributions, unlike the alternative, change when the data are rescaled. |
+| [Riley et al. 2018, Statistical Methods in Medical Research](https://doi.org/10.1177/0962280216688033) | Percentage study weights for multi-parameter meta-analysis models by decomposing Fisher's information matrix into study-specific contributions; transformation-invariant and applicable to meta-regression, network meta-analysis and one-stage individual participant data models. |
+| [Papakonstantinou et al. 2018, F1000Research](https://doi.org/10.12688/f1000research.14770.3) | The proportion contribution matrix based on paths, flows and streams of evidence; the construction shipped in netmeta and used by CINeMA to weight study-level judgments. |
+| [Rucker et al. 2020, BMC Medical Research Methodology](https://doi.org/10.1186/s12874-020-01075-y) | Defines a study's importance as the reduction in the variance of a network estimate when that study is added, equivalently the relative loss of precision when it is omitted; the values are uniquely defined but do not sum to one, and the paper questions whether unique percentage contributions can be obtained for network meta-analysis at all. |
+| [Nikolakopoulou et al. 2020, PLoS Medicine](https://doi.org/10.1371/journal.pmed.1003082) | CINeMA, whose within-study bias and indirectness domains weight study-level judgments by contribution, so that the choice of contribution definition is consequential for a published confidence rating. |
+
+:::
+
+## Probable solution or research direction
+
+Start with an axiom list rather than another estimator: state candidate properties (invariance to rescaling and to link reparameterization, non-negativity, summation to one, behavior under multi-arm trials and random effects, and behavior when a study is essential to connectivity) and prove which are jointly attainable, since most of the value lies in the impossibility results. Tie each surviving measure to a use: provenance reporting needs additivity so a reader can say where an estimate came from, influence assessment needs the leave-one-out interpretation, and any scheme that weights bias judgments needs invariance to the scale the analysis happens to be run on. Quantify the stakes empirically by recomputing published CINeMA and ROB-MEN labels under each contribution definition across a database of networks and reporting how often the label changes; all three constructions are already implemented, so this is re-analysis rather than development. Extend the transformation-invariant construction to network meta-regression with exchangeable and common interactions and to Bayesian models with informative priors, which its own authors named as the missing coverage.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. One reader proposed this from a single methods paper whose own comparison supplies both the numerical disagreement and the transformation-invariance criticism, and the reviewer accepted that criteria for selecting or validating a contribution construction are a genuine methodological gap rather than a software issue. The audit adds a third construction that questions whether unique percentage contributions exist at all, which strengthens rather than weakens the case.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [DEC-08 — No provenance label separates bridged from prior-driven contrasts](DEC-08-no-provenance-label-separates-bridged-from-prior-driven-cont.qmd)
+- [ADJ-12 — Routine NMA output omits graph diagnostics and value of information](ADJ-12-routine-nma-output-omits-graph-diagnostics-and-value-of-info.qmd)
+- [DEC-30 — ROB-MEN reliability is unmeasured and CINeMA agreement collapses on large networks](DEC-30-rob-men-reliability-is-unmeasured-and-cinema-agreement-colla.qmd)
+- [CMP-24 — Edge influence is approximate for multi-arm and random effects](CMP-24-edge-influence-is-approximate-for-multi-arm-and-random-effec.qmd)
+:::
+
+## Source
+
+Derived from reading:nma-32 of the reviewed corpus.

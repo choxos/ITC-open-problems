@@ -3,16 +3,16 @@ title: "MAIC sensitivity grids: infeasible calibration and failed fits"
 description: "With normalized nonnegative weights a matched target moment vector must lie in the convex hull of the source moment vectors, so an assumed moment for an omitted covariate outside that hull cannot be matched exactly, and finite strictly positive exponential tilting generally requires the relative interior, with boundary points needing zero weights or a limiting solution. Ren et al. 2025 (doi:10.1017/rsm.2025.13) give the applied version, restricting their published QBA to STC because a MAIC extension would suffer extreme effective-sample-size loss and might fail to produce feasible weights where overlap on the omitted covariate is limited. What software does with such a point is the open part: infeasibility, failed fits, divergent transitions and extreme weights are worked around or discarded rather than reported, and no implementation returns a feasibility region alongside the effect surface."
 pid: "QBA-18"
 topic: "Quantitative bias analysis for unanchored PAIC"
-categories: ["Quantitative bias analysis for unanchored PAIC", "Very high priority", "Confirmed open"]
+categories: ["Quantitative bias analysis for unanchored PAIC", "Very high priority", "Partially addressed"]
 priority: "Very high"
 prank: 1
-verdict: "Confirmed open"
-verdictslug: "confirmed-open"
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
 maturity: "Emerging"
 ---
 ::: {.problem-meta}
 [QBA-18]{.problem-id}
-[Confirmed open]{.verdict .verdict-confirmed-open}
+[Partially addressed]{.verdict .verdict-partially-addressed}
 [Very high priority]{.chip .chip-priority-very-high}
 [Emerging]{.chip .chip-maturity-emerging}
 :::
@@ -41,11 +41,16 @@ Develop sensitivity-adjusted calibration for MAIC that returns a feasibility map
 ## Verification
 
 ::: {.verification-trail}
-**Verdict.** Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.
+**Verdict.** Partially addressed. Auditors agreed the problem is open and no counterevidence surfaced. Reopened by the full-text reading: 3 findings from 3 papers survived both the reader and an independent second reviewer, so the verdict moves from confirmed-open to partially-addressed.
 
 **The source said.** "When an omitted covariate's target moment is unknown, MAIC QBA varies an assumed moment vector and re-solves the calibration; assumed moments outside the convex hull of source support make exact balance infeasible, yet software either coerces a finite answer or errors out. Failed fits, infeasible calibration, divergent transitions and extreme weights are silently discarded rather than reported as results."
 
 **What was wrong with it.** GPT-5.6 Sol qualified the convex-hull argument and narrowed two claims: an infeasible calibration means exact reweighting of the observed empirical support is impossible rather than that the target counterfactual is logically unsupported, and finite-sample support must be distinguished from optimizer failure. It also found false the claim that approximate balance changes the estimand: trimming to an explicit overlap population changes the estimand, while approximate balance generally changes the estimator and leaves residual imbalance. Returning a bound instead of a coerced answer requires additional outcome and selection assumptions rather than following automatically.
+
+**Revised by the full-text reading.** Applied 2026-07-26 full-text reading of the consolidated library (687 papers).
+
+Verdict changed
+:   **confirmed-open -> partially-addressed** 3 surviving findings from: Applying Quantitative Bias Analysis to Epidemiologic Data, S; Can We Trust PAICs in Rare Diseases? Methodological Challeng; Geometric approaches to assessing the numerical feasibility . New citations: 10.1002/pst.2210, 10.1007/978-3-030-82673-4, 10.3390/jmahp14010014
 
 Literature and prior-art check
 :   **open / supported.** The single citation is accurate. Ren et al. 2025 state, as the reason they present QBA only for STC, that 'the sensitivity analysis should assess the impact of the full spectrum of possible values for U and this would include the cases where there would be very limited overlap on U between the two studies. MAIC approach would suffer an extreme reduction of the effect sample size and may even fail to produce feasible weights', and again in the discussion that 'an extension of the MAIC approach would lead to a large reduction of the effective sample size when the overlap in the unmeasured covariates between the studies is small'. That verifies claims 6 and 10 verbatim, and claim 1 follows from the convex-optimization structure of moment balancing. Claims 3, 4, 7, 9 are proposals for software behaviour and reporting, not literature claims. I found no published feasibility-region or support-surface framework for a MAIC sensitivity grid; the closest work assesses positivity violations by simulation rather than returning a feasibility map, so the problem stands open. Claim 5 (trimming or approximate balance changes the estimand) is a correct and uncontroversial consequence of restricting to the overlap population.
@@ -55,6 +60,30 @@ GPT-5.6 Sol, technical and source-code lens
 
 Decision path
 :   `R5:default-open → R9:substantiated-single-overstatement:codex`
+
+:::
+
+## How the evidence falls in time
+
+7 papers in the reviewed corpus bear on this problem, published 2012 to 2026. The most recent paper to touch this reports progress on it, and every paper calling it open is older.
+
+This problem is **recurrent**: three or more papers spanning at least eight years assert it independently. Sustained restatement by authors who mostly do not cite each other is the strongest evidence this reading can offer that a gap is real rather than one group's framing.
+
+It is also being **closed in pieces**: partial results come from more than one paper in more than one year, each covering a different part.
+
+**Does the later work answer the earlier work?** Put to an independent reviewer with the older and newer claims side by side, it judged that the later work answers a component of it, leaving a named part (high confidence). The 2022 geometric-feasibility paper answers the core mathematical question and supplies an operational test for whether a proposed MAIC target moment is attainable. It does not turn that test into the requested sensitivity-grid workflow or establish software reporting standards for infeasible and near-boundary cells. What remains: A PAIC-specific sensitivity-grid implementation that identifies and reports feasible, boundary, and infeasible assumed-moment cells alongside effect estimates, with defined handling of failed fits and ESS collapse.
+
+::: {.table-scroll}
+
+| Year | Says | Paper |
+|---|---|---|
+| 2012 | confirms it is open | Entropy Balancing for Causal Effects: A Multivariate Reweighting Method to Produce Balanced Samples in Observational Studies |
+| 2021 | partly addresses it | Applying Quantitative Bias Analysis to Epidemiologic Data, Second Edition (Fox, MacLehose, Lash; Springer, Statistics for Biology and Health, 2021) |
+| 2022 | partly addresses it | Geometric approaches to assessing the numerical feasibility for conducting matching-adjusted indirect comparisons |
+| 2022 | confirms it is open | Two-stage matching-adjusted indirect comparison |
+| 2024 | confirms it is open | Response to "Letter to the Editor Regarding 'Matching-Adjusted Indirect Comparison of the Long-Term Efficacy Maintenance and Adverse Event Rates of Lebrikizumab vs. Dupilumab in Moderate to Severe Atopic Dermatitis'" |
+| 2025 | confirms it is open | Quantitative bias analysis for unmeasured confounding in unanchored population-adjusted indirect comparisons |
+| 2026 | partly addresses it | Can We Trust PAICs in Rare Diseases? Methodological Challenges and Limitations |
 
 :::
 

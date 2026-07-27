@@ -1,0 +1,68 @@
+---
+title: "No aggregate integration method for median-based covariate summaries"
+description: "Multilevel network meta-regression and its component extensions build each aggregate arm's integration distribution by fitting a parametric marginal to reported summaries, which requires a mean and a standard deviation for every continuous covariate. Oncology and hematology trials routinely report a median with range or interquartile range instead, and a range does not identify the dispersion of a continuous distribution. A developed literature converts median-based summaries into a mean and a standard deviation for aggregate meta-analysis, from Wan et al. 2014 through Luo et al. 2018, Shi et al. 2020 and McGrath et al. 2020, with a maintained implementation in metamedian, but none of it has been connected to the integration step: no work states which estimator to pair with which marginal family, whether the reconstructed marginal reproduces the features of the covariate law that the target estimand actually depends on, or how the extra estimation error should propagate into the posterior. What happens instead is ad hoc. Maciel et al. 2024, implementing ML-NMR for time-to-event outcomes in relapsed refractory multiple myeloma, had only median and range for the continuous covariates, assumed a Poisson marginal for the number of prior treatment lines because it was a count, recovered its mean from the median through a distributional identity, and stated that this may not have been precise, especially for small populations. The failure sits upstream of every other integration concern: if the marginal law is wrong, the copula linking the margins, the quasi-Monte Carlo integration points and the integration-error diagnostics are all conditioned on a misspecified distribution."
+pid: "COV-12"
+topic: "Covariates: selection, target moments, measurement"
+categories: ["Covariates: selection, target moments, measurement", "High priority", "Confirmed open"]
+priority: "High"
+prank: 2
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Promising"
+tractability: 4
+---
+::: {.problem-meta}
+[COV-12]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[High priority]{.chip .chip-priority-high}
+[Promising]{.chip .chip-maturity-promising}
+[Tractability 4/5]{.chip}
+:::
+## Statement
+
+Multilevel network meta-regression and its component extensions build each aggregate arm's integration distribution by fitting a parametric marginal to reported summaries, which requires a mean and a standard deviation for every continuous covariate. Oncology and hematology trials routinely report a median with range or interquartile range instead, and a range does not identify the dispersion of a continuous distribution. A developed literature converts median-based summaries into a mean and a standard deviation for aggregate meta-analysis, from Wan et al. 2014 through Luo et al. 2018, Shi et al. 2020 and McGrath et al. 2020, with a maintained implementation in metamedian, but none of it has been connected to the integration step: no work states which estimator to pair with which marginal family, whether the reconstructed marginal reproduces the features of the covariate law that the target estimand actually depends on, or how the extra estimation error should propagate into the posterior. What happens instead is ad hoc. Maciel et al. 2024, implementing ML-NMR for time-to-event outcomes in relapsed refractory multiple myeloma, had only median and range for the continuous covariates, assumed a Poisson marginal for the number of prior treatment lines because it was a count, recovered its mean from the median through a distributional identity, and stated that this may not have been precise, especially for small populations. The failure sits upstream of every other integration concern: if the marginal law is wrong, the copula linking the margins, the quasi-Monte Carlo integration points and the integration-error diagnostics are all conditioned on a misspecified distribution.
+
+## Why it is open
+
+The two literatures were built for different objects and neither side owns the join. Median-to-mean estimators were derived to feed an inverse-variance meta-analysis of a location parameter, where only the first two moments matter and the quantity to control is the error in the pooled mean; multilevel network meta-regression needs a whole marginal distribution that is right in the region where the treatment-by-covariate interaction is largest, so the accuracy criterion those estimators were optimized for is not the one that governs the bias in the transported contrast. The estimators also assume a distributional family of their own, usually normal or symmetric, and a covariate is reported as a median with range precisely because it is skewed, so the assumption is violated exactly where the conversion is needed. Propagating the reconstruction error is a further step nobody has taken: the estimated mean and standard deviation would have to enter as random quantities in a Bayesian fit whose integration points are currently generated from them once, as fixed inputs, before sampling begins. And because the reconstruction leaves no trace in the output, an analysis that does it badly is indistinguishable from one whose moments were reported.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Maciel et al. 2024, Implementing Multilevel Network Meta-Regression for Time-To-Event Outcomes: A Case Study in Relapsed Refractory Multiple Myeloma, Value in Health 27:1012-1020](https://doi.org/10.1016/j.jval.2024.04.017) | Documents the blocker and the fallback in a real ML-NMR analysis: only medians and ranges were reported for the continuous covariates, ranges do not quantify dispersion, so a Poisson marginal was assumed for the number of prior lines with its mean recovered from the median, and the correlations were assumed to match those observed in the individual participant data. |
+| [Phillippo et al. 2020, Multilevel Network Meta-Regression for Population-Adjusted Treatment Comparisons, Journal of the Royal Statistical Society Series A 183:1189-1210](https://doi.org/10.1111/rssa.12579) | Defines the integration step: the individual-level model is integrated over each aggregate study's joint covariate distribution, constructed from parametric marginals linked by a copula. Requiring a mean and a standard deviation per continuous covariate is a property of this construction, not of any particular implementation. |
+| [Wan, Wang, Liu and Tong 2014, Estimating the sample mean and standard deviation from the sample size, median, range and/or interquartile range, BMC Medical Research Methodology 14:135](https://doi.org/10.1186/1471-2288-14-135) | The standard conversion from median with range or interquartile range to a mean and a standard deviation, derived for aggregate meta-analysis of a location parameter under approximate normality. |
+| [Luo, Wan, Liu and Tong 2018, Optimally estimating the sample mean from the sample size, median, mid-range, and/or mid-quartile range, Statistical Methods in Medical Research 27:1785-1805](https://doi.org/10.1177/0962280216669183) | Improves the mean estimator for the same reported summaries, with weights that depend on sample size. |
+| [Shi et al. 2020, Optimally estimating the sample standard deviation from the five-number summary, Research Synthesis Methods 11:641-654](https://doi.org/10.1002/jrsm.1429) | Improves the standard deviation estimator from the five-number summary, the quantity ML-NMR needs and that a reported range does not supply. |
+| [McGrath, Zhao, Steele and Thombs 2020, Estimating the sample mean and standard deviation from commonly reported quantiles in meta-analysis, Statistical Methods in Medical Research 29:2520-2537](https://doi.org/10.1177/0962280219889080) | Gives maximum likelihood and Bayesian estimators of the mean and standard deviation from reported quantiles that do not rely on normality of the underlying data, which is the property the skewed covariates in these applications need. |
+| [McGrath et al. 2023, Standard error estimation in meta-analysis of studies reporting medians, Statistical Methods in Medical Research 32:373-388](https://doi.org/10.1177/09622802221139233) | Supplies the sampling variability of quantile-based estimators, the ingredient a propagation scheme would need in order to treat a reconstructed mean and standard deviation as estimated rather than known. |
+| [McGrath et al. 2024, metamedian: An R package for meta-analyzing studies reporting medians, Research Synthesis Methods 15:332-346](https://doi.org/10.1002/jrsm.1686) | Maintained implementation of the quantile-based estimators. It produces a mean and a standard deviation for a pairwise meta-analysis and has no interface to an integration distribution or to a network model. |
+
+:::
+
+## Probable solution or research direction
+
+Run the study the problem invites, since the pieces are all available. Simulate covariates from the skewed laws typical of the reported cases, such as number of prior lines, time since diagnosis and tumor burden, summarize them as median with range and as median with interquartile range, reconstruct the marginal by each candidate estimator paired with each plausible family, and score the resulting target-standardized contrast against the known truth rather than scoring the recovered mean; a marginal error only reaches the estimate through the interaction it multiplies, so report bias in the contrast as a function of interaction size. Then propagate: place a prior on the reconstructed mean and standard deviation derived from the sampling distribution of the estimator and regenerate the integration points inside the sampler, so the reconstruction uncertainty reaches the posterior instead of being absorbed by the fixed integration grid. Publish a default in the ML-NMR documentation naming which estimator and which family to use for which reported summary, and require an analysis to declare that a marginal was reconstructed rather than reported. Where the covariate is far from any tractable family, report the target contrast over the set of marginals compatible with the reported quantiles rather than a single point.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. One reader proposed this and the reviewer accepted it as a well-posed upstream reconstruction problem, distinct from uncertainty in target moments that were reported and from the unidentified dependence structure. The evidence is a single applied case study, which documents the blocker and the ad hoc fallback but is not itself a methods evaluation; the counterweight is that the median-based estimator literature plainly exists and is plainly not connected to the integration step.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [COV-07 — Unknown target joint covariate distribution](COV-07-unknown-target-joint-covariate-distribution.qmd)
+- [CMP-15 — Target joint covariate distribution is only approximately known](CMP-15-target-joint-covariate-distribution-is-only-approximately-kn.qmd)
+- [EST-07 — Reported target moments are treated as known constants](EST-07-reported-target-moments-are-treated-as-known-constants.qmd)
+- [MIS-03 — Nothing propagates sampling error in reported target moments](MIS-03-nothing-propagates-sampling-error-in-reported-target-moments.qmd)
+:::
+
+## Source
+
+Derived from reading:core-01 of the reviewed corpus.

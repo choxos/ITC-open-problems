@@ -1,0 +1,72 @@
+---
+title: "No principled basis for shared effect-modifier treatment classes"
+description: "The shared effect modifier assumption is defined relative to a set of treatments assumed to carry identical interaction vectors, and it is the restriction that makes most small-network multilevel network meta-regression and most target-transportable MAIC or STC identifiable at all. Nothing governs how that set is chosen. In practice it is enlarged until the model is estimable: one metastatic prostate cancer analysis grouped every treatment except the reference into a single class spanning docetaxel chemotherapy, androgen deprivation, a non-steroidal antiandrogen and three androgen-receptor pathway inhibitors, across twelve studies with individual patient data from one of them (Shore et al. 2026, doi:10.57264/cer-2025-0100); a relapsed refractory myeloma application shares interactions across a CAR-T product, a nuclear export inhibitor and an antibody-drug conjugate (Maciel et al. 2024, doi:10.1016/j.jval.2024.04.017); and the psoriasis application that validated the method used mechanism-defined classes (doi:10.1177/0272989X221117162). Widening the class strictly weakens the identifying assumption while strictly improving estimability, so the incentive runs toward the widest partition a reviewer will accept, and the partition is typically settled after the analyst has seen which version converges. What does not exist is a criterion linking class membership to an observable implication, a measure of how much a target contrast moves across admissible partitions, or a requirement to report the partition and its justification as an identifying assumption rather than as a modeling detail. The relaxations software provides operate within a fixed partition rather than over it: multinma's class_interactions argument moves between common, exchangeable and independent interactions for a given class structure, and the class-effect model selection algorithm of Perren et al. (doi:10.1177/0272989X251389887) selects among class-effect structures on the treatment effects, not among partitions of the interaction assumption."
+pid: "IDN-19"
+topic: "Identification, transitivity & conditional constancy"
+categories: ["Identification, transitivity & conditional constancy", "High priority", "Confirmed open"]
+priority: "High"
+prank: 2
+verdict: "Confirmed open"
+verdictslug: "confirmed-open"
+maturity: "Promising"
+tractability: 4
+---
+::: {.problem-meta}
+[IDN-19]{.problem-id}
+[Confirmed open]{.verdict .verdict-confirmed-open}
+[High priority]{.chip .chip-priority-high}
+[Promising]{.chip .chip-maturity-promising}
+[Tractability 4/5]{.chip}
+:::
+## Statement
+
+The shared effect modifier assumption is defined relative to a set of treatments assumed to carry identical interaction vectors, and it is the restriction that makes most small-network multilevel network meta-regression and most target-transportable MAIC or STC identifiable at all. Nothing governs how that set is chosen. In practice it is enlarged until the model is estimable: one metastatic prostate cancer analysis grouped every treatment except the reference into a single class spanning docetaxel chemotherapy, androgen deprivation, a non-steroidal antiandrogen and three androgen-receptor pathway inhibitors, across twelve studies with individual patient data from one of them (Shore et al. 2026, doi:10.57264/cer-2025-0100); a relapsed refractory myeloma application shares interactions across a CAR-T product, a nuclear export inhibitor and an antibody-drug conjugate (Maciel et al. 2024, doi:10.1016/j.jval.2024.04.017); and the psoriasis application that validated the method used mechanism-defined classes (doi:10.1177/0272989X221117162). Widening the class strictly weakens the identifying assumption while strictly improving estimability, so the incentive runs toward the widest partition a reviewer will accept, and the partition is typically settled after the analyst has seen which version converges. What does not exist is a criterion linking class membership to an observable implication, a measure of how much a target contrast moves across admissible partitions, or a requirement to report the partition and its justification as an identifying assumption rather than as a modeling detail. The relaxations software provides operate within a fixed partition rather than over it: multinma's class_interactions argument moves between common, exchangeable and independent interactions for a given class structure, and the class-effect model selection algorithm of Perren et al. (doi:10.1177/0272989X251389887) selects among class-effect structures on the treatment effects, not among partitions of the interaction assumption.
+
+## Why it is open
+
+The assumption restricts interaction vectors for treatments whose interactions are, by hypothesis, not separately estimable, so it is only testable in networks that do not need it, and any diagnostic is weakest exactly where the partition carries the most identifying weight. Class membership is a scientific claim about shared mechanism of effect modification, which is not the same as shared mechanism of action and is rarely the subject of any direct evidence, so there is often nothing external to appeal to. Widening the class is not visibly wrong: a wider class fits, converges and returns narrower intervals, so the diagnostic signature of an indefensible partition looks like success. A partition-sensitivity analysis is easy to describe and nobody has built it, partly because the number of possible partitions grows quickly and there is no agreed way to restrict the candidate set to clinically defensible ones. Reporting practice hides the choice, since the partition is usually stated in a single clause of a methods section, if at all, and does not appear among the items that appraisal checklists ask for.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Phillippo, Dias, Ades, Belger et al. 2020, Multilevel Network Meta-Regression for Population-Adjusted Treatment Comparisons, JRSS-A 183:1189-1210](https://doi.org/10.1111/rssa.12579) | Defines the model in which the shared effect modifier assumption becomes the identifying restriction when aggregate-data arms cannot support treatment-specific interactions; the assumption is stated relative to a treatment set whose construction is left to the analyst. |
+| [Phillippo, Dias, Ades, Welton et al. 2023, Validating the Assumptions of Population Adjustment: Application of Multilevel Network Meta-regression to a Network of Treatments for Plaque Psoriasis, Medical Decision Making](https://doi.org/10.1177/0272989X221117162) | Uses mechanism-defined classes and relaxes the shared interaction one covariate at a time, comparing posteriors and model fit; the relaxation is over covariates within a fixed partition rather than over the partition itself, and its power is conceded to be low. |
+| [multinma R package, nma() argument class_interactions](https://cran.r-project.org/package=multinma) | Implements common, exchangeable and independent interaction structures for a class of treatments, so the strength of the sharing can be varied; the classes themselves are supplied by the user and no diagnostic reports sensitivity to that input. |
+| [Perren, Pedder, Welton and Phillippo 2026, Network Meta-Analysis with Class Effects: A Practical Guide and Model Selection Algorithm, Medical Decision Making 46:275-295](https://doi.org/10.1177/0272989X251389887) | Gives a model selection algorithm for class-effect structures and sharing of within-class variability across sparse classes; it applies to class effects on the treatment effects, and its adaptation to partitions of the interaction assumption has not been made. |
+| [Shore, Morgans, Paracha, Thom et al. 2026, Population-adjusted network meta-analyses provide new insights into the efficacy of treatment alternatives for metastatic castration-sensitive prostate cancer, Journal of Comparative Effectiveness Research 15](https://doi.org/10.57264/cer-2025-0100) | Groups all treatments except the reference into one class with identical effect-modifier impact, over twelve studies with individual patient data from one trial; the partition is stated in a sentence and is not accompanied by a justification or a sensitivity analysis. |
+| [Maciel, Jansen, Klijn and Towle 2024, Implementing Multilevel Network Meta-Regression for Time-To-Event Outcomes: A Case Study in Relapsed Refractory Multiple Myeloma, Value in Health 27:1012-1020](https://doi.org/10.1016/j.jval.2024.04.017) | A second application that shares effect-modifier interactions across mechanistically dissimilar agents in order to estimate the model, showing that the widest-class strategy is not confined to one therapeutic area. |
+| [NICE DSU Technical Support Document 18: Methods for Population-Adjusted Indirect Comparisons in Submissions to NICE](https://www.sheffield.ac.uk/nice-dsu/tsds/population-adjusted) | Sets out what a population-adjusted submission must justify; the treatment set over which effect modification is assumed shared is not among the items it requires to be reported or defended. |
+
+:::
+
+## Probable solution or research direction
+
+Build the partition-sensitivity diagnostic first, since it is the cheapest change that would alter practice: refit under every clinically defensible partition and report the induced range of the target contrast next to the point estimate, so a contrast whose sign depends on the class structure becomes visible. Define the admissible candidate set with clinicians before fitting and record it in the protocol, so the partition is a prespecified identifying assumption rather than a consequence of which model converged. Adapt the existing class-effect model selection algorithm from treatment effects to interaction vectors so partitions can be compared on fit where the network supports it, and state the network size at which that comparison has power rather than assuming it does. Where the partition cannot be checked, replace the equality constraint with a hierarchical prior over interaction vectors around a class-level mean and report how the contrast moves as the shrinkage is loosened, which multinma supports within a partition and would need extending across partitions. Finally, require the partition and its justification in reporting, on the same footing as the covariate list.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Confirmed open. One reader proposed this from a single applied analysis, with two further published applications cited as corroboration, and the reviewer accepted the treatment partition as an identifying modeling choice distinct from covariate selection and from the power to test a fixed shared-interaction restriction. No methodological work addresses partition choice; the evidence that it is unconstrained is that published applications range from one class containing everything to mechanism-defined classes with no stated criterion in any of them.
+
+**Revised by the full-text reading.** Applied 2026-07-26 full-text reading of the consolidated library (687 papers).
+
+Citation corrected
+:   **normalized a citation year: 'Perren, Pedder, Welton and Phillippo 2025, Network Meta-Analysis with Class Effects: A Practical Guide and Model Selection Algorithm, Medical Decision Making 46:275-295' -> 'Perren, Pedder, Welton and Phillippo 2026, Network Meta-Analysis with Class Effects: A Practical Guide and Model Selection Algorithm, Medical Decision Making 46:275-295'** 10.1177/0272989X251389887 is cited with two different years across the registry. CrossRef gives 2025 online and 2026 in print; the issue year is used throughout.
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [IDN-05 — The shared effect modifier check has low and uncalibrated power](IDN-05-the-shared-effect-modifier-check-has-low-and-uncalibrated-po.qmd)
+- [IDN-06 — ML-NMR interactions can rest solely on aggregate-data variation](IDN-06-ml-nmr-interactions-can-rest-solely-on-aggregate-data-variat.qmd)
+- [COV-01 — Deciding which covariates are true effect modifiers](COV-01-deciding-which-covariates-are-true-effect-modifiers.qmd)
+- [DIS-05 — Class-effect bridges extrapolate to treatments with no randomized link](DIS-05-class-effect-bridges-extrapolate-to-treatments-with-no-rando.qmd)
+:::
+
+## Source
+
+Derived from reading:core-01 of the reviewed corpus.
