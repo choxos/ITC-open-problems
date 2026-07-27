@@ -47,14 +47,15 @@ REVIEWERS = {
         "kind": "ollama",
         "model": "glm-5.2:cloud",
     },
-    # Invited first and unreachable: billed as Ollama extra usage with an empty
-    # balance. Kept in the record so the published history shows who was asked,
-    # not only who answered, but not counted as a required reviewer.
+    # Invited for studies 1 to 3 and unreachable then: the Ollama route bills this
+    # model as extra usage and the balance was empty. Reachable from study 4 on
+    # through OpenCode, so it becomes a full reviewer rather than an invited one.
+    # The earlier studies keep their record of an invitation that went unanswered;
+    # it is not retconned.
     "kimi": {
-        "name": "Kimi K3 (via Ollama)",
-        "kind": "ollama",
-        "model": "kimi-k3:cloud",
-        "optional": True,
+        "name": "Kimi K3 (via OpenCode)",
+        "kind": "opencode",
+        "model": "opencode-go/kimi-k3",
     },
 }
 
@@ -233,6 +234,33 @@ def call_codex(cfg, prompt, timeout):
     return p.stdout.decode("utf8", "ignore")
 
 
+def call_opencode(cfg, prompt, timeout):
+    """Run a model through the OpenCode CLI.
+
+    `--pure` disables the user's installed plugins, which otherwise attach
+    project tooling to what is supposed to be a reading task. The prompt already
+    forbids tools and sub-agents; this makes the request the same shape as the
+    codex one, so a difference between reviewers is a difference between models
+    and not between harnesses.
+
+    OpenCode Zen carries the same empty-balance problem as the Ollama route, so
+    the provider here is deliberately not the default one for this model.
+    """
+    p = subprocess.run(
+        ["opencode", "run", "--pure", "-m", cfg["model"], prompt],
+        capture_output=True, timeout=timeout, stdin=subprocess.DEVNULL)
+    out = strip_ansi(p.stdout.decode("utf8", "ignore"))
+    err = strip_ansi(p.stderr.decode("utf8", "ignore"))
+    if "Insufficient balance" in out or "Insufficient balance" in err:
+        raise RuntimeError(
+            f"OpenCode returned insufficient balance for {cfg['model']}. "
+            "Top up, or point this reviewer at another provider that carries "
+            "the same model.") from None
+    if p.returncode != 0 and not out.strip():
+        raise RuntimeError(err.strip()[:400] or "opencode failed") from None
+    return out
+
+
 def call_ollama(cfg, prompt, timeout):
     """Talk to the local Ollama daemon over HTTP.
 
@@ -285,7 +313,8 @@ def send_one(slug, rnd, key, package, timeout=5400):
     open(os.path.join(rd, f"round{rnd}-{key}-prompt.txt"), "w",
          encoding="utf8").write(prompt)
     try:
-        out = (call_codex if cfg["kind"] == "codex" else call_ollama)(cfg, prompt, timeout)
+        out = {"codex": call_codex, "ollama": call_ollama,
+               "opencode": call_opencode}[cfg["kind"]](cfg, prompt, timeout)
     except Exception as e:
         # Recorded, not hidden. The published record has to show that a reviewer
         # was invited and could not be reached, with the reason.
