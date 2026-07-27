@@ -13,7 +13,8 @@ round one's reports and the authors' response.
 | | Reviewer | Round 1 | Round 2 |
 | --- | --- | --- | --- |
 | R1 | GPT-5.6 Sol (maximum reasoning effort) | major-revision | major-revision |
-| R2 | Kimi K3 (via Ollama) | unavailable | unavailable |
+| R2 | GLM-5.2 (via Ollama) | minor-revision | minor-revision |
+| invited | Kimi K3 (via Ollama) | unavailable | unavailable |
 
 ## Round 1
 
@@ -94,7 +95,48 @@ The paper derives the first-order contribution of sampled target moments to anch
 - The problem is real and is worth correcting, and the correction is available now.
 - This was anticipated. Section 9's threat table already contains 'Wald sandwich intervals may fail at n_T = 200 for reasons unrelated to target-moment omission'.
 
-### Reviewer 2: Kimi K3 (via Ollama)
+### Reviewer 2: GLM-5.2 (via Ollama)
+
+**Recommendation: minor-revision**
+
+The manuscript studies how much coverage is lost in anchored MAIC by treating published target covariate moments as fixed constants rather than sample estimates. An analytic identity (Eq. 5) shows the net omitted variance is $(1-2\kappa)\mathrm{Var}_T\{\tau\}/n_T$ to first order, fixing the sign by construction; the simulation confirms this identity (slope 1.003, SE 0.042) and adds empirical magnitudes and coverage consequences. However, the registered confirmatory result is uninformative because the Wald sandwich undercovers at poor overlap, and all coverage results come from a post-hoc restriction that selects on an observed outcome. The paper is unusually transparent about these limitations and withdraws earlier overstated claims, but the simulation's empirical contribution beyond the analytic identity is narrow, and the practical recommendation rests on boundary conditions the design does not test.
+
+**Strengths.**
+
+- The pre-registration and transparent reporting of the uninformative registered result set a high standard; the authors report the failure first and label the restricted analysis exploratory throughout, rather than burying it.
+- The derivation of the first-order identity (Eq. 5) and the recognition that the sign is fixed by construction is a genuine analytic contribution that was not previously known in the MAIC literature and corrects an earlier overclaim.
+- The distinction between marginal and conditional estimands is handled correctly: the superpopulation qualifier is stated as the whole point, and the closed-form truth is verified against Monte Carlo evaluation.
+- The comparison is fair: all four methods share the same point estimate and the same source sandwich, isolating the interval question.
+- The identification of the cross-covariance term as the missing piece, and the proof that partial corrections help only for $\kappa < 1/4$, is analytically clean and practically important even if untested empirically.
+- The secondary finding of Wald sandwich failure at poor overlap is a useful contribution that deserves its own follow-up study.
+
+**Comments.**
+
+**Major 1** (Methods / Data-generating mechanism). The design sets $\kappa \in \{0, 0.5, 1\}$, which provides no interior values to test the key practical recommendation that partial corrections help only for $\kappa < 1/4$ (Eq. 6). The entire practical recommendation rests on analytic derivation without any empirical verification at the boundary that determines when the deployable correction is beneficial versus harmful. This is the single most important gap between what the paper recommends and what it tests. A scenario at, say, $\kappa = 0.25$ or $\kappa = 0.3$ would have allowed at least a check on the analytic boundary.
+
+*What would satisfy this:* Either run additional scenarios at interior $\kappa$ values (e.g., 0.25 and 0.75) and report whether the partial corrections behave as Eq. 6 predicts, or state explicitly in the practical implication that the recommendation is analytic only and has no empirical support at the boundary.
+
+**Major 2** (Results / The exploratory restriction). The restricted analysis (196 of 252 scenarios) selects on the observed coverage of the reference method, which shares replicates with all other methods through the common point estimate and source sandwich. The authors acknowledge this, but the paper still presents coverage ranges and method comparisons from this restricted set as if they carry evidential weight. The selection partly guarantees that the reference method's coverage falls in a favorable range, and since all methods are correlated through shared replicates, the selection also affects the other methods' apparent performance. No sensitivity analysis or alternative restriction criterion (e.g., by expected ESS, which is ex ante) is presented.
+
+*What would satisfy this:* Either re-restrict by an ex ante criterion such as expected ESS or overlap level (excluding $d=0.8$ a priori) and report whether the conclusions change, or state more forcefully that the restricted results are hypothesis-generating only and should not be cited as evidence for or against any method's coverage properties.
+
+**Major 3** (Methods / Data-generating mechanism). The practical recommendation for the normal-reconstruction correction is tested exclusively under multivariate normal covariates, which is exactly the assumption under which the reconstruction formulas are exact. The only misspecification examined moves one equicorrelation from 0.30 to 0.60; this is a very mild departure. Real baseline tables contain skewed, bounded, categorical, rounded, and partially missing variables. The paper acknowledges this as a limitation but the abstract and discussion still present the 2.24% median interval-width cost as if it generalizes. Under non-normal covariates the reconstruction could be badly biased in either direction, and the comparison against the reported-covariance benchmark would be more informative there.
+
+*What would satisfy this:* At minimum, add one or two scenarios with non-normal covariates (e.g., log-normal or Bernoulli) to show whether the normal reconstruction degrades gracefully or catastrophically. If this is not feasible, narrow the practical recommendation to state explicitly that the 2.24% figure applies only under exact multivariate normality and may be substantially different under realistic conditions.
+
+**Minor 4** (Results / Table 3). The paired coverage differences for the partial corrections (normal reconstruction: median 0.32 pp, max 2.00 pp; reported covariance: median 0.28 pp, max 1.92 pp) are presented without explicit comparison to their Monte Carlo standard errors. The MCSE is reported as 0.09 pp on average, but the maximum differences of 2.00 and 1.92 pp are more than 20 MCSEs, which is fine. However, the minimum differences of -0.12 pp for both partial methods are within about 1.3 MCSEs of zero and should not be described as meaningful in any direction.
+
+*What would satisfy this:* Add a brief note that the minimum paired differences are within Monte Carlo error of zero and carry no directional interpretation, or remove the minima from the interpretive text.
+
+**Minor 5** (Abstract). The abstract states the partial corrections 'kept coverage inside 93% to 97% in every scenario, at a median interval-width cost of 2.24%.' This is an exploratory result from a selected subset, but the sentence structure in the abstract does not make the exploratory and selected nature fully clear to a reader who reads only the abstract. The phrase 'Where they were examined' helps but could be more explicit.
+
+*What would satisfy this:* Add 'in the exploratory restricted set' to this sentence in the abstract, or rephrase to make the conditional nature unambiguous.
+
+**Minor 6** (What this answers, and what it does not). The statement 'answers MIS-03 in part' is appropriate but could be more precise about what part is answered confirmatorily (nothing about coverage) versus analytically (the identity and its sign). As written, a catalog reader might infer that the coverage question has been partially answered confirmatorily, when it has not.
+
+*What would satisfy this:* Replace 'answers MIS-03 in part' with a sentence distinguishing the analytic contribution (the identity, which is confirmatory of the theory) from the empirical contribution (coverage, which is exploratory only).
+
+### Reviewer 3: Kimi K3 (via Ollama)
 
 **Unavailable.** This reviewer was invited and could not be
 reached. Reason recorded at the time: Ollama returned 402 Payment Required: this model is billed as extra usage and the account balance is empty. Add credit at https://ollama.com/settings, then re-run this command.
@@ -284,6 +326,70 @@ narrowed as described under Major 3 and Major 6. The claim about what section 9 
 is retracted as described under Major 1.
 
 
+---
+
+# Response to Reviewer 2 (GLM-5.2)
+
+**A note on when this reviewer joined.** Reviewer 2 was invited after the manuscript had
+already been revised through two rounds with Reviewer 1, because the originally invited
+second reviewer could not be reached. Reviewer 2 therefore read the revised manuscript, not
+the version Reviewer 1 first saw. We say so rather than presenting the two reports as
+contemporaneous.
+
+Reviewer 2 recommends minor revision where Reviewer 1 stands at major revision. The two
+agree on what is wrong; they differ on how much it matters. We have not tried to reconcile
+them and both recommendations stand in the record.
+
+## Major 1. No interior kappa, so the practical recommendation has no empirical support
+
+**Accepted, and the reviewer is right that this is the largest gap.** The manuscript now
+says explicitly that @eq-quarter is an analytic result with no empirical support at the
+boundary it defines, and attributes that observation to review. We have not added scenarios
+at intermediate kappa. Doing so is cheap and we expect to do it in the rerun; adding it to
+the present exploratory set would extend an analysis whose status is already the problem.
+
+## Major 2. The restricted results still read as though they carry evidential weight
+
+**Accepted.** The restriction section now states that the results are hypothesis-generating
+only and should not be cited as evidence for or against any method's coverage properties.
+We have not re-restricted by an ex ante criterion such as expected effective sample size and
+reported whether the conclusions change; that is named as part of the required rerun rather
+than done here.
+
+## Major 3. The width figure is presented as though it generalizes
+
+**Accepted.** The abstract now says the median interval-width cost applies under **exact**
+multivariate normality and may differ substantially under skewed, bounded, categorical or
+rounded covariates. We have not added non-normal scenarios. We agree they would be the most
+informative single addition after interior kappa, and both are named for the rerun.
+
+## Minor 4. Minimum paired differences are within Monte Carlo error
+
+**Accepted.** The results text now says the minima are within about one and a half Monte
+Carlo standard errors of zero and carry no directional interpretation, and that only the
+maxima are large relative to Monte Carlo error.
+
+## Minor 5. The abstract does not make the exploratory status unambiguous
+
+**Accepted.** The sentence now begins "In the exploratory restricted set".
+
+## Minor 6. "Answers in part" blurs analytic and empirical contributions
+
+**Accepted, and this is the clearest statement of the paper's own position that either
+reviewer produced.** The scope section no longer says "answers MIS-03 in part". It now
+separates the analytic contribution, which the simulation confirms as theory and which does
+not depend on the restricted set, from the exploratory-only evidence on the coverage
+question MIS-03 actually asks, which is therefore not answered confirmatorily.
+
+## Where we agree with Reviewer 1's harsher reading
+
+Reviewer 2 judges the paper unusually transparent and its conclusions supported. Reviewer 1
+judges that transparency does not substitute for confirmatory evidence. We think Reviewer 1
+is right about the standing of the coverage claim, and the catalog entry records the
+confirmatory question as open on that basis, notwithstanding Reviewer 2's lighter
+recommendation.
+
+
 ## Round 2
 
 ### Reviewer 1: GPT-5.6 Sol (maximum reasoning effort)
@@ -366,7 +472,62 @@ The manuscript derives the target-sample contribution to uncertainty in anchored
 | sol 6 | yes | The recommendation is explicitly narrowed and the untested nonnormal, categorical, rounded, and missing-data settings are clearly acknowledged. |
 | sol 7 | partly | The body uses partial-answer language and numerical effect-modification labels, but the claimed subtitle is absent and some abstract and practical wording remains broader than the special-case evidence. |
 
-### Reviewer 2: Kimi K3 (via Ollama)
+### Reviewer 2: GLM-5.2 (via Ollama)
+
+**Recommendation: minor-revision**
+
+The manuscript derives a first-order identity showing that the net variance omitted by conditioning on sampled target moments in anchored MAIC is $(1-2\kappa)\mathrm{Var}_T\{\tau\}/n_T$, fixes the sign analytically, and confirms the identity empirically (slope 1.003, SE 0.042). The registered confirmatory analysis is correctly reported as uninformative because the Wald sandwich undercovers at poor overlap; all coverage results come from a post-hoc restriction labelled exploratory throughout. The revision is unusually thorough: the authors retract two factual errors, withdraw an overstated recommendation, relabel the deployable corrections as partial, and narrow the practical implication to approximately normal covariates where $\kappa$ is believed small. The analytic contribution is genuine and novel for the MAIC literature; the simulation adds magnitude and a useful secondary finding about sandwich failure at poor overlap. Remaining gaps (no interior $\kappa$, no non-normal covariates, no confirmatory rerun) are acknowledged rather than hidden.
+
+**Strengths.**
+
+- The first-order identity (Eq. 5) and the $\kappa < 1/4$ boundary (Eq. 6) are genuine analytic contributions to the MAIC literature, correctly presented as theory the simulation confirms rather than as simulation findings.
+- The pre-registration, transparent reporting of the uninformative registered result, and labelling of the restricted analysis as exploratory throughout set a high standard for simulation reporting in evidence synthesis.
+- The distinction between superpopulation and realized-sample estimands is handled correctly and is central to the paper's framing.
+- The comparison is fair: all four methods share the same point estimate and source sandwich, isolating the interval question.
+- The retraction of two factual errors (the protocol amendment's misattribution and the overclaimed novelty of the cancellation point) is honest and well-documented.
+- The secondary finding of Wald sandwich failure at poor overlap is correctly identified as larger than the target-moment effect and deserving its own study.
+- The paired-differences table with discordance counts and Monte Carlo standard errors allows the reader to assess the coverage comparisons properly.
+
+**Comments.**
+
+**Minor 1** (Abstract). The abstract states 'no study has measured what that costs.' The Sheng et al. and Chen et al. citations that follow in the introduction propagate target-summary uncertainty for entropy-balancing estimators in related settings. The sentence is defensible if read as referring strictly to anchored MAIC, but a reader of the abstract alone cannot know that scope restriction. Consider adding 'in anchored MAIC' or 'in this anchored setting' to the sentence.
+
+*What would satisfy this:* Add a scope qualifier to the 'no study has measured' sentence in the abstract.
+
+**Minor 2** (Results / Table 2). Table 2 reports coverage ranges across '167' scenarios with effect modification, but the text does not explain how this number arises from the 196 restricted scenarios (196 minus 29 negative-control scenarios with SD_T(τ)=0). A one-line note in the table caption would help the reader verify the arithmetic.
+
+*What would satisfy this:* Add a note to the Table 2 caption explaining that 167 = 196 − 29 scenarios with SD_T(τ)=0.
+
+**Minor 3** (What this answers, and what it does not). The final scope section is clear and well-calibrated. One small addition would strengthen it: the paper does not discuss what information a published subgroup or interaction estimate could in principle supply about $\kappa$, though the discussion of the normal-recon section gestures at it ('reported subgroup effects or interaction estimates might in principle carry some of the required information'). A single sentence in the scope section noting this as a direction for identifying $\kappa$ from published inputs would be valuable, since $\kappa$ is the parameter on which the practical recommendation turns.
+
+*What would satisfy this:* Add one sentence in the scope section noting that identifying $\kappa$ from published inputs (e.g., subgroup or interaction estimates) is an open problem that determines whether the partial correction is safe to deploy.
+
+**Minor 4** (Methods / Data-generating mechanism). The calibration of effect-modification strength to a fixed target-population SD is well-motivated and the confounding argument is sound. However, the pilot results (1%–7% at n_S=500, up to 23% at n_S=2000) are cited in both the protocol and the manuscript without reporting the pilot's sample size, seed, or which scenarios produced the 23% figure. Since these pilot numbers justified the n_S factor and the replicate count, a brief note on the pilot's scope would improve reproducibility.
+
+*What would satisfy this:* Add a brief note on the pilot's scope (number of scenarios, replicates) or state that the pilot is available in the repository.
+
+**Judgement on round one.**
+
+| round-1 point | resolved | note |
+| --- | --- | --- |
+| sol 1 | yes | Authors accepted in full. Registered uninformative result reported first and without qualification; restricted analysis labelled exploratory throughout; factual error about protocol section 9 retracted. No rerun performed, but this is named as the correct next step rather than claimed as done. |
+| sol 2 | yes | Authors accepted in full. Identity (Eq. 5) added as section 3.1; claim about locating cancellation withdrawn in both paper and protocol; slope 1.003 (SE 0.042) reported as confirmation of the identity. Three κ levels no longer described as continuous variation. |
+| sol 3 | yes | Authors accepted in full and changed a conclusion. Corrections relabelled partial in methods table and throughout; coverage stratified by κ (Table 2); general recommendation withdrawn; κ < 1/4 analytic boundary added (Eq. 6); claim about journal reporting policy withdrawn. |
+| sol 4 | yes | Authors accepted. Sandwich failure reported directly in registered-result section; 'settled' language removed and replaced with what Chandler and Proskorovsky actually support. No rerun with alternative variance estimator, but the limitation is stated. |
+| sol 5 | yes | Paired-differences table added with median, minimum, maximum, discordance counts, and mean MCSE. Triggering scenario identified by full factor combination with its MCSE. No formal equivalence margin set, but equivalence claims removed. |
+| sol 6 | yes | Recommendation restricted to approximately normal covariates under modest correlation error; skewed, bounded, categorical, rounded, and missing variables listed as untested. No non-normal scenarios added. |
+| sol 7 | yes | Partial-answer wording used consistently in subtitle, abstract, problem section, and scope section. Value-laden labels replaced with numerical values for SD_T(τ). |
+| sol 8 | yes | 'Exactly zero' corrected to population statement; finite-sample discrepancy noted and quantified (median 0.26%, max 1.49% on negative controls). Moment conversion formula added explicitly. |
+| sol 9 | yes | Both percentage measures now defined with formulas and denominators specified as ratios of scenario summaries. |
+| sol 10 | yes | Abstract added as body section; structured as requested with registered result first, exploratory findings labelled, restricted practical implication last. |
+| glm 1 | yes | Authors acknowledge explicitly that Eq. 6 is analytic with no empirical support at the boundary. No interior κ scenarios added, but the gap is stated as the largest one and named for the rerun. |
+| glm 2 | yes | Restricted results now stated as hypothesis-generating only and should not be cited as evidence for or against any method's coverage properties. No ex ante re-restriction performed, but named as part of the required rerun. |
+| glm 3 | yes | Abstract now says the 2.24% figure applies under exact multivariate normality and may differ substantially under other covariate types. |
+| glm 4 | yes | Results text now says minima are within about 1.5 MCSE of zero and carry no directional interpretation. |
+| glm 5 | yes | Sentence now begins 'In the exploratory restricted set'. |
+| glm 6 | yes | Scope section separates analytic contribution (identity, confirmatory of theory, not dependent on restricted set) from exploratory-only evidence on coverage. 'Answers MIS-03 in part' replaced with the clearer distinction. |
+
+### Reviewer 3: Kimi K3 (via Ollama)
 
 **Unavailable.** This reviewer was invited and could not be
 reached. Reason recorded at the time: Ollama returned 402 Payment Required: this model is billed as extra usage only and the account's extra-usage balance is empty. Add credit or enable auto reload at https://ollama.com/settings, then re-run this command. Verified through all three access paths (CLI, HTTP API, python client), so this is account billing and not a client problem.
@@ -492,6 +653,44 @@ entry it serves is more useful with a partial answer and a visible reviewer obje
 with nothing. The review, including this standing recommendation of major revision, is
 published beside the paper.
 
+---
+
+# Response to Reviewer 2, round two
+
+Reviewer 2 judged all sixteen round-one points from both reviewers resolved and raised four
+minor points. All four are accepted and made.
+
+**Minor 1.** "No study has measured what that costs" now reads "in anchored MAIC", so a
+reader of the abstract alone sees the scope restriction that the introduction makes
+explicit.
+
+**Minor 2.** The coverage table caption now states that the 167 scenarios are those of the
+196 restricted scenarios that have effect modification, the other 29 being the negative
+controls, so the arithmetic is checkable from the caption.
+
+**Minor 3.** A paragraph is added to the scope section on where $\kappa$ might come from:
+published subgroup effects, reported treatment-by-covariate interactions, or
+covariate-outcome summaries could in principle carry information about it, and establishing
+what they identify would make the correction deployable in the range where it currently is
+not. We note we have not investigated this. The reviewer is right that this is the parameter
+the practical recommendation turns on and that the paper should say where it might be found.
+
+**Minor 4.** The pilot is now described: 120 replicates per configuration over a 16-cell
+grid crossing two source sizes, two target sizes, two overlap levels and two
+effect-modification strengths, run before the design was fixed, with the cell that produced
+the 23% figure named. Those numbers justified making source size a factor and are now
+checkable.
+
+## On the disagreement between the reviewers
+
+Reviewer 2 ends at minor revision and judges the conclusions supported. Reviewer 1 ends at
+major revision and judges that the registered coverage question is not confirmatorily
+answered. Both readings are in the record and we have not tried to reconcile them.
+
+We side with Reviewer 1 on the point that matters for the catalog. The analytic contribution
+is confirmatory of theory and stands; the coverage evidence is exploratory and does not
+close the problem. The catalog entries record it that way.
+
 
 ## Editorial decision
 
@@ -540,13 +739,24 @@ the negative controls across the intended design. Interior values of $\kappa$ ar
 test the one-quarter threshold empirically. Non-normal, categorical and rounded covariates
 are needed before any reporting recommendation generalizes.
 
-## Reviewer participation
+## Reviewer participation, and their disagreement
 
-Reviewer 1 (GPT-5.6 Sol, maximum reasoning effort) reviewed both rounds. Reviewer 2
-(Kimi K3 via Ollama) was invited in both rounds and could not be reached: the model is
-billed as extra usage and the account's extra-usage balance is empty. This was verified
-through all three access paths, so it is an account state and not a client fault. The
-absence is recorded rather than filled by a substitute, and this decision rests on one
-reviewer, which is weaker than the two-reviewer standard this program sets for itself.
+Reviewer 1 (GPT-5.6 Sol, maximum reasoning effort) reviewed both rounds and ends at **major
+revision**. Reviewer 2 (GLM-5.2 via Ollama) joined after the manuscript had been revised
+through both of Reviewer 1's rounds, because the originally invited second reviewer could
+not be reached, and ends at **minor revision** judging the conclusions supported and all
+sixteen prior points resolved. Reviewer 2 therefore read a later version than Reviewer 1
+first saw, and the record says so rather than presenting the reports as contemporaneous.
+
+Kimi K3 via Ollama was invited in both rounds and could not be reached: the model is billed
+as extra usage and the account's extra-usage balance was empty, verified through the CLI,
+the HTTP API and the python client, so an account state and not a client fault. The
+invitation and the failure are both recorded.
+
+The two reviewers agree on what is wrong and disagree on how much it matters. This decision
+follows Reviewer 1 on the point that governs the catalog: the analytic contribution is
+confirmatory of theory and stands on its own, and the coverage evidence is exploratory and
+does not close MIS-03. Reviewer 2's lighter recommendation is recorded, not overridden
+silently.
 
 

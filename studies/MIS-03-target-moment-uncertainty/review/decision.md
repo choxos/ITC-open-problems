@@ -43,11 +43,22 @@ the negative controls across the intended design. Interior values of $\kappa$ ar
 test the one-quarter threshold empirically. Non-normal, categorical and rounded covariates
 are needed before any reporting recommendation generalizes.
 
-## Reviewer participation
+## Reviewer participation, and their disagreement
 
-Reviewer 1 (GPT-5.6 Sol, maximum reasoning effort) reviewed both rounds. Reviewer 2
-(Kimi K3 via Ollama) was invited in both rounds and could not be reached: the model is
-billed as extra usage and the account's extra-usage balance is empty. This was verified
-through all three access paths, so it is an account state and not a client fault. The
-absence is recorded rather than filled by a substitute, and this decision rests on one
-reviewer, which is weaker than the two-reviewer standard this program sets for itself.
+Reviewer 1 (GPT-5.6 Sol, maximum reasoning effort) reviewed both rounds and ends at **major
+revision**. Reviewer 2 (GLM-5.2 via Ollama) joined after the manuscript had been revised
+through both of Reviewer 1's rounds, because the originally invited second reviewer could
+not be reached, and ends at **minor revision** judging the conclusions supported and all
+sixteen prior points resolved. Reviewer 2 therefore read a later version than Reviewer 1
+first saw, and the record says so rather than presenting the reports as contemporaneous.
+
+Kimi K3 via Ollama was invited in both rounds and could not be reached: the model is billed
+as extra usage and the account's extra-usage balance was empty, verified through the CLI,
+the HTTP API and the python client, so an account state and not a client fault. The
+invitation and the failure are both recorded.
+
+The two reviewers agree on what is wrong and disagree on how much it matters. This decision
+follows Reviewer 1 on the point that governs the catalog: the analytic contribution is
+confirmatory of theory and stands on its own, and the coverage evidence is exploratory and
+does not close MIS-03. Reviewer 2's lighter recommendation is recorded, not overridden
+silently.

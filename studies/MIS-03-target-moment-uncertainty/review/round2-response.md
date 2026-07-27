@@ -113,3 +113,41 @@ its own, the negative result about the source sandwich is worth reporting, and t
 entry it serves is more useful with a partial answer and a visible reviewer objection than
 with nothing. The review, including this standing recommendation of major revision, is
 published beside the paper.
+
+---
+
+# Response to Reviewer 2, round two
+
+Reviewer 2 judged all sixteen round-one points from both reviewers resolved and raised four
+minor points. All four are accepted and made.
+
+**Minor 1.** "No study has measured what that costs" now reads "in anchored MAIC", so a
+reader of the abstract alone sees the scope restriction that the introduction makes
+explicit.
+
+**Minor 2.** The coverage table caption now states that the 167 scenarios are those of the
+196 restricted scenarios that have effect modification, the other 29 being the negative
+controls, so the arithmetic is checkable from the caption.
+
+**Minor 3.** A paragraph is added to the scope section on where $\kappa$ might come from:
+published subgroup effects, reported treatment-by-covariate interactions, or
+covariate-outcome summaries could in principle carry information about it, and establishing
+what they identify would make the correction deployable in the range where it currently is
+not. We note we have not investigated this. The reviewer is right that this is the parameter
+the practical recommendation turns on and that the paper should say where it might be found.
+
+**Minor 4.** The pilot is now described: 120 replicates per configuration over a 16-cell
+grid crossing two source sizes, two target sizes, two overlap levels and two
+effect-modification strengths, run before the design was fixed, with the cell that produced
+the 23% figure named. Those numbers justified making source size a factor and are now
+checkable.
+
+## On the disagreement between the reviewers
+
+Reviewer 2 ends at minor revision and judges the conclusions supported. Reviewer 1 ends at
+major revision and judges that the registered coverage question is not confirmatorily
+answered. Both readings are in the record and we have not tried to reconcile them.
+
+We side with Reviewer 1 on the point that matters for the catalog. The analytic contribution
+is confirmatory of theory and stands; the coverage evidence is exploratory and does not
+close the problem. The catalog entries record it that way.

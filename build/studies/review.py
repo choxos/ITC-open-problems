@@ -42,10 +42,19 @@ REVIEWERS = {
         "model": "gpt-5.6-sol",
         "effort": "max",
     },
+    "glm": {
+        "name": "GLM-5.2 (via Ollama)",
+        "kind": "ollama",
+        "model": "glm-5.2:cloud",
+    },
+    # Invited first and unreachable: billed as Ollama extra usage with an empty
+    # balance. Kept in the record so the published history shows who was asked,
+    # not only who answered, but not counted as a required reviewer.
     "kimi": {
         "name": "Kimi K3 (via Ollama)",
         "kind": "ollama",
         "model": "kimi-k3:cloud",
+        "optional": True,
     },
 }
 
@@ -324,8 +333,16 @@ def publish(slug):
             return "unavailable"
         return "not run"
 
-    for i, (key, cfg) in enumerate(REVIEWERS.items(), 1):
-        L.append(f"| R{i} | {cfg['name']} | {state(key, 1)} | {state(key, 2)} |")
+    n = 0
+    for key, cfg in REVIEWERS.items():
+        if cfg.get("optional"):
+            continue
+        n += 1
+        L.append(f"| R{n} | {cfg['name']} | {state(key, 1)} | {state(key, 2)} |")
+    for key, cfg in REVIEWERS.items():
+        if not cfg.get("optional"):
+            continue
+        L.append(f"| invited | {cfg['name']} | {state(key, 1)} | {state(key, 2)} |")
     L.append("")
 
     for rnd in (1, 2):
@@ -401,7 +418,8 @@ def main():
     ap.add_argument("--round", type=int, choices=(1, 2))
     ap.add_argument("--send", action="store_true")
     ap.add_argument("--publish", action="store_true")
-    ap.add_argument("--reviewers", nargs="+", default=list(REVIEWERS))
+    ap.add_argument("--reviewers", nargs="+",
+                    default=[k for k, v in REVIEWERS.items() if not v.get("optional")])
     a = ap.parse_args()
     if a.send:
         if not a.round:

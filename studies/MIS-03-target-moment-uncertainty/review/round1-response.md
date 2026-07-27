@@ -176,3 +176,67 @@ point is located rather than assumed", are retracted in both the paper and the p
 "This study supplies it" is now "answers in part". The recommendation sentences are
 narrowed as described under Major 3 and Major 6. The claim about what section 9 contained
 is retracted as described under Major 1.
+
+
+---
+
+# Response to Reviewer 2 (GLM-5.2)
+
+**A note on when this reviewer joined.** Reviewer 2 was invited after the manuscript had
+already been revised through two rounds with Reviewer 1, because the originally invited
+second reviewer could not be reached. Reviewer 2 therefore read the revised manuscript, not
+the version Reviewer 1 first saw. We say so rather than presenting the two reports as
+contemporaneous.
+
+Reviewer 2 recommends minor revision where Reviewer 1 stands at major revision. The two
+agree on what is wrong; they differ on how much it matters. We have not tried to reconcile
+them and both recommendations stand in the record.
+
+## Major 1. No interior kappa, so the practical recommendation has no empirical support
+
+**Accepted, and the reviewer is right that this is the largest gap.** The manuscript now
+says explicitly that @eq-quarter is an analytic result with no empirical support at the
+boundary it defines, and attributes that observation to review. We have not added scenarios
+at intermediate kappa. Doing so is cheap and we expect to do it in the rerun; adding it to
+the present exploratory set would extend an analysis whose status is already the problem.
+
+## Major 2. The restricted results still read as though they carry evidential weight
+
+**Accepted.** The restriction section now states that the results are hypothesis-generating
+only and should not be cited as evidence for or against any method's coverage properties.
+We have not re-restricted by an ex ante criterion such as expected effective sample size and
+reported whether the conclusions change; that is named as part of the required rerun rather
+than done here.
+
+## Major 3. The width figure is presented as though it generalizes
+
+**Accepted.** The abstract now says the median interval-width cost applies under **exact**
+multivariate normality and may differ substantially under skewed, bounded, categorical or
+rounded covariates. We have not added non-normal scenarios. We agree they would be the most
+informative single addition after interior kappa, and both are named for the rerun.
+
+## Minor 4. Minimum paired differences are within Monte Carlo error
+
+**Accepted.** The results text now says the minima are within about one and a half Monte
+Carlo standard errors of zero and carry no directional interpretation, and that only the
+maxima are large relative to Monte Carlo error.
+
+## Minor 5. The abstract does not make the exploratory status unambiguous
+
+**Accepted.** The sentence now begins "In the exploratory restricted set".
+
+## Minor 6. "Answers in part" blurs analytic and empirical contributions
+
+**Accepted, and this is the clearest statement of the paper's own position that either
+reviewer produced.** The scope section no longer says "answers MIS-03 in part". It now
+separates the analytic contribution, which the simulation confirms as theory and which does
+not depend on the restricted set, from the exploratory-only evidence on the coverage
+question MIS-03 actually asks, which is therefore not answered confirmatorily.
+
+## Where we agree with Reviewer 1's harsher reading
+
+Reviewer 2 judges the paper unusually transparent and its conclusions supported. Reviewer 1
+judges that transparency does not substitute for confirmatory evidence. We think Reviewer 1
+is right about the standing of the coverage claim, and the catalog entry records the
+confirmatory question as open on that basis, notwithstanding Reviewer 2's lighter
+recommendation.
