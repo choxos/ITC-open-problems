@@ -1,12 +1,32 @@
 {
  "problem_id": "CMU-02",
- "also_bears_on": ["CMP-14"],
+ "also_bears_on": [
+  "CMP-14"
+ ],
  "title": "Do prior-sensitivity diagnostics catch the analyses that are actually wrong?",
- "status": "running",
+ "status": "complete",
  "week": 3,
  "question": "In a population-adjusted network a proper prior yields a proper posterior even where the likelihood identifies nothing, so a narrow interval can reflect the prior rather than the evidence. The diagnostics that would expose this exist. What are their operating characteristics: do they flag the analyses whose intervals actually miss the truth, and how often do they cry wolf?",
  "design": "A conjugate Gaussian population-adjusted network in which every piece of evidence reduces without loss to a normal observation, so the posterior and every power-scaled posterior are exact and no diagnostic is contaminated by MCMC noise. 120 scenarios crossing the evidence available about the weakly identified treatment, arm size, whether the truth agrees with the zero-centered prior, prior scale, and the target population. 2000 replicates each.",
  "estimand": "Target-population marginal C versus B mean difference, and the conditional interaction coefficient",
- "methods_compared": ["no-diagnostic baseline", "structural rank screen", "prior-to-posterior contraction", "prior-only benchmark", "power-scaling sensitivity", "tight and loose refit", "composite rule"],
- "n_sim": "2000 per scenario, 240,000 datasets"
+ "methods_compared": [
+  "no-diagnostic baseline",
+  "structural rank screen",
+  "prior-to-posterior contraction",
+  "prior-only benchmark",
+  "power-scaling sensitivity",
+  "tight and loose refit",
+  "composite rule"
+ ],
+ "n_sim": "2000 per scenario, 240,000 datasets and 480,000 contrast evaluations",
+ "date_completed": "2026-07-29",
+ "answer": "They fail, and for a structural reason rather than a tuning one. Across 34 harmful scenarios a composite of four prior-sensitivity diagnostics has sensitivity 0.32 at a false-warning rate of 0.17; outside two engineered geometries where the likelihood was deliberately made uninformative, sensitivity falls to 0.11, about one harmful analysis in nine. The only rule with high sensitivity, refitting under halved and doubled priors, fires on 51% of the clean analyses too. Every one of these diagnostics asks whether the likelihood is weak relative to the prior; the harm comes from a tight prior that is wrong. In the worst cells coverage is zero, and increasing the sample size makes the warning quieter while the answer stays just as wrong.",
+ "findings": [
+  "The prespecified conclusion is 'diagnostics fail': composite sensitivity 0.32 (MCSE 0.08) with its Monte Carlo interval below the 0.50 threshold set in advance for that verdict.",
+  "Sensitivity and specificity trade off completely. Tight-and-loose prior refitting catches every harmful scenario outside the controls but fires on 51% of clean ones. Contraction, the prior-only benchmark and power-scaling keep false warnings under 2% and catch almost nothing.",
+  "Requiring two of four rules to agree, intended to buy specificity, inherits the low sensitivity instead of repairing it.",
+  "The mechanism: with disconnected evidence, a tight prior centred at zero and a true interaction of 0.40, coverage is essentially zero, and the composite warns on 0.98 of replicates at 100 per arm but 0.01 at 400. More data lets the posterior contract, which every diagnostic reads as reassurance, while none of them can see that the prior is centred in the wrong place.",
+  "A first implementation measured power-scaling by the shift in the posterior mean and found sensitivity 0.000 everywhere. That was our error, not the method's: in a conjugate Gaussian with a zero-centred prior, scaling the prior up and the likelihood down give identical posterior means, so the standard 'prior sensitive, likelihood insensitive' rule can never fire. Measured distributionally, as its authors define it, it works but is still insensitive."
+ ],
+ "not_answered": "The other half of CMU-02, wiring these diagnostics into released software, is untouched; neither multinma nor cpaic is run. The model is conjugate Gaussian with an identity link, a correctly specified linear mean and known variances, so nothing transfers directly to a non-conjugate posterior where MCMC error enters and the diagnostics behave differently. Only automated thresholds are evaluated; a plot read by an experienced analyst is a different instrument. Thresholds were taken from the source literature and not tuned. CMP-14 is touched only for the generic aggregate-only interaction, not for component models, and IDN-06 is not addressed at all because this design contains no within-versus-between discrepancy."
 }
