@@ -1,0 +1,115 @@
+{
+  "recommendation": "major-revision",
+  "summary": "The paper derives the first-order contribution of sampled target moments to anchored MAIC variance and evaluates it across a large simulation design. The superpopulation estimand, joint covariance decomposition, negative controls, and use of identical point and source-variance estimators make the intended comparison conceptually strong and fair. However, the registered analysis is uninformative, while the subsequent confirmatory-sounding conclusions rely on outcome-dependent post-run filtering; moreover, the sign and cancellation of the headline effect are algebraically imposed by the proportional effect-modification mechanism. The restricted results remain useful exploratory evidence, but they do not support the universal recommendation that analysts add the positive moment-variance term without the unavailable cross-covariance.",
+  "strengths": [
+    "The paper identifies an important distinction between inference for a realized target sample and inference for a target superpopulation.",
+    "Equation 4 correctly recognizes that target moments and the published B versus C estimate can be statistically dependent when obtained from the same participants.",
+    "The marginal target-population estimand is appropriate for the additive continuous-outcome mechanism and has a transparent closed-form truth.",
+    "All methods share the same point estimate and source sandwich, so the comparison does not unfairly handicap the status quo with an inferior source variance estimator.",
+    "The factorial design, 5000 replicates per scenario, explicit convergence denominator, negative controls, and reproducible seeding are substantial strengths.",
+    "The manuscript candidly reports the registered gate failure and already acknowledges several important restrictions, including normal covariates, correct effect-modifier specification, and lack of applicability to noncollapsible outcomes."
+  ],
+  "comments": [
+    {
+      "id": 1,
+      "severity": "major",
+      "section": "Registered protocol; Results: The registered gates fire; protocol amendment",
+      "comment": "The prespecified conclusion is uninformative because the reference and negative-control gates fail. The amended analysis then selects scenarios according to observed coverage of the joint-score method and its negative control. This is outcome-dependent post-run filtering, not a prespecified restriction, and it affects all methods because their coverage indicators share replicates and the same source sandwich. Consequently, the joint-score range in Table 2 is guaranteed by selection and the remaining coverage summaries are also selected. The amendment additionally says that Section 9 contained specific per-scenario language about Wald failure, but that language is absent from the supplied registered protocol.",
+      "what_would_satisfy": "Label the 196-scenario analysis explicitly as exploratory, correct the account of what the registered protocol contained, and conduct an independent simulation run under a new registration. The new protocol should either use an ex ante design criterion such as expected ESS or employ a source variance procedure that passes the negative controls throughout the intended design."
+    },
+    {
+      "id": 2,
+      "severity": "major",
+      "section": "Data-generating mechanism; Results: omitted variance",
+      "comment": "The central sign result is built into the mechanism. Writing g(X)=b'h(X)+constant gives the population sensitivity J=sb and Cov{h(X),phi_BC}=kappa*s*Omega_hh*b. The net target-moment contribution omitted by the status quo is therefore (1-2*kappa)*s^2*b'Omega_hh*b/n_T, or (1-2*kappa)*Var_T{s g(X)}/n_T. Thus its sign is fixed at the selected endpoints and cancellation occurs at kappa=0.5 by construction. Including only three kappa levels is not continuous variation and does not empirically locate the cancellation point.",
+      "what_would_satisfy": "Present this identity as an analytic design check rather than a simulation finding. To study alignment empirically, vary the source and target effect-modifier coefficient vectors independently, including different directions, negative alignment, partial overlap of modifier sets, and modifiers outside the calibrated span."
+    },
+    {
+      "id": 3,
+      "severity": "major",
+      "section": "Methods compared; What a publication would have to report; Discussion",
+      "comment": "Normal reconstruction and reported moment covariance add only J'Omega_hh J/n_T while omitting the cross-covariance with the B versus C estimator. They are therefore not full unconditional corrections for the setting actually studied. The added term is always nonnegative, so it cannot correct status-quo overcoverage when the net omitted component is negative; at kappa=0.5 it adds variance when the population net omission is zero, and at kappa=1 it should worsen overcoverage.",
+      "what_would_satisfy": "Relabel these as partial moment-variance additions, report their paired performance against joint-score separately by kappa, and withdraw the universal recommendation to add the positive term. A deployable full correction would require either a justified model for the cross term or publication of the relevant covariate-outcome score covariances."
+    },
+    {
+      "id": 4,
+      "severity": "major",
+      "section": "Methods; Results: poor-overlap failure",
+      "comment": "Using the same source sandwich makes the comparison fair, but the chosen sandwich fails badly enough to invalidate the prespecified absolute-coverage analysis. This is especially problematic because the introduction describes source weight-estimation uncertainty as settled and cites available alternatives. Paired contrasts may still illuminate the incremental target contribution, but they do not establish that any interval restores nominal absolute coverage.",
+      "what_would_satisfy": "Repeat the study using a source variance procedure selected in advance and validated by the null controls, such as an appropriate bootstrap or finite-sample correction. Alternatively, restrict the target question to an ex ante overlap region and frame conclusions outside it solely in terms of paired incremental effects."
+    },
+    {
+      "id": 5,
+      "severity": "major",
+      "section": "Results and Monte Carlo uncertainty",
+      "comment": "The headline tables omit the Monte Carlo uncertainty needed to assess their claims. In particular, a median coverage difference of 0.02 percentage points cannot establish equivalence without its paired discordance rate and Monte Carlo standard error. The single scenario triggering the ordinary-strength category is not identified, and extrema across 167 scenarios are reported without acknowledging selection noise.",
+      "what_would_satisfy": "Report each decisive scenario, paired coverage differences, discordance counts, Monte Carlo standard errors or intervals, and a prespecified equivalence margin. Give maximum as well as median differences between normal reconstruction, reported-covariance, and joint-score methods, stratified by kappa and target-correlation misspecification."
+    },
+    {
+      "id": 6,
+      "severity": "major",
+      "section": "What a publication would have to report; Limitations",
+      "comment": "The claim that normal reconstruction makes enhanced reporting unnecessary is evaluated under multivariate normality, where the reconstruction formulas are correct by construction. The sole misspecification changes one positive equicorrelation from 0.30 to 0.60, while pooled summaries can hide failures in the affected subset. This does not support a general recommendation for real baseline tables containing skewed, bounded, categorical, missing, or rounded variables.",
+      "what_would_satisfy": "Either restrict the recommendation explicitly to approximately normal continuous covariates under modest correlation error, or add confirmatory scenarios with nonnormal covariates, mixed covariate types, broader correlation misspecification, rounding, and covariate-specific missingness."
+    },
+    {
+      "id": 7,
+      "severity": "major",
+      "section": "The problem; What this answers",
+      "comment": "The study provides a special-case answer for anchored MAIC with an additive continuous outcome, three normally distributed covariates, correctly spanned effect modification, and target summaries sharing participants with the comparator estimate. It therefore does not supply the single general number initially promised for MIS-03. The later statement that MIS-03 is answered only in part is the defensible characterization. The labels ordinary and strong effect modification also lack empirical calibration to actual MAIC applications.",
+      "what_would_satisfy": "Use the partial-answer wording consistently in the title, opening, abstract, and conclusions, and justify the effect-modification and overlap levels using empirical PAIC applications or replace the value-laden strength labels with numerical labels."
+    },
+    {
+      "id": 8,
+      "severity": "minor",
+      "section": "Estimating system and negative controls",
+      "comment": "The statement that J is exactly zero without effect modification is only a population or first-order statement. In a finite randomized source trial, chance arm imbalance in prognostic covariates can make the estimated J nonzero, so the four intervals need not coincide exactly. The manuscript should also specify how a published sample SD is converted to a second raw moment, including the n versus n-1 denominator.",
+      "what_would_satisfy": "Correct the exact-zero language, quantify the finite-sample discrepancies in negative controls, and document the precise mean-and-SD conversion used by the implementation."
+    },
+    {
+      "id": 9,
+      "severity": "minor",
+      "section": "Results",
+      "comment": "The percentage of variance omitted and the percentage interval-width cost are not formally defined. It is unclear which variance or width is the denominator and whether summaries are ratios of scenario means or means of replicate-level ratios.",
+      "what_would_satisfy": "Provide formulas for these measures, identify their denominators, and report their Monte Carlo uncertainty."
+    },
+    {
+      "id": 10,
+      "severity": "minor",
+      "section": "Front matter",
+      "comment": "The supplied manuscript has no abstract. For a methodological journal, the abstract must clearly distinguish the registered uninformative result from the exploratory amended analysis.",
+      "what_would_satisfy": "Add a structured abstract led by the registered result, followed by explicitly labeled exploratory findings and appropriately restricted practical implications."
+    }
+  ],
+  "citation_problems": [
+    {
+      "cite": "Chandler and Proskorovsky (2024)",
+      "problem": "One simulation benchmark does not justify calling source weight-estimation uncertainty settled, particularly when the present study uses a conventional sandwich that fails its own controls. State exactly which variance procedures and settings that paper supports."
+    },
+    {
+      "cite": "Sheng, Sun and Huang (2026); Chen, Chen and Yu (2026)",
+      "problem": "The manuscript does not explain whether these studies use target summaries from the same sample as an outcome or treatment-effect estimate, or whether they include the corresponding cross-covariance. That comparison is necessary to support the claimed remaining novelty."
+    },
+    {
+      "cite": "Novelty claim surrounding Equation 4",
+      "problem": "Estimated calibration totals and covariance induced by overlapping samples are established ideas in survey calibration, two-phase sampling, and generalizability theory. Novelty should be limited to the MAIC application and quantitative evaluation unless the broader literature is reviewed and distinguished."
+    },
+    {
+      "cite": "Claim that every standard estimator treats target moments as exact",
+      "problem": "This sweeping statement is not supported by a review of MAIC methods or software and sits uneasily beside the two cited transportability methods that propagate summary uncertainty. Qualify it to identified MAIC implementations and provide supporting citations."
+    }
+  ],
+  "conclusions_supported": false,
+  "unsupported_claims": [
+    "This study supplies it.",
+    "The alignment kappa varies continuously.",
+    "kappa = 0.5 is included so the cancellation is located rather than assumed.",
+    "All three corrections stay inside it in every scenario.",
+    "Getting the borrowed correlation wrong, at rho_T = 0.60 against a source value of 0.30, did not break it.",
+    "The deployable correction is as good as the one requiring enhanced reporting, so the case for asking journals to publish moment covariance matrices is weak.",
+    "The case for analysts computing Equation 3 and adding J'Omega_norm J/n_T is strong.",
+    "It removes a coverage error of up to three points whose sign they cannot otherwise determine.",
+    "The problem is real and is worth correcting, and the correction is available now.",
+    "This was anticipated. Section 9's threat table already contains 'Wald sandwich intervals may fail at n_T = 200 for reasons unrelated to target-moment omission'."
+  ]
+}

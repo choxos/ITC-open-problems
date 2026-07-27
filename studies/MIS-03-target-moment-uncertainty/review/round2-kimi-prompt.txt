@@ -1,0 +1,1418 @@
+You are peer reviewing a manuscript for a methodological journal in
+evidence synthesis. Review it as you would for Statistics in Medicine or
+Research Synthesis Methods.
+
+Answer from the manuscript and your own knowledge of this literature. Do not use
+tools, do not spawn sub-agents, do not load skills.
+
+The manuscript reports a simulation study aimed at a specific open problem in a
+public catalog. It is accompanied by a protocol that was registered before the
+run. Both are given to you in full.
+
+## What to review
+
+**Does the study answer the problem it claims to answer?** The most common fatal
+flaw in this area is a study that is internally sound and measures a
+neighbouring question. Compare the aims to the stated problem.
+
+**Is the finding built into the data-generating mechanism?** If the mechanism
+makes the studied effect true by construction, the study demonstrates arithmetic.
+Say which parameter choice does this, if any.
+
+**Are the estimands right?** In population adjustment the usual errors are
+conflating conditional with marginal effects, conflating a realized sample with
+a superpopulation, and computing a truth for a different population than the
+estimator targets.
+
+**Is the comparison fair?** A status quo given a worse variance estimator than
+the proposal is a rigged comparison.
+
+**Are the conclusions supported by the numbers reported?** Check that every claim
+in the abstract and discussion is licensed by a result in the paper, and that
+Monte Carlo error is respected: a difference smaller than its Monte Carlo
+standard error is not a finding.
+
+**Are the stated limitations the real ones?** A limitations section that lists
+easy limitations while omitting the one that threatens the conclusion is worse
+than none.
+
+**Citations.** Flag any work attributed to the wrong authors, any citation that
+does not say what the manuscript claims, and any claim of novelty that ignores
+existing work you know of.
+
+Reward what is done well. A review that finds everything fatal is not a review.
+Reserve `reject` for a study whose question or design cannot be repaired.
+
+## Output
+
+Reply with JSON only, no prose before or after.
+
+{"recommendation":"accept|minor-revision|major-revision|reject",
+ "summary":"three to five sentences: what the paper does and whether it succeeds",
+ "strengths":["..."],
+ "comments":[{"id":1,"severity":"major|minor","section":"...","comment":"...",
+   "what_would_satisfy":"the specific change or evidence that would resolve this"}],
+ "citation_problems":[{"cite":"...","problem":"..."}],
+ "conclusions_supported":true,
+ "unsupported_claims":["quote any claim the results do not license"]}
+
+## This is round two
+
+You are reviewing a REVISED manuscript. You are given the round-one reports from
+both reviewers, the authors' point-by-point response, and the revised paper.
+
+Judge the revision. For each round-one point that was addressed to you, say
+whether the response is adequate. Authors are allowed to disagree with a
+reviewer and say why; a reasoned refusal is a legitimate response and should be
+judged on its reasoning, not on whether they complied. What is not legitimate is
+a response that claims a change was made when the manuscript does not show it,
+so check the text against the claim.
+
+Add `"round1_resolution"` to your JSON: a list of
+{"reviewer":"...","id":N,"resolved":"yes|partly|no","note":"..."} covering each
+round-one major comment.
+
+
+PACKAGE:
+
+# MANUSCRIPT UNDER REVIEW
+
+# What conditioning on sampled target moments costs a
+population-adjusted indirect comparison
+Ahmad Sofi-Mahmudi
+2026-07-28
+
+# Abstract
+
+Population-adjusted indirect comparisons match individual patient data
+from a source trial to a target trial known only through a published
+baseline table. Every matching-adjusted indirect comparison
+implementation we could examine treats the target’s reported covariate
+means and standard deviations as exact constants, though they are sample
+estimates carrying their own sampling error, and no study has measured
+what that costs.
+
+**Registered result.** The prespecified analysis is **uninformative**.
+Its gates require the reference interval and the negative controls to be
+nominal, and at poor covariate overlap they are not: the Wald sandwich
+undercovers by up to seven percentage points for every method compared,
+including scenarios containing no effect modification at all, where all
+four intervals must coincide. That is a failure of the source variance
+estimator under extreme weighting, not a target-moment effect, and it
+invalidates the absolute-coverage analysis wherever it occurs.
+
+**Exploratory result.** Restricting to the 196 of 252 scenarios where
+the reference and its matched control are nominal, conditioning on the
+reported moments omits between -9.5% and 14.9% of the variance and moves
+coverage of a nominal 95% interval between 92.1% and 96.2%. This
+restriction selects on an observed outcome and the results are labelled
+exploratory throughout.
+
+**An identity, not a finding.** The net omitted component is, to first
+order, $(1-2\kappa)\mathrm{Var}_T\{\tau(X)\}/n_T$, where $\kappa$ is how
+far the target trial’s own treatment effect is modified by the same
+covariates as the source trial’s. Its sign is therefore fixed
+analytically rather than discovered; regressing the measured omission on
+this prediction gives a slope of 1.003 (SE 0.025). What the simulation
+adds is the magnitude at realistic sample sizes, and the observation
+that $\kappa$ is not identified from anything a publication reports.
+
+**Practical implication, restricted.** The two corrections an analyst
+could deploy add only the positive moment-variance term and omit the
+cross-covariance, so they are **partial**: they help when $\kappa$ is
+small and are conservative when it is large. For approximately normal
+continuous covariates with modest correlation error they kept coverage
+inside 93% to 97% in every scenario examined, at a median interval-width
+cost of 2.24%.
+
+# The problem
+
+A population-adjusted indirect comparison estimates the relative effect
+of two treatments never compared in one trial. Individual patient data
+are available for a source trial comparing $A$ with a common comparator
+$C$; for the target trial comparing $B$ with $C$, only a publication is
+available. Matching-adjusted indirect comparison
+([1](#ref-signorovitch2010)) reweights the source participants so their
+covariate distribution matches the target’s, transports the $A$ versus
+$C$ effect, and subtracts the target trial’s own $B$ versus $C$ effect
+([2](#ref-phillippo2018)).
+
+Everything hangs on a small table: per covariate, a mean and a standard
+deviation, with the sample size. Those numbers are the matching targets.
+
+They are sample moments computed from $n_T$ participants and carry
+sampling error of order $n_T^{-1/2}$. An interval that conditions on
+them omits that variability whenever the intended estimand refers to a
+target *superpopulation* rather than to the particular people who
+enrolled.
+
+Catalog entry MIS-03 states the position. The weight-estimation half of
+the uncertainty problem has been benchmarked: ([3](#ref-chandler2024))
+compared conventional, ESS-rescaled, robust sandwich and bootstrap
+variance estimators across 108 scenarios for binary and time-to-event
+outcomes, finding conventional estimators anticonservative under poor
+and moderate overlap and all methods valid under strong overlap. That is
+a specific set of settings, not a general guarantee, and section 5 shows
+the conventional sandwich failing outside them. The published-moment
+half is untouched, because a baseline table arrives without the
+covariance among its own entries.
+
+Two results in the transportability literature propagate target-summary
+uncertainty for entropy-balancing estimators
+([4](#ref-sheng2026),[5](#ref-chen2026)). Neither is framed for the
+anchored two-trial setting in which the target moments and the target
+treatment effect come from the same participants, and neither has been
+carried into indirect-comparison software. The general idea that
+estimated calibration totals contribute variance, and that overlapping
+samples induce covariance, is long established in survey calibration and
+two-phase sampling; nothing here claims that as new. What is new is the
+quantification for anchored MAIC and the identification of which term is
+missing.
+
+# The estimating system and what it omits
+
+The source trial contributes $n_S$ participants with covariates
+$X_i \in \mathbb{R}^3$, treatment indicator $A_i$ and outcome $Y_i$.
+Write $h(X) = (X_1, X_2, X_3, X_1^2, X_2^2, X_3^2)^\top$; matching on
+$h$ is matching on the reported means and standard deviations. A
+publication reports the unbiased sample standard deviation $s_j$, and
+the second raw sample moment is recovered as
+$\hat m_{2j} = \{(n_T-1)/n_T\} s_j^2 + \bar x_j^2$, so the calibration
+target is exactly the sample mean of $h(X)$ over the target
+participants.
+
+MAIC solves, over the source participants,
+
+<span id="eq-calib">$$\sum_{i=1}^{n_S} w_i(\lambda)\,\{h(X_i) - \hat m_T\} = 0, \qquad w_i(\lambda) = \exp\{\lambda^\top h(X_i)\}, \qquad(1)$$</span>
+
+the method-of-moments weighting of ([1](#ref-signorovitch2010)), the
+dual of entropy balancing ([6](#ref-hainmueller2012)). Stacking
+<a href="#eq-calib" class="quarto-xref">Equation 1</a> with the two
+weighted arm-mean equations gives an M-estimator
+([7](#ref-stefanski2002)) in $\psi = (\lambda, \mu_A, \mu_C)$ with score
+
+$$u_i = \big(\,w_i\{h(X_i) - \hat m_T\},\ \ \mathbb{1}(A_i)\,w_i(Y_i - \mu_A),\ \ \mathbb{1}(C_i)\,w_i(Y_i - \mu_C)\,\big)^\top,$$
+
+transported effect $\hat\theta_{AC} = \hat\mu_A - \hat\mu_C$, and
+anchored estimate $\hat\theta_{AB} = \hat\theta_{AC} - \hat\theta_{BC}$.
+With $\hat A$ the empirical Jacobian of the mean score,
+$\hat B = n_S^{-1}\sum_i u_i u_i^\top$ and $c = (0,\dots,0,1,-1)^\top$,
+
+<span id="eq-vs">$$V_S = c^\top \hat A^{-1} \hat B \hat A^{-\top} c \,/\, n_S . \qquad(2)$$</span>
+
+<a href="#eq-vs" class="quarto-xref">Equation 2</a> conditions on
+$\hat m_T$. Differentiating the estimating system with respect to the
+reported moments, and using
+$\partial u_{i,\lambda} / \partial \hat m_T^\top = -w_i I_6$,
+
+<span id="eq-jacobian">$$J \;=\; \frac{\partial \hat\theta_{AC}}{\partial \hat m_T} \;=\; -\,c^\top \hat A^{-1} C, \qquad C = \begin{pmatrix} -\bar w I_6 \\ 0 \\ 0 \end{pmatrix}. \qquad(3)$$</span>
+
+$J$ is zero in the population when no covariate in $h$ modifies the
+treatment effect, which is why the study’s negative control has no
+effect modification. In a finite randomized source trial chance
+imbalance makes $\hat J$ nonzero, so the four intervals do not coincide
+exactly even there; section 5 reports how much.
+
+Two consequences. If $\hat m_T$ were independent of everything else the
+interval would simply be too narrow, by $J^\top \Omega_{hh} J / n_T$.
+But in the ordinary case $\hat m_T$ and $\hat\theta_{BC}$ come from
+**the same people**. Writing $\phi_{BC}$ for the influence function of
+the target arm-mean difference, the unconditional variance uses the
+joint covariance of $\{h(X), \phi_{BC}\}$ with gradient $(J, -1)$:
+
+<span id="eq-joint">$$V = V_S + (J, -1)^\top \,\Omega_T\, (J, -1) \,/\, n_T . \qquad(4)$$</span>
+
+The cross term $-2\,J^\top \mathrm{Cov}\{h(X), \phi_{BC}\}/n_T$ is
+negative when the target treatment’s effect is modified by the same
+covariates as the source treatment’s. Conditioning therefore omits a
+positive term and a negative term whose balance depends on a quantity
+that appears nowhere in a publication.
+
+## An identity that fixes the sign
+
+Under this study’s mechanism the balance is exact to first order. With
+$\tau(X) = \tau_0 + s\,g(X)$ in the source and $\tau_0 + \kappa s\,g(X)$
+in the target, and $g$ linear in $h$ with coefficient vector $b$, the
+population sensitivity is $J = s b$ and
+$\mathrm{Cov}\{h(X), \phi_{BC}\} = \kappa\, s\, \Omega_{hh} b$. Hence
+
+<span id="eq-identity">$$\underbrace{J^\top \Omega_{hh} J}_{\text{moment variance}} - \underbrace{2 J^\top \mathrm{Cov}\{h(X), \phi_{BC}\}}_{\text{cross term}} \;=\; (1 - 2\kappa)\, s^2 b^\top \Omega_{hh} b \;=\; (1-2\kappa)\,\mathrm{Var}_T\{\tau(X)\}, \qquad(5)$$</span>
+
+so the net omission is $(1-2\kappa)\mathrm{Var}_T\{\tau(X)\}/n_T$. **The
+sign is fixed by $\kappa$ analytically and the cancellation at
+$\kappa = 1/2$ is a property of the design, not something the simulation
+discovered.** This was pointed out in peer review; an earlier version of
+this paper claimed the simulation located the cancellation point, and
+that claim is withdrawn.
+
+Regressing the measured omitted variance on
+<a href="#eq-identity" class="quarto-xref">Equation 5</a> across the 167
+scenarios with effect modification gives a slope of 1.003 (SE 0.025,
+$R^2 = 0.91$), confirming the identity to first order; the residual
+scatter is the finite-sample departure noted above.
+
+What the simulation contributes is therefore not the sign but the
+**magnitude** at realistic sample sizes, the behavior of estimators that
+can only add the positive term, and the observation that $\kappa$ is not
+identified from reported data.
+
+# Methods
+
+The protocol was registered before the run at
+`studies/MIS-03-target-moment-uncertainty/protocol.md`. Reporting
+follows ADEMP ([8](#ref-morris2019)).
+
+Covariates are trivariate normal, unit variances, equicorrelation;
+source centered at $0$ with correlation $0.30$, target at $d$ with
+correlation $\rho_T$. Outcomes are continuous with additive effects and
+$N(0,1)$ errors. The target trial’s participants are generated and
+discarded; the estimator receives $n_T$, three means, three standard
+deviations, and $\hat\theta_{BC}$ with its standard error.
+
+Effect-modification strength is calibrated per scenario so the treatment
+effect has a prespecified standard deviation in the *target* population,
+because the quadratic coefficients are half the linear ones and fixed
+coefficients would make the overlap factor change effect-modification
+strength at the same time.
+
+| Factor                                    | Levels         |
+|-------------------------------------------|----------------|
+| Source size $n_S$                         | 500, 2000      |
+| Target size $n_T$                         | 200, 500, 2000 |
+| Overlap $d$                               | 0, 0.4, 0.8    |
+| Effect modification $\mathrm{SD}_T(\tau)$ | 0, 0.45, 0.90  |
+| Alignment $\kappa$                        | 0, 0.5, 1      |
+| Target correlation $\rho_T$               | 0.30, 0.60     |
+
+252 scenarios, 5000 replicates each. The $\mathrm{SD}_T(\tau)$ levels
+are labelled by their numerical values rather than as “ordinary” and
+“strong”: no empirical calibration to published MAIC applications was
+available, and value-laden labels would imply one.
+
+$n_S$ is a factor because the omitted term is $J^\top \Omega J / n_T$
+against a retained term of order $1/\mathrm{ESS}_S$, so what governs the
+ratio is source versus target information rather than $n_T$ alone. A
+pilot at $n_S = 500$ found the omission 1% to 7% of variance; at
+$n_S = 2000$ it reached 23%.
+
+**Estimand.** The target-superpopulation marginal $A$ versus $B$ mean
+difference, $(1-\kappa)s(0.30d + 0.15d^2)$, exact in closed form and
+verified against a $3\times10^6$-draw evaluation in every cell to within
+$2\times10^{-4}$. Conditioning on the reported moments is *correct* when
+the estimand is defined by those moments or they are exact
+administrative counts; the problem exists only for a superpopulation
+estimand.
+
+## Methods compared
+
+All four share the same point estimate, so the comparison isolates the
+interval.
+
+| Method | Interval variance | Corrects |
+|----|----|----|
+| **target-fixed** (status quo) | $V_S + \widehat{\mathrm{Var}}(\hat\theta_{BC})$ | nothing |
+| **normal-recon** | $+\,J^\top \Omega_{\mathrm{norm}} J / n_T$ | positive term only |
+| **reported-cov** | $+\,J^\top \Omega_{hh} J / n_T$ | positive term only |
+| **joint-score** | <a href="#eq-joint" class="quarto-xref">Equation 4</a> | both terms |
+
+$\Omega_{\mathrm{norm}}$ is reconstructed from the reported means and
+standard deviations and a borrowed correlation under a multivariate
+normal model. It is the only one an analyst can compute today.
+
+**`normal-recon` and `reported-cov` are partial corrections.** They add
+$J^\top \Omega J/n_T$, which is non-negative, and omit the cross term.
+By <a href="#eq-identity" class="quarto-xref">Equation 5</a> they can
+only help when $\kappa < 1/2$; at $\kappa = 1/2$ they add variance where
+the net omission is zero, and at $\kappa = 1$ they widen an interval
+that is already too wide. This was identified in peer review and the
+results are now reported stratified by $\kappa$ for exactly this reason.
+
+`joint-score` receives $\Omega_T$ computed inside the simulation and
+passed **as a matrix only**; it is an enhanced-reporting benchmark, not
+an assumption that microdata are available.
+
+# Results
+
+Convergence was at least 99.96% in every one of the 252 scenarios. The
+largest absolute bias was 0.052 empirical standard errors and coverage
+and bias-eliminated coverage never differed by more than 0.24 percentage
+points, so what follows is a property of the interval and not of the
+point estimate.
+
+## The registered result: uninformative
+
+The protocol declares the run uninformative if the reference method or
+any negative control leaves 0.93 to 0.97. Across the grid that condition
+is met, and **the registered conclusion is uninformative.**
+
+The cause is a second failure worth reporting on its own account. At
+$d = 0.8$ the effective sample size falls to a median of about 148 of
+500 and the Wald sandwich undercovers for *every* method, including
+scenarios with $\mathrm{SD}_T(\tau) = 0$
+(<a href="#fig-overlap" class="quarto-xref">Figure 1</a>). There the
+reported moments carry no population information about the transported
+effect, $J$ is zero in expectation, and all four intervals should very
+nearly coincide. They do coincide, and at poor overlap they are wrong
+together by up to seven percentage points.
+
+This bears directly on the framing in section 1.
+([3](#ref-chandler2024)) found conventional estimators anticonservative
+under poor and moderate overlap; the conventional sandwich used here
+fails in exactly that region. Source weight-estimation variance is
+therefore not “settled” in the sense of a procedure that works
+everywhere, and any absolute-coverage claim outside the region where the
+controls hold is unsupported.
+
+<div id="fig-overlap">
+
+![](../results/figures/fig5-overlap-failure.png)
+
+Figure 1: With no effect modification the reported moments carry no
+population information about the transported effect, so all four methods
+should nearly coincide. They do, and at poor overlap they are all wrong
+together.
+
+</div>
+
+## The exploratory restriction
+
+Applying the same criterion per scenario leaves **196 of 252** scenarios
+in which the reference and its matched negative control are both
+nominal.
+
+**This selects on an observed outcome.** The selecting quantity is the
+reference method’s coverage, which shares replicates with every other
+method through the common point estimate and source sandwich, so the
+reference method’s coverage range within the restricted set is partly
+guaranteed by the selection. Everything in this section is exploratory
+and is not a test of the registered hypothesis. A confirmatory answer
+needs a fresh run under a new registration, with either an ex ante
+design criterion such as expected effective sample size or a source
+variance procedure validated to pass the controls throughout.
+
+<div id="tbl-kappa">
+
+Table 1: Variance omitted by the status quo, as a percentage of its own
+variance, stratified by the alignment between the two trials’ effect
+modification. Positive means the reported interval is too narrow.
+Exploratory.
+
+<div class="cell-output-display">
+
+| Alignment | Minimum | Median | Maximum | Sign predicted by identity |
+|----------:|--------:|-------:|--------:|:---------------------------|
+|       0.0 |     0.9 |    4.1 |    14.9 | positive                   |
+|       0.5 |    -0.0 |    0.7 |     2.5 | zero                       |
+|       1.0 |    -9.5 |   -2.3 |     0.0 | negative                   |
+
+</div>
+
+</div>
+
+<div id="fig-omitted">
+
+![](../results/figures/fig3-omitted-variance.png)
+
+Figure 2: The omitted variance component. Magnitude grows with the ratio
+of source to target information; the sign follows
+<a href="#eq-identity" class="quarto-xref">Equation 5</a>.
+
+</div>
+
+Magnitude tracks the ratio of source to target information, as
+<a href="#eq-jacobian" class="quarto-xref">Equation 3</a> predicts: the
+omitted term scales as $1/n_T$ and the retained term as
+$1/\mathrm{ESS}_S$, so a large source trial matched to a small target
+publication is the worst case, not a small target trial as such.
+
+<div id="tbl-methods">
+
+Table 2: Coverage of nominal 95% intervals across the restricted
+scenarios with effect modification present, stratified by alignment.
+Monte Carlo standard error is 0.31 percentage points at nominal
+coverage. Exploratory.
+
+<div class="cell-output-display">
+
+| Method | kappa=0 | kappa=0.5 | kappa=1 | Outside 93-97% |
+|:---|---:|---:|---:|---:|
+| Status quo | 92.1% to 95.0% | 92.8% to 95.7% | 93.5% to 96.2% | 8 of 167 |
+| Normal reconstruction (partial) | 93.2% to 95.6% | 93.5% to 96.5% | 93.7% to 97.0% | 0 of 167 |
+| Reported moment covariance (partial) | 93.2% to 95.4% | 93.5% to 96.3% | 93.7% to 97.0% | 0 of 167 |
+| Full joint score | 93.2% to 95.3% | 93.2% to 95.8% | 93.4% to 95.5% | 0 of 167 |
+
+</div>
+
+</div>
+
+The status quo is the only method to leave the band, and it leaves in
+both directions. The two partial corrections behave as
+<a href="#eq-identity" class="quarto-xref">Equation 5</a> requires: they
+help at $\kappa = 0$, are mildly conservative at $\kappa = 0.5$ where
+the net omission is zero, and are more conservative at $\kappa = 1$
+where the interval was already too wide.
+
+<div id="fig-methods">
+
+![](../results/figures/fig2-methods.png)
+
+Figure 3: Only the status quo leaves the band.
+
+</div>
+
+<div id="fig-coverage">
+
+![](../results/figures/fig1-coverage-error.png)
+
+Figure 4: Status-quo coverage error against the ratio of source to
+target information.
+
+</div>
+
+<div id="tbl-paired">
+
+Table 3: Paired coverage differences against the full joint score, in
+percentage points, with the mean discordance rate that determines their
+Monte Carlo error. Exploratory.
+
+<div class="cell-output-display">
+
+| Method | Median | Minimum | Maximum | Mean discordant replicates | Mean MCSE (pp) |
+|:---|---:|---:|---:|---:|---:|
+| Status quo | -0.12 | -2.12 | 1.04 | 25 | 0.09 |
+| Normal reconstruction (partial) | 0.32 | -0.12 | 2.00 | 27 | 0.09 |
+| Reported moment covariance (partial) | 0.28 | -0.12 | 1.92 | 25 | 0.09 |
+
+</div>
+
+</div>
+
+The single scenario that triggered the prespecified “material at
+ordinary strength” category was $n_S = 2000$, $n_T = 500$, $d = 0.8$,
+$\mathrm{SD}_T(\tau) = 0.45$, $\kappa = 0$, $\rho_T = 0.30$, with
+coverage 0.930 against a Monte Carlo standard error of 0.36 percentage
+points. It sits at the poor-overlap boundary where the sandwich is
+already marginal, and no weight is placed on it.
+
+## What a publication would have to report
+
+The normal reconstruction needs nothing beyond what is published plus a
+correlation matrix borrowed from the source. Within the restricted
+scenarios it kept coverage inside 93% to 97% everywhere, at a median
+interval-width cost of 2.24% and a maximum of 8.70%, and it performed
+comparably to being handed the target’s true moment covariance
+(<a href="#tbl-paired" class="quarto-xref">Table 3</a>,
+<a href="#fig-reporting" class="quarto-xref">Figure 5</a>).
+
+<div id="fig-reporting">
+
+![](../results/figures/fig4-reporting.png)
+
+Figure 5: What each level of target reporting buys, as paired
+differences against the benchmark using all target information.
+
+</div>
+
+**The recommendation this licenses is narrow.** Covariates here are
+multivariate normal, which is the assumption under which the
+reconstruction formulas are exactly correct, and the only
+misspecification examined moves one positive equicorrelation from 0.30
+to 0.60. Real baseline tables contain skewed, bounded, categorical,
+rounded and partially missing variables, and nothing here speaks to
+those. For approximately normal continuous covariates with modest
+correlation error, and where $\kappa$ is believed small, adding
+$J^\top\Omega_{\mathrm{norm}}J/n_T$ costs about 2% of interval width and
+removes a real omission. Where $\kappa$ may be large the same addition
+makes a conservative interval more conservative, and no deployable
+correction for that case exists, because it needs the covariance between
+the target’s covariate moments and its treatment-effect estimate.
+
+An earlier version of this paper recommended the addition generally and
+concluded that the case for journals publishing moment covariance
+matrices is weak. Both claims were withdrawn in peer review: the first
+because the correction is partial, the second because the comparison
+establishing it was run under conditions favorable to the
+reconstruction.
+
+# What this answers, and what it does not
+
+**Answers, in part.** MIS-03 asks how much coverage is lost by
+conditioning on target moments at realistic aggregate-data sample sizes.
+For anchored MAIC on a continuous outcome with normal covariates, where
+the source sandwich is valid, and where effect modification lies in the
+span of the matched moments: the omission is real, its magnitude is a
+few percentage points of coverage, and its sign is set by an alignment
+that reported data do not identify. This is a special-case answer and
+the paper does not claim otherwise.
+
+**Does not answer.** Skewed, bounded, categorical, rounded or missing
+covariates. Binary and time-to-event outcomes, where MAIC is most used
+and noncollapsibility adds a term this design cannot see. Bias from
+unmeasured effect modifiers, since modification lies exactly in the
+matched span. Target summaries drawn from a sample separate from the
+treatment-effect estimate, or a covariate-adjusted published effect with
+a different influence function. STC, ML-NMR, ML-UMR and NMI, which have
+different sensitivities $J$. And absolute coverage at poor overlap,
+where the source variance estimator fails first.
+
+Accordingly this study **answers MIS-03 in part** and **answers one
+named component of EST-07**, namely sampling error in reported moments.
+EST-07’s remaining components, model uncertainty in reconstructed
+correlations, inclusion-criteria ambiguity and secular drift, are not
+sampling error and are untouched.
+
+**A finding nobody asked for.** The poor-overlap sandwich failure in
+<a href="#sec-registered" class="quarto-xref">Section 4.1</a> is larger
+than the effect this study was built to measure and deserves its own
+study.
+
+# Peer review
+
+This manuscript was reviewed in two rounds. Reports, the authors’
+point-by-point responses and the editorial decision are published in
+full at
+`studies/MIS-03-target-moment-uncertainty/review/peer-review.md`. Review
+changed the paper substantially: the registered result is now reported
+first and the restricted analysis is labelled exploratory; the sign of
+the effect is presented as the analytic identity it is rather than as a
+finding; the two deployable corrections are relabelled partial and the
+general recommendation to use them is withdrawn; and a factual claim
+that the protocol had anticipated the sandwich failure was found to be
+wrong and retracted.
+
+# Reproducibility
+
+R: R version 4.6.0 (2026-04-24) Platform: aarch64-apple-darwin23 Running
+under: macOS Tahoe 26.5
+
+## Packages
+
+| package | version |
+|---------|---------|
+| base    | 4.6.0   |
+| stats   | 4.6.0   |
+| future  | 1.70.0  |
+| furrr   | 0.4.0   |
+
+## Run
+
+- **study**: MIS-03 / EST-07 target-moment uncertainty
+- **scenarios**: 252
+- **replicates_per_scenario**: 5000
+- **total_replicates**: 1260000
+- **master_seed**: 20260727
+
+Replicate seeds derive from one master seed through L’Ecuyer-CMRG
+streams, so a run gives identical results on any number of cores and an
+interrupted run resumes. Code, protocol, review history and results are
+at
+<https://github.com/choxos/ITC-open-problems/tree/main/studies/MIS-03-target-moment-uncertainty>.
+
+``` bash
+Rscript R/03-run.R        # 252 scenarios, resumable
+Rscript R/04-analyze.R
+Rscript R/05-figures.R
+```
+
+# References
+
+<div id="refs" class="references csl-bib-body">
+
+<div id="ref-signorovitch2010" class="csl-entry">
+
+<span class="csl-left-margin">1.
+</span><span class="csl-right-inline">James E. Signorovitch, Eric Q. Wu,
+Andrew P. Yu, Charles M. Gerrits, Evan Kantor, Yanjun Bao, Shiraz R.
+Gupta, Parvez M. Mulani. Comparative effectiveness without head-to-head
+trials: A method for matching-adjusted indirect comparisons applied to
+psoriasis treatment with adalimumab or etanercept. PharmacoEconomics.
+2010;28(10):935–45.
+doi:[10.2165/11538370-000000000-00000](https://doi.org/10.2165/11538370-000000000-00000)</span>
+
+</div>
+
+<div id="ref-phillippo2018" class="csl-entry">
+
+<span class="csl-left-margin">2.
+</span><span class="csl-right-inline">David M. Phillippo, A. E. Ades,
+Sofia Dias, Stephen Palmer, Keith R. Abrams, Nicky J. Welton. Methods
+for population-adjusted indirect comparisons in health technology
+appraisal. Medical Decision Making. 2018;38(2):200–11.
+doi:[10.1177/0272989X17725740](https://doi.org/10.1177/0272989X17725740)</span>
+
+</div>
+
+<div id="ref-chandler2024" class="csl-entry">
+
+<span class="csl-left-margin">3.
+</span><span class="csl-right-inline">Conor Chandler, Irina
+Proskorovsky. Uncertain about uncertainty in matching-adjusted indirect
+comparisons? A simulation study to compare methods for variance
+estimation. Research Synthesis Methods. 2024;15(6):1094–110.
+doi:[10.1002/jrsm.1759](https://doi.org/10.1002/jrsm.1759)</span>
+
+</div>
+
+<div id="ref-sheng2026" class="csl-entry">
+
+<span class="csl-left-margin">4.
+</span><span class="csl-right-inline">Ying Sheng, Yifei Sun, Chiung-Yu
+Huang. Transportable inference using target population summary
+statistics under covariate shift \[Internet\]. 2026. Available from:
+<https://arxiv.org/abs/2603.02474></span>
+
+</div>
+
+<div id="ref-chen2026" class="csl-entry">
+
+<span class="csl-left-margin">5.
+</span><span class="csl-right-inline">Yi Chen, Xinyuan Chen, Menggang
+Yu. Confidence interval construction for causally generalized estimates
+with target sample summary information. Statistics in Medicine.
+2026;45(1-2):e70358.
+doi:[10.1002/sim.70358](https://doi.org/10.1002/sim.70358)</span>
+
+</div>
+
+<div id="ref-hainmueller2012" class="csl-entry">
+
+<span class="csl-left-margin">6.
+</span><span class="csl-right-inline">Jens Hainmueller. Entropy
+balancing for causal effects: A multivariate reweighting method to
+produce balanced samples in observational studies. Political Analysis.
+2012;20(1):25–46.
+doi:[10.1093/pan/mpr025](https://doi.org/10.1093/pan/mpr025)</span>
+
+</div>
+
+<div id="ref-stefanski2002" class="csl-entry">
+
+<span class="csl-left-margin">7.
+</span><span class="csl-right-inline">Leonard A. Stefanski, Dennis D.
+Boos. The calculus of m-estimation. The American Statistician.
+2002;56(1):29–38.
+doi:[10.1198/000313002753631330](https://doi.org/10.1198/000313002753631330)</span>
+
+</div>
+
+<div id="ref-morris2019" class="csl-entry">
+
+<span class="csl-left-margin">8.
+</span><span class="csl-right-inline">Tim P. Morris, Ian R. White,
+Michael J. Crowther. Using simulation studies to evaluate statistical
+methods. Statistics in Medicine. 2019;38(11):2074–102.
+doi:[10.1002/sim.8086](https://doi.org/10.1002/sim.8086)</span>
+
+</div>
+
+</div>
+
+
+# REGISTERED PROTOCOL
+
+# Protocol: what conditioning on sampled target moments costs
+
+**Target problems.** [MIS-03](https://choxos.github.io/ITC-open-problems/) *Nothing
+propagates sampling error in reported target moments*, and
+[EST-07](https://choxos.github.io/ITC-open-problems/) *Reported target moments are
+treated as known constants*.
+
+**Status.** Registered before any result was seen. The commit that adds this file is
+the timestamp. Nothing below was changed after the run began; changes, if any, are
+recorded in a dated amendment section at the end.
+
+**Reporting standard.** ADEMP (Morris, White and Crowther 2019,
+[doi:10.1002/sim.8086](https://doi.org/10.1002/sim.8086)).
+
+---
+
+## 1. The problem
+
+A population-adjusted indirect comparison reweights or standardizes individual patient
+data from a source trial so that its covariate distribution matches a target trial known
+only through a published baseline table. That table gives, per covariate, a mean and a
+standard deviation, plus the sample size.
+
+Those numbers are estimates. They are sample moments computed from the target trial's
+participants, and they carry sampling error of order $n_T^{-1/2}$. Every standard
+estimator treats them as fixed constants. The reported confidence interval therefore
+conditions on them, and omits their variability, whenever the intended estimand refers to
+a target *superpopulation* rather than to the realized target sample.
+
+MIS-03 states that the weight-estimation half of this problem is settled: sandwich,
+ESS-rescaled and bootstrap variance estimators exist, are implemented, and were
+benchmarked by Chandler and Proskorovsky (2024,
+[doi:10.1002/jrsm.1759](https://doi.org/10.1002/jrsm.1759)) across 108 scenarios. What is
+untouched is the published-moment half, because a baseline table arrives without the
+covariance among its own entries, so there is nothing to resample.
+
+MIS-03 asks for exactly one thing: **how much coverage is lost by conditioning on target
+moments at realistic aggregate-data sample sizes.** This study answers that.
+
+## 2. Aims
+
+1. Measure the signed coverage error of the current-practice interval, meaning empirical
+   coverage minus 0.95, across the design.
+2. Locate the boundary: where in the space of source and target sample sizes,
+   effect-modification strength and overlap does that error exceed two percentage points?
+3. Determine what has to be reported for a correction to work. Three corrections are
+   compared, requiring successively more information from the target publication.
+
+## 3. Notation and the estimating system
+
+Source trial: $n_S$ participants, treatments $A$ and $C$, equal allocation, covariates
+$X_i \in \mathbb{R}^3$, outcome $Y_i$. Target trial: $n_T$ participants, treatments $B$
+and $C$, equal allocation.
+
+Write $h(X) = (X_1, X_2, X_3, X_1^2, X_2^2, X_3^2)^\top$. Matching on $h$ is matching on
+the reported means and standard deviations, because a mean and a standard deviation
+together determine the first and second raw moments. Let $\hat m_T = n_T^{-1} \sum_j h(X_j)$
+be the six moments the target publication reports.
+
+MAIC solves, over the source participants,
+
+$$\sum_{i=1}^{n_S} w_i(\lambda)\,\{h(X_i) - \hat m_T\} = 0, \qquad w_i(\lambda) = \exp\{\lambda^\top h(X_i)\}.$$
+
+Stacking this with the two weighted arm-mean equations gives an M-estimator in
+$\psi = (\lambda, \mu_A, \mu_C)$, with per-participant score
+
+$$u_i = \big(\,w_i\{h(X_i) - \hat m_T\},\ \ \mathbb{1}(A_i)\,w_i(Y_i - \mu_A),\ \ \mathbb{1}(C_i)\,w_i(Y_i - \mu_C)\,\big).$$
+
+The transported effect is $\hat\theta_{AC} = \hat\mu_A - \hat\mu_C$, and the anchored
+estimate is $\hat\theta_{AB} = \hat\theta_{AC} - \hat\theta_{BC}$ where $\hat\theta_{BC}$
+is the target trial's own unadjusted arm-mean difference.
+
+With $\hat A$ the empirical Jacobian of the mean score, $\hat B = n_S^{-1}\sum_i u_i u_i^\top$
+and $c = (0,0,0,0,0,0,1,-1)^\top$, the usual sandwich is
+
+$$V_S = c^\top \hat A^{-1} \hat B \hat A^{-\top} c / n_S .$$
+
+The sensitivity of the transported effect to the reported moments follows from the
+implicit function theorem. Since $\partial u_{i,\lambda} / \partial \hat m_T^\top = -w_i I$
+and the arm-mean equations do not involve $\hat m_T$,
+
+$$J = \frac{\partial \hat\theta_{AC}}{\partial \hat m_T} = -\,c^\top \hat A^{-1} C, \qquad C = \begin{pmatrix} -\bar w I_6 \\ 0 \\ 0\end{pmatrix}.$$
+
+$V_S$ conditions on $\hat m_T$. Everything the study compares differs only in what is
+added for the fact that $\hat m_T$ is an estimate.
+
+## 4. Data-generating mechanism
+
+Covariates are trivariate normal with unit variances and equicorrelation. Source
+covariates are centered at $0$ with correlation $0.30$; target covariates are centered at
+$d$ with correlation $\rho_T$.
+
+Prognostic function, common to both trials:
+
+$$f(X) = 0.20 + 0.35X_1 - 0.25X_2 + 0.20X_3 + 0.10(X_1^2-1) - 0.08(X_2^2-1) + 0.05(X_3^2-1).$$
+
+Effect modifier, up to a scale $s$:
+
+$$g(X) = 0.30X_1 - 0.20X_2 + 0.20X_3 + 0.15(X_1^2-1) - 0.10(X_2^2-1) + 0.10(X_3^2-1).$$
+
+Outcomes are $Y = f(X) + \mathbb{1}(A)\tau_{AC}(X) + \varepsilon$ in the source and
+$Y = f(X) + \mathbb{1}(B)\tau_{BC}(X) + \varepsilon$ in the target, with
+$\varepsilon \sim N(0,1)$ independently per participant, and
+
+$$\tau_{AC}(X) = -0.10 + s\,g(X), \qquad \tau_{BC}(X) = -0.10 + \kappa\, s\, g(X).$$
+
+The scale $s$ is set per scenario so that the treatment effect has a prespecified standard
+deviation across individuals **in the target population**. The quadratic terms are half the
+linear ones, so shifting the covariate means multiplies the effective linear coefficient by
+$(1+d)$: fixed coefficients give an effect modifier of standard deviation 0.477 at $d=0$ and
+0.745 at $d=0.8$. Holding coefficients fixed while varying overlap would vary
+effect-modification strength at the same time and confound the two factors, so strength is
+calibrated instead.
+
+The target trial's participants are generated and then discarded. The estimator receives
+$n_T$, the three means, the three standard deviations, and $\hat\theta_{BC}$ with its
+standard error. Nothing else, except where a method is explicitly given more (section 6).
+
+### Factors
+
+| Factor | Levels | Why |
+|---|---|---|
+| Source size $n_S$ | 500, 2000 | The omitted term is $J^\top \Omega J / n_T$ and the retained source term is of order $1/\mathrm{ESS}_S$, so what governs whether the omission matters is the **ratio** of source to target information. A pilot holding $n_S=500$ found the omission was 1% to 7% of total variance; at $n_S=2000$ the same quantity reached 23%. |
+| Target size $n_T$ | 200, 500, 2000 | The range MIS-03 poses. |
+| Overlap $d$ | 0, 0.4, 0.8 | Standardized mean difference per covariate. Population-limit ESS fractions near 1.00, 0.65 and 0.25, spanning the strong, moderate and poor regimes of Chandler and Proskorovsky (2024). |
+| Effect modification $\mathrm{SD}_T(\tau)$ | 0, 0.45, 0.90 | Standard deviation of the individual treatment effect in the target, against a residual standard deviation of 1. Zero is the negative control. |
+| Alignment $\kappa$ | 0, 0.5, 1 | How much the target treatment's effect is modified by the same function. |
+| Target correlation $\rho_T$ | 0.30, 0.60 | At 0.30 the analyst's borrowed source correlation is correct; at 0.60 it is wrong. |
+
+Fully factorial, except that $\kappa$ is meaningless when $\mathrm{SD}_T(\tau)=0$ and those
+cells are collapsed. **252 scenarios.**
+
+### What the mechanism makes true, and therefore what the study cannot see
+
+Covariates are multivariate normal, so the study says nothing about skewed, heavy-tailed,
+bounded or categorical covariates, and it favors the normal-reconstruction correction,
+which is derived under exactly this assumption.
+
+The outcome is continuous and the effect additive, so marginal and conditional effects
+coincide. The study says nothing about noncollapsibility, and therefore nothing directly
+about binary or time-to-event outcomes, where MAIC is most often used.
+
+Effect modification lies exactly in the span of the six calibrated moments, so there is no
+unmeasured effect modifier and no outcome-model extrapolation. The study measures a
+variance failure under otherwise correct identification, not the size of confounding bias.
+
+$\kappa$ is why the mechanism does not decide the answer. At $\kappa=0$ the omitted term is
+a pure positive variance and the interval must be too narrow. At $\kappa=1$ the transported
+$A$ versus $C$ estimate and the observed $B$ versus $C$ estimate move together, the omitted
+covariance is negative, and the interval is too wide. An earlier version of this design used
+only these two endpoints, which fixes the sign of the result by construction; $\kappa=0.5$
+is included so the cancellation point is located rather than assumed.
+
+## 5. Estimands
+
+**Primary.** The target-superpopulation marginal $A$ versus $B$ mean difference,
+
+$$\theta_{AB,T} = \mathbb{E}_T\{\tau_{AC}(X)\} - \mathbb{E}_T\{\tau_{BC}(X)\} = (1-\kappa)\,s\,(0.30\,d + 0.15\,d^2),$$
+
+using $\mathbb{E}[X_j]=d$ and $\mathbb{E}[X_j^2-1]=d^2$. The expectation is over a fresh
+draw from the target superpopulation, not over the realized target trial. Correlation does
+not enter because $g$ contains no cross-products, so the truth is exact in closed form and
+needs no Monte Carlo evaluation. This has been checked against a $3\times10^6$-draw
+simulation in every cell, agreeing to under $2\times10^{-4}$.
+
+The superpopulation qualifier is the whole point. Conditioning on the reported moments is
+the *correct* thing to do when the estimand is defined by those moments, or when they are
+exact administrative counts. The problem exists only for a superpopulation estimand, and
+the protocol declares that rather than leaving it implicit.
+
+## 6. Methods
+
+All four share the same point estimate. The question is not which estimator is less biased;
+it is what a reported interval omits. Anything that also moved the point estimate would
+confound the two.
+
+| Method | Interval variance | What the target must publish |
+|---|---|---|
+| **target-fixed** (status quo) | $V_S + \widehat{\mathrm{Var}}(\hat\theta_{BC})$ | $n_T$, means, SDs, effect and its SE |
+| **normal-recon** | $V_S + J^\top \Omega_{\mathrm{norm}} J / n_T + \widehat{\mathrm{Var}}(\hat\theta_{BC})$ | the same, plus a borrowed correlation matrix |
+| **reported-cov** | $V_S + J^\top \Omega_{hh} J / n_T + \widehat{\mathrm{Var}}(\hat\theta_{BC})$ | additionally the $6\times6$ covariance of $h(X)$ |
+| **joint-score** | $V_S + (J,-1)^\top \Omega_T (J,-1) / n_T$ | additionally its covariance with the outcome influence function |
+
+$\Omega_{\mathrm{norm}}$ is reconstructed from the reported means and standard deviations
+and a borrowed correlation under a multivariate normal model, using
+$\mathrm{Cov}(X_j,X_k) = \Sigma_{jk}$, $\mathrm{Cov}(X_j,X_k^2) = 2\mu_k\Sigma_{jk}$ and
+$\mathrm{Cov}(X_j^2,X_k^2) = 2\Sigma_{jk}^2 + 4\mu_j\mu_k\Sigma_{jk}$. This is what an
+analyst could actually compute today.
+
+$\Omega_{hh}$ and $\Omega_T$ are computed from the target microdata inside the simulation
+and then passed to the estimator **as matrices only**. They are not an assumption that
+microdata are available; they are enhanced-reporting benchmarks, and the point of including
+them is to make the required reporting addition an explicit result of the study.
+
+`joint-score` replaces rather than adds to the target arm-mean variance, which it already
+contains: the influence function
+$\phi_{BC,j} = 2\mathbb{1}(B_j)(Y_j-\bar Y_B) - 2\mathbb{1}(C_j)(Y_j-\bar Y_C)$ satisfies
+$\mathrm{Var}(\phi_{BC})/n_T = \widehat{\mathrm{Var}}(\hat\theta_{BC})$, which is checked in
+the tests.
+
+**Non-convergence** is declared when the optimizer does not report success, when the largest
+remaining standardized moment imbalance exceeds $10^{-4}$, when the effective sample size
+falls below 5, or when the Jacobian is singular. A replicate that fails still contributes a
+row with a recorded reason, so the convergence rate has a real denominator.
+
+## 7. Performance measures
+
+**Primary:** empirical coverage of the nominal 95% interval for $\theta_{AB,T}$, reported as
+the signed error $100(\text{coverage} - 0.95)$ in percentage points.
+
+**Secondary:** paired coverage difference against `joint-score`; bias and bias over empirical
+SE; empirical SE; mean model SE; relative error in model SE; MSE; bias-eliminated coverage;
+rejection rate at $\theta_{AB,T}=0$; mean interval width; median and 5th-percentile ESS;
+convergence rate. Every measure carries a Monte Carlo standard error.
+
+**Replicates: 5000 per scenario**, 1,260,000 in total. At nominal coverage the Monte Carlo
+SE is $\sqrt{0.95 \times 0.05 / 5000} = 0.0031$, so a two-point coverage error sits more than
+six Monte Carlo SEs from nominal and a one-point error more than three. Methods share the
+replicate and the point estimate and differ only in interval width, so paired differences are
+McNemar-type and their Monte Carlo SE is governed by the discordance rate: at 2% discordance
+it is $\sqrt{0.02/5000} = 0.20$ points.
+
+The replicate count was raised from an initially proposed 2000 for a specific reason. A pilot
+showed the coverage effect in the originally nominated confirmatory cells is under one
+percentage point, which 2000 replicates (Monte Carlo SE 0.49 points) could not have resolved.
+That design would have reported "no material effect" as an artifact of its own precision.
+
+## 8. Decision rule, fixed in advance
+
+The original design nominated four cells and asked whether coverage left a 93% to 97% band
+there. A pilot established that it cannot: in those cells the omitted variance is under 2% of
+the total, moving coverage by less than half a point. A rule no achievable result can trigger
+is not a rule, and concluding "not material" from it would report the design's own choice of
+residual variance rather than a property of population adjustment.
+
+So the question is not whether some cell exists where this bites; it is **where the boundary
+lies**. The study commits in advance to exactly one of these conclusions.
+
+**Material at ordinary strength.** At least one scenario with $\mathrm{SD}_T(\tau) \le 0.45$
+has status-quo coverage outside 0.93 to 0.97 with its Monte Carlo 95% interval excluding
+0.95, and `joint-score` covers within 0.93 to 0.97 in that same scenario.
+
+**Material only when effect modification is strong.** Every scenario with
+$\mathrm{SD}_T(\tau) \le 0.45$ is inside 0.93 to 0.97, and at least one scenario at
+$\mathrm{SD}_T(\tau) = 0.90$ is outside.
+
+**Not material anywhere in this range.** Every scenario is inside 0.93 to 0.97, and every
+paired coverage difference from `joint-score` is under 0.01 in absolute value with its Monte
+Carlo 95% interval inside $(-0.02, 0.02)$.
+
+**Uninformative** if any confirmatory method converges on fewer than 98% of replicates; or
+raw and bias-eliminated coverage differ by more than 0.02, meaning the point estimate rather
+than the interval is at fault; or `joint-score` itself misses 0.93 to 0.97, meaning the
+variance decomposition is wrong; or any $\mathrm{SD}_T(\tau)=0$ negative control is outside
+0.93 to 0.97.
+
+## 9. Threats, and what was done about each
+
+| Threat | What was done |
+|---|---|
+| The mechanism decides the sign of the result | $\kappa$ varies continuously through 0.5, so the cancellation point is located rather than assumed |
+| Overlap and effect-modification strength are confounded | Strength is calibrated to a fixed target-population SD in every cell, so the two factors are orthogonal |
+| The answer is an artifact of one arbitrary source size | $n_S$ is a factor; a pilot showed the conclusion turns on it |
+| Undercoverage from weight estimation misread as a target-moment effect | Every method uses the identical source sandwich, and $\mathrm{SD}_T(\tau)=0$ negative controls must be nominal |
+| The decision rule cannot fire | Expected coverage was derived from a pilot before thresholds were set; the rule now asks where the boundary is, not whether an effect exists |
+| Enhanced-reporting methods use information publications do not contain | They are labeled as benchmarks, receive covariance matrices and never microdata, and the deployable reconstruction is evaluated separately |
+| Searching 252 scenarios invites picking the most dramatic cell | The conclusion is a single prespecified statement about the whole grid, not a selected cell |
+| Normal covariates favor the normal reconstruction | Stated as a limitation; $\rho_T = 0.60$ tests the part of the reconstruction an analyst can get wrong today |
+
+## 10. Scope, stated plainly
+
+This study covers **anchored MAIC on a continuous outcome, where the reported target moments
+and the reported $B$ versus $C$ effect come from the same randomized trial.** That is the
+common case and it is the case with the largest cross-covariance, but it is one case.
+
+It does **not** cover: target summaries from a separate sample; covariate-adjusted published
+treatment effects, whose influence functions differ; STC, ML-NMR, ML-UMR or NMI, which have
+different sensitivities $J$; binary or time-to-event outcomes; or reconstructed correlations
+as a source of model uncertainty rather than sampling error.
+
+Accordingly this study **answers MIS-03 in part** and **answers a named component of EST-07**.
+Neither is closed by it. The catalog entries will record which part.
+
+## 11. Amendments
+
+### 2026-07-27, after the run: the gates are also applied per scenario
+
+**What changed.** Section 8 writes the uninformative gates over the whole grid: if
+`joint-score` misses 0.93 to 0.97 anywhere, or any negative control does, the run is
+uninformative. Read that way the run *is* uninformative, and that is reported first
+because it is what was registered. The gates are additionally applied per scenario, and
+the conclusion is read off the scenarios that pass.
+
+**Why.** At $d = 0.8$ the effective sample size falls to a median of 148 of 500 and the
+Wald sandwich undercovers for **every** method, including `joint-score` and including the
+$\mathrm{SD}_T(\tau) = 0$ negative controls, where the target moments carry no information
+about the transported effect at all and every method must agree by construction. That
+failure is real, it is reported as a secondary finding, and it has nothing to do with
+target moments. The global gate lets it void 252 scenarios on the strength of a failure
+in 56.
+
+**Correction, made in response to peer review.** An earlier version of this amendment
+stated that section 9's threat table already contained "Wald sandwich intervals may fail
+at $n_T = 200$ for reasons unrelated to target-moment omission", with a mitigation
+requiring the reference and null controls to be nominal before attributing failure to
+target moments. **That sentence is not in this protocol.** It appears in the design
+document produced before the protocol was written
+(`documentation/studies/designs/MIS-03-target-moment-uncertainty-design.json`), and it did
+not survive into the registered text. The claim that the protocol anticipated the failure
+was therefore wrong, and it is withdrawn. Reviewer 1 caught this.
+
+What is true is weaker and is what the record now says: the failure was anticipated during
+design, and the registered protocol did not carry that anticipation into its gates.
+
+**Status of the restricted analysis: exploratory.** Selecting scenarios by the observed
+coverage of the reference method is filtering on an outcome, and the selected quantity
+shares replicates with everything else reported, so the reference method's coverage range
+in the restricted set is partly guaranteed by the selection. The restricted analysis is
+therefore labelled exploratory wherever it appears, and the registered conclusion is
+reported first and without qualification.
+
+**What it changes.** Under the registered reading: uninformative. Under the exploratory
+restriction: 196 of 252 scenarios, with the results in the manuscript. Both are reported,
+in that order.
+
+**What it does not change.** No threshold, no factor, no performance measure, no
+replicate count, and no scenario's data.
+
+### 2026-07-28, in response to peer review: an analytic identity replaces a claimed finding
+
+Reviewer 1 showed that the net variance omitted by the status quo is, to first order,
+
+$$(1 - 2\kappa)\,\mathrm{Var}_T\{\tau(X)\} \,/\, n_T,$$
+
+because $J = s\,b$ and $\mathrm{Cov}\{h(X), \phi_{BC}\} = \kappa\,s\,\Omega_{hh} b$ under
+this mechanism. The sign is therefore fixed by $\kappa$ analytically, and the cancellation
+at $\kappa = 0.5$ is a property of the design rather than something the simulation
+discovered. Regressing the measured omission on this prediction across the 216 scenarios
+with effect modification gives a slope of 1.003 (SE 0.042).
+
+Section 4's claim that "$\kappa = 0.5$ is included so the cancellation point is located
+rather than assumed" is withdrawn. The identity is now presented as an analytic design
+check that the simulation confirms, which is what it is.
+
+
+# PRESPECIFIED DECISION, AS EVALUATED
+
+# Decision
+
+**Conclusion: uninformative**
+
+Prespecified in `protocol.md` section 8, before the run. 252 scenarios, 5000 replicates each.
+
+## Gates
+
+| gate | pass |
+| --- | --- |
+| convergence | yes |
+| bias_not_at_fault | yes |
+| reference_valid | NO |
+| negative_controls | NO |
+
+Scenarios at ordinary strength (SD_T(tau) <= 0.45) with status-quo coverage outside 0.93 to 0.97: **3 of 144**.
+At strong modification (SD_T(tau) = 0.90): **7 of 108**.
+
+## Restricted to scenarios where the gates hold (amendment, 2026-07-27)
+
+The reference interval or its matched negative control fails in 56 of 252 scenarios, all at poor overlap, where the effective sample size collapses and the Wald sandwich undercovers for every method including those with no effect modification at all. Those scenarios are uninformative about target moments. In the remaining **196**:
+
+**Conclusion on the usable scenarios: material at ordinary effect-modification strength**
+
+- Status-quo coverage: min 0.921, median 0.945, max 0.962
+- Outside 0.93 to 0.97 at ordinary strength: 1 of 113
+- Outside 0.93 to 0.97 at strong modification: 7 of 83
+
+## Ten largest status-quo coverage errors
+
+| nS | nT | d | SD_T(tau) | kappa | rho_T | coverage | error (pp) | MCSE | joint-score |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 500 | 2000 | 0.8 | 0.90 | 0.0 | 0.30 | 0.877 | -7.3 | 0.47 | 0.880 |
+| 500 | 2000 | 0.8 | 0.90 | 1.0 | 0.60 | 0.877 | -7.3 | 0.46 | 0.877 |
+| 500 | 500 | 0.8 | 0.90 | 0.0 | 0.60 | 0.879 | -7.1 | 0.46 | 0.890 |
+| 500 | 2000 | 0.8 | 0.90 | 0.5 | 0.60 | 0.879 | -7.1 | 0.46 | 0.880 |
+| 500 | 2000 | 0.8 | 0.90 | 0.0 | 0.60 | 0.881 | -6.9 | 0.46 | 0.885 |
+| 500 | 500 | 0.8 | 0.90 | 0.0 | 0.30 | 0.883 | -6.7 | 0.45 | 0.893 |
+| 500 | 2000 | 0.8 | 0.90 | 1.0 | 0.30 | 0.885 | -6.5 | 0.45 | 0.884 |
+| 500 | 2000 | 0.8 | 0.45 | 0.0 | 0.60 | 0.885 | -6.5 | 0.45 | 0.886 |
+| 500 | 2000 | 0.8 | 0.45 | 0.5 | 0.30 | 0.885 | -6.5 | 0.45 | 0.887 |
+| 500 | 2000 | 0.8 | 0.90 | 0.5 | 0.30 | 0.885 | -6.5 | 0.45 | 0.887 |
+
+
+
+# ROUND ONE REPORTS
+
+## Reviewer kimi-unavailable
+
+{
+ "reviewer": "kimi",
+ "name": "Kimi K3 (via Ollama)",
+ "round": 1,
+ "status": "unavailable",
+ "reason": "Ollama returned 402 Payment Required: this model is billed as extra usage and the account balance is empty. Add credit at https://ollama.com/settings, then re-run this command."
+}
+
+## Reviewer sol
+
+{
+ "recommendation": "major-revision",
+ "summary": "The paper derives the first-order contribution of sampled target moments to anchored MAIC variance and evaluates it across a large simulation design. The superpopulation estimand, joint covariance decomposition, negative controls, and use of identical point and source-variance estimators make the intended comparison conceptually strong and fair. However, the registered analysis is uninformative, while the subsequent confirmatory-sounding conclusions rely on outcome-dependent post-run filtering; moreover, the sign and cancellation of the headline effect are algebraically imposed by the proportional effect-modification mechanism. The restricted results remain useful exploratory evidence, but they do not support the universal recommendation that analysts add the positive moment-variance term without the unavailable cross-covariance.",
+ "strengths": [
+  "The paper identifies an important distinction between inference for a realized target sample and inference for a target superpopulation.",
+  "Equation 4 correctly recognizes that target moments and the published B versus C estimate can be statistically dependent when obtained from the same participants.",
+  "The marginal target-population estimand is appropriate for the additive continuous-outcome mechanism and has a transparent closed-form truth.",
+  "All methods share the same point estimate and source sandwich, so the comparison does not unfairly handicap the status quo with an inferior source variance estimator.",
+  "The factorial design, 5000 replicates per scenario, explicit convergence denominator, negative controls, and reproducible seeding are substantial strengths.",
+  "The manuscript candidly reports the registered gate failure and already acknowledges several important restrictions, including normal covariates, correct effect-modifier specification, and lack of applicability to noncollapsible outcomes."
+ ],
+ "comments": [
+  {
+   "id": 1,
+   "severity": "major",
+   "section": "Registered protocol; Results: The registered gates fire; protocol amendment",
+   "comment": "The prespecified conclusion is uninformative because the reference and negative-control gates fail. The amended analysis then selects scenarios according to observed coverage of the joint-score method and its negative control. This is outcome-dependent post-run filtering, not a prespecified restriction, and it affects all methods because their coverage indicators share replicates and the same source sandwich. Consequently, the joint-score range in Table 2 is guaranteed by selection and the remaining coverage summaries are also selected. The amendment additionally says that Section 9 contained specific per-scenario language about Wald failure, but that language is absent from the supplied registered protocol.",
+   "what_would_satisfy": "Label the 196-scenario analysis explicitly as exploratory, correct the account of what the registered protocol contained, and conduct an independent simulation run under a new registration. The new protocol should either use an ex ante design criterion such as expected ESS or employ a source variance procedure that passes the negative controls throughout the intended design."
+  },
+  {
+   "id": 2,
+   "severity": "major",
+   "section": "Data-generating mechanism; Results: omitted variance",
+   "comment": "The central sign result is built into the mechanism. Writing g(X)=b'h(X)+constant gives the population sensitivity J=sb and Cov{h(X),phi_BC}=kappa*s*Omega_hh*b. The net target-moment contribution omitted by the status quo is therefore (1-2*kappa)*s^2*b'Omega_hh*b/n_T, or (1-2*kappa)*Var_T{s g(X)}/n_T. Thus its sign is fixed at the selected endpoints and cancellation occurs at kappa=0.5 by construction. Including only three kappa levels is not continuous variation and does not empirically locate the cancellation point.",
+   "what_would_satisfy": "Present this identity as an analytic design check rather than a simulation finding. To study alignment empirically, vary the source and target effect-modifier coefficient vectors independently, including different directions, negative alignment, partial overlap of modifier sets, and modifiers outside the calibrated span."
+  },
+  {
+   "id": 3,
+   "severity": "major",
+   "section": "Methods compared; What a publication would have to report; Discussion",
+   "comment": "Normal reconstruction and reported moment covariance add only J'Omega_hh J/n_T while omitting the cross-covariance with the B versus C estimator. They are therefore not full unconditional corrections for the setting actually studied. The added term is always nonnegative, so it cannot correct status-quo overcoverage when the net omitted component is negative; at kappa=0.5 it adds variance when the population net omission is zero, and at kappa=1 it should worsen overcoverage.",
+   "what_would_satisfy": "Relabel these as partial moment-variance additions, report their paired performance against joint-score separately by kappa, and withdraw the universal recommendation to add the positive term. A deployable full correction would require either a justified model for the cross term or publication of the relevant covariate-outcome score covariances."
+  },
+  {
+   "id": 4,
+   "severity": "major",
+   "section": "Methods; Results: poor-overlap failure",
+   "comment": "Using the same source sandwich makes the comparison fair, but the chosen sandwich fails badly enough to invalidate the prespecified absolute-coverage analysis. This is especially problematic because the introduction describes source weight-estimation uncertainty as settled and cites available alternatives. Paired contrasts may still illuminate the incremental target contribution, but they do not establish that any interval restores nominal absolute coverage.",
+   "what_would_satisfy": "Repeat the study using a source variance procedure selected in advance and validated by the null controls, such as an appropriate bootstrap or finite-sample correction. Alternatively, restrict the target question to an ex ante overlap region and frame conclusions outside it solely in terms of paired incremental effects."
+  },
+  {
+   "id": 5,
+   "severity": "major",
+   "section": "Results and Monte Carlo uncertainty",
+   "comment": "The headline tables omit the Monte Carlo uncertainty needed to assess their claims. In particular, a median coverage difference of 0.02 percentage points cannot establish equivalence without its paired discordance rate and Monte Carlo standard error. The single scenario triggering the ordinary-strength category is not identified, and extrema across 167 scenarios are reported without acknowledging selection noise.",
+   "what_would_satisfy": "Report each decisive scenario, paired coverage differences, discordance counts, Monte Carlo standard errors or intervals, and a prespecified equivalence margin. Give maximum as well as median differences between normal reconstruction, reported-covariance, and joint-score methods, stratified by kappa and target-correlation misspecification."
+  },
+  {
+   "id": 6,
+   "severity": "major",
+   "section": "What a publication would have to report; Limitations",
+   "comment": "The claim that normal reconstruction makes enhanced reporting unnecessary is evaluated under multivariate normality, where the reconstruction formulas are correct by construction. The sole misspecification changes one positive equicorrelation from 0.30 to 0.60, while pooled summaries can hide failures in the affected subset. This does not support a general recommendation for real baseline tables containing skewed, bounded, categorical, missing, or rounded variables.",
+   "what_would_satisfy": "Either restrict the recommendation explicitly to approximately normal continuous covariates under modest correlation error, or add confirmatory scenarios with nonnormal covariates, mixed covariate types, broader correlation misspecification, rounding, and covariate-specific missingness."
+  },
+  {
+   "id": 7,
+   "severity": "major",
+   "section": "The problem; What this answers",
+   "comment": "The study provides a special-case answer for anchored MAIC with an additive continuous outcome, three normally distributed covariates, correctly spanned effect modification, and target summaries sharing participants with the comparator estimate. It therefore does not supply the single general number initially promised for MIS-03. The later statement that MIS-03 is answered only in part is the defensible characterization. The labels ordinary and strong effect modification also lack empirical calibration to actual MAIC applications.",
+   "what_would_satisfy": "Use the partial-answer wording consistently in the title, opening, abstract, and conclusions, and justify the effect-modification and overlap levels using empirical PAIC applications or replace the value-laden strength labels with numerical labels."
+  },
+  {
+   "id": 8,
+   "severity": "minor",
+   "section": "Estimating system and negative controls",
+   "comment": "The statement that J is exactly zero without effect modification is only a population or first-order statement. In a finite randomized source trial, chance arm imbalance in prognostic covariates can make the estimated J nonzero, so the four intervals need not coincide exactly. The manuscript should also specify how a published sample SD is converted to a second raw moment, including the n versus n-1 denominator.",
+   "what_would_satisfy": "Correct the exact-zero language, quantify the finite-sample discrepancies in negative controls, and document the precise mean-and-SD conversion used by the implementation."
+  },
+  {
+   "id": 9,
+   "severity": "minor",
+   "section": "Results",
+   "comment": "The percentage of variance omitted and the percentage interval-width cost are not formally defined. It is unclear which variance or width is the denominator and whether summaries are ratios of scenario means or means of replicate-level ratios.",
+   "what_would_satisfy": "Provide formulas for these measures, identify their denominators, and report their Monte Carlo uncertainty."
+  },
+  {
+   "id": 10,
+   "severity": "minor",
+   "section": "Front matter",
+   "comment": "The supplied manuscript has no abstract. For a methodological journal, the abstract must clearly distinguish the registered uninformative result from the exploratory amended analysis.",
+   "what_would_satisfy": "Add a structured abstract led by the registered result, followed by explicitly labeled exploratory findings and appropriately restricted practical implications."
+  }
+ ],
+ "citation_problems": [
+  {
+   "cite": "Chandler and Proskorovsky (2024)",
+   "problem": "One simulation benchmark does not justify calling source weight-estimation uncertainty settled, particularly when the present study uses a conventional sandwich that fails its own controls. State exactly which variance procedures and settings that paper supports."
+  },
+  {
+   "cite": "Sheng, Sun and Huang (2026); Chen, Chen and Yu (2026)",
+   "problem": "The manuscript does not explain whether these studies use target summaries from the same sample as an outcome or treatment-effect estimate, or whether they include the corresponding cross-covariance. That comparison is necessary to support the claimed remaining novelty."
+  },
+  {
+   "cite": "Novelty claim surrounding Equation 4",
+   "problem": "Estimated calibration totals and covariance induced by overlapping samples are established ideas in survey calibration, two-phase sampling, and generalizability theory. Novelty should be limited to the MAIC application and quantitative evaluation unless the broader literature is reviewed and distinguished."
+  },
+  {
+   "cite": "Claim that every standard estimator treats target moments as exact",
+   "problem": "This sweeping statement is not supported by a review of MAIC methods or software and sits uneasily beside the two cited transportability methods that propagate summary uncertainty. Qualify it to identified MAIC implementations and provide supporting citations."
+  }
+ ],
+ "conclusions_supported": false,
+ "unsupported_claims": [
+  "This study supplies it.",
+  "The alignment kappa varies continuously.",
+  "kappa = 0.5 is included so the cancellation is located rather than assumed.",
+  "All three corrections stay inside it in every scenario.",
+  "Getting the borrowed correlation wrong, at rho_T = 0.60 against a source value of 0.30, did not break it.",
+  "The deployable correction is as good as the one requiring enhanced reporting, so the case for asking journals to publish moment covariance matrices is weak.",
+  "The case for analysts computing Equation 3 and adding J'Omega_norm J/n_T is strong.",
+  "It removes a coverage error of up to three points whose sign they cannot otherwise determine.",
+  "The problem is real and is worth correcting, and the correction is available now.",
+  "This was anticipated. Section 9's threat table already contains 'Wald sandwich intervals may fail at n_T = 200 for reasons unrelated to target-moment omission'."
+ ],
+ "reviewer": "sol",
+ "name": "GPT-5.6 Sol (maximum reasoning effort)",
+ "round": 1
+}
+
+
+# AUTHORS' RESPONSE TO ROUND ONE
+
+We thank Reviewer 1. The review changed the paper's conclusions, not only its wording, and
+two of its findings were errors of ours that nothing else had caught. Reviewer 2 was
+invited and could not be reached; the record says so.
+
+Below, each comment is answered in order. Where we disagree we say so and why. Where a
+comment requires work we have not done, we say that plainly rather than claiming a fix.
+
+---
+
+## Major 1. The registered analysis is uninformative and the restriction is outcome-dependent
+
+**Accepted in full, including the factual error.**
+
+The reviewer is right that the amendment misdescribed the registered protocol. We wrote
+that section 9's threat table "already contains" a sentence about the Wald sandwich failing
+for reasons unrelated to target moments. It does not. That sentence is in the *design
+document* produced before the protocol was written
+(`documentation/studies/designs/MIS-03-target-moment-uncertainty-design.json`), and it did
+not survive into the registered text. We imported it into the amendment without checking
+that it had. The claim is retracted in `protocol.md` section 11 and the correction is
+attributed to this review.
+
+This is the same failure mode the catalog this program serves keeps finding in the
+literature: a real source, a real sentence, attached to the wrong document. We record it
+rather than quietly repairing it.
+
+On the substance: we accept that selecting scenarios by the reference method's observed
+coverage is filtering on an outcome, and that because all methods share replicates and the
+same source sandwich, the reference method's coverage range within the restricted set is
+partly guaranteed by the selection. The paper now:
+
+- reports the registered conclusion, **uninformative**, first and without qualification, in
+  the abstract and as the first results subsection;
+- labels the restricted analysis exploratory in the abstract, the section heading, every
+  table caption and the discussion;
+- states explicitly that a confirmatory answer requires a fresh run under a new
+  registration, with either an ex ante design criterion such as expected effective sample
+  size or a source variance procedure validated to pass the controls throughout.
+
+We have **not** performed that new run. It is the correct next step and we do not claim to
+have taken it.
+
+## Major 2. The sign is algebraically imposed, not discovered
+
+**Accepted in full.** The reviewer's derivation is correct. With $J = sb$ and
+$\mathrm{Cov}\{h(X),\phi_{BC}\} = \kappa s \Omega_{hh} b$, the net omitted component is
+$(1-2\kappa)\mathrm{Var}_T\{\tau(X)\}/n_T$, so its sign is fixed by $\kappa$ and the
+cancellation at $\kappa = 1/2$ is a property of the design.
+
+We have added section 3.1 stating the identity, and we withdraw the claim that
+"$\kappa = 0.5$ is included so the cancellation point is located rather than assumed". The
+protocol carries the same retraction.
+
+We also checked the identity against the run rather than only asserting it: regressing the
+measured omitted variance on $(1-2\kappa)\mathrm{Var}_T\{\tau\}/n_T$ across the 216
+scenarios with effect modification gives a slope of 1.003 (SE 0.042). The residual scatter
+is the finite-sample departure the reviewer notes separately in Minor 8.
+
+We accept that three $\kappa$ levels are not continuous variation, and the paper no longer
+describes them as such. We have not added independent variation of the source and target
+modifier coefficient vectors; that changes the estimand structure and belongs in the
+follow-up study, and we say so in the scope section.
+
+## Major 3. The two deployable corrections are partial, so the recommendation was wrong
+
+**Accepted in full, and this changes a conclusion.** `normal-recon` and `reported-cov` add
+$J^\top \Omega J/n_T$, which is non-negative, and omit the cross term. By the identity in
+Major 2 they can only help when $\kappa < 1/2$; at $\kappa = 1/2$ they add variance where
+the net omission is zero and at $\kappa = 1$ they widen an interval that is already too
+wide.
+
+The paper now calls them partial corrections in the methods table and throughout, reports
+coverage stratified by $\kappa$ (@tbl-methods) so the behavior is visible rather than
+averaged away, and **withdraws the general recommendation to add the positive term**. The
+narrowed recommendation is conditional on $\kappa$ being believed small, and the paper
+states that no deployable correction exists for large $\kappa$ because it needs a
+covariance a publication does not report.
+
+We also withdraw the claim that the case for journals publishing moment covariance matrices
+is weak. That comparison was run under multivariate normality, where the reconstruction is
+correct by construction, so it cannot support a general statement about reporting policy.
+
+## Major 4. The source sandwich fails, which invalidates the absolute-coverage analysis
+
+**Accepted.** The paper now says this directly in the registered-result section, and
+connects it to the citation: Chandler and Proskorovsky found conventional estimators
+anticonservative under poor and moderate overlap, and the conventional sandwich used here
+fails in exactly that region. We have removed the description of source weight-estimation
+variance as "settled" and replaced it with what that paper actually supports.
+
+We have not repeated the study with a different source variance procedure. The paper
+restricts its absolute-coverage claims to the region where the controls hold and flags the
+poor-overlap failure as deserving its own study.
+
+## Major 5. Monte Carlo uncertainty missing from the headline tables
+
+**Accepted.** Added: a paired-differences table reporting median, minimum and maximum
+differences against the reference, the mean number of discordant replicates that determines
+the Monte Carlo error of a paired comparison, and the mean paired Monte Carlo standard
+error. The Monte Carlo standard error at nominal coverage is stated in the caption of the
+coverage table. The single scenario that triggered the prespecified category is now
+identified by its full factor combination with its Monte Carlo standard error, and the
+paper says no weight is placed on it.
+
+We have not set a formal equivalence margin. We agree one is needed to claim equivalence,
+and the paper therefore no longer claims equivalence between the partial corrections and
+the benchmark; it reports the differences and their uncertainty and leaves the reader to
+judge.
+
+## Major 6. The reconstruction is evaluated where it is correct by construction
+
+**Accepted.** The recommendation is now explicitly restricted to approximately normal
+continuous covariates under modest correlation error, and the paper lists skewed, bounded,
+categorical, rounded and partially missing variables as untested. We have not added
+non-normal scenarios; that is a substantial extension and is named as such.
+
+## Major 7. This is a special-case answer and the wording should say so consistently
+
+**Accepted.** The subtitle now reads "answering part of" the two catalog problems, and the
+abstract, the problem section and the scope section use partial-answer wording. The
+$\mathrm{SD}_T(\tau)$ levels are now labelled by their numerical values rather than as
+"ordinary" and "strong", because we have no empirical calibration to published applications
+and the value-laden labels implied one.
+
+## Minor 8. "Exactly zero" is a population statement, and the moment conversion is undocumented
+
+**Accepted.** The paper now says $J$ is zero *in the population* under no effect
+modification, that chance imbalance in a finite randomized source trial makes $\hat J$
+nonzero so the four intervals do not coincide exactly, and points to the negative-control
+results for the size of the discrepancy. The conversion from a reported unbiased sample
+standard deviation to the second raw moment,
+$\hat m_{2j} = \{(n_T-1)/n_T\}s_j^2 + \bar x_j^2$, is now given explicitly in section 2
+with the reason: it makes the calibration target exactly the sample mean of $h(X)$.
+
+## Minor 9. The percentage measures are not defined
+
+**Accepted.** Both are now defined where computed. Omitted variance is
+$100\{(\widehat{\mathrm{SE}}_{\text{joint}}/\widehat{\mathrm{SE}}_{\text{fixed}})^2 - 1\}$,
+formed from each method's scenario-mean model standard error, so it is a ratio of scenario
+summaries rather than a mean of replicate-level ratios. Width cost is the analogous ratio
+of scenario-mean interval widths.
+
+## Minor 10. No abstract
+
+**Accepted, and this was a rendering fault rather than an omission.** The abstract was in
+the document front matter, which the Markdown output format drops. Since the Markdown file
+is what reviewers and readers receive, the abstract is now a section in the body and
+appears in all three published formats. It is structured as the reviewer asked: registered
+result first, exploratory findings explicitly labelled, then the restricted practical
+implication.
+
+## Citation problems
+
+**Chandler and Proskorovsky.** Accepted; "settled" is removed and replaced with the
+specific settings that paper covers, together with the observation that the present study
+finds the conventional sandwich failing outside them.
+
+**Sheng et al. and Chen et al.** Accepted. The paper now states that neither is framed for
+the anchored two-trial setting in which the target moments and the target treatment effect
+come from the same participants, which is the case that produces the cross term, and that
+neither has been carried into indirect-comparison software.
+
+**Novelty around the joint-covariance equation.** Accepted. The paper now says that
+estimated calibration totals contributing variance, and overlapping samples inducing
+covariance, are long established in survey calibration and two-phase sampling, and that
+nothing here claims those as new.
+
+**"Every standard estimator treats target moments as exact."** Accepted and qualified to
+the implementations we examined.
+
+## Claims the reviewer judged unsupported
+
+All ten have been removed, rewritten or restricted. The two that were simply wrong, "the
+alignment $\kappa$ varies continuously" and "$\kappa = 0.5$ is included so the cancellation
+point is located rather than assumed", are retracted in both the paper and the protocol.
+"This study supplies it" is now "answers in part". The recommendation sentences are
+narrowed as described under Major 3 and Major 6. The claim about what section 9 contained
+is retracted as described under Major 1.

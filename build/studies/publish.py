@@ -167,6 +167,15 @@ def write_index(ds):
             "protocol": (f"studies/{d['_slug']}/protocol.md"
                          if os.path.exists(os.path.join(d["_dir"], "protocol.md"))
                          else None),
+            # The full peer-review exchange, published beside the paper. A study
+            # that says it was reviewed without showing the reports is asking to
+            # be taken on trust, which is the thing this catalog exists to avoid.
+            "review": (f"studies/{d['_slug']}/review/peer-review.md"
+                       if os.path.exists(os.path.join(d["_dir"], "review",
+                                                      "peer-review.md"))
+                       else None),
+            "review_rounds": len(glob.glob(os.path.join(
+                d["_dir"], "review", "round*-response.md"))),
             "downloads": have,
             "primary_problem": d["problem_id"],
             "secondary": False,

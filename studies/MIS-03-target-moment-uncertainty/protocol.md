@@ -299,20 +299,45 @@ failure is real, it is reported as a secondary finding, and it has nothing to do
 target moments. The global gate lets it void 252 scenarios on the strength of a failure
 in 56.
 
-This was anticipated. Section 9's threat table already contains "Wald sandwich intervals
-may fail at $n_T = 200$ for reasons unrelated to target-moment omission", with the
-mitigation "require the reference method and null controls to attain 93% to 97% coverage
-before attributing failure to fixed target moments; otherwise classify as uninformative".
-The per-scenario reading is that mitigation applied where it was meant to apply. The
-global reading applies it everywhere at once, which was a drafting error rather than an
-intention.
+**Correction, made in response to peer review.** An earlier version of this amendment
+stated that section 9's threat table already contained "Wald sandwich intervals may fail
+at $n_T = 200$ for reasons unrelated to target-moment omission", with a mitigation
+requiring the reference and null controls to be nominal before attributing failure to
+target moments. **That sentence is not in this protocol.** It appears in the design
+document produced before the protocol was written
+(`documentation/studies/designs/MIS-03-target-moment-uncertainty-design.json`), and it did
+not survive into the registered text. The claim that the protocol anticipated the failure
+was therefore wrong, and it is withdrawn. Reviewer 1 caught this.
 
-**What it changes.** Under the global reading: uninformative. Under the per-scenario
-reading: 196 of 252 scenarios are usable and the conclusion is *material at ordinary
-effect-modification strength*, though that category is triggered by a single marginal
-scenario and the robust statement is the one about magnitude and sign. Both readings are
-reported in `results/decision.md` and in the manuscript, in that order.
+What is true is weaker and is what the record now says: the failure was anticipated during
+design, and the registered protocol did not carry that anticipation into its gates.
+
+**Status of the restricted analysis: exploratory.** Selecting scenarios by the observed
+coverage of the reference method is filtering on an outcome, and the selected quantity
+shares replicates with everything else reported, so the reference method's coverage range
+in the restricted set is partly guaranteed by the selection. The restricted analysis is
+therefore labelled exploratory wherever it appears, and the registered conclusion is
+reported first and without qualification.
+
+**What it changes.** Under the registered reading: uninformative. Under the exploratory
+restriction: 196 of 252 scenarios, with the results in the manuscript. Both are reported,
+in that order.
 
 **What it does not change.** No threshold, no factor, no performance measure, no
-replicate count, and no scenario's data. The amendment is a restriction of the analysis
-set on a criterion that was itself prespecified, not a change to the criterion.
+replicate count, and no scenario's data.
+
+### 2026-07-28, in response to peer review: an analytic identity replaces a claimed finding
+
+Reviewer 1 showed that the net variance omitted by the status quo is, to first order,
+
+$$(1 - 2\kappa)\,\mathrm{Var}_T\{\tau(X)\} \,/\, n_T,$$
+
+because $J = s\,b$ and $\mathrm{Cov}\{h(X), \phi_{BC}\} = \kappa\,s\,\Omega_{hh} b$ under
+this mechanism. The sign is therefore fixed by $\kappa$ analytically, and the cancellation
+at $\kappa = 0.5$ is a property of the design rather than something the simulation
+discovered. Regressing the measured omission on this prediction across the 216 scenarios
+with effect modification gives a slope of 1.003 (SE 0.042).
+
+Section 4's claim that "$\kappa = 0.5$ is included so the cancellation point is located
+rather than assumed" is withdrawn. The identity is now presented as an analytic design
+check that the simulation confirms, which is what it is.
