@@ -11,7 +11,7 @@ baseline table. Every matching-adjusted indirect comparison
 implementation we could examine treats the target’s reported covariate
 means and standard deviations as exact constants, though they are sample
 estimates carrying their own sampling error, and no study has measured
-what that costs.
+what that costs in anchored MAIC.
 
 **Registered result.** The prespecified analysis is **uninformative**.
 Its gates require the reference interval and the negative controls to be
@@ -45,12 +45,14 @@ could deploy add only the positive moment-variance term and omit the
 cross-covariance, so they are **partial**. Analytically they are closer
 to the correct variance than doing nothing only when $\kappa < 1/4$;
 between $1/4$ and $1/2$ they are worse than doing nothing, and the
-design contains no interior $\kappa$ with which to test this. Where they
-were examined, at $\kappa \in \{0, 0.5, 1\}$ with exactly
-multivariate-normal covariates and a single equicorrelation discrepancy,
-they kept coverage inside 93% to 97% in every scenario, at a median
-interval-width cost of 2.24%. Extrema sat within about one Monte Carlo
-standard error of the band edges.
+design contains no interior $\kappa$ with which to test this. In the
+exploratory restricted set, at $\kappa \in \{0, 0.5, 1\}$ with
+**exactly** multivariate-normal covariates and a single equicorrelation
+discrepancy, they kept coverage inside 93% to 97% in every scenario, at
+a median interval-width cost of 2.24%. That figure applies under exact
+multivariate normality and may differ substantially under skewed,
+bounded, categorical or rounded covariates, which are untested. Extrema
+sat within about one Monte Carlo standard error of the band edges.
 
 # The problem
 
@@ -233,8 +235,13 @@ available, and value-laden labels would imply one.
 $n_S$ is a factor because the omitted term is $J^\top \Omega J / n_T$
 against a retained term of order $1/\mathrm{ESS}_S$, so what governs the
 ratio is source versus target information rather than $n_T$ alone. A
-pilot at $n_S = 500$ found the omission 1% to 7% of variance; at
-$n_S = 2000$ it reached 23%.
+pilot of 120 replicates per configuration over a 16-cell grid crossing
+$n_S \in \{500, 2000\}$, $n_T \in \{200, 2000\}$, $d \in \{0, 0.8\}$ and
+two effect-modification strengths, run before the design was fixed,
+found the omission was 1% to 7% of variance at $n_S = 500$; the 23%
+figure came from $n_S = 2000$, $n_T = 200$, $d = 0.8$ at the stronger
+modification. Those numbers justified making $n_S$ a factor and are
+reported here so the justification is checkable.
 
 **Estimand.** The target-superpopulation marginal $A$ versus $B$ mean
 difference, $(1-\kappa)s(0.30d + 0.15d^2)$, exact in closed form and
@@ -277,8 +284,11 @@ said they helped. Peer review supplied this correction.
 The design has $\kappa \in \{0, 0.5, 1\}$ and therefore **no interior
 values with which to test
 <a href="#eq-quarter" class="quarto-xref">Equation 6</a> empirically**.
-Results are reported stratified by $\kappa$, and no claim is made about
-intermediate alignment.
+<a href="#eq-quarter" class="quarto-xref">Equation 6</a> is an analytic
+result with no empirical support at the boundary it defines, and both
+reviewers identified that as the largest gap between what this paper
+recommends and what it tests. Results are reported stratified by
+$\kappa$ and no claim is made about intermediate alignment.
 
 `joint-score` receives $\Omega_T$ computed inside the simulation and
 passed **as a matrix only**; it is an enhanced-reporting benchmark, not
@@ -337,11 +347,15 @@ nominal.
 reference method’s coverage, which shares replicates with every other
 method through the common point estimate and source sandwich, so the
 reference method’s coverage range within the restricted set is partly
-guaranteed by the selection. Everything in this section is exploratory
-and is not a test of the registered hypothesis. A confirmatory answer
+guaranteed by the selection. Everything in this section is exploratory,
+is **hypothesis-generating only**, and should not be cited as evidence
+for or against any method’s coverage properties. A confirmatory answer
 needs a fresh run under a new registration, with either an ex ante
-design criterion such as expected effective sample size or a source
-variance procedure validated to pass the controls throughout.
+design criterion such as expected effective sample size or an overlap
+restriction fixed in advance, or a source variance procedure validated
+to pass the controls throughout. We did not re-restrict by an ex ante
+criterion and report whether the conclusions change; that is part of the
+same required rerun.
 
 <div id="tbl-kappa">
 
@@ -384,8 +398,10 @@ publication is the worst case, not a small target trial as such.
 
 Table 2: Coverage of nominal 95% intervals across the restricted
 scenarios with effect modification present, stratified by alignment.
-Monte Carlo standard error is 0.31 percentage points at nominal
-coverage. Exploratory.
+These are the 167 of the 196 restricted scenarios that have effect
+modification; the other 29 are the negative controls. Monte Carlo
+standard error is 0.31 percentage points at nominal coverage.
+Exploratory.
 
 <div class="cell-output-display">
 
@@ -399,6 +415,12 @@ coverage. Exploratory.
 </div>
 
 </div>
+
+The minimum paired differences in
+<a href="#tbl-paired" class="quarto-xref">Table 3</a> are within about
+one and a half Monte Carlo standard errors of zero and carry no
+directional interpretation; only the maxima are large relative to Monte
+Carlo error.
 
 The status quo is the only method to leave the band, and it leaves in
 both directions. The two partial corrections behave as
@@ -527,11 +549,27 @@ a different influence function. STC, ML-NMR, ML-UMR and NMI, which have
 different sensitivities $J$. And absolute coverage at poor overlap,
 where the source variance estimator fails first.
 
-Accordingly this study **answers MIS-03 in part** and **answers one
-named component of EST-07**, namely sampling error in reported moments.
-EST-07’s remaining components, model uncertainty in reconstructed
-correlations, inclusion-criteria ambiguity and secular drift, are not
-sampling error and are untouched.
+Accordingly, and stated precisely rather than as “answers in part”: this
+study contributes an **analytic** result to MIS-03,
+<a href="#eq-identity" class="quarto-xref">Equation 5</a> and
+<a href="#eq-quarter" class="quarto-xref">Equation 6</a>, which the
+simulation confirms as theory and which does not depend on the
+restricted set; and it contributes **exploratory only** evidence on the
+coverage question MIS-03 actually asks, which is therefore **not**
+answered confirmatorily. It answers one named component of EST-07,
+sampling error in reported moments, on the same footing. EST-07’s
+remaining components, model uncertainty in reconstructed correlations,
+inclusion-criteria ambiguity and secular drift, are not sampling error
+and are untouched.
+
+**Where $\kappa$ might come from.** The practical recommendation turns
+on $\kappa$, which the usual inputs do not identify. Published subgroup
+effects, reported treatment-by-covariate interactions, or
+covariate-outcome summaries in the target trial could in principle carry
+information about how far the target treatment’s effect is modified by
+the same covariates. Establishing what those inputs identify, and how
+much of $\kappa$ they pin down, would make the correction deployable in
+the range where it currently is not. We have not investigated it.
 
 **A finding nobody asked for.** The poor-overlap sandwich failure in
 <a href="#sec-registered" class="quarto-xref">Section 4.1</a> is larger
