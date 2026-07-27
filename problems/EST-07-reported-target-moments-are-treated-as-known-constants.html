@@ -43,9 +43,9 @@ ul.task-list li input[type="checkbox"] {
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-03d47695bc5f811f7e6896b5de8ee1f3.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../site_libs/bootstrap/bootstrap-dark-9a2863f3190aa48dadd243fa71713907.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../site_libs/bootstrap/bootstrap-03d47695bc5f811f7e6896b5de8ee1f3.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-3929247d43a275c44ef0022ded45a8ce.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-ea0713af19bdf5f6adc2ec466a14144b.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-3929247d43a275c44ef0022ded45a8ce.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": true,
@@ -343,6 +343,10 @@ ul.task-list li input[type="checkbox"] {
 <span class="menu-text">Agenda</span></a>
   </li>  
   <li class="nav-item">
+    <a class="nav-link" href="../studies.html"> 
+<span class="menu-text">Studies</span></a>
+  </li>  
+  <li class="nav-item">
     <a class="nav-link" href="../chronology.html"> 
 <span class="menu-text">Chronology</span></a>
   </li>  
@@ -386,6 +390,7 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#why-it-is-open" id="toc-why-it-is-open" class="nav-link" data-scroll-target="#why-it-is-open">Why it is open</a></li>
   <li><a href="#what-has-been-tried" id="toc-what-has-been-tried" class="nav-link" data-scroll-target="#what-has-been-tried">What has been tried</a></li>
   <li><a href="#probable-solution-or-research-direction" id="toc-probable-solution-or-research-direction" class="nav-link" data-scroll-target="#probable-solution-or-research-direction">Probable solution or research direction</a></li>
+  <li><a href="#our-study" id="toc-our-study" class="nav-link" data-scroll-target="#our-study">Our study</a></li>
   <li><a href="#verification" id="toc-verification" class="nav-link" data-scroll-target="#verification">Verification</a></li>
   <li><a href="#how-the-evidence-falls-in-time" id="toc-how-the-evidence-falls-in-time" class="nav-link" data-scroll-target="#how-the-evidence-falls-in-time">How the evidence falls in time</a></li>
   <li><a href="#related-problems" id="toc-related-problems" class="nav-link" data-scroll-target="#related-problems">Related problems</a></li>
@@ -429,6 +434,19 @@ ul.task-list li input[type="checkbox"] {
 <div class="problem-meta">
 <p><span class="problem-id">EST-07</span> <span class="verdict verdict-partially-addressed">Partially addressed</span> <span class="chip chip-priority-very-high">Very high priority</span> <span class="chip chip-maturity-promising">Promising</span></p>
 </div>
+<div class="callout callout-style-simple callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>A study has been run against this problem
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The omission is real but bounded, and its direction is not fixed: conditioning on the reported moments omits between 9.5% too much and 14.9% too little variance, moving coverage of a nominal 95% interval between 92.1% and 96.2%. Which way it goes depends on how far the target trial’s own treatment effect is modified by the same covariates as the source trial’s, and nothing in a publication identifies that. A correction needing no new data, only a correlation matrix borrowed from the source, restored coverage in every scenario for about 2% more interval width. <a href="#our-study">Read the study below</a>.</p>
+</div>
+</div>
 <section id="statement" class="level2">
 <h2 class="anchored" data-anchor-id="statement">Statement</h2>
 <p>Reported target-population means and standard deviations are estimates, and standard PAIC estimators condition on them as fixed inputs, so the reported interval omits that variability whenever the inference is to a superpopulation rather than to the realized finite target sample. The first of the four uncertainty sources the source bundles together has been solved, though outside the ITC literature: Sheng, Sun and Huang (arxiv:2603.02474) give asymptotic normality and a variance estimator for an entropy-balancing transport estimator, which is MAIC-equivalent, that accounts for uncertainty in covariate summaries, and Chen, Chen and Yu (doi:10.1002/sim.70358) construct resampling-based perturbation intervals for a target effect estimated from summary-level target information. The other three sources are not sampling error and do not belong in the same interval: uncertainty in reconstructed correlations is model uncertainty, inclusion-criteria ambiguity is estimand ambiguity, and secular change is a transport bias over time. The claim that no software propagates target-moment uncertainty was verified only for cpaic, an unreleased development package on GitHub that is not installable from CRAN, where at commit 9d150e9 cmaic() bootstraps IPD patients while holding target means and standard deviations fixed.</p>
@@ -471,6 +489,44 @@ ul.task-list li input[type="checkbox"] {
 <section id="probable-solution-or-research-direction" class="level2">
 <h2 class="anchored" data-anchor-id="probable-solution-or-research-direction">Probable solution or research direction</h2>
 <p>Port the existing target-summary variance results into PAIC rather than deriving them again: the entropy-balancing variance estimator and the perturbation interval both apply to MAIC-equivalent weighting, so the work is validation under PAIC conditions and implementation in packages that currently hold target moments fixed. A Bayesian formulation placing a distribution over the target covariate law is a reasonable complement, but its posterior is identified only through the target data and the chosen law or prior, so that prior has to be stated rather than absorbed. Handle inclusion-criteria ambiguity and secular drift as declared alternative estimands or explicit bias models with sensitivity ranges, not as extra variance in one interval. Uncertainty in reconstructed correlations remains the genuinely unaddressed component and is the natural next target.</p>
+</section>
+<section id="our-study" class="level2">
+<h2 class="anchored" data-anchor-id="our-study">Our study</h2>
+<div class="study-result">
+<p><strong>What conditioning on sampled target moments costs</strong></p>
+<p><em>This study was designed against <a href="https://github.com/choxos/ITC-open-problems/tree/main/studies/MIS-03-target-moment-uncertainty">MIS-03</a> and bears on this entry in part. What it does not answer is stated below.</em></p>
+<p><strong>The question put to it.</strong> Population adjustment treats a target trial’s published covariate means and standard deviations as exact, though they are sample estimates. By how much does that cost interval coverage at realistic sample sizes, and what would a publication have to report for a correction to work?</p>
+<p><strong>What it found.</strong> The omission is real but bounded, and its direction is not fixed: conditioning on the reported moments omits between 9.5% too much and 14.9% too little variance, moving coverage of a nominal 95% interval between 92.1% and 96.2%. Which way it goes depends on how far the target trial’s own treatment effect is modified by the same covariates as the source trial’s, and nothing in a publication identifies that. A correction needing no new data, only a correlation matrix borrowed from the source, restored coverage in every scenario for about 2% more interval width.</p>
+<p><strong>Results.</strong></p>
+<ul>
+<li>Across 167 scenarios where the underlying sandwich is valid, the status-quo interval was the only one to leave 93% to 97% coverage, and it left in both directions (8 of 167 scenarios). All three corrections stayed inside the band in every scenario.</li>
+<li>The sign of the error is set by the alignment between the two trials’ effect modification. Where only the source treatment is effect-modified the interval is always too narrow, by up to 14.9% of variance; where both are modified alike it is too wide, by up to 9.5%. The cancellation sits near halfway.</li>
+<li>Magnitude tracks the ratio of source to target information, not target size alone: a large source trial matched to a small target publication is the worst case. A pilot that held the source size fixed found the omission was only 1% to 7% of variance and would have supported concluding nothing was wrong.</li>
+<li>The correction an analyst can compute today, reconstructing the moment covariance under normality with a correlation borrowed from the source, performed as well as one handed the target’s true moment covariance. The case for asking journals to publish covariance matrices is therefore weak; the case for analysts applying the correction is strong.</li>
+<li>A separate and larger failure appeared at poor overlap: with effective sample size around 148 of 500, the Wald sandwich undercovered by up to 7 points for every method, including scenarios with no effect modification at all, where all four intervals must coincide. That is not a target-moment effect, and it triggered the protocol’s prespecified uninformative gate across the grid.</li>
+</ul>
+<p><strong>Design.</strong></p>
+<dl>
+<dt>Estimand</dt>
+<dd>
+Target-superpopulation marginal A versus B mean difference, exact in closed form
+</dd>
+<dt>Methods compared</dt>
+<dd>
+status quo (target moments held fixed), normal reconstruction (deployable today), reported moment covariance (enhanced reporting), full joint score (all target information)
+</dd>
+<dt>Data-generating mechanism</dt>
+<dd>
+Anchored MAIC on a continuous outcome, with the target trial’s participants generated and then discarded so the estimator sees only a published baseline table. 252 scenarios crossing source size, target size, overlap, effect-modification strength calibrated to a fixed target-population standard deviation, the alignment between the two trials’ effect modification, and whether the analyst’s borrowed correlation is correct.
+</dd>
+<dt>Replicates</dt>
+<dd>
+5000 per scenario, 1,260,000 in total
+</dd>
+</dl>
+<p><strong>What this does not answer.</strong> One estimator, one outcome type, one information structure. Covariates are multivariate normal, which is also the assumption the deployable correction is derived under, so it is measured under conditions favorable to it; skewed, bounded and categorical covariates are untested. The outcome is continuous and the effect additive, so marginal and conditional effects coincide, and nothing transfers directly to binary or time-to-event outcomes, where MAIC is most used. Effect modification lies exactly in the span of the matched moments, so this is a variance result under correct identification and says nothing about bias. The target moments and the target treatment effect come from the same trial, which is the common case but not the only one. STC, ML-NMR, ML-UMR and NMI have different sensitivities and are not covered. EST-07’s other components, model uncertainty in reconstructed correlations, inclusion-criteria ambiguity and secular drift, are not sampling error and are untouched.</p>
+<p>Read it: <a href="../studies/MIS-03-target-moment-uncertainty/out/MIS-03.pdf">PDF</a> · <a href="../studies/MIS-03-target-moment-uncertainty/out/MIS-03.md">Markdown</a> · <a href="../studies/MIS-03-target-moment-uncertainty/out/MIS-03.odt">OpenDocument</a> · Code and data: <a href="https://github.com/choxos/ITC-open-problems/tree/main/studies/MIS-03-target-moment-uncertainty">studies/MIS-03-target-moment-uncertainty</a> · Protocol: <a href="https://github.com/choxos/ITC-open-problems/blob/main/studies/MIS-03-target-moment-uncertainty/protocol.md">registered before the run</a></p>
+</div>
 </section>
 <section id="verification" class="level2">
 <h2 class="anchored" data-anchor-id="verification">Verification</h2>
