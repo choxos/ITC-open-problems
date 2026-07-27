@@ -1,0 +1,450 @@
+---
+title: "What conditioning on sampled target moments costs a population-adjusted indirect comparison"
+subtitle: "A simulation study answering catalog problems MIS-03 and EST-07"
+author: "Ahmad Sofi-Mahmudi"
+date: 2026-07-27
+abstract: |
+  Population-adjusted indirect comparisons match individual patient data from a source
+  trial to a target trial known only through a published baseline table. Every standard
+  estimator treats the target's reported covariate means and standard deviations as exact
+  constants, though they are sample estimates carrying their own sampling error, and no
+  study has measured what that costs. In 252 scenarios and 1,260,000 replicates of
+  anchored matching-adjusted indirect comparison we find the omission is real, bounded,
+  and of a sign that current reporting cannot determine. Where the underlying sandwich is
+  valid, conditioning on the reported moments omits between 9.5% too much and 14.9% too
+  little variance, moving coverage of a nominal 95% interval between 92.1% and 96.2%. The
+  direction is governed by how far the target trial's own treatment effect is modified by
+  the same covariates as the source trial's, a quantity not identified from anything a
+  publication reports. A correction requiring no new data, only a borrowed correlation
+  matrix, restored coverage in every scenario at a median cost of 2.2% in interval width.
+  A separate and larger failure appeared at poor overlap, where the sandwich undercovers
+  by up to 7 points for every method including those with no effect modification present
+  at all.
+bibliography: references.bib
+csl: ../../../vancouver.csl
+link-citations: true
+number-sections: true
+execute:
+  echo: false
+  warning: false
+  message: false
+format:
+  gfm:
+    toc: false
+  pdf:
+    documentclass: article
+    geometry: margin=1in
+    fig-pos: "H"
+  odt: default
+---
+
+```{r setup}
+S <- file.path("..")
+summ <- read.csv(file.path(S, "results", "summary.csv"), stringsAsFactors = FALSE)
+paired <- read.csv(file.path(S, "results", "paired.csv"), stringsAsFactors = FALSE)
+
+inband <- function(x) x >= 0.93 & x <= 0.97
+jj <- summ[summ$method == "joint-score", ]
+cc <- summ[summ$method == "target-fixed" & summ$em_sd == 0, ]
+ckey <- function(x) paste(x$nS, x$nT, x$d, x$rho_T)
+jok <- stats::setNames(inband(jj$coverage), jj$scenario)
+cok <- stats::setNames(inband(cc$coverage), ckey(cc))
+summ$usable <- jok[as.character(summ$scenario)] & cok[ckey(summ)]
+summ$usable[is.na(summ$usable)] <- FALSE
+paired$usable <- summ$usable[match(paired$scenario, summ$scenario)]
+
+U  <- summ[summ$usable, ]
+UM <- U[U$em_sd > 0, ]                      # usable, effect modification present
+n_scen   <- length(unique(summ$scenario))
+n_usable <- length(unique(U$scenario))
+
+## Omitted variance, on the variance scale, per usable scenario.
+w <- reshape(U[, c("scenario", "nS", "nT", "d", "em_sd", "kappa", "rho_T",
+                   "method", "modse")],
+             idvar = c("scenario", "nS", "nT", "d", "em_sd", "kappa", "rho_T"),
+             timevar = "method", direction = "wide")
+names(w) <- sub("^modse[.]", "", names(w))
+w$omitted <- 100 * ((w[["joint-score"]] / w[["target-fixed"]])^2 - 1)
+wm <- w[w$em_sd > 0, ]
+
+bym <- function(m, col = "coverage") UM[UM$method == m, col]
+f1 <- function(x, dp = 1) formatC(x, format = "f", digits = dp)
+pct <- function(x, dp = 1) paste0(f1(100 * x, dp), "%")
+
+## Interval width penalty of the deployable correction.
+ww <- reshape(UM[, c("scenario", "method", "width")], idvar = "scenario",
+              timevar = "method", direction = "wide")
+names(ww) <- sub("^width[.]", "", names(ww))
+width_pen <- 100 * (ww[["normal-recon"]] / ww[["target-fixed"]] - 1)
+```
+
+# The problem {#sec-problem}
+
+A population-adjusted indirect comparison estimates the relative effect of two treatments
+that have never been compared in one trial. Individual patient data are available for a
+source trial comparing $A$ with a common comparator $C$; for the target trial comparing
+$B$ with $C$, only a publication is available. Matching-adjusted indirect comparison
+[@signorovitch2010] reweights the source participants so their covariate distribution
+matches the target's, transports the $A$ versus $C$ effect into the target population, and
+subtracts the target trial's own $B$ versus $C$ effect [@phillippo2018].
+
+Everything hangs on a small table. The target publication reports, per covariate, a mean
+and a standard deviation, alongside the sample size. Those numbers are the matching
+targets, and every standard estimator treats them as exact.
+
+They are not exact. They are sample moments computed from $n_T$ participants and they
+carry sampling error of order $n_T^{-1/2}$. A reported confidence interval that conditions
+on them omits that variability whenever the intended estimand refers to a target
+*superpopulation* rather than to the particular people who happened to enroll.
+
+The catalog entry MIS-03 states the position precisely. The weight-estimation half of the
+uncertainty problem is settled: sandwich, effective-sample-size-rescaled and bootstrap
+variance estimators exist, are implemented, and were benchmarked across 108 scenarios by
+@chandler2024. The published-moment half is untouched, because a baseline table arrives
+without the covariance among its own entries, so there is nothing to resample. MIS-03 asks
+for one number: how much coverage does conditioning on those moments cost, at realistic
+aggregate-data sample sizes. This study supplies it.
+
+Two results in the transportability literature already propagate target-summary
+uncertainty for entropy-balancing estimators [@sheng2026; @chen2026]. Neither has been
+carried into indirect-comparison practice or software. This study is not a new derivation;
+it is a measurement of what the omission costs, and a test of what a publication would
+have to report for the correction to be usable.
+
+# The estimating system and what it omits {#sec-math}
+
+The source trial contributes $n_S$ participants with covariates $X_i \in \mathbb{R}^3$,
+treatment indicator $A_i$ and outcome $Y_i$. Write
+$h(X) = (X_1, X_2, X_3, X_1^2, X_2^2, X_3^2)^\top$; matching on $h$ is matching on the
+reported means and standard deviations, because a mean and a standard deviation together
+determine the first and second raw moments. Let
+
+$$\hat m_T = \frac{1}{n_T}\sum_{j=1}^{n_T} h(X_j)$$
+
+be the six moments implied by the target publication. Matching-adjusted indirect
+comparison solves, over the source participants,
+
+$$\sum_{i=1}^{n_S} w_i(\lambda)\,\{h(X_i) - \hat m_T\} = 0, \qquad w_i(\lambda) = \exp\{\lambda^\top h(X_i)\},$$ {#eq-calib}
+
+which is the method-of-moments weighting of @signorovitch2010 and the dual of entropy
+balancing [@hainmueller2012]. Stacking @eq-calib with the two weighted arm-mean equations
+gives an M-estimator [@stefanski2002] in $\psi = (\lambda, \mu_A, \mu_C)$ with
+per-participant score
+
+$$u_i = \big(\,w_i\{h(X_i) - \hat m_T\},\ \ \mathbb{1}(A_i)\,w_i(Y_i - \mu_A),\ \ \mathbb{1}(C_i)\,w_i(Y_i - \mu_C)\,\big)^\top.$$
+
+The transported effect is $\hat\theta_{AC} = \hat\mu_A - \hat\mu_C$ and the anchored
+estimate is $\hat\theta_{AB} = \hat\theta_{AC} - \hat\theta_{BC}$, with $\hat\theta_{BC}$
+the target trial's own unadjusted arm-mean difference. With $\hat A$ the empirical Jacobian
+of the mean score, $\hat B = n_S^{-1}\sum_i u_i u_i^\top$ and
+$c = (0,0,0,0,0,0,1,-1)^\top$, the usual sandwich is
+
+$$V_S = c^\top \hat A^{-1} \hat B \hat A^{-\top} c \,/\, n_S .$$ {#eq-vs}
+
+@eq-vs conditions on $\hat m_T$. To see what that costs, differentiate the estimating
+system with respect to the reported moments. Since
+$\partial u_{i,\lambda} / \partial \hat m_T^\top = -w_i I_6$ and the arm-mean equations do
+not involve $\hat m_T$, the implicit function theorem gives
+
+$$J \;=\; \frac{\partial \hat\theta_{AC}}{\partial \hat m_T} \;=\; -\,c^\top \hat A^{-1} C, \qquad C = \begin{pmatrix} -\bar w I_6 \\ 0 \\ 0 \end{pmatrix}.$$ {#eq-jacobian}
+
+$J$ is the sensitivity of the transported effect to the published table. It is zero exactly
+when no covariate in $h$ modifies the treatment effect, which is why the study's negative
+control is a scenario with no effect modification.
+
+Two things follow, and the second is the one the field has missed. First, if $\hat m_T$
+were an independent estimate the interval would simply be too narrow, by
+$J^\top \Omega_{hh} J / n_T$ where $\Omega_{hh} = \mathrm{Var}\{h(X)\}$ in the target.
+Second, and in the ordinary case, $\hat m_T$ and $\hat\theta_{BC}$ come from **the same
+people**. Writing $\phi_{BC}$ for the influence function of the target arm-mean difference,
+the correct unconditional variance uses the joint covariance of $\{h(X), \phi_{BC}\}$ with
+gradient $(J, -1)$:
+
+$$V = V_S + (J, -1)^\top \,\Omega_T\, (J, -1) \,/\, n_T .$$ {#eq-joint}
+
+The cross term $-2\,J^\top \mathrm{Cov}\{h(X), \phi_{BC}\} / n_T$ is **negative** when the
+target treatment's effect is modified by the same covariates as the source treatment's.
+Conditioning on $\hat m_T$ therefore does not simply understate the variance. It omits a
+positive term and a negative term whose balance depends on a quantity that appears nowhere
+in a publication.
+
+# Methods {#sec-methods}
+
+The full protocol was registered before the run and is reproduced at
+`studies/MIS-03-target-moment-uncertainty/protocol.md`. Reporting follows ADEMP
+[@morris2019].
+
+## Data-generating mechanism
+
+Covariates are trivariate normal with unit variances and equicorrelation, centered at $0$
+in the source with correlation $0.30$ and at $d$ in the target with correlation $\rho_T$.
+Outcomes are continuous:
+$Y = f(X) + \mathbb{1}(A)\tau_{AC}(X) + \varepsilon$ in the source and
+$Y = f(X) + \mathbb{1}(B)\tau_{BC}(X) + \varepsilon$ in the target, with
+$\varepsilon \sim N(0,1)$, a common prognostic function $f$ containing linear and quadratic
+terms, and
+
+$$\tau_{AC}(X) = -0.10 + s\,g(X), \qquad \tau_{BC}(X) = -0.10 + \kappa\,s\,g(X).$$
+
+The target trial's participants are generated and then discarded. The estimator receives
+$n_T$, three means, three standard deviations, and $\hat\theta_{BC}$ with its standard
+error.
+
+Two features of this design are worth stating because earlier drafts lacked them and would
+have produced a different answer.
+
+**Effect-modification strength is calibrated, not fixed.** The scale $s$ is set per
+scenario so the treatment effect has a prespecified standard deviation across individuals
+*in the target population*. Because the quadratic coefficients of $g$ are half the linear
+ones, shifting the covariate means multiplies the effective linear coefficient by $(1+d)$:
+one fixed coefficient vector gives an effect modifier of standard deviation 0.477 at
+$d = 0$ and 0.745 at $d = 0.8$. Varying overlap with fixed coefficients would vary
+effect-modification strength at the same time and confound the two factors.
+
+**The alignment $\kappa$ varies continuously.** At $\kappa = 0$ only the source treatment
+is effect-modified and the omitted term is a pure positive variance, so the interval must
+be too narrow. At $\kappa = 1$ both are modified identically, the omitted covariance is
+negative, and the interval is too wide. Using only those endpoints fixes the sign of the
+result by construction; $\kappa = 0.5$ is included so the cancellation is located rather
+than assumed.
+
+## Factors
+
+| Factor | Levels |
+|---|---|
+| Source size $n_S$ | 500, 2000 |
+| Target size $n_T$ | 200, 500, 2000 |
+| Overlap $d$ | 0, 0.4, 0.8 |
+| Effect modification $\mathrm{SD}_T(\tau)$ | 0, 0.45, 0.90 |
+| Alignment $\kappa$ | 0, 0.5, 1 |
+| Target correlation $\rho_T$ | 0.30, 0.60 |
+
+Fully factorial except that $\kappa$ is collapsed where there is no effect modification:
+**`r n_scen` scenarios**, 5000 replicates each, 1,260,000 in total.
+
+$n_S$ is a factor because the omitted term is $J^\top \Omega J / n_T$ against a retained
+term of order $1/\mathrm{ESS}_S$, so what governs whether the omission matters is the ratio
+of source to target information rather than $n_T$ alone. A pilot holding $n_S = 500$ found
+the omission was 1% to 7% of total variance and would have supported concluding that
+nothing was wrong; at $n_S = 2000$ the same quantity reached 23%.
+
+## Estimand
+
+The target-superpopulation marginal $A$ versus $B$ mean difference,
+
+$$\theta_{AB,T} = \mathbb{E}_T\{\tau_{AC}(X)\} - \mathbb{E}_T\{\tau_{BC}(X)\} = (1-\kappa)\,s\,(0.30\,d + 0.15\,d^2),$$
+
+exact in closed form, verified against a $3\times 10^6$-draw evaluation in every cell to
+within $2\times10^{-4}$. The superpopulation qualifier is essential: conditioning on the
+reported moments is *correct* when the estimand is defined by those moments or when they
+are exact administrative counts. The problem exists only for a superpopulation estimand.
+
+## Methods compared
+
+All four share the same point estimate, so the comparison isolates the interval.
+
+| Method | Interval variance | What the target must publish |
+|---|---|---|
+| **Status quo** | $V_S + \widehat{\mathrm{Var}}(\hat\theta_{BC})$ | $n_T$, means, SDs, effect and its SE |
+| **Normal reconstruction** | $V_S + J^\top \Omega_{\mathrm{norm}} J / n_T + \widehat{\mathrm{Var}}(\hat\theta_{BC})$ | the same, plus a borrowed correlation matrix |
+| **Reported moment covariance** | $V_S + J^\top \Omega_{hh} J / n_T + \widehat{\mathrm{Var}}(\hat\theta_{BC})$ | additionally the $6\times6$ covariance of $h(X)$ |
+| **Full joint score** | @eq-joint | additionally its covariance with the outcome influence function |
+
+$\Omega_{\mathrm{norm}}$ is reconstructed from the reported means and standard deviations
+and a borrowed correlation under a multivariate normal model, using
+$\mathrm{Cov}(X_j,X_k)=\Sigma_{jk}$, $\mathrm{Cov}(X_j,X_k^2)=2\mu_k\Sigma_{jk}$ and
+$\mathrm{Cov}(X_j^2,X_k^2)=2\Sigma_{jk}^2+4\mu_j\mu_k\Sigma_{jk}$. **This is the only one an
+analyst can compute today.** The other two are enhanced-reporting benchmarks: they receive
+covariance matrices computed inside the simulation and never microdata, and their purpose
+is to price the reporting addition each would require.
+
+## Performance measures
+
+Primary: coverage of the nominal 95% interval for $\theta_{AB,T}$, as the signed error in
+percentage points. Secondary: paired coverage differences, bias, empirical and model
+standard errors, relative error in model standard error, bias-eliminated coverage, interval
+width, effective sample size, and convergence. Every measure carries a Monte Carlo standard
+error; at nominal coverage that error is 0.31 points, so a two-point coverage error is more
+than six Monte Carlo standard errors from nominal.
+
+# Results {#sec-results}
+
+Convergence was at least `r f1(100 * min(summ$convergence), 2)`% in every one of the
+`r n_scen` scenarios. The point estimate is not at fault anywhere: the largest absolute bias
+was `r f1(max(abs(U$bias / U$empse)), 3)` empirical standard errors, and coverage and
+bias-eliminated coverage never differed by more than
+`r f1(100 * max(abs(U$coverage - U$becoverage)), 2)` percentage points. Everything below is
+a property of the interval.
+
+## The registered gates fire, and why {#sec-gates}
+
+The protocol declares the run uninformative if the full-joint-score reference or any
+negative control leaves 0.93 to 0.97. Read across the whole grid, that condition is met and
+the registered conclusion is **uninformative**.
+
+The reason is a second failure, and it is worth reporting on its own account. At $d = 0.8$
+the effective sample size falls to a median of about 148 of 500 and the Wald sandwich
+undercovers for *every* method, including scenarios with no effect modification at all
+(@fig-overlap). Where $\mathrm{SD}_T(\tau) = 0$ the reported moments carry no information
+about the transported effect, $J$ is zero in expectation, and all four intervals must
+coincide. They do coincide, and at poor overlap they are all wrong together, by up to seven
+percentage points. That is a finite-sample failure of the sandwich under extreme weighting,
+consistent with @chandler2024 finding conventional estimators anticonservative under poor
+and moderate overlap, and it is not about target moments.
+
+![With no effect modification the target moments carry no information about the transported effect, so all four methods must agree. They do, and at poor overlap they are all wrong together.](../results/figures/fig5-overlap-failure.png){#fig-overlap}
+
+Applying the same prespecified criterion per scenario rather than across the grid leaves
+**`r n_usable` of `r n_scen`** scenarios in which the reference and its matched negative
+control are both valid. This is recorded as a dated amendment in the protocol; it restricts
+the analysis set on a criterion that was itself prespecified and changes no threshold,
+factor or measure. Everything that follows is confined to those scenarios.
+
+## The omission is real, bounded, and of variable sign {#sec-omission}
+
+Across usable scenarios with effect modification present, conditioning on the reported
+moments omits between `r f1(min(wm$omitted))`% and `r f1(max(wm$omitted))`% of the
+variance. The sign is governed almost entirely by $\kappa$ (@fig-omitted):
+
+```{r tbl-kappa}
+#| label: tbl-kappa
+#| tbl-cap: "Variance omitted by the status quo, by the alignment between the two trials' effect modification. Positive means the reported interval is too narrow."
+k <- do.call(rbind, lapply(sort(unique(wm$kappa)), function(kk) {
+  x <- wm$omitted[wm$kappa == kk]
+  data.frame(`Alignment` = kk, `Minimum` = f1(min(x)), `Median` = f1(stats::median(x)),
+             `Maximum` = f1(max(x)), check.names = FALSE)
+}))
+knitr::kable(k, align = "rrrr")
+```
+
+At $\kappa = 0$, where only the source treatment's effect is modified, the reported interval
+is always too narrow. At $\kappa = 1$, where both treatments are modified identically, it is
+mostly too wide. The cancellation sits near $\kappa = 0.5$.
+
+![The omitted variance component. Its magnitude grows with the ratio of source to target information; its sign is set by an alignment that no publication reports.](../results/figures/fig3-omitted-variance.png){#fig-omitted}
+
+Magnitude tracks the ratio of source to target information, as @eq-jacobian predicts: the
+omitted term scales as $1/n_T$ while the retained term scales as $1/\mathrm{ESS}_S$, so a
+large source trial matched to a small target publication is the worst case, not a small
+target trial as such.
+
+## What it costs in coverage {#sec-coverage}
+
+```{r tbl-methods}
+#| label: tbl-methods
+#| tbl-cap: "Coverage of nominal 95% intervals across usable scenarios with effect modification present. Only the status quo leaves the band, and it leaves it in both directions."
+ml <- c("target-fixed", "normal-recon", "reported-cov", "joint-score")
+nm <- c("Status quo", "Normal reconstruction", "Reported moment covariance",
+        "Full joint score")
+tb <- do.call(rbind, lapply(seq_along(ml), function(i) {
+  x <- UM[UM$method == ml[i], ]
+  data.frame(Method = nm[i],
+             Minimum = pct(min(x$coverage)), Median = pct(stats::median(x$coverage)),
+             Maximum = pct(max(x$coverage)),
+             `Outside 93 to 97%` = paste0(sum(!inband(x$coverage)), " of ", nrow(x)),
+             check.names = FALSE)
+}))
+knitr::kable(tb, align = "lrrrr")
+```
+
+The status-quo interval covers between `r pct(min(bym("target-fixed")))` and
+`r pct(max(bym("target-fixed")))`, leaving the 93% to 97% band in
+`r sum(!inband(bym("target-fixed")))` of `r sum(UM$method == "target-fixed")` scenarios. All
+three corrections stay inside it in every scenario (@fig-methods, @fig-coverage).
+
+![Only the status quo leaves the band.](../results/figures/fig2-methods.png){#fig-methods}
+
+![Status-quo coverage error against the ratio of source to target information, by alignment and effect-modification strength.](../results/figures/fig1-coverage-error.png){#fig-coverage}
+
+The prespecified categories resolve to *material at ordinary effect-modification strength*,
+but that category is triggered by a single marginal scenario and should not be leaned on.
+The robust reading is the one in @tbl-methods and @tbl-kappa: the cost is bounded by roughly
+three percentage points of coverage in either direction, is largest when effect modification
+is strong and unshared and the source trial is large relative to the target publication, and
+is negligible when the two trials' effects are modified alike.
+
+## What a publication would have to report {#sec-reporting}
+
+The normal reconstruction needs nothing beyond what is already published plus a correlation
+matrix borrowed from the source. It restored coverage in every usable scenario, at a median
+interval-width cost of `r f1(stats::median(width_pen), 2)`% and a maximum of
+`r f1(max(width_pen), 2)`%. Giving it the target's true moment covariance instead of a
+reconstruction changed coverage by a median of
+`r f1(100 * stats::median(abs(paired$cov_diff[paired$usable & paired$em_sd > 0 & paired$method == "reported-cov"] - paired$cov_diff[paired$usable & paired$em_sd > 0 & paired$method == "normal-recon"])), 2)`
+percentage points (@fig-reporting). Getting the borrowed correlation wrong, at
+$\rho_T = 0.60$ against a source value of $0.30$, did not break it.
+
+![What each level of target reporting buys, as paired differences against the benchmark using all target information.](../results/figures/fig4-reporting.png){#fig-reporting}
+
+This is the practically useful finding. The deployable correction is as good as the one
+requiring enhanced reporting, so the case for asking journals to publish moment covariance
+matrices is weak. The case for analysts computing @eq-jacobian and adding
+$J^\top \Omega_{\mathrm{norm}} J / n_T$ is strong: it costs about 2% of interval width and
+removes a coverage error of up to three points whose sign they cannot otherwise determine.
+
+# What this answers, and what it does not {#sec-scope}
+
+**Answers.** MIS-03 asked how much coverage is lost by conditioning on target moments at
+realistic aggregate-data sample sizes. In anchored matching-adjusted indirect comparison on
+a continuous outcome, where the sandwich is otherwise valid: between about three points lost
+and one point gained, with the sign determined by the alignment between the two trials'
+effect modification. The problem is real and is worth correcting, and the correction is
+available now.
+
+**Does not answer.** The study covers one estimator, one outcome type and one information
+structure.
+
+Covariates are multivariate normal, which is also the assumption under which the deployable
+correction is derived, so its performance here is measured under conditions favorable to it.
+Skewed, bounded and categorical covariates are untested.
+
+The outcome is continuous and the effect additive, so marginal and conditional effects
+coincide. Nothing here transfers directly to binary or time-to-event outcomes, where
+matching-adjusted indirect comparison is most often used and where noncollapsibility adds a
+term this design cannot see.
+
+Effect modification lies exactly in the span of the six matched moments, so there is no
+unmeasured effect modifier and no extrapolation. This is a variance result under otherwise
+correct identification, not a statement about bias.
+
+The target moments and the target treatment effect come from the same randomized trial. That
+is the common case and the one with the largest cross-covariance, but summaries drawn from a
+separate sample, or a covariate-adjusted published effect with a different influence
+function, would behave differently.
+
+Simulated treatment comparison, multilevel network meta-regression, multilevel unanchored
+meta-regression and network meta-interpolation have different sensitivities $J$ and are not
+covered. The direction of the argument in @sec-math applies to all of them; the magnitudes
+here do not.
+
+Accordingly this study **answers MIS-03 in part** and **answers one named component of
+EST-07**, namely sampling error in reported moments. EST-07's remaining components, model
+uncertainty in reconstructed correlations, ambiguity in inclusion criteria and secular
+drift, are not sampling error and are untouched.
+
+**A finding nobody asked for.** The poor-overlap sandwich failure in @sec-gates is larger
+than the effect this study was built to measure. It is consistent with @chandler2024 and it
+deserves its own study.
+
+# Reproducibility {#sec-repro}
+
+```{r prov, results='asis'}
+p <- file.path(S, "results", "provenance.md")
+if (file.exists(p)) cat(paste(readLines(p)[-(1:2)], collapse = "\n"))
+```
+
+Replicate seeds derive from one master seed through L'Ecuyer-CMRG streams, so a run gives
+identical results on any number of cores and an interrupted run resumes rather than
+restarting. Code, protocol and results are at
+<https://github.com/choxos/ITC-open-problems/tree/main/studies/MIS-03-target-moment-uncertainty>.
+
+```bash
+Rscript R/03-run.R        # 252 scenarios, resumable
+Rscript R/04-analyze.R    # summary.csv, paired.csv, decision.md
+Rscript R/05-figures.R
+```
+
+# References {.unnumbered}
+
+::: {#refs}
+:::

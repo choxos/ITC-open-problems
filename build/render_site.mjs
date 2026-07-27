@@ -135,7 +135,8 @@ const REPO = 'https://github.com/choxos/ITC-open-problems'
 // always states what it did not answer.
 function studySection(s) {
   if (!s) return []
-  const dl = Object.entries({ pdf: 'PDF', md: 'Markdown', odt: 'OpenDocument' })
+  // Keys match FORMATS in build/studies/publish.py, where Markdown is 'gfm'.
+  const dl = Object.entries({ pdf: 'PDF', gfm: 'Markdown', odt: 'OpenDocument' })
     .filter(([k]) => s.downloads?.[k])
     .map(([k, label]) => `[${label}](/${s.downloads[k]})`)
     .join(' · ')
@@ -159,9 +160,15 @@ function studySection(s) {
     '## Our study', '',
     '::: {.study-result}',
     `**${s.title}**`, '',
+    // A study aimed at a neighbouring entry may still be the best evidence on
+    // this one, but a reader must not mistake it for a study of this problem.
+    s.secondary
+      ? `*This study was designed against [${s.primary_problem}](${REPO}/tree/main/${s.code}) ` +
+        `and bears on this entry in part. What it does not answer is stated below.*\n`
+      : null,
     `**The question put to it.** ${s.question}`, '',
     `**What it found.** ${s.answer}`, '',
-  ]
+  ].filter((x) => x !== null)
 
   if (s.findings?.length) {
     out.push('**Results.**', '')
@@ -279,7 +286,10 @@ function problemPage(p) {
   if (p.prior_work?.length) {
     out.push('::: {.table-scroll}', '', '| Work | What it contributes |', '|---|---|')
     for (const w of p.prior_work) {
-      const link = w.doi_or_url ? `[${w.cite}](${w.doi_or_url})` : w.cite
+      // Through normalizeLocator, not raw. Prior-work entries carry the same
+      // mixed locator shapes the auditors returned, so a bare "owner/repo@sha"
+      // was being emitted as a relative link and resolving to nothing.
+      const link = w.doi_or_url ? `[${w.cite}](${normalizeLocator(w.doi_or_url)})` : w.cite
       out.push(`| ${link} | ${w.what_it_does} |`)
     }
     out.push('', ':::', '')
@@ -488,8 +498,15 @@ ${cat.blurb}
 // about the problem, and a queue shown without them reads as though the other
 // 226 entries were simply not got to yet.
 function studiesPage(queue, index) {
-  const done = Object.entries(index).filter(([, s]) => s.status === 'complete')
-  const active = Object.entries(index).filter(([, s]) => s.status !== 'complete')
+  // index is keyed by problem, and one study appears under every problem it
+  // bears on, so listing it directly would show the same study several times.
+  const entries = Object.entries(index).filter(([, s]) => !s.secondary)
+  const alsoOn = {}
+  for (const [pid, s] of Object.entries(index)) {
+    if (s.secondary) (alsoOn[s.primary_problem] ||= []).push(pid)
+  }
+  const done = entries.filter(([, s]) => s.status === 'complete')
+  const active = entries.filter(([, s]) => s.status !== 'complete')
   const link = (id) => {
     const t = REGISTRY_INDEX[id]
     return t ? `[${id}](problems/${t.filename})` : id
@@ -514,9 +531,14 @@ population differences, which is where these problems live.
     out.push('## Completed', '')
     for (const [pid, s] of done) {
       out.push(`### ${link(pid)} — ${s.title}`, '')
+      if (alsoOn[pid]?.length) {
+        out.push(`Also bears on ${alsoOn[pid].map(link).join(', ')}.`, '')
+      }
       out.push(`**Question.** ${s.question}`, '')
       out.push(`**Answer.** ${s.answer}`, '')
-      const dl = Object.entries({ pdf: 'PDF', md: 'Markdown', odt: 'OpenDocument' })
+      out.push(`**What it does not answer.** ${s.not_answered}`, '')
+      // Keys match FORMATS in build/studies/publish.py, where Markdown is 'gfm'.
+  const dl = Object.entries({ pdf: 'PDF', gfm: 'Markdown', odt: 'OpenDocument' })
         .filter(([k]) => s.downloads?.[k])
         .map(([k, l]) => `[${l}](/${s.downloads[k]})`).join(' · ')
       if (dl) out.push(`Read it: ${dl}`, '')
@@ -800,7 +822,13 @@ function main() {
   for (const p of problems) {
     for (const w of p.prior_work || []) {
       const key = (w.doi_or_url || w.cite || '').trim()
-      if (key && !refs.has(key)) refs.set(key, { cite: w.cite, url: w.doi_or_url, from: 'source' })
+      if (key && !refs.has(key)) {
+        refs.set(key, {
+          cite: w.cite,
+          url: w.doi_or_url ? normalizeLocator(w.doi_or_url) : w.doi_or_url,
+          from: 'source',
+        })
+      }
     }
     for (const o of p.audit?.opinions || []) {
       for (const w of o.resolving_work || []) {

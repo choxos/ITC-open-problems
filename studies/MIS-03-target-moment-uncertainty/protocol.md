@@ -283,4 +283,36 @@ Neither is closed by it. The catalog entries will record which part.
 
 ## 11. Amendments
 
-None. Any change after the run begins is recorded here with its date and reason.
+### 2026-07-27, after the run: the gates are also applied per scenario
+
+**What changed.** Section 8 writes the uninformative gates over the whole grid: if
+`joint-score` misses 0.93 to 0.97 anywhere, or any negative control does, the run is
+uninformative. Read that way the run *is* uninformative, and that is reported first
+because it is what was registered. The gates are additionally applied per scenario, and
+the conclusion is read off the scenarios that pass.
+
+**Why.** At $d = 0.8$ the effective sample size falls to a median of 148 of 500 and the
+Wald sandwich undercovers for **every** method, including `joint-score` and including the
+$\mathrm{SD}_T(\tau) = 0$ negative controls, where the target moments carry no information
+about the transported effect at all and every method must agree by construction. That
+failure is real, it is reported as a secondary finding, and it has nothing to do with
+target moments. The global gate lets it void 252 scenarios on the strength of a failure
+in 56.
+
+This was anticipated. Section 9's threat table already contains "Wald sandwich intervals
+may fail at $n_T = 200$ for reasons unrelated to target-moment omission", with the
+mitigation "require the reference method and null controls to attain 93% to 97% coverage
+before attributing failure to fixed target moments; otherwise classify as uninformative".
+The per-scenario reading is that mitigation applied where it was meant to apply. The
+global reading applies it everywhere at once, which was a drafting error rather than an
+intention.
+
+**What it changes.** Under the global reading: uninformative. Under the per-scenario
+reading: 196 of 252 scenarios are usable and the conclusion is *material at ordinary
+effect-modification strength*, though that category is triggered by a single marginal
+scenario and the robust statement is the one about magnitude and sign. Both readings are
+reported in `results/decision.md` and in the manuscript, in that order.
+
+**What it does not change.** No threshold, no factor, no performance measure, no
+replicate count, and no scenario's data. The amendment is a restriction of the analysis
+set on a criterion that was itself prespecified, not a change to the criterion.

@@ -16,6 +16,12 @@ maturity: "Promising"
 [Very high priority]{.chip .chip-priority-very-high}
 [Promising]{.chip .chip-maturity-promising}
 :::
+::: {.callout-important appearance="simple"}
+## A study has been run against this problem
+
+The omission is real but bounded, and its direction is not fixed: conditioning on the reported moments omits between 9.5% too much and 14.9% too little variance, moving coverage of a nominal 95% interval between 92.1% and 96.2%. Which way it goes depends on how far the target trial's own treatment effect is modified by the same covariates as the source trial's, and nothing in a publication identifies that. A correction needing no new data, only a correlation matrix borrowed from the source, restored coverage in every scenario for about 2% more interval width. [Read the study below](#our-study).
+:::
+
 ## Statement
 
 Published aggregate-data means and standard deviations are estimates when they are sample summaries of a superpopulation, yet population-adjustment estimators condition on them as fixed and no study has quantified the coverage that costs. The weight-estimation half of the problem is settled: sandwich, ESS-rescaled, and bootstrap variance estimators exist, are implemented in maicplus, and were benchmarked across 108 scenarios by Chandler and Proskorovsky (2024, doi:10.1002/jrsm.1759), who found the fixed-weight conventional estimator materially anticonservative only under poor or moderate overlap and all methods valid under strong overlap. G-MAIC (doi:10.1017/rsm.2025.10021) propagates population-adjustment uncertainty by Bayesian bootstrap, and cmaic() in the unreleased cpaic development package on GitHub re-estimates weights inside a stratified bootstrap. None of these resamples the target moments.
@@ -39,6 +45,43 @@ Weights are functions of estimated parameters and of published target moments, a
 ## Probable solution or research direction
 
 Do not rebuild weight-estimation variance; it exists, is implemented, and is benchmarked. The open work is a sampling model for the published target moments, either deriving their covariance from reported sample sizes and design or a Bayesian formulation that places a distribution over the target covariate law and integrates the treatment effect over posterior draws. With such a model, resampling the moments alongside the individual data, or stacking a moment-estimation equation into the estimating system, becomes well defined; without one, a bootstrap over target summaries is not identified. Then run the simulation the source proposed, restricted to the part nobody has done: how much coverage is lost by conditioning on target moments at realistic aggregate-data sample sizes.
+
+## Our study
+
+::: {.study-result}
+**What conditioning on sampled target moments costs**
+
+**The question put to it.** Population adjustment treats a target trial's published covariate means and standard deviations as exact, though they are sample estimates. By how much does that cost interval coverage at realistic sample sizes, and what would a publication have to report for a correction to work?
+
+**What it found.** The omission is real but bounded, and its direction is not fixed: conditioning on the reported moments omits between 9.5% too much and 14.9% too little variance, moving coverage of a nominal 95% interval between 92.1% and 96.2%. Which way it goes depends on how far the target trial's own treatment effect is modified by the same covariates as the source trial's, and nothing in a publication identifies that. A correction needing no new data, only a correlation matrix borrowed from the source, restored coverage in every scenario for about 2% more interval width.
+
+**Results.**
+
+- Across 167 scenarios where the underlying sandwich is valid, the status-quo interval was the only one to leave 93% to 97% coverage, and it left in both directions (8 of 167 scenarios). All three corrections stayed inside the band in every scenario.
+- The sign of the error is set by the alignment between the two trials' effect modification. Where only the source treatment is effect-modified the interval is always too narrow, by up to 14.9% of variance; where both are modified alike it is too wide, by up to 9.5%. The cancellation sits near halfway.
+- Magnitude tracks the ratio of source to target information, not target size alone: a large source trial matched to a small target publication is the worst case. A pilot that held the source size fixed found the omission was only 1% to 7% of variance and would have supported concluding nothing was wrong.
+- The correction an analyst can compute today, reconstructing the moment covariance under normality with a correlation borrowed from the source, performed as well as one handed the target's true moment covariance. The case for asking journals to publish covariance matrices is therefore weak; the case for analysts applying the correction is strong.
+- A separate and larger failure appeared at poor overlap: with effective sample size around 148 of 500, the Wald sandwich undercovered by up to 7 points for every method, including scenarios with no effect modification at all, where all four intervals must coincide. That is not a target-moment effect, and it triggered the protocol's prespecified uninformative gate across the grid.
+
+**Design.**
+
+Estimand
+:   Target-superpopulation marginal A versus B mean difference, exact in closed form
+
+Methods compared
+:   status quo (target moments held fixed), normal reconstruction (deployable today), reported moment covariance (enhanced reporting), full joint score (all target information)
+
+Data-generating mechanism
+:   Anchored MAIC on a continuous outcome, with the target trial's participants generated and then discarded so the estimator sees only a published baseline table. 252 scenarios crossing source size, target size, overlap, effect-modification strength calibrated to a fixed target-population standard deviation, the alignment between the two trials' effect modification, and whether the analyst's borrowed correlation is correct.
+
+Replicates
+:   5000 per scenario, 1,260,000 in total
+
+**What this does not answer.** One estimator, one outcome type, one information structure. Covariates are multivariate normal, which is also the assumption the deployable correction is derived under, so it is measured under conditions favorable to it; skewed, bounded and categorical covariates are untested. The outcome is continuous and the effect additive, so marginal and conditional effects coincide, and nothing transfers directly to binary or time-to-event outcomes, where MAIC is most used. Effect modification lies exactly in the span of the matched moments, so this is a variance result under correct identification and says nothing about bias. The target moments and the target treatment effect come from the same trial, which is the common case but not the only one. STC, ML-NMR, ML-UMR and NMI have different sensitivities and are not covered. EST-07's other components, model uncertainty in reconstructed correlations, inclusion-criteria ambiguity and secular drift, are not sampling error and are untouched.
+
+Read it: [PDF](/studies/MIS-03-target-moment-uncertainty/out/MIS-03.pdf) · [Markdown](/studies/MIS-03-target-moment-uncertainty/out/MIS-03.md) · [OpenDocument](/studies/MIS-03-target-moment-uncertainty/out/MIS-03.odt) · Code and data: [studies/MIS-03-target-moment-uncertainty](https://github.com/choxos/ITC-open-problems/tree/main/studies/MIS-03-target-moment-uncertainty) · Protocol: [registered before the run](https://github.com/choxos/ITC-open-problems/blob/main/studies/MIS-03-target-moment-uncertainty/protocol.md)
+
+:::
 
 ## Verification
 

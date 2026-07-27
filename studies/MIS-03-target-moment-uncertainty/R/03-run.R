@@ -8,8 +8,11 @@
 ## Resolve the study directory from this script's own location, so the script
 ## runs the same from the study directory, the repository root, or RStudio.
 .f <- grep("^--file=", commandArgs(FALSE), value = TRUE)
-STUDY <- if (length(.f)) dirname(dirname(normalizePath(sub("^--file=", "", .f[1]))))
-         else normalizePath(".")
+STUDY <- if (length(.f)) {
+  dirname(dirname(normalizePath(sub("^--file=", "", .f[1]))))
+} else {
+  normalizePath(".")
+}
 here <- function(...) file.path(STUDY, ...)
 stopifnot(file.exists(here("R", "00-config.R")))
 

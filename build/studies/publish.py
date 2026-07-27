@@ -149,7 +149,7 @@ def write_index(ds):
         have = {k: f"studies/{d['_slug']}/out/{d['problem_id']}{e}"
                 for k, e in FORMATS.items()
                 if os.path.exists(os.path.join(out, d["problem_id"] + e))}
-        idx[d["problem_id"]] = {
+        rec = {
             "slug": d["_slug"],
             "title": d["title"],
             "status": d["status"],
@@ -168,7 +168,17 @@ def write_index(ds):
                          if os.path.exists(os.path.join(d["_dir"], "protocol.md"))
                          else None),
             "downloads": have,
+            "primary_problem": d["problem_id"],
+            "secondary": False,
         }
+        idx[d["problem_id"]] = rec
+        # A study usually bears on more than the entry it was aimed at. Those
+        # pages get the same record marked secondary, so the section can say
+        # plainly that the study was designed for a different entry and answers
+        # this one only in part. Leaving them off would hide a real answer from
+        # the page a reader is most likely to be on.
+        for other in d.get("also_bears_on") or []:
+            idx[other] = dict(rec, secondary=True)
     json.dump(idx, open(os.path.join(STUDIES, "index.json"), "w", encoding="utf8"),
               indent=1, ensure_ascii=False)
     return idx

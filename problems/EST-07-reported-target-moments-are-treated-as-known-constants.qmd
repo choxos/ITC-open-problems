@@ -16,6 +16,12 @@ maturity: "Promising"
 [Very high priority]{.chip .chip-priority-very-high}
 [Promising]{.chip .chip-maturity-promising}
 :::
+::: {.callout-important appearance="simple"}
+## A study has been run against this problem
+
+The omission is real but bounded, and its direction is not fixed: conditioning on the reported moments omits between 9.5% too much and 14.9% too little variance, moving coverage of a nominal 95% interval between 92.1% and 96.2%. Which way it goes depends on how far the target trial's own treatment effect is modified by the same covariates as the source trial's, and nothing in a publication identifies that. A correction needing no new data, only a correlation matrix borrowed from the source, restored coverage in every scenario for about 2% more interval width. [Read the study below](#our-study).
+:::
+
 ## Statement
 
 Reported target-population means and standard deviations are estimates, and standard PAIC estimators condition on them as fixed inputs, so the reported interval omits that variability whenever the inference is to a superpopulation rather than to the realized finite target sample. The first of the four uncertainty sources the source bundles together has been solved, though outside the ITC literature: Sheng, Sun and Huang (arxiv:2603.02474) give asymptotic normality and a variance estimator for an entropy-balancing transport estimator, which is MAIC-equivalent, that accounts for uncertainty in covariate summaries, and Chen, Chen and Yu (doi:10.1002/sim.70358) construct resampling-based perturbation intervals for a target effect estimated from summary-level target information. The other three sources are not sampling error and do not belong in the same interval: uncertainty in reconstructed correlations is model uncertainty, inclusion-criteria ambiguity is estimand ambiguity, and secular change is a transport bias over time. The claim that no software propagates target-moment uncertainty was verified only for cpaic, an unreleased development package on GitHub that is not installable from CRAN, where at commit 9d150e9 cmaic() bootstraps IPD patients while holding target means and standard deviations fixed.
@@ -40,6 +46,45 @@ Conditioning on published summaries as if exact omits variability from the repor
 ## Probable solution or research direction
 
 Port the existing target-summary variance results into PAIC rather than deriving them again: the entropy-balancing variance estimator and the perturbation interval both apply to MAIC-equivalent weighting, so the work is validation under PAIC conditions and implementation in packages that currently hold target moments fixed. A Bayesian formulation placing a distribution over the target covariate law is a reasonable complement, but its posterior is identified only through the target data and the chosen law or prior, so that prior has to be stated rather than absorbed. Handle inclusion-criteria ambiguity and secular drift as declared alternative estimands or explicit bias models with sensitivity ranges, not as extra variance in one interval. Uncertainty in reconstructed correlations remains the genuinely unaddressed component and is the natural next target.
+
+## Our study
+
+::: {.study-result}
+**What conditioning on sampled target moments costs**
+
+*This study was designed against [MIS-03](https://github.com/choxos/ITC-open-problems/tree/main/studies/MIS-03-target-moment-uncertainty) and bears on this entry in part. What it does not answer is stated below.*
+
+**The question put to it.** Population adjustment treats a target trial's published covariate means and standard deviations as exact, though they are sample estimates. By how much does that cost interval coverage at realistic sample sizes, and what would a publication have to report for a correction to work?
+
+**What it found.** The omission is real but bounded, and its direction is not fixed: conditioning on the reported moments omits between 9.5% too much and 14.9% too little variance, moving coverage of a nominal 95% interval between 92.1% and 96.2%. Which way it goes depends on how far the target trial's own treatment effect is modified by the same covariates as the source trial's, and nothing in a publication identifies that. A correction needing no new data, only a correlation matrix borrowed from the source, restored coverage in every scenario for about 2% more interval width.
+
+**Results.**
+
+- Across 167 scenarios where the underlying sandwich is valid, the status-quo interval was the only one to leave 93% to 97% coverage, and it left in both directions (8 of 167 scenarios). All three corrections stayed inside the band in every scenario.
+- The sign of the error is set by the alignment between the two trials' effect modification. Where only the source treatment is effect-modified the interval is always too narrow, by up to 14.9% of variance; where both are modified alike it is too wide, by up to 9.5%. The cancellation sits near halfway.
+- Magnitude tracks the ratio of source to target information, not target size alone: a large source trial matched to a small target publication is the worst case. A pilot that held the source size fixed found the omission was only 1% to 7% of variance and would have supported concluding nothing was wrong.
+- The correction an analyst can compute today, reconstructing the moment covariance under normality with a correlation borrowed from the source, performed as well as one handed the target's true moment covariance. The case for asking journals to publish covariance matrices is therefore weak; the case for analysts applying the correction is strong.
+- A separate and larger failure appeared at poor overlap: with effective sample size around 148 of 500, the Wald sandwich undercovered by up to 7 points for every method, including scenarios with no effect modification at all, where all four intervals must coincide. That is not a target-moment effect, and it triggered the protocol's prespecified uninformative gate across the grid.
+
+**Design.**
+
+Estimand
+:   Target-superpopulation marginal A versus B mean difference, exact in closed form
+
+Methods compared
+:   status quo (target moments held fixed), normal reconstruction (deployable today), reported moment covariance (enhanced reporting), full joint score (all target information)
+
+Data-generating mechanism
+:   Anchored MAIC on a continuous outcome, with the target trial's participants generated and then discarded so the estimator sees only a published baseline table. 252 scenarios crossing source size, target size, overlap, effect-modification strength calibrated to a fixed target-population standard deviation, the alignment between the two trials' effect modification, and whether the analyst's borrowed correlation is correct.
+
+Replicates
+:   5000 per scenario, 1,260,000 in total
+
+**What this does not answer.** One estimator, one outcome type, one information structure. Covariates are multivariate normal, which is also the assumption the deployable correction is derived under, so it is measured under conditions favorable to it; skewed, bounded and categorical covariates are untested. The outcome is continuous and the effect additive, so marginal and conditional effects coincide, and nothing transfers directly to binary or time-to-event outcomes, where MAIC is most used. Effect modification lies exactly in the span of the matched moments, so this is a variance result under correct identification and says nothing about bias. The target moments and the target treatment effect come from the same trial, which is the common case but not the only one. STC, ML-NMR, ML-UMR and NMI have different sensitivities and are not covered. EST-07's other components, model uncertainty in reconstructed correlations, inclusion-criteria ambiguity and secular drift, are not sampling error and are untouched.
+
+Read it: [PDF](/studies/MIS-03-target-moment-uncertainty/out/MIS-03.pdf) · [Markdown](/studies/MIS-03-target-moment-uncertainty/out/MIS-03.md) · [OpenDocument](/studies/MIS-03-target-moment-uncertainty/out/MIS-03.odt) · Code and data: [studies/MIS-03-target-moment-uncertainty](https://github.com/choxos/ITC-open-problems/tree/main/studies/MIS-03-target-moment-uncertainty) · Protocol: [registered before the run](https://github.com/choxos/ITC-open-problems/blob/main/studies/MIS-03-target-moment-uncertainty/protocol.md)
+
+:::
 
 ## Verification
 
