@@ -84,6 +84,18 @@ def render(d):
             continue
         shutil.move(produced, os.path.join(out, d["problem_id"] + ext))
 
+    # The protocol and the review history are published artifacts, not repository
+    # extras, so they are copied into out/ and served by the site. Linking them
+    # only through GitHub makes them invisible whenever the repository is private,
+    # which is exactly the situation in which "we published the reviews" would be
+    # an empty claim.
+    for name, dest in (("protocol.md", f"{d['problem_id']}-protocol.md"),
+                       (os.path.join("review", "peer-review.md"),
+                        f"{d['problem_id']}-peer-review.md")):
+        src2 = os.path.join(d["_dir"], name)
+        if os.path.exists(src2):
+            shutil.copy2(src2, os.path.join(out, dest))
+
     # Figures travel with the Markdown, which references them relatively. The
     # PDF and ODT embed their own copies, so only the Markdown needs this.
     for cand in glob.glob(os.path.join(os.path.dirname(src),
@@ -164,13 +176,13 @@ def write_index(ds):
             "date_completed": d.get("date_completed"),
             "week": d.get("week"),
             "code": f"studies/{d['_slug']}",
-            "protocol": (f"studies/{d['_slug']}/protocol.md"
+            "protocol": (f"studies/{d['_slug']}/out/{d['problem_id']}-protocol.md"
                          if os.path.exists(os.path.join(d["_dir"], "protocol.md"))
                          else None),
             # The full peer-review exchange, published beside the paper. A study
             # that says it was reviewed without showing the reports is asking to
             # be taken on trust, which is the thing this catalog exists to avoid.
-            "review": (f"studies/{d['_slug']}/review/peer-review.md"
+            "review": (f"studies/{d['_slug']}/out/{d['problem_id']}-peer-review.md"
                        if os.path.exists(os.path.join(d["_dir"], "review",
                                                       "peer-review.md"))
                        else None),

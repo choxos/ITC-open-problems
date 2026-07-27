@@ -151,7 +151,7 @@ function studySection(s) {
       '',
       s.design ? `**Design.** ${s.design}` : null,
       '',
-      s.protocol ? `The protocol is registered before any result is seen: [${s.protocol}](${REPO}/blob/main/${s.protocol}).` : null,
+      s.protocol ? `The protocol is registered before any result is seen: [read it](/${s.protocol}).` : null,
       ':::', '',
     ].filter((x) => x !== null)
   }
@@ -198,7 +198,7 @@ function studySection(s) {
     out.push(
       `**Peer review.** ${s.review_rounds || 2} rounds, two independent reviewers. ` +
         'The reports, the point-by-point responses and the editorial decision are ' +
-        `published in full: [read the review](${REPO}/blob/main/${s.review}).`,
+        `published in full: [read the review](/${s.review}).`,
       ''
     )
   }
@@ -206,8 +206,8 @@ function studySection(s) {
   const links = [
     dl ? `Read it: ${dl}` : null,
     `Code and data: [${s.code}](${REPO}/tree/main/${s.code})`,
-    s.protocol ? `Protocol: [registered before the run](${REPO}/blob/main/${s.protocol})` : null,
-    s.review ? `Review: [full history](${REPO}/blob/main/${s.review})` : null,
+    s.protocol ? `Protocol: [registered before the run](/${s.protocol})` : null,
+    s.review ? `Review: [full history](/${s.review})` : null,
   ].filter(Boolean)
   out.push(links.join(' · '), '')
   out.push(':::', '')
