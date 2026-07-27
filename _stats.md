@@ -7,11 +7,11 @@ were checked.
 
 | Verdict | Entries | |
 |---|---:|---:|
-| [Confirmed open]{.verdict .verdict-confirmed-open} | 121 | 37% |
-| [Partially addressed]{.verdict .verdict-partially-addressed} | 139 | 42% |
-| [Overstated]{.verdict .verdict-overstated} | 53 | 16% |
+| [Confirmed open]{.verdict .verdict-confirmed-open} | 122 | 37% |
+| [Partially addressed]{.verdict .verdict-partially-addressed} | 141 | 43% |
+| [Overstated]{.verdict .verdict-overstated} | 54 | 16% |
 | [Unverifiable]{.verdict .verdict-unverifiable} | 14 | 4% |
-| [Not supported]{.verdict .verdict-not-supported} | 4 | 1% |
+| [Not supported]{.verdict .verdict-not-supported} | 0 | 0% |
 | [Resolved since report]{.verdict .verdict-resolved-since-report} | 0 | 0% |
 
 Roughly a third of the problems presented as open turn out to be partly addressed already,

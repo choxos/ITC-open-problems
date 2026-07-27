@@ -3,16 +3,16 @@ title: "Baseline risk is not a neutral anchor for disconnected evidence"
 description: "Arm-based baseline-synthesis, reference-prediction, and aggregate-level matching models link disconnected subnetworks through a baseline-outcome structure, allowing disconnected RCTs and single-arm studies to be included. An observed control-arm risk depends on prognosis, endpoint definition, follow-up, ascertainment, care context, and calendar time, so it is not intrinsically exchangeable across designs or components. Thom et al. 2022 measured what this costs: disconnected-treatment bias ran from -0.16 to 0.392 for aggregate-level matching and from -0.102 to 0.40 for reference prediction, with coverage of 0.30 to 0.82 and 0.64 to 0.94 respectively, and they recommend reference prediction on coverage grounds. Beliveau et al. 2017 is not the cautionary result the source made it: across the two disconnected datasets it examined it found the use of random baseline treatment effects appropriate, while warning that the normality and exchangeability assumptions could be inappropriate in datasets it did not observe."
 pid: "DIS-03"
 topic: "Disconnected networks & bridges"
-categories: ["Disconnected networks & bridges", "High priority", "Not supported"]
+categories: ["Disconnected networks & bridges", "High priority", "Overstated"]
 priority: "High"
 prank: 2
-verdict: "Not supported"
-verdictslug: "not-supported"
+verdict: "Overstated"
+verdictslug: "overstated"
 maturity: "Promising"
 ---
 ::: {.problem-meta}
 [DIS-03]{.problem-id}
-[Not supported]{.verdict .verdict-not-supported}
+[Overstated]{.verdict .verdict-overstated}
 [High priority]{.chip .chip-priority-high}
 [Promising]{.chip .chip-maturity-promising}
 :::
@@ -30,6 +30,7 @@ Where a single baseline parameter both carries the cross-gap bridge and absorbs 
 
 | Work | What it contributes |
 |---|---|
+| [Chandler and Ishak 2026, Anchors Away (arXiv:2606.20341v1)](https://arxiv.org/abs/2606.20341) | states that in fully disconnected single-arm evidence treatment effects are not separately identifiable from study, population and design effects without additional structural assumptions, so unanchored comparisons typically require a common conditional baseline risk across study populations; it calls that assumption highly restrictive and unlikely to be plausible in most applications, and recommends fixed study effects with hierarchical pooling as a sensitivity analysis |
 | [Beliveau et al. 2017](https://doi.org/10.1002/jrsm.1256) | asks how dangerous random baseline treatment effects are in disconnected networks and finds their use appropriate for the two datasets considered, with an explicit caveat about datasets it did not observe |
 | [Thom et al. 2022](https://doi.org/10.1177/0272989X221097081) | extends baseline-effect and aggregate-level matching to disconnected RCTs and single-arm studies, and quantifies the residual bias and undercoverage of both by simulation |
 
@@ -42,7 +43,7 @@ Use separate baseline distributions for connected, disconnected, and single-arm 
 ## Verification
 
 ::: {.verification-trail}
-**Verdict.** Not supported. No accessible source substantiates the claim as stated.
+**Verdict.** Overstated. Auditors judged the problem open, and the source attributed it to the wrong work. Chandler and Ishak, Anchors Away (arXiv:2606.20341v1, appendix A.7), supplies the formal support the closure said was absent: in disconnected single-arm evidence, study-level effects are not separately identifiable from treatment effects, so a common conditional baseline risk is an identifying constraint and not a neutral anchor. The same paper calls that assumption highly restrictive and recommends fixed study effects with hierarchical pooling, which is this entry's own proposed direction, so the problem is real but its strong form is overstated.
 
 **The source said.** "Arm-based baseline-synthesis, reference-prediction, and aggregate-level matching models link disconnected subnetworks through a baseline-outcome structure, allowing disconnected RCTs and single-arm studies to be included. Baseline risk is not a universal bridge: it mixes prognosis with outcome definition, ascertainment, follow-up, supportive care, and calendar time, and simulations show cross-disconnected estimates can still be materially biased."
 
@@ -50,8 +51,12 @@ Use separate baseline distributions for connected, disconnected, and single-arm 
 
 **Revised by the full-text reading.** Applied 2026-07-26 full-text reading of the consolidated library (687 papers).
 
-Flagged for reopening
-:   **14 findings from the reading assert this problem is open while the registry carries `not-supported`** Flagged, not applied: reversing an earlier audit's closure needs the closure's own evidence re-examined alongside this, which the reading did not do. See documentation/audit/reading/PROPOSED.md.
+verdict-corrected
+:   **not-supported -> overstated** The adjudication rule let a misattributed citation set the published verdict to `not-supported`, though every auditor on this entry voted the problem `open`. A misattribution is a fault in the provenance, not in the claim. The rule is corrected in build/adjudicate.mjs and the verdict re-derived from this entry's own audit record. Auditors judged the problem open, and the source attributed it to the wrong work. Chandler and Ishak, Anchors Away (arXiv:2606.20341v1, appendix A.7), supplies the formal support the closure said was absent: in disconnected single-arm evidence, study-level effects are not separately identifiable from treatment effects, so a common conditional baseline risk is an identifying constraint and not a neutral anchor. The same paper calls that assumption highly restrictive and recommends fixed study effects with hierarchical pooling, which is this entry's own proposed direction, so the problem is real but its strong form is overstated.
+
+Corrected
+:   **severity: removed a line that inverted the cited finding** The correction_note already recorded that the source's gloss on Beliveau et al. 2017, its severity line and its associated claim all inverted the paper's finding, and that the auditor quoted doi:10.1002/jrsm.1256 saying the use of random baseline treatment effects in disconnected networks was appropriate for the two datasets considered. The correction had reached the statement but not this field. `claims_to_check` keeps the inverted wording deliberately, since it records the claim as the source made it, which is what was checked.
+    Previously: "random baseline treatment effects can be dangerous in disconnected networks"
 
 Literature and prior-art check
 :   **open / misattributed.** I read the Beliveau et al. 2017 abstract in full. The title is a question and the paper's answer is largely reassuring, not cautionary: 'For the 2 datasets considered, we found that the use of random baseline treatment effects in disconnected networks was appropriate.' The entry's prior_work gloss ('shows random baseline treatment effects can be dangerous'), the severity line, and claim 1 all invert the paper's finding. The authors do add a hedge about other datasets, which is the defensible version. This is the kind of error the people who wrote the paper will notice immediately. Everything attributed to Thom et al. 2022 checks out exactly: disconnected-treatment bias -0.16 to 0.392 (ALM) and -0.102 to 0.40 (reference prediction), coverage 0.30-0.82 versus 0.64-0.94, and 'Reference prediction has greater coverage and may be recommended overall.' The substantive problem (baseline risk mixes prognosis with ascertainment and design era) remains open; only the attribution needs fixing.

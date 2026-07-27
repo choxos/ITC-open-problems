@@ -3,16 +3,16 @@ title: "Non-collapsible marginal effects are not portable across populations"
 description: "Odds ratios and hazard ratios can vary across populations even without confounding, so the shared effect modifier assumption alone does not make a marginal effect portable to an arbitrary population. The result is not new and does not belong to the citation the source gave it: Remiro-Azocar (doi:10.1002/sim.10111) established the stronger result that under non-collapsibility even purely prognostic variables shift the marginal effect, Phillippo et al. 2021 (doi:10.1002/sim.8965) had already noted that marginal effects are less transportable than population-average conditional ones, and Chandler and Ishak (arxiv:2602.17041) restate it inside an explicit two-step transportability framing for PAIC. Collapsibility is also not the same as transportability: a risk difference or an RMST difference marginalizes cleanly but still varies across populations when effects are heterogeneous, and a standardized risk is a target-specific absolute quantity rather than a treatment-effect scale."
 pid: "EST-03"
 topic: "Estimands & target populations"
-categories: ["Estimands & target populations", "Very high priority", "Not supported"]
+categories: ["Estimands & target populations", "Very high priority", "Partially addressed"]
 priority: "Very high"
 prank: 1
-verdict: "Not supported"
-verdictslug: "not-supported"
+verdict: "Partially addressed"
+verdictslug: "partially-addressed"
 maturity: "Promising"
 ---
 ::: {.problem-meta}
 [EST-03]{.problem-id}
-[Not supported]{.verdict .verdict-not-supported}
+[Partially addressed]{.verdict .verdict-partially-addressed}
 [Very high priority]{.chip .chip-priority-very-high}
 [Promising]{.chip .chip-maturity-promising}
 :::
@@ -46,7 +46,7 @@ Index every marginal estimand by the population it is defined in and standardize
 ## Verification
 
 ::: {.verification-trail}
-**Verdict.** Not supported. No accessible source substantiates the claim as stated.
+**Verdict.** Partially addressed. Part of this problem is addressed by existing work and the entry names which part. The source additionally attributed the claim to the wrong work, which is corrected in the entry.
 
 **The source said.** "Odds ratios and hazard ratios can vary across populations even in the absence of confounding, so a marginal effect estimated in one population is not automatically transportable to another. The shared-effect-modifier assumption, routinely invoked to justify population adjustment, does not by itself make non-collapsible marginal effects portable to an arbitrary population."
 
@@ -56,8 +56,11 @@ Index every marginal estimand by the population it is defined in and standardize
 
 **Revised by the full-text reading.** Applied 2026-07-26 full-text reading of the consolidated library (687 papers).
 
-Flagged for reopening
-:   **3 findings from the reading assert this problem is open while the registry carries `not-supported`** Flagged, not applied: reversing an earlier audit's closure needs the closure's own evidence re-examined alongside this, which the reading did not do. See documentation/audit/reading/PROPOSED.md.
+closure-upheld
+:   **1 findings from the reading assert this problem is open; the closure was re-examined and stands** Put to an independent reviewer with the closing auditors' reasoning, the work they relied on, and the new findings in view together. The new paper restates the closure's accepted residual: marginal estimates are population-specific under non-collapsibility, including through baseline-risk distributions not captured by matching covariates. Its qualification that a shared effect-modifier assumption suffices only in restricted linear continuous-outcome settings is compatible with the closure's distinction between stable conditional parameters and nonportable marginal projections. It does not show that target-specific standardization is unavailable or that a population-free marginal odds ratio or hazard ratio can be recovered. Thus it supports the established theory, not reversal of the overstated closure. (reviewer confidence: high)
+
+verdict-corrected
+:   **not-supported -> partially-addressed** The adjudication rule let a misattributed citation set the published verdict to `not-supported`, though every auditor on this entry voted the problem `partially-solved`. A misattribution is a fault in the provenance, not in the claim. The rule is corrected in build/adjudicate.mjs and the verdict re-derived from this entry's own audit record. Part of this problem is addressed by existing work and the entry names which part. The source additionally attributed the claim to the wrong work, which is corrected in the entry.
 
 Literature and prior-art check
 :   **open / misattributed.** Chandler & Ishak 2026 does say what is attributed ('SEMA alone does not guarantee direct transportability of marginal treatment effects'; non-collapsible marginal effects 'are not directly transportable, even when SEMA holds'), so claims 1-3, 5 and 6 hold. Claim 4 does not: Chandler & Ishak are not the work that establishes this. Remiro-Azocar, Statistics in Medicine 43(22):4217-4249 (2024) establishes a strictly stronger result two years earlier - for non-collapsible measures even purely prognostic variables that are not determinants of treatment response modify marginal effects - which is exactly why an assumption about effect modifiers cannot suffice. Earlier still, Phillippo, Dias, Ades & Welton (Stat Med 2021) wrote that marginal effects 'depend more strongly on the population of interest than the population-average conditional treatment effects, and are less generalizable/transportable as a result'. The why_open assertion that the result 'has not propagated into guidance, software defaults' is also wrong at the software level: multinma's marginal_effects() defaults to mtype = 'difference', a collapsible absolute scale. Status stays open because these are formalizations of an unfixable property.

@@ -165,9 +165,14 @@ export function adjudicate(record) {
   // off that publishing it as open would mislead. A problem that is genuinely open but whose
   // framing needed qualifying is still CONFIRMED OPEN: the qualification belongs in the text
   // and the trail, not in a badge that implies someone has partly solved it.
+  // `misattributed` deliberately does NOT appear here. It means the source cited the wrong
+  // paper for a claim, which is a fault in the provenance and not in the claim: the problem
+  // can be entirely real and still be credited to the wrong authors. Letting it set
+  // `not-supported` published four entries as unsubstantiated whose own auditors had every
+  // one of them voted open or partly solved, which is the opposite of what the trail said.
+  // A misattribution belongs in the wording and the trail, and it already sets `needsHuman`.
   let verdict
   if (status === 'solved') verdict = 'resolved-since-report'
-  else if (support === 'misattributed') verdict = 'not-supported'
   else if (status === 'not-a-problem') verdict = 'not-supported'
   else if (support === 'unverifiable') verdict = 'unverifiable'
   else if (support === 'contested' || status === 'contested') verdict = 'unverifiable'
@@ -185,7 +190,11 @@ export function adjudicate(record) {
           : verdict === 'unverifiable'
             ? 'Auditors disagreed and the disagreement was evidence-bearing on both sides.'
             : verdict === 'not-supported'
-              ? 'No accessible source substantiates the claim as stated.'
+              // Only reachable via status `not-a-problem` now. The old wording,
+              // "no accessible source substantiates the claim", described a
+              // misattribution rather than this, and was the giveaway that the
+              // two axes had been collapsed into one.
+              ? 'Auditors judged this is not a real methodological problem.'
               : 'Auditors agreed the problem is open and no counterevidence surfaced.'
 
   return {
