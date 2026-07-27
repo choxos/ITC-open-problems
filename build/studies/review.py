@@ -184,6 +184,22 @@ def extract_json(text):
 def build_package(slug, rnd):
     d = study_dir(slug)
     pid = json.load(open(os.path.join(d, "study.json"), encoding="utf8"))["problem_id"]
+
+    # Refuse to send a package older than the manuscript source.
+    #
+    # In round two of study 2 both reviewers independently reported that the
+    # authors' response described changes the manuscript did not contain. Some of
+    # those changes had genuinely not been made; one had, but the rendered copy
+    # under out/ predated it, so the reviewers were served a stale file. Either
+    # way the failure is the same from the reviewer's side, and it wastes a whole
+    # round. The render is now checked against the source before anything is sent.
+    src = os.path.join(d, "manuscript", "manuscript.qmd")
+    out = os.path.join(d, "out", f"{pid}.md")
+    if os.path.exists(src) and os.path.exists(out):
+        if os.path.getmtime(src) > os.path.getmtime(out):
+            sys.exit(f"{os.path.relpath(out, ROOT)} is older than the manuscript "
+                     f"source. Run build/studies/publish.py --study {slug} first, "
+                     f"or reviewers will review a version that no longer exists.")
     parts = [
         "# MANUSCRIPT UNDER REVIEW", "",
         read(os.path.join(d, "out", f"{pid}.md"),

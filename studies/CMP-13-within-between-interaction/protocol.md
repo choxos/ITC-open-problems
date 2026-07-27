@@ -221,4 +221,32 @@ within-trial support. It does not touch IDN-05.
 
 ## 10. Amendments
 
-None yet. Any change after the run begins is recorded here with its date and reason.
+### 2026-07-28, after the run: the two regimes are analyzed separately
+
+**What changed.** The analysis splits the grid on the `ipd` factor: a primary regime of 256
+scenarios in which every component has within-trial information (`all`, `six`, `four`,
+`four-low`), and 64 scenarios of `no-B-ipd` in which one component has none.
+
+**Why.** In `no-B-ipd` the shared and joint models are near-unidentified for that component.
+They fail to return an interval on 11% of replicates against 0.02% elsewhere, their model
+standard errors run three to ten times their empirical ones, and coverage tends to one
+because the intervals are enormous. Pooled with the rest, that regime makes the negative
+controls fail and the pooled numbers describe neither regime.
+
+**Why this is not the move study 1 was criticized for.** Study 1 of this program restricted
+its analysis by the *observed coverage* of a method, which is selection on an outcome, and
+peer review was right to call that exploratory. This split is on a **level of a factor fixed
+before the run**. Nothing about the observed results decides which scenarios go where, and
+both regimes are reported in full with their own conclusions.
+
+**What it does not change.** No threshold, no factor, no performance measure, no replicate
+count, and no scenario's data.
+
+### 2026-07-28: the cluster-robust comparator fails its own controls
+
+`shared-sandwich` was included so the comparison could not be won by giving the proposed
+method a better variance estimator. It fails its own negative controls in all 128 control
+scenarios, covering 0.754 to 0.929 where the shared model is correctly specified. With
+twelve clusters the cluster-robust variance is badly anticonservative. It is therefore
+reported as a finding in its own right and is not used as the status quo; the status quo is
+the model-based interval, which passes its controls.

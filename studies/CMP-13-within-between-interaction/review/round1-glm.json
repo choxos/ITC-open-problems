@@ -1,0 +1,48 @@
+{
+ "recommendation": "minor-revision",
+ "summary": "The manuscript uses a simulation study to show that a shared interaction matrix in component ML-NMR algebraically imposes equality between the causal within-trial interaction and the confounded across-trial association, and quantifies the coverage cost. It also tests whether the catalog's stated mechanism (aggregate data pulling the estimate) is correct, finding that the conflation persists even with full IPD. The design is pre-registered, the algebra is correct, the comparison is fair, and the reporting of the mechanism test is admirably honest about falling short of the prespecified refutation threshold. The main limitations—ML not Bayesian, simple DGM, prevalences known exactly—are stated and real.",
+ "strengths": [
+  "The algebraic identity in Equation 1 is clear, correct, and settles the misspecification question independently of the simulation, while the simulation quantifies the practical cost",
+  "The mechanism test is well-designed: isolating the parameterization from the data type by running the shared model with all 12 trials supplying IPD is the right experiment to test CMP-13's causal claim",
+  "Honest reporting of the mechanism test falling short of the prespecified refutation threshold (48% vs 50%) rather than adjusting the threshold",
+  "The bundled network structure was added specifically to prevent the study from testing ordinary NMR while claiming to test component models—a genuine design improvement from the protocol's adversarial review",
+  "The IPD-anchored estimator's refusal to report a component with no within-trial information is a design feature, and reporting declining-to-report separately from convergence failure is the right treatment",
+  "Fair comparison: the shared-sandwich variant prevents the proposed methods from winning on variance estimation alone, and when it fails its own controls it is reported as a finding rather than used as the status quo"
+ ],
+ "comments": [
+  {
+   "id": 1,
+   "severity": "minor",
+   "section": "Abstract / Results (no within-trial information)",
+   "comment": "The abstract says the shared model 'returns a confident estimate of -0.34 against a truth of zero.' Coverage for this scenario is 0.905, meaning the intervals are wide (the model is near-unidentified) and include zero about 90% of the time. The point estimate is biased, but calling it 'confident' is misleading: the intervals are not narrow. The important finding is that the point estimate is sourced entirely from the ecological gradient and is of the wrong sign, not that the interval excludes zero.",
+   "what_would_satisfy": "Rephrase to clarify that the mean point estimate is -0.34 (wrong sign, ecologically sourced) while the intervals are wide and undercover slightly at 0.905; the problem is the biased point estimate, not a falsely precise one."
+  },
+  {
+   "id": 2,
+   "severity": "minor",
+   "section": "Results (mechanism test)",
+   "comment": "The mechanism test falls narrowly short of the prespecified refutation threshold (48% of cells above 0.20 vs the required >50%). The authors report this honestly, which is commendable. However, the discussion could note that with 80 scenario-components, the difference between 48% and 50% is approximately 1.6 scenario-components, and whether this marginal gap should affect the qualitative interpretation. The support threshold (all below 0.10) clearly fails, so 'not supported' is the correct verdict regardless.",
+   "what_would_satisfy": "Add a sentence noting how close the result is to the threshold and reaffirming that the support threshold failure is decisive while the refutation threshold failure is marginal."
+  },
+  {
+   "id": 3,
+   "severity": "minor",
+   "section": "What this answers (scope)",
+   "comment": "The limitation that this is a maximum-likelihood analogue rather than the Bayesian implementation in multinma is well-stated, but the practical implication deserves slightly more discussion. The authors say 'the direction of the effect' transfers but coverage numbers do not. It would help to note whether Bayesian priors would likely attenuate or worsen the problem—for instance, weakly informative priors on the interaction could either regularize the ecological gradient (helping) or shrink toward zero in a way that masks the bias (hurting).",
+   "what_would_satisfy": "One or two sentences on the likely direction of prior effects, or an explicit statement that this cannot be determined without a separate Bayesian evaluation."
+  },
+  {
+   "id": 4,
+   "severity": "minor",
+   "section": "Data-generating mechanism",
+   "comment": "The DGM has no component synergy (the component effects are additive on the log scale) and no random treatment-effect heterogeneity. These are acknowledged in the scope section. However, the interaction between component aliasing and the shared restriction is exactly where the problem is worst (the bundled network shows the lowest coverage), so it would be useful to note whether synergy or heterogeneity would amplify or dampen the observed pattern.",
+   "what_would_satisfy": "A brief note on whether the additive-no-synergy assumption is favorable or unfavorable to the shared model."
+  }
+ ],
+ "citation_problems": [],
+ "conclusions_supported": true,
+ "unsupported_claims": [],
+ "reviewer": "glm",
+ "name": "GLM-5.2 (via Ollama)",
+ "round": 1
+}

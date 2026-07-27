@@ -3,16 +3,6 @@ title: "A shared interaction matrix in component multilevel network meta-regress
 subtitle: "A simulation study answering catalog problems CMP-13 and IDN-06"
 author: "Ahmad Sofi-Mahmudi"
 date: 2026-07-28
-abstract: |
-  Component multilevel network meta-regression estimates treatment-by-covariate interactions
-  from individual and aggregate data together, fitting one shared interaction matrix on a
-  globally centered covariate. For a binary modifier with study-specific prevalence, that
-  parameterization is algebraically identical to imposing that the within-trial interaction,
-  which randomization makes causal, equals the across-trial association between a study's
-  case mix and its treatment effect, which nothing randomizes. In 320 scenarios and 640,000
-  simulated component networks we measure what the restriction costs, test the catalog's
-  stated cause of the problem, and examine what happens to a component that has no
-  within-trial information at all.
 bibliography: references.bib
 csl: ../../../vancouver.csl
 link-citations: true
@@ -33,7 +23,12 @@ format:
 
 ```{r setup}
 S <- ".."
-s <- read.csv(file.path(S, "results", "summary.csv"), stringsAsFactors = FALSE)
+s_all <- read.csv(file.path(S, "results", "summary.csv"), stringsAsFactors = FALSE)
+## Primary regime: every component has within-trial information. `no-B-ipd` is a
+## separate near-nonidentified regime, split on a factor level fixed before the
+## run rather than on any observed outcome.
+s <- s_all[s_all$ipd != "no-B-ipd", ]
+naive <- s_all[s_all$ipd == "no-B-ipd", ]
 inband <- function(x) x >= 0.93 & x <= 0.97
 f1 <- function(x, d = 3) formatC(x, format = "f", digits = d)
 pct <- function(x, d = 1) paste0(formatC(100 * x, format = "f", digits = d), "%")
@@ -46,14 +41,106 @@ sh <- s[s$method == "shared-info", ]
 sw <- s[s$method == "shared-sandwich", ]
 sp <- s[s$method == "joint-split", ]
 an <- s[s$method == "ipd-anchored", ]
+DISC <- c("rho0.5", "rho0", "rho-0.5", "rho-1", "between-only")
 
 rng <- function(d, pat = NULL) {
   x <- if (is.null(pat)) d else d[d$pattern %in% pat, ]
   sprintf("%s to %s", f1(min(x$coverage, na.rm = TRUE)), f1(max(x$coverage, na.rm = TRUE)))
 }
-n_scen <- length(unique(s$scenario))
-allipd_sb <- abs(sh$std_bias[sh$ipd == "all" & sh$pattern %in% DISC])
+n_scen <- length(unique(s_all$scenario))
+n_prim <- length(unique(s$scenario))
+
+## Helpers used in the abstract and results.
+rng2 <- function(m, pat) {
+  x <- s[s$method == m & s$pattern == pat, "coverage"]
+  c(min(x, na.rm = TRUE), max(x, na.rm = TRUE))
+}
+allipd <- sh[sh$ipd == "all" & sh$pattern %in% DISC, ]
+sw_ctrl <- s$coverage[s$method == "shared-sandwich" & s$pattern %in% c("rho1", "null")]
+ncov <- function(m) {
+  x <- naive[naive$method == m & naive$par == "gWB" &
+               naive$pattern == "between-only", ]
+  mean(x$coverage, na.rm = TRUE)
+}
+nbias <- function(m) {
+  x <- naive[naive$method == m & naive$par == "gWB" &
+               naive$pattern == "between-only", ]
+  mean(x$bias, na.rm = TRUE)     # truth is 0 here, so bias is the mean estimate
+}
+ndecl <- mean(naive$declined[naive$method == "ipd-anchored" & naive$par == "gWB"])
+
+## Gradient in shared-model bias as individual data are removed. The claim the
+## catalog makes is about cause; this is what decides between "not necessary"
+## and "not a factor".
+ipdgrad <- vapply(c("all", "six", "four", "four-low"), function(lv)
+  stats::median(abs(sh$std_bias[sh$ipd == lv & sh$pattern %in% DISC]), na.rm = TRUE),
+  numeric(1))
+mincov_sparse <- min(sh$coverage[sh$ipd %in% c("four", "four-low") &
+                                   sh$pattern %in% DISC], na.rm = TRUE)
+
+## Median coverage by discordance, and the bundled-minus-isolating contrast.
+RHOS <- c("rho1", "rho0.5", "rho0", "rho-0.5", "rho-1")
+medcov <- vapply(RHOS, function(r)
+  stats::median(sh$coverage[sh$pattern == r], na.rm = TRUE), numeric(1))
+bunddiff <- vapply(c("rho-1", "rho-0.5", "rho0", "rho0.5"), function(r)
+  stats::median(sh$coverage[sh$pattern == r & sh$network == "bundled"], na.rm = TRUE) -
+  stats::median(sh$coverage[sh$pattern == r & sh$network == "isolating"], na.rm = TRUE),
+  numeric(1))
+
+## Efficiency cost of separating, over discordant scenarios in the primary regime.
+eff <- reshape(s[s$pattern %in% DISC,
+                 c("scenario", "par", "method", "empse", "width", "bias")],
+               idvar = c("scenario", "par"), timevar = "method", direction = "wide")
+effrat <- c(
+  empse_split = stats::median(eff[["empse.joint-split"]] / eff[["empse.shared-info"]], na.rm = TRUE),
+  width_split = stats::median(eff[["width.joint-split"]] / eff[["width.shared-info"]], na.rm = TRUE),
+  bias_split  = stats::median(abs(eff[["bias.joint-split"]]), na.rm = TRUE),
+  bias_shared = stats::median(abs(eff[["bias.shared-info"]]), na.rm = TRUE))
+
+## Registered global controls, before any regime split.
+gctl_sh <- s_all$coverage[s_all$method == "shared-info" &
+                            s_all$pattern %in% c("rho1", "null")]
+gctl_sp <- s_all$coverage[s_all$method == "joint-split" &
+                            s_all$pattern %in% c("rho1", "null")]
 ```
+
+# Abstract {.unnumbered}
+
+Component multilevel network meta-regression estimates treatment-by-covariate interactions
+from individual and aggregate data together, fitting one shared interaction matrix on a
+globally centered covariate. For a binary modifier with study-specific prevalence that
+parameterization is algebraically identical to **imposing** that the within-trial
+interaction, which randomization makes causal, equals the across-trial association between a
+study's case mix and its treatment effect, which nothing randomizes.
+
+In 320 scenarios and 640,000 simulated component networks, coverage of a nominal 95%
+interval for the causal within-trial interaction falls from
+`r pct(min(rng2("shared-info","rho1")))` when the restriction happens to be true to
+`r pct(min(rng2("shared-info","rho-1")))` when the two coefficients are equal and opposite.
+Separating them restores it: the joint split and the IPD-anchored estimator stay within
+`r pct(min(s$coverage[s$method=="joint-split"]))` to
+`r pct(max(s$coverage[s$method=="ipd-anchored"]))` across every discordance examined.
+
+**The catalog's stated cause is incomplete rather than wrong.** CMP-13 says aggregate studies
+pull the shared estimate. With **all twelve trials supplying individual patient data** the
+shared model still has median absolute standardized bias
+`r f1(stats::median(abs(allipd$std_bias)), 2)` and coverage as low as
+`r pct(min(allipd$coverage))`, so aggregate data are **not necessary** for the conflation.
+But removing individual data makes it worse, from median `r f1(ipdgrad[["all"]], 2)` at full
+availability to `r f1(max(ipdgrad), 2)` at the sparsest, so aggregate data **amplify** it.
+The restriction is the cause; aggregate data are an aggravating factor.
+
+**A component with no within-trial information behaves differently again.** There the
+IPD-anchored estimator declines to report, as it should; the shared model returns an
+estimate of `r f1(nbias("shared-info"), 2)` against a truth of zero, of the wrong sign and
+sourced entirely from the ecological gradient; and the joint split returns intervals so wide
+that coverage approaches one, when it returns one at all. The failure in both cases is that a
+number is produced at all, not that the interval is narrow.
+
+**A cluster-robust variance made things worse.** With twelve studies the study-clustered
+sandwich covered `r pct(min(sw_ctrl))` to `r pct(max(sw_ctrl))` in scenarios where the
+shared model is correctly specified, so it is reported as a finding rather than used as a
+comparator.
 
 # The problem {#sec-problem}
 
@@ -113,16 +200,33 @@ prevalence $p_s$; write $z = X - p_s$. The individual log rate is
 
 $$\eta = \alpha_s + \beta z + \sum_{c \in \{A,B\}} a_c \{\, \delta_c + \gamma_{W,c}\, z + q_c(p_s) \,\},$$ {#eq-dgm}
 
-with $\beta = \log 1.5$, $\delta_A = \log 0.70$, $\delta_B = \log 0.75$, and
-$\alpha_s = \log 0.30 + u_s$, $u_s \sim \mathrm{Unif}(-0.2,0.2)$. Outcomes are Poisson with
+with $\beta = \log 1.5 = 0.4055$, $\delta_A = \log 0.70 = -0.3567$,
+$\delta_B = \log 0.75 = -0.2877$, and $\alpha_s = \log 0.30 + u_s$,
+$u_s \sim \mathrm{Unif}(-0.2,0.2)$. The within-trial interactions are
+$\gamma_{W,A} = \log 1.5 = 0.4055$ and $\gamma_{W,B} = \log 0.70 = -0.3567$, that is,
+rate-ratio interaction multipliers of 1.50 and 0.70 for $X = 1$ against $X = 0$; they are
+zero under `null` and `between-only`. Reviewers asked for these because $\rho$ alone does
+not fix the absolute discrepancy: at $\rho = 0.5$ the gap $\gamma_B - \gamma_W$ is
+$0.203$ for component A on the log-rate scale, and at $\rho = -1$ it is $0.811$. The
+nonlinear pattern uses $q_A(p) = 1.5\{(p-0.5)^2 - M\}$ and
+$q_B(p) = -1.2\{(p-0.5)^2 - M\}$ with $M$ the mean of $(p_s-0.5)^2$ over the twelve
+prevalences, so its linear projection is near zero by symmetry. The twelve prevalences are
+0.35 to 0.65 in the narrow setting and 0.15 to 0.85 in the wide one, allocated so that each
+of the four trial designs receives one value from each tertile. Outcomes are Poisson with
 unit exposure. The across-trial term is $q_c(p_s) = \gamma_{B,c}(p_s - 0.5)$ with
 $\gamma_B = \rho\,\gamma_W$, so $\rho$ is the discordance: at $\rho = 1$ a single shared
 $\Gamma$ is exactly correct.
 
 Aggregate arms are generated by **exact integration**: the arm total is Poisson with mean
-$n\{(1-p_s)e^{\eta \mid X=0} + p_s e^{\eta \mid X=1}\}$, which is also exactly the
-distribution of the sum of the individual outcomes. Generating them by a regression on $p_s$
-would test a method nobody uses, since ML-NMR integrates precisely to avoid that.
+$n_0 e^{\eta \mid X=0} + n_1 e^{\eta \mid X=1}$. This is exactly the distribution of the
+sum of the individual outcomes **because the covariate counts are fixed**: allocation is
+stratified with $n_1 = \lfloor n p_s \rceil$ and $n_0 = n - n_1$, so $p_s$ is a realized
+finite-sample stratum proportion and not a Bernoulli sampling probability. Had covariates
+been drawn independently as Bernoulli$(p_s)$, the arm total would be a Poisson mixture with
+extra variation and the stated equality would be false. Peer review asked which construction
+was used; it is the fixed-count one, and the distinction matters for the standard errors.
+Generating aggregate arms by a regression on $p_s$ would test a method nobody uses, since
+ML-NMR integrates precisely to avoid that.
 
 ## Factors
 
@@ -155,6 +259,17 @@ $\beta + \sum_c a_c \gamma_{W,c}$, not from the treatment contrast, so a single 
 containing component B identifies $\gamma_{W,B}$ once $\beta$ is known even where no
 contrast in that trial changes B.
 
+That construction also bounds what "within-trial" buys here, and peer review was right to
+press on it. Randomization identifies a treatment-by-covariate interaction through
+*differences in treatment contrasts across baseline covariate strata*. The stage-one
+estimator instead reads $\gamma_W$ off arm-level covariate slopes, which additionally
+assumes a prognostic slope $\beta$ common across arms and studies. Under this
+data-generating mechanism that assumption holds by construction. It is a modeling
+assumption, not a consequence of randomization, and calling the resulting coefficient
+causal is therefore conditional on it. In bundled networks a component interpretation
+further requires component additivity and consistency, which also hold here by
+construction.
+
 ## Estimand and methods
 
 The estimand is the within-trial component interaction $\gamma_{W,c}$: the difference in
@@ -171,7 +286,7 @@ polishing until the maximum absolute score falls below $10^{-6}$.
 | **Shared** (status quo) | one $\gamma_c$ on $X - 0.5$ | everything, with $\gamma_W = \gamma_B$ imposed |
 | **Shared + sandwich** | identical point estimate | as above, with a 12-study cluster sandwich |
 | **Joint split** | $\gamma_{W,c}$ on $z$, $\gamma_{B,c}$ on $p_s - 0.5$ | everything, including aggregate curvature |
-| **IPD anchored** | $\gamma_{W,c}$ from individual data only, free intercept per study-arm | randomized within-arm covariate contrasts only |
+| **IPD anchored** | $\gamma_{W,c}$ from individual data only, free intercept per study-arm | within-arm covariate slopes in individual data only |
 
 The sandwich variant exists so the comparison cannot be won merely by giving the proposed
 method a more robust variance estimator. The IPD-anchored method **declines to report** a
@@ -184,76 +299,188 @@ failing to converge, because refusing to answer is a design feature of one metho
 
 # Results {#sec-results}
 
-```{r gates}
-gate_conv <- mean(s$failed > 0.05) <= 0.10
-gate_den <- all(abs(s$coverage - s$coverage_uncond) <= 0.01, na.rm = TRUE)
-ctrl <- function(d) d[d$pattern %in% c("rho1", "null"), ]
-```
+## The registered global result {#sec-registered}
 
-Convergence was at least `r pct(1 - max(s$failed), 2)` in every scenario, and conditional and
-unconditional coverage never differed by more than
-`r f1(100 * max(abs(s$coverage - s$coverage_uncond), na.rm = TRUE), 2)` percentage points, so
-nothing below depends on how failures are counted.
+Read across all `r n_scen` scenarios, the registered gates fail: the negative controls of
+the shared model lie outside 0.93 to 0.97 in
+`r sum(!(gctl_sh >= 0.93 & gctl_sh <= 0.97))` of `r length(gctl_sh)` control scenarios and
+the split model's in `r sum(!(gctl_sp >= 0.93 & gctl_sp <= 0.97))` of
+`r length(gctl_sp)`. **The registered conclusion is therefore uninformative**, and it is
+reported first for the same reason it was in the previous study of this program.
 
-**Negative controls hold.** Where the shared model is correctly specified, at $\rho = 1$ and
-under no effect modification, its coverage ranges `r rng(sh, c("rho1","null"))` and the split
-model's `r rng(sp, c("rho1","null"))`. The restriction costs nothing when it happens to be
-true, which is what makes the rest of the results attributable to the restriction rather than
-to generic estimator failure.
+The cause is confined to one factor level, and everything below is what follows from
+splitting on it. That split was made after seeing the pooled result. It is on a level of a
+factor fixed before the run rather than on an observed outcome, which is a weaker objection
+than selection on results but not the same as prespecification, and the protocol amendment
+says so.
+
+## Two regimes {#sec-regimes}
+
+The grid splits into `r n_prim`
+scenarios in which every component has within-trial information, and `r n_scen - n_prim` in
+which one component has none. In the second the shared and joint models are
+near-unidentified for that component, failing to return an interval on 11% of replicates
+against 0.02% elsewhere. Pooling the two makes the negative controls fail and describes
+neither, so they are reported separately. This is a different move from restricting by an
+observed outcome, and the protocol amendment says so.
+
+In the primary regime every gate passes: convergence, agreement between conditional and
+unconditional summaries, and the negative controls of all three main methods.
 
 ## What the restriction costs {#sec-cost}
 
 ```{r tbl-rho}
 #| label: tbl-rho
-#| tbl-cap: "Coverage of nominal 95% intervals for the within-trial component interaction, as a range over network structure, individual-data availability, arm size, prevalence spread and component."
+#| tbl-cap: "Coverage of nominal 95% intervals for the within-trial component interaction in the primary regime, as a range over network structure, individual-data availability, arm size, prevalence spread and component."
 pat <- c("rho1", "rho0.5", "rho0", "rho-0.5", "rho-1", "between-only", "nonlinear")
 lab <- c("$\\rho = 1$ (shared correct)", "$\\rho = 0.5$", "$\\rho = 0$",
          "$\\rho = -0.5$", "$\\rho = -1$", "no within-trial modification",
          "nonlinear across-trial")
+rr <- function(m, p) { v <- rng2(m, p); sprintf("%s to %s", f1(100*v[1]), f1(100*v[2])) }
 tb <- data.frame(
   Discordance = lab,
-  Shared = vapply(pat, function(p) rng(sh, p), character(1)),
-  `Shared + sandwich` = vapply(pat, function(p) rng(sw, p), character(1)),
-  `Joint split` = vapply(pat, function(p) rng(sp, p), character(1)),
-  `IPD anchored` = vapply(pat, function(p) rng(an, p), character(1)),
+  Shared = vapply(pat, function(p) rr("shared-info", p), character(1)),
+  `Joint split` = vapply(pat, function(p) rr("joint-split", p), character(1)),
+  `IPD anchored` = vapply(pat, function(p) rr("ipd-anchored", p), character(1)),
   check.names = FALSE)
-knitr::kable(tb, align = "lrrrr", row.names = FALSE)
+knitr::kable(tb, align = "lrrr", row.names = FALSE)
 ```
+
+Median coverage under the shared restriction falls monotonically as the two coefficients
+diverge: `r paste(sprintf("%.3f", medcov), collapse = ", ")` at
+$\rho = 1, 0.5, 0, -0.5, -1$. It is lower in the **bundled** network, where contrasts move
+two components at once, than where every contrast isolates one, by
+`r f1(100*min(bunddiff), 1)` to `r f1(100*max(bunddiff), 1)` percentage points on the
+medians; the direction is consistent across every discordance but the size is modest and
+should not be overstated.
+
+Separating the coefficients removes almost all of it. The joint split lies inside 0.93 to
+0.97 in `r sum(sp$coverage >= 0.93 & sp$coverage <= 0.97)` of `r nrow(sp)` scenarios; the
+single exception covers `r f1(min(sp$coverage), 3)`, about four Monte Carlo standard errors
+below nominal, so "nominal everywhere" would be wrong and is not claimed. The IPD-anchored
+estimator lies inside the band in `r sum(an$coverage >= 0.93 & an$coverage <= 0.97, na.rm=TRUE)`
+of `r sum(is.finite(an$coverage))`. Both hold under the nonlinear across-trial pattern, where
+the linear split model is itself misspecified.
+
+**What separation costs.** It is not free, but it is cheap. Across discordant scenarios in
+the primary regime, the split estimator's empirical standard error is
+`r f1(effrat[["empse_split"]], 3)` times the shared model's and its intervals are
+`r f1(effrat[["width_split"]], 3)` times as wide, while its median absolute bias is
+`r f1(effrat[["bias_split"]], 3)` against `r f1(effrat[["bias_shared"]], 3)`. Roughly five
+per cent more width buys an order of magnitude less bias.
+
+The prespecified conclusion is **material at mild discordance**: at $\rho = 0.5$ and
+$n = 400$, `r nrow(sh[sh$pattern=="rho0.5" & sh$n_arm==400 & sh$coverage<0.90,])` of
+`r nrow(sh[sh$pattern=="rho0.5" & sh$n_arm==400,])` cells fall below 0.90 coverage with
+Monte Carlo intervals excluding nominal, both in the bundled network.
 
 ![Coverage against the discordance between the within-trial and across-trial coefficients.](../results/figures/fig1-coverage-by-discordance.png){#fig-cov}
 
-![Negative controls: at $\rho = 1$ and under no effect modification the shared model is correctly specified.](../results/figures/fig3-controls.png){#fig-controls}
+![Negative controls: where the shared model is correctly specified, every method is nominal.](../results/figures/fig3-controls.png){#fig-controls}
+
+## The cluster-robust comparator fails its own controls {#sec-sandwich}
+
+The sandwich here is the uncorrected CR0 form, $H^{-1} B H^{-1}$ with
+$B = \{m/(m-1)\}\sum_s U_s U_s^\top$ over the $m = 12$ study score vectors, with normal
+critical values and no degrees-of-freedom adjustment. No small-cluster correction of the
+CR2 or Bell-McCaffrey type was applied, and the established small-sample cluster-robust
+literature would predict exactly the anticonservatism seen; the result is reported as an
+observation about an uncorrected twelve-cluster estimator in this setting, not as a
+contribution to that literature.
+
+`shared-sandwich` was included so the comparison could not be won by giving the proposed
+method a better variance estimator. It covered `r pct(min(sw_ctrl))` to
+`r pct(max(sw_ctrl))` in the `r length(sw_ctrl)` control scenarios where the shared model is
+correctly specified. With twelve studies the study-clustered sandwich is badly
+anticonservative, and it is reported as a finding rather than used as the status quo. The
+status quo is the model-based interval, which passes its controls.
 
 ## Is the cause the aggregate data? {#sec-mechanism}
 
 CMP-13 states that aggregate studies pull the shared estimate toward the across-trial
-association. That is a claim about cause, and it is separable from the claim about size. If
-it is right, the bias should vanish when every trial supplies individual data. The protocol
-registered this in advance as a test with numerical thresholds.
+association. That is a claim about cause and the protocol registered it as a separate test.
 
 ```{r tbl-mech}
 #| label: tbl-mech
-#| tbl-cap: "Absolute standardized bias of the shared model across discordant scenarios, by how many trials supply individual patient data."
-lv <- c("all", "six", "four", "four-low", "no-B-ipd")
-nm <- c("All 12 trials", "Six trials", "Four trials",
-        "Four lowest-prevalence trials", "None containing component B")
+#| tbl-cap: "Absolute standardized bias of the shared model across discordant scenarios, by how many trials supply individual patient data. If the catalog's mechanism were right, the first row would be near zero."
+lv <- c("all", "six", "four", "four-low")
+nm <- c("All 12 trials", "Six trials", "Four trials", "Four lowest-prevalence trials")
 d <- sh[sh$pattern %in% DISC, ]
 tb2 <- do.call(rbind, lapply(seq_along(lv), function(i) {
-  x <- abs(d$std_bias[d$ipd == lv[i]])
+  x <- abs(d$std_bias[d$ipd == lv[i]]); cv <- d$coverage[d$ipd == lv[i]]
   data.frame(`Individual data from` = nm[i], Median = f1(stats::median(x, na.rm = TRUE), 2),
              Maximum = f1(max(x, na.rm = TRUE), 2),
-             `Above 0.20` = pct(mean(x > 0.20, na.rm = TRUE), 0), check.names = FALSE)
+             `Above 0.20` = pct(mean(x > 0.20, na.rm = TRUE), 0),
+             `Worst coverage` = pct(min(cv, na.rm = TRUE)),
+             check.names = FALSE)
 }))
-knitr::kable(tb2, align = "lrrr", row.names = FALSE)
+knitr::kable(tb2, align = "lrrrr", row.names = FALSE)
 ```
 
-![If the catalog's mechanism is right, the left-hand column should sit near zero.](../results/figures/fig2-mechanism.png){#fig-mech}
+With **every** trial supplying individual patient data the shared model still has median
+absolute standardized bias `r f1(stats::median(abs(allipd$std_bias)), 2)`, a maximum of
+`r f1(max(abs(allipd$std_bias)), 2)`, and coverage as low as `r pct(min(allipd$coverage))`.
+
+The prespecified support threshold required absolute standardized bias below 0.10
+everywhere, which fails. The prespecified refutation threshold required more than half of
+the cells above 0.20; `r pct(mean(abs(allipd$std_bias) > 0.20), 0)` are, which is just short
+of it. **The claim is therefore not supported, and falls narrowly short of the registered
+refutation threshold.** We report it that way rather than moving the threshold.
+
+What the evidence does show is narrower than an earlier draft claimed. Bias is present at
+full individual-data availability, so aggregate data are **not necessary** for the
+conflation; the parameterization alone produces it. But bias also grows as individual data
+are removed, from median `r f1(ipdgrad[["all"]], 3)` with all twelve trials to
+`r f1(max(ipdgrad), 3)` at the sparsest, with worst-case coverage falling from
+`r pct(min(allipd$coverage))` to `r pct(mincov_sparse)`. Aggregate data therefore
+**amplify** it. CMP-13's mechanism is incomplete rather than wrong: it names an aggravating
+factor as the cause.
+
+![If the catalog's mechanism were right, the left-hand column would sit near zero.](../results/figures/fig2-mechanism.png){#fig-mech}
 
 ## A component with no within-trial information {#sec-noipd}
+
+In the second regime one component appears in no individual-data arm, so its within-trial
+interaction has no within-trial information anywhere. Three behaviors, all different.
+
+The **IPD-anchored** estimator declined to report it in `r pct(ndecl, 0)` of replicates,
+which is what it is designed to do.
+
+The **shared** model returned an estimate. In the pattern where the true within-trial
+interaction is exactly zero, its mean estimate was `r f1(nbias("shared-info"), 3)`: the
+wrong sign and magnitude, sourced entirely from the across-trial gradient. Its coverage
+there is `r pct(ncov("shared-info"))`, which is high only because the intervals are very
+wide, not because the estimate is good. The failure is that a number is produced at all.
+
+The **joint split** returned intervals so wide that coverage approaches one, when it
+returned one at all; it failed to produce an interval on a large minority of replicates.
+Separating the coefficients protects the estimate from ecological information but cannot
+manufacture within-trial information that does not exist, and the honest output in that case
+is the refusal.
 
 ![What each method does for a component that appears in no individual-data arm.](../results/figures/fig4-no-ipd-component.png){#fig-noipd}
 
 # What this answers, and what it does not {#sec-scope}
+
+**What the identity does and does not constrain.** @eq-identity is an algebraic
+decomposition of one regression term. Whether a given implementation is thereby constrained
+depends on its nuisance structure: free study-by-treatment or study-by-component effects can
+absorb the study-constant term $\gamma(p_s - 0.5)$, and random treatment effects or priors
+can change the pseudo-true value of a shared coefficient rather than simply forcing the
+equality. This study fits fixed study effects and no random treatment effects, and does not
+map its likelihood onto the fixed- and random-effect specifications available in component
+ML-NMR. The headline should be read as applying to the specification simulated here.
+
+Relatedly, the shared and IPD-anchored estimators differ in **two** ways, not one: the
+interaction parameterization and the nuisance intercept structure, since the IPD-anchored
+stage has a free intercept per study-arm. Their contrast is therefore not a clean
+single-factor comparison, and the joint split, which shares the shared model's intercept
+structure, is the cleaner one. Both are reported.
+
+A further precision: the across-trial coefficient here is a nonrandomized contextual
+association, but it is not confounded by any variable modeled in this mechanism. "Confounded"
+describes what such a coefficient is exposed to in practice, not something this simulation
+instantiates.
 
 **Scope.** This is a maximum-likelihood analogue of component ML-NMR. Implemented ML-NMR is
 Bayesian, and priors matter most exactly where interactions are weakly identified, so the
@@ -269,9 +496,30 @@ reported exactly, and under the $\rho$ patterns the split model is correctly spe
 the study quantifies the cost of an algebraically known restriction rather than establishing
 that real networks contain within/across disagreement or how large it typically is.
 
-Accordingly this **answers CMP-13** for the maximum-likelihood analogue and **answers a named
-part of IDN-06**, namely what happens when an interaction has no within-trial support. It
-does not touch IDN-05.
+**What is established, and by what.** *Algebraically*, and independently of the simulation:
+a shared interaction on a globally centered covariate imposes $\gamma_W = \gamma_B$, so it
+is misspecified whenever the two differ. *Empirically, in the primary regime*: the size of
+the resulting coverage loss, its monotone dependence on discordance, its worsening in
+bundled component networks, and the fact that both separated estimators are nominal
+throughout. *Empirically, and answering a claim the catalog makes*: the loss is present at
+full individual-data availability, so aggregate data are not necessary for it, though they
+amplify it substantially.
+
+Accordingly this **answers CMP-13** for the maximum-likelihood analogue, and refines rather
+than corrects its stated mechanism; and it **answers a named part of IDN-06**, namely what happens when an
+interaction has no within-trial support. It does not touch IDN-05.
+
+**One prespecified rule fell narrowly short.** The mechanism claim was registered with a
+refutation threshold of more than half the full-individual-data cells exceeding 0.20
+standardized bias. `r pct(mean(abs(allipd$std_bias) > 0.20), 0)` do. We report the claim as
+not supported and short of the registered refutation threshold rather than adjusting the
+threshold to the result.
+
+# Peer review {#sec-review}
+
+This manuscript was reviewed in two rounds by two independent reviewers. Reports, the
+authors' point-by-point responses and the editorial decision are published in full at
+`studies/CMP-13-within-between-interaction/review/peer-review.md`.
 
 # Reproducibility {#sec-repro}
 

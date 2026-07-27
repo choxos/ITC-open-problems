@@ -15,6 +15,18 @@ population differences, which is where these problems live.
 
 ## Completed
 
+### [CMP-13](problems/CMP-13-shared-gamma-conflates-within-and-between-study-modification.qmd) — Separating within-trial from across-trial component effect modification
+
+Also bears on [IDN-06](problems/IDN-06-ml-nmr-interactions-can-rest-solely-on-aggregate-data-variat.qmd).
+
+**Question.** Component ML-NMR fits one shared interaction on a globally centered covariate, which algebraically forces the causal within-trial interaction to equal the confounded across-trial association. How much does that cost, when, and is the damage really caused by aggregate data as the catalog claims?
+
+**Answer.** Fitting one shared interaction matrix on a globally centered covariate is not pooling: for a binary modifier with study prevalence p_s it is algebraically identical to imposing that the causal within-trial coefficient equals the confounded across-trial one. In the model simulated, coverage of a nominal 95% interval for the causal interaction falls from 93.8% when that happens to be true to 17.2% when the two are equal and opposite, and further in networks whose contrasts move two components at once. Separating them costs about 5% in interval width and removes an order of magnitude of bias. The catalog's stated cause is incomplete: the loss is present with all twelve trials supplying individual data, so aggregate data are not necessary for it, but removing individual data roughly doubles the bias, so they amplify it.
+
+**What it does not answer.** The registered global analysis is uninformative and the regime split that produced a usable answer was prompted by observing that failure, so it is not prespecified. The general headline about component ML-NMR is not established: the likelihood and nuisance structures are not mapped onto the fixed- and random-effect specifications the implemented method offers, and free study-by-treatment effects or priors can absorb or alter the term the identity isolates. A maximum-likelihood analogue of component ML-NMR. Implemented ML-NMR is Bayesian and priors matter most where interactions are weakly identified, so the coverage numbers do not transfer to multinma; the algebra does, and therefore so does the direction. One binary modifier, a log link, a Poisson outcome, additive components with no synergy, no random treatment-effect heterogeneity, no inconsistency, and exactly reported study prevalences. Under the discordance patterns the split model is correctly specified, so the study measures the cost of an algebraically known restriction rather than establishing that real networks contain within/across disagreement or how large it typically is. Continuous or multiple correlated modifiers, misspecified aggregate covariate distributions, and time-to-event outcomes are untested. It does not touch IDN-05.
+
+Read it: [PDF](/studies/CMP-13-within-between-interaction/out/CMP-13.pdf) · [Markdown](/studies/CMP-13-within-between-interaction/out/CMP-13.md) · [OpenDocument](/studies/CMP-13-within-between-interaction/out/CMP-13.odt)
+
 ### [MIS-03](problems/MIS-03-nothing-propagates-sampling-error-in-reported-target-moments.qmd) — What conditioning on sampled target moments costs
 
 Also bears on [EST-07](problems/EST-07-reported-target-moments-are-treated-as-known-constants.qmd).
@@ -26,16 +38,6 @@ Also bears on [EST-07](problems/EST-07-reported-target-moments-are-treated-as-kn
 **What it does not answer.** The registered coverage question is not confirmatorily answered: every usable coverage result comes from a post-run restriction conditioning on an observed outcome. One estimator, one outcome type, one information structure. Covariates are multivariate normal, which is also the assumption the deployable correction is derived under, so it is measured under conditions favorable to it; skewed, bounded and categorical covariates are untested. The outcome is continuous and the effect additive, so marginal and conditional effects coincide, and nothing transfers directly to binary or time-to-event outcomes, where MAIC is most used. Effect modification lies exactly in the span of the matched moments, so this is a variance result under correct identification and says nothing about bias. The target moments and the target treatment effect come from the same trial, which is the common case but not the only one. STC, ML-NMR, ML-UMR and NMI have different sensitivities and are not covered. EST-07's other components, model uncertainty in reconstructed correlations, inclusion-criteria ambiguity and secular drift, are not sampling error and are untouched. The alignment parameter imposes exact non-negative proportionality between source and target modifier coefficients, so modifier sets differing in direction or overlapping only partially are untested.
 
 Read it: [PDF](/studies/MIS-03-target-moment-uncertainty/out/MIS-03.pdf) · [Markdown](/studies/MIS-03-target-moment-uncertainty/out/MIS-03.md) · [OpenDocument](/studies/MIS-03-target-moment-uncertainty/out/MIS-03.odt)
-
-## Under way
-
-::: {.table-scroll}
-
-| Problem | Study | Status |
-|---|---|---|
-| [CMP-13](problems/CMP-13-shared-gamma-conflates-within-and-between-study-modification.qmd) | Separating within-trial from across-trial component effect modification | running |
-
-:::
 
 ## How a problem gets chosen
 

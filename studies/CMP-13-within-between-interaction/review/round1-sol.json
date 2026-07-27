@@ -1,0 +1,132 @@
+{
+ "recommendation": "major-revision",
+ "summary": "This protocol-led simulation compares a shared component interaction with within-between split and IPD-anchored estimators across a large factorial design. It demonstrates that a model constrained to γW = γB can have severe undercoverage when data are generated with γB = ργW, while correctly specified split estimators generally perform well. It does not establish that aggregate data are irrelevant to the catalog mechanism: all-IPD bias only shows that aggregate data are not necessary, while the reported gradient as IPD is removed is consistent with aggregate data worsening the pull, and the prespecified refutation threshold was not met. The model-to-software mapping, finite-sample aggregation, causal identification, post-run amendment, and numerical reporting require major revision before the claimed answer to CMP-13 or IDN-06 is supported.",
+ "strengths": [
+  "The manuscript clearly distinguishes within-trial effect modification from a non-randomized between-study association and gives a useful algebraic decomposition.",
+  "The factorial design is unusually extensive, with 2000 replicates per scenario, negative controls, multiple prevalence spreads, and both mild and severe discordance.",
+  "Adding a bundled network addresses the legitimate concern that an isolating network would test ordinary rather than component meta-regression.",
+  "The no-B-IPD regime directly exposes non-identification that would be hidden by reporting only conventional mixed-IPD scenarios.",
+  "Failures, non-estimability, and failure-as-noncoverage are distinguished rather than silently conditioning on successful fits.",
+  "The authors transparently report that the sandwich estimator failed its controls, that the mechanism refutation threshold was missed, and that the numerical results do not directly transfer to Bayesian multinma."
+ ],
+ "comments": [
+  {
+   "id": 1,
+   "severity": "major",
+   "section": "Abstract; Is the cause the aggregate data?; What this answers",
+   "comment": "The mechanism conclusion answers a stronger question than CMP-13 as quoted. Finding bias with all trials providing IPD shows that aggregate data are not necessary for bias under this fitted model; it does not show that aggregate studies do not pull the estimate or amplify the problem. Indeed, Table 2 shows median standardized bias rising from 0.15 with all IPD to 0.22-0.29 with less IPD, alongside markedly worse minimum coverage. Moreover, the registered refutation threshold was not met. Calling the direction unambiguous and saying the mechanism is corrected therefore exceeds both the evidence and the decision rule.",
+   "what_would_satisfy": "Classify the registered mechanism test as inconclusive or not supported but not refuted, distinguish structural susceptibility from the incremental effect of replacing IPD with aggregate data, and estimate matched contrasts in bias or pseudo-true values as otherwise identical trials are changed from IPD to aggregate form. Revise the title, abstract, and discussion accordingly unless a direct incremental-effect analysis demonstrates the stronger claim."
+  },
+  {
+   "id": 2,
+   "severity": "major",
+   "section": "The problem; Estimand and methods",
+   "comment": "Equation 1 is an identity, but it does not by itself prove that every component ML-NMR implementation identifies a distinct between-study coefficient and forces it to equal the within-trial coefficient. That consequence also depends on restrictions placed on study-by-treatment or study-by-component effects. With free study-arm intercepts, the study-constant γ(p_s-0.5) term can be absorbed; random treatment effects can also change the pseudo-true shared coefficient. The shared and IPD-anchored methods differ in their nuisance intercept structures as well as in interaction parameterization, so the all-IPD comparison does not isolate the shared interaction alone.",
+   "what_would_satisfy": "Write the complete likelihood and nuisance-effect structure for every method, show algebraically which restrictions produce the claimed equality, and map those equations to the actual fixed-effect and random-effect multinma specifications targeted by CMP-13. Include a comparator that changes the interaction decomposition while holding the study-treatment nuisance structure fixed, or narrow all claims to the particular fixed-effect analogue actually simulated."
+  },
+  {
+   "id": 3,
+   "severity": "major",
+   "section": "Data-generating mechanism",
+   "comment": "The qualitative result is built into the DGM through q_c(p_s) = γB,c(p_s-0.5), γB = ργW. For every ρ other than one, the shared model is deliberately misspecified, while the split model is correctly specified except under the nonlinear pattern. Simulation can usefully quantify the resulting loss, but it cannot establish the existence, direction, or realistic magnitude of such discordance. The clinically decisive γW values are not reported, making even that quantification uninterpretable because coverage loss depends on absolute discordance, prevalence spread, information, and sample size, not on ρ alone.",
+   "what_would_satisfy": "Report every γW value and all null, between-only, and nonlinear functions; justify them on an interpretable treatment-effect scale; and present results against absolute |γB-γW|. Reframe the study as a calibrated stress test, or add sensitivity analyses varying interaction magnitude, imperfect correlation between q and prevalence, independent study heterogeneity, and more realistic departures from the fitted model."
+  },
+  {
+   "id": 4,
+   "severity": "major",
+   "section": "Data-generating mechanism: aggregate arms",
+   "comment": "The statement that a Poisson draw with the integrated mean is exactly the distribution of the sum of individual outcomes is true only if the numbers of X=0 and X=1 individuals are fixed at the stated proportions. If individual covariates are independently sampled from Bernoulli(p_s), integrating over X produces a mixture of Poisson distributions and additional variation; the sum is not Poisson with only the integrated mean. The protocol does not say whether p_s is an exact finite-sample stratum proportion, a study-superpopulation prevalence, or an arm-specific realized proportion. This is precisely a realized-sample versus superpopulation distinction and may affect standard errors and coverage.",
+   "what_would_satisfy": "Specify how individual X values and arm allocations are generated and what the aggregate likelihood conditions on. Either generate one finite individual-level dataset and obtain aggregate arms by literal aggregation, or condition on fixed stratum counts and state that design explicitly. If the current simulation used superpopulation integration while describing finite sampled individuals, rerun the affected scenarios with the coherent DGM."
+  },
+  {
+   "id": 5,
+   "severity": "major",
+   "section": "Estimand and methods; no-B-IPD construction",
+   "comment": "The stated coefficient is an internally coherent conditional estimand under the additive log-rate DGM, but its causal identification is overstated. X is not randomized; randomization identifies a treatment-by-X interaction through differences in treatment contrasts across baseline-X strata, not through an outcome slope inside a single arm. The claim that one arm containing B identifies γW,B once β is known relies on a common prognostic slope transported across arms or studies, not solely on randomization. In bundled networks, interpreting a component coefficient causally additionally requires component additivity, consistency, and suitable randomized component contrasts.",
+   "what_would_satisfy": "Give a formal identification argument separating randomization-based information from parametric cross-arm or cross-study restrictions. Define no within-trial information in terms of randomized treatment contrasts that change the component, or explicitly label the weaker model-based identification being used. Also distinguish the conditional γW estimand from the marginal population-adjusted treatment effects normally delivered by ML-NMR and evaluate the latter if claims extend to population adjustment."
+  },
+  {
+   "id": 6,
+   "severity": "major",
+   "section": "Results; Protocol amendment",
+   "comment": "The 256/64 regime split was made after results were observed because pooling made negative controls fail and produced high interval-failure rates. Splitting on a factor fixed before simulation is more defensible than selecting cells by observed coverage, but it does not make the analysis split prespecified. By the manuscript's account, the original registered global gates fail, so the original registered decision would be uninformative rather than material at mild discordance.",
+   "what_would_satisfy": "Report the decision under the original protocol first, label the stratified analyses as post hoc, and avoid calling the resulting primary-regime verdict prespecified. Confirmatory status could be restored with an independently registered rerun or new simulation in which the two regimes and their separate gates are specified before examining results."
+  },
+  {
+   "id": 7,
+   "severity": "major",
+   "section": "Results: Tables 1 and 2",
+   "comment": "Ranges do not support the claims of monotonic degradation, systematically greater degradation in bundled networks, or nominal coverage in every separated-model scenario. The minimum joint-split coverage of 92.635% is about four Monte Carlo standard errors below 95% if based on roughly 2000 replicates, so it cannot simply be called nominal pointwise. Conversely, extrema across hundreds of cells require multiplicity-aware interpretation. The 48% mechanism count is itself based on Monte Carlo-estimated standardized biases near a hard 0.20 threshold, yet its uncertainty and the number of borderline cells are not reported.",
+   "what_would_satisfy": "Provide cell-level results and prespecified paired contrasts across ρ and network type, with Monte Carlo standard errors or confidence intervals for coverage, bias, standardized bias, and method differences. Report how many cells violate monotonicity, identify the cells producing every quoted extreme, address multiplicity for range-based claims, and conduct a sensitivity analysis for classifications near the 0.20 threshold."
+  },
+  {
+   "id": 8,
+   "severity": "major",
+   "section": "Methods and Results: method comparison",
+   "comment": "Coverage alone is insufficient for a fair comparison because a split estimator can attain high coverage through wider intervals, as the no-IPD regime dramatically illustrates. The protocol lists bias, empirical and model standard errors, MSE, interval width, convergence, and non-estimability, but the manuscript reports almost none of these for the primary regime. It therefore does not show the efficiency cost of splitting, whether standard errors are calibrated, or how much undercoverage is attributable to bias versus variance estimation.",
+   "what_would_satisfy": "Report all registered performance measures by method, including average interval width, empirical-to-model SE ratios, bias, MSE, convergence, and abstention. Compare joint split and IPD anchored on both accuracy and efficiency, and show that their primary-regime coverage is not purchased through materially inflated intervals."
+  },
+  {
+   "id": 9,
+   "severity": "major",
+   "section": "A component with no within-trial information",
+   "comment": "The claim that the shared model gives a confident estimate of -0.34 is contradicted by the supplied decision table, where its interval coverage is 0.905. If 90.5% of intervals include the zero truth, the average point estimate is biased but the method usually does not give a confidently nonzero answer. Likewise, the superiority of declining to report is programmed into IPD anchored and cannot be established without an explicit loss function balancing false answers against abstention.",
+   "what_would_satisfy": "Report interval width, median estimate, exclusion-of-zero rate, failure rate by method, and the distribution conditional on returning an interval. Replace the confidence claim with what those quantities actually show. Present abstention as an identification policy unless a prespecified decision-theoretic or operating-characteristic comparison supports calling it preferable."
+  },
+  {
+   "id": 10,
+   "severity": "minor",
+   "section": "Cluster-robust comparator",
+   "comment": "A conventional cluster sandwich combined with normal Wald critical values is expected to be anticonservative with only twelve clusters. Without specifying the sandwich variant, leverage correction, degrees-of-freedom adjustment, and critical-value distribution, the broad conclusion that cluster-robust variance made things worse is not informative and may unfairly characterize robust inference generally.",
+   "what_would_satisfy": "Document the exact estimator and interval construction, cite the small-cluster robust-variance literature, and evaluate an appropriate correction such as CR2 or CR3 with a small-sample t reference distribution or a justified bootstrap. Otherwise describe this specifically as failure of the implemented uncorrected sandwich."
+  },
+  {
+   "id": 11,
+   "severity": "minor",
+   "section": "Design; Results; Reproducibility",
+   "comment": "Essential design details are missing: γW values, exact prevalence sequences, assignment of prevalences and IPD patterns to trial contrasts, complete network schedules, definitions of null, between-only and nonlinear scenarios, standardized-bias denominator, optimizer initialization, and interval construction. There are also numerical inconsistencies: the sandwich control maximum is reported as 92.4% in the manuscript but 92.9% in the protocol amendment, while 47% and 48% are both used for the mechanism threshold. It is also unclear whether the claimed 128 controls are scenarios or scenario-component cells.",
+   "what_would_satisfy": "Add a complete reproducible scenario table and formal definitions of every performance measure and interval. Reconcile every manuscript, protocol, and decision-table number using consistent denominators, units of analysis, and rounding."
+  },
+  {
+   "id": 12,
+   "severity": "major",
+   "section": "What this answers, and what it does not",
+   "comment": "The limitations section lists many general omissions but understates the limitations that directly threaten the conclusions: the conflict is installed as a deterministic function of prevalence, the shared comparator's nuisance-effect restrictions are not isolated, finite-sample aggregation is unclear, the all-IPD result does not refute a contributory aggregate-data mechanism, and the primary-regime analysis is post hoc. Equation 1 also does not guarantee a universal direction of pseudo-true bias under different likelihood weights, network structures, random effects, or priors.",
+   "what_would_satisfy": "Make these central threats prominent, narrow generalization to the exact fixed-effect likelihood studied, withdraw the claim that the algebra alone determines the direction under Bayesian or heterogeneous models, and state that effects on implemented multinma remain untested until the relevant model and prior structures are simulated."
+  }
+ ],
+ "citation_problems": [
+  {
+   "cite": "Stefanski and Boos (2002)",
+   "problem": "This is a general treatment of M-estimation calculus and does not by itself document the specific analytic profiling of Poisson study intercepts used here. The manuscript needs the actual derivation or a direct source for this likelihood and algorithm."
+  },
+  {
+   "cite": "multinma documentation version 0.9.1.9002",
+   "problem": "The claim about the center argument is central but has no bibliographic entry, archived documentation link, source-code reference, or model equation. A mutable development-version assertion is not adequate evidence for the behavior of the status quo."
+  },
+  {
+   "cite": "Cluster-robust variance discussion",
+   "problem": "The manuscript omits the established small-sample cluster-robust literature, including corrections such as those discussed by Tipton and by Pustejovsky and Tipton. Without engaging that work, failure of an unspecified sandwich with twelve clusters should not be generalized to cluster-robust inference."
+  },
+  {
+   "cite": "It has not been carried into component ML-NMR",
+   "problem": "References 4-6 establish the broader within-between literature but do not establish absence of prior component ML-NMR work. This novelty claim requires a documented search and engagement with component NMA, IPD network meta-regression, contextual-effects, and ecological-bias literature."
+  }
+ ],
+ "conclusions_supported": false,
+ "unsupported_claims": [
+  "The conflation is a property of the parameterization, not of the data type.",
+  "The direction of the evidence is unambiguous.",
+  "Accordingly this answers CMP-13 for the maximum-likelihood analogue, and corrects its stated mechanism.",
+  "Coverage under the shared restriction degrades monotonically as the two coefficients diverge.",
+  "It degrades further in the bundled network.",
+  "Separating the coefficients removes the problem entirely.",
+  "Both the joint split and the IPD-anchored estimator stay nominal at every discordance.",
+  "The shared model returns a confident estimate of -0.34 against a truth of zero.",
+  "The honest output in that case is the refusal.",
+  "What does transfer is Equation 1, and therefore the direction of the effect."
+ ],
+ "reviewer": "sol",
+ "name": "GPT-5.6 Sol (maximum reasoning effort)",
+ "round": 1
+}

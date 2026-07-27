@@ -14,12 +14,17 @@ suppressPackageStartupMessages(library(ggplot2))
 FIG <- here("results", "figures")
 dir.create(FIG, recursive = TRUE, showWarnings = FALSE)
 
-s <- utils::read.csv(here("results", "summary.csv"), stringsAsFactors = FALSE)
+s_all <- utils::read.csv(here("results", "summary.csv"), stringsAsFactors = FALSE)
+## Primary regime: every component has within-trial information. The `no-B-ipd`
+## level is a separate near-nonidentified regime with its own figure, because
+## pooling it flattens every other panel.
+s <- s_all[s_all$ipd != "no-B-ipd", ]
 
 ML <- c("shared-info", "shared-sandwich", "joint-split", "ipd-anchored")
 LB <- c("Shared Gamma\n(status quo)", "Shared Gamma\n+ cluster sandwich",
         "Joint split", "IPD anchored")
 s$method <- factor(s$method, ML, LB)
+s_all$method <- factor(s_all$method, ML, LB)
 
 RHO <- c("rho-1", "rho-0.5", "rho0", "rho0.5", "rho1")
 RHO_NUM <- c(-1, -0.5, 0, 0.5, 1)
@@ -56,7 +61,8 @@ d2 <- s[s$pattern %in% c("rho0.5", "rho0", "rho-0.5", "rho-1", "between-only") &
           s$method == LB[1], ]
 d2$ipd <- factor(d2$ipd, c("all", "six", "four", "four-low", "no-B-ipd"))
 p2 <- ggplot(d2, aes(ipd, abs(std_bias), color = pattern)) +
-  geom_hline(yintercept = c(0.1, 0.2), linetype = c(3, 2), linewidth = 0.3) +
+  geom_hline(yintercept = 0.1, linetype = 3, linewidth = 0.3) +
+  geom_hline(yintercept = 0.2, linetype = 2, linewidth = 0.3) +
   geom_jitter(width = 0.18, height = 0, size = 1.1, alpha = 0.8) +
   facet_wrap(~ network) +
   labs(x = "trials supplying individual patient data",
@@ -77,7 +83,8 @@ p3 <- ggplot(d3, aes(method, 100 * coverage, color = pattern)) +
 ggsave(file.path(FIG, "fig3-controls.png"), p3, width = 8, height = 3.6, dpi = 200)
 
 ## --- 4. A component with no within-trial information at all.
-d4 <- s[s$ipd == "no-B-ipd" & s$par == "gWB", ]
+d4 <- s_all[s_all$ipd == "no-B-ipd" & s_all$par == "gWB", ]
+d4$method <- factor(as.character(d4$method), LB)
 p4 <- ggplot(d4, aes(pattern, 100 * coverage, color = method)) +
   BAND + geom_hline(yintercept = 95, linewidth = 0.3) +
   geom_point(position = position_dodge(0.6), size = 1.6) +
