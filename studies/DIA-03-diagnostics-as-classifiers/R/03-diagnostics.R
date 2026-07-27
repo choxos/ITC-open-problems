@@ -71,12 +71,17 @@ source_interactions <- function(X, A, Y) {
 ## a weighted estimator leaves the weighted source mean of X4, while an outcome
 ## regression evaluated at the target's matched means implicitly carries the
 ## source conditional mean of X4 given the matched covariates.
-diagnostics_for <- function(method, rep_data, w, resid_x4, ghat, extra = list()) {
+diagnostics_for <- function(method, rep_data, w, resid, ghat, extra = list(),
+                            h_used = NULL, m_used = NULL) {
   s <- rep_data$source
   X <- s$X
   n <- nrow(X)
   mu_T <- rep_data$target$mean
-  h <- h_of(X)
+  ## The balance statistic is computed on whatever this fit calibrated. For an
+  ## unweighted estimator there are no calibration constraints, so the comparison
+  ## defaults to the full moment set a MAIC would have matched.
+  h <- if (is.null(h_used)) h_of(X) else h_used
+  m <- if (is.null(m_used)) rep_data$m_T else m_used
   sdh <- pmax(apply(h, 2, stats::sd), 1e-8)
 
   ess <- ess_of(w)
@@ -88,41 +93,55 @@ diagnostics_for <- function(method, rep_data, w, resid_x4, ghat, extra = list())
     ## Tail concentration, which is NOT a monotone function of the above.
     max_w = max(w) / sum(w),
     ## Zero at the solution, by construction.
-    smd_matched = max(abs(colSums(w * h) / sum(w) - rep_data$m_T) / sdh),
+    smd_matched = max(abs(colSums(w * h) / sum(w) - m) / sdh),
     ## Residual imbalance on the measured covariate that was not adjusted for.
     ## Computable only if the target publication reports that covariate.
-    smd_unmatched = abs(resid_x4) / max(stats::sd(X[, 4]), 1e-8),
-    ## The same imbalance converted into the units of the estimand by the
-    ## source-estimated interaction: an estimate of the bias itself rather than a
+    smd_unmatched = abs(resid[[4]]) / max(stats::sd(X[, 4]), 1e-8),
+    ## Residual imbalance converted into the units of the estimand by the
+    ## source-estimated interactions: an estimate of the bias itself rather than a
     ## proxy for it. This is the study's constructive proposal.
-    bias_hat = abs(unname(ghat[["X4"]]) * resid_x4)
+    ##
+    ## The sum runs over EVERY measured covariate, not only the unmatched one.
+    ## For a weighted or regression estimator the adjusted covariates contribute
+    ## nothing because their residual imbalance is zero, so the sum reduces to the
+    ## unmatched term; for the unadjusted comparison every covariate contributes,
+    ## which is the whole reason its estimate is off. An earlier version summed
+    ## only the unmatched term for every method, which understated the estimable
+    ## bias of the unadjusted comparison by most of it.
+    bias_hat = abs(sum(ghat * resid))
   )
   out <- c(out, pre_fit_diagnostics(X, mu_T))
   for (nm in names(extra)) out[[nm]] <- extra[[nm]]
   out
 }
 
-## Residual imbalance on X4 under each adjustment, and the oracle cross-moment gap
-## that no baseline table reports.
+## Residual covariate imbalance under each adjustment: the vector of gaps between
+## the target mean and whatever mean the estimator actually carries, for every
+## measured covariate.
 ##
 ## For weighting, the estimator carries the weighted source distribution, so the
-## residual is mu_T4 minus the weighted source mean.
+## residual is the target mean minus the weighted source mean. The adjusted
+## covariates come out at zero, which is the point.
 ##
-## For an outcome regression evaluated at the target's matched means, the fitted
-## surface is linear in the matched covariates only; the influence of X4 enters
-## through the source regression of X4 on those covariates, so the residual is
-## mu_T4 minus the source conditional mean of X4 at the target's matched means.
+## For an outcome regression evaluated at the target's matched means, the adjusted
+## covariates are set to the target means exactly, so their residuals are zero by
+## construction; the influence of the unadjusted covariate enters through the
+## source regression of X4 on the adjusted ones, so its residual is the target
+## mean minus the source conditional mean at the target's matched means.
 ##
-## For no adjustment at all, the residual is the raw difference in means.
-residual_x4 <- function(method, X, w, mu_T) {
-  if (method == "maic") return(mu_T[4] - wmean(X[, 4], w))
-  if (method == "unadj") return(mu_T[4] - mean(X[, 4]))
+## For no adjustment at all, every residual is the raw difference in means.
+residual_imbalance <- function(method, X, w, mu_T) {
+  if (method %in% c("maic", "maic_mean"))
+    return(mu_T - apply(X, 2, wmean, w = w))
+  if (method == "unadj") return(mu_T - colMeans(X))
   d <- data.frame(X4 = X[, 4], X[, MATCHED, drop = FALSE])
   names(d)[-1] <- X_NAMES[MATCHED]
   fit <- stats::lm(X4 ~ ., data = d)
   nd <- as.data.frame(as.list(mu_T[MATCHED]))
   names(nd) <- X_NAMES[MATCHED]
-  mu_T[4] - unname(stats::predict(fit, nd))
+  r <- numeric(P)
+  r[4] <- mu_T[4] - unname(stats::predict(fit, nd))
+  r
 }
 
 ## Oracles. Not diagnostics; ceilings.
@@ -134,7 +153,7 @@ residual_x4 <- function(method, X, w, mu_T) {
 ## damage was undiagnosable in principle.
 oracle_cross <- function(method, X, w, mu_T, joint, target_cross) {
   if (joint == 0) return(0)
-  adj_cross <- if (method == "maic") wmean(X[, 1] * X[, 2], w) else {
+  adj_cross <- if (method %in% c("maic", "maic_mean")) wmean(X[, 1] * X[, 2], w) else {
     ## A regression evaluated at the target's matched means carries the source
     ## cross-moment implied by the source covariance at that mean vector.
     S <- stats::cov(X[, MATCHED, drop = FALSE])

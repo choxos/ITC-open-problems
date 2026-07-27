@@ -23,7 +23,13 @@ PILOT <- "--pilot" %in% commandArgs(TRUE)
 RES <- here(if (PILOT) "results/pilot" else "results")
 raw <- sort(list.files(file.path(RES, "raw"), "^scenario-.*\\.rds$", full.names = TRUE))
 stopifnot(length(raw) > 0)
-res <- do.call(rbind, lapply(raw, readRDS))
+## Two million rows over four estimators, so the diagnostic columns are kept and
+## the free-text ones are not.
+DROP <- c("why", "error", "warnings", "secs", "n_T", "w_deploy")
+res <- do.call(rbind, lapply(raw, function(f) {
+  d <- readRDS(f)
+  d[, setdiff(names(d), DROP), drop = FALSE]
+}))
 scen <- build_scenarios()
 if (PILOT) {
   ## Exercise every code path on the subset, with the deployment weights
@@ -37,9 +43,10 @@ if (PILOT) {
 ## the declared proportion and replicates within a cell enter equally.
 add_weights <- function(d) {
   key <- match(d$scenario, scen$scenario)
-  n_in <- as.vector(table(d$scenario)[as.character(d$scenario)])
+  cnt <- table(d$scenario)
+  n_in <- as.vector(cnt[match(d$scenario, as.integer(names(cnt)))])
   d$w_deploy <- scen$w_deploy[key] / n_in
-  d$w_equal <- (1 / nrow(scen)) / n_in
+  d$w_equal <- (1 / length(cnt)) / n_in
   d
 }
 
@@ -87,7 +94,8 @@ oper <- function(d, rule, event, wcol) {
   f <- fires(d, rule)
   by <- split(seq_len(nrow(d)), d$scenario)
   cw <- scen$w_deploy[match(as.integer(names(by)), scen$scenario)]
-  if (wcol == "equal") cw <- rep(1 / nrow(scen), length(by))
+  if (wcol == "equal") cw <- rep(1 / length(by), length(by))
+  cw <- cw / sum(cw)
   n <- vapply(by, length, 0L)
   a <- vapply(by, function(i) mean(f[i] & event[i]), 0)
   b <- vapply(by, function(i) mean(event[i]), 0)
@@ -156,12 +164,21 @@ wauprc <- function(score, event, w) {
 ## fitted once and locked, tells the truth on data it did not see. The mapping is
 ## fitted on odd-numbered replicates and evaluated on even-numbered ones, which is
 ## deterministic and needs no extra seed.
-calib <- function(d, nm, event, w) {
+## `split_by` chooses what is held out. "replicate" fits on odd replicates and
+## evaluates on even ones within the same cells, which measures calibration in
+## settings the mapping has already seen and is the optimistic bound. "cell" fits
+## on odd-numbered cells and evaluates on even-numbered ones, which is the
+## question an analyst actually faces: does a risk mapping calibrated elsewhere
+## tell the truth here. The critique was right that only the second one tests
+## what "calibrated" is supposed to mean, and both are reported.
+calib <- function(d, nm, event, w, split_by = c("cell", "replicate")) {
+  split_by <- match.arg(split_by)
   x <- d[[nm]]
   ok <- is.finite(x)
   x <- if (isTRUE(DIRECTION[[nm]])) -log(pmax(x[ok], 1e-6)) else x[ok]
-  y <- event[ok]; ww <- w[ok]; rp <- d$rep[ok]
-  fit_i <- rp %% 2L == 1L
+  y <- event[ok]; ww <- w[ok]
+  fit_i <- if (split_by == "replicate") d$rep[ok] %% 2L == 1L else
+    d$scenario[ok] %% 2L == 1L
   if (sum(fit_i) < 50 || length(unique(y[fit_i])) < 2) return(c(NA, NA, NA))
   m <- stats::glm(y[fit_i] ~ x[fit_i], family = stats::binomial())
   lp <- stats::coef(m)[1] + stats::coef(m)[2] * x[!fit_i]
@@ -198,7 +215,6 @@ net_benefit <- function(fire, event, w, pt) {
 }
 
 ## ============================================================== the analysis ==
-res <- add_weights(res)
 res$material <- abs(res$err) > MATERIAL
 res$material10 <- abs(res$err) > 0.10
 res$material30 <- abs(res$err) > 0.30
@@ -210,8 +226,27 @@ fit_rate <- vapply(split(res$fitted[res$method == "maic"],
                          res$scenario[res$method == "maic"]), mean, 0)
 nonfit_deploy <- sum(scen$w_deploy * (1 - fit_rate[as.character(scen$scenario)]))
 
-M <- res[res$method == "maic" & res$fitted, ]
+## Weights are attached AFTER subsetting to the analysis set, not before. Attached
+## to the full result set they would be divided by the number of rows per cell
+## across all four estimators, so once MAIC's non-fitted replicates were dropped a
+## cell with a lower fit rate would silently carry less than its declared weight.
+M <- add_weights(res[res$method == "maic" & res$fitted, ])
 ALL_D <- c(ROUTINE, PROPOSED, "orc_cross", "lambda_norm")
+
+## Which bias channels a cell has switched on. THE PRIMARY RESULTS ARE REPORTED
+## WITHIN THESE STRATA, not as a mixture over them.
+##
+## A critique of the design made the point that decides this: the frequency of
+## misspecification across cells is a number the investigators chose, and any
+## headline sensitivity computed over a mixture inherits it. Reporting within
+## strata removes that dependence completely. The mixture is kept as a secondary,
+## with its weights declared, because a reader who wants one number will otherwise
+## construct their own.
+STRATUM <- c("well specified", "omitted modifier", "cross-moment", "both")
+stratum_of <- function(d) factor(ifelse(d$omit == 0 & d$joint == 0, STRATUM[1],
+                             ifelse(d$omit > 0 & d$joint > 0, STRATUM[4],
+                             ifelse(d$omit > 0, STRATUM[2], STRATUM[3]))), STRATUM)
+M$stratum <- stratum_of(M)
 
 ## --- primary and the rest of the panel at their fixed thresholds -------------
 rules <- c("ess", "ess30", "ess_pct", "cv_w", "max_w", "smd_matched", "smd_pre",
@@ -227,6 +262,21 @@ op <- do.call(rbind, lapply(rules, function(r) {
              stringsAsFactors = FALSE)
 }))
 
+## PRIMARY: the same operating points within each misspecification stratum, with
+## cells weighted equally inside a stratum so no investigator-chosen mixture
+## enters.
+op_str <- do.call(rbind, lapply(STRATUM, function(st) {
+  z <- M[M$stratum == st, ]
+  do.call(rbind, lapply(rules, function(r) {
+    a <- oper(z, r, z$material, "equal")
+    data.frame(stratum = st, rule = r,
+               sensitivity = a[["sensitivity"]], sens_mcse = a[["sens_mcse"]],
+               specificity = a[["specificity"]], spec_mcse = a[["spec_mcse"]],
+               prevalence = a[["prevalence"]], fires = a[["fires"]],
+               stringsAsFactors = FALSE)
+  }))
+}))
+
 ## Same, restricted to the stratum where the bias channel is diagnosable at all.
 Md <- M[M$scenario %in% scen$scenario[scen$diagnosable], ]
 op_diag <- do.call(rbind, lapply(rules, function(r) {
@@ -234,6 +284,30 @@ op_diag <- do.call(rbind, lapply(rules, function(r) {
   data.frame(rule = r, sens = a[["sensitivity"]], sens_mcse = a[["sens_mcse"]],
              spec = a[["specificity"]], stringsAsFactors = FALSE)
 }))
+
+## Bounds for the replicates on which MAIC had no solution.
+##
+## Those analyses do not exist, so there is no realized error to classify, and the
+## classifier analysis conditions on a fit. The critique's objection stands
+## anyway: conditioning on solvability answers a slightly easier question. So the
+## sensitivity of the primary rule is bracketed by treating every non-fit as a
+## material error the rule caught (an analyst who cannot produce weights does know
+## something is wrong) and as one it missed.
+nonfit_by_cell <- 1 - fit_rate[as.character(scen$scenario)]
+bounds <- local({
+  f <- fires(M, "ess")
+  by <- split(seq_len(nrow(M)), M$scenario)
+  ids <- as.integer(names(by))
+  n_fit <- vapply(by, length, 0L)
+  n_try <- round(n_fit / pmax(fit_rate[as.character(ids)], 1e-9))
+  n_bad <- pmax(n_try - n_fit, 0)
+  cw <- rep(1 / length(by), length(by))
+  hit <- vapply(by, function(i) sum(f[i] & M$material[i]), 0)
+  mat <- vapply(by, function(i) sum(M$material[i]), 0)
+  best <- sum(cw * (hit + n_bad) / (n_fit + n_bad)) / sum(cw * (mat + n_bad) / (n_fit + n_bad))
+  worst <- sum(cw * hit / (n_fit + n_bad)) / sum(cw * (mat + n_bad) / (n_fit + n_bad))
+  c(best = best, worst = worst, n_nonfit = sum(n_bad))
+})
 
 ## --- discrimination ----------------------------------------------------------
 sgn <- function(nm, v) if (isTRUE(DIRECTION[[nm]])) -v else v
@@ -277,9 +351,11 @@ roc <- rbind(roc, roc_t)
 
 ## --- calibration -------------------------------------------------------------
 cal <- do.call(rbind, lapply(ALL_D, function(nm) {
-  v <- calib(M, nm, M$material, M$w_deploy)
-  data.frame(diagnostic = nm, cal_intercept = v[1], cal_slope = v[2],
-             ice = v[3], stringsAsFactors = FALSE)
+  a <- calib(M, nm, M$material, M$w_deploy, "cell")
+  b <- calib(M, nm, M$material, M$w_deploy, "replicate")
+  data.frame(diagnostic = nm, cal_intercept = a[1], cal_slope = a[2], ice = a[3],
+             ice_same_cells = b[3], slope_same_cells = b[2],
+             stringsAsFactors = FALSE)
 }))
 
 ## --- decision curve ----------------------------------------------------------
@@ -345,17 +421,23 @@ MECH <- list(
                    max(one_stat$smd_matched_max))),
   bias_hat_helps = list(
     holds = isTRUE(bh_diag - routine_best_diag >= 0.10),
+    proposed = bh_diag, routine = routine_best_diag,
     text = sprintf("In the diagnosable stratum, against the transport component, the proposal reaches %.3f and the best routinely reported diagnostic %.3f, a gain of %.3f against a prespecified 0.10.",
                    bh_diag, routine_best_diag, bh_diag - routine_best_diag))
 )
 
 ## --- the same panel for the other estimators ---------------------------------
-other <- do.call(rbind, lapply(c("stc", "unadj"), function(m) {
+other <- do.call(rbind, lapply(c("maic_mean", "stc", "unadj"), function(m) {
   z <- add_weights(res[res$method == m & res$fitted, ])
-  do.call(rbind, lapply(c("smd_pre", "maha", "smd_unmatched", "bias_hat"), function(nm)
+  nms <- if (m == "maic_mean") c("ess", "smd_pre", "maha", "smd_unmatched", "bias_hat")
+         else c("smd_pre", "maha", "smd_unmatched", "bias_hat")
+  do.call(rbind, lapply(nms, function(nm)
     data.frame(method = m, diagnostic = nm,
                auc_deploy = wauc(sgn(nm, z[[nm]]), abs(z$err) > MATERIAL, z$w_deploy),
+               auc_transport = wauc(sgn(nm, z[[nm]]), abs(z$transport) > MATERIAL, z$w_deploy),
                material = sum(z$w_deploy * (abs(z$err) > MATERIAL)) / sum(z$w_deploy),
+               median_ess = stats::median(z$ess),
+               coverage = mean(z$covered),
                stringsAsFactors = FALSE)))
 }))
 
@@ -379,17 +461,26 @@ p <- op[op$rule == "ess", ]
 hi <- function(e, s) e + 1.96 * s
 lo <- function(e, s) e - 1.96 * s
 
-meets <- function(row) lo(row$sens_deploy, row$sens_mcse) > 0.80 &&
-  lo(row$spec_deploy, row$spec_mcse) > 0.50 &&
-  row$sens_equal > 0.80 && row$spec_equal > 0.50
-any_meets <- any(vapply(seq_len(nrow(op)), function(i) meets(op[i, ]), TRUE))
-diag_fail <- op_diag$sens[op_diag$rule == "ess"] < 0.80
+## A rule works only if it works in EVERY stratum: it must catch material error
+## where the bias channels are on, and it must not fire indiscriminately where
+## they are off. Requiring it stratum by stratum is what keeps an
+## investigator-chosen mixture of misspecification frequencies out of the verdict.
+meets_everywhere <- function(rl) {
+  z <- op_str[op_str$rule == rl, ]
+  nrow(z) == length(STRATUM) &&
+    all(lo(z$sensitivity, z$sens_mcse) > 0.80) &&
+    all(lo(z$specificity, z$spec_mcse) > 0.50)
+}
+any_meets <- any(vapply(rules, meets_everywhere, TRUE))
+## The stratum with an omitted modifier is where a diagnostic has both something
+## to find and the information to find it. A failure there is the one that counts.
+ess_omit <- op_str[op_str$rule == "ess" & op_str$stratum == "omitted modifier", ]
 
 verdict <- if (prev_deploy < 0.05 || prev_deploy > 0.95 || nonfit_deploy > 0.10) {
   "uninformative"
 } else if (any_meets) {
   "the panel classifies realized error"
-} else if (hi(p$sens_deploy, p$sens_mcse) < 0.80 && diag_fail) {
+} else if (hi(ess_omit$sensitivity, ess_omit$sens_mcse) < 0.80) {
   "the panel does not classify realized error at the thresholds in use"
 } else {
   "the panel discriminates but no fixed threshold is defensible"
@@ -398,26 +489,38 @@ verdict <- if (prev_deploy < 0.05 || prev_deploy > 0.95 || nonfit_deploy > 0.10)
 f3 <- function(x) formatC(x, format = "f", digits = 3)
 L <- c("# Decision", "",
   sprintf("**Conclusion: %s**", verdict), "",
-  sprintf("Prespecified in `protocol.md`. %d cells, %d replicates each, three estimators. MAIC fitted on %s of replicates (deployment-weighted non-fit %s). Material error, meaning |estimate - truth| > %.2f in the transported effect, on %s of fitted MAIC replicates under the deployment weights.",
-          nrow(scen), N_REP, f3(mean(res$fitted[res$method == "maic"])),
+  sprintf("Prespecified in `protocol.md`. %d cells, %d replicates each, %d estimators. MAIC fitted on %s of replicates (deployment-weighted non-fit %s). Material error, meaning |estimate - truth| > %.2f in the transported effect, on %s of fitted MAIC replicates under the deployment weights.",
+          nrow(scen), max(res$rep), length(unique(res$method)),
+          f3(mean(res$fitted[res$method == "maic"])),
           f3(nonfit_deploy), MATERIAL, f3(prev_deploy)), "",
-  "## Primary: the published rule, and the rest of the panel at fixed thresholds",
-  "", "| rule | cut | sensitivity | specificity | fires on | sens (equal wts) | spec (equal wts) |",
+  "## Primary: operating points WITHIN each misspecification stratum", "",
+  "Cells are weighted equally inside a stratum, so no chosen mixture of misspecification frequencies enters the headline.",
+  "", "| stratum | rule | prevalence | sensitivity | specificity | fires on |",
+  "| --- | --- | ---: | ---: | ---: | ---: |",
+  sprintf("| %s | %s | %s | %s (%s) | %s (%s) | %s |", op_str$stratum, op_str$rule,
+          f3(op_str$prevalence), f3(op_str$sensitivity), f3(op_str$sens_mcse),
+          f3(op_str$specificity), f3(op_str$spec_mcse), f3(op_str$fires)), "",
+  "## Secondary: the same rules over the declared mixture", "",
+  "| rule | cut | sensitivity | specificity | fires on | sens (equal wts) | spec (equal wts) |",
   "| --- | ---: | ---: | ---: | ---: | ---: | ---: |",
   sprintf("| %s | %s | %s (%s) | %s (%s) | %s | %s | %s |", op$rule, op$threshold,
           f3(op$sens_deploy), f3(op$sens_mcse), f3(op$spec_deploy), f3(op$spec_mcse),
           f3(op$fires_deploy), f3(op$sens_equal), f3(op$spec_equal)), "",
+  sprintf("Replicates on which MAIC had no solution: %s. Bracketing the primary rule's sensitivity by counting every one of them as a caught failure, then as a missed one, gives %s and %s.",
+          format(bounds[["n_nonfit"]], big.mark = ","),
+          f3(bounds[["best"]]), f3(bounds[["worst"]])), "",
   "## Discrimination, which separates a bad threshold from a useless statistic",
   "", "| diagnostic | AUROC | AUPRC | vs transport | vs noise | vs non-coverage |",
   "| --- | ---: | ---: | ---: | ---: | ---: |",
   sprintf("| %s | %s (%s) | %s | %s | %s | %s |", disc$diagnostic,
           f3(disc$auc_deploy), f3(disc$auc_mcse), f3(disc$auprc_deploy),
           f3(disc$auc_transport), f3(disc$auc_noise), f3(disc$auc_noncover)), "",
-  "## Calibration of a locked mapping, evaluated out of sample", "",
-  "| diagnostic | intercept | slope | integrated calibration error |",
-  "| --- | ---: | ---: | ---: |",
-  sprintf("| %s | %s | %s | %s |", cal$diagnostic, f3(cal$cal_intercept),
-          f3(cal$cal_slope), f3(cal$ice)), "",
+  "## Calibration of a locked mapping", "",
+  "Fitted on odd-numbered cells and evaluated on even-numbered ones, which is the question an analyst faces: does a risk mapping calibrated elsewhere tell the truth here. The last column refits within the same cells and is the optimistic bound.",
+  "", "| diagnostic | intercept | slope | integrated calibration error | same-cell error |",
+  "| --- | ---: | ---: | ---: | ---: |",
+  sprintf("| %s | %s | %s | %s | %s |", cal$diagnostic, f3(cal$cal_intercept),
+          f3(cal$cal_slope), f3(cal$ice), f3(cal$ice_same_cells)), "",
   "## Decision curve: is acting on the rule better than not?", "",
   "Net benefit relative to flagging nothing. A rule earns its place only above both alternatives.",
   "", paste("| threshold prob | flag none | flag all |",
@@ -431,13 +534,17 @@ L <- c("# Decision", "",
           vapply(MECH, function(m) if (isTRUE(m$holds)) "yes" else "no", ""),
           vapply(MECH, function(m) m$text, "")), "",
   "## The same statistics for the other estimators", "",
-  "| method | diagnostic | AUROC | material error rate |", "| --- | --- | ---: | ---: |",
-  sprintf("| %s | %s | %s | %s |", other$method, other$diagnostic,
-          f3(other$auc_deploy), f3(other$material)), "")
+  "| method | diagnostic | AUROC | vs transport | material error rate | median ESS | coverage |",
+  "| --- | --- | ---: | ---: | ---: | ---: | ---: |",
+  sprintf("| %s | %s | %s | %s | %s | %s | %s |", other$method, other$diagnostic,
+          f3(other$auc_deploy), f3(other$auc_transport), f3(other$material),
+          f3(other$median_ess), f3(other$coverage)), "")
 
 writeLines(L, file.path(RES, "decision.md"))
 utils::write.csv(op, file.path(RES, "operating-points.csv"), row.names = FALSE)
+utils::write.csv(op_str, file.path(RES, "operating-points-by-stratum.csv"), row.names = FALSE)
 utils::write.csv(op_diag, file.path(RES, "operating-points-diagnosable.csv"), row.names = FALSE)
+utils::write.csv(other, file.path(RES, "other-estimators.csv"), row.names = FALSE)
 utils::write.csv(disc, file.path(RES, "discrimination.csv"), row.names = FALSE)
 utils::write.csv(cal, file.path(RES, "calibration.csv"), row.names = FALSE)
 utils::write.csv(dca, file.path(RES, "decision-curve.csv"), row.names = FALSE)

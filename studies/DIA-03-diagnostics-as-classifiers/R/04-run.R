@@ -27,7 +27,8 @@ one_rep <- function(scen, rep_id) {
   ones <- rep(1, s$n)
   zq <- stats::qnorm(1 - (1 - HARM$level) / 2)
 
-  fits <- list(maic = est_maic(rd, CONVERGENCE),
+  fits <- list(maic = est_maic(rd, CONVERGENCE, "both"),
+               maic_mean = est_maic(rd, CONVERGENCE, "mean"),
                stc = est_stc(rd),
                unadj = est_unadj(rd))
 
@@ -39,14 +40,16 @@ one_rep <- function(scen, rep_id) {
                               stringsAsFactors = FALSE)
       next
     }
-    w <- if (m == "maic") f$w else ones
-    rx4 <- residual_x4(m, s$X, w, rd$target$mean)
-    dg <- diagnostics_for(m, rd, w, rx4, ghat,
+    weighted <- m %in% c("maic", "maic_mean")
+    w <- if (weighted) f$w else ones
+    rimb <- residual_imbalance(m, s$X, w, rd$target$mean)
+    dg <- diagnostics_for(m, rd, w, rimb, ghat,
                           extra = list(
-                            lambda_norm = if (m == "maic") sqrt(sum(f$fit$lambda^2)) else NA_real_,
+                            lambda_norm = if (weighted) sqrt(sum(f$fit$lambda^2)) else NA_real_,
                             r2 = if (m == "stc") f$r2 else NA_real_,
                             orc_cross = oracle_cross(m, s$X, w, rd$target$mean,
-                                                     scen$joint, rd$truth$target_cross)))
+                                                     scen$joint, rd$truth$target_cross)),
+                          h_used = f$h_used, m_used = f$m_used)
 
     dec <- decompose(f$lin, rd, scen)
     err <- f$est - rd$truth$theta_AC
@@ -106,5 +109,5 @@ if (!PILOT) {
                  methods = 3, master_seed = MASTER_SEED))
 }
 
-cat(sprintf("\n%d rows, %d scenarios x %d replicates x 3 methods\n",
-            nrow(res), nrow(scenarios), n_rep))
+cat(sprintf("\n%d rows, %d scenarios x %d replicates x %d estimators\n",
+            nrow(res), nrow(scenarios), n_rep, length(unique(res$method[!is.na(res$method)]))))

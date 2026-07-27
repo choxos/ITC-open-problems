@@ -112,10 +112,21 @@ theta_BC_target <- function() D_B
 ## the superpopulation values; the effect is estimated from n_T per arm, because a
 ## published effect is an estimate and pretending otherwise would understate the
 ## anchored interval.
+## The variance of that estimate is derived from the outcome model rather than
+## assumed. An unadjusted arm-mean difference in the target trial carries the
+## whole outcome variance, prognostic index included:
+##
+##   Var(theta_BC_hat) = 2 {Var_T(f(X)) + sigma^2} / n_T = 2 (beta' Sigma_T beta + sigma^2) / n_T,
+##
+## which is two to three times 2 sigma^2 / n_T across this design. Writing the
+## smaller figure would have been valid only for a covariate-adjusted target
+## estimate with residual variance one, which is not what a published two-arm
+## trial reports.
 target_report <- function(mu, S, n_T) {
+  v <- 2 * (as.numeric(crossprod(BETA_PROG, S %*% BETA_PROG)) + SIGMA^2) / n_T
   list(mean = mu, sd = sqrt(diag(S)), n = n_T,
-       theta_BC = stats::rnorm(1, theta_BC_target(), sqrt(2 * SIGMA^2 / n_T)),
-       var_BC = 2 * SIGMA^2 / n_T)
+       theta_BC = stats::rnorm(1, theta_BC_target(), sqrt(v)),
+       var_BC = v)
 }
 
 ## One source trial: n_arm participants per arm, 1:1 randomization to A and C.

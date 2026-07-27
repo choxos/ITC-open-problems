@@ -83,16 +83,32 @@ maic_sandwich <- function(h, A, Y, w, m_T) {
 
 ## MAIC. Returns the transported A versus C effect and the weights, which the
 ## diagnostics need.
-est_maic <- function(rep_data, conv) {
+##
+## `moments` chooses what is calibrated. "both" matches the target's means AND
+## standard deviations of the adjustment set, which is what an analyst does when
+## the baseline table reports both and is the usual practice. "mean" matches means
+## only.
+##
+## Both are run because a critique of this design pointed out, correctly, that
+## forcing MAIC to calibrate second moments that are irrelevant to a linear
+## effect-modification structure costs it effective sample size for nothing, and
+## that scoring effective sample size under that handicap confounds the estimator
+## with a modeling choice. Reporting both separates them.
+est_maic <- function(rep_data, conv, moments = c("both", "mean")) {
+  moments <- match.arg(moments)
   s <- rep_data$source
-  h <- h_of(s$X)
-  fw <- fit_weights(h, rep_data$m_T)
+  h <- if (moments == "both") h_of(s$X) else s$X[, MATCHED, drop = FALSE]
+  m <- if (moments == "both") rep_data$m_T else rep_data$target$mean[MATCHED]
+  fw <- fit_weights(h, m)
   ok <- fw$conv == 0L && is.finite(fw$max_imbalance) &&
     fw$max_imbalance <= conv$max_imbalance
   if (!ok) return(list(ok = FALSE, why = "calibration", w = fw$w, fit = fw))
-  sw <- maic_sandwich(h, s$A, s$Y, fw$w, rep_data$m_T)
+  sw <- maic_sandwich(h, s$A, s$Y, fw$w, m)
   w <- fw$w; A <- s$A
   list(ok = TRUE, est = sw$est, var = sw$var, w = w, fit = fw,
+       ## What was actually calibrated, so the balance diagnostic is computed on
+       ## the constraints this fit imposed and not on constraints it never had.
+       h_used = h, m_used = m,
        lin = function(y) sum(w * A * y) / sum(w * A) -
          sum(w * (1 - A) * y) / sum(w * (1 - A)))
 }
@@ -111,13 +127,26 @@ est_stc <- function(rep_data) {
   names(d)[3:5] <- c("Z1", "Z2", "Z3")
   fit <- stats::lm(Y ~ A * (Z1 + Z2 + Z3), data = d)
   if (any(is.na(stats::coef(fit)))) return(list(ok = FALSE, why = "rank"))
-  b <- stats::coef(fit); V <- stats::vcov(fit)
+  b <- stats::coef(fit)
   ## The treatment coefficient as an explicit linear functional of the outcome,
   ## a' = e_A' (M'M)^-1 M', so the error decomposition below can be applied to it.
   M <- stats::model.matrix(fit)
   e <- numeric(ncol(M)); e[match("A", colnames(M))] <- 1
-  a <- as.vector(M %*% solve(crossprod(M), e))
-  list(ok = TRUE, est = unname(b["A"]), var = unname(V["A", "A"]),
+  XtXi_e <- solve(crossprod(M), e)
+  a <- as.vector(M %*% XtXi_e)
+  ## Heteroskedasticity-consistent variance (HC3), not the model-based one.
+  ##
+  ## In the cells where the X1 X2 or X4 modifier is switched on, this mean model
+  ## is misspecified: the omitted interaction makes the residual variance depend
+  ## on treatment and covariates, so the ordinary least squares variance is
+  ## invalid even for the pseudo-parameter the regression converges to. Giving
+  ## MAIC a sandwich and STC the model-based variance would have been a rigged
+  ## comparison, and a critique of the design said so before it was run.
+  r <- stats::resid(fit)
+  hii <- pmin(stats::hatvalues(fit), 1 - 1e-8)
+  v <- sum(a^2 * (r / (1 - hii))^2)
+  list(ok = TRUE, est = unname(b["A"]), var = v,
+       var_ols = unname(stats::vcov(fit)["A", "A"]),
        r2 = summary(fit)$r.squared, fit = fit,
        lin = function(y) sum(a * y))
 }

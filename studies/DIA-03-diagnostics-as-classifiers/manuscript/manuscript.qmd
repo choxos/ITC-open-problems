@@ -1,0 +1,423 @@
+---
+title: "Effective sample size is a variance statistic being read as a bias warning"
+subtitle: "The routine population-adjustment diagnostic panel scored as a classifier of realized error, answering catalog problem DIA-03"
+author: "Ahmad Sofi-Mahmudi"
+date: 2026-07-27
+bibliography: references.bib
+csl: ../../../vancouver.csl
+link-citations: true
+number-sections: true
+execute:
+  echo: false
+  warning: false
+  message: false
+format:
+  gfm: {toc: false}
+  pdf: {documentclass: article, geometry: margin=1in, fig-pos: "H"}
+  odt: default
+---
+
+```{r setup}
+S <- ".."
+rd <- function(f) utils::read.csv(file.path(S, "results", f), stringsAsFactors = FALSE)
+ops <- rd("operating-points-by-stratum.csv")
+op <- rd("operating-points.csv")
+disc <- rd("discrimination.csv")
+cal <- rd("calibration.csv")
+dca <- rd("decision-curve.csv")
+cells <- rd("cells.csv")
+other <- rd("other-estimators.csv")
+red <- rd("panel-redundancy.csv")
+MECH <- readRDS(file.path(S, "results", "mechanism.rds"))
+dec <- readLines(file.path(S, "results", "decision.md"))
+
+f3 <- function(x) formatC(x, format = "f", digits = 3)
+f2 <- function(x) formatC(x, format = "f", digits = 2)
+pct <- function(x, d = 1) paste0(formatC(100 * x, format = "f", digits = d), "%")
+
+verdict <- sub("^\\*\\*Conclusion: (.*)\\*\\*$", "\\1", grep("^\\*\\*Conclusion", dec, value = TRUE))
+hdr <- grep("^Prespecified in", dec, value = TRUE)
+nonfit <- as.numeric(sub(".*deployment-weighted non-fit ([0-9.]+)\\).*", "\\1", hdr))
+fitrate <- as.numeric(sub(".*MAIC fitted on ([0-9.]+) of replicates.*", "\\1", hdr))
+prev <- as.numeric(sub(".*on ([0-9.]+) of fitted MAIC replicates.*", "\\1", hdr))
+bnd <- grep("^Replicates on which MAIC had no solution", dec, value = TRUE)
+n_rep <- as.integer(sub(".*cells, ([0-9]+) replicates each.*", "\\1", hdr))
+
+o <- function(st, rl, col) ops[[col]][ops$stratum == st & ops$rule == rl]
+d <- function(nm, col) disc[[col]][disc$diagnostic == nm]
+STR <- c("well specified", "omitted modifier", "cross-moment", "both")
+NICE <- c(ess = "ESS", ess30 = "ESS (cut 30)", ess_pct = "ESS %", cv_w = "CV(w)",
+          max_w = "largest weight", smd_matched = "balance, matched moments",
+          smd_pre = "imbalance before weighting", maha = "Mahalanobis distance",
+          smd_unmatched = "balance, unmatched covariate",
+          bias_hat = "estimated bias (proposed)", orc_cross = "oracle: cross-moment",
+          lambda_norm = "tilt norm")
+routine <- c("ess", "ess_pct", "cv_w", "max_w", "smd_matched", "smd_pre", "maha")
+best_routine <- disc$diagnostic[disc$diagnostic %in% routine][
+  which.max(disc$auc_deploy[disc$diagnostic %in% routine])]
+```
+
+# Abstract {.unnumbered}
+
+Every population-adjusted indirect comparison is reported with a panel of numbers beside
+it: the effective sample size after weighting, the same figure as a percentage, the
+largest individual weight, standardized differences before and after adjustment. An
+appraisal committee reads them as evidence about whether to believe the estimate, and a
+widely quoted rule says to worry once absolute effective sample size falls below about 30
+to 35. An audit of the open-problem catalog found that no published work has scored any of
+these as a classifier of realized error, with discrimination and calibration, against a
+known truth.
+
+We do that. The design is an anchored indirect comparison with a continuous outcome and an
+identity link, chosen because on that scale the realized error of a linear estimator splits
+**exactly** into three pieces: chance covariate imbalance between the source arms,
+transport error, and outcome noise. Transport error is the only piece a covariate
+diagnostic could know about before an outcome is seen, so a diagnostic can be scored
+against the part it has a claim on rather than only against the part it does not. The
+design has `r nrow(cells)` cells crossing an omitted effect modifier, a cross-moment
+modifier that no baseline table could ever reveal, overlap, source size, how correlated the
+omitted modifier is with the adjustment set, and a target dispersion ratio that destroys
+effective sample size while adding no bias at all. `r format(n_rep, big.mark=",")`
+replicates per cell, four estimators.
+
+The prespecified verdict is **`r verdict`**. Reading the panel is not reading a warning
+about bias: effective sample size separates the noise component at AUROC
+`r f3(d("ess","auc_noise"))` and the transport component at
+`r f3(d("ess","auc_transport"))`. In the stratum where an effect modifier is omitted and
+the omission is diagnosable in principle, the ESS < 35 rule reaches sensitivity
+`r f3(o("omitted modifier","ess","sensitivity"))` at specificity
+`r f3(o("omitted modifier","ess","specificity"))`. Three of the panel's members are one
+statistic written three ways, because $\mathrm{ESS}/n = 1/(1+\mathrm{CV}^2(w))$ exactly and
+area under the ROC curve is invariant to monotone transformation; a fourth, the
+post-weighting balance on the matched moments, is zero at the solution of the calibration
+equations and cannot discriminate anything. Converting the residual imbalance on a
+measured-but-unadjusted covariate into the units of the estimand, using an interaction the
+source data can estimate, reaches `r f3(MECH$bias_hat_helps$proposed)` against the transport
+component where the panel reaches `r f3(MECH$bias_hat_helps$routine)`, and is blind exactly
+where the information is absent.
+
+# What the audit left open {#sec-problem}
+
+The catalog entry DIA-03 originally said that whether population-adjustment diagnostics
+predict error "has never been quantified". Two independent auditors judged that too
+strong, and they were right. An ISPOR Europe 2024 simulation reported bias in unanchored
+MAIC once absolute effective sample size fell below roughly 30 to 35 [@msr65], and
+Remiro-Azócar, Heath and Baio tied small effective sample size to underestimation of
+variability by the robust sandwich variance estimator [@remiroazocar2021]. What survived
+the audit is narrower:
+
+> Neither treats a diagnostic as a classifier with discrimination and calibration against
+> known truth.
+
+One auditor added the objection that turns this from a complaint into a research question.
+Computing a diagnostic from the fitted data does not logically prevent it from predicting
+error. Sensitivity, specificity and calibration are defined only relative to a specified
+distribution of analyses and a prespecified threshold for material error; they are not
+intrinsic properties of a statistic. That is why the field has no numbers: nobody has
+written the distribution down. This study writes one down in advance, and reports
+everything twice, once under it and once with all cells weighted equally.
+
+It also reports the primary results **within** strata of misspecification rather than over
+a mixture of them, which removes the dependence on our chosen frequencies entirely. That
+change came from an adversarial critique of this design, before the run.
+
+# What a covariate diagnostic could possibly know {#sec-decomposition}
+
+Write the source trial's outcome as
+$Y_i = f(X_i) + \mathbb{1}(A_i)\{d_A + g_A(X_i)\} + \varepsilon_i$ with
+$\varepsilon_i \sim N(0, \sigma^2)$, and let the estimand be the transported effect in the
+target superpopulation, $\theta_{AC}(T) = d_A + \mathbb{E}_T\{g_A(X)\}$. The identity link
+does not make the heterogeneous conditional effect equal to the marginal one; what it buys
+is the absence of non-collapsibility, so the marginal effect is exactly the average of the
+conditional effects over the target covariate distribution.
+
+MAIC, STC and the unadjusted comparison are all **linear in the outcome vector** for a
+fixed design: each is $\hat\theta = L(Y)$ for some linear functional $L$. For MAIC,
+$L(y) = \sum_{i \in A} w_i y_i / \sum_{i \in A} w_i - \sum_{i \in C} w_i y_i / \sum_{i \in C} w_i$;
+for STC, $L(y) = a^\top y$ with $a = M(M^\top M)^{-1} e_A$. Applying the same $L$ to each
+piece of $\mathbb{E}[Y \mid X, A]$ gives an identity, not an approximation:
+
+$$\underbrace{\hat\theta - \theta_{AC}(T)}_{\text{realized error}}
+= \underbrace{L(f)}_{\text{arm imbalance}}
+\;+\; \underbrace{L\big(\mathbb{1}(A)\{d_A + g_A\}\big) - \theta_{AC}(T)}_{\text{transport error}}
+\;+\; \underbrace{L(Y) - L\big(\mathbb{E}[Y \mid X, A]\big)}_{\text{outcome noise}}.$$
+
+Three consequences organize the whole study.
+
+**Only the middle term is what adjustment exists to remove.** The first is chance covariate
+imbalance between the source arms, which randomization makes mean-zero but not zero in any
+one trial. The third is sampling error in the outcomes.
+
+**Only the middle term is knowable from covariates.** The first and third depend on the
+realized outcomes; no function of $X$, the weights and a published baseline table has any
+information about $\varepsilon$. A diagnostic that fails to predict total realized error
+may simply be being asked to predict noise. A diagnostic that fails to predict the
+transport component has no such excuse. Both are reported, and the difference between them
+is the finding.
+
+**The identity holds per replicate.** We verified it numerically to
+$3 \times 10^{-14}$ before the run.
+
+# Two facts that algebra settles before any data exist {#sec-algebra}
+
+The panel is smaller than it appears.
+
+**Effective sample size, effective sample size as a percentage, and the coefficient of
+variation of the weights are one statistic.** With $\bar w$ the mean weight and $s^2$ the
+population variance of the weights,
+
+$$\frac{\mathrm{ESS}}{n} = \frac{\left(\sum_i w_i\right)^2}{n \sum_i w_i^2}
+= \frac{n^2 \bar w^2}{n \cdot n\left(s^2 + \bar w^2\right)}
+= \frac{\bar w^2}{s^2 + \bar w^2} = \frac{1}{1 + \mathrm{CV}^2(w)}.$$
+
+Area under the ROC curve depends on the score only through its ranks, so a strictly
+monotone transformation cannot change it. Within a fixed source size the three therefore
+have **identical** discrimination as a matter of arithmetic. Across sizes they differ,
+because $n$ varies. A submission that reports all three is reporting one number three
+times and calling it triangulation.
+
+**The post-weighting standardized difference on the matched moments is zero.** The MAIC
+calibration equations are $\sum_i w_i\{h(X_i) - m_T\} = 0$; the balance statistic is that
+expression divided by a standard deviation. It is set to zero by the thing being reported
+as evidence that it worked. In this run it never exceeded
+`r formatC(max(red$smd_matched_max), format="e", digits=1)`.
+
+Both are checked in the results rather than assumed, because the check is a test of the
+implementation.
+
+# Design {#sec-design}
+
+The full protocol was registered before the run. What matters for reading the results:
+
+**Four estimators.** MAIC calibrating the target's means and standard deviations of the
+adjustment set; MAIC calibrating means only; STC with a heteroskedasticity-consistent
+variance [@mackinnon1985]; and no adjustment at all. All adjust for the same three
+covariates, so when a modifier is omitted they are misspecified in the same way. MAIC's
+variance is the M-estimation sandwich over the stacked calibration and arm-mean equations
+[@stefanski2002].
+
+**Three bias channels, differing in whether anything could see them.** An omitted effect
+modifier $X_4$, which the source data can estimate an interaction for and a baseline table
+may report a mean for, so it is diagnosable in principle. A cross-moment term in
+$X_1 X_2$ with source and target correlations of 0.30 and 0.70, which no marginal balance
+statistic can see and which no baseline table reports. And extrapolation, which moves
+effective sample size and bias together and is what gives effective sample size its only
+real chance.
+
+**The factor that makes the study falsifiable.** The target's covariate standard deviations
+are either equal to the source's or 25% larger. Matching second moments to a more dispersed
+target destroys effective sample size while adding no bias in the well-specified stratum,
+because the modifier is linear in the adjustment set and its mean is matched either way.
+Without it, every low-effective-sample-size cell would also be a poor-overlap cell, and a
+variance statistic would look like a bias statistic because the design never separated the
+two.
+
+**The reference.** Material error means $\lvert\hat\theta_{AC} - \theta_{AC}(T)\rvert > 0.20$,
+a fifth of the outcome standard deviation. No diagnostic enters its definition.
+
+**Scale.** `r nrow(cells)` cells, `r format(n_rep, big.mark=",")` replicates each,
+four estimators. MAIC found a solution on `r pct(fitrate)` of replicates; the rest are
+reported per cell rather than dropped silently.
+
+# Results {#sec-results}
+
+## The panel at the thresholds in use {#sec-primary}
+
+```{r}
+#| label: tbl-primary
+#| tbl-cap: "Sensitivity and specificity for material error, within each misspecification stratum, cells weighted equally inside a stratum. Monte Carlo standard errors in brackets."
+tb <- ops[ops$rule %in% c("ess", "ess_pct", "max_w", "smd_matched", "smd_pre",
+                          "maha", "smd_unmatched", "bias_hat"), ]
+tb$diagnostic <- NICE[tb$rule]
+out <- do.call(rbind, lapply(unique(tb$diagnostic), function(nm) {
+  z <- tb[tb$diagnostic == nm, ]
+  r <- c(diagnostic = nm)
+  for (st in STR) {
+    y <- z[z$stratum == st, ]
+    r[st] <- if (nrow(y)) sprintf("%s / %s", f3(y$sensitivity), f3(y$specificity)) else "-"
+  }
+  as.data.frame(as.list(r), stringsAsFactors = FALSE)
+}))
+names(out)[1] <- "diagnostic (sensitivity / specificity)"
+knitr::kable(out, align = c("l", rep("c", 4)))
+```
+
+The prespecified bar was sensitivity at least 0.80 with specificity at least 0.50 in every
+stratum, lower Monte Carlo limits above both. `r if (verdict == "the panel classifies realized error") "It was met." else "No rule met it."`
+
+In the omitted-modifier stratum, which is where a diagnostic has both something to find and
+the information with which to find it, the published cutoff reaches sensitivity
+`r f3(o("omitted modifier","ess","sensitivity"))` (`r f3(o("omitted modifier","ess","sens_mcse"))`)
+at specificity `r f3(o("omitted modifier","ess","specificity"))`. Two members of the panel
+reach high sensitivity by firing on nearly everything: the pre-weighting imbalance rule
+fires on `r pct(o("omitted modifier","smd_pre","fires"))` of analyses in that stratum and
+the unmatched-balance rule on `r pct(o("omitted modifier","smd_unmatched","fires"))`. A rule
+that warns about almost every analysis is not a classifier, and its specificity says so:
+`r f3(o("omitted modifier","smd_pre","specificity"))` and
+`r f3(o("omitted modifier","smd_unmatched","specificity"))`.
+
+`r bnd`
+
+## The statistics carry information the thresholds do not use {#sec-auc}
+
+```{r}
+#| label: tbl-auc
+#| tbl-cap: "Discrimination under the declared deployment distribution. The last two columns are the point of the study: which component of the realized error does each statistic actually track?"
+dd <- disc[disc$diagnostic != "lambda_norm", ]
+knitr::kable(data.frame(
+  diagnostic = NICE[dd$diagnostic],
+  AUROC = sprintf("%s (%s)", f3(dd$auc_deploy), f3(dd$auc_mcse)),
+  AUPRC = f3(dd$auprc_deploy),
+  `vs outcome noise` = f3(dd$auc_noise),
+  `vs transport error` = f3(dd$auc_transport),
+  check.names = FALSE), align = c("l", rep("r", 4)))
+```
+
+Discrimination is not zero. Nothing here is uninformative in the sense of being independent
+of error. But the ordering in the last two columns is the answer to what the panel is
+measuring: every weight-based statistic reads the noise channel better than the transport
+channel, and the gap for effective sample size is `r f3(d("ess","auc_noise") - d("ess","auc_transport"))`.
+That is the sense in which a variance statistic is being read as a bias warning.
+
+The oracle row is there to separate two different failures. The cross-moment oracle uses the
+target's true $\mathbb{E}[X_1X_2]$, which no baseline table reports, and reaches
+`r f3(d("orc_cross","auc_transport"))` against transport error. Where it beats everything
+computable, the information is missing, not the statistic.
+
+## The panel is smaller than it looks {#sec-redundancy}
+
+```{r}
+#| label: tbl-redundancy
+#| tbl-cap: "The algebraic identities, checked. Within a fixed source size the three weight-dispersion statistics have the same AUROC to machine precision, and the matched-moment balance statistic is zero."
+knitr::kable(data.frame(
+  `source per arm` = red$n_arm, ESS = f3(red$ess), `ESS %` = f3(red$ess_pct),
+  `CV(w)` = f3(red$cv_w),
+  `max matched imbalance` = formatC(red$smd_matched_max, format = "e", digits = 1),
+  check.names = FALSE), align = c("r", rep("r", 4)))
+```
+
+## Calibration {#sec-calibration}
+
+A diagnostic is calibrated if a mapping from it to a risk of material error, fitted once and
+locked, tells the truth on analyses it has not seen. The mapping here is fitted on
+odd-numbered design cells and evaluated on even-numbered ones, which is the question an
+analyst faces; refitting within the same cells is reported as the optimistic bound
+[@austin2019].
+
+```{r}
+#| label: tbl-cal
+#| tbl-cap: "Calibration of a locked logistic mapping from each diagnostic to the risk of material error. Perfect calibration is intercept 0 and slope 1."
+cc <- cal[cal$diagnostic %in% c("ess", "ess_pct", "max_w", "smd_pre", "maha",
+                                "smd_unmatched", "bias_hat"), ]
+knitr::kable(data.frame(
+  diagnostic = NICE[cc$diagnostic], intercept = f3(cc$cal_intercept),
+  slope = f3(cc$cal_slope),
+  `calibration error, new cells` = f3(cc$ice),
+  `calibration error, same cells` = f3(cc$ice_same_cells),
+  check.names = FALSE), align = c("l", rep("r", 4)))
+```
+
+## Is acting on the warning better than not acting? {#sec-dca}
+
+Net benefit relative to flagging nothing, over a range of threshold probabilities at which
+an analyst would act [@vickers2006]. A rule earns its place only above both flagging
+nothing and flagging everything.
+
+![](../results/figures/fig5-decision-curve.png)
+
+## The four prespecified mechanism claims {#sec-mechanism}
+
+```{r}
+#| label: tbl-mech
+#| tbl-cap: "The four claims registered before the run, and whether the run supports them."
+knitr::kable(data.frame(
+  claim = c("It is a variance statistic, not a bias statistic",
+            "The threshold is not transportable",
+            "The panel is one statistic",
+            "A better statistic is available from the same information"),
+  holds = vapply(MECH, function(m) if (isTRUE(m$holds)) "yes" else "no", ""),
+  evidence = vapply(MECH, function(m) m$text, ""),
+  row.names = NULL), align = c("l", "c", "l"))
+```
+
+![](../results/figures/fig1-ess-vs-error.png)
+
+![](../results/figures/fig3-components.png)
+
+## The other estimators {#sec-other}
+
+```{r}
+#| label: tbl-other
+#| tbl-cap: "The same replicates seen by the other three estimators. Median effective sample size is over the whole design."
+knitr::kable(data.frame(
+  method = c(maic_mean = "MAIC, means only", stc = "STC",
+             unadj = "no adjustment")[other$method],
+  diagnostic = NICE[other$diagnostic],
+  AUROC = f3(other$auc_deploy), `vs transport` = f3(other$auc_transport),
+  `material error` = f3(other$material), `median ESS` = f3(other$median_ess),
+  coverage = f3(other$coverage), check.names = FALSE, row.names = NULL),
+  align = c("l", "l", rep("r", 5)))
+```
+
+# What this answers, and what it does not {#sec-scope}
+
+**DIA-03.** The entry asked for the routine panel to be scored as a classifier of realized
+error with discrimination and calibration against a known truth, under a specified scenario
+distribution and a prespecified material-error threshold. That is done, for the MAIC
+weighting panel and the overlap statistics it shares with STC. The second half of the
+entry, the mismatch between the hierarchical level at which cross-validation is reported and
+the level at which the prediction is made, is untouched: no PSIS-LOO is computed at any
+level here, and grouped study-level leave-one-out is no more implemented in this study than
+it is in the packages. That half remains open.
+
+**DIA-06.** Answered in part, and the part is small. Four estimators from two families see
+the same replicates, so their failure modes can be compared on identical data; but ML-NMR,
+NMI, doubly robust estimators and flexible learners are absent, and the entry names five
+families. A design critique made this point before the run and it is accepted rather than
+argued with.
+
+**What the mechanism deliberately makes true.** Randomization holds. The prognostic and
+modifier functions are shared across trials, so conditional constancy holds. Covariates are
+normal. The link is the identity. Target moments are exact, because study 1 of this program
+already measured what their sampling error costs and carrying it here would add a noise
+channel no source-side diagnostic can observe. Every estimator adjusts for the same
+covariates.
+
+**Therefore the study says nothing about** non-collapsible effect measures, time-to-event
+outcomes, skewed or discrete covariates, unanchored comparisons, target-moment sampling
+error, or the diagnostics specific to Bayesian population adjustment. A binary or survival
+outcome would add a component of error that is a collapsibility artifact rather than an
+adjustment failure, and the exact decomposition in @sec-decomposition would not be
+available; that is the price paid for the instrument, and it is the largest limitation here.
+
+**The deployment weights are a judgment, not a measurement.** Nothing in this program
+estimated how often an effect modifier is omitted in practice. That is why the primary
+results are within strata, where the judgment does not enter, and why every mixture-level
+figure is reported under two weightings.
+
+**The proposal is ours.** $\widehat{b}$ was invented for this study, scored at a threshold
+fixed in advance, against the same reference as everything else, and its prespecified claim
+was restricted before the run to the stratum and the error component where it has any
+information at all. It is not a validated diagnostic and this study does not make it one; it
+is a demonstration that the information to do better is sometimes already in the analyst's
+hands.
+
+# Peer review {#sec-review}
+
+This manuscript was reviewed by three independent reviewers over two rounds. The reports,
+the authors' responses and the editorial decision are published in full and unedited
+alongside it.
+
+# Reproducibility {#sec-repro}
+
+All code is in the study directory. `R/00-config.R` holds the design, the thresholds and the
+decision rule; `R/01-dgm.R` the mechanism; `R/02-estimators.R` the four estimators and the
+exact error decomposition; `R/03-diagnostics.R` the panel; `R/04-run.R` the run;
+`R/05-analyze.R` the analysis; `R/06-figures.R` the figures. Replicates are seeded from one
+master seed through independent L'Ecuyer-CMRG streams, so a replicate draws the same data
+whatever the core count. `results/provenance.md` records the R version and package versions
+that produced these numbers. Raw replicate output is regenerable from the seed and is not
+tracked; the tracked artifacts are the summary tables, the figures and the rendered
+manuscript.
+
+# References {.unnumbered}
