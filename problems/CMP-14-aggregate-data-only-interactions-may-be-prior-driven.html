@@ -390,6 +390,7 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#why-it-is-open" id="toc-why-it-is-open" class="nav-link" data-scroll-target="#why-it-is-open">Why it is open</a></li>
   <li><a href="#what-has-been-tried" id="toc-what-has-been-tried" class="nav-link" data-scroll-target="#what-has-been-tried">What has been tried</a></li>
   <li><a href="#probable-solution-or-research-direction" id="toc-probable-solution-or-research-direction" class="nav-link" data-scroll-target="#probable-solution-or-research-direction">Probable solution or research direction</a></li>
+  <li><a href="#our-study" id="toc-our-study" class="nav-link" data-scroll-target="#our-study">Our study</a></li>
   <li><a href="#verification" id="toc-verification" class="nav-link" data-scroll-target="#verification">Verification</a></li>
   <li><a href="#how-the-evidence-falls-in-time" id="toc-how-the-evidence-falls-in-time" class="nav-link" data-scroll-target="#how-the-evidence-falls-in-time">How the evidence falls in time</a></li>
   <li><a href="#related-problems" id="toc-related-problems" class="nav-link" data-scroll-target="#related-problems">Related problems</a></li>
@@ -433,6 +434,19 @@ ul.task-list li input[type="checkbox"] {
 <div class="problem-meta">
 <p><span class="problem-id">CMP-14</span> <span class="verdict verdict-partially-addressed">Partially addressed</span> <span class="chip chip-priority-very-high">Very high priority</span> <span class="chip chip-maturity-promising">Promising</span></p>
 </div>
+<div class="callout callout-style-simple callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>A study has been run against this problem
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>At the thresholds the literature suggests, they miss most of it. Pairing each warning with whether that replicate’s own interval missed, a composite of four diagnostics has sensitivity 0.37 at a false-alarm rate of 0.16, falling to 0.13 outside two engineered geometries; the one sensitive rule fires on half the sound analyses too. Used as continuous scores the same statistics reach AUC 0.51 to 0.78, so this is a failure of thresholds rather than of the statistics. What no threshold repairs is that these diagnostics measure the prior’s influence while the harm comes from the prior’s location: with disconnected evidence and a tight prior four standard deviations from the truth, going from 100 to 400 per arm drops the warning rate from 0.98 to 0.01 while coverage stays near zero. <a href="#our-study">Read the study below</a>.</p>
+</div>
+</div>
 <section id="statement" class="level2">
 <h2 class="anchored" data-anchor-id="statement">Statement</h2>
 <p>Interaction parameters informed only by aggregate data can be regularized into finite posterior intervals by the prior, so a proper credible interval is not evidence that the likelihood contributed anything. Implemented component PAIC already ships partial mitigation: plot_prior_posterior() compares each prior with its posterior, prior_sensitivity() quantifies how far target contrasts move when priors are tightened or loosened, and estimable_effects_at() separates no first-order information from IPD-supported and aggregate-only information. What is missing is a default numerical summary: prior-to-posterior contraction per interaction parameter and an effective likelihood rank, reported without the analyst having to ask.</p>
@@ -463,6 +477,46 @@ ul.task-list li input[type="checkbox"] {
 <section id="probable-solution-or-research-direction" class="level2">
 <h2 class="anchored" data-anchor-id="probable-solution-or-research-direction">Probable solution or research direction</h2>
 <p>Promote the existing prior-versus-posterior comparison and prior-sensitivity refit from optional diagnostics to default reported output, and add numerical prior-to-posterior contraction for every interaction parameter plus an effective likelihood rank for the fitted model. Attach to each reported interaction the label of whether it is identified by IPD, by aggregate arms, or by neither, which the estimability screen already computes. Calibrate these summaries specifically to interaction parameters in a bridged component model, since the generic Bayesian workflow versions are already standard.</p>
+</section>
+<section id="our-study" class="level2">
+<h2 class="anchored" data-anchor-id="our-study">Our study</h2>
+<div class="study-result">
+<p><strong>Do prior-sensitivity diagnostics catch the analyses that are actually wrong?</strong></p>
+<p><em>This study was designed against <a href="https://github.com/choxos/ITC-open-problems/tree/main/studies/CMU-02-prior-driven-posteriors">CMU-02</a> and bears on this entry in part. What it does not answer is stated below.</em></p>
+<p><strong>The question put to it.</strong> In a population-adjusted network a proper prior yields a proper posterior even where the likelihood identifies nothing, so a narrow interval can reflect the prior rather than the evidence. The diagnostics that would expose this exist. What are their operating characteristics: do they flag the analyses whose intervals actually miss the truth, and how often do they cry wolf?</p>
+<p><strong>What it found.</strong> At the thresholds the literature suggests, they miss most of it. Pairing each warning with whether that replicate’s own interval missed, a composite of four diagnostics has sensitivity 0.37 at a false-alarm rate of 0.16, falling to 0.13 outside two engineered geometries; the one sensitive rule fires on half the sound analyses too. Used as continuous scores the same statistics reach AUC 0.51 to 0.78, so this is a failure of thresholds rather than of the statistics. What no threshold repairs is that these diagnostics measure the prior’s influence while the harm comes from the prior’s location: with disconnected evidence and a tight prior four standard deviations from the truth, going from 100 to 400 per arm drops the warning rate from 0.98 to 0.01 while coverage stays near zero.</p>
+<p><strong>Results.</strong></p>
+<ul>
+<li>Prespecified verdict: diagnostics fail at the thresholds the literature suggests. Composite sensitivity 0.366 (MCSE 0.002), false alarm 0.158; 0.127 and 0.025 outside the engineered positive controls.</li>
+<li>Sensitivity and specificity trade off completely. Tight-and-loose prior refitting catches 0.83 of misses outside the controls and fires on 53% of covered replicates. Contraction, the prior-only benchmark and power-scaling keep false alarms low and catch almost nothing.</li>
+<li>The composite adds almost nothing over its best component: 0.366 against contraction’s 0.363, at a higher false-alarm rate. Requiring two of four rules to agree neither buys specificity nor recovers sensitivity.</li>
+<li>More data makes the warning quieter while the answer stays wrong. Disconnected evidence, tight prior, true interaction four prior SDs away: coverage near zero at both sample sizes, warning rate 0.98 at 100 per arm and 0.01 at 400. Contraction is what every diagnostic reads as reassurance.</li>
+<li>A first implementation measured power-scaling by posterior mean shift and found sensitivity 0.000 everywhere. That was our error: with a zero-centred prior, scaling the prior up and the likelihood down give identical posterior means, so the standard rule can never fire. Measured distributionally it works, and the verdict does not depend on the amendment.</li>
+<li>The structural rank screen is the only rule with no false alarms at all, and it is blind to every failure where the contrast is estimable and the answer is still wrong.</li>
+</ul>
+<p><strong>Design.</strong></p>
+<dl>
+<dt>Estimand</dt>
+<dd>
+Target-population marginal C versus B mean difference, and the conditional interaction coefficient
+</dd>
+<dt>Methods compared</dt>
+<dd>
+no-diagnostic baseline, structural rank screen, prior-to-posterior contraction, prior-only benchmark, power-scaling sensitivity, tight and loose refit, composite rule
+</dd>
+<dt>Data-generating mechanism</dt>
+<dd>
+A conjugate Gaussian population-adjusted network in which every piece of evidence reduces without loss to a normal observation, so the posterior and every power-scaled posterior are exact and no diagnostic is contaminated by MCMC noise. 120 scenarios crossing the evidence available about the weakly identified treatment, arm size, whether the truth agrees with the zero-centered prior, prior scale, and the target population. 2000 replicates each.
+</dd>
+<dt>Replicates</dt>
+<dd>
+2000 per scenario, 240,000 datasets and 480,000 contrast evaluations
+</dd>
+</dl>
+<p><strong>What this does not answer.</strong> The other half of CMU-02, wiring these diagnostics into released software, is untouched; neither multinma nor cpaic is run. The model is conjugate Gaussian with an identity link, a correctly specified linear mean and known variances, so nothing transfers directly to a non-conjugate posterior where MCMC error enters and the diagnostics behave differently. Only automated thresholds are evaluated; a plot read by an experienced analyst is a different instrument. Thresholds were taken from the source literature and not tuned. CMP-14 is touched only for the generic aggregate-only interaction, not for component models, and IDN-06 is not addressed at all because this design contains no within-versus-between discrepancy.</p>
+<p><strong>Peer review.</strong> 2 rounds, two independent reviewers. The reports, the point-by-point responses and the editorial decision are published in full: <a href="../studies/CMU-02-prior-driven-posteriors/out/CMU-02-peer-review.md">read the review</a>.</p>
+<p>Read it: <a href="../studies/CMU-02-prior-driven-posteriors/out/CMU-02.pdf">PDF</a> · <a href="../studies/CMU-02-prior-driven-posteriors/out/CMU-02.md">Markdown</a> · <a href="../studies/CMU-02-prior-driven-posteriors/out/CMU-02.odt">OpenDocument</a> · Code and data: <a href="https://github.com/choxos/ITC-open-problems/tree/main/studies/CMU-02-prior-driven-posteriors">studies/CMU-02-prior-driven-posteriors</a> · Protocol: <a href="../studies/CMU-02-prior-driven-posteriors/out/CMU-02-protocol.md">registered before the run</a> · Review: <a href="../studies/CMU-02-prior-driven-posteriors/out/CMU-02-peer-review.md">full history</a></p>
+</div>
 </section>
 <section id="verification" class="level2">
 <h2 class="anchored" data-anchor-id="verification">Verification</h2>
