@@ -343,6 +343,10 @@ ul.task-list li input[type="checkbox"] {
 <span class="menu-text">Agenda</span></a>
   </li>  
   <li class="nav-item">
+    <a class="nav-link" href="../chronology.html"> 
+<span class="menu-text">Chronology</span></a>
+  </li>  
+  <li class="nav-item">
     <a class="nav-link" href="../landscape.html"> 
 <span class="menu-text">Landscape</span></a>
   </li>  
@@ -383,6 +387,7 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#what-has-been-tried" id="toc-what-has-been-tried" class="nav-link" data-scroll-target="#what-has-been-tried">What has been tried</a></li>
   <li><a href="#probable-solution-or-research-direction" id="toc-probable-solution-or-research-direction" class="nav-link" data-scroll-target="#probable-solution-or-research-direction">Probable solution or research direction</a></li>
   <li><a href="#verification" id="toc-verification" class="nav-link" data-scroll-target="#verification">Verification</a></li>
+  <li><a href="#how-the-evidence-falls-in-time" id="toc-how-the-evidence-falls-in-time" class="nav-link" data-scroll-target="#how-the-evidence-falls-in-time">How the evidence falls in time</a></li>
   <li><a href="#related-problems" id="toc-related-problems" class="nav-link" data-scroll-target="#related-problems">Related problems</a></li>
   <li><a href="#source" id="toc-source" class="nav-link" data-scroll-target="#source">Source</a></li>
   </ul>
@@ -475,7 +480,12 @@ ul.task-list li input[type="checkbox"] {
 <p><strong>The source said.</strong> “Health technology assessment needs lifetime survival, so population-adjusted survival results are extrapolated far beyond observed follow-up, where the answer comes from the parametric assumption rather than the data. Flexible study-specific baseline hazards remain an open problem for survival ML-NMR even after the 2025 general-likelihood extension, and mixture-cure network meta-analysis has only begun to develop and has not been connected to population adjustment or component models.”</p>
 <p><strong>What was wrong with it.</strong> The lead claim, that flexible study-specific baseline hazards remain open for survival ML-NMR after the 2025 general-likelihood extension, is contradicted by the paper the entry itself cites: Phillippo et al.&nbsp;(doi:10.1093/jrsssa/qnaf169) stratify the baseline hazard by study and propose M-splines with a shrinkage random-walk prior, which is this entry’s own proposed direction. The code auditor found the same capability implemented in multinma 0.6.0 and at commit 9d150e9 in cpaic, an unreleased development package on GitHub that is not installable from CRAN, and narrowed two supporting claims: observed-window fit statistics do discriminate models that fit the observed data differently, and a cure fraction can be estimated under shorter follow-up through strong parametric assumptions, so it is empirical separation of cure from a long uncured tail that needs mature follow-up.</p>
 <p><strong>Dissent.</strong> codex dissented (overstated): C1 is directly false at the requested cpaic revision. cmlnmr() offers piecewise-exponential and continuous cubic M-spline baselines, gives every study separate baseline coefficients, and applies shared random-walk smoothing. multinma likewise supplies study-stratified flexible baselines. C2-C5 are otherwise sound: data do not identify survival beyond observed support, so the chosen tail model drives extrapolation. C6 needs its omitted condition. Observed-window fit statistics can distinguish models that fit the observed data differently; they cannot validate different tails when models are observationally equivalent or nearly equivalent on the observed support. cpaic has no cure family or component-cure path, so connecting cure and uncured components to PAIC remains open. C9 is a plausible model, not a necessity. C10 is too categorical: a cure fraction can be estimated under shorter follow-up only through strong parametric assumptions, while empirical separation of cure from a long uncured tail requires sufficiently mature follow-up, not necessarily follow-up longer than most trials. Extrapolation is an assumption-management problem rather than a capability that data alone can solve.</p>
+<p><strong>Revised by the full-text reading.</strong> Applied 2026-07-26 full-text reading of the consolidated library (687 papers).</p>
 <dl>
+<dt>Flagged for reopening</dt>
+<dd>
+<strong>6 findings from the reading assert this problem is open while the registry carries <code>not-supported</code></strong> Flagged, not applied: reversing an earlier audit’s closure needs the closure’s own evidence re-examined alongside this, which the reading did not do. See documentation/audit/reading/PROPOSED.md.
+</dd>
 <dt>Literature and prior-art check</dt>
 <dd>
 <strong>partially-solved / misattributed.</strong> The lead claim, that ‘flexible study-specific baseline hazards remain an open problem for survival ML-NMR after the 2025 general-likelihood extension’, is contradicted by the very paper cited as prior_work. Phillippo et al.&nbsp;(doi 10.1093/jrsssa/qnaf169) state ‘we propose a novel approach using M-splines to flexibly model the baseline hazard over time’, ‘notice that we stratify the baseline hazard by study to respect randomization’ and ‘Stratifying the baseline hazard by study is imperative for respecting randomization within studies’, and they solve the small-network nuisance-parameter problem with a ‘weighted random walk prior distribution on the inverse-softmax transformed spline coefficients’ that ‘controls the amount of smoothing and shrinkage’ and ‘allows the analyst to simply choose a large enough number of knots and have the model shrink to appropriate complexity’. That is the entry’s own proposed direction, already implemented in multinma 0.6.0. The Chan et al.&nbsp;citation is faithful (mixture-cure NMA of RFS in resected stage III/IV melanoma, doi 10.1017/rsm.2025.10038) and does not involve population adjustment, so the cure-plus-PAIC gap and the identifiability of extrapolation beyond follow-up remain genuinely open. Cites doi:10.1093/jrsssa/qnaf169: Develops exactly the flexible, study-stratified baseline hazard with shrinkage priors that the entry lists as an open problem and as its proposed direction..
@@ -491,10 +501,67 @@ ul.task-list li input[type="checkbox"] {
 </dl>
 </div>
 </section>
+<section id="how-the-evidence-falls-in-time" class="level2">
+<h2 class="anchored" data-anchor-id="how-the-evidence-falls-in-time">How the evidence falls in time</h2>
+<p>6 papers in the reviewed corpus bear on this problem, published 2011 to 2025. Every paper found here asserts the problem is open; none reports progress.</p>
+<p>This problem is <strong>recurrent</strong>: three or more papers spanning at least eight years assert it independently. Sustained restatement by authors who mostly do not cite each other is the strongest evidence this reading can offer that a gap is real rather than one group’s framing.</p>
+<div class="table-scroll">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Year</th>
+<th>Says</th>
+<th>Paper</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>2011</td>
+<td>confirms it is open</td>
+<td>Network meta-analysis of survival data with fractional polynomials</td>
+</tr>
+<tr class="even">
+<td>2013</td>
+<td>confirms it is open</td>
+<td>Quantitative summaries of treatment effect estimates obtained with network meta-analysis of survival curves to inform decision-making</td>
+</tr>
+<tr class="odd">
+<td>2014</td>
+<td>confirms it is open</td>
+<td>Network meta-analysis of (individual patient) time to event data alongside (aggregate) count data</td>
+</tr>
+<tr class="even">
+<td>2017</td>
+<td>confirms it is open</td>
+<td>Bayesian one-step IPD network meta-analysis of time-to-event data using Royston-Parmar models</td>
+</tr>
+<tr class="odd">
+<td>2022</td>
+<td>confirms it is open</td>
+<td>Challenges of modelling approaches for network meta-analysis of time-to-event outcomes in the presence of non-proportional hazards to aid decision making: Application to a melanoma network</td>
+</tr>
+<tr class="even">
+<td>2025</td>
+<td>confirms it is open</td>
+<td>Unanchored simulated treatment comparison on survival outcomes using parametric and Royston-Parmar models with application to lenvatinib plus pembrolizumab in renal cell carcinoma</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
 <section id="related-problems" class="level2">
 <h2 class="anchored" data-anchor-id="related-problems">Related problems</h2>
 <div class="related-links">
 <ul>
+<li><a href="../problems/DIS-20-no-aggregate-data-bridge-exists-for-disconnected-survival-ne.html">DIS-20 — No aggregate-data bridge exists for disconnected survival networks</a></li>
+<li><a href="../problems/HET-07-heterogeneity-structure-is-undefined-for-multi-parameter-sur.html">HET-07 — Heterogeneity structure is undefined for multi-parameter survival NMA</a></li>
+<li><a href="../problems/MOD-19-no-valid-selection-criterion-for-cut-points-and-powers-in-ti.html">MOD-19 — No valid selection criterion for cut points and powers in time-varying survival NMA</a></li>
+<li><a href="../problems/OUT-24-no-rule-selects-the-common-rmst-horizon-across-unequal-follo.html">OUT-24 — No rule selects the common RMST horizon across unequal follow-up</a></li>
 <li><a href="../problems/OVL-03-no-support-diagnostic-aggregates-over-a-paic-target-distribu.html">OVL-03 — No support diagnostic aggregates over a PAIC target distribution</a></li>
 </ul>
 </div>

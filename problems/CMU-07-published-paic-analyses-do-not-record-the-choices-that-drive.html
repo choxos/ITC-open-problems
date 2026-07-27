@@ -343,6 +343,10 @@ ul.task-list li input[type="checkbox"] {
 <span class="menu-text">Agenda</span></a>
   </li>  
   <li class="nav-item">
+    <a class="nav-link" href="../chronology.html"> 
+<span class="menu-text">Chronology</span></a>
+  </li>  
+  <li class="nav-item">
     <a class="nav-link" href="../landscape.html"> 
 <span class="menu-text">Landscape</span></a>
   </li>  
@@ -383,6 +387,7 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#what-has-been-tried" id="toc-what-has-been-tried" class="nav-link" data-scroll-target="#what-has-been-tried">What has been tried</a></li>
   <li><a href="#probable-solution-or-research-direction" id="toc-probable-solution-or-research-direction" class="nav-link" data-scroll-target="#probable-solution-or-research-direction">Probable solution or research direction</a></li>
   <li><a href="#verification" id="toc-verification" class="nav-link" data-scroll-target="#verification">Verification</a></li>
+  <li><a href="#how-the-evidence-falls-in-time" id="toc-how-the-evidence-falls-in-time" class="nav-link" data-scroll-target="#how-the-evidence-falls-in-time">How the evidence falls in time</a></li>
   <li><a href="#related-problems" id="toc-related-problems" class="nav-link" data-scroll-target="#related-problems">Related problems</a></li>
   <li><a href="#source" id="toc-source" class="nav-link" data-scroll-target="#source">Source</a></li>
   </ul>
@@ -398,7 +403,7 @@ ul.task-list li input[type="checkbox"] {
   <div class="quarto-categories">
     <div class="quarto-category">Computation &amp; reproducibility</div>
     <div class="quarto-category">High priority</div>
-    <div class="quarto-category">Unverifiable</div>
+    <div class="quarto-category">Partially addressed</div>
   </div>
   </div>
 
@@ -422,7 +427,7 @@ ul.task-list li input[type="checkbox"] {
 
 
 <div class="problem-meta">
-<p><span class="problem-id">CMU-07</span> <span class="verdict verdict-unverifiable">Unverifiable</span> <span class="chip chip-priority-high">High priority</span> <span class="chip chip-maturity-emerging">Emerging</span></p>
+<p><span class="problem-id">CMU-07</span> <span class="verdict verdict-partially-addressed">Partially addressed</span> <span class="chip chip-priority-high">High priority</span> <span class="chip chip-maturity-emerging">Emerging</span></p>
 </div>
 <div class="source-unsourced">
 <p><strong>Source note.</strong> This entry derives in part from a source document whose inline citations were ChatGPT interface tokens rather than references, and so resolve to nothing. Claims below are attributed to that document and were checked independently where possible; anything that could not be independently sourced is marked in the verification trail.</p>
@@ -473,11 +478,16 @@ ul.task-list li input[type="checkbox"] {
 <section id="verification" class="level2">
 <h2 class="anchored" data-anchor-id="verification">Verification</h2>
 <div class="verification-trail">
-<p><strong>Verdict.</strong> Unverifiable. Auditors disagreed and the disagreement was evidence-bearing on both sides.</p>
+<p><strong>Verdict.</strong> Partially addressed. Auditors disagreed and the disagreement was evidence-bearing on both sides. Reopened by the full-text reading: 1 finding from 1 paper survived both the reader and an independent second reviewer, so the verdict moves from unverifiable to partially-addressed, on a single finding.</p>
 <p><strong>The source said.</strong> “The choices that determine a population-adjusted estimate (covariate selection and exclusion, weight trimming, priors, target population definition, and survival curve reconstruction settings) are made outside the fitted object and are frequently left undocumented, and no package emits a manifest that records them. A published estimate therefore cannot be reconstructed or interrogated even when the code is shared.”</p>
 <p><strong>What was wrong with it.</strong> The source asserted that PAIC reporting is suboptimal without any citation; the entry was flagged source_unsourced and the literature auditor supplied three real references, so the claim is now sourced: Truong et al.&nbsp;2023 (doi:10.1002/jrsm.1653), Farinasso et al.&nbsp;2025 (doi:10.1016/j.vhri.2025.101088), and Phillippo et al.&nbsp;2019 (PMID 31190671). The source-code auditor narrowed the software claim: fitted objects in cpaic already store much of the specification, so what is missing is a manifest export and the selection rationale rather than all provenance, and shared code makes the original ‘cannot be reconstructed’ too absolute.</p>
 <p><strong>Dissent.</strong> literature dissented (open): This entry is marked source_unsourced, and the reporting-quality claims are in fact well supported by real literature I retrieved from PubMed, which converts them. Truong et al.&nbsp;2023 (Res Synth Methods, doi 10.1002/jrsm.1653, PMID 37400080) reviewed 106 articles and 157 PAIC analyses and concludes conduct and reporting are ‘remarkably heterogeneous and suboptimal in current practice’, with model-fitting results adequately reported in only 3 of 18 analyses that required an outcome model. Farinasso et al.&nbsp;2025 (doi 10.1016/j.vhri.2025.101088, PMID 39999561) reviewed 117 oncology MAICs and found only 3 met all NICE recommendations, with weight distributions and effect-modifier evidence among the least reported items. Phillippo et al.&nbsp;2019 (doi 10.1017/S0266462319000333, PMID 31190671) documents that covariate selection in NICE appraisals rested on availability, expert opinion, effective sample size, statistical significance or cross-validation, i.e.&nbsp;heterogeneous undocumented practice. The manifest/model-card claims remain absence claims: I found no PAIC package emitting an analysis manifest (maicplus README and multinma R/ show none), so those are unrefuted rather than verified. codex dissented (overstated): C1 is a placeholder rather than an assessable claim. C2 and C4 are plausible practice concerns but are unsupported empirical generalizations here; C3 is explicitly a literature-coverage claim outside the assigned lens. C5 and C6 are universal negatives that cannot be established from cpaic or the supplied works. C7 is a reasonable proposal. C8 is too strong because a container is one environment-capture mechanism, not a necessary or sufficient condition for reproducibility. Source inspection materially narrows the statement: cpaic’s cML-NMR object stores the complete prior specification, refit arguments, sampler seed, integration settings, and provenance; cMAIC and cSTC objects store their target and selected covariates. However, cMAIC omits target_sd, min_boot_success, and seed from its returned object; upstream survival reconstruction choices and covariate-selection rationale are not recorded; and no standalone manifest or model-card export exists. cpaic also has no trimming option, so there is no hidden package trimming setting to document. Shared executable code can reconstruct many choices even without a manifest, contrary to the report’s absolute claim.</p>
+<p><strong>Revised by the full-text reading.</strong> Applied 2026-07-26 full-text reading of the consolidated library (687 papers).</p>
 <dl>
+<dt>Verdict changed</dt>
+<dd>
+<strong>unverifiable -&gt; partially-addressed</strong> 1 surviving finding from: Addressing challenges with Matching-Adjusted Indirect Compar. New citations: 10.1186/s12874-025-02500-w
+</dd>
 <dt>Literature and prior-art check</dt>
 <dd>
 <strong>open / supported.</strong> This entry is marked source_unsourced, and the reporting-quality claims are in fact well supported by real literature I retrieved from PubMed, which converts them. Truong et al.&nbsp;2023 (Res Synth Methods, doi 10.1002/jrsm.1653, PMID 37400080) reviewed 106 articles and 157 PAIC analyses and concludes conduct and reporting are ‘remarkably heterogeneous and suboptimal in current practice’, with model-fitting results adequately reported in only 3 of 18 analyses that required an outcome model. Farinasso et al.&nbsp;2025 (doi 10.1016/j.vhri.2025.101088, PMID 39999561) reviewed 117 oncology MAICs and found only 3 met all NICE recommendations, with weight distributions and effect-modifier evidence among the least reported items. Phillippo et al.&nbsp;2019 (doi 10.1017/S0266462319000333, PMID 31190671) documents that covariate selection in NICE appraisals rested on availability, expert opinion, effective sample size, statistical significance or cross-validation, i.e.&nbsp;heterogeneous undocumented practice. The manifest/model-card claims remain absence claims: I found no PAIC package emitting an analysis manifest (maicplus README and multinma R/ show none), so those are unrefuted rather than verified. Cites doi:10.1002/jrsm.1653: Supplies the real citation for the previously unsourced claim that PAIC reporting is suboptimal.. Cites doi:10.1016/j.vhri.2025.101088: Quantifies non-adherence to NICE reporting recommendations across 117 MAICs.. Cites pmid:31190671: Documents the heterogeneity of undocumented covariate-selection practice in NICE appraisals (doi 10.1017/S0266462319000333)..
@@ -495,6 +505,74 @@ ul.task-list li input[type="checkbox"] {
 <code>R3:partially-solved(n=1) → R7:counter-and-support-both-present</code>
 </dd>
 </dl>
+</div>
+</section>
+<section id="how-the-evidence-falls-in-time" class="level2">
+<h2 class="anchored" data-anchor-id="how-the-evidence-falls-in-time">How the evidence falls in time</h2>
+<p>9 papers in the reviewed corpus bear on this problem, published 2015 to 2026. Partial progress is on the record, and later work still calls this open. Both belong in view.</p>
+<p>This problem is <strong>recurrent</strong>: three or more papers spanning at least eight years assert it independently. Sustained restatement by authors who mostly do not cite each other is the strongest evidence this reading can offer that a gap is real rather than one group’s framing.</p>
+<div class="table-scroll">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Year</th>
+<th>Says</th>
+<th>Paper</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>2015</td>
+<td>confirms it is open</td>
+<td>An Assessment of the Methodological Quality of Published Network Meta-Analyses: A Systematic Review</td>
+</tr>
+<tr class="even">
+<td>2015</td>
+<td>confirms it is open</td>
+<td>Heterogeneity, consistency and model fit should be assessed in Bayesian network meta-analysis</td>
+</tr>
+<tr class="odd">
+<td>2016</td>
+<td>confirms it is open</td>
+<td>A scoping review of indirect comparison methods and applications using individual patient data</td>
+</tr>
+<tr class="even">
+<td>2016</td>
+<td>confirms it is open</td>
+<td>Review of the Reporting of Survival Analyses within Randomised Controlled Trials and the Implications for Meta-Analysis</td>
+</tr>
+<tr class="odd">
+<td>2016</td>
+<td>confirms it is open</td>
+<td>Use of network meta-analysis in systematic reviews: a survey of authors</td>
+</tr>
+<tr class="even">
+<td>2018</td>
+<td>confirms it is open</td>
+<td>A systematic survey shows that reporting and handling of missing outcome data in networks of interventions is poor</td>
+</tr>
+<tr class="odd">
+<td>2025</td>
+<td>partly addresses it</td>
+<td>Addressing challenges with Matching-Adjusted Indirect Comparisons to demonstrate the comparative effectiveness of entrectinib in metastatic ROS-1 positive Non-Small Cell Lung Cancer</td>
+</tr>
+<tr class="even">
+<td>2025</td>
+<td>confirms it is open</td>
+<td>Methodologies for network meta-analysis of randomised controlled trials in pain, anaesthesia, and perioperative medicine: a narrative review</td>
+</tr>
+<tr class="odd">
+<td>2026</td>
+<td>confirms it is open</td>
+<td>Comparing the efficacy of cipaglucosidase alfa plus miglustat with alglucosidase alfa for late-onset Pompe disease: an expanded network meta-analysis utilizing patient-level and aggregate data</td>
+</tr>
+</tbody>
+</table>
 </div>
 </section>
 <section id="related-problems" class="level2">

@@ -343,6 +343,10 @@ ul.task-list li input[type="checkbox"] {
 <span class="menu-text">Agenda</span></a>
   </li>  
   <li class="nav-item">
+    <a class="nav-link" href="../chronology.html"> 
+<span class="menu-text">Chronology</span></a>
+  </li>  
+  <li class="nav-item">
     <a class="nav-link" href="../landscape.html"> 
 <span class="menu-text">Landscape</span></a>
   </li>  
@@ -383,6 +387,7 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#what-has-been-tried" id="toc-what-has-been-tried" class="nav-link" data-scroll-target="#what-has-been-tried">What has been tried</a></li>
   <li><a href="#probable-solution-or-research-direction" id="toc-probable-solution-or-research-direction" class="nav-link" data-scroll-target="#probable-solution-or-research-direction">Probable solution or research direction</a></li>
   <li><a href="#verification" id="toc-verification" class="nav-link" data-scroll-target="#verification">Verification</a></li>
+  <li><a href="#how-the-evidence-falls-in-time" id="toc-how-the-evidence-falls-in-time" class="nav-link" data-scroll-target="#how-the-evidence-falls-in-time">How the evidence falls in time</a></li>
   <li><a href="#related-problems" id="toc-related-problems" class="nav-link" data-scroll-target="#related-problems">Related problems</a></li>
   <li><a href="#source" id="toc-source" class="nav-link" data-scroll-target="#source">Source</a></li>
   </ul>
@@ -398,7 +403,7 @@ ul.task-list li input[type="checkbox"] {
   <div class="quarto-categories">
     <div class="quarto-category">Covariates: selection, target moments, measurement</div>
     <div class="quarto-category">High priority</div>
-    <div class="quarto-category">Confirmed open</div>
+    <div class="quarto-category">Partially addressed</div>
   </div>
   </div>
 
@@ -422,7 +427,7 @@ ul.task-list li input[type="checkbox"] {
 
 
 <div class="problem-meta">
-<p><span class="problem-id">COV-05</span> <span class="verdict verdict-confirmed-open">Confirmed open</span> <span class="chip chip-priority-high">High priority</span> <span class="chip chip-maturity-promising">Promising</span></p>
+<p><span class="problem-id">COV-05</span> <span class="verdict verdict-partially-addressed">Partially addressed</span> <span class="chip chip-priority-high">High priority</span> <span class="chip chip-maturity-promising">Promising</span></p>
 </div>
 <section id="statement" class="level2">
 <h2 class="anchored" data-anchor-id="statement">Statement</h2>
@@ -458,10 +463,15 @@ ul.task-list li input[type="checkbox"] {
 <section id="verification" class="level2">
 <h2 class="anchored" data-anchor-id="verification">Verification</h2>
 <div class="verification-trail">
-<p><strong>Verdict.</strong> Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.</p>
+<p><strong>Verdict.</strong> Partially addressed. Auditors agreed the problem is open and no counterevidence surfaced. Reopened by the full-text reading: 1 finding from 1 paper survived both the reader and an independent second reviewer, so the verdict moves from confirmed-open to partially-addressed, on a single finding.</p>
 <p><strong>The source said.</strong> “Flexible learners such as BART, causal forests, Gaussian processes, neural additive models and super learner can estimate complex outcome or participation models in PAIC, but their useful roles are narrow and their misuses are common. The report enumerates four legitimate roles and four dangerous ones, with no protocol enforcing the distinction.”</p>
 <p><strong>What was wrong with it.</strong> The source said interpreting machine-learning feature importance as causal effect modification is invalid, and that using one sample for discovery, tuning, estimation and uncertainty without cross-fitting invalidates the inference. The literature auditor cited PermuCATE (arxiv:2408.13002), a conditional-permutation importance measure defined directly on the CATE with inference, and the code auditor noted that valid inference can also rest on parametric or empirical-process restrictions, external training data, independent sample splitting, or a bootstrap that repeats tuning and estimation.</p>
+<p><strong>Revised by the full-text reading.</strong> Applied 2026-07-26 full-text reading of the consolidated library (687 papers).</p>
 <dl>
+<dt>Verdict changed</dt>
+<dd>
+<strong>confirmed-open -&gt; partially-addressed</strong> 1 surviving finding from: Global sensitivity analysis for studies extending inferences. New citations: arXiv:2207.09982v1
+</dd>
 <dt>Literature and prior-art check</dt>
 <dd>
 <strong>open / supported-with-caveat.</strong> Most of the enumerated claims are standard causal-machine-learning knowledge rather than contested propositions: flexible learners as nuisance estimators inside AIPW/TMLE/DML and the cross-fitting requirement are the defining features of double machine learning, and extrapolation to unsupported regions is a general property of predictive fits. I found no PAIC-specific protocol separating legitimate from dangerous roles, but ‘no protocol exists’ is an absence claim I cannot verify, so I do not credit it. One claim is too blunt as worded. ‘Interpreting machine-learning feature importance as causal effect modification is invalid’ is right about predictive importance, but Paillard et al.&nbsp;(PermuCATE) develops conditional-permutation variable importance defined directly on the CATE with inference, i.e.&nbsp;a causally-defined importance measure for exactly this question. The defensible version is that predictive feature importance from an outcome model is not evidence of effect modification, not that no importance measure can be causal.
@@ -477,12 +487,51 @@ ul.task-list li input[type="checkbox"] {
 </dl>
 </div>
 </section>
+<section id="how-the-evidence-falls-in-time" class="level2">
+<h2 class="anchored" data-anchor-id="how-the-evidence-falls-in-time">How the evidence falls in time</h2>
+<p>3 papers in the reviewed corpus bear on this problem, published 2018 to 2026. The most recent paper to touch this reports progress on it, and every paper calling it open is older.</p>
+<p><strong>Does the later work answer the earlier work?</strong> Put to an independent reviewer with the older and newer claims side by side, it judged that the later work answers a component of it, leaving a named part (medium confidence). The later paper supplies a substantive rule for one setting: flexible outcome modeling can be useful, but prediction-optimized plug-in estimation can be biased for the target sensitivity functional and should be augmented with influence-function-based estimation. It does not provide the broader PAIC-specific framework requested, nor does it settle flexible-learning use for overlap or modifier selection. What remains: A PAIC-specific protocol covering the appropriate and inappropriate roles of flexible learners across nuisance estimation, overlap assessment, effect-modifier identification, sensitivity analysis, and inference, including the distinction between predictive and causal importance.</p>
+<div class="table-scroll">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Year</th>
+<th>Says</th>
+<th>Paper</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>2018</td>
+<td>confirms it is open</td>
+<td>Comparing pharmacological treatments for cocaine dependence: Incorporation of methods for enhancing generalizability in meta-analytic studies</td>
+</tr>
+<tr class="even">
+<td>2020</td>
+<td>confirms it is open</td>
+<td>Extending inferences from a randomized trial to a new target population (Dahabreh, Robertson, Steingrimsson, Stuart, Hernan; tutorial, arXiv:1805.00550v3)</td>
+</tr>
+<tr class="odd">
+<td>2026</td>
+<td>partly addresses it</td>
+<td>Global sensitivity analysis for studies extending inferences from a randomized trial to a target population</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
 <section id="related-problems" class="level2">
 <h2 class="anchored" data-anchor-id="related-problems">Related problems</h2>
 <div class="related-links">
 <ul>
 <li><a href="../problems/ADJ-13-topology-only-graph-neural-network-output-cannot-identify-ef.html">ADJ-13 — Topology-only graph neural network output cannot identify effects</a></li>
 <li><a href="../problems/DIA-06-failure-signatures-across-paic-estimator-families-are-unchar.html">DIA-06 — Failure signatures across PAIC estimator families are uncharacterized</a></li>
+<li><a href="../problems/EST-16-synthetic-patient-indirect-comparisons-lack-a-validation-sta.html">EST-16 — Synthetic-patient indirect comparisons lack a validation standard</a></li>
 <li><a href="../problems/MOD-02-convenience-functional-forms-and-untested-flexible-alternati.html">MOD-02 — Convenience functional forms and untested flexible alternatives</a></li>
 <li><a href="../problems/MOD-08-cross-fitting-folds-and-rate-conditions-undefined-for-paic.html">MOD-08 — Cross-fitting folds and rate conditions undefined for PAIC</a></li>
 <li><a href="../problems/OVL-03-no-support-diagnostic-aggregates-over-a-paic-target-distribu.html">OVL-03 — No support diagnostic aggregates over a PAIC target distribution</a></li>

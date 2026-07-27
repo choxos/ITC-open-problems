@@ -343,6 +343,10 @@ ul.task-list li input[type="checkbox"] {
 <span class="menu-text">Agenda</span></a>
   </li>  
   <li class="nav-item">
+    <a class="nav-link" href="../chronology.html"> 
+<span class="menu-text">Chronology</span></a>
+  </li>  
+  <li class="nav-item">
     <a class="nav-link" href="../landscape.html"> 
 <span class="menu-text">Landscape</span></a>
   </li>  
@@ -383,6 +387,7 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#what-has-been-tried" id="toc-what-has-been-tried" class="nav-link" data-scroll-target="#what-has-been-tried">What has been tried</a></li>
   <li><a href="#probable-solution-or-research-direction" id="toc-probable-solution-or-research-direction" class="nav-link" data-scroll-target="#probable-solution-or-research-direction">Probable solution or research direction</a></li>
   <li><a href="#verification" id="toc-verification" class="nav-link" data-scroll-target="#verification">Verification</a></li>
+  <li><a href="#how-the-evidence-falls-in-time" id="toc-how-the-evidence-falls-in-time" class="nav-link" data-scroll-target="#how-the-evidence-falls-in-time">How the evidence falls in time</a></li>
   <li><a href="#related-problems" id="toc-related-problems" class="nav-link" data-scroll-target="#related-problems">Related problems</a></li>
   <li><a href="#source" id="toc-source" class="nav-link" data-scroll-target="#source">Source</a></li>
   </ul>
@@ -472,7 +477,12 @@ ul.task-list li input[type="checkbox"] {
 <p><strong>Verdict.</strong> Overstated. 2 independent auditors judged the claim as stated too strong. The transported hazard ratio remains the default reported quantity in survival indirect comparisons even though it is non-collapsible, population-dependent and time-varying; RMST differences and target-standardised survival curves are already implemented in multinma and demonstrated in the general-likelihood ML-NMR paper, so the gap is between available methods and prevailing practice, and in the absence of any simulation benchmark comparing these estimators under crossing hazards and differential censoring.</p>
 <p><strong>The source said.</strong> “Proportional hazards frequently fails, especially in oncology and immunology, yet the hazard ratio remains the standard transported quantity in survival indirect comparison; it is simultaneously non-collapsible, population-dependent, and time-varying, and a single value can conceal crossing hazards entirely. The report states that the primary output should instead be the restricted mean survival time difference between target-standardized survival curves.”</p>
 <p><strong>What was wrong with it.</strong> The claim that target-standardized survival curves and milestone probabilities are outputs current PAIC software does not routinely produce is false; both auditors found them implemented in multinma, which is the software for the general-likelihood ML-NMR paper the entry already cited (doi:10.1093/jrsssa/qnaf169), and the File A material in this entry was unattributed in the source and is now anchored to that paper and to the multinma release notes. The code auditor also rejected the normative framing that RMST must be the primary estimand and that one-step exact-likelihood synthesis is automatically superior, and found that at commit 9d150e9 cpaic, an unreleased development package on GitHub that is not installable from CRAN, still returns only a conditional hazard ratio at one covariate profile and averages survival over each observed arm rather than over a common target distribution.</p>
+<p><strong>Revised by the full-text reading.</strong> Applied 2026-07-26 full-text reading of the consolidated library (687 papers).</p>
 <dl>
+<dt>Flagged for reopening</dt>
+<dd>
+<strong>24 findings from the reading assert this problem is open while the registry carries <code>overstated</code></strong> Flagged, not applied: reversing an earlier audit’s closure needs the closure’s own evidence re-examined alongside this, which the reading did not do. See documentation/audit/reading/PROPOSED.md.
+</dd>
 <dt>Literature and prior-art check</dt>
 <dd>
 <strong>partially-solved / overstated.</strong> The single prior_work citation is faithful: Phillippo, Dias, Ades and Welton, ‘Multilevel network meta-regression for general likelihoods’ (JRSSA, doi 10.1093/jrsssa/qnaf169) does extend ML-NMR to survival, stating ‘implementation of this method so far has required the aggregate-level likelihood to have a known closed form, which has prevented application to time-to-event outcomes’ and ‘We extend ML-NMR to individual-level likelihoods of any form’. But the claim that target-standardised survival curves and milestone survival probabilities are ‘open outputs not routinely produced by current PAIC software’ is contradicted by the software that implements that very paper. multinma has shipped survival models since 0.6.0 (2024-01-24) with predict() types survival, hazard, cumhaz, mean, median, quantile and rmst, and marginal_effects() returns RMST differences and survival-probability differences standardised to a target population. Non-proportional hazards are also modellable: the NDMM vignette stratifies spline coefficients by treatment as well as study (aux_by = c(.study, .trt)). What is genuinely open is the benchmarking programme described in the proposed direction; I found no simulation study comparing general-likelihood ML-NMR against PH MAIC/STC on crossing-hazard mechanisms. Cites doi:10.1093/jrsssa/qnaf169: Delivers population-average marginal survival functions and restricted means in a target population from an ML-NMR fit.. Cites repo:dmphillippo/multinma NEWS 0.6.0 and 0.7.0: Ships RMST, survival-probability and quantile predictions plus marginal RMST/survival-probability differences standardised to a target population..
@@ -488,6 +498,150 @@ ul.task-list li input[type="checkbox"] {
 </dl>
 </div>
 </section>
+<section id="how-the-evidence-falls-in-time" class="level2">
+<h2 class="anchored" data-anchor-id="how-the-evidence-falls-in-time">How the evidence falls in time</h2>
+<p>24 papers in the reviewed corpus bear on this problem, published 2010 to 2026. Progress and a fresh assertion of openness land in the same year.</p>
+<p>This problem is <strong>recurrent</strong>: three or more papers spanning at least eight years assert it independently. Sustained restatement by authors who mostly do not cite each other is the strongest evidence this reading can offer that a gap is real rather than one group’s framing.</p>
+<p>It is also being <strong>closed in pieces</strong>: partial results come from more than one paper in more than one year, each covering a different part.</p>
+<div class="table-scroll">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Year</th>
+<th>Says</th>
+<th>Paper</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>2010</td>
+<td>confirms it is open</td>
+<td>Network meta-analysis on the log-hazard scale, combining count and hazard ratio statistics accounting for multi-arm trials: a tutorial</td>
+</tr>
+<tr class="even">
+<td>2011</td>
+<td>partly addresses it</td>
+<td>Network meta-analysis of survival data with fractional polynomials</td>
+</tr>
+<tr class="odd">
+<td>2012</td>
+<td>partly addresses it</td>
+<td>Meta-regression models to address heterogeneity and inconsistency in network meta-analysis of survival outcomes</td>
+</tr>
+<tr class="even">
+<td>2013</td>
+<td>partly addresses it</td>
+<td>Quantitative summaries of treatment effect estimates obtained with network meta-analysis of survival curves to inform decision-making</td>
+</tr>
+<tr class="odd">
+<td>2014</td>
+<td>partly addresses it</td>
+<td>A process for assessing the feasibility of a network meta-analysis: a case study of everolimus in combination with hormonal therapy versus chemotherapy for advanced breast cancer</td>
+</tr>
+<tr class="even">
+<td>2015</td>
+<td>partly addresses it</td>
+<td>One-step individual patient data (IPD) network meta-analysis of survival data using royston-parmar models</td>
+</tr>
+<tr class="odd">
+<td>2016</td>
+<td>confirms it is open</td>
+<td>Review of the Reporting of Survival Analyses within Randomised Controlled Trials and the Implications for Meta-Analysis</td>
+</tr>
+<tr class="even">
+<td>2017</td>
+<td>partly addresses it</td>
+<td>Bayesian one-step IPD network meta-analysis of time-to-event data using Royston-Parmar models</td>
+</tr>
+<tr class="odd">
+<td>2017</td>
+<td>partly addresses it</td>
+<td>Second-line Treatments for Advanced Gastric Cancer: A Network Meta-Analysis of Overall Survival Using Parametric Modelling Methods</td>
+</tr>
+<tr class="even">
+<td>2019</td>
+<td>partly addresses it</td>
+<td>Individual patient data network meta-analysis using either restricted mean survival time difference or hazard ratios: is there a difference? A case study on locoregionally advanced nasopharyngeal carcinomas</td>
+</tr>
+<tr class="odd">
+<td>2020</td>
+<td>confirms it is open</td>
+<td>Uptake of methodological advances for synthesis of continuous and time-to-event outcomes would maximize use of the evidence base</td>
+</tr>
+<tr class="even">
+<td>2022</td>
+<td>partly addresses it</td>
+<td>Challenges of modelling approaches for network meta-analysis of time-to-event outcomes in the presence of non-proportional hazards to aid decision making: Application to a melanoma network</td>
+</tr>
+<tr class="odd">
+<td>2023</td>
+<td>confirms it is open</td>
+<td>Individual participant data from digital sources informed and improved precision in the evaluation of predictive biomarkers in Bayesian network meta-analysis</td>
+</tr>
+<tr class="even">
+<td>2024</td>
+<td>confirms it is open</td>
+<td>Implementing Multilevel Network Meta-Regression for Time-To-Event Outcomes: A Case Study in Relapsed Refractory Multiple Myeloma</td>
+</tr>
+<tr class="odd">
+<td>2024</td>
+<td>confirms it is open</td>
+<td>Advancing unanchored simulated treatment comparisons: A novel implementation and simulation study</td>
+</tr>
+<tr class="even">
+<td>2024</td>
+<td>confirms it is open</td>
+<td>Response to discussant comments on “NMA, the first 20 years”</td>
+</tr>
+<tr class="odd">
+<td>2025</td>
+<td>partly addresses it</td>
+<td>Effect modification and non-collapsibility together may lead to conflicting treatment decisions: A review of marginal and conditional estimands and recommendations for decision-making</td>
+</tr>
+<tr class="even">
+<td>2025</td>
+<td>partly addresses it</td>
+<td>Unanchored simulated treatment comparison on survival outcomes using parametric and Royston-Parmar models with application to lenvatinib plus pembrolizumab in renal cell carcinoma</td>
+</tr>
+<tr class="odd">
+<td>2025</td>
+<td>partly addresses it</td>
+<td>The hazards of using hazard ratios from proportional hazard models in indirect treatment comparisons</td>
+</tr>
+<tr class="even">
+<td>2025</td>
+<td>confirms it is open</td>
+<td>Network Meta-Analysis With Individual Participant-Level Data of Time-to-Event Outcomes Using Cox Regression</td>
+</tr>
+<tr class="odd">
+<td>2026</td>
+<td>partly addresses it</td>
+<td>Population-adjusted network meta-analyses provide new insights into the efficacy of treatment alternatives for metastatic castration-sensitive prostate cancer</td>
+</tr>
+<tr class="even">
+<td>2026</td>
+<td>partly addresses it</td>
+<td>Reframing Population-Adjusted Indirect Comparisons as a Transportability Problem: An Estimand-Based Perspective and Implications for Health Technology Assessment (Chandler &amp; Ishak; arXiv:2602.17041v3). The batch file points at media/media/Table_1_v2.pdf; the full LaTeX source Transportability_PAIC.tex sits in the same arXiv package and was read.</td>
+</tr>
+<tr class="odd">
+<td>2026</td>
+<td>confirms it is open</td>
+<td>Efficacy of selpercatinib as a first-line treatment for RET-fusion positive non-small-cell lung cancer: a novel two-stage Bayesian network meta-analysis</td>
+</tr>
+<tr class="even">
+<td>2026</td>
+<td>confirms it is open</td>
+<td>Re-evaluating Treatments for Advanced Urothelial Carcinoma Using Restricted Mean Survival Time: A Systematic Review and Network Meta-analysis</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
 <section id="related-problems" class="level2">
 <h2 class="anchored" data-anchor-id="related-problems">Related problems</h2>
 <div class="related-links">
@@ -495,9 +649,13 @@ ul.task-list li input[type="checkbox"] {
 <li><a href="../problems/CMP-10-component-paic-lacks-a-marginal-target-standardized-estimand.html">CMP-10 — Component PAIC lacks a marginal target-standardized estimand path</a></li>
 <li><a href="../problems/EST-03-non-collapsible-marginal-effects-are-not-portable-across-pop.html">EST-03 — Non-collapsible marginal effects are not portable across populations</a></li>
 <li><a href="../problems/EST-08-effect-scales-chosen-by-convention-rather-than-transportabil.html">EST-08 — Effect scales chosen by convention rather than transportability</a></li>
+<li><a href="../problems/EST-15-no-bound-for-effect-measure-non-transitivity-in-anchored-sur.html">EST-15 — No bound for effect-measure non-transitivity in anchored survival comparisons</a></li>
+<li><a href="../problems/HET-07-heterogeneity-structure-is-undefined-for-multi-parameter-sur.html">HET-07 — Heterogeneity structure is undefined for multi-parameter survival NMA</a></li>
 <li><a href="../problems/MIS-02-no-robustness-theory-for-censoring-weighted-survival-transpo.html">MIS-02 — No robustness theory for censoring-weighted survival transport</a></li>
 <li><a href="../problems/MOD-02-convenience-functional-forms-and-untested-flexible-alternati.html">MOD-02 — Convenience functional forms and untested flexible alternatives</a></li>
 <li><a href="../problems/MOD-06-no-tmle-or-rmst-targeted-estimator-for-population-adjusted-t.html">MOD-06 — No TMLE or RMST-targeted estimator for population-adjusted transport</a></li>
+<li><a href="../problems/OUT-22-no-consistency-test-for-vector-valued-effects-in-survival-nm.html">OUT-22 — No consistency test for vector-valued effects in survival NMA</a></li>
+<li><a href="../problems/OUT-24-no-rule-selects-the-common-rmst-horizon-across-unequal-follo.html">OUT-24 — No rule selects the common RMST horizon across unequal follow-up</a></li>
 </ul>
 </div>
 </section>

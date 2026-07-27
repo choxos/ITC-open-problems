@@ -343,6 +343,10 @@ ul.task-list li input[type="checkbox"] {
 <span class="menu-text">Agenda</span></a>
   </li>  
   <li class="nav-item">
+    <a class="nav-link" href="../chronology.html"> 
+<span class="menu-text">Chronology</span></a>
+  </li>  
+  <li class="nav-item">
     <a class="nav-link" href="../landscape.html"> 
 <span class="menu-text">Landscape</span></a>
   </li>  
@@ -383,6 +387,7 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#what-has-been-tried" id="toc-what-has-been-tried" class="nav-link" data-scroll-target="#what-has-been-tried">What has been tried</a></li>
   <li><a href="#probable-solution-or-research-direction" id="toc-probable-solution-or-research-direction" class="nav-link" data-scroll-target="#probable-solution-or-research-direction">Probable solution or research direction</a></li>
   <li><a href="#verification" id="toc-verification" class="nav-link" data-scroll-target="#verification">Verification</a></li>
+  <li><a href="#how-the-evidence-falls-in-time" id="toc-how-the-evidence-falls-in-time" class="nav-link" data-scroll-target="#how-the-evidence-falls-in-time">How the evidence falls in time</a></li>
   <li><a href="#related-problems" id="toc-related-problems" class="nav-link" data-scroll-target="#related-problems">Related problems</a></li>
   <li><a href="#source" id="toc-source" class="nav-link" data-scroll-target="#source">Source</a></li>
   </ul>
@@ -398,7 +403,7 @@ ul.task-list li input[type="checkbox"] {
   <div class="quarto-categories">
     <div class="quarto-category">Diagnostics &amp; empirical validation</div>
     <div class="quarto-category">Very high priority</div>
-    <div class="quarto-category">Unverifiable</div>
+    <div class="quarto-category">Partially addressed</div>
   </div>
   </div>
 
@@ -422,7 +427,7 @@ ul.task-list li input[type="checkbox"] {
 
 
 <div class="problem-meta">
-<p><span class="problem-id">DIA-02</span> <span class="verdict verdict-unverifiable">Unverifiable</span> <span class="chip chip-priority-very-high">Very high priority</span> <span class="chip chip-maturity-promising">Promising</span></p>
+<p><span class="problem-id">DIA-02</span> <span class="verdict verdict-partially-addressed">Partially addressed</span> <span class="chip chip-priority-very-high">Very high priority</span> <span class="chip chip-maturity-promising">Promising</span></p>
 </div>
 <div class="source-unsourced">
 <p><strong>Source note.</strong> This entry derives in part from a source document whose inline citations were ChatGPT interface tokens rather than references, and so resolve to nothing. Claims below are attributed to that document and were checked independently where possible; anything that could not be independently sourced is marked in the verification trail.</p>
@@ -469,12 +474,17 @@ ul.task-list li input[type="checkbox"] {
 <section id="verification" class="level2">
 <h2 class="anchored" data-anchor-id="verification">Verification</h2>
 <div class="verification-trail">
-<p><strong>Verdict.</strong> Unverifiable. Auditors disagreed and the disagreement was evidence-bearing on both sides.</p>
+<p><strong>Verdict.</strong> Partially addressed. Auditors disagreed and the disagreement was evidence-bearing on both sides. Reopened by the full-text reading: 1 finding from 1 paper survived both the reader and an independent second reviewer, so the verdict moves from unverifiable to partially-addressed, on a single finding.</p>
 <p><strong>The source titled this.</strong> “ESS reported alone and overlap diagnostics are not standardized” The title says software reports effective sample size alone, which the audit judged too strong given an implemented multi-metric weight panel and contrast-specific edge influence.</p>
 <p><strong>The source said.</strong> “Overlap is summarized by a single effective sample size, which cannot show the geometry of covariate support, where the analysis is extrapolating, or whether the supported region is relevant to the target contrast. The definitions and displays of overlap, ESS, extrapolation and modifier-balance diagnostics also differ between packages and publications, so two analyses of the same evidence report incomparable numbers.”</p>
 <p><strong>What was wrong with it.</strong> The claim was unattributed in the source and is now sourced: the literature auditor supplied Farinasso et al.&nbsp;2025 (doi:10.1016/j.vhri.2025.101088) for heterogeneous and incomplete diagnostic reporting, and a 2024 paper proposing three competing ESS calculations (doi:10.1186/s12874-024-02412-1) for the non-standardization of ESS itself. GPT-5.6 Sol read cpaic at commit 9d150e9 and found a multi-metric weight panel and contrast-specific edge influence already implemented, so the ESS-only claim fails there; the two auditors disagreed on whether the entry as written was supported or overstated, and the weaker reading is published here.</p>
 <p><strong>Dissent.</strong> literature dissented (open): This entry is source_unsourced; I found real references that support it. Farinasso et al.&nbsp;2025 scoping-reviewed 117 oncology MAICs and reports that only 3 fulfilled all NICE DSU recommendations and that among the least reported items was the distribution of weights, with mean sample-size reduction 44.9%. That is direct published evidence that diagnostic reporting practice is heterogeneous and suboptimal. Independently, a 2024 BMC Med Res Methodol paper proposes three new ESS calculations for population adjustment, which is itself evidence that no single ESS definition is fixed across packages and publications. I found no PAIC package or publication reporting local (region-specific) ESS, optimal-transport cost, convex-hull distance, out-of-distribution maps, balance on omitted moments, or influence alignment between IPD study edges and the decision contrast; those remain absent, though absence found by search is weaker evidence than the reporting review. codex dissented (overstated): C4 through C7 follow directly from ESS = (sum w)^2 / sum(w^2): the same weights can be reassigned to different covariate locations without changing ESS, despite different local support and contrast relevance. The claim that software reports only ESS and never computes contrast-specific influence is already false for cpaic at the requested commit. It exports <code>weight_diagnostics()</code> with ESS, entropy efficiency, weight variation, concentration, and residual balance, plus <code>edge_influence()</code> for a named treatment contrast. The latter is documented as approximate for multi-arm networks. Local ESS, convex-hull distance, density ratios, and transport costs are complementary diagnostics requiring careful definitions and validation, not established replacements for ESS. Cross-package standardization and fuller support-geometry diagnostics remain open.</p>
+<p><strong>Revised by the full-text reading.</strong> Applied 2026-07-26 full-text reading of the consolidated library (687 papers).</p>
 <dl>
+<dt>Verdict changed</dt>
+<dd>
+<strong>unverifiable -&gt; partially-addressed</strong> 1 surviving finding from: Geometric approaches to assessing the numerical feasibility . New citations: 10.1002/pst.2210
+</dd>
 <dt>Literature and prior-art check</dt>
 <dd>
 <strong>open / supported.</strong> This entry is source_unsourced; I found real references that support it. Farinasso et al.&nbsp;2025 scoping-reviewed 117 oncology MAICs and reports that only 3 fulfilled all NICE DSU recommendations and that among the least reported items was the distribution of weights, with mean sample-size reduction 44.9%. That is direct published evidence that diagnostic reporting practice is heterogeneous and suboptimal. Independently, a 2024 BMC Med Res Methodol paper proposes three new ESS calculations for population adjustment, which is itself evidence that no single ESS definition is fixed across packages and publications. I found no PAIC package or publication reporting local (region-specific) ESS, optimal-transport cost, convex-hull distance, out-of-distribution maps, balance on omitted moments, or influence alignment between IPD study edges and the decision contrast; those remain absent, though absence found by search is weaker evidence than the reporting review. Cites 10.1016/j.vhri.2025.101088: Sources the previously unsourced claim that PAIC diagnostic practice is heterogeneous and suboptimal, with hard numbers on non-reporting of weight distributions.. Cites 10.1186/s12874-024-02412-1: Existence of three competing new ESS calculations for population adjustment supports the claim that ESS definitions are not standardized. Retrieved at title/venue level only; I did not read the full text..
@@ -488,6 +498,69 @@ ul.task-list li input[type="checkbox"] {
 <code>R3:partially-solved(n=1) → R7:counter-and-support-both-present</code>
 </dd>
 </dl>
+</div>
+</section>
+<section id="how-the-evidence-falls-in-time" class="level2">
+<h2 class="anchored" data-anchor-id="how-the-evidence-falls-in-time">How the evidence falls in time</h2>
+<p>8 papers in the reviewed corpus bear on this problem, published 2012 to 2024. Partial progress is on the record, and later work still calls this open. Both belong in view.</p>
+<p>This problem is <strong>recurrent</strong>: three or more papers spanning at least eight years assert it independently. Sustained restatement by authors who mostly do not cite each other is the strongest evidence this reading can offer that a gap is real rather than one group’s framing.</p>
+<div class="table-scroll">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Year</th>
+<th>Says</th>
+<th>Paper</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>2012</td>
+<td>confirms it is open</td>
+<td>Sample size and power considerations in network meta-analysis</td>
+</tr>
+<tr class="even">
+<td>2018</td>
+<td>confirms it is open</td>
+<td>Quantifying and presenting overall evidence in network meta-analysis</td>
+</tr>
+<tr class="odd">
+<td>2019</td>
+<td>confirms it is open</td>
+<td>Alternative Weighting Approaches for Anchored Matching-Adjusted Indirect Comparisons via a Common Comparator</td>
+</tr>
+<tr class="even">
+<td>2019</td>
+<td>confirms it is open</td>
+<td>Population Adjustment Methods for Indirect Comparisons: A Review of National Institute for Health and Care Excellence Technology Appraisals</td>
+</tr>
+<tr class="odd">
+<td>2019</td>
+<td>confirms it is open</td>
+<td>Using Matching-Adjusted Indirect Comparisons and Network Meta-analyses to Compare Efficacy of Brexanolone Injection with Selective Serotonin Reuptake Inhibitors for Treating Postpartum Depression</td>
+</tr>
+<tr class="even">
+<td>2022</td>
+<td>partly addresses it</td>
+<td>Geometric approaches to assessing the numerical feasibility for conducting matching-adjusted indirect comparisons</td>
+</tr>
+<tr class="odd">
+<td>2023</td>
+<td>confirms it is open</td>
+<td>A Critical Appraisal of Matching-Adjusted Indirect Comparisons in Spinal Muscular Atrophy</td>
+</tr>
+<tr class="even">
+<td>2024</td>
+<td>confirms it is open</td>
+<td>Response to “Letter to the Editor Regarding ‘Matching-Adjusted Indirect Comparison of the Long-Term Efficacy Maintenance and Adverse Event Rates of Lebrikizumab vs.&nbsp;Dupilumab in Moderate to Severe Atopic Dermatitis’”</td>
+</tr>
+</tbody>
+</table>
 </div>
 </section>
 <section id="related-problems" class="level2">

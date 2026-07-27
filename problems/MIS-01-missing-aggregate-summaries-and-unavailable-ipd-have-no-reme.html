@@ -343,6 +343,10 @@ ul.task-list li input[type="checkbox"] {
 <span class="menu-text">Agenda</span></a>
   </li>  
   <li class="nav-item">
+    <a class="nav-link" href="../chronology.html"> 
+<span class="menu-text">Chronology</span></a>
+  </li>  
+  <li class="nav-item">
     <a class="nav-link" href="../landscape.html"> 
 <span class="menu-text">Landscape</span></a>
   </li>  
@@ -383,6 +387,7 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#what-has-been-tried" id="toc-what-has-been-tried" class="nav-link" data-scroll-target="#what-has-been-tried">What has been tried</a></li>
   <li><a href="#probable-solution-or-research-direction" id="toc-probable-solution-or-research-direction" class="nav-link" data-scroll-target="#probable-solution-or-research-direction">Probable solution or research direction</a></li>
   <li><a href="#verification" id="toc-verification" class="nav-link" data-scroll-target="#verification">Verification</a></li>
+  <li><a href="#how-the-evidence-falls-in-time" id="toc-how-the-evidence-falls-in-time" class="nav-link" data-scroll-target="#how-the-evidence-falls-in-time">How the evidence falls in time</a></li>
   <li><a href="#related-problems" id="toc-related-problems" class="nav-link" data-scroll-target="#related-problems">Related problems</a></li>
   <li><a href="#source" id="toc-source" class="nav-link" data-scroll-target="#source">Source</a></li>
   </ul>
@@ -398,7 +403,7 @@ ul.task-list li input[type="checkbox"] {
   <div class="quarto-categories">
     <div class="quarto-category">Missing data &amp; uncertainty propagation</div>
     <div class="quarto-category">Very high priority</div>
-    <div class="quarto-category">Unverifiable</div>
+    <div class="quarto-category">Partially addressed</div>
   </div>
   </div>
 
@@ -422,7 +427,7 @@ ul.task-list li input[type="checkbox"] {
 
 
 <div class="problem-meta">
-<p><span class="problem-id">MIS-01</span> <span class="verdict verdict-unverifiable">Unverifiable</span> <span class="chip chip-priority-very-high">Very high priority</span> <span class="chip chip-maturity-promising">Promising</span></p>
+<p><span class="problem-id">MIS-01</span> <span class="verdict verdict-partially-addressed">Partially addressed</span> <span class="chip chip-priority-very-high">Very high priority</span> <span class="chip chip-maturity-promising">Promising</span></p>
 </div>
 <div class="source-unsourced">
 <p><strong>Source note.</strong> This entry derives in part from a source document whose inline citations were ChatGPT interface tokens rather than references, and so resolve to nothing. Claims below are attributed to that document and were checked independently where possible; anything that could not be independently sourced is marked in the verification trail.</p>
@@ -465,12 +470,17 @@ ul.task-list li input[type="checkbox"] {
 <section id="verification" class="level2">
 <h2 class="anchored" data-anchor-id="verification">Verification</h2>
 <div class="verification-trail">
-<p><strong>Verdict.</strong> Unverifiable. Auditors disagreed and the disagreement was evidence-bearing on both sides.</p>
+<p><strong>Verdict.</strong> Partially addressed. Auditors disagreed and the disagreement was evidence-bearing on both sides. Reopened by the full-text reading: 4 findings from 4 papers survived both the reader and an independent second reviewer, so the verdict moves from unverifiable to partially-addressed.</p>
 <p><strong>The source titled this.</strong> “Three missingness layers in PAIC collapse to a complete-case default” The title says all three missingness layers collapse to a complete-case default, which the audit found too strong since the layers are handled differently and layer one has been closed by weighting.</p>
 <p><strong>The source said.</strong> “PAIC missingness has three distinct layers with different mechanisms: participant-level missing covariates or outcomes inside the IPD, trial-level non-reporting in the aggregate publication, and structurally unavailable IPD for whole studies. Packages default to complete-case handling that collapses all three, and standard imputation is not automatically compatible with the transport model, so imputations valid in the source need not be valid in the target.”</p>
 <p><strong>What was wrong with it.</strong> The three-layer taxonomy was unattributed in the source, and its central claim, that packages default to a complete-case handling that collapses all three layers, was too strong. The literature auditor supplied the missing source, Fang et al.&nbsp;2026 (doi:10.1007/s43441-026-00914-2), which states that the literature lacks guidance on handling missing data in MAIC and then closes layer one by weighting; the code auditor found that at commit 9d150e9 of the unreleased cpaic development package the layers are handled differently rather than collapsed, since cmlnmr() rejects missing covariates and outcomes outright, missing aggregate moments raise an error, and aggregate-only edges keep their published contrast.</p>
 <p><strong>Dissent.</strong> literature dissented (supported): Retrieved Fang, Li, Lai &amp; He (2026), Ther Innov Regul Sci 60(4):1103-1111, which both confirms the absence claim and partly closes it. The paper states outright: ‘However, the literature lacks guidance on how to handle missing data in the application of MAIC.’ That is a source asserting the absence, which is what the entry’s unsourced claims need. It then proposes a solution for layer one only: ‘we propose some weighting-based methods to handle missing data in the outcome variable and/or covariates when applying MAIC. These weights can be expressed as products of the inverse probability of not missing the outcomes and weights that account for the difference in baseline characteristics… Extensive simulation studies are conducted.’ So participant-level missing covariates and outcomes inside the IPD are now handled, by inverse-probability weighting nested inside the MAIC weights, with simulation evidence. The other two layers are untouched: trial-level non-reporting in the aggregate publication, and structurally unavailable IPD. Multiple imputation congenial with the transport model remains unbuilt (Fang et al.&nbsp;use weighting, not MI), as does MNAR sensitivity analysis and imputation of missing target summaries. maicplus 0.1.2 and outstandR 2.0.0 declare no missing-data dependency, consistent with the complete-case-default claim. codex dissented (open): C2 is a useful taxonomy, but complete-case analysis cannot collapse all three layers: it acts on individual records, while absent aggregate summaries and unavailable IPD create different identification or data-access problems. C3, C4, and C6 are unsourced prevalence or maturity claims. C5 is correct when the missing variables are required for identification. C7 is possible, not inevitable; dependence between missingness, study selection, and transport must be represented by an explicit causal or selection model. C8 and C9 are broadly sound as conditional recommendations. C10 is too prescriptive: treatment, outcome, study, and selection indicators belong in an imputation model only when their variation and causal roles require them, and a selection indicator cannot ordinarily be used in standard MI when target microdata do not exist. C11 is not universally required, although MNAR sensitivity analysis is warranted when MAR is not defensible. C12 requires auxiliary information or an identified model; missing target summaries cannot simply be imputed from nothing. C13 uses the wrong criterion: negligible missingness is neither necessary nor sufficient for complete-case validity. At cpaic commit 9d150e9, cstc() delegates NA handling to glm()/coxph(), cmaic() rejects nonfinite weights caused by missing matching covariates, cmlnmr() explicitly rejects missing covariates and outcomes, missing AgD moments cause errors, and aggregate-only edges are retained rather than complete-cased. Thus cpaic does not collapse the three layers, although it lacks a coherent missing-data framework. The issue is decision-critical only when missingness or data availability threatens identification or materially changes precision.</p>
+<p><strong>Revised by the full-text reading.</strong> Applied 2026-07-26 full-text reading of the consolidated library (687 papers).</p>
 <dl>
+<dt>Verdict changed</dt>
+<dd>
+<strong>unverifiable -&gt; partially-addressed</strong> 4 surviving findings from: A Bayesian approach to discrete multiple outcome network met; A Bayesian hierarchical model for network meta-analysis of m; Addressing challenges with Matching-Adjusted Indirect Compar; Allowing for uncertainty due to missing continuous outcome d.&nbsp;New citations: 10.1002/sim.6365, 10.1093/biostatistics/kxx025, 10.1186/s12874-025-02500-w, 10.1371/journal.pone.0231876
+</dd>
 <dt>Literature and prior-art check</dt>
 <dd>
 <strong>partially-solved / supported.</strong> Retrieved Fang, Li, Lai &amp; He (2026), Ther Innov Regul Sci 60(4):1103-1111, which both confirms the absence claim and partly closes it. The paper states outright: ‘However, the literature lacks guidance on how to handle missing data in the application of MAIC.’ That is a source asserting the absence, which is what the entry’s unsourced claims need. It then proposes a solution for layer one only: ‘we propose some weighting-based methods to handle missing data in the outcome variable and/or covariates when applying MAIC. These weights can be expressed as products of the inverse probability of not missing the outcomes and weights that account for the difference in baseline characteristics… Extensive simulation studies are conducted.’ So participant-level missing covariates and outcomes inside the IPD are now handled, by inverse-probability weighting nested inside the MAIC weights, with simulation evidence. The other two layers are untouched: trial-level non-reporting in the aggregate publication, and structurally unavailable IPD. Multiple imputation congenial with the transport model remains unbuilt (Fang et al.&nbsp;use weighting, not MI), as does MNAR sensitivity analysis and imputation of missing target summaries. maicplus 0.1.2 and outstandR 2.0.0 declare no missing-data dependency, consistent with the complete-case-default claim. Cites doi:10.1007/s43441-026-00914-2: Closes layer one (participant-level missing outcomes and covariates inside the IPD) with IPW-type weights multiplied into the MAIC weights, evaluated by simulation. Also supplies a citable assertion that the missing-data guidance gap in MAIC was real..
@@ -486,6 +496,95 @@ ul.task-list li input[type="checkbox"] {
 </dl>
 </div>
 </section>
+<section id="how-the-evidence-falls-in-time" class="level2">
+<h2 class="anchored" data-anchor-id="how-the-evidence-falls-in-time">How the evidence falls in time</h2>
+<p>13 papers in the reviewed corpus bear on this problem, published 2014 to 2026. Partial progress is on the record, and later work still calls this open. Both belong in view.</p>
+<p>This problem is <strong>recurrent</strong>: three or more papers spanning at least eight years assert it independently. Sustained restatement by authors who mostly do not cite each other is the strongest evidence this reading can offer that a gap is real rather than one group’s framing.</p>
+<p>It is also being <strong>closed in pieces</strong>: partial results come from more than one paper in more than one year, each covering a different part.</p>
+<div class="table-scroll">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Year</th>
+<th>Says</th>
+<th>Paper</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>2014</td>
+<td>partly addresses it</td>
+<td>Allowing for uncertainty due to missing continuous outcome data in pairwise and network meta-analysis</td>
+</tr>
+<tr class="even">
+<td>2018</td>
+<td>partly addresses it</td>
+<td>A Bayesian hierarchical model for network meta-analysis of multiple diagnostic tests</td>
+</tr>
+<tr class="odd">
+<td>2018</td>
+<td>confirms it is open</td>
+<td>A systematic survey shows that reporting and handling of missing outcome data in networks of interventions is poor</td>
+</tr>
+<tr class="even">
+<td>2020</td>
+<td>partly addresses it</td>
+<td>A Bayesian approach to discrete multiple outcome network meta-analysis</td>
+</tr>
+<tr class="odd">
+<td>2020</td>
+<td>confirms it is open</td>
+<td>Multilevel network meta-regression for population-adjusted treatment comparisons</td>
+</tr>
+<tr class="even">
+<td>2020</td>
+<td>confirms it is open</td>
+<td>Extending inferences from a randomized trial to a new target population (Dahabreh, Robertson, Steingrimsson, Stuart, Hernan; tutorial, arXiv:1805.00550v3)</td>
+</tr>
+<tr class="odd">
+<td>2020</td>
+<td>confirms it is open</td>
+<td>Statistical analyses and quality of individual participant data network meta-analyses were suboptimal: a cross-sectional study</td>
+</tr>
+<tr class="even">
+<td>2022</td>
+<td>confirms it is open</td>
+<td>Two-stage matching-adjusted indirect comparison</td>
+</tr>
+<tr class="odd">
+<td>2024</td>
+<td>confirms it is open</td>
+<td>Implementing Multilevel Network Meta-Regression for Time-To-Event Outcomes: A Case Study in Relapsed Refractory Multiple Myeloma</td>
+</tr>
+<tr class="even">
+<td>2024</td>
+<td>confirms it is open</td>
+<td>Combining randomized and non-randomized data to predict heterogeneous effects of competing treatments</td>
+</tr>
+<tr class="odd">
+<td>2025</td>
+<td>partly addresses it</td>
+<td>Addressing challenges with Matching-Adjusted Indirect Comparisons to demonstrate the comparative effectiveness of entrectinib in metastatic ROS-1 positive Non-Small Cell Lung Cancer</td>
+</tr>
+<tr class="even">
+<td>2025</td>
+<td>confirms it is open</td>
+<td>Network Meta-Analysis With Individual Participant-Level Data of Time-to-Event Outcomes Using Cox Regression</td>
+</tr>
+<tr class="odd">
+<td>2026</td>
+<td>confirms it is open</td>
+<td>Population-adjusted network meta-analyses provide new insights into the efficacy of treatment alternatives for metastatic castration-sensitive prostate cancer</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
 <section id="related-problems" class="level2">
 <h2 class="anchored" data-anchor-id="related-problems">Related problems</h2>
 <div class="related-links">
@@ -494,6 +593,7 @@ ul.task-list li input[type="checkbox"] {
 <li><a href="../problems/COV-07-unknown-target-joint-covariate-distribution.html">COV-07 — Unknown target joint covariate distribution</a></li>
 <li><a href="../problems/EVB-01-selective-ipd-availability-threatens-transport-across-the-ne.html">EVB-01 — Selective IPD availability threatens transport across the network</a></li>
 <li><a href="../problems/EVB-05-no-reporting-standard-covers-what-population-adjustment-need.html">EVB-05 — No reporting standard covers what population adjustment needs</a></li>
+<li><a href="../problems/MIS-05-missing-outcome-methods-do-not-cover-nma-inconsistency-and-r.html">MIS-05 — Missing-outcome methods do not cover NMA inconsistency and rankings</a></li>
 <li><a href="../problems/QBA-09-no-sensitivity-parameters-index-departures-from-censoring-at.html">QBA-09 — No sensitivity parameters index departures from censoring at random</a></li>
 <li><a href="../problems/QBA-10-target-population-and-joint-distribution-uncertainty.html">QBA-10 — Target population and joint-distribution uncertainty</a></li>
 </ul>

@@ -343,6 +343,10 @@ ul.task-list li input[type="checkbox"] {
 <span class="menu-text">Agenda</span></a>
   </li>  
   <li class="nav-item">
+    <a class="nav-link" href="../chronology.html"> 
+<span class="menu-text">Chronology</span></a>
+  </li>  
+  <li class="nav-item">
     <a class="nav-link" href="../landscape.html"> 
 <span class="menu-text">Landscape</span></a>
   </li>  
@@ -383,6 +387,7 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#what-has-been-tried" id="toc-what-has-been-tried" class="nav-link" data-scroll-target="#what-has-been-tried">What has been tried</a></li>
   <li><a href="#probable-solution-or-research-direction" id="toc-probable-solution-or-research-direction" class="nav-link" data-scroll-target="#probable-solution-or-research-direction">Probable solution or research direction</a></li>
   <li><a href="#verification" id="toc-verification" class="nav-link" data-scroll-target="#verification">Verification</a></li>
+  <li><a href="#how-the-evidence-falls-in-time" id="toc-how-the-evidence-falls-in-time" class="nav-link" data-scroll-target="#how-the-evidence-falls-in-time">How the evidence falls in time</a></li>
   <li><a href="#related-problems" id="toc-related-problems" class="nav-link" data-scroll-target="#related-problems">Related problems</a></li>
   <li><a href="#source" id="toc-source" class="nav-link" data-scroll-target="#source">Source</a></li>
   </ul>
@@ -398,7 +403,7 @@ ul.task-list li input[type="checkbox"] {
   <div class="quarto-categories">
     <div class="quarto-category">Software, benchmarks &amp; interface standards</div>
     <div class="quarto-category">Very high priority</div>
-    <div class="quarto-category">Confirmed open</div>
+    <div class="quarto-category">Partially addressed</div>
   </div>
   </div>
 
@@ -422,7 +427,7 @@ ul.task-list li input[type="checkbox"] {
 
 
 <div class="problem-meta">
-<p><span class="problem-id">SFW-03</span> <span class="verdict verdict-confirmed-open">Confirmed open</span> <span class="chip chip-priority-very-high">Very high priority</span> <span class="chip chip-maturity-emerging">Emerging</span></p>
+<p><span class="problem-id">SFW-03</span> <span class="verdict verdict-partially-addressed">Partially addressed</span> <span class="chip chip-priority-very-high">Very high priority</span> <span class="chip chip-maturity-emerging">Emerging</span></p>
 </div>
 <section id="statement" class="level2">
 <h2 class="anchored" data-anchor-id="statement">Statement</h2>
@@ -462,10 +467,15 @@ ul.task-list li input[type="checkbox"] {
 <section id="verification" class="level2">
 <h2 class="anchored" data-anchor-id="verification">Verification</h2>
 <div class="verification-trail">
-<p><strong>Verdict.</strong> Confirmed open. Auditors agreed the problem is open and no counterevidence surfaced.</p>
+<p><strong>Verdict.</strong> Partially addressed. Auditors agreed the problem is open and no counterevidence surfaced. Reopened by the full-text reading: 1 finding from 1 paper survived both the reader and an independent second reviewer, so the verdict moves from confirmed-open to partially-addressed, on a single finding.</p>
 <p><strong>The source said.</strong> “The report specifies ten items every methodological ITC/PAIC package should contain: analytic unit tests for special cases; simulation-based calibration for Bayesian models; numerical equivalence tests against established software where models coincide; tests that non-estimable contrasts return no data-driven estimate; tests for multi-arm covariance; deliberate failure tests for separation, poor overlap, invalid target moments and non-positive-definite correlations; reproducible vignettes with tracked simulation code; model cards recording estimand, target, priors, integration and assumptions; versioned expected outputs; and continuous integration across R and Stan/toolchain versions. No package in the field is documented as meeting this bar.”</p>
 <p><strong>What was wrong with it.</strong> GPT-5.6 Sol judged the universal framing overstated: several of the ten items are conditional on a package having the relevant model feature or dependency, model cards are desirable rather than a condition for mathematical correctness, and versioned expected outputs become brittle unless stochastic tolerances and inferential invariants are specified. The claim that no package meets the bar also needs qualifying, since the auditors found multinma’s continuous integration and published-example suite and cpaic’s analytic, non-estimability and cross-package equivalence tests already meeting parts of it.</p>
+<p><strong>Revised by the full-text reading.</strong> Applied 2026-07-26 full-text reading of the consolidated library (687 papers).</p>
 <dl>
+<dt>Verdict changed</dt>
+<dd>
+<strong>confirmed-open -&gt; partially-addressed</strong> 1 surviving finding from: Validating Bayesian Inference Algorithms with Simulation-Bas
+</dd>
 <dt>Literature and prior-art check</dt>
 <dd>
 <strong>open / supported.</strong> I retrieved section 16.5 of the source document (lines 2309-2322). It contains exactly ten numbered items and they match the ten claims_to_check one for one, in order, including ‘simulation-based calibration for Bayesian models’, ‘tests that non-estimable contrasts return no data-driven estimate’, ‘model cards recording estimand, target, priors, integration, and assumptions’ and ‘continuous integration across R and Stan/toolchain versions’. The ‘exactly ten items’ claim is exact. On the empirical claim that no package meets the bar, I inspected the strongest candidate: multinma has GitHub Actions for R-CMD-check, R-CMD-check-HTML5, rhub and test-coverage, and 34 testthat files of which 13 are test-example_*.R reproductions of published NICE TSD and paper examples. That is CI plus published-example reproduction, with no visible simulation-based calibration, non-estimability assertion or model card, which is precisely the pattern the entry describes. Claims 1-10 are normative and not falsifiable by literature.
@@ -481,6 +491,39 @@ ul.task-list li input[type="checkbox"] {
 </dl>
 </div>
 </section>
+<section id="how-the-evidence-falls-in-time" class="level2">
+<h2 class="anchored" data-anchor-id="how-the-evidence-falls-in-time">How the evidence falls in time</h2>
+<p>2 papers in the reviewed corpus bear on this problem, published 2014 to 2018. The most recent paper to touch this reports progress on it, and every paper calling it open is older.</p>
+<p><strong>Does the later work answer the earlier work?</strong> Put to an independent reviewer with the older and newer claims side by side, it judged that the later work answers a component of it, leaving a named part (medium confidence). Simulation-based calibration is one concrete validation component, and the later paper makes that component substantially more actionable. It neither defines nor demonstrates the full ITC/PAIC package-validation standard, especially for non-Bayesian features, failure behavior, estimability, and package documentation. What remains: A package-level, feature-conditional minimum validation standard covering the full ten-item bar, plus evidence that ITC or PAIC packages meet it.</p>
+<div class="table-scroll">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Year</th>
+<th>Says</th>
+<th>Paper</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>2014</td>
+<td>confirms it is open</td>
+<td>A Microsoft-Excel-based tool for running and critically appraising network meta-analyses: an overview and application of NetMetaXL</td>
+</tr>
+<tr class="even">
+<td>2018</td>
+<td>partly addresses it</td>
+<td>Validating Bayesian Inference Algorithms with Simulation-Based Calibration (Talts, Betancourt, Simpson, Vehtari, Gelman; arXiv:1804.06788v2)</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
 <section id="related-problems" class="level2">
 <h2 class="anchored" data-anchor-id="related-problems">Related problems</h2>
 <div class="related-links">
@@ -488,8 +531,10 @@ ul.task-list li input[type="checkbox"] {
 <li><a href="../problems/CMP-26-unreleased-cpaic-has-no-tracked-simulation-benchmark-or-repl.html">CMP-26 — Unreleased cpaic has no tracked simulation benchmark or replication</a></li>
 <li><a href="../problems/DEC-04-no-paic-specific-reporting-standard-or-credibility-appraisal.html">DEC-04 — No PAIC-specific reporting standard or credibility appraisal tool</a></li>
 <li><a href="../problems/DIS-10-multinma-s-baseline-synthesis-bridge-is-an-unmerged-pull-req.html">DIS-10 — multinma’s baseline-synthesis bridge is an unmerged pull request</a></li>
+<li><a href="../problems/EST-16-synthetic-patient-indirect-comparisons-lack-a-validation-sta.html">EST-16 — Synthetic-patient indirect comparisons lack a validation standard</a></li>
 <li><a href="../problems/OVL-02-ess-is-an-insufficient-overlap-diagnostic-and-no-battery-is-.html">OVL-02 — ESS is an insufficient overlap diagnostic and no battery is agreed</a></li>
 <li><a href="../problems/QBA-28-reference-qba-software-and-a-minimum-reporting-standard.html">QBA-28 — Reference QBA software and a minimum reporting standard</a></li>
+<li><a href="../problems/SFW-17-no-end-to-end-error-propagation-study-for-automated-synthesi.html">SFW-17 — No end-to-end error propagation study for automated synthesis pipelines</a></li>
 </ul>
 </div>
 </section>

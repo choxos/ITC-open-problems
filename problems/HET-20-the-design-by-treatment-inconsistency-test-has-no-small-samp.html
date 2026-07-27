@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="description" content="The design-by-treatment interaction model is the standard global consistency check in network meta-analysis, and it is applied by referring a Wald statistic for all inconsistency parameters to a chi-squared distribution with degrees of freedom equal to their number. That reference distribution is derived treating the within-design heterogeneity variance as known, so its accuracy improves as the degrees of freedom rise and as within-design heterogeneity falls; the failure is therefore directional, since with few degrees of freedom and appreciable within-design heterogeneity a small p-value read as evidence of inconsistency can be an artifact of the approximation rather than a direct-indirect conflict. The configuration that would make the approximation safe is not the one real networks have: across 201 published networks the median number of loops was three and the median number of inconsistency parameters four, 186 of 201 networks (92.5 percent) contained at least one comparison informed by a single study, and the test returned p below 0.05 in 14 percent of networks and below 0.10 in 20 percent (Veroniki et al.&nbsp;2021, doi:10.1186/s12874-021-01401-y). No corrected null, small-sample or resampling calibration, or reported type I error rate exists for the test as it is run in netmeta and in the Stata network suite. The nearest measurement covers a different regime: false-positive rates of 15.2 to 22.8 percent were reported for the graph-theoretical between-designs Q statistic at a nominal 0.20 level, but only for networks of at most five treatments with five two-arm studies per direct comparison and tau-squared fixed at 0.01 or 0.1 (Kiefer et al.&nbsp;2020, doi:10.1186/s12874-020-0917-3), which is the well-determined end of the range rather than the sparse, heterogeneous end where the approximation is suspect. This is a different problem from the documented low power of global inconsistency tests, which concerns false negatives under a correct null; what is unknown here is whether the null holds at all.">
+
+<title>The design-by-treatment inconsistency test has no small-sample null – Open Problems in ITC &amp; PAIC</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-b758ccaa5987ceb1b75504551e579abf.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-03d47695bc5f811f7e6896b5de8ee1f3.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-9a2863f3190aa48dadd243fa71713907.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-03d47695bc5f811f7e6896b5de8ee1f3.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": true,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+</head>
+
+<body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">Open Problems in ITC &amp; PAIC</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../catalog.html"> 
+<span class="menu-text">Catalog</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-categories" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Categories</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-categories">    
+        <li>
+    <a class="dropdown-item" href="../categories/estimands.html">
+ <span class="dropdown-text">Estimands &amp; target populations</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/identification.html">
+ <span class="dropdown-text">Identification, transitivity &amp; conditional constancy</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/qba.html">
+ <span class="dropdown-text">Quantitative bias analysis for unanchored PAIC</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/overlap.html">
+ <span class="dropdown-text">Positivity, overlap &amp; extrapolation</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/covariates.html">
+ <span class="dropdown-text">Covariates: selection, target moments, measurement</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/model-specification.html">
+ <span class="dropdown-text">Model specification, double robustness &amp; targeted learning</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/heterogeneity.html">
+ <span class="dropdown-text">Heterogeneity, consistency &amp; multi-arm structure</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/disconnected.html">
+ <span class="dropdown-text">Disconnected networks &amp; bridges</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/component.html">
+ <span class="dropdown-text">Component methods (CNMA and component PAIC)</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/outcomes.html">
+ <span class="dropdown-text">Outcome-specific problems</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/missing-data.html">
+ <span class="dropdown-text">Missing data &amp; uncertainty propagation</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/diagnostics.html">
+ <span class="dropdown-text">Diagnostics &amp; empirical validation</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/computation.html">
+ <span class="dropdown-text">Computation &amp; reproducibility</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/decision.html">
+ <span class="dropdown-text">Decision analysis, regulation &amp; reporting</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/evidence-base.html">
+ <span class="dropdown-text">Evidence-base construction &amp; data access</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/adjacent-methods.html">
+ <span class="dropdown-text">Adjacent-field methods</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/software.html">
+ <span class="dropdown-text">Software, benchmarks &amp; interface standards</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="../agenda.html"> 
+<span class="menu-text">Agenda</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../chronology.html"> 
+<span class="menu-text">Chronology</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../landscape.html"> 
+<span class="menu-text">Landscape</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../methods.html"> 
+<span class="menu-text">How this was verified</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../references.html"> 
+<span class="menu-text">References</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/choxos/ITC-open-problems"> <i class="bi bi-github" role="img" aria-label="GitHub repository">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active" data-toc-expanded="99">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#statement" id="toc-statement" class="nav-link active" data-scroll-target="#statement">Statement</a></li>
+  <li><a href="#why-it-is-open" id="toc-why-it-is-open" class="nav-link" data-scroll-target="#why-it-is-open">Why it is open</a></li>
+  <li><a href="#what-has-been-tried" id="toc-what-has-been-tried" class="nav-link" data-scroll-target="#what-has-been-tried">What has been tried</a></li>
+  <li><a href="#probable-solution-or-research-direction" id="toc-probable-solution-or-research-direction" class="nav-link" data-scroll-target="#probable-solution-or-research-direction">Probable solution or research direction</a></li>
+  <li><a href="#verification" id="toc-verification" class="nav-link" data-scroll-target="#verification">Verification</a></li>
+  <li><a href="#related-problems" id="toc-related-problems" class="nav-link" data-scroll-target="#related-problems">Related problems</a></li>
+  <li><a href="#source" id="toc-source" class="nav-link" data-scroll-target="#source">Source</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/choxos/ITC-open-problems/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">The design-by-treatment inconsistency test has no small-sample null</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">Heterogeneity, consistency &amp; multi-arm structure</div>
+    <div class="quarto-category">High priority</div>
+    <div class="quarto-category">Confirmed open</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    The design-by-treatment interaction model is the standard global consistency check in network meta-analysis, and it is applied by referring a Wald statistic for all inconsistency parameters to a chi-squared distribution with degrees of freedom equal to their number. That reference distribution is derived treating the within-design heterogeneity variance as known, so its accuracy improves as the degrees of freedom rise and as within-design heterogeneity falls; the failure is therefore directional, since with few degrees of freedom and appreciable within-design heterogeneity a small p-value read as evidence of inconsistency can be an artifact of the approximation rather than a direct-indirect conflict. The configuration that would make the approximation safe is not the one real networks have: across 201 published networks the median number of loops was three and the median number of inconsistency parameters four, 186 of 201 networks (92.5 percent) contained at least one comparison informed by a single study, and the test returned p below 0.05 in 14 percent of networks and below 0.10 in 20 percent (Veroniki et al.&nbsp;2021, doi:10.1186/s12874-021-01401-y). No corrected null, small-sample or resampling calibration, or reported type I error rate exists for the test as it is run in netmeta and in the Stata network suite. The nearest measurement covers a different regime: false-positive rates of 15.2 to 22.8 percent were reported for the graph-theoretical between-designs Q statistic at a nominal 0.20 level, but only for networks of at most five treatments with five two-arm studies per direct comparison and tau-squared fixed at 0.01 or 0.1 (Kiefer et al.&nbsp;2020, doi:10.1186/s12874-020-0917-3), which is the well-determined end of the range rather than the sparse, heterogeneous end where the approximation is suspect. This is a different problem from the documented low power of global inconsistency tests, which concerns false negatives under a correct null; what is unknown here is whether the null holds at all.
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="problem-meta">
+<p><span class="problem-id">HET-20</span> <span class="verdict verdict-confirmed-open">Confirmed open</span> <span class="chip chip-priority-high">High priority</span> <span class="chip chip-maturity-established">Established</span> <span class="chip">Tractability 4/5</span></p>
+</div>
+<section id="statement" class="level2">
+<h2 class="anchored" data-anchor-id="statement">Statement</h2>
+<p>The design-by-treatment interaction model is the standard global consistency check in network meta-analysis, and it is applied by referring a Wald statistic for all inconsistency parameters to a chi-squared distribution with degrees of freedom equal to their number. That reference distribution is derived treating the within-design heterogeneity variance as known, so its accuracy improves as the degrees of freedom rise and as within-design heterogeneity falls; the failure is therefore directional, since with few degrees of freedom and appreciable within-design heterogeneity a small p-value read as evidence of inconsistency can be an artifact of the approximation rather than a direct-indirect conflict. The configuration that would make the approximation safe is not the one real networks have: across 201 published networks the median number of loops was three and the median number of inconsistency parameters four, 186 of 201 networks (92.5 percent) contained at least one comparison informed by a single study, and the test returned p below 0.05 in 14 percent of networks and below 0.10 in 20 percent (Veroniki et al.&nbsp;2021, doi:10.1186/s12874-021-01401-y). No corrected null, small-sample or resampling calibration, or reported type I error rate exists for the test as it is run in netmeta and in the Stata network suite. The nearest measurement covers a different regime: false-positive rates of 15.2 to 22.8 percent were reported for the graph-theoretical between-designs Q statistic at a nominal 0.20 level, but only for networks of at most five treatments with five two-arm studies per direct comparison and tau-squared fixed at 0.01 or 0.1 (Kiefer et al.&nbsp;2020, doi:10.1186/s12874-020-0917-3), which is the well-determined end of the range rather than the sparse, heterogeneous end where the approximation is suspect. This is a different problem from the documented low power of global inconsistency tests, which concerns false negatives under a correct null; what is unknown here is whether the null holds at all.</p>
+</section>
+<section id="why-it-is-open" class="level2">
+<h2 class="anchored" data-anchor-id="why-it-is-open">Why it is open</h2>
+<p>The statistic’s distribution depends on a nuisance parameter, the within-design heterogeneity variance, that is estimated and then conditioned on as though known, and it is least well determined precisely when designs contribute one or two studies each, so the approximation error is largest where the test is most used. Refinements for exactly this difficulty exist one level up, in multivariate meta-analysis and meta-regression with an estimated between-study covariance matrix (Jackson and Riley 2013, doi:10.1002/sim.5957), but nobody has carried them into the design-by-treatment decomposition or shown what they cost in effective degrees of freedom when the number of designs is small. Simulation work on network consistency screening has scored decision rates for a menu of statistics rather than the null calibration of any one of them, so the type I error rate of the design-by-treatment test at realistic network topologies is not among the quantities anyone has measured. Nothing in practice forces the issue, because a global test that returns a small p-value is read as a finding rather than as a diagnostic of its own approximation, and the two candidate explanations produce identical output. The test meanwhile feeds prevalence estimates, CINeMA and GRADE inconsistency ratings and the decision whether a network may be pooled at all, so a miscalibrated null propagates into appraisal without ever surfacing as a statistical failure.</p>
+</section>
+<section id="what-has-been-tried" class="level2">
+<h2 class="anchored" data-anchor-id="what-has-been-tried">What has been tried</h2>
+<div class="table-scroll">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Work</th>
+<th>What it contributes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><a href="https://doi.org/10.1002/jrsm.1044">Higgins, Jackson, Barrett, Lu, Ades and White 2012, Consistency and inconsistency in network meta-analysis: concepts and models for multi-arm studies, Research Synthesis Methods 3:98-110</a></td>
+<td>Defines the design-by-treatment interaction model, the framework in which all inconsistency parameters are tested jointly; the model is stated without a small-sample distributional theory for the resulting test.</td>
+</tr>
+<tr class="even">
+<td><a href="https://doi.org/10.1002/jrsm.1045">White, Barrett, Jackson and Higgins 2012, Consistency and inconsistency in network meta-analysis: model estimation using multivariate meta-regression, Research Synthesis Methods 3:111-125</a></td>
+<td>Gives the multivariate meta-regression estimation route and the Wald test of all inconsistency parameters that constitutes the global check in practice, with the heterogeneity variance plugged in.</td>
+</tr>
+<tr class="odd">
+<td><a href="https://doi.org/10.1002/sim.6188">Jackson, Barrett, Rice, White and Higgins 2014, A design-by-treatment interaction model for network meta-analysis with random inconsistency effects, Statistics in Medicine 33:3639-3654</a></td>
+<td>Extends the model to random inconsistency effects, adding a second variance component that is also estimated and then conditioned on when the global test is formed.</td>
+</tr>
+<tr class="even">
+<td><a href="https://doi.org/10.1186/s12874-021-01401-y">Veroniki, Tsokani, White, Schwarzer et al.&nbsp;2021, Prevalence of evidence of inconsistency and its association with network structural characteristics in 201 published networks of interventions, BMC Medical Research Methodology 21</a></td>
+<td>Applies the test to 201 published networks, reports the structural characteristics that make the chi-squared reference doubtful (median three loops, median four inconsistency parameters, 92.5 percent of networks with at least one single-study comparison), and states in its limitations that validity improves with more degrees of freedom and smaller within-design heterogeneity, without proposing a remedy.</td>
+</tr>
+<tr class="odd">
+<td><a href="https://doi.org/10.1186/s12874-020-0917-3">Kiefer, Sturtz and Bender 2020, A simulation study to compare different estimation approaches for network meta-analysis and corresponding methods to evaluate the consistency assumption, BMC Medical Research Methodology 20</a></td>
+<td>The only simulation reporting false-positive rates for global consistency screens; the between-designs Q statistic gave 15.2 to 22.8 percent at a nominal 0.20 level, but only for networks of at most five treatments, two-arm studies, five studies per direct comparison and tau-squared of 0.01 or 0.1, which does not cover the sparse, heterogeneous regime at issue.</td>
+</tr>
+<tr class="even">
+<td><a href="https://doi.org/10.1002/sim.5957">Jackson and Riley 2014, A refined method for multivariate meta-analysis and meta-regression, Statistics in Medicine 33:541-554</a></td>
+<td>Improves inference in multivariate meta-analysis and meta-regression when the between-study covariance matrix is estimated rather than known; this is the closest available template for a corrected null and it has not been carried into the design-by-treatment decomposition.</td>
+</tr>
+<tr class="odd">
+<td><a href="https://doi.org/10.1186/1471-2288-13-35">Krahn, Binder and Konig 2013, A graphical tool for locating inconsistency in network meta-analyses, BMC Medical Research Methodology 13:35; implemented as decomp.design() in netmeta 3.6-1</a></td>
+<td>The decomposition of the network Q statistic into within-design heterogeneity and between-design inconsistency that netmeta reports, with chi-squared p-values and no small-sample correction.</td>
+</tr>
+<tr class="even">
+<td><a href="https://doi.org/10.1186/s12916-016-0764-6">Zarin, Veroniki, Nincic, Vafaei et al.&nbsp;2017, Characteristics and knowledge synthesis approach for 456 network meta-analyses: a scoping review, BMC Medicine 15</a></td>
+<td>The assembled collection of published networks from which the 201-network sample was drawn, so real topologies and design sparsity are available as a simulation grid rather than having to be invented; it was served programmatically by the nmadb package, which was archived from CRAN on 2025-01-23 and is now available only from the archive.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="probable-solution-or-research-direction" class="level2">
+<h2 class="anchored" data-anchor-id="probable-solution-or-research-direction">Probable solution or research direction</h2>
+<p>Derive or approximate the null distribution of the design-by-treatment Wald statistic with the within-design heterogeneity variance estimated rather than known, taking the refined multivariate meta-analysis and meta-regression inference of Jackson and Riley as the starting template and reporting the effective degrees of freedom it implies. Where an analytic correction is unattractive, calibrate by parametric bootstrap or by permutation across designs, and ship the corrected p-value alongside decomp.design so that the corrected version is what practice actually uses. Then measure what is missing: simulate at the topologies that occur, drawing network structures from the published collections that already exist rather than constructing five-treatment examples, and report type I error as a function of inconsistency degrees of freedom, within-design heterogeneity and the presence of multi-arm trials, so the region in which the chi-squared reference is safe can be stated rather than assumed. Until that exists, report the inconsistency degrees of freedom and the estimated within-design heterogeneity next to every design-by-treatment p-value, since those are the two quantities that decide whether the p-value can be believed.</p>
+</section>
+<section id="verification" class="level2">
+<h2 class="anchored" data-anchor-id="verification">Verification</h2>
+<div class="verification-trail">
+<p><strong>Verdict.</strong> Confirmed open. One reader proposed this and the reviewer accepted it as a well-posed calibration problem specific to the design-by-treatment test, distinct from low power and from the general non-testability of transitivity. The evidence is a single empirical study whose authors record the concern in a limitations paragraph and propose no remedy, which is a thin basis; the accompanying network characteristics and the absence of any published calibration make the gap credible rather than proven.</p>
+<p><strong>Revised by the full-text reading.</strong> Applied 2026-07-26 full-text reading of the consolidated library (687 papers).</p>
+<dl>
+<dt>Citation corrected</dt>
+<dd>
+<strong>normalized a citation year: ‘Jackson and Riley 2013, A refined method for multivariate meta-analysis and meta-regression, Statistics in Medicine 33:541-554’ -&gt; ‘Jackson and Riley 2014, A refined method for multivariate meta-analysis and meta-regression, Statistics in Medicine 33:541-554’</strong> 10.1002/sim.5957 is cited with two different years across the registry. CrossRef gives 2013 online and 2014 in print; the issue year is used throughout.
+</dd>
+</dl>
+</div>
+</section>
+<section id="related-problems" class="level2">
+<h2 class="anchored" data-anchor-id="related-problems">Related problems</h2>
+<div class="related-links">
+<ul>
+<li><a href="../problems/HET-03-single-shared-heterogeneity-variance-across-classes-and-popu.html">HET-03 — Single shared heterogeneity variance across classes and populations</a></li>
+<li><a href="../problems/HET-04-node-splitting-compares-paths-without-standardizing-to-a-tar.html">HET-04 — Node splitting compares paths without standardizing to a target</a></li>
+<li><a href="../problems/IDN-01-transitivity-and-conditional-constancy-cannot-be-tested-in-s.html">IDN-01 — Transitivity and conditional constancy cannot be tested in-sample</a></li>
+<li><a href="../problems/IDN-15-global-inconsistency-diagnostics-lack-calibrated-operating-c.html">IDN-15 — Global inconsistency diagnostics lack calibrated operating characteristics</a></li>
+</ul>
+</div>
+</section>
+<section id="source" class="level2">
+<h2 class="anchored" data-anchor-id="source">Source</h2>
+<p>Derived from reading:nma-22 of the reviewed corpus.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/choxos\.github\.io\/ITC-open-problems\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>Ahmad Sofi-Mahmudi</p>
+</div>   
+    <div class="nav-footer-center">
+<p>Every entry carries a verification verdict. See <a href="../methods.html">How this was verified</a>.</p>
+<div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/choxos/ITC-open-problems/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></div>
+    <div class="nav-footer-right">
+<p><a href="https://github.com/choxos/ITC-open-problems">Source</a></p>
+</div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

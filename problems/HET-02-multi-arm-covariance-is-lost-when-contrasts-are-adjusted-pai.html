@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="description" content="MAIC-style weighting is defined for one pairwise comparison against one aggregate study, so a two-stage weighting workflow that outputs separately adjusted contrasts with only marginal standard errors loses the covariance induced by a shared common arm and the covariance induced by shared weight estimation. Regression-based population adjustment already solves this at the network level: multilevel network meta-regression is a one-stage arm-level likelihood valid for networks of any size (Phillippo et al.&nbsp;2020, doi:10.1111/rssa.12579), implemented in multinma since 2020, where multi-arm studies carry correlated multivariate-normal random effects (Perren et al.&nbsp;2025, doi:10.1177/0272989X251389887). What is open is the weighting branch: there is no arm-level MAIC-style estimator, and no sandwich or multivariate bootstrap variance estimator for weighted multi-arm contrasts that also carries weight-estimation uncertainty has been derived or benchmarked. The same split holds in cpaic, an unreleased development package on GitHub that is not on CRAN: at commit 9d150e9 cmlnmr() gives within-study deviations from a study baseline the standard 0.5 NMA correlation, while cmaic() and cstc() refuse IPD studies with more than two arms rather than processing them pairwise.">
+<meta name="description" content="MAIC-style weighting is defined for one pairwise comparison against one aggregate study, so a two-stage weighting workflow that outputs separately adjusted contrasts with only marginal standard errors loses the covariance induced by a shared common arm and the covariance induced by shared weight estimation. Regression-based population adjustment already solves this at the network level: multilevel network meta-regression is a one-stage arm-level likelihood valid for networks of any size (Phillippo et al.&nbsp;2020, doi:10.1111/rssa.12579), implemented in multinma since 2020, where multi-arm studies carry correlated multivariate-normal random effects (Perren et al.&nbsp;2025, doi:10.1177/0272989X251389887). What is open is the weighting branch: there is no arm-level MAIC-style estimator, and no sandwich or multivariate bootstrap variance estimator for weighted multi-arm contrasts that also carries weight-estimation uncertainty has been derived or benchmarked. The same split holds in cpaic, an unreleased development package on GitHub that is not on CRAN: at commit 9d150e9 cmlnmr() gives within-study deviations from a study baseline the standard 0.5 NMA correlation, while cmaic() and cstc() refuse IPD studies with more than two arms rather than processing them pairwise. The same covariance is lost without any multi-arm trial present. Where a sparse network admits single-arm studies by matching each to a comparator arm of an existing randomized trial, several pseudo-contrasts can be built from the same comparator arm, so their errors are correlated through shared control observations exactly as contrasts are correlated within a multi-arm trial; published implementations nonetheless enter them into the network likelihood as independent evidence, and in a late-onset Pompe disease network admitting the matched single-arm studies reversed the direction of the headline comparison.">
 
 <title>Multi-arm covariance is lost when contrasts are adjusted pairwise – Open Problems in ITC &amp; PAIC</title>
 <style>
@@ -343,6 +343,10 @@ ul.task-list li input[type="checkbox"] {
 <span class="menu-text">Agenda</span></a>
   </li>  
   <li class="nav-item">
+    <a class="nav-link" href="../chronology.html"> 
+<span class="menu-text">Chronology</span></a>
+  </li>  
+  <li class="nav-item">
     <a class="nav-link" href="../landscape.html"> 
 <span class="menu-text">Landscape</span></a>
   </li>  
@@ -383,6 +387,7 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#what-has-been-tried" id="toc-what-has-been-tried" class="nav-link" data-scroll-target="#what-has-been-tried">What has been tried</a></li>
   <li><a href="#probable-solution-or-research-direction" id="toc-probable-solution-or-research-direction" class="nav-link" data-scroll-target="#probable-solution-or-research-direction">Probable solution or research direction</a></li>
   <li><a href="#verification" id="toc-verification" class="nav-link" data-scroll-target="#verification">Verification</a></li>
+  <li><a href="#how-the-evidence-falls-in-time" id="toc-how-the-evidence-falls-in-time" class="nav-link" data-scroll-target="#how-the-evidence-falls-in-time">How the evidence falls in time</a></li>
   <li><a href="#related-problems" id="toc-related-problems" class="nav-link" data-scroll-target="#related-problems">Related problems</a></li>
   <li><a href="#source" id="toc-source" class="nav-link" data-scroll-target="#source">Source</a></li>
   </ul>
@@ -404,7 +409,7 @@ ul.task-list li input[type="checkbox"] {
 
 <div>
   <div class="description">
-    MAIC-style weighting is defined for one pairwise comparison against one aggregate study, so a two-stage weighting workflow that outputs separately adjusted contrasts with only marginal standard errors loses the covariance induced by a shared common arm and the covariance induced by shared weight estimation. Regression-based population adjustment already solves this at the network level: multilevel network meta-regression is a one-stage arm-level likelihood valid for networks of any size (Phillippo et al.&nbsp;2020, doi:10.1111/rssa.12579), implemented in multinma since 2020, where multi-arm studies carry correlated multivariate-normal random effects (Perren et al.&nbsp;2025, doi:10.1177/0272989X251389887). What is open is the weighting branch: there is no arm-level MAIC-style estimator, and no sandwich or multivariate bootstrap variance estimator for weighted multi-arm contrasts that also carries weight-estimation uncertainty has been derived or benchmarked. The same split holds in cpaic, an unreleased development package on GitHub that is not on CRAN: at commit 9d150e9 cmlnmr() gives within-study deviations from a study baseline the standard 0.5 NMA correlation, while cmaic() and cstc() refuse IPD studies with more than two arms rather than processing them pairwise.
+    MAIC-style weighting is defined for one pairwise comparison against one aggregate study, so a two-stage weighting workflow that outputs separately adjusted contrasts with only marginal standard errors loses the covariance induced by a shared common arm and the covariance induced by shared weight estimation. Regression-based population adjustment already solves this at the network level: multilevel network meta-regression is a one-stage arm-level likelihood valid for networks of any size (Phillippo et al.&nbsp;2020, doi:10.1111/rssa.12579), implemented in multinma since 2020, where multi-arm studies carry correlated multivariate-normal random effects (Perren et al.&nbsp;2025, doi:10.1177/0272989X251389887). What is open is the weighting branch: there is no arm-level MAIC-style estimator, and no sandwich or multivariate bootstrap variance estimator for weighted multi-arm contrasts that also carries weight-estimation uncertainty has been derived or benchmarked. The same split holds in cpaic, an unreleased development package on GitHub that is not on CRAN: at commit 9d150e9 cmlnmr() gives within-study deviations from a study baseline the standard 0.5 NMA correlation, while cmaic() and cstc() refuse IPD studies with more than two arms rather than processing them pairwise. The same covariance is lost without any multi-arm trial present. Where a sparse network admits single-arm studies by matching each to a comparator arm of an existing randomized trial, several pseudo-contrasts can be built from the same comparator arm, so their errors are correlated through shared control observations exactly as contrasts are correlated within a multi-arm trial; published implementations nonetheless enter them into the network likelihood as independent evidence, and in a late-onset Pompe disease network admitting the matched single-arm studies reversed the direction of the headline comparison.
   </div>
 </div>
 
@@ -429,7 +434,7 @@ ul.task-list li input[type="checkbox"] {
 </div>
 <section id="statement" class="level2">
 <h2 class="anchored" data-anchor-id="statement">Statement</h2>
-<p>MAIC-style weighting is defined for one pairwise comparison against one aggregate study, so a two-stage weighting workflow that outputs separately adjusted contrasts with only marginal standard errors loses the covariance induced by a shared common arm and the covariance induced by shared weight estimation. Regression-based population adjustment already solves this at the network level: multilevel network meta-regression is a one-stage arm-level likelihood valid for networks of any size (Phillippo et al.&nbsp;2020, doi:10.1111/rssa.12579), implemented in multinma since 2020, where multi-arm studies carry correlated multivariate-normal random effects (Perren et al.&nbsp;2025, doi:10.1177/0272989X251389887). What is open is the weighting branch: there is no arm-level MAIC-style estimator, and no sandwich or multivariate bootstrap variance estimator for weighted multi-arm contrasts that also carries weight-estimation uncertainty has been derived or benchmarked. The same split holds in cpaic, an unreleased development package on GitHub that is not on CRAN: at commit 9d150e9 cmlnmr() gives within-study deviations from a study baseline the standard 0.5 NMA correlation, while cmaic() and cstc() refuse IPD studies with more than two arms rather than processing them pairwise.</p>
+<p>MAIC-style weighting is defined for one pairwise comparison against one aggregate study, so a two-stage weighting workflow that outputs separately adjusted contrasts with only marginal standard errors loses the covariance induced by a shared common arm and the covariance induced by shared weight estimation. Regression-based population adjustment already solves this at the network level: multilevel network meta-regression is a one-stage arm-level likelihood valid for networks of any size (Phillippo et al.&nbsp;2020, doi:10.1111/rssa.12579), implemented in multinma since 2020, where multi-arm studies carry correlated multivariate-normal random effects (Perren et al.&nbsp;2025, doi:10.1177/0272989X251389887). What is open is the weighting branch: there is no arm-level MAIC-style estimator, and no sandwich or multivariate bootstrap variance estimator for weighted multi-arm contrasts that also carries weight-estimation uncertainty has been derived or benchmarked. The same split holds in cpaic, an unreleased development package on GitHub that is not on CRAN: at commit 9d150e9 cmlnmr() gives within-study deviations from a study baseline the standard 0.5 NMA correlation, while cmaic() and cstc() refuse IPD studies with more than two arms rather than processing them pairwise. The same covariance is lost without any multi-arm trial present. Where a sparse network admits single-arm studies by matching each to a comparator arm of an existing randomized trial, several pseudo-contrasts can be built from the same comparator arm, so their errors are correlated through shared control observations exactly as contrasts are correlated within a multi-arm trial; published implementations nonetheless enter them into the network likelihood as independent evidence, and in a late-onset Pompe disease network admitting the matched single-arm studies reversed the direction of the headline comparison.</p>
 </section>
 <section id="why-it-is-open" class="level2">
 <h2 class="anchored" data-anchor-id="why-it-is-open">Why it is open</h2>
@@ -455,7 +460,7 @@ ul.task-list li input[type="checkbox"] {
 <td>Working implementation: nma() fits ML-NMR with arm-based likelihoods, and multi-arm studies receive correlated multivariate-normal random effects.</td>
 </tr>
 <tr class="odd">
-<td><a href="https://doi.org/10.1177/0272989X251389887">Perren, Pedder, Welton and Phillippo, 2025, Network Meta-Analysis with Class Effects: A Practical Guide and Model Selection Algorithm</a></td>
+<td><a href="https://doi.org/10.1177/0272989X251389887">Perren, Pedder, Welton and Phillippo, 2026, Network Meta-Analysis with Class Effects: A Practical Guide and Model Selection Algorithm</a></td>
 <td>States the multi-arm covariance parameterization used in multinma, confirming that studies with more than one non-baseline arm have multiple correlated random effects modeled as multivariate normal.</td>
 </tr>
 <tr class="even">
@@ -465,6 +470,14 @@ ul.task-list li input[type="checkbox"] {
 <tr class="odd">
 <td><a href="https://github.com/choxos/cpaic">cpaic, unreleased development package on GitHub (not on CRAN), commit 9d150e9</a></td>
 <td>cmlnmr() jointly fits IPD and aggregate arms by integrating the individual-level model over each aggregate study’s covariate distribution, and cmlnmr_random.R gives multi-arm deviations from a study baseline the standard 0.5 NMA correlation; cmaic() and cstc() support two-arm IPD studies only.</td>
+</tr>
+<tr class="even">
+<td><a href="https://doi.org/10.57264/cer-2024-0045">Shohet et al.&nbsp;2024, Journal of Comparative Effectiveness Research</a></td>
+<td>Builds a rare-disease network by pairing each single-arm study with the comparator arm of an existing randomized trial chosen to minimize a distance over aggregate baseline characteristics, then enters the resulting pseudo-contrasts as independent evidence in the network likelihood while recording the reuse of comparator-arm evidence as a limitation; admitting the matched single-arm studies reverses the direction of the headline comparison.</td>
+</tr>
+<tr class="odd">
+<td><a href="https://doi.org/10.1002/jrsm.1204">Goring et al.&nbsp;2016, Research Synthesis Methods</a></td>
+<td>Sets out the analytic options for treatment networks having no common comparator, the sparse-network setting in which single-arm studies are matched to existing comparator arms rather than left out.</td>
 </tr>
 </tbody>
 </table>
@@ -480,7 +493,20 @@ ul.task-list li input[type="checkbox"] {
 <p><strong>Verdict.</strong> Overstated. 2 independent auditors judged the claim as stated too strong. MAIC-style weighting is defined for a single pairwise comparison against one aggregate study, so weighting-based PAIC applied contrast by contrast loses the covariance induced by a shared common arm. Regression-based population adjustment already solves this: multilevel network meta-regression (Phillippo et al.&nbsp;2020, implemented in multinma) is a one-stage arm-level likelihood that keeps multi-arm structure intact. The open part is a weighting-based arm-level estimator and a variance estimator for it that accounts for weight estimation.</p>
 <p><strong>The source said.</strong> “MAIC-style weighting is defined for one pairwise comparison against one aggregate study, so a multi-arm trial is processed contrast by contrast and the covariance induced by the shared common arm is never carried into the network likelihood. Standard NMA software handles that structure correctly, but it sits downstream of the weighting step and is not wired into it.”</p>
 <p><strong>What was wrong with it.</strong> The source claimed no arm-based or multivariate PAIC estimator preserving multi-arm covariance is available, and cited nothing; the literature auditor found that multilevel network meta-regression is exactly that estimator and has been on CRAN in multinma since 2020 (doi:10.1111/rssa.12579), and the code auditor found cpaic’s cmlnmr() already implements the shared-baseline multi-arm correlation. The code auditor also rejected the framing that it is not established whether weighting before contrast formation preserves the correct covariance: weighting is not inherently pairwise, and the weighted covariance is estimable by joint estimating equations or a bootstrap that re-estimates the weights, so this is undone work rather than an unverifiable assumption.</p>
+<p><strong>Revised by the full-text reading.</strong> Applied full-text reading.</p>
 <dl>
+<dt>merged-in</dt>
+<dd>
+<strong>absorbed a proposal the reading raised separately: Single-arm matching into networks leaves induced dependence unmodelled</strong> 2 citation(s) added. The drafter disagreed with placing it here: The covariance half of this proposal merges cleanly: reusing one comparator arm across several matched pseudo-contrasts induces the same shared-data correlation that a two-stage pipeline exporting only marginal standard errors cannot carry, and the fix is the same joint covariance HET-02 already asks for. The second half does not merge as neatly. Residual bias from imperfect matching between a single arm and its chosen comparator is an unanchored-comparison problem with no randomized anchor, closer to the external-control and overlap entries than to multi-arm covariance, and HET-02 as written proposes no diagnostic for matching adequacy. If HET-02 takes on matched single-arm pseudo-contrasts, its research direction should either name a matching-adequacy diagnostic or hand that half to an unanchored-comparison entry rather than let it fall between the two.
+</dd>
+<dt>Flagged for reopening</dt>
+<dd>
+<strong>10 findings from the reading assert this problem is open while the registry carries <code>overstated</code></strong> Flagged, not applied: reversing an earlier audit’s closure needs the closure’s own evidence re-examined alongside this, which the reading did not do. See documentation/audit/reading/PROPOSED.md.
+</dd>
+<dt>Citation corrected</dt>
+<dd>
+<strong>normalized a citation year: ‘Perren, Pedder, Welton and Phillippo, 2025, Network Meta-Analysis with Class Effects: A Practical Guide and Model Selection Algorithm’ -&gt; ‘Perren, Pedder, Welton and Phillippo, 2026, Network Meta-Analysis with Class Effects: A Practical Guide and Model Selection Algorithm’</strong> 10.1177/0272989X251389887 is cited with two different years across the registry. CrossRef gives 2025 online and 2026 in print; the issue year is used throughout.
+</dd>
 <dt>Literature and prior-art check</dt>
 <dd>
 <strong>partially-solved / overstated.</strong> The claim ‘No arm-based or multivariate PAIC estimator that preserves multi-arm covariance is currently available’ is contradicted by work the entry does not cite. Phillippo et al.&nbsp;(2020) multilevel network meta-regression is exactly a one-stage individual-level (arm-based) likelihood for population adjustment: ‘An individual level regression model is defined, and aggregate data are fitted by integrating over the covariate distribution to form the likelihood’, and it applies to ‘networks of any size’. It is implemented in multinma 0.9.1. Perren, Pedder, Welton &amp; Phillippo (2025) describe the same package’s multi-arm handling verbatim: ‘Studies with more than 1 nontreatment arm therefore have multiple RE, which are correlated and modeled using a multivariate normal distribution.’ So the arm-based, multi-arm-preserving population-adjusted estimator exists and has been in CRAN software since 2020. What remains open is narrower and real: MAIC-style weighting itself has no arm-based extension, and no sandwich or multivariate bootstrap variance estimator for weighted multi-arm contrasts that also carries weight-estimation uncertainty has been derived or benchmarked. The ‘Standard NMA software handles multi-arm correlated contrasts maturely’ claim is correct. Cites doi:10.1111/rssa.12579: Provides the arm-based one-stage likelihood for population adjustment that the entry says does not exist, valid for networks of any size including multi-arm trials.. Cites cran:multinma 0.9.1: Working implementation: nma() fits ML-NMR with arm-based likelihoods; multi-arm studies get correlated multivariate-normal random effects.. Cites doi:10.1177/0272989X251389887: States the multi-arm covariance parameterization used in multinma, confirming multi-arm correlation is carried in the likelihood..
@@ -496,13 +522,93 @@ ul.task-list li input[type="checkbox"] {
 </dl>
 </div>
 </section>
+<section id="how-the-evidence-falls-in-time" class="level2">
+<h2 class="anchored" data-anchor-id="how-the-evidence-falls-in-time">How the evidence falls in time</h2>
+<p>10 papers in the reviewed corpus bear on this problem, published 2012 to 2019. Partial progress is on the record, and later work still calls this open. Both belong in view.</p>
+<p>It is also being <strong>closed in pieces</strong>: partial results come from more than one paper in more than one year, each covering a different part.</p>
+<div class="table-scroll">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Year</th>
+<th>Says</th>
+<th>Paper</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>2012</td>
+<td>partly addresses it</td>
+<td>Consistency and inconsistency in network meta-analysis: model estimation using multivariate meta-regression</td>
+</tr>
+<tr class="even">
+<td>2013</td>
+<td>partly addresses it</td>
+<td>Evidence synthesis for decision making 6: embedding evidence synthesis in probabilistic cost-effectiveness analysis</td>
+</tr>
+<tr class="odd">
+<td>2013</td>
+<td>partly addresses it</td>
+<td>Evidence synthesis for decision making 7: a reviewer’s checklist</td>
+</tr>
+<tr class="even">
+<td>2013</td>
+<td>confirms it is open</td>
+<td>Methods used to conduct and report Bayesian mixed treatment comparisons published in the medical literature: a systematic review</td>
+</tr>
+<tr class="odd">
+<td>2015</td>
+<td>confirms it is open</td>
+<td>‘Arm-based’ parameterization for network meta-analysis</td>
+</tr>
+<tr class="even">
+<td>2017</td>
+<td>confirms it is open</td>
+<td>Second-line Treatments for Advanced Gastric Cancer: A Network Meta-Analysis of Overall Survival Using Parametric Modelling Methods</td>
+</tr>
+<tr class="odd">
+<td>2018</td>
+<td>partly addresses it</td>
+<td>Assessing the consistency assumptions underlying network meta-regression using aggregate data</td>
+</tr>
+<tr class="even">
+<td>2018</td>
+<td>confirms it is open</td>
+<td>Estimating the contribution of studies in network meta-analysis: paths, flows and streams</td>
+</tr>
+<tr class="odd">
+<td>2018</td>
+<td>confirms it is open</td>
+<td>Large-scale external validation and comparison of prognostic models: an application to chronic obstructive pulmonary disease</td>
+</tr>
+<tr class="even">
+<td>2019</td>
+<td>confirms it is open</td>
+<td>Population Adjustment Methods for Indirect Comparisons: A Review of National Institute for Health and Care Excellence Technology Appraisals</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
 <section id="related-problems" class="level2">
 <h2 class="anchored" data-anchor-id="related-problems">Related problems</h2>
 <div class="related-links">
 <ul>
 <li><a href="../problems/CMP-12-no-two-stage-adjusted-estimator-carries-multi-arm-covariance.html">CMP-12 — No two-stage adjusted estimator carries multi-arm covariance</a></li>
+<li><a href="../problems/COV-14-per-comparator-adjustment-sets-yield-non-comparable-paic-con.html">COV-14 — Per-comparator adjustment sets yield non-comparable PAIC contrasts</a></li>
 <li><a href="../problems/EST-07-reported-target-moments-are-treated-as-known-constants.html">EST-07 — Reported target moments are treated as known constants</a></li>
+<li><a href="../problems/EST-13-network-intervals-condition-on-plugged-in-variance-component.html">EST-13 — Network intervals condition on plugged-in variance components</a></li>
+<li><a href="../problems/HET-10-no-calibrated-small-study-interval-method-for-population-adj.html">HET-10 — No calibrated small-study interval method for population-adjusted NMA</a></li>
+<li><a href="../problems/HET-11-no-covariance-correction-for-overlapping-reported-subgroups.html">HET-11 — No covariance correction for overlapping reported subgroups</a></li>
+<li><a href="../problems/HET-18-arm-based-between-treatment-correlations-are-imposed-as-exch.html">HET-18 — Arm-based between-treatment correlations are imposed as exchangeable with no way to test or vary the structure</a></li>
+<li><a href="../problems/HET-19-node-splitting-reports-one-arbitrary-member-of-a-family-of-m.html">HET-19 — Node splitting reports one arbitrary member of a family of multi-arm parameterizations</a></li>
 <li><a href="../problems/MIS-03-nothing-propagates-sampling-error-in-reported-target-moments.html">MIS-03 — Nothing propagates sampling error in reported target moments</a></li>
+<li><a href="../problems/MOD-16-no-criterion-chooses-pooled-or-arm-separate-matching-in-anch.html">MOD-16 — No criterion chooses pooled or arm-separate matching in anchored MAIC</a></li>
 <li><a href="../problems/OUT-02-rare-events-separation-and-zero-event-studies-in-weighted-sy.html">OUT-02 — Rare events, separation, and zero-event studies in weighted synthesis</a></li>
 </ul>
 </div>

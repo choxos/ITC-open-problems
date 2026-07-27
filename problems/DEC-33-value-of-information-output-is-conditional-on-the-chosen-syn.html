@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="description" content="Expected value of perfect information, expected value of sample information and expected net benefit of sampling are computed conditional on one chosen evidence-synthesis structure: splitting, lumping, a multi-level model, an informative prior, a mixture prior, a commensurate prior or a power prior, equivalently one choice of how much strength to borrow across populations, treatments, outcomes or study designs. That choice changes the research decision and not only the effect estimate. In a severe sepsis case study extending 17 adult trials with 11 pediatric trials, odds ratio estimates ranged from 0.55 to 0.90 across sharing methods, incremental cost-effectiveness ratios from about 16,000 to 52,000 pounds per quality-adjusted life year, the probability of cost-effectiveness moved from 0.80 to 0.10, and the optimal design moved from a trial of 1,940 patients per arm to no trial at all, while each individual analysis reported a definite optimal sample size. No method propagates uncertainty over the structural choice into research-prioritization output, so the recommended trial and its sample size are reported as though the borrowing model were known. Model averaging exists as a response for effect estimates but has not been carried into value-of-information or expected-net-benefit-of-sampling output, and the general decision-model literature on structural uncertainty has never been instantiated on synthesis structures. The specific obstacle is that these structures differ mainly in what they extrapolate, so averaging weights cannot be learned from the observed data.">
+
+<title>Value-of-information output is conditional on the chosen synthesis structure – Open Problems in ITC &amp; PAIC</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-b758ccaa5987ceb1b75504551e579abf.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-03d47695bc5f811f7e6896b5de8ee1f3.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-9a2863f3190aa48dadd243fa71713907.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-03d47695bc5f811f7e6896b5de8ee1f3.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": true,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+</head>
+
+<body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">Open Problems in ITC &amp; PAIC</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../catalog.html"> 
+<span class="menu-text">Catalog</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-categories" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Categories</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-categories">    
+        <li>
+    <a class="dropdown-item" href="../categories/estimands.html">
+ <span class="dropdown-text">Estimands &amp; target populations</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/identification.html">
+ <span class="dropdown-text">Identification, transitivity &amp; conditional constancy</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/qba.html">
+ <span class="dropdown-text">Quantitative bias analysis for unanchored PAIC</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/overlap.html">
+ <span class="dropdown-text">Positivity, overlap &amp; extrapolation</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/covariates.html">
+ <span class="dropdown-text">Covariates: selection, target moments, measurement</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/model-specification.html">
+ <span class="dropdown-text">Model specification, double robustness &amp; targeted learning</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/heterogeneity.html">
+ <span class="dropdown-text">Heterogeneity, consistency &amp; multi-arm structure</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/disconnected.html">
+ <span class="dropdown-text">Disconnected networks &amp; bridges</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/component.html">
+ <span class="dropdown-text">Component methods (CNMA and component PAIC)</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/outcomes.html">
+ <span class="dropdown-text">Outcome-specific problems</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/missing-data.html">
+ <span class="dropdown-text">Missing data &amp; uncertainty propagation</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/diagnostics.html">
+ <span class="dropdown-text">Diagnostics &amp; empirical validation</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/computation.html">
+ <span class="dropdown-text">Computation &amp; reproducibility</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/decision.html">
+ <span class="dropdown-text">Decision analysis, regulation &amp; reporting</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/evidence-base.html">
+ <span class="dropdown-text">Evidence-base construction &amp; data access</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/adjacent-methods.html">
+ <span class="dropdown-text">Adjacent-field methods</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../categories/software.html">
+ <span class="dropdown-text">Software, benchmarks &amp; interface standards</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="../agenda.html"> 
+<span class="menu-text">Agenda</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../chronology.html"> 
+<span class="menu-text">Chronology</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../landscape.html"> 
+<span class="menu-text">Landscape</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../methods.html"> 
+<span class="menu-text">How this was verified</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../references.html"> 
+<span class="menu-text">References</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/choxos/ITC-open-problems"> <i class="bi bi-github" role="img" aria-label="GitHub repository">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active" data-toc-expanded="99">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#statement" id="toc-statement" class="nav-link active" data-scroll-target="#statement">Statement</a></li>
+  <li><a href="#why-it-is-open" id="toc-why-it-is-open" class="nav-link" data-scroll-target="#why-it-is-open">Why it is open</a></li>
+  <li><a href="#what-has-been-tried" id="toc-what-has-been-tried" class="nav-link" data-scroll-target="#what-has-been-tried">What has been tried</a></li>
+  <li><a href="#probable-solution-or-research-direction" id="toc-probable-solution-or-research-direction" class="nav-link" data-scroll-target="#probable-solution-or-research-direction">Probable solution or research direction</a></li>
+  <li><a href="#verification" id="toc-verification" class="nav-link" data-scroll-target="#verification">Verification</a></li>
+  <li><a href="#related-problems" id="toc-related-problems" class="nav-link" data-scroll-target="#related-problems">Related problems</a></li>
+  <li><a href="#source" id="toc-source" class="nav-link" data-scroll-target="#source">Source</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/choxos/ITC-open-problems/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Value-of-information output is conditional on the chosen synthesis structure</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">Decision analysis, regulation &amp; reporting</div>
+    <div class="quarto-category">High priority</div>
+    <div class="quarto-category">Confirmed open</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    Expected value of perfect information, expected value of sample information and expected net benefit of sampling are computed conditional on one chosen evidence-synthesis structure: splitting, lumping, a multi-level model, an informative prior, a mixture prior, a commensurate prior or a power prior, equivalently one choice of how much strength to borrow across populations, treatments, outcomes or study designs. That choice changes the research decision and not only the effect estimate. In a severe sepsis case study extending 17 adult trials with 11 pediatric trials, odds ratio estimates ranged from 0.55 to 0.90 across sharing methods, incremental cost-effectiveness ratios from about 16,000 to 52,000 pounds per quality-adjusted life year, the probability of cost-effectiveness moved from 0.80 to 0.10, and the optimal design moved from a trial of 1,940 patients per arm to no trial at all, while each individual analysis reported a definite optimal sample size. No method propagates uncertainty over the structural choice into research-prioritization output, so the recommended trial and its sample size are reported as though the borrowing model were known. Model averaging exists as a response for effect estimates but has not been carried into value-of-information or expected-net-benefit-of-sampling output, and the general decision-model literature on structural uncertainty has never been instantiated on synthesis structures. The specific obstacle is that these structures differ mainly in what they extrapolate, so averaging weights cannot be learned from the observed data.
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="problem-meta">
+<p><span class="problem-id">DEC-33</span> <span class="verdict verdict-confirmed-open">Confirmed open</span> <span class="chip chip-priority-high">High priority</span> <span class="chip chip-maturity-promising">Promising</span> <span class="chip">Tractability 3/5</span></p>
+</div>
+<section id="statement" class="level2">
+<h2 class="anchored" data-anchor-id="statement">Statement</h2>
+<p>Expected value of perfect information, expected value of sample information and expected net benefit of sampling are computed conditional on one chosen evidence-synthesis structure: splitting, lumping, a multi-level model, an informative prior, a mixture prior, a commensurate prior or a power prior, equivalently one choice of how much strength to borrow across populations, treatments, outcomes or study designs. That choice changes the research decision and not only the effect estimate. In a severe sepsis case study extending 17 adult trials with 11 pediatric trials, odds ratio estimates ranged from 0.55 to 0.90 across sharing methods, incremental cost-effectiveness ratios from about 16,000 to 52,000 pounds per quality-adjusted life year, the probability of cost-effectiveness moved from 0.80 to 0.10, and the optimal design moved from a trial of 1,940 patients per arm to no trial at all, while each individual analysis reported a definite optimal sample size. No method propagates uncertainty over the structural choice into research-prioritization output, so the recommended trial and its sample size are reported as though the borrowing model were known. Model averaging exists as a response for effect estimates but has not been carried into value-of-information or expected-net-benefit-of-sampling output, and the general decision-model literature on structural uncertainty has never been instantiated on synthesis structures. The specific obstacle is that these structures differ mainly in what they extrapolate, so averaging weights cannot be learned from the observed data.</p>
+</section>
+<section id="why-it-is-open" class="level2">
+<h2 class="anchored" data-anchor-id="why-it-is-open">Why it is open</h2>
+<p>Structures that share more information differ in parameters no study measures directly, so the likelihood cannot rank them; any weight over structures is a prior judgment, and a value-of-information figure computed under a weighted mixture absorbs that judgment into a single number that does not display it. The computation compounds: value of information is already a nested expectation, and expected value of sample information requires the data-generating and refitting step to be repeated, so ranging over candidate structures multiplies an expensive calculation by their number. Model fit does not help either, because poor fit under a sharing model may signal a conflict between evidence sources that is itself informative rather than a reason to discard the model, so selection on fit is not defensible here. The honest output may not be a single number: when structures disagree on whether to run a trial, a set of research decisions with the assumption supporting each is more informative than an averaged expectation, but funders and reimbursement processes ask for one recommendation and no reporting convention exists for the set. The parameters that index intermediate sharing are not stably interpretable either; the power-prior discount behaves non-monotonically under random effects and can impose more sharing than lumping, so there is no ordered scale along which to integrate.</p>
+</section>
+<section id="what-has-been-tried" class="level2">
+<h2 class="anchored" data-anchor-id="what-has-been-tried">What has been tried</h2>
+<div class="table-scroll">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Work</th>
+<th>What it contributes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><a href="https://doi.org/10.1017/rsm.2024.17">Nikolaidis et al.&nbsp;2025, Research Synthesis Methods</a></td>
+<td>Implements splitting, lumping, multi-level, informative-prior, mixture-prior, commensurate-prior and power-prior models on one health technology assessment case study with cost-effectiveness and value-of-information output, introduces three metrics for the realized strength of sharing, and reports that the choice of method is a key determinant of the value of further research, including whether a trial is worth running at all.</td>
+</tr>
+<tr class="even">
+<td><a href="https://doi.org/10.1186/s12874-021-01292-z">Nikolaidis et al.&nbsp;2021, BMC Medical Research Methodology</a></td>
+<td>Classifies 89 information-sharing methods into functional, exchangeability-based, prior-based and multivariate relationships with the assumptions each imposes; the candidate set any averaging or robustness analysis would have to range over.</td>
+</tr>
+<tr class="odd">
+<td><a href="https://doi.org/10.1080/01621459.2018.1562932">Jackson et al.&nbsp;2019, Journal of the American Statistical Association</a></td>
+<td>EVPPI and EVSI for Bayesian evidence-synthesis models fitted by MCMC, comparing candidate data sources and trading expected benefit against cost to choose a sample size; every quantity conditional on one synthesis model.</td>
+</tr>
+<tr class="even">
+<td><a href="https://doi.org/10.1177/0272989X13505910">Strong, Oakley and Brennan 2014, Medical Decision Making</a></td>
+<td>Nonparametric regression estimator of multiparameter partial EVPI from a probabilistic sensitivity analysis sample; the computational route that would have to be repeated for each candidate structure.</td>
+</tr>
+<tr class="odd">
+<td><a href="https://doi.org/10.1177/0272989X11406986">Jackson et al.&nbsp;2011, Medical Decision Making</a></td>
+<td>General framework for addressing structural uncertainty in decision models, including model averaging and discrepancy formulations; never instantiated on evidence-synthesis or borrowing structures.</td>
+</tr>
+<tr class="even">
+<td><a href="https://doi.org/10.1111/j.1524-4733.2008.00502.x">Bojke et al.&nbsp;2009, Value in Health</a></td>
+<td>Review and application of methods for characterizing structural uncertainty in decision-analytic models, including parameterizing the structural choice so that it can be integrated over rather than selected.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="probable-solution-or-research-direction" class="level2">
+<h2 class="anchored" data-anchor-id="probable-solution-or-research-direction">Probable solution or research direction</h2>
+<p>The first tractable step is a robustness report rather than an average: compute the full value-of-information output under every candidate sharing structure and publish the resulting set of research recommendations together with the realized-sharing metrics that place each structure on a scale, so a funder can see whether the recommendation to run a trial survives the structural choice. Where averaging is wanted, parameterize the structural choice as a continuous discount rather than a discrete list, elicit a distribution over it, integrate the value-of-information calculation over that distribution, and report the result explicitly as conditional on an elicited prior with sensitivity to it. Nested Monte Carlo cost can be held down with the existing regression-based EVPPI and EVSI estimators refitted per structure, so the obstacle is bookkeeping rather than new theory. Score the whole thing by what a decision-maker loses through conditioning on one structure: simulate an evidence base, take the trial each structure recommends, and report the realized net benefit of each research decision under the others.</p>
+</section>
+<section id="verification" class="level2">
+<h2 class="anchored" data-anchor-id="verification">Verification</h2>
+<div class="verification-trail">
+<p><strong>Verdict.</strong> Confirmed open. One reader proposed this from a single case study, and the reviewer accepted that structural synthesis uncertainty can change the value of future information and therefore the recommended study design, distinct from acquiring individual patient data and from interval coverage after model selection. The demonstration covers one clinical problem, so the typical magnitude elsewhere is unestablished, though the argument does not depend on it.</p>
+</div>
+</section>
+<section id="related-problems" class="level2">
+<h2 class="anchored" data-anchor-id="related-problems">Related problems</h2>
+<div class="related-links">
+<ul>
+<li><a href="../problems/DEC-03-value-of-information-is-not-extended-to-ipd-or-bridge-acquis.html">DEC-03 — Value of information is not extended to IPD or bridge acquisition</a></li>
+<li><a href="../problems/EVB-04-no-decision-value-method-chooses-which-ipd-or-bridging-trial.html">EVB-04 — No decision-value method chooses which IPD or bridging trial to get</a></li>
+<li><a href="../problems/MIS-04-model-and-bridge-selection-uncertainty-never-enters-the-inte.html">MIS-04 — Model and bridge selection uncertainty never enters the interval</a></li>
+<li><a href="../problems/DIS-02-no-data-driven-criterion-can-rank-candidate-bridge-families.html">DIS-02 — No data-driven criterion can rank candidate bridge families</a></li>
+</ul>
+</div>
+</section>
+<section id="source" class="level2">
+<h2 class="anchored" data-anchor-id="source">Source</h2>
+<p>Derived from reading:nma-05 of the reviewed corpus.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/choxos\.github\.io\/ITC-open-problems\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>Ahmad Sofi-Mahmudi</p>
+</div>   
+    <div class="nav-footer-center">
+<p>Every entry carries a verification verdict. See <a href="../methods.html">How this was verified</a>.</p>
+<div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/choxos/ITC-open-problems/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></div>
+    <div class="nav-footer-right">
+<p><a href="https://github.com/choxos/ITC-open-problems">Source</a></p>
+</div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

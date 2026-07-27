@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="description" content="Open multinma issues include missing data (#67), mixed aggregate and individual data within one study (#58), mixed likelihoods (#42) and the interpretation and ranking of some time-to-event auxiliary parameters (#52), and data-informed baseline connections for disconnected networks existed only as unmerged pull request #68 at inspection. Baseline-risk adjustment and marginal effects in external target populations are not open needs: the former is a released feature announced in the 0.9.0 release notes through the new .mu regression variable following TSD3, and the latter was confirmed implemented by the maintainer when closing issue #59 on 11 December 2025, documented in the plaque psoriasis vignette with the method published as Phillippo et al.&nbsp;(doi:10.1177/0272989X221117162). Released multinma will also fit a disconnected network; what it lacks is a data-informed bridge, because cross-component relative effects are then determined entirely by priors. The remaining substantive gaps are partial IPD within a study, missing-data modeling inside the integration step, broader mixed-likelihood structures and released support for data-informed disconnected bridges.">
+<meta name="description" content="Open multinma issues include missing data (#67), mixed aggregate and individual data within one study (#58), mixed likelihoods (#42) and the interpretation and ranking of some time-to-event auxiliary parameters (#52), and data-informed baseline connections for disconnected networks existed only as unmerged pull request #68 at inspection. Baseline-risk adjustment and marginal effects in external target populations are not open needs: the former is a released feature announced in the 0.9.0 release notes through the new .mu regression variable following TSD3, and the latter was confirmed implemented by the maintainer when closing issue #59 on 11 December 2025, documented in the plaque psoriasis vignette with the method published as Phillippo et al.&nbsp;(doi:10.1177/0272989X221117162). Released multinma will also fit a disconnected network; what it lacks is a data-informed bridge, because cross-component relative effects are then determined entirely by priors. The remaining substantive gaps are partial IPD within a study, missing-data modeling inside the integration step, broader mixed-likelihood structures and released support for data-informed disconnected bridges. The mixed-likelihood limitation has a specific and long-standing instance: joining individual time-to-event data to arms reported only as an event count over a stated follow-up requires a survival function in closed form, which excludes the log-normal and log-logistic families, and forces one baseline shape to be shared across data types because an arm summarized by a single events, at-risk and follow-up triple supports one free parameter and cannot identify its own shape. The cost lands on absolute arm-level predictions and on extrapolation beyond the observed follow-up, the quantities health technology assessment depends on, and it is measurable: in the network that introduced the approach the two individual-data trials implied Weibull shapes of 0.93 and 1.27 with non-overlapping credible intervals, so no single shared shape was correct.">
 
 <title>multinma lacks partial IPD, missing data and a data-informed bridge – Open Problems in ITC &amp; PAIC</title>
 <style>
@@ -343,6 +343,10 @@ ul.task-list li input[type="checkbox"] {
 <span class="menu-text">Agenda</span></a>
   </li>  
   <li class="nav-item">
+    <a class="nav-link" href="../chronology.html"> 
+<span class="menu-text">Chronology</span></a>
+  </li>  
+  <li class="nav-item">
     <a class="nav-link" href="../landscape.html"> 
 <span class="menu-text">Landscape</span></a>
   </li>  
@@ -383,6 +387,7 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#what-has-been-tried" id="toc-what-has-been-tried" class="nav-link" data-scroll-target="#what-has-been-tried">What has been tried</a></li>
   <li><a href="#probable-solution-or-research-direction" id="toc-probable-solution-or-research-direction" class="nav-link" data-scroll-target="#probable-solution-or-research-direction">Probable solution or research direction</a></li>
   <li><a href="#verification" id="toc-verification" class="nav-link" data-scroll-target="#verification">Verification</a></li>
+  <li><a href="#how-the-evidence-falls-in-time" id="toc-how-the-evidence-falls-in-time" class="nav-link" data-scroll-target="#how-the-evidence-falls-in-time">How the evidence falls in time</a></li>
   <li><a href="#related-problems" id="toc-related-problems" class="nav-link" data-scroll-target="#related-problems">Related problems</a></li>
   <li><a href="#source" id="toc-source" class="nav-link" data-scroll-target="#source">Source</a></li>
   </ul>
@@ -404,7 +409,7 @@ ul.task-list li input[type="checkbox"] {
 
 <div>
   <div class="description">
-    Open multinma issues include missing data (#67), mixed aggregate and individual data within one study (#58), mixed likelihoods (#42) and the interpretation and ranking of some time-to-event auxiliary parameters (#52), and data-informed baseline connections for disconnected networks existed only as unmerged pull request #68 at inspection. Baseline-risk adjustment and marginal effects in external target populations are not open needs: the former is a released feature announced in the 0.9.0 release notes through the new .mu regression variable following TSD3, and the latter was confirmed implemented by the maintainer when closing issue #59 on 11 December 2025, documented in the plaque psoriasis vignette with the method published as Phillippo et al.&nbsp;(doi:10.1177/0272989X221117162). Released multinma will also fit a disconnected network; what it lacks is a data-informed bridge, because cross-component relative effects are then determined entirely by priors. The remaining substantive gaps are partial IPD within a study, missing-data modeling inside the integration step, broader mixed-likelihood structures and released support for data-informed disconnected bridges.
+    Open multinma issues include missing data (#67), mixed aggregate and individual data within one study (#58), mixed likelihoods (#42) and the interpretation and ranking of some time-to-event auxiliary parameters (#52), and data-informed baseline connections for disconnected networks existed only as unmerged pull request #68 at inspection. Baseline-risk adjustment and marginal effects in external target populations are not open needs: the former is a released feature announced in the 0.9.0 release notes through the new .mu regression variable following TSD3, and the latter was confirmed implemented by the maintainer when closing issue #59 on 11 December 2025, documented in the plaque psoriasis vignette with the method published as Phillippo et al.&nbsp;(doi:10.1177/0272989X221117162). Released multinma will also fit a disconnected network; what it lacks is a data-informed bridge, because cross-component relative effects are then determined entirely by priors. The remaining substantive gaps are partial IPD within a study, missing-data modeling inside the integration step, broader mixed-likelihood structures and released support for data-informed disconnected bridges. The mixed-likelihood limitation has a specific and long-standing instance: joining individual time-to-event data to arms reported only as an event count over a stated follow-up requires a survival function in closed form, which excludes the log-normal and log-logistic families, and forces one baseline shape to be shared across data types because an arm summarized by a single events, at-risk and follow-up triple supports one free parameter and cannot identify its own shape. The cost lands on absolute arm-level predictions and on extrapolation beyond the observed follow-up, the quantities health technology assessment depends on, and it is measurable: in the network that introduced the approach the two individual-data trials implied Weibull shapes of 0.93 and 1.27 with non-overlapping credible intervals, so no single shared shape was correct.
   </div>
 </div>
 
@@ -442,7 +447,7 @@ ul.task-list li input[type="checkbox"] {
 </div>
 <section id="statement" class="level2">
 <h2 class="anchored" data-anchor-id="statement">Statement</h2>
-<p>Open multinma issues include missing data (#67), mixed aggregate and individual data within one study (#58), mixed likelihoods (#42) and the interpretation and ranking of some time-to-event auxiliary parameters (#52), and data-informed baseline connections for disconnected networks existed only as unmerged pull request #68 at inspection. Baseline-risk adjustment and marginal effects in external target populations are not open needs: the former is a released feature announced in the 0.9.0 release notes through the new .mu regression variable following TSD3, and the latter was confirmed implemented by the maintainer when closing issue #59 on 11 December 2025, documented in the plaque psoriasis vignette with the method published as Phillippo et al.&nbsp;(doi:10.1177/0272989X221117162). Released multinma will also fit a disconnected network; what it lacks is a data-informed bridge, because cross-component relative effects are then determined entirely by priors. The remaining substantive gaps are partial IPD within a study, missing-data modeling inside the integration step, broader mixed-likelihood structures and released support for data-informed disconnected bridges.</p>
+<p>Open multinma issues include missing data (#67), mixed aggregate and individual data within one study (#58), mixed likelihoods (#42) and the interpretation and ranking of some time-to-event auxiliary parameters (#52), and data-informed baseline connections for disconnected networks existed only as unmerged pull request #68 at inspection. Baseline-risk adjustment and marginal effects in external target populations are not open needs: the former is a released feature announced in the 0.9.0 release notes through the new .mu regression variable following TSD3, and the latter was confirmed implemented by the maintainer when closing issue #59 on 11 December 2025, documented in the plaque psoriasis vignette with the method published as Phillippo et al.&nbsp;(doi:10.1177/0272989X221117162). Released multinma will also fit a disconnected network; what it lacks is a data-informed bridge, because cross-component relative effects are then determined entirely by priors. The remaining substantive gaps are partial IPD within a study, missing-data modeling inside the integration step, broader mixed-likelihood structures and released support for data-informed disconnected bridges. The mixed-likelihood limitation has a specific and long-standing instance: joining individual time-to-event data to arms reported only as an event count over a stated follow-up requires a survival function in closed form, which excludes the log-normal and log-logistic families, and forces one baseline shape to be shared across data types because an arm summarized by a single events, at-risk and follow-up triple supports one free parameter and cannot identify its own shape. The cost lands on absolute arm-level predictions and on extrapolation beyond the observed follow-up, the quantities health technology assessment depends on, and it is measurable: in the network that introduced the approach the two individual-data trials implied Weibull shapes of 0.93 and 1.27 with non-overlapping credible intervals, so no single shared shape was correct.</p>
 </section>
 <section id="why-it-is-open" class="level2">
 <h2 class="anchored" data-anchor-id="why-it-is-open">Why it is open</h2>
@@ -476,7 +481,7 @@ ul.task-list li input[type="checkbox"] {
 <td>the issue behind the baseline-risk claim; the maintainer states in-thread that the modification was in progress in PR #36, which shipped in 0.9.0, so the issue is open only because it was never closed</td>
 </tr>
 <tr class="odd">
-<td><a href="https://doi.org/10.1177/0272989X221117162">Phillippo et al.&nbsp;2022, Validating the Assumptions of Population Adjustment: Application of Multilevel Network Meta-regression to a Network of Treatments for Plaque Psoriasis, Medical Decision Making</a></td>
+<td><a href="https://doi.org/10.1177/0272989X221117162">Phillippo et al.&nbsp;2023, Validating the Assumptions of Population Adjustment: Application of Multilevel Network Meta-regression to a Network of Treatments for Plaque Psoriasis, Medical Decision Making</a></td>
 <td>the published method behind multinma’s external-target-population intercept solution, cited by the maintainer when closing issue #59</td>
 </tr>
 <tr class="even">
@@ -486,6 +491,10 @@ ul.task-list li input[type="checkbox"] {
 <tr class="odd">
 <td><a href="https://github.com/dmphillippo/multinma/commit/47863128c1f6aa012c754babc82e1c30d4b746d1">multinma disconnected-network development branch for PR #68, dmphillippo/multinma@4786312</a></td>
 <td>partially implements optional baseline connections through con() specifications that share baselines between studies, plus mixed-study handling; not merged into the inspected release</td>
+</tr>
+<tr class="even">
+<td><a href="https://doi.org/10.1186/1471-2288-14-105">Saramago, Chuang &amp; Soares 2014, BMC Medical Research Methodology 14:105</a></td>
+<td>The only published route joining individual time-to-event data to arms reported as an event count over a stated follow-up: the two data types are linked through a parametric survival function evaluated at each aggregate trial’s follow-up time. Records the price of that link, namely that the choice of survival distribution was limited because families such as the log-logistic and log-normal have no closed-form expression for the probability of the event over time and so cannot support the joint synthesis, and that the baseline shape has to be shared across data types. Reports Weibull shape estimates of 0.93 and 1.27 with non-overlapping credible intervals in the two individual-data trials of the same network, so no single shared shape was correct, and finds absolute arm-level predictions and extrapolation beyond the observed follow-up to be the estimates most sensitive to that specification. Names numerical integration over a flexible baseline inside the aggregate likelihood as the development that is needed.</td>
 </tr>
 </tbody>
 </table>
@@ -502,7 +511,16 @@ ul.task-list li input[type="checkbox"] {
 <p><strong>The source titled this.</strong> “multinma data model omits partial IPD, missing data and disconnection” The title says the data model omits disconnection, but released multinma does fit disconnected networks; what it lacks is a data-informed baseline bridge.</p>
 <p><strong>The source said.</strong> “Open multinma issues include missing data, mixed aggregate and individual data within one study, mixed likelihoods, baseline-risk adjustment, marginal effects in external populations, and interpretation and ranking of some time-to-event parameters, while disconnected-network support existed only as unmerged pull request #68 at inspection. The most mature open Bayesian NMA/ML-NMR platform therefore had no released support for disconnected evidence at the audit date.”</p>
 <p><strong>What was wrong with it.</strong> Both auditors found the entry stale in the same two places: baseline-risk adjustment shipped in 0.9.0 (release notes, .mu regression variable, PR #36, with issue #35 left open in the tracker only because it was never closed) and marginal effects in an external target population were already implemented when the maintainer closed issue #59, so listing them as open needs was wrong. GPT-5.6 Sol also found the claim of no released disconnected-network support literally false, since released multinma fits disconnected networks with prior-driven cross-component effects and what PR #68 adds is the data-informed baseline connection; the claim was unattributed in the source and is now sourced.</p>
+<p><strong>Revised by the full-text reading.</strong> Applied full-text reading.</p>
 <dl>
+<dt>merged-in</dt>
+<dd>
+<strong>absorbed a proposal the reading raised separately: No flexible mixed-IPD and aggregate-count survival synthesis</strong> 1 citation(s) added. The drafter disagreed with placing it here: Recorded as a merge because the reviewer directed it, but the fit is imperfect and worth flagging. SFW-07 is scoped to one implementation and lists mixed likelihoods as an open issue in that package’s tracker, whereas the proposal is a claim about a model class: no published method of any kind combines aggregate event-count or person-time summaries with a flexible or study-stratified baseline hazard, and the obstacle is structural rather than an unwritten feature, since a single events, at-risk and follow-up triple supports one free parameter so any further baseline flexibility for that arm must be borrowed from elsewhere. Implementing mixed likelihoods in the package would not answer whether the borrowed shape is identified, which is the open question. Note also that this is what distinguishes the instance from OUT-12, which the registry closes as not-supported on the ground that study-stratified spline baselines exist for survival ML-NMR; that holds when every study supplies event times, which is exactly what an aggregate count arm does not.
+</dd>
+<dt>Citation corrected</dt>
+<dd>
+<strong>normalized a citation year: ‘Phillippo et al.&nbsp;2022, Validating the Assumptions of Population Adjustment: Application of Multilevel Network Meta-regression to a Network of Treatments for Plaque Psoriasis, Medical Decision Making’ -&gt; ‘Phillippo et al.&nbsp;2023, Validating the Assumptions of Population Adjustment: Application of Multilevel Network Meta-regression to a Network of Treatments for Plaque Psoriasis, Medical Decision Making’</strong> 10.1177/0272989X221117162 is cited with two different years across the registry. CrossRef gives 2022 online and 2023 in print; the issue year is used throughout.
+</dd>
 <dt>Literature and prior-art check</dt>
 <dd>
 <strong>partially-solved / overstated.</strong> Two of the enumerated gaps are shipped features in the very release the entry cites. (1) Baseline-risk adjustment: multinma NEWS for 0.9.0 (CRAN 2026-04-13, superseded by 0.9.1 on 2026-04-16) announces regression on baseline risk via the new .mu variable, done on the estimated intercept per TSD3, with a Certolizumab vignette. Issue #35 is open only because it was never closed; the maintainer wrote in-thread that the fix was in PR #36. (2) Marginal effects in external populations: issue #59 ‘Marginal effects in an external target population’ is CLOSED (2025-12-11) with the maintainer answering that it is already implemented via baseline_type=‘response’ and baseline_level=‘aggregate’, demonstrated in the plaque psoriasis vignette, method in Phillippo et al.&nbsp;2022. The remaining claims verify: #67 missing data, #58 mixed AgD/IPD in one study, #42 mixed likelihoods, #52 ranking of TTE auxiliary parameters are all open, and PR #68 (opened 2026-07-07) is unmerged with no disconnected-network entry anywhere in NEWS. Cites cran:multinma: Baseline-risk adjustment, listed by the entry as an open need, is a released feature.. Cites https://github.com/dmphillippo/multinma/issues/59: Marginal effects in external target populations, listed by the entry as an open issue, is an implemented and documented feature; the issue is closed.. Cites 10.1177/0272989X221117162: The published method behind multinma’s external-target-population intercept solution, cited by the maintainer when closing issue #59..
@@ -518,11 +536,39 @@ ul.task-list li input[type="checkbox"] {
 </dl>
 </div>
 </section>
+<section id="how-the-evidence-falls-in-time" class="level2">
+<h2 class="anchored" data-anchor-id="how-the-evidence-falls-in-time">How the evidence falls in time</h2>
+<p>1 paper in the reviewed corpus bears on this problem, published 2014. Every paper found here reports progress; none asserts the problem is open.</p>
+<div class="table-scroll">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Year</th>
+<th>Says</th>
+<th>Paper</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>2014</td>
+<td>partly addresses it</td>
+<td>Network meta-analysis of (individual patient) time to event data alongside (aggregate) count data</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
 <section id="related-problems" class="level2">
 <h2 class="anchored" data-anchor-id="related-problems">Related problems</h2>
 <div class="related-links">
 <ul>
 <li><a href="../problems/DIS-03-baseline-risk-is-not-a-neutral-anchor-for-disconnected-evide.html">DIS-03 — Baseline risk is not a neutral anchor for disconnected evidence</a></li>
+<li><a href="../problems/DIS-19-no-population-adjusted-likelihood-mixes-a-randomized-core-wi.html">DIS-19 — No population-adjusted likelihood mixes a randomized core with single-arm evidence</a></li>
 <li><a href="../problems/OUT-20-no-paic-workflow-carries-dependence-through-transport-to-net.html">OUT-20 — No PAIC workflow carries dependence through transport to net benefit</a></li>
 </ul>
 </div>

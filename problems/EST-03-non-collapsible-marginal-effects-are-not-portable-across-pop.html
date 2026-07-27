@@ -343,6 +343,10 @@ ul.task-list li input[type="checkbox"] {
 <span class="menu-text">Agenda</span></a>
   </li>  
   <li class="nav-item">
+    <a class="nav-link" href="../chronology.html"> 
+<span class="menu-text">Chronology</span></a>
+  </li>  
+  <li class="nav-item">
     <a class="nav-link" href="../landscape.html"> 
 <span class="menu-text">Landscape</span></a>
   </li>  
@@ -383,6 +387,7 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#what-has-been-tried" id="toc-what-has-been-tried" class="nav-link" data-scroll-target="#what-has-been-tried">What has been tried</a></li>
   <li><a href="#probable-solution-or-research-direction" id="toc-probable-solution-or-research-direction" class="nav-link" data-scroll-target="#probable-solution-or-research-direction">Probable solution or research direction</a></li>
   <li><a href="#verification" id="toc-verification" class="nav-link" data-scroll-target="#verification">Verification</a></li>
+  <li><a href="#how-the-evidence-falls-in-time" id="toc-how-the-evidence-falls-in-time" class="nav-link" data-scroll-target="#how-the-evidence-falls-in-time">How the evidence falls in time</a></li>
   <li><a href="#related-problems" id="toc-related-problems" class="nav-link" data-scroll-target="#related-problems">Related problems</a></li>
   <li><a href="#source" id="toc-source" class="nav-link" data-scroll-target="#source">Source</a></li>
   </ul>
@@ -482,7 +487,12 @@ ul.task-list li input[type="checkbox"] {
 <p><strong>The source said.</strong> “Odds ratios and hazard ratios can vary across populations even in the absence of confounding, so a marginal effect estimated in one population is not automatically transportable to another. The shared-effect-modifier assumption, routinely invoked to justify population adjustment, does not by itself make non-collapsible marginal effects portable to an arbitrary population.”</p>
 <p><strong>What was wrong with it.</strong> The source credited Chandler and Ishak (arxiv:2602.17041) with establishing that shared effect modification does not make non-collapsible marginal effects portable; the literature auditor found the result established two years earlier by Remiro-Azocar (doi:10.1002/sim.10111) and foreshadowed by Phillippo et al.&nbsp;2021 (doi:10.1002/sim.8965), and found the claim that it has not reached software defaults false, since multinma’s marginal_effects() defaults to a risk difference. GPT-5.6 Sol separately struck the equation of collapsibility with portability and the treatment of a standardized risk as an effect scale.</p>
 <p><strong>Dissent.</strong> literature dissented (open): Chandler &amp; Ishak 2026 does say what is attributed (‘SEMA alone does not guarantee direct transportability of marginal treatment effects’; non-collapsible marginal effects ‘are not directly transportable, even when SEMA holds’), so claims 1-3, 5 and 6 hold. Claim 4 does not: Chandler &amp; Ishak are not the work that establishes this. Remiro-Azocar, Statistics in Medicine 43(22):4217-4249 (2024) establishes a strictly stronger result two years earlier - for non-collapsible measures even purely prognostic variables that are not determinants of treatment response modify marginal effects - which is exactly why an assumption about effect modifiers cannot suffice. Earlier still, Phillippo, Dias, Ades &amp; Welton (Stat Med 2021) wrote that marginal effects ‘depend more strongly on the population of interest than the population-average conditional treatment effects, and are less generalizable/transportable as a result’. The why_open assertion that the result ‘has not propagated into guidance, software defaults’ is also wrong at the software level: multinma’s marginal_effects() defaults to mtype = ‘difference’, a collapsible absolute scale. Status stays open because these are formalizations of an unfixable property. codex dissented (overstated): C1-C3 are mathematically correct: a marginal odds ratio or hazard-ratio projection can change with baseline risk, prognostic covariate distribution, or follow-up composition despite no confounding and a stable conditional treatment parameter. C4 is a priority-attribution claim outside this assigned technical lens; the result is an established consequence of non-collapsibility, not something that can be credited from technical truth alone. C5 is sloppy: risk differences and RMST differences are collapsible linear contrasts, but collapsibility neither guarantees transportability under effect modification nor makes them universally preferable; a standardized risk is target-specific and is not itself a treatment-effect scale. C6 should require a named target population, and numerical standardization needs a target covariate or outcome law, but the abstract marginal estimand need not encode one particular covariate representation. Target-specific standardization is established and implemented, so the management problem is partly solved; no population-free marginal OR or HR exists.</p>
+<p><strong>Revised by the full-text reading.</strong> Applied 2026-07-26 full-text reading of the consolidated library (687 papers).</p>
 <dl>
+<dt>Flagged for reopening</dt>
+<dd>
+<strong>3 findings from the reading assert this problem is open while the registry carries <code>not-supported</code></strong> Flagged, not applied: reversing an earlier audit’s closure needs the closure’s own evidence re-examined alongside this, which the reading did not do. See documentation/audit/reading/PROPOSED.md.
+</dd>
 <dt>Literature and prior-art check</dt>
 <dd>
 <strong>open / misattributed.</strong> Chandler &amp; Ishak 2026 does say what is attributed (‘SEMA alone does not guarantee direct transportability of marginal treatment effects’; non-collapsible marginal effects ‘are not directly transportable, even when SEMA holds’), so claims 1-3, 5 and 6 hold. Claim 4 does not: Chandler &amp; Ishak are not the work that establishes this. Remiro-Azocar, Statistics in Medicine 43(22):4217-4249 (2024) establishes a strictly stronger result two years earlier - for non-collapsible measures even purely prognostic variables that are not determinants of treatment response modify marginal effects - which is exactly why an assumption about effect modifiers cannot suffice. Earlier still, Phillippo, Dias, Ades &amp; Welton (Stat Med 2021) wrote that marginal effects ‘depend more strongly on the population of interest than the population-average conditional treatment effects, and are less generalizable/transportable as a result’. The why_open assertion that the result ‘has not propagated into guidance, software defaults’ is also wrong at the software level: multinma’s marginal_effects() defaults to mtype = ‘difference’, a collapsible absolute scale. Status stays open because these are formalizations of an unfixable property.
@@ -498,11 +508,50 @@ ul.task-list li input[type="checkbox"] {
 </dl>
 </div>
 </section>
+<section id="how-the-evidence-falls-in-time" class="level2">
+<h2 class="anchored" data-anchor-id="how-the-evidence-falls-in-time">How the evidence falls in time</h2>
+<p>3 papers in the reviewed corpus bear on this problem, published 2025 to 2026. The most recent paper to touch this reports progress on it, and every paper calling it open is older.</p>
+<p><strong>Does the later work answer the earlier work?</strong> Put to an independent reviewer with the older and newer claims side by side, it judged that the later work answers a component of it, leaving a named part (medium confidence). Chandler and Ishak give the requested general transportability classification for the principal non-collapsible PAIC measures, and ML-UMR quantifies the consequence even without effect modification. Neither makes marginal odds ratios or hazard ratios portable across populations, so the practical problem survives despite the theoretical question being substantially clarified. What remains: A method for producing decision-relevant portable effects, or for handling the population dependence in practice, remains; the later work mainly characterizes and quantifies the limitation.</p>
+<div class="table-scroll">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Year</th>
+<th>Says</th>
+<th>Paper</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>2025</td>
+<td>confirms it is open</td>
+<td>Effect modification and non-collapsibility together may lead to conflicting treatment decisions: A review of marginal and conditional estimands and recommendations for decision-making</td>
+</tr>
+<tr class="even">
+<td>2026</td>
+<td>partly addresses it</td>
+<td>Reframing Population-Adjusted Indirect Comparisons as a Transportability Problem: An Estimand-Based Perspective and Implications for Health Technology Assessment (Chandler &amp; Ishak; arXiv:2602.17041v3). The batch file points at media/media/Table_1_v2.pdf; the full LaTeX source Transportability_PAIC.tex sits in the same arXiv package and was read.</td>
+</tr>
+<tr class="odd">
+<td>2026</td>
+<td>partly addresses it</td>
+<td>Anchors Away: Navigating Unanchored Indirect Comparisons with Multilevel Unanchored Meta-Regression (ML-UMR) (Chandler &amp; Ishak; arXiv:2606.20341v1). The batch file points at media/media/Table1.pdf; the full LaTeX source mlumr.tex sits in the same arXiv package and was read.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
 <section id="related-problems" class="level2">
 <h2 class="anchored" data-anchor-id="related-problems">Related problems</h2>
 <div class="related-links">
 <ul>
 <li><a href="../problems/COV-02-no-evidence-on-how-the-modifier-set-changes-across-effect-sc.html">COV-02 — No evidence on how the modifier set changes across effect scales</a></li>
+<li><a href="../problems/DEC-28-no-inference-is-reported-for-an-estimated-optimal-treatment-.html">DEC-28 — No inference is reported for an estimated optimal-treatment boundary</a></li>
 <li><a href="../problems/OUT-11-non-proportional-hazards-and-the-transported-hazard-ratio.html">OUT-11 — Non-proportional hazards and the transported hazard ratio</a></li>
 </ul>
 </div>
