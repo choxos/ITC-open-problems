@@ -33,6 +33,10 @@ const readJson = (p, fallback) =>
 // consumer below has to tolerate.
 let TIMELINE = {}
 let TIMELINE_VERDICT = {}
+// Our own simulation and case studies, keyed by problem id. Unlike the two
+// above this is tracked in the repository rather than derived from the
+// gitignored working directory, because the studies are published output.
+let STUDIES = {}
 
 export const CATEGORIES = [
   { code: 'EST', slug: 'estimands', name: 'Estimands & target populations',
@@ -122,6 +126,77 @@ function normalizeLocator(loc) {
   return s
 }
 
+const REPO = 'https://github.com/choxos/ITC-open-problems'
+
+// The catalog says a problem is open. A study on this page says what happened
+// when someone tried to settle it. The two must not blur together: the study is
+// our own work and carries our own uncertainty, so it is labelled as such and
+// kept structurally separate from the audited catalog entry above it, and it
+// always states what it did not answer.
+function studySection(s) {
+  if (!s) return []
+  const dl = Object.entries({ pdf: 'PDF', md: 'Markdown', odt: 'OpenDocument' })
+    .filter(([k]) => s.downloads?.[k])
+    .map(([k, label]) => `[${label}](/${s.downloads[k]})`)
+    .join(' · ')
+
+  if (s.status !== 'complete') {
+    return [
+      '## Our study', '',
+      '::: {.callout-note}',
+      `## ${s.status === 'running' ? 'A study is running' : 'A study is designed'}`,
+      '',
+      `**Question.** ${s.question}`,
+      '',
+      s.design ? `**Design.** ${s.design}` : null,
+      '',
+      s.protocol ? `The protocol is registered before any result is seen: [${s.protocol}](${REPO}/blob/main/${s.protocol}).` : null,
+      ':::', '',
+    ].filter((x) => x !== null)
+  }
+
+  const out = [
+    '## Our study', '',
+    '::: {.study-result}',
+    `**${s.title}**`, '',
+    `**The question put to it.** ${s.question}`, '',
+    `**What it found.** ${s.answer}`, '',
+  ]
+
+  if (s.findings?.length) {
+    out.push('**Results.**', '')
+    for (const f of s.findings) out.push(`- ${f}`)
+    out.push('')
+  }
+
+  out.push('**Design.**', '')
+  out.push(
+    [
+      s.estimand ? `Estimand\n:   ${s.estimand}` : null,
+      s.methods_compared?.length
+        ? `Methods compared\n:   ${s.methods_compared.join(', ')}`
+        : null,
+      s.design ? `Data-generating mechanism\n:   ${s.design}` : null,
+      s.n_sim ? `Replicates\n:   ${s.n_sim}` : null,
+    ].filter(Boolean).join('\n\n'),
+    ''
+  )
+
+  // Placed after the result on purpose. A reader who stops early should still
+  // have seen the claim; a reader who continues must not be able to miss the
+  // limits of it.
+  out.push(`**What this does not answer.** ${s.not_answered}`, '')
+
+  const links = [
+    dl ? `Read it: ${dl}` : null,
+    `Code and data: [${s.code}](${REPO}/tree/main/${s.code})`,
+    s.protocol ? `Protocol: [registered before the run](${REPO}/blob/main/${s.protocol})` : null,
+  ].filter(Boolean)
+  out.push(links.join(' · '), '')
+  out.push(':::', '')
+  return out
+}
+
 function problemPage(p) {
   const cat = BY_CODE[p.category] || { name: p.category, slug: slugify(p.category) }
   const verdictLabel = VERDICT_LABEL[p.verdict] || p.verdict
@@ -183,6 +258,20 @@ function problemPage(p) {
     )
   }
 
+  // A reader landing here must learn in the first screen that this entry has
+  // been tested, not discover it below a thousand words of background.
+  const study = STUDIES[p.id]
+  if (study?.status === 'complete') {
+    out.push(
+      '::: {.callout-important appearance="simple"}',
+      '## A study has been run against this problem',
+      '',
+      `${study.answer} [Read the study below](#our-study).`,
+      ':::',
+      ''
+    )
+  }
+
   out.push('## Statement', '', p.statement, '')
   out.push('## Why it is open', '', p.why_open, '')
 
@@ -199,6 +288,8 @@ function problemPage(p) {
   }
 
   out.push('## Probable solution or research direction', '', p.proposed_direction, '')
+
+  out.push(...studySection(study))
 
   out.push('## Verification', '')
   out.push('::: {.verification-trail}')
@@ -391,6 +482,124 @@ ${cat.blurb}
 // things this shows and a count cannot: whether later work answered what earlier
 // work left open, whether a gap kept being named after partial progress landed,
 // and whether a gap has simply sat there being restated.
+// The program page. Two things it must not do: imply the queue is a promise,
+// and hide what was excluded. The exclusions are the more informative half,
+// because "this problem cannot be settled by a simulation" is itself a finding
+// about the problem, and a queue shown without them reads as though the other
+// 226 entries were simply not got to yet.
+function studiesPage(queue, index) {
+  const done = Object.entries(index).filter(([, s]) => s.status === 'complete')
+  const active = Object.entries(index).filter(([, s]) => s.status !== 'complete')
+  const link = (id) => {
+    const t = REGISTRY_INDEX[id]
+    return t ? `[${id}](problems/${t.filename})` : id
+  }
+
+  const out = [`---
+title: "Studies"
+subtitle: ${y(`Closing the catalog, one problem a week`)}
+toc: true
+---
+
+The catalog records what is open. This is the attempt to close some of it: one study a
+week, each aimed at a single entry, taken in priority order.
+
+Scope is population-adjusted indirect comparison only, meaning MAIC, STC, ML-NMR, ML-UMR
+and NMI. Standard network meta-analysis is out of scope because it does not adjust for
+population differences, which is where these problems live.
+
+`, '']
+
+  if (done.length) {
+    out.push('## Completed', '')
+    for (const [pid, s] of done) {
+      out.push(`### ${link(pid)} — ${s.title}`, '')
+      out.push(`**Question.** ${s.question}`, '')
+      out.push(`**Answer.** ${s.answer}`, '')
+      const dl = Object.entries({ pdf: 'PDF', md: 'Markdown', odt: 'OpenDocument' })
+        .filter(([k]) => s.downloads?.[k])
+        .map(([k, l]) => `[${l}](/${s.downloads[k]})`).join(' · ')
+      if (dl) out.push(`Read it: ${dl}`, '')
+    }
+  } else {
+    out.push('## Completed', '', 'None yet. The first study is under way.', '')
+  }
+
+  if (active.length) {
+    out.push('## Under way', '')
+    out.push('::: {.table-scroll}', '', '| Problem | Study | Status |', '|---|---|---|')
+    for (const [pid, s] of active) {
+      out.push(`| ${link(pid)} | ${s.title} | ${s.status} |`)
+    }
+    out.push('', ':::', '')
+  }
+
+  out.push(
+    '## How a problem gets chosen', '',
+    'Not every open problem can be settled by a study, and the difference is not cosmetic.',
+    'A simulation can measure bias, coverage and error rates, and it can show how badly a',
+    'known nonidentification bites at realistic sample sizes. It cannot establish that a',
+    'package is missing, that clinicians misread a plot, that a field under-reports',
+    'something, or that a quantity is unidentifiable in principle. Those need software, a',
+    'case study, a meta-research corpus, or a proof.',
+    '',
+    `Every one of the ${Object.values(queue.excluded || {}).reduce((a, b) => a + b, 0) + (queue.queue?.length || 0)} catalog entries was judged on both questions separately,`,
+    'by an external model, before the program started: is this a population-adjustment',
+    'problem, and what kind of study would settle it. The queue below is the intersection.',
+    '',
+    '::: {.table-scroll}', '', '| Why an entry is not in the program | n |', '|---|---:|'
+  )
+  for (const [k, n] of Object.entries(queue.excluded || {}).sort((a, b) => b[1] - a[1])) {
+    out.push(`| ${k} | ${n} |`)
+  }
+  out.push('', ':::', '')
+
+  out.push(
+    '## The queue', '',
+    `${queue.queue?.length || 0} problems, in order. This is an ordering, not a schedule:`,
+    'a study that turns out to answer two entries closes both, and a study whose design',
+    'review finds it would answer a neighbouring question rather than the stated one gets',
+    'sent back before it is run.',
+    '',
+    '::: {.table-scroll}', '',
+    '| # | Problem | Methods | Study | Answers | Feasibility | Catalog priority |',
+    '|---|---|---|---|---|---|---|'
+  )
+  for (const [i, r] of (queue.queue || []).entries()) {
+    out.push(
+      `| ${i + 1} | ${link(r.id)} ${r.title} | ${(r.methods || []).join(', ') || '—'} ` +
+        `| ${r.study_type} | ${r.answerable} | ${r.feasibility ?? '—'}/5 | ${r.priority} |`
+    )
+  }
+  out.push('', ':::', '')
+
+  out.push(
+    '## What each study has to do', '',
+    'Simulation studies follow ADEMP: aims, data-generating mechanisms, estimands, methods,',
+    'performance measures ([Morris, White and Crowther 2019](https://doi.org/10.1002/sim.8086)).',
+    'Two rules follow from it and are enforced rather than encouraged.',
+    '',
+    'Every performance measure carries a Monte Carlo standard error.',
+    ':   A bias of 0.02 is uninterpretable without knowing whether the Monte Carlo error is',
+    '    0.001 or 0.03. The replicate count is derived in the protocol from a target Monte',
+    '    Carlo standard error, not chosen because it is a round number.',
+    '',
+    'Failed replicates are results.',
+    ':   A method that converges on 60% of replicates and is unbiased on those is not an',
+    '    unbiased method. Convergence is reported for every method in every scenario.',
+    '',
+    'The protocol is committed before the run.',
+    ':   It fixes the design and states in advance what result would count as showing the',
+    '    problem is real and what would count as showing it is not. The commit that adds it',
+    '    is the timestamp.',
+    '',
+    'Code, protocols and results are at',
+    '[github.com/choxos/ITC-open-problems/tree/main/studies](https://github.com/choxos/ITC-open-problems/tree/main/studies).',
+    ''
+  )
+  return out.join('\n')
+}
+
 function chronologyPage(tl, gaps) {
   const rows = tl.problems || []
   const link = (id) => {
@@ -539,6 +748,8 @@ function main() {
   }
   const problems = JSON.parse(readFileSync(REGISTRY, 'utf8'))
 
+  STUDIES = readJson(join(ROOT, 'studies/index.json'), {})
+
   const timeline = readJson(join(READING, 'timeline.json'), { problems: [], by_year: {} })
   const gapChron = readJson(join(READING, 'gap-chronology.json'), { themes: [] })
   TIMELINE = Object.fromEntries((timeline.problems || []).map((r) => [r.id, r]))
@@ -571,6 +782,11 @@ function main() {
   for (const cat of CATEGORIES) {
     const mine = problems.filter((p) => p.category === cat.code)
     writeFileSync(join(CATEGORIES_DIR, `${cat.slug}.qmd`), categoryPage(cat, mine))
+  }
+
+  const queue = readJson(join(ROOT, 'studies/queue.json'), { queue: [], excluded: {} })
+  if (queue.queue?.length) {
+    writeFileSync(join(ROOT, 'studies.qmd'), studiesPage(queue, STUDIES))
   }
 
   if (timeline.problems?.length) {
