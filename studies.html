@@ -387,9 +387,9 @@ ul.task-list li input[type="checkbox"] {
   <ul>
   <li><a href="#completed" id="toc-completed" class="nav-link active" data-scroll-target="#completed">Completed</a>
   <ul class="collapse">
+  <li><a href="#cmp-13-separating-within-trial-from-across-trial-component-effect-modification" id="toc-cmp-13-separating-within-trial-from-across-trial-component-effect-modification" class="nav-link" data-scroll-target="#cmp-13-separating-within-trial-from-across-trial-component-effect-modification">CMP-13 — Separating within-trial from across-trial component effect modification</a></li>
   <li><a href="#mis-03-what-conditioning-on-sampled-target-moments-costs" id="toc-mis-03-what-conditioning-on-sampled-target-moments-costs" class="nav-link" data-scroll-target="#mis-03-what-conditioning-on-sampled-target-moments-costs">MIS-03 — What conditioning on sampled target moments costs</a></li>
   </ul></li>
-  <li><a href="#under-way" id="toc-under-way" class="nav-link" data-scroll-target="#under-way">Under way</a></li>
   <li><a href="#how-a-problem-gets-chosen" id="toc-how-a-problem-gets-chosen" class="nav-link" data-scroll-target="#how-a-problem-gets-chosen">How a problem gets chosen</a></li>
   <li><a href="#the-queue" id="toc-the-queue" class="nav-link" data-scroll-target="#the-queue">The queue</a></li>
   <li><a href="#what-each-study-has-to-do" id="toc-what-each-study-has-to-do" class="nav-link" data-scroll-target="#what-each-study-has-to-do">What each study has to do</a></li>
@@ -424,6 +424,14 @@ ul.task-list li input[type="checkbox"] {
 <p>Scope is population-adjusted indirect comparison only, meaning MAIC, STC, ML-NMR, ML-UMR and NMI. Standard network meta-analysis is out of scope because it does not adjust for population differences, which is where these problems live.</p>
 <section id="completed" class="level2">
 <h2 class="anchored" data-anchor-id="completed">Completed</h2>
+<section id="cmp-13-separating-within-trial-from-across-trial-component-effect-modification" class="level3">
+<h3 class="anchored" data-anchor-id="cmp-13-separating-within-trial-from-across-trial-component-effect-modification"><a href="./problems/CMP-13-shared-gamma-conflates-within-and-between-study-modification.html">CMP-13</a> — Separating within-trial from across-trial component effect modification</h3>
+<p>Also bears on <a href="./problems/IDN-06-ml-nmr-interactions-can-rest-solely-on-aggregate-data-variat.html">IDN-06</a>.</p>
+<p><strong>Question.</strong> Component ML-NMR fits one shared interaction on a globally centered covariate, which algebraically forces the causal within-trial interaction to equal the confounded across-trial association. How much does that cost, when, and is the damage really caused by aggregate data as the catalog claims?</p>
+<p><strong>Answer.</strong> Fitting one shared interaction matrix on a globally centered covariate is not pooling: for a binary modifier with study prevalence p_s it is algebraically identical to imposing that the causal within-trial coefficient equals the confounded across-trial one. In the model simulated, coverage of a nominal 95% interval for the causal interaction falls from 93.8% when that happens to be true to 17.2% when the two are equal and opposite, and further in networks whose contrasts move two components at once. Separating them costs about 5% in interval width and removes an order of magnitude of bias. The catalog’s stated cause is incomplete: the loss is present with all twelve trials supplying individual data, so aggregate data are not necessary for it, but removing individual data roughly doubles the bias, so they amplify it.</p>
+<p><strong>What it does not answer.</strong> The registered global analysis is uninformative and the regime split that produced a usable answer was prompted by observing that failure, so it is not prespecified. The general headline about component ML-NMR is not established: the likelihood and nuisance structures are not mapped onto the fixed- and random-effect specifications the implemented method offers, and free study-by-treatment effects or priors can absorb or alter the term the identity isolates. A maximum-likelihood analogue of component ML-NMR. Implemented ML-NMR is Bayesian and priors matter most where interactions are weakly identified, so the coverage numbers do not transfer to multinma; the algebra does, and therefore so does the direction. One binary modifier, a log link, a Poisson outcome, additive components with no synergy, no random treatment-effect heterogeneity, no inconsistency, and exactly reported study prevalences. Under the discordance patterns the split model is correctly specified, so the study measures the cost of an algebraically known restriction rather than establishing that real networks contain within/across disagreement or how large it typically is. Continuous or multiple correlated modifiers, misspecified aggregate covariate distributions, and time-to-event outcomes are untested. It does not touch IDN-05.</p>
+<p>Read it: <a href="./studies/CMP-13-within-between-interaction/out/CMP-13.pdf">PDF</a> · <a href="./studies/CMP-13-within-between-interaction/out/CMP-13.md">Markdown</a> · <a href="./studies/CMP-13-within-between-interaction/out/CMP-13.odt">OpenDocument</a></p>
+</section>
 <section id="mis-03-what-conditioning-on-sampled-target-moments-costs" class="level3">
 <h3 class="anchored" data-anchor-id="mis-03-what-conditioning-on-sampled-target-moments-costs"><a href="./problems/MIS-03-nothing-propagates-sampling-error-in-reported-target-moments.html">MIS-03</a> — What conditioning on sampled target moments costs</h3>
 <p>Also bears on <a href="./problems/EST-07-reported-target-moments-are-treated-as-known-constants.html">EST-07</a>.</p>
@@ -432,27 +440,6 @@ ul.task-list li input[type="checkbox"] {
 <p><strong>What it does not answer.</strong> The registered coverage question is not confirmatorily answered: every usable coverage result comes from a post-run restriction conditioning on an observed outcome. One estimator, one outcome type, one information structure. Covariates are multivariate normal, which is also the assumption the deployable correction is derived under, so it is measured under conditions favorable to it; skewed, bounded and categorical covariates are untested. The outcome is continuous and the effect additive, so marginal and conditional effects coincide, and nothing transfers directly to binary or time-to-event outcomes, where MAIC is most used. Effect modification lies exactly in the span of the matched moments, so this is a variance result under correct identification and says nothing about bias. The target moments and the target treatment effect come from the same trial, which is the common case but not the only one. STC, ML-NMR, ML-UMR and NMI have different sensitivities and are not covered. EST-07’s other components, model uncertainty in reconstructed correlations, inclusion-criteria ambiguity and secular drift, are not sampling error and are untouched. The alignment parameter imposes exact non-negative proportionality between source and target modifier coefficients, so modifier sets differing in direction or overlapping only partially are untested.</p>
 <p>Read it: <a href="./studies/MIS-03-target-moment-uncertainty/out/MIS-03.pdf">PDF</a> · <a href="./studies/MIS-03-target-moment-uncertainty/out/MIS-03.md">Markdown</a> · <a href="./studies/MIS-03-target-moment-uncertainty/out/MIS-03.odt">OpenDocument</a></p>
 </section>
-</section>
-<section id="under-way" class="level2">
-<h2 class="anchored" data-anchor-id="under-way">Under way</h2>
-<div class="table-scroll">
-<table class="caption-top table">
-<thead>
-<tr class="header">
-<th>Problem</th>
-<th>Study</th>
-<th>Status</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><a href="./problems/CMP-13-shared-gamma-conflates-within-and-between-study-modification.html">CMP-13</a></td>
-<td>Separating within-trial from across-trial component effect modification</td>
-<td>running</td>
-</tr>
-</tbody>
-</table>
-</div>
 </section>
 <section id="how-a-problem-gets-chosen" class="level2">
 <h2 class="anchored" data-anchor-id="how-a-problem-gets-chosen">How a problem gets chosen</h2>
