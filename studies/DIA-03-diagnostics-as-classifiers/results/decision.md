@@ -161,6 +161,24 @@ Net benefit relative to flagging nothing. A rule earns its place only above both
 | 0.400 | 0.000 | 0.131 | 0.075 | 0.066 | 0.194 | 0.194 | 0.083 | 0.000 | 0.167 | 0.172 | 0.108 | 0.049 |
 | 0.500 | 0.000 | -0.043 | 0.069 | 0.061 | 0.142 | 0.142 | 0.076 | 0.000 | 0.063 | 0.130 | 0.054 | 0.039 |
 
+## Systematic transport bias, with the cell as the unit
+
+42 of 128 cells have a systematic transport bias above 0.20.
+
+| diagnostic | AUROC vs systematic bias | Spearman with |bias| |
+| --- | ---: | ---: |
+| ess | 0.808 | 0.469 |
+| ess_pct | 0.818 | 0.495 |
+| cv_w | 0.818 | 0.495 |
+| max_w | 0.813 | 0.479 |
+| smd_matched | 0.708 | 0.337 |
+| smd_pre | 0.813 | 0.492 |
+| maha | 0.808 | 0.476 |
+| smd_unmatched | 0.821 | 0.508 |
+| bias_hat | 0.829 | 0.545 |
+| orc_cross | 0.845 | 0.764 |
+| lambda_norm | 0.783 | 0.451 |
+
 ## The four prespecified mechanism claims
 
 | claim | holds | evidence |

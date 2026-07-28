@@ -434,6 +434,38 @@ dca <- do.call(rbind, lapply(PT, function(pt) {
              as.data.frame(as.list(r)), stringsAsFactors = FALSE)
 }))
 
+## --- systematic transport bias, at the level of a cell -----------------------
+##
+## Added in round two of review. The per-replicate transport term is the REALIZED
+## effect-modifier component of one analysis: it contains finite-sample source
+## composition and allocation variation as well as the systematic part. A reviewer
+## objected, correctly, that scoring diagnostics against it does not establish
+## anything about systematic bias, which is a property of a cell rather than of a
+## replicate. So the systematic part is estimated directly as the Monte Carlo mean
+## of the transport term within a cell, and the diagnostics are scored against it
+## with the cell as the unit. 128 cells is a small sample and the areas under the
+## curve below carry correspondingly wide uncertainty; they are reported because
+## the alternative is to leave the question unanswered.
+cell_sys <- do.call(rbind, lapply(split(M, M$scenario), function(z) {
+  s <- scen[scen$scenario == z$scenario[1], ]
+  d <- data.frame(scenario = z$scenario[1], w_deploy = s$w_deploy,
+                  bias = mean(z$transport),
+                  bias_mcse = stats::sd(z$transport) / sqrt(nrow(z)),
+                  stringsAsFactors = FALSE)
+  for (nm in ALL_D) d[[nm]] <- stats::median(z[[nm]])
+  d
+}))
+cell_sys$material_bias <- abs(cell_sys$bias) > MATERIAL
+sys_disc <- data.frame(
+  diagnostic = ALL_D,
+  auc_systematic = vapply(ALL_D, function(nm)
+    wauc(sgn(nm, cell_sys[[nm]]), cell_sys$material_bias,
+         rep(1, nrow(cell_sys))), 0),
+  spearman = vapply(ALL_D, function(nm)
+    suppressWarnings(stats::cor(sgn(nm, cell_sys[[nm]]), abs(cell_sys$bias),
+                                method = "spearman")), 0),
+  stringsAsFactors = FALSE)
+
 ## --- the four prespecified mechanism claims ----------------------------------
 ## The unit is the cell the rule flags, not a fixed numeric band. Among the
 ## analyses ESS < 35 warns about, how much does the actual risk of material error
@@ -618,6 +650,13 @@ L <- c("# Decision", "",
   paste0("| ---: | ---: | ---: |", strrep(" ---: |", length(rules))),
   apply(dca, 1, function(r) paste0("| ", paste(f3(as.numeric(r)), collapse = " | "), " |")),
   "",
+  "## Systematic transport bias, with the cell as the unit", "",
+  sprintf("%d of %d cells have a systematic transport bias above %.2f.",
+          sum(cell_sys$material_bias), nrow(cell_sys), MATERIAL), "",
+  "| diagnostic | AUROC vs systematic bias | Spearman with |bias| |",
+  "| --- | ---: | ---: |",
+  sprintf("| %s | %s | %s |", sys_disc$diagnostic, f3(sys_disc$auc_systematic),
+          f3(sys_disc$spearman)), "",
   "## The four prespecified mechanism claims", "",
   "| claim | holds | evidence |", "| --- | :---: | --- |",
   sprintf("| %s | %s | %s |", names(MECH),
@@ -638,6 +677,10 @@ utils::write.csv(other, file.path(RES, "other-estimators.csv"), row.names = FALS
 utils::write.csv(disc, file.path(RES, "discrimination.csv"), row.names = FALSE)
 utils::write.csv(cal, file.path(RES, "calibration.csv"), row.names = FALSE)
 utils::write.csv(cal_folds, file.path(RES, "calibration-folds.csv"), row.names = FALSE)
+utils::write.csv(sys_disc, file.path(RES, "systematic-bias.csv"), row.names = FALSE)
+utils::write.csv(cell_sys[, c("scenario", "bias", "bias_mcse", "material_bias",
+                              "ess", "smd_pre", "smd_unmatched", "bias_hat")],
+                 file.path(RES, "cell-systematic-bias.csv"), row.names = FALSE)
 utils::write.csv(dca, file.path(RES, "decision-curve.csv"), row.names = FALSE)
 utils::write.csv(cells, file.path(RES, "cells.csv"), row.names = FALSE)
 utils::write.csv(roc, file.path(RES, "roc.csv"), row.names = FALSE)

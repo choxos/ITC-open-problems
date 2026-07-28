@@ -315,8 +315,10 @@ withdraw, would be wrong here for the same reason.
 
 **Secondary.** Area under the ROC curve, with a cell-stratified bootstrap interval, and
 area under the precision-recall curve; calibration intercept, slope and integrated
-calibration error for a mapping fitted on odd-numbered replicates and evaluated on
-even-numbered ones; decision-curve net benefit against flagging nothing and flagging
+calibration error for a locked mapping, evaluated by leave-one-factor-level-out over
+fourteen folds after review found the original cell split confounded with the dispersion
+factor, with a within-cell replicate split retained as the optimistic bound;
+decision-curve net benefit against flagging nothing and flagging
 everything; the same measures against each of the three exact error components
 separately; material thresholds of 0.10 and 0.30; interval non-coverage as an alternative
 reference; operational non-fit rate; and the whole analysis repeated for STC and for the
@@ -452,7 +454,7 @@ Five further changes, each attributable to a specific finding.
 | The misspecification frequency across cells is investigator-chosen, so any mixture-level headline inherits it | **The primary results are now reported within each of the four misspecification strata**, with cells weighted equally inside a stratum. The mixture is a labeled secondary. The reviewer's alternative, basing the verdict on the well-specified stratum alone, is declined with a reason given in section 8. |
 | STC was given a model-based variance while misspecified, MAIC a sandwich | STC now gets HC3. |
 | MAIC was forced to calibrate second moments irrelevant to a linear modifier, which costs it effective sample size for nothing | A **means-only MAIC** was added as a fourth estimator. |
-| Calibration fitted and evaluated within the same cells is optimistic by construction | The locked mapping is now fitted on odd-numbered **cells** and evaluated on even-numbered ones. The within-cell split is retained and reported as the optimistic bound. |
+| Calibration fitted and evaluated within the same cells is optimistic by construction | The locked mapping is fitted on held-out **cells** rather than held-out replicates. The within-cell split is retained and reported as the optimistic bound. *Superseded in round one of peer review: an odd-cell against even-cell split turned out to be perfectly confounded with the dispersion factor, and was replaced by leave-one-factor-level-out. See the manuscript's calibration section.* |
 | Conditioning on a successful MAIC fit answers a slightly easier question | The primary rule's sensitivity is now **bracketed** by counting every non-fit as a caught failure and then as a missed one. |
 
 The description of the unadjusted comparator was wrong in a way the code was not: it said

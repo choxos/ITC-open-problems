@@ -1,5 +1,5 @@
 ---
-title: "Effective sample size is a variance statistic being read as a bias warning"
+title: "Effective sample size tracks the error an analysis got by chance better than the error it got from adjusting on the wrong covariates"
 subtitle: "The routine population-adjustment diagnostic panel scored as a classifier of realized error, answering catalog problem DIA-03"
 author: "Ahmad Sofi-Mahmudi"
 date: 2026-07-27
@@ -55,6 +55,7 @@ NICE <- c(ess = "ESS", ess30 = "ESS (cut 30)", ess_pct = "ESS %", cv_w = "CV(w)"
 routine <- c("ess", "ess_pct", "cv_w", "max_w", "smd_matched", "smd_pre", "maha")
 kp <- c("ess", "ess_pct", "max_w", "smd_pre", "maha", "smd_unmatched", "bias_hat",
         "orc_cross")
+ds <- rd("discrimination-by-stratum.csv")
 best_routine <- disc$diagnostic[disc$diagnostic %in% routine][
   which.max(disc$auc_deploy[disc$diagnostic %in% routine])]
 ```
@@ -74,12 +75,15 @@ What a structured audit of an open-problem catalog did establish is that no publ
 scores any of them as a classifier of realized error, with discrimination and calibration,
 against a known truth.
 
-We do that. The design is an anchored indirect comparison with a continuous outcome and an
-identity link, chosen because on that scale the realized error of a linear estimator splits
-**exactly** into three pieces: chance covariate imbalance between the source arms,
-transport error, and outcome noise. Transport error is the only piece a covariate
-diagnostic could know about before an outcome is seen, so a diagnostic can be scored
-against the part it has a claim on rather than only against the part it does not. The
+We do that. The design has a continuous outcome and an identity link, chosen because on that
+scale the realized error of a linear estimator splits **exactly** into three pieces: chance
+covariate imbalance between the source arms, transport error, and outcome noise. The primary
+reference is the error in the transported source effect rather than in the anchored
+contrast, which is the version most favorable to the diagnostics; the anchored contrast is
+reported throughout. Two of the three pieces are functions of covariates, treatment
+assignment and weights, and the panel is built from those same ingredients; the third,
+transport error, is what covariate adjustment exists to remove. Scoring each diagnostic
+against each piece separately is the instrument of the study. The
 design has `r nrow(cells)` cells crossing an omitted effect modifier, a cross-moment
 modifier that no baseline table could ever reveal, overlap, source size, how correlated the
 omitted modifier is with the adjustment set, and a target dispersion ratio that destroys
@@ -132,7 +136,8 @@ written the distribution down. This study writes one down in advance, and report
 everything twice, once under it and once with all cells weighted equally.
 
 It also reports the primary results **within** strata of misspecification rather than over
-a mixture of them, which removes the dependence on our chosen frequencies entirely. That
+a mixture of them, which removes the dependence on our chosen misspecification frequencies
+though not on the rest of the design, as @sec-scope sets out. That
 change came from an adversarial critique of this design, before the run.
 
 # What a covariate diagnostic could possibly know {#sec-decomposition}
@@ -347,9 +352,15 @@ Effective sample size reaches `r f3(d("ess","auc_noise"))` against the noise cha
 that are functions of covariates, assignment and weights; against the transport component,
 which is what adjustment exists to remove, it reaches `r f3(d("ess","auc_transport"))`. The
 first of those numbers is close to arithmetic for the reason given in @sec-decomposition.
-The second is not, and the third is not. A statistic that reads two channels at above 0.80
-and the third at `r f3(d("ess","auc_transport"))` is a variance statistic, and it is being
-read as a bias warning.
+The second is not, and the third is not.
+
+**That comparison is at the level of one analysis, and it has to be, because that is the
+level at which a diagnostic is read.** A reviewer objected in round two that the transport
+term of a single replicate is the *realized* effect-modifier component and contains
+finite-sample composition and allocation variation, so a low area under the curve against it
+does not by itself establish anything about systematic bias. The objection is correct and
+the analysis it asks for is @sec-systematic, where the answer is different and the difference
+matters.
 
 The conclusion does not depend on the material threshold: at 0.10 and 0.30 the ordering is
 unchanged, and it survives the switch from the declared mixture to equal cell weights and
@@ -381,6 +392,48 @@ question and this design cannot answer it. MAIC found no solution on
 `r pct(1 - fitrate)` of replicates, `r format(as.integer(sub(".*solution: ([0-9,]+)\\..*", "\\1", gsub(",", "", bnd))), big.mark=",")`
 in total, and those are reported as an operational outcome rather than folded into the
 classifier analysis.
+
+## Systematic bias, with the cell as the unit {#sec-systematic}
+
+Round two of review asked for the analysis this section contains, and it changes what can be
+claimed. The systematic part of the transport error is a property of a design cell, not of a
+replicate, so it is estimated as the Monte Carlo mean of the transport term within a cell and
+the diagnostics are scored with the cell as the unit.
+
+```{r}
+#| label: tbl-systematic
+#| tbl-cap: "Discrimination against SYSTEMATIC transport bias above 0.20, with the design cell as the unit rather than the replicate. Added in round two of review."
+sy <- rd("systematic-bias.csv")
+cs <- rd("cell-systematic-bias.csv")
+knitr::kable(data.frame(
+  diagnostic = NICE[sy$diagnostic],
+  `AUROC vs systematic bias` = f3(sy$auc_systematic),
+  `Spearman with |bias|` = f3(sy$spearman), check.names = FALSE),
+  align = c("l", "r", "r"))
+```
+
+`r sum(cs$material_bias)` of the `r nrow(cs)` cells carry a systematic transport bias above
+0.20. Against that target, effective sample size reaches
+`r f3(sy$auc_systematic[sy$diagnostic=="ess"])` and everything else in the panel lands
+between `r f3(min(sy$auc_systematic))` and `r f3(max(sy$auc_systematic))`. Two readings of
+that are available and only one of them survives inspection.
+
+The reading that does not survive is that the panel does after all detect systematic bias.
+The statistic that is **identically zero** reaches
+`r f3(sy$auc_systematic[sy$diagnostic=="smd_matched"])` on this analysis. Nothing in a
+statistic that never departs from $10^{-14}$ can be detecting bias; what is happening is that
+128 cells is a small sample in which almost everything, including the bias, moves along the
+overlap axis, so a cell-level ranking cannot separate the diagnostics from each other or from
+noise. This analysis has very little resolving power and we report it with that stated rather
+than omitted.
+
+What survives is the practical form of the question. An analyst holds one analysis, not a
+cell, and asks whether this one is materially wrong. At that level the panel ranks the two
+components an analysis got by chance far above the one it got from adjusting on the wrong
+covariates, and no threshold on it separates a small sound analysis from a large biased one.
+The title of this paper is a claim about that level and not about the cell level, and the
+earlier version of it, which asserted a variance-versus-bias dichotomy outright, went further
+than these results support and has been withdrawn.
 
 ## The panel is smaller than it looks {#sec-redundancy}
 
@@ -447,9 +500,18 @@ transports worst to.
 
 That worst setting is the same for every weight-dispersion statistic in the panel, and it is
 the cross-moment channel. A mapping fitted where a bias no baseline table can reveal is
-operating, applied where it is not, or the reverse, gets the risk badly wrong. This is the
-substantive version of the transportability question, and it is the analysis the registered
-mechanism claim should have used; the registered version compared predictive values across
+operating, applied where it is not, or the reverse, gets the risk badly wrong.
+
+One caution on reading that, raised in round two and accepted. A one-term logistic mapping
+can fail either because the diagnostic does not transport or because a single linear term in
+the transformed statistic is the wrong functional form in the held-out setting, and this
+analysis cannot separate those. We did not fit richer forms. What can be said without
+choosing between them is the operational fact: a mapping of this shape, fitted on other
+settings, is off by about twenty points of absolute risk in the setting it transports worst
+to, and an analyst using it would not know which setting they were in.
+
+This is the substantive version of the transportability question, and it is the analysis the
+registered mechanism claim should have used; the registered version compared predictive values across
 cells, which move with prevalence and case mix even when a rule's operating characteristics
 are stable, and a reviewer was right that it is not a test of transportability at all.
 
@@ -479,10 +541,12 @@ Every rule in the panel is beaten by flagging everything at action thresholds up
 `r f3(max(beat))`. An analyst who would act on a `r pct(min(dca$pt))` chance of material
 error does better scrutinizing every population adjustment than reading any of these
 numbers. From an action threshold of `r f3(first)` upwards, meaning an analyst who
-intervenes only when material error is at least that likely,
-`r length(winners)` rules beat both alternatives: relative effective sample size,
-pre-weighting imbalance and Mahalanobis distance. The absolute effective-sample-size cutoff
-that gets quoted is not among them at any threshold examined.
+intervenes only when material error is at least that likely, three distinct statistics beat
+both alternatives: relative effective sample size, pre-weighting imbalance and Mahalanobis
+distance. The coefficient of variation of the weights appears as a fourth entry in
+@tbl-dca and is not a fourth statistic; it is relative effective sample size under another
+name, for the reason given in @sec-algebra. The absolute effective-sample-size cutoff that
+gets quoted is not among them at any threshold examined.
 
 ![](../results/figures/fig5-decision-curve.png)
 
@@ -533,10 +597,36 @@ ROC curve against the transport component in the diagnosable stratum; observed
 `r f3(MECH$bias_hat_helps$proposed - MECH$bias_hat_helps$routine)`. It is a real improvement
 and it is not the one we said would count.
 
+Those two numbers are computed over a different set from @tbl-strata-transport and two
+reviewers were right that presenting them side by side without saying so reads as an
+inconsistency, and that the comparator was never named. It is named now. **The registered
+claim compares our statistic against effective sample size as a percentage**, over the
+**diagnosable set**, which is every cell with the cross-moment channel off and therefore
+spans two of the four strata, under the declared deployment weights. On that set the
+comparator reaches 0.851, its alias the coefficient of variation of the weights reaches the
+same by @sec-algebra, and the next routinely reported member is pre-weighting imbalance at
+0.847. @tbl-strata-transport is per stratum, under equal cell weights, and includes our
+proposals as well as the panel. Both are correct for what they are; neither is the other.
+
+Read together they correct something we said in the round-one response. Over the diagnosable
+set our converted statistic reaches 0.937 and the plain unmatched-balance check 0.890, so the
+conversion does help there. Inside the omitted-modifier stratum alone the order reverses: the
+plain check reaches `r f3(ds$smd_unmatched[ds$stratum == "omitted modifier"])` against
+`r f3(ds$bias_hat[ds$stratum == "omitted modifier"])`. The two sets differ by whether the
+well-specified cells are included, and that is the whole explanation. Where the unmatched
+covariate is a modifier in every cell, imbalance in it and bias from it are the same thing
+and converting one to the other adds estimation noise for nothing. Where the analyst does not
+know whether it is a modifier, which is the real situation, the conversion is what keeps the
+statistic quiet on covariates that are imbalanced and harmless.
+
+So the honest summary of our own contribution is narrower than the registered claim and wider
+than the retraction we offered in round one: check balance on everything you measured, and
+weight it by an interaction you can estimate if you do not already know which of those
+covariates matter.
+
 ```{r}
 #| label: tbl-strata-transport
-#| tbl-cap: "Discrimination against the transport component within each stratum, cells weighted equally. This is where the two numbers behind mechanism claim 4 live; in round one of review they appeared in the abstract and in no table."
-ds <- rd("discrimination-by-stratum.csv")
+#| tbl-cap: "Discrimination against the transport component within each stratum, cells weighted equally. This table does NOT contain the two numbers behind mechanism claim 4, which are computed over the diagnosable set under deployment weights and are given in the text; a reviewer caught an earlier caption claiming otherwise."
 tt <- as.data.frame(t(vapply(kp, function(k) f3(ds[[k]]), character(nrow(ds)))))
 names(tt) <- ds$stratum
 tt <- cbind(diagnostic = NICE[kp], tt)

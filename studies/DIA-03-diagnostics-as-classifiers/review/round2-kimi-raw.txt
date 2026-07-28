@@ -1,0 +1,114 @@
+{
+  "recommendation": "minor-revision",
+  "summary": "The revision fixes the two load-bearing problems from round one: the knowability framing is corrected (the arm-imbalance component is now recognized as outcome-free and is scored like the others, and the noise channel's variance is given as an exact function of arm-specific ESS with an honest pooled-ESS caveat), and the confounded odd/even-cell calibration split is replaced by leave-one-factor-level-out, which changed the numbers and produced a better finding (the worst held-out level for every weight statistic is the cross-moment channel). The prespecified verdict stands and is now stated with the precision round one demanded, the anchored contrast is reported alongside the transported component throughout, and both failed registered claims remain reported as failures. However, the response letter claims traceability that the manuscript does not deliver for mechanism claim 4: the new stratum-by-component table contradicts the evidence row in the claims table (0.851 appears nowhere; the unmatched-covariate balance at 0.946 exceeds the proposal's 0.938). Several smaller inconsistencies (an 'entirely' that survives in the introduction while the limitations disown it, a non-coverage column promised in a table that lacks it, a decision-curve sentence false at threshold 0.5, an undefined 'joint' fold) are all repairable without re-simulation.",
+  "strengths": [
+    "The correction of the round-one knowability error is not a grudging concession but improves the paper: scoring all three components shows the panel tracks exactly the two components that are functions of covariates, assignment and weights (0.847 noise, 0.813 arm imbalance) and misses the one adjustment exists to remove (0.653 transport) — and the text correctly notes that the well-specified-stratum 0.946 against transport proves the headline comparison is empirical, not arithmetic.",
+    "The pooled-ESS qualification (2 sigma^2/ESS_pooled is about half the correct value, correlating with the exact noise SD at -0.92 rather than -1 on the log scale) shows the authors verified the reviewers' derivation numerically instead of transcribing it.",
+    "The calibration reanalysis is exemplary revision practice: the confounded split was confirmed (odd cells perfectly equal s=1.00), replaced by a balanced leave-one-factor-level-out design, the old overlap-versus-weight calibration claim is explicitly retracted as an artifact, and the replacement finding (cross-moment channel as the universal worst fold) is more substantive than what it replaced.",
+    "The proposal's demotion is honest and consequential: labeled outcome-model-assisted wherever it appears, in-sample optimism disclosed, cross-fitting declined but named, and the practical recommendation changed to the plain balance check the data actually support.",
+    "The anchored-contrast fix is thorough: the primary reference is stated in one sentence with its justification (target-trial sampling error is invisible to source diagnostics and would depress all discrimination by a common amount), and the anchored column appears in Table 3 and in its own operating-point table, with conclusions unchanged (0.699 vs 0.731).",
+    "Internal-verification discipline remains a model: the ESS/CV identity and the identically-zero matched-moment balance are checked against the run, and the 0.550 AUROC of solver residue is correctly labeled 'discrimination of arithmetic difficulty' with the claim properly narrowed to converged analyses."
+  ],
+  "comments": [
+    {
+      "id": 1,
+      "severity": "major",
+      "section": "Table 8 (mechanism claims) vs Table 9 (strata-transport)",
+      "comment": "The response letter says the new stratum-by-component table 'answers Kimi's question about which panel member reaches 0.851', and Table 9's caption says 'this is where the two numbers behind mechanism claim 4 live'. They do not. In the omitted-modifier (diagnosable) column the proposal is 0.938, not 0.937; no diagnostic of any kind sits at 0.851; the unmatched-covariate balance reaches 0.946, which exceeds the proposal; and the best clearly-routine member (ESS %, 0.862) would give a gain of 0.076, not 0.086. So Table 8's evidence row is irreconcilable with Table 9 under every reading of 'routinely reported'. The registered claim fails under any of these numbers, so the verdict is untouched — but a paper whose central virtue is numeric traceability cannot print two tables that contradict each other on a registered claim's evidence, and the response cannot claim a fix the table does not contain.",
+      "what_would_satisfy": "Name the comparator statistic and the weighting used for the claim-4 evidence, then regenerate or correct the evidence row so it matches Table 9 (if the comparator is ESS % at equal weights, the gain is 0.076, still below 0.10; if the unmatched-covariate balance counts as panel, the gain is negative). One sentence stating why the comparator set excludes the unmatched-covariate balance, if it does."
+    },
+    {
+      "id": 2,
+      "severity": "minor",
+      "section": "Results: The other estimators",
+      "comment": "The text says 'Table 2 reports discrimination against non-coverage as well', but Table 2 as printed has no non-coverage column (AUROC, AUPRC, vs outcome noise, vs transport error only). The column exists in the decision document (ess 0.630, etc.) but was dropped from the manuscript table, leaving a sentence that points at content that is not there.",
+      "what_would_satisfy": "Add the vs-non-coverage column to Table 2 or delete the clause from the sentence."
+    },
+    {
+      "id": 3,
+      "severity": "minor",
+      "section": "Results: decision-curve analysis",
+      "comment": "Two numerical slips. First, 'the absolute effective-sample-size cutoff that gets quoted is not among them at any threshold examined' is false at action threshold 0.5: ESS < 35 has net benefit 0.069, which exceeds both flag-nothing (0) and flag-everything (-0.043). Beating a collapsed flag-everything default at 0.5 is a low bar, but the sentence as written is contradicted by Table 7. Second, '4 rules beat both alternatives' at 0.4 names only three (relative ESS, pre-weighting imbalance, Mahalanobis); the fourth is CV(w), ESS%'s identical twin — worth saying, since the paper's own redundancy result is what makes four rules three statistics.",
+      "what_would_satisfy": "Restrict the claim to thresholds up to 0.4 or restate it accurately at 0.5, and name or explain the fourth rule."
+    },
+    {
+      "id": 4,
+      "severity": "minor",
+      "section": "What the audit left open (introduction)",
+      "comment": "The introduction still says within-stratum reporting 'removes the dependence on our chosen frequencies entirely' — the exact sentence flagged in round one — while the limitations now (correctly) say 'an earlier draft said the stratum reporting removed the dependence entirely; it does not'. The 'earlier draft' is this draft's introduction. The response letter's grep-check evidently verified that the correction was added somewhere, not that the flagged sentence was removed.",
+      "what_would_satisfy": "Delete 'entirely' (or the clause) in the introduction so the two sections stop contradicting each other."
+    },
+    {
+      "id": 5,
+      "severity": "minor",
+      "section": "Calibration, Table 6",
+      "comment": "The worst fold for every weight-dispersion statistic is listed as held-out factor 'joint', level 0, but 'joint' is never defined, and it cannot be reconciled with the stated design: 'fourteen folds, each holding out every cell at one level of one factor' matches the six design factors exactly (2+2+4+2+2+2 = 14), leaving no room for a 'joint' fold. The prose glosses the worst setting as 'the cross-moment channel', which is not obviously the same thing as holding out joint==0 (cells where both channels are not simultaneously on).",
+      "what_would_satisfy": "Define 'joint', state the exact fold construction (and if a derived two-level factor was used, reconcile the fold count), and align the prose interpretation with the factor actually held out."
+    },
+    {
+      "id": 6,
+      "severity": "minor",
+      "section": "Protocol section 8 (registration trail)",
+      "comment": "Section 8 of the protocol still describes the calibration mapping as 'fitted on odd-numbered replicates and evaluated on even-numbered ones'. The registered trail now reads replicates (section 8) -> odd/even cells (section 12 amendment) -> leave-one-factor-level-out (revised manuscript, a post-results change made for good reason and well disclosed in the manuscript). The arithmetic fix (128 x 4000 x 4) is verified present, but the calibration unit correction requested in round one was not made at section 8.",
+      "what_would_satisfy": "Add a one-line corrigendum at protocol section 8 (marked as such) recording the supersession: replicates -> cells -> leave-one-factor-level-out, so a reader checking the manuscript against the registered protocol does not trip."
+    },
+    {
+      "id": 7,
+      "severity": "minor",
+      "section": "Table 11 (coverage)",
+      "comment": "The 'fitted' coverage column (0.993/1.000/1.000/1.000) is never defined. Transported and anchored columns are self-explanatory; what fitted quantity the interval is covering is not.",
+      "what_would_satisfy": "One sentence defining the fitted reference."
+    },
+    {
+      "id": 8,
+      "severity": "minor",
+      "section": "Results: The panel at the thresholds in use",
+      "comment": "Residual threshold-provenance wording: the results text still says 'the published cutoff reaches sensitivity 0.309', although the protocol now (correctly, in response to round one) describes these as conventions in circulation, only some with a primary source. 'Widely quoted informally as a cutoff' in the abstract also remains an unevidenced empirical claim, though it is now paired with an explicit disclaimer that practice was not surveyed, which makes it acceptable as a judgment call if the authors wish to keep it.",
+      "what_would_satisfy": "Replace 'the published cutoff' with 'the candidate cutoff' (or similar) in the results text for consistency with the new provenance note."
+    }
+  ],
+  "citation_problems": [
+    {
+      "cite": "Phillippo et al. 2018 (ref 1), cited as 'the NICE DSU guidance on population adjustment'",
+      "problem": "Substantially adequate as a response to the round-one request to engage the DSU guidance, but the attribution is imprecise: the reporting conventions derive from the DSU Technical Support Documents (TSD 13, and especially TSD 18, 2020), of which the MDM paper is the methods companion. Citing TSD 18 alongside, or describing the MDM paper accurately, would close the point."
+    },
+    {
+      "cite": "MSR65, ISPOR Europe 2024 (ref 4)",
+      "problem": "The characterization in text is now careful and accurate (a region found in an unanchored simulation, quoted informally, treated as a candidate cutoff). Two residuals: the bibliographic entry still omits the abstract's authors, and 'widely quoted informally' remains an unevidenced circulation claim — softened and disclaimed, so acceptable, but 'in informal use' would be safer than 'widely quoted'."
+    }
+  ],
+  "conclusions_supported": false,
+  "unsupported_claims": [
+    "Table 8: 'the proposal reaches 0.937 and the best routinely reported diagnostic 0.851, a gain of 0.086' — contradicted by the manuscript's own Table 9, which shows 0.938 for the proposal, no diagnostic at 0.851, the unmatched-covariate balance at 0.946 (exceeding the proposal), and ESS % at 0.862 as the best clearly-routine member (gain 0.076).",
+    "'Table 2 reports discrimination against non-coverage as well' — Table 2 contains no non-coverage column; it exists only in the decision document.",
+    "'The absolute effective-sample-size cutoff that gets quoted is not among them at any threshold examined' — at action threshold 0.5 its net benefit (0.069) exceeds both flagging nothing (0) and flagging everything (-0.043).",
+    "Introduction: within-stratum reporting 'removes the dependence on our chosen frequencies entirely' — disowned by the paper's own limitations section ('it does not')."
+  ],
+  "round1_resolution": [
+    {"reviewer": "glm", "id": 1, "resolved": "partly", "note": "The stratum-by-component AUROC table (Table 9) was added, which is the requested artifact. But the two numbers it claims to house (0.937 / 0.851) do not reconcile with its contents: 0.938 vs 0.937, no 0.851 anywhere, and the unmatched-covariate balance (0.946) exceeds the proposal. See comment 1."},
+    {"reviewer": "glm", "id": 2, "resolved": "yes", "note": "Abstract now states two of four registered mechanism claims failed, including one of the authors' own proposals."},
+    {"reviewer": "kimi", "id": 1, "resolved": "yes", "note": "The scored contrast is stated explicitly as the transported A-versus-C effect, the exclusion of target-trial sampling error is justified (common channel invisible to source diagnostics), and the anchored contrast is reported alongside throughout (Table 3 column, separate operating-point table), with conclusions unchanged."},
+    {"reviewer": "kimi", "id": 2, "resolved": "yes", "note": "The noise-variance identity is in the algebra section, the knowability sentence is corrected, the arm-imbalance component is scored, and 0.847 is re-presented as close to arithmetic with the pooled-ESS caveat (0.54, -0.92 vs -1) showing they verified rather than asserted. The requested sentence that in the kappa=0 stratum transport error equals omega*Delta_4 exactly (so b_hat is near-construction) was not added verbatim, but the substance is covered by the outcome-assisted labeling and the plain-balance comparison (0.946 vs 0.938, 'the estimated interaction adds noise without adding information')."},
+    {"reviewer": "kimi", "id": 3, "resolved": "partly", "note": "The limitations now correctly scope what stratification removes and name what remains — but the flagged sentence survives verbatim in the introduction ('removes the dependence on our chosen frequencies entirely'), contradicting the limitation that quotes it. The response's scripted check verified addition of the correction, not removal of the error."},
+    {"reviewer": "kimi", "id": 4, "resolved": "yes", "note": "The bracket base is now stated (whole design, equal cell weights), and 0.285 / 0.273 visibly brackets the 0.284 equal-weight sensitivity. Arithmetically consistent."},
+    {"reviewer": "kimi", "id": 5, "resolved": "partly", "note": "Same issue as glm 1: Table 9 exists, but 0.851 remains untraceable and the claims-table evidence row now contradicts the new table. The comparator statistic is still not named."},
+    {"reviewer": "kimi", "id": 6, "resolved": "yes", "note": "A reasoned explanation rather than compliance: common target-mean displacement across covariates makes max standardized difference and Mahalanobis distance near-monotone functions of each other, disclosed as a design limitation (differential displacement would separate them). Corroborated indirectly: the leave-one-factor-out calibration rows for the two statistics now differ (0.098/0.235 vs 0.096/0.235), as they should once folds mix s levels. Legitimate refusal-by-explanation."},
+    {"reviewer": "kimi", "id": 7, "resolved": "yes", "note": "Coverage for all four estimators added (Table 11), including primary MAIC at 0.748 transported / 0.774 anchored, with the connection to Remiro-Azocar drawn and correctly scoped to the variance procedure used in their study."},
+    {"reviewer": "kimi", "id": 8, "resolved": "partly", "note": "The estimate-count arithmetic is corrected in the protocol (128 x 4000 x 4 = 2,048,000, verified). The calibration-split unit at section 8 still says 'replicates'; the trail (replicates -> cells -> leave-one-factor-level-out) needs one corrigendum line."},
+    {"reviewer": "kimi", "id": 9, "resolved": "yes", "note": "ESS < 50% relabeled as a convention in circulation with no primary citation, and a threshold-provenance note added to protocol section 7. Residual 'published cutoff' phrasing in the results text flagged as comment 8."},
+    {"reviewer": "sol", "id": 1, "resolved": "partly", "note": "Arm imbalance is now scored (Table 3 first column) and the middle term is relabeled a realized effect-modifier component with the contamination disclosed in limitations. The requested per-cell systematic-bias reanalysis was declined with a stated reason (it requires per-cell Monte Carlo expectations and answers a different question); the reframed question is defensible and the title claim now rests on the two-variance-components-versus-transport comparison. Reasoned partial compliance."},
+    {"reviewer": "sol", "id": 2, "resolved": "yes", "note": "Primary reference unambiguous; anchored contrast reported throughout; Table 11 distinguishes transported, anchored and fitted coverage."},
+    {"reviewer": "sol", "id": 3, "resolved": "yes", "note": "The arithmetic components are now labeled as such (noise channel, dispersion instrument), and the declined extensions (heteroskedasticity, multiple/nonlinear modifiers, uncertain target moments) are each named in the limitations — a legitimate refusal, since each is a different study."},
+    {"reviewer": "sol", "id": 4, "resolved": "partly", "note": "Outcome-assisted labeling, optimism disclosure, and the plain-balance comparison are done, and the recommendation was downgraded accordingly. Cross-fitting and independent-estimation versions were declined without a strong reason; the stakes are low because the claim failed anyway, but the refusal is thinner than the others."},
+    {"reviewer": "sol", "id": 5, "resolved": "yes", "note": "The verdict is now stated precisely everywhere it matters ('no evaluated fixed cutoff met the registered operating requirements'), the absence of an elicited loss function is disclosed, and the ROC-curve invitation to readers who want a different operating point is explicit."},
+    {"reviewer": "sol", "id": 6, "resolved": "yes", "note": "The confounded split was confirmed and replaced by leave-one-factor-level-out with the model form stated; the old overlap-versus-weight claim is retracted as an artifact. Calibration plots and fold-level uncertainty were not added, but the load-bearing defect is fixed and the conclusion changed with it."},
+    {"reviewer": "sol", "id": 7, "resolved": "yes", "note": "The missing registered analyses (arm-imbalance discrimination, equal-weight AUROCs, 0.10/0.30 thresholds, anchored contrast) are now in Tables 3 and 9; paired intervals for the two mechanism differences were declined with an explicit reason and the differences are labeled point estimates against a registered threshold. Legitimate refusal, adequately disclosed."},
+    {"reviewer": "sol", "id": 8, "resolved": "yes", "note": "Corrected to a fifth of the residual SD, with the marginal outcome SD range (1.37-1.66) reported and the 0.10/0.30 analyses shown; ordering unchanged."},
+    {"reviewer": "sol", "id": 9, "resolved": "yes", "note": "The 'stronger result' promotion is retracted; both spans are now described as predictive-value variation, the registered claim is reported as failed, and the leave-one-factor-out calibration is identified as the proper transportability evidence."},
+    {"reviewer": "sol", "id": 10, "resolved": "partly", "note": "The 0.4-threshold prose now names the rules above both alternatives, but says '4 rules' while naming three (the fourth is CV(w), ESS%'s alias), and the new sentence claiming the absolute ESS cutoff never earns its place is false at threshold 0.5. See comment 3."},
+    {"reviewer": "sol", "id": 11, "resolved": "yes", "note": "The claim is now correctly conditioned on converged analyses ('reporting it as evidence the adjustment worked is reporting that the solver terminated'), the convergence-check role is declared a different question the design cannot answer, and non-fits are reported as an operational outcome."},
+    {"reviewer": "sol", "id": 12, "resolved": "yes", "note": "Practice claims are disclaimed, conventions are attributed to Phillippo 2018 and the transportability literature, Kish is cited for the identity, and the novelty claim is hedged to the published catalog audit. The demand for a reproducible search account was declined with a pointer to the audit — a borderline but reasoned refusal. TSD 18 attribution remains imprecise (citation_problems)."},
+    {"reviewer": "sol", "id": 13, "resolved": "yes", "note": "The limitations are rewritten around the real threats: transport-not-pure-bias, the outcome-assisted proposal, the secondary status of the anchored contrast, the investigator-chosen distribution, and the uncross-fitted interaction — and they explicitly state operating characteristics are properties of the declared distribution."},
+    {"reviewer": "sol", "id": 14, "resolved": "yes", "note": "Estimate count corrected; the 550 median ESS for unweighted methods is explicable as the median pooled n across 300- and 800-participant cells; protocol-to-manuscript consistency much improved, with the section-8 calibration wording the one leftover (kimi 8)."}
+  ]
+}

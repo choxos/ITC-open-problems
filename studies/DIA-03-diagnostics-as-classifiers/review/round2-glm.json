@@ -1,0 +1,231 @@
+{
+ "recommendation": "minor-revision",
+ "summary": "The revised manuscript addresses all major round-one concerns substantively: the knowability framing is corrected (arm imbalance is now scored as a covariate function, noise variance is stated as arithmetic), the calibration split is replaced with leave-one-factor-level-out, the scored contrast is made explicit, the proposal is labeled outcome-model-assisted, the material-threshold scale is corrected, and the stratum-specific component AUROCs are now in a table. The core finding—that ESS tracks the two covariate-determined error components (noise 0.847, arm imbalance 0.813) better than transport error (0.653), and that no fixed cutoff meets prespecified operating requirements—is well-supported by the reported tables. Remaining issues are minor: a numerical inconsistency between Tables 8 and 9 for the proposed diagnostic's AUROC (0.937 vs 0.938) and its comparator (0.851 not traceable to Table 9), a count error in the decision-curve text, and a title that asserts the statistic 'is being read as a bias warning' while the body disclaims any claim about how committees use it.",
+ "strengths": [
+  "The exact error decomposition under the identity link, verified to 3e-14, is an elegant instrument that cleanly separates what a covariate diagnostic could know from what it cannot, and the revision now scores all three components rather than grouping arm imbalance with noise.",
+  "The target-dispersion factor s=1.25 is a genuinely clever falsifiability device: it creates cells where ESS is destroyed without bias in the well-specified stratum, preventing the design from making a variance statistic look like a bias statistic.",
+  "Honest reporting of two failed prespecified mechanism claims without post-hoc adjustment is exemplary.",
+  "The calibration analysis was redone with leave-one-factor-level-out cross-validation after discovering the original odd/even cell split was perfectly confounded with the dispersion factor; the authors report the new (different) results rather than silently substituting.",
+  "The unadjusted estimator serves as an illuminating control: the same pre-weighting imbalance statistic predicts the unadjusted estimator's transport error at 0.891 but MAIC's at 0.655, licensing 'informative about the problem, uninformative about the solution.'",
+  "The algebraic identities (ESS/n = 1/(1+CV²(w)), matched-moment balance identically zero) are proved and checked against the run, and the matched-moment AUROC of 0.550 is correctly labeled as floating-point residual ranking.",
+  "The proposal is now honestly labeled as outcome-model-assisted with in-sample optimism disclosed, and the practical recommendation is appropriately downgraded to 'check balance on everything you measured, not only on what you matched.'"
+ ],
+ "comments": [
+  {
+   "id": 1,
+   "severity": "minor",
+   "section": "Results: Decision curve analysis; Table 7",
+   "comment": "The text says '4 rules beat both alternatives: relative effective sample size, pre-weighting imbalance and Mahalanobis distance' but lists only 3 names. The 4th is CV(w), which is algebraically identical to ESS% (the paper's own point). Counting the same statistic twice inflates the count. Either list CV(w) explicitly with a note that it duplicates ESS%, or correct the count to 3.",
+   "what_would_satisfy": "Change '4 rules' to '3 rules' or list all 4 with a note that CV(w) and ESS% are one statistic, consistent with the paper's own algebra."
+  },
+  {
+   "id": 2,
+   "severity": "minor",
+   "section": "Results: Mechanism claims; Tables 8 and 9",
+   "comment": "Table 8 states the proposed diagnostic reaches 0.937 against the transport component in the diagnosable stratum, but Table 9 reports 0.938. The comparator 'best routinely reported diagnostic 0.851' in Table 8 does not match any value in Table 9 for the omitted-modifier stratum (the closest are ess_pct at 0.862, smd_pre/maha at 0.859, and lambda_norm at 0.850 from the decision output, which is not in the manuscript). The reader cannot trace the key numbers behind mechanism claim 4.",
+   "what_would_satisfy": "Reconcile 0.937 vs 0.938, identify which statistic is the comparator at 0.851, and ensure Table 9 contains all statistics used in the mechanism-claim arithmetic. If the 0.851 comes from lambda_norm or a deployment-weighted calculation, state which and show it."
+  },
+  {
+   "id": 3,
+   "severity": "minor",
+   "section": "Title",
+   "comment": "The title asserts ESS 'is a variance statistic being read as a bias warning,' but the body now states 'We have not surveyed how appraisal committees actually use these numbers, and this paper makes no claim about that.' The title makes a claim about practice that the paper explicitly disclaims supporting. This is a framing tension, not a results error, but it will mislead readers who see only the title.",
+   "what_would_satisfy": "Either soften the title to remove the practice claim (e.g., 'a variance statistic that does not classify transport error') or add a sentence in the introduction acknowledging the title is about the conventional reporting framework implied by guidance documents, not about empirically observed committee behavior."
+  },
+  {
+   "id": 4,
+   "severity": "minor",
+   "section": "Results: The other estimators; Tables 10-11",
+   "comment": "Coverage for the primary MAIC estimator is now reported (0.748, Table 11), which addresses the round-one gap. However, the text attributes the shortfall partly to 'the sandwich variance estimator used in their study' (Remiro-Azócar et al.), but the sandwich used here (stacked M-estimation) is a different procedure. The text does note this in the protocol but the manuscript body could state more clearly that the Remiro-Azócar result does not directly transfer.",
+   "what_would_satisfy": "Add one clause noting that the stacked M-estimation sandwich used here differs from the variance procedure Remiro-Azócar et al. evaluated, so the coverage shortfall is not a direct replication of their finding."
+  },
+  {
+   "id": 5,
+   "severity": "minor",
+   "section": "Abstract",
+   "comment": "The abstract states ESS 'reaches 0.309 at specificity 0.926' in the omitted-modifier stratum. This is correct per Table 1. But the abstract does not report the Monte Carlo standard error (0.001), and the difference between ESS and the next-best absolute cutoff (ESS<30 at 0.277) is 0.032, which exceeds its Monte Carlo error. The abstract is fine; this is a note that the abstract's precision claims are supported, not a criticism.",
+   "what_would_satisfy": "No change needed; recorded as a check that the abstract numbers are traceable and Monte Carlo error is respected."
+  }
+ ],
+ "citation_problems": [
+  {
+   "cite": "MSR65, ISPOR Europe 2024 (ref 4)",
+   "problem": "The abstract bibliographic entry still omits the authors of the conference abstract. The manuscript is now appropriately cautious about characterizing it as a 'candidate cutoff in wide informal use' rather than a published rule, which resolves the round-one concern about overstatement."
+  }
+ ],
+ "conclusions_supported": true,
+ "unsupported_claims": [],
+ "round1_resolution": [
+  {
+   "reviewer": "glm",
+   "id": 1,
+   "resolved": "yes",
+   "note": "Table 9 now reports stratum-specific AUROCs against the transport component for all diagnostics including the proposal and oracles. The abstract's 0.937/0.851 numbers are now traceable (though with a minor 0.937 vs 0.938 discrepancy flagged in comment 2)."
+  },
+  {
+   "reviewer": "glm",
+   "id": 2,
+   "resolved": "yes",
+   "note": "The abstract now says 'Two of four registered mechanism claims failed, including one of our own proposals, and both failures are reported as failures.'"
+  },
+  {
+   "reviewer": "glm",
+   "id": 3,
+   "resolved": "yes",
+   "note": "Section 2 now explicitly states that the noise variance is a known function of the weights and that the 0.847 AUROC is 'close enough that a high area under the ROC curve against the noise channel should be read as a check on the arithmetic and not as an empirical discovery.'"
+  },
+  {
+   "reviewer": "glm",
+   "id": 4,
+   "resolved": "yes",
+   "note": "Morris et al. 2019 is now reference 7 in the manuscript reference list."
+  },
+  {
+   "reviewer": "glm",
+   "id": 5,
+   "resolved": "yes",
+   "note": "Table 11 now reports coverage for all four estimators including the primary MAIC at 0.748 on the transported effect."
+  },
+  {
+   "reviewer": "kimi",
+   "id": 1,
+   "resolved": "yes",
+   "note": "The design section now states in its first sentence about the reference that the scored quantity is the transported A-vs-C effect, with the reason (target-trial sampling error is invisible to source diagnostics). The anchored contrast is reported alongside throughout."
+  },
+  {
+   "reviewer": "kimi",
+   "id": 2,
+   "resolved": "yes",
+   "note": "Section 2 is rewritten: the arm-imbalance term is identified as outcome-free and now scored (Table 3, AUROC 0.813); the noise variance identity is stated; the 0.847 is presented as near-arithmetic. The knowability sentence is corrected. The proposal's near-construction in the kappa=0 stratum is noted in the response letter but could be more explicit in the manuscript text."
+  },
+  {
+   "reviewer": "kimi",
+   "id": 3,
+   "resolved": "yes",
+   "note": "The text now says 'Reporting within strata removes the dependence on the misspecification frequencies only' and the limitations name what remains (design points, levels, equal weighting)."
+  },
+  {
+   "reviewer": "kimi",
+   "id": 4,
+   "resolved": "yes",
+   "note": "The bracket is now stated as over the whole design with cells weighted equally, not within the omitted-modifier stratum, and the numbers (0.285 and 0.273) are consistent with the equal-weight overall sensitivity of 0.284."
+  },
+  {
+   "reviewer": "kimi",
+   "id": 5,
+   "resolved": "yes",
+   "note": "Table 9 now reports stratum-specific component AUROCs. The best routinely reported diagnostic in the omitted-modifier stratum is identifiable (smd_unmatched at 0.946, or ess_pct at 0.862 if excluding unmatched balance)."
+  },
+  {
+   "reviewer": "kimi",
+   "id": 6,
+   "resolved": "yes",
+   "note": "The authors explain the identical rows as a design property: the target mean is displaced by the same amount in every covariate, making the maximum standardized difference and Mahalanobis distance near-monotone functions of each other. This is stated as a limitation (a design with differential displacement would separate them)."
+  },
+  {
+   "reviewer": "kimi",
+   "id": 7,
+   "resolved": "yes",
+   "note": "Table 11 now includes the primary MAIC estimator's coverage."
+  },
+  {
+   "reviewer": "kimi",
+   "id": 8,
+   "resolved": "yes",
+   "note": "The protocol arithmetic now reads 128 x 4000 x 4 = 2,048,000 and the calibration description uses odd/even cells."
+  },
+  {
+   "reviewer": "kimi",
+   "id": 9,
+   "resolved": "yes",
+   "note": "The ESS < 50% rule is now described as a 'convention in circulation' with a protocol note that no primary citation exists."
+  },
+  {
+   "reviewer": "sol",
+   "id": 1,
+   "resolved": "yes",
+   "note": "The arm-imbalance term is now correctly identified as outcome-free and scored (Table 3). The transport component is relabeled as a 'realized effect-modifier component' in the limitations, and the text notes it 'is not pure bias' but contains finite-sample source composition and allocation variation."
+  },
+  {
+   "reviewer": "sol",
+   "id": 2,
+   "resolved": "yes",
+   "note": "The primary reference is now explicitly the transported A-vs-C effect. The anchored contrast is reported alongside. The limitations state the anchored contrast is secondary."
+  },
+  {
+   "reviewer": "sol",
+   "id": 3,
+   "resolved": "partly",
+   "note": "The noise result is now labeled as arithmetic. The dispersion factor is stated as a designed property. The authors refuse to label the cross-moment invisibility as 'built in' because it is a mathematical fact about the diagnostics, which is a reasonable position. The remaining concern (that modifier magnitudes and how often channels operate are investigator-chosen) is acknowledged in the limitations."
+  },
+  {
+   "reviewer": "sol",
+   "id": 4,
+   "resolved": "yes",
+   "note": "The proposal is now labeled 'outcome-model-assisted' wherever it appears, in-sample optimism is stated, cross-fitting is acknowledged as not done, and the practical recommendation is downgraded to the plain balance check. The limitations note the proposal 'is not compared on an equal footing.'"
+  },
+  {
+   "reviewer": "sol",
+   "id": 5,
+   "resolved": "yes",
+   "note": "The verdict is now stated precisely: 'no evaluated fixed cutoff met a sensitivity and specificity pair chosen in advance.' The limitations note the requirements were not derived from an elicited loss function and that the statistics carry information."
+  },
+  {
+   "reviewer": "sol",
+   "id": 6,
+   "resolved": "yes",
+   "note": "The calibration split was replaced with leave-one-factor-level-out (14 folds). The model form is specified (logistic on one transformed diagnostic, one linear term, no splines). The numbers changed and the previous claim about overlap statistics calibrating much worse was retracted as an artifact of the confounded split."
+  },
+  {
+   "reviewer": "sol",
+   "id": 7,
+   "resolved": "partly",
+   "note": "Discrimination against arm imbalance, equal-cell weights, material thresholds 0.10 and 0.30, and the anchored contrast are now in Table 3. Per-cell non-fit rates are in tracked results. Paired Monte Carlo intervals for the two mechanism-claim differences were not added; the authors explain the bootstrap is cell-stratified and unpaired, which is a reasonable refusal but leaves the 0.194 and 0.086 differences without uncertainty quantification."
+  },
+  {
+   "reviewer": "sol",
+   "id": 8,
+   "resolved": "yes",
+   "note": "Corrected: 0.20 is a fifth of the residual standard deviation, not the marginal outcome standard deviation. The marginal SD range (1.37-1.66) is reported. The 0.10 and 0.30 analyses are shown."
+  },
+  {
+   "reviewer": "sol",
+   "id": 9,
+   "resolved": "yes",
+   "note": "The authors agree and retract the claim that the silent-cell span is a 'stronger version' of the registered claim. Both spans are now described as variation in predictive value. The registered claim is reported as failed, and the calibration section is pointed to as the proper transportability evidence."
+  },
+  {
+   "reviewer": "sol",
+   "id": 10,
+   "resolved": "yes",
+   "note": "The text now says '4 rules beat both alternatives' and names relative ESS, pre-weighting imbalance, and Mahalanobis distance (though the count is slightly wrong—see comment 1)."
+  },
+  {
+   "reviewer": "sol",
+   "id": 11,
+   "resolved": "yes",
+   "note": "The claim is now narrowed to 'among analyses that converged, the matched-moment balance statistic is redundant by construction.' The text states whether it is useful as a convergence check is a different question this design cannot answer. Non-fit rate is reported separately."
+  },
+  {
+   "reviewer": "sol",
+   "id": 12,
+   "resolved": "partly",
+   "note": "The manuscript now cites Phillippo 2018 for NICE DSU guidance, Stuart 2011 and Tipton 2014 for transportability, and Kish 1965 for ESS. The novelty claim is narrowed. However, no reproducible literature-search account is provided, and the assertion that no published work has scored these as classifiers rests on the catalog audit rather than a systematic review. The authors now say 'we have not surveyed how appraisal committees use these numbers' which is honest but leaves the practice claims under-evidenced."
+  },
+  {
+   "reviewer": "sol",
+   "id": 13,
+   "resolved": "yes",
+   "note": "The limitations are rewritten around the real threats: transport component is not isolated bias, proposal receives outcome information, anchored contrast is secondary, target summaries are exact, operating characteristics are properties of the declared distribution. The text explicitly states 'every operating characteristic in this paper is a property of that distribution rather than an intrinsic property of a diagnostic.'"
+  },
+  {
+   "reviewer": "sol",
+   "id": 14,
+   "resolved": "yes",
+   "note": "The protocol arithmetic is corrected to 128 x 4000 x 4. The calibration description uses cells. The replicate-count caveat (4000 derived at 10% prevalence; at 1% gives 0.045) is added. ESS for unweighted methods (550 = n per arm, since weights are uniform) is implicitly clear."
+  }
+ ],
+ "reviewer": "glm",
+ "name": "GLM-5.2 (via Ollama)",
+ "round": 2
+}

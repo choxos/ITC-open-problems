@@ -1,0 +1,202 @@
+{
+ "recommendation": "major-revision",
+ "summary": "The revision is materially stronger: it clarifies the transported A-versus-C estimand, reports the anchored result, adds the omitted arm-imbalance component, corrects the outcome-scale error, and replaces the confounded calibration split. The narrow prespecified result is supported: no evaluated cutoff meets the registered operating requirements in this simulation distribution. However, the abstract still contains the knowability claim that the response says was retracted, the title-level variance-versus-bias conclusion is not established because systematic bias was never evaluated, and Tables 8 and 9 give mutually incompatible results for the proposed diagnostic. These problems are repairable using the existing simulations and narrower framing, so rejection is not warranted.",
+ "strengths": [
+  "The registered decision rule is applied without moving the goalposts, and two failed mechanism claims remain reported as failures.",
+  "The factorial design deliberately separates poor overlap, modifier misspecification, sample size, proxy adjustment, and weight-dispersion effects.",
+  "The exact linear decomposition is a useful methodological instrument, and adding discrimination against arm imbalance substantially improves fulfillment of Aim 3.",
+  "The revised manuscript clearly distinguishes the transported A-versus-C estimand from the final anchored contrast and reports that the main ranking persists for the latter.",
+  "The estimator comparison avoids the obvious variance-estimator asymmetry: MAIC uses a stacked M-estimation sandwich and STC uses HC3.",
+  "The proposal is now appropriately demoted, with its use of outcomes and possible in-sample optimism disclosed and the simpler unmatched-balance diagnostic favored.",
+  "The limitations now acknowledge exact target moments, investigator-chosen scenario distributions, restricted estimator families, and the fact that the transport component is not pure systematic bias."
+ ],
+ "comments": [
+  {
+   "id": 1,
+   "severity": "major",
+   "section": "Abstract; What a covariate diagnostic could possibly know",
+   "comment": "The round-one correction has not been carried through consistently. The abstract still says, \"Transport error is the only piece a covariate diagnostic could know about before an outcome is seen,\" even though the manuscript and response explicitly call that statement wrong. The replacement claim is also too simple: L(f) is calculable from covariates only if the prognostic function f is known, while the transport component is likewise a function of covariates, assignment and weights if g and the target expectation are known. The noise realization is unknowable, but its conditional risk depends on the arm-specific ESS values and sigma. Thus the relevant distinction is between realized values, conditional risks, and the additional outcome-model quantities required, not between two components that use the panel's information and one that does not.",
+   "what_would_satisfy": "Remove the retracted sentence from the abstract and revise the interpretation throughout. For each component, state separately whether its realized value is outcome-free, whether its conditional distribution is estimable before observing outcomes, and which unknown functions or parameters are required."
+  },
+  {
+   "id": 2,
+   "severity": "major",
+   "section": "Title; Results; What this answers, and what it does not",
+   "comment": "The manuscript now acknowledges that the quantity called transport error is a realized effect-modifier component containing finite-sample source composition and allocation variation. It is therefore not systematic transport bias. Comparing AUROC 0.847 for noise with 0.653 for this realized component shows that ESS tracks sampling-driven error channels differently; it does not establish that ESS is a variance statistic rather than a bias diagnostic. The additional assertion that ESS \"is being read as a bias warning\" is also unsupported by a paper that expressly says appraisal practice was not surveyed.",
+   "what_would_satisfy": "Either estimate cell-specific systematic transport bias as a Monte Carlo expectation, quantify its Monte Carlo error, and evaluate diagnostics against that target, or remove bias language from the title and conclusions. Any claim about how ESS is interpreted in practice also requires evidence of actual use; otherwise frame it as a possible interpretation rather than an observed one."
+  },
+  {
+   "id": 3,
+   "severity": "major",
+   "section": "Tables 8 and 9; Four prespecified mechanism claims",
+   "comment": "The evidence for mechanism claim 4 is internally inconsistent. Table 8 says the proposal reaches 0.937 versus 0.851 for the best routinely reported diagnostic, a gain of 0.086. Table 9 instead reports 0.938 for the proposal, 0.946 for unmatched-covariate balance, and 0.862 for ESS percentage. The response itself cites 0.946 versus 0.938. Consequently, neither the comparator nor the registered difference in Table 8 can be recovered from the revised results, and the statement that the proposal is \"a real improvement\" is not supported by the displayed table.",
+   "what_would_satisfy": "Regenerate the mechanism-claim result from the same analysis underlying Table 9, define exactly which diagnostics constitute the registered comparator set, and make the abstract, Table 8, Table 9 and response numerically consistent. Report a paired Monte Carlo interval or standard error for the resulting difference."
+  },
+  {
+   "id": 4,
+   "severity": "major",
+   "section": "Calibration",
+   "comment": "Leave-one-factor-level-out validation fixes the serious odd/even-cell confounding, but the new interpretation remains stronger than the analysis permits. Failure of a one-linear-term logistic mapping can reflect functional-form misspecification as well as nontransportability of the diagnostic. It is also unclear how calibration intercepts and slopes were aggregated across fourteen overlapping folds, which weighting was used, and why the factor called \"joint\" in Table 6 corresponds to the cross-moment mechanism. No uncertainty or calibration plots are presented.",
+   "what_would_satisfy": "Define the fold predictions, aggregation, weights, factor names and calibration estimators completely. Add fold-specific calibration plots or curves and a sensitivity analysis using a flexible prespecified mapping. Otherwise narrow the conclusion to the observed failure of this particular logistic mapping under the specified held-out factor levels."
+  },
+  {
+   "id": 5,
+   "severity": "minor",
+   "section": "Results and protocol adherence",
+   "comment": "Several reporting gaps from round one remain. Table 1 promises Monte Carlo standard errors in brackets but does not display them; the event used for each component-specific AUROC is not explicitly defined; the manuscript says Table 2 reports discrimination against noncoverage although that column is absent; per-cell nonfit rates are not shown or linked; and no uncertainty accompanies AUPRC, calibration, decision-curve quantities, or the paired AUROC differences. The large primary differences are not plausibly explained by Monte Carlo error, but complete ADEMP reporting still requires these quantities or an explicit supplement reference.",
+   "what_would_satisfy": "Add a protocol-to-results crosswalk or clearly referenced supplement containing event definitions, per-cell prevalence and nonfit rates, all promised Monte Carlo uncertainties, and paired within-cell resampling for diagnostic contrasts."
+  },
+  {
+   "id": 6,
+   "severity": "minor",
+   "section": "Decision-curve analysis",
+   "comment": "The revised prose still does not match Table 7. At threshold 0.40, three displayed rules beat both alternatives; at threshold 0.50, all five displayed rules have positive net benefit and beat both alternatives. The text instead says that four rules do so \"from 0.400 upwards\" and then names only three. More fundamentally, the action prompted by a warning remains undefined, so this is hypothetical net classification benefit rather than demonstrated benefit from acting.",
+   "what_would_satisfy": "Correct the counts separately at each threshold and either define the action and its consequences or explicitly label the analysis as hypothetical decision-curve utility for detecting material error."
+  },
+  {
+   "id": 7,
+   "severity": "minor",
+   "section": "Nonfit sensitivity bracket; Coverage",
+   "comment": "The nonfit bracket is better labeled but still not reproducible. The fitted-only equal-cell sensitivity is 0.284, while the stated bounds are 0.273 and 0.285; the lower change is 1.1 percentage points, contrary to the claim that both changes are below one percentage point. Separately, overall coverage of 0.748 across intentionally misspecified cells cannot establish that the MAIC sandwich itself contributes a shortfall at low ESS.",
+   "what_would_satisfy": "Show the nonfit numerator, denominator and cell weighting for both bounds. For the variance-estimator statement, report coverage in well-specified cells by ESS or source-size stratum, or remove the attribution to the sandwich."
+  },
+  {
+   "id": 8,
+   "severity": "minor",
+   "section": "Introduction and references",
+   "comment": "The literature positioning remains incomplete. Reference 1 is a Medical Decision Making article but is called NICE DSU guidance; the actual DSU technical support document should be cited if guidance is meant. The authorless MSR65 entry does not establish that its numerical region is widely quoted, and the universal claim that no published study has evaluated these diagnostics as classifiers is not supported by a reproducible search or a citation to the catalog audit. The outcome-model-assisted proposal should also be positioned against prognostic-score balance, bias-function and omitted-moderator sensitivity methods.",
+   "what_would_satisfy": "Correct the guidance attribution, complete the MSR65 reference, cite and summarize the catalog search methods, narrow any unsupported absence claim, and engage with existing outcome-informed balance and transportability-sensitivity literature."
+  }
+ ],
+ "citation_problems": [
+  {
+   "cite": "Phillippo et al. (2018), reference 1",
+   "problem": "The cited journal article is described as NICE DSU guidance. Cite the actual technical support document or describe reference 1 as a journal article."
+  },
+  {
+   "cite": "MSR65, ISPOR Europe 2024",
+   "problem": "The bibliographic entry omits the authors, and the abstract supports an empirical low-ESS region in a different setting, not the claim that the cutoff is widely quoted or used as a bias warning."
+  },
+  {
+   "cite": "No published work scores any of these as a classifier",
+   "problem": "This universal novelty claim lacks a reported search strategy and an explicit citation to the catalog audit said to establish it."
+  },
+  {
+   "cite": "Estimated bias diagnostic described as the authors' proposal",
+   "problem": "Its relationship to prognostic-score balance, outcome-model-assisted balance, bias functions and omitted-moderator sensitivity analysis is not discussed, so novelty is not established."
+  }
+ ],
+ "conclusions_supported": false,
+ "unsupported_claims": [
+  "Transport error is the only piece a covariate diagnostic could know about before an outcome is seen.",
+  "Two of the three components are functions of covariates, treatment assignment and weights alone; the panel is built out of those same ingredients, and it tracks both of them well.",
+  "A statistic that reads two channels at above 0.80 and the third at 0.653 is a variance statistic, and it is being read as a bias warning.",
+  "In the diagnosable stratum, against the transport component, the proposal reaches 0.937 and the best routinely reported diagnostic 0.851, a gain of 0.086.",
+  "It is a real improvement and it is not the one we said would count.",
+  "From an action threshold of 0.400 upwards, meaning an analyst who intervenes only when material error is at least that likely, 4 rules beat both alternatives.",
+  "Table 2 reports discrimination against non-coverage as well.",
+  "The sandwich contributes its own shortfall at small effective sample size.",
+  "A rule that warns about almost every analysis is not a classifier."
+ ],
+ "round1_resolution": [
+  {
+   "reviewer": "glm",
+   "id": 1,
+   "resolved": "partly",
+   "note": "Table 9 was added, but its values do not support the 0.937 versus 0.851 comparison retained in Table 8."
+  },
+  {
+   "reviewer": "kimi",
+   "id": 1,
+   "resolved": "yes",
+   "note": "The primary A-versus-C estimand, exclusion of target-trial noise, and secondary anchored analysis are now explicit."
+  },
+  {
+   "reviewer": "kimi",
+   "id": 2,
+   "resolved": "partly",
+   "note": "The arm-imbalance and noise-variance corrections were added, but the false knowability claim remains in the abstract and the proposal's near-construction is not fully acknowledged."
+  },
+  {
+   "reviewer": "sol",
+   "id": 1,
+   "resolved": "partly",
+   "note": "All three components are now reported and the middle term is acknowledged as realized rather than pure bias, but systematic bias was not analyzed and the variance-versus-bias conclusion remains."
+  },
+  {
+   "reviewer": "sol",
+   "id": 2,
+   "resolved": "yes",
+   "note": "The transported and anchored contrasts are clearly separated, with a stated rationale and secondary anchored results."
+  },
+  {
+   "reviewer": "sol",
+   "id": 3,
+   "resolved": "partly",
+   "note": "The noise result and dispersion factor are labeled as arithmetic or designed properties, but the omitted-modifier proposal and the broad title-level interpretation remain insufficiently separated from construction."
+  },
+  {
+   "reviewer": "sol",
+   "id": 4,
+   "resolved": "partly",
+   "note": "Outcome use, lack of cross-fitting and in-sample optimism are disclosed and the proposal is demoted, but the head-to-head mechanism result is internally inconsistent and remains uncorrected."
+  },
+  {
+   "reviewer": "sol",
+   "id": 5,
+   "resolved": "partly",
+   "note": "The abstract now defines the registered operating criterion and limitations acknowledge the arbitrary loss threshold, but the manuscript still says a frequently firing rule is not a classifier and leaves the decision action undefined."
+  },
+  {
+   "reviewer": "sol",
+   "id": 6,
+   "resolved": "partly",
+   "note": "The confounded split was replaced by leave-one-factor-level-out validation and the logistic model is described, but functional-form sensitivity, fold aggregation, plots and uncertainty remain absent."
+  },
+  {
+   "reviewer": "sol",
+   "id": 7,
+   "resolved": "partly",
+   "note": "Several missing analyses were added, but component event definitions, noncoverage results, per-cell nonfits and paired uncertainty for mechanism differences remain incomplete."
+  },
+  {
+   "reviewer": "sol",
+   "id": 8,
+   "resolved": "yes",
+   "note": "The threshold is correctly described in residual-SD units, the marginal-SD range is given, and the 0.10 and 0.30 analyses are reported."
+  },
+  {
+   "reviewer": "sol",
+   "id": 9,
+   "resolved": "yes",
+   "note": "The predictive-value spans are no longer called transportability tests, and the registered claim is correctly reported as failed."
+  },
+  {
+   "reviewer": "sol",
+   "id": 11,
+   "resolved": "yes",
+   "note": "The balance-zero claim is explicitly limited to accepted calibration solutions, with convergence checking identified as a separate unanswered use."
+  },
+  {
+   "reviewer": "sol",
+   "id": 12,
+   "resolved": "partly",
+   "note": "Several foundational citations and practice caveats were added, but the guidance attribution, novelty search, MSR65 provenance and positioning of the proposal remain inadequate."
+  },
+  {
+   "reviewer": "sol",
+   "id": 13,
+   "resolved": "yes",
+   "note": "The limitations now disclose the realized nature of the transport component, unequal information for the proposal, secondary anchored analysis, exact target moments and scenario-distribution dependence."
+  },
+  {
+   "reviewer": "sol",
+   "id": 14,
+   "resolved": "partly",
+   "note": "The four-estimator count was corrected, but promised Monte Carlo errors, the exact nonfit calculation, pooled ESS interpretation and complete calibration-protocol crosswalk remain unresolved."
+  }
+ ],
+ "reviewer": "sol",
+ "name": "GPT-5.6 Sol (maximum reasoning effort)",
+ "round": 2
+}

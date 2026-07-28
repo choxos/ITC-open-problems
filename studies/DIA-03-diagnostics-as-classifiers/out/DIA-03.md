@@ -1,5 +1,5 @@
-# Effective sample size is a variance statistic being read as a bias
-warning
+# Effective sample size tracks the error an analysis got by chance
+better than the error it got from adjusting on the wrong covariates
 Ahmad Sofi-Mahmudi
 2026-07-27
 
@@ -21,20 +21,23 @@ audit of an open-problem catalog did establish is that no published work
 scores any of them as a classifier of realized error, with
 discrimination and calibration, against a known truth.
 
-We do that. The design is an anchored indirect comparison with a
-continuous outcome and an identity link, chosen because on that scale
-the realized error of a linear estimator splits **exactly** into three
-pieces: chance covariate imbalance between the source arms, transport
-error, and outcome noise. Transport error is the only piece a covariate
-diagnostic could know about before an outcome is seen, so a diagnostic
-can be scored against the part it has a claim on rather than only
-against the part it does not. The design has 128 cells crossing an
-omitted effect modifier, a cross-moment modifier that no baseline table
-could ever reveal, overlap, source size, how correlated the omitted
-modifier is with the adjustment set, and a target dispersion ratio that
-destroys effective sample size while adding no bias wherever the
-modifier structure is correctly specified. 4,000 replicates per cell,
-four estimators.
+We do that. The design has a continuous outcome and an identity link,
+chosen because on that scale the realized error of a linear estimator
+splits **exactly** into three pieces: chance covariate imbalance between
+the source arms, transport error, and outcome noise. The primary
+reference is the error in the transported source effect rather than in
+the anchored contrast, which is the version most favorable to the
+diagnostics; the anchored contrast is reported throughout. Two of the
+three pieces are functions of covariates, treatment assignment and
+weights, and the panel is built from those same ingredients; the third,
+transport error, is what covariate adjustment exists to remove. Scoring
+each diagnostic against each piece separately is the instrument of the
+study. The design has 128 cells crossing an omitted effect modifier, a
+cross-moment modifier that no baseline table could ever reveal, overlap,
+source size, how correlated the omitted modifier is with the adjustment
+set, and a target dispersion ratio that destroys effective sample size
+while adding no bias wherever the modifier structure is correctly
+specified. 4,000 replicates per cell, four estimators.
 
 The prespecified verdict is that **no evaluated fixed cutoff met the
 registered operating requirements**, sensitivity 0.80 at specificity
@@ -86,8 +89,10 @@ with all cells weighted equally.
 
 It also reports the primary results **within** strata of
 misspecification rather than over a mixture of them, which removes the
-dependence on our chosen frequencies entirely. That change came from an
-adversarial critique of this design, before the run.
+dependence on our chosen misspecification frequencies though not on the
+rest of the design, as
+<a href="#sec-scope" class="quarto-xref">Section 6</a> sets out. That
+change came from an adversarial critique of this design, before the run.
 
 # What a covariate diagnostic could possibly know
 
@@ -358,9 +363,17 @@ assignment and weights; against the transport component, which is what
 adjustment exists to remove, it reaches 0.653. The first of those
 numbers is close to arithmetic for the reason given in
 <a href="#sec-decomposition" class="quarto-xref">Section 2</a>. The
-second is not, and the third is not. A statistic that reads two channels
-at above 0.80 and the third at 0.653 is a variance statistic, and it is
-being read as a bias warning.
+second is not, and the third is not.
+
+**That comparison is at the level of one analysis, and it has to be,
+because that is the level at which a diagnostic is read.** A reviewer
+objected in round two that the transport term of a single replicate is
+the *realized* effect-modifier component and contains finite-sample
+composition and allocation variation, so a low area under the curve
+against it does not by itself establish anything about systematic bias.
+The objection is correct and the analysis it asks for is
+<a href="#sec-systematic" class="quarto-xref">Section 5.3</a>, where the
+answer is different and the difference matters.
 
 The conclusion does not depend on the material threshold: at 0.10 and
 0.30 the ordering is unchanged, and it survives the switch from the
@@ -396,11 +409,70 @@ it. MAIC found no solution on 0.7% of replicates, 3,747 in total, and
 those are reported as an operational outcome rather than folded into the
 classifier analysis.
 
+## Systematic bias, with the cell as the unit
+
+Round two of review asked for the analysis this section contains, and it
+changes what can be claimed. The systematic part of the transport error
+is a property of a design cell, not of a replicate, so it is estimated
+as the Monte Carlo mean of the transport term within a cell and the
+diagnostics are scored with the cell as the unit.
+
+<div id="tbl-systematic">
+
+Table 4: Discrimination against SYSTEMATIC transport bias above 0.20,
+with the design cell as the unit rather than the replicate. Added in
+round two of review.
+
+<div class="cell-output-display">
+
+|  | diagnostic | AUROC vs systematic bias | Spearman with \|bias\| |
+|:---|:---|---:|---:|
+| ess | ESS | 0.808 | 0.469 |
+| ess_pct | ESS % | 0.818 | 0.495 |
+| cv_w | CV(w) | 0.818 | 0.495 |
+| max_w | largest weight | 0.813 | 0.479 |
+| smd_matched | balance, matched moments | 0.708 | 0.337 |
+| smd_pre | imbalance before weighting | 0.813 | 0.492 |
+| maha | Mahalanobis distance | 0.808 | 0.476 |
+| smd_unmatched | balance, unmatched covariate | 0.821 | 0.508 |
+| bias_hat | estimated bias (proposed) | 0.829 | 0.545 |
+| orc_cross | oracle: cross-moment | 0.845 | 0.764 |
+| lambda_norm | tilt norm | 0.783 | 0.451 |
+
+</div>
+
+</div>
+
+42 of the 128 cells carry a systematic transport bias above 0.20.
+Against that target, effective sample size reaches 0.808 and everything
+else in the panel lands between 0.708 and 0.845. Two readings of that
+are available and only one of them survives inspection.
+
+The reading that does not survive is that the panel does after all
+detect systematic bias. The statistic that is **identically zero**
+reaches 0.708 on this analysis. Nothing in a statistic that never
+departs from $10^{-14}$ can be detecting bias; what is happening is that
+128 cells is a small sample in which almost everything, including the
+bias, moves along the overlap axis, so a cell-level ranking cannot
+separate the diagnostics from each other or from noise. This analysis
+has very little resolving power and we report it with that stated rather
+than omitted.
+
+What survives is the practical form of the question. An analyst holds
+one analysis, not a cell, and asks whether this one is materially wrong.
+At that level the panel ranks the two components an analysis got by
+chance far above the one it got from adjusting on the wrong covariates,
+and no threshold on it separates a small sound analysis from a large
+biased one. The title of this paper is a claim about that level and not
+about the cell level, and the earlier version of it, which asserted a
+variance-versus-bias dichotomy outright, went further than these results
+support and has been withdrawn.
+
 ## The panel is smaller than it looks
 
 <div id="tbl-redundancy">
 
-Table 4: The algebraic identities, checked. Within a fixed source size
+Table 5: The algebraic identities, checked. Within a fixed source size
 the three weight-dispersion statistics have the same AUROC to machine
 precision, and the matched-moment balance statistic is zero.
 
@@ -437,7 +509,7 @@ construction.
 
 <div id="tbl-cal">
 
-Table 5: Calibration of a locked logistic mapping from each diagnostic
+Table 6: Calibration of a locked logistic mapping from each diagnostic
 to the risk of material error. Perfect calibration is intercept 0 and
 slope 1.
 
@@ -459,7 +531,7 @@ slope 1.
 
 <div id="tbl-worst">
 
-Table 6: Which held-out factor level breaks each mapping. For every
+Table 7: Which held-out factor level breaks each mapping. For every
 weight-dispersion statistic it is the cross-moment channel: a risk
 mapping learned where that bias is present does not transport to where
 it is absent, or the reverse.
@@ -492,12 +564,24 @@ setting it transports worst to.
 That worst setting is the same for every weight-dispersion statistic in
 the panel, and it is the cross-moment channel. A mapping fitted where a
 bias no baseline table can reveal is operating, applied where it is not,
-or the reverse, gets the risk badly wrong. This is the substantive
-version of the transportability question, and it is the analysis the
-registered mechanism claim should have used; the registered version
-compared predictive values across cells, which move with prevalence and
-case mix even when a rule’s operating characteristics are stable, and a
-reviewer was right that it is not a test of transportability at all.
+or the reverse, gets the risk badly wrong.
+
+One caution on reading that, raised in round two and accepted. A
+one-term logistic mapping can fail either because the diagnostic does
+not transport or because a single linear term in the transformed
+statistic is the wrong functional form in the held-out setting, and this
+analysis cannot separate those. We did not fit richer forms. What can be
+said without choosing between them is the operational fact: a mapping of
+this shape, fitted on other settings, is off by about twenty points of
+absolute risk in the setting it transports worst to, and an analyst
+using it would not know which setting they were in.
+
+This is the substantive version of the transportability question, and it
+is the analysis the registered mechanism claim should have used; the
+registered version compared predictive values across cells, which move
+with prevalence and case mix even when a rule’s operating
+characteristics are stable, and a reviewer was right that it is not a
+test of transportability at all.
 
 ## Is acting on the warning better than not acting?
 
@@ -508,7 +592,7 @@ everything.
 
 <div id="tbl-dca">
 
-Table 7: Net benefit relative to flagging nothing, under the deployment
+Table 8: Net benefit relative to flagging nothing, under the deployment
 weights.
 
 <div class="cell-output-display">
@@ -530,8 +614,13 @@ thresholds up to 0.300. An analyst who would act on a 10.0% chance of
 material error does better scrutinizing every population adjustment than
 reading any of these numbers. From an action threshold of 0.400 upwards,
 meaning an analyst who intervenes only when material error is at least
-that likely, 4 rules beat both alternatives: relative effective sample
-size, pre-weighting imbalance and Mahalanobis distance. The absolute
+that likely, three distinct statistics beat both alternatives: relative
+effective sample size, pre-weighting imbalance and Mahalanobis distance.
+The coefficient of variation of the weights appears as a fourth entry in
+<a href="#tbl-dca" class="quarto-xref">Table 8</a> and is not a fourth
+statistic; it is relative effective sample size under another name, for
+the reason given in
+<a href="#sec-algebra" class="quarto-xref">Section 3</a>. The absolute
 effective-sample-size cutoff that gets quoted is not among them at any
 threshold examined.
 
@@ -541,7 +630,7 @@ threshold examined.
 
 <div id="tbl-mech">
 
-Table 8: The four claims registered before the run, and whether the run
+Table 9: The four claims registered before the run, and whether the run
 supports them.
 
 <div class="cell-output-display">
@@ -586,19 +675,55 @@ silence covers a 4.5% and an 83.5% chance of material error depending on
 which cell you are in. The claim registered as a test of
 transportability failed, and the proper evidence on transportability is
 the calibration of a locked risk model in held-out cells, which is
-<a href="#sec-calibration" class="quarto-xref">Section 5.4</a>.
+<a href="#sec-calibration" class="quarto-xref">Section 5.5</a>.
 
 **The proposal missed its bar too.** Registered at a gain of at least
 0.10 in area under the ROC curve against the transport component in the
 diagnosable stratum; observed 0.937 against 0.851, a gain of 0.086. It
 is a real improvement and it is not the one we said would count.
 
+Those two numbers are computed over a different set from
+<a href="#tbl-strata-transport" class="quarto-xref">Table 10</a> and two
+reviewers were right that presenting them side by side without saying so
+reads as an inconsistency, and that the comparator was never named. It
+is named now. **The registered claim compares our statistic against
+effective sample size as a percentage**, over the **diagnosable set**,
+which is every cell with the cross-moment channel off and therefore
+spans two of the four strata, under the declared deployment weights. On
+that set the comparator reaches 0.851, its alias the coefficient of
+variation of the weights reaches the same by
+<a href="#sec-algebra" class="quarto-xref">Section 3</a>, and the next
+routinely reported member is pre-weighting imbalance at 0.847.
+<a href="#tbl-strata-transport" class="quarto-xref">Table 10</a> is per
+stratum, under equal cell weights, and includes our proposals as well as
+the panel. Both are correct for what they are; neither is the other.
+
+Read together they correct something we said in the round-one response.
+Over the diagnosable set our converted statistic reaches 0.937 and the
+plain unmatched-balance check 0.890, so the conversion does help there.
+Inside the omitted-modifier stratum alone the order reverses: the plain
+check reaches 0.946 against 0.938. The two sets differ by whether the
+well-specified cells are included, and that is the whole explanation.
+Where the unmatched covariate is a modifier in every cell, imbalance in
+it and bias from it are the same thing and converting one to the other
+adds estimation noise for nothing. Where the analyst does not know
+whether it is a modifier, which is the real situation, the conversion is
+what keeps the statistic quiet on covariates that are imbalanced and
+harmless.
+
+So the honest summary of our own contribution is narrower than the
+registered claim and wider than the retraction we offered in round one:
+check balance on everything you measured, and weight it by an
+interaction you can estimate if you do not already know which of those
+covariates matter.
+
 <div id="tbl-strata-transport">
 
-Table 9: Discrimination against the transport component within each
-stratum, cells weighted equally. This is where the two numbers behind
-mechanism claim 4 live; in round one of review they appeared in the
-abstract and in no table.
+Table 10: Discrimination against the transport component within each
+stratum, cells weighted equally. This table does NOT contain the two
+numbers behind mechanism claim 4, which are computed over the
+diagnosable set under deployment weights and are given in the text; a
+reviewer caught an earlier caption claiming otherwise.
 
 <div class="cell-output-display">
 
@@ -646,7 +771,7 @@ Figure 1
 
 <div id="tbl-other">
 
-Table 10: The same replicates seen by the other three estimators. Median
+Table 11: The same replicates seen by the other three estimators. Median
 effective sample size is over the whole design.
 
 <div class="cell-output-display">
@@ -673,7 +798,7 @@ effective sample size is over the whole design.
 
 <div id="tbl-cov">
 
-Table 11: Coverage of the nominal 95% interval, over the whole design.
+Table 12: Coverage of the nominal 95% interval, over the whole design.
 Added after round one of review, which noted that the primary
 estimator’s coverage was missing.
 
