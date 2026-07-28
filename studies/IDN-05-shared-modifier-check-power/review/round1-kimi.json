@@ -1,0 +1,78 @@
+{
+ "recommendation": "major-revision",
+ "summary": "This is a registered simulation study of IDN-05: the power and evidentiary meaning of the shared-effect-modifier check in ML-NMR population adjustment. It answers the problem it claims to answer — the interaction contrast is resolved two to twelve times too coarsely relative to a consequence-derived margin, power is at most 0.08 at twice the material violation, an all-clear reading never fires, and check-then-relax still dominates the alternatives — with strong estimand discipline (marginal vs conditional effects cleanly separated, exact quadrature truth, systematic vs realized error distinguished) and an exemplary oracle/noise-floor analysis. The design's one-IPD-study/aggregate-only asymmetry is the genuine use case rather than a rigged mechanism, and the margin ε is derived from the decision threshold, not tuned, so the finding is not built in. However, the paper asserts nominal coverage that its own type I table contradicts, reports a prior-sensitivity contraction that appears arithmetically inconsistent with its own definition, gives a primary confidence bound that cannot be reconciled with the stated Monte Carlo sizes, deviates from the registered protocol on convergence failures without a dated amendment, and presents a decision-curve headline that is stacked by the noise floor and sits unreconciled against its own 'use it anyway' advice. All issues are repairable from existing outputs; none threatens the design.",
+ "strengths": [
+  "The design matches the problem: one IPD study with the comparator identifiable only ecologically is precisely the situation population adjustment and this check exist for, so the measured low resolution is a property of the use case, not an artifact; the consequence-derived ε = 0.1531 anchors every threshold in the decision rather than in taste.",
+  "Estimand discipline is exemplary: the marginal risk difference (decision scale) and the population-average conditional log-odds effect (mechanism scale) are explicitly distinguished and never conflated; the truth is computed exactly by Gauss-Hermite quadrature; the placebo risk is held at 0.30 across displacements so contrasts are compared at the same point on the logistic curve; systematic and realized error are scored separately.",
+  "The oracle/noise-floor analysis prevents an unfair verdict: the registered gate is shown to be unreachable by any procedure (oracle excess only +0.036, negative at low displacements), and the failed verdict is reported as failed and explained rather than spun — rare and correct practice.",
+  "Two consequential practical findings beyond the headline: under the default class_interactions='common', an x:.trt term is silently demoted to class level so an analyst editing the formula alone never fits a split model at all; and refitting at 256 quadrature points changes 8.3% of DIC-5 verdicts, so part of what the check reports is integration grid, not evidence.",
+  "Amendment and registration discipline: dated amendments with preserved random streams and cell numbering, a separate amendment arm at one ε, and an independent reviewer's pre-registered predictions scored against the run (0.72–0.75 predicted vs 0.758 measured; 0.011 vs 0.0125).",
+  "Several non-obvious decision-relevant results that go beyond 'power is low': the equivalence reading can never fire at achievable resolution; the margin rule is anti-conservative exactly where data are thin (0.48 under the null in the thinnest cell vs 0.08 in the richest); relaxing everything is worse than imposing the restriction; and the check statistic's calibration transports across network size, spread and heterogeneity but not across drift — the one axis that matters.",
+  "Monte Carlo error is mostly respected: per-cell SE of 0.065 is stated up front, results are reported by stratum or pooled, and no sub-0.13 single-cell difference is claimed."
+ ],
+ "comments": [
+  {
+   "id": 1,
+   "severity": "major",
+   "section": "Readings of the check / Results (type I error)",
+   "comment": "The manuscript states: 'there is exactly one interaction contrast per covariate, so nothing is selected and the credible interval keeps its nominal coverage.' Its own type I table reports the 95% interval rule at 0.0925 — about twice nominal — and the Discussion repeats 'runs at about twice its nominal rate' without reconciling the two statements. The inflation is plausibly confined to the τ_re = 0.15 cells (fixed-effect fit under random-effects truth) and/or reflects non-calibration of the aggregate-data-identified contrast rather than selection, but as written the coverage claim is contradicted by the paper's own result.",
+   "what_would_satisfy": "Report type I error of the interval rule split by τ_re (trivial from existing output). If it is ~0.05 in the τ_re = 0 cells, qualify the coverage sentence to the correctly specified case and say the inflation measures interference from a second specification error; otherwise remove the nominal-coverage claim and discuss why the single-contrast credible interval is miscalibrated."
+  },
+  {
+   "id": 2,
+   "severity": "major",
+   "section": "Results 3.1 (prior-sensitivity arm)",
+   "comment": "The reported contraction shift — 'from 0.33–0.42 under normal(0, 2.5) to 0.68–0.70 under normal(0, 1)' — appears arithmetically inconsistent with the paper's own definition (1 − sd(posterior)/sd(prior)) and its own resolution table. In the thinnest cells the data-alone SD of γ_C[x1] is ~1.82 (precision ~0.30); against a N(0,1) prior that gives posterior SD ≈ 0.88 and contraction ≈ 0.12, not 0.68–0.70. Moreover, for a fixed likelihood, tightening the prior cannot increase 1 − sd(post)/sd(prior) (ratio = sqrt(p/(p+q)) rises with prior precision p). The reported 0.68–0.70 is approximately 1 − 0.88/2.5, i.e., measured against the ORIGINAL prior's scale, not the fitted one. The narrative point (the prior changes how informed the posterior looks while the flag rate barely moves) survives, but the numbers as labeled seem wrong or mislabeled.",
+   "what_would_satisfy": "Report, per arm and per treatment: prior SD, posterior SD, and contraction with the denominator stated. Either correct the 0.68–0.70 figures to the contraction against the fitted prior, or relabel the quantity explicitly as additional shrinkage relative to the N(0,2.5) reference scale and say so."
+  },
+  {
+   "id": 3,
+   "severity": "major",
+   "section": "Prespecified verdict (primary)",
+   "comment": "The primary bound does not reconcile with the stated Monte Carlo sizes. Point estimate 0.675 with upper 95% bound 0.777 implies SE ≈ 0.062 (effective n ≈ 55), while the protocol states the pooled primary quantity has MCSE ≈ 0.011 (n ≈ 1,500; the pass-conditioned subset is ~1,307, giving SE ≈ 0.013 and an upper bound near 0.696). Presumably the deployment weighting concentrates mass on a few strata and deflates the effective sample size, but the weights, the interval method, and the effective n are nowhere reported, so the headline number of the paper is not reproducible as written.",
+   "what_would_satisfy": "State the deployment weights, the exact interval construction (Wilson/bootstrap/weighted), and the effective sample size; show that the 0.777 follows, or correct it."
+  },
+  {
+   "id": 4,
+   "severity": "major",
+   "section": "Throughout — protocol fidelity and cross-document consistency",
+   "comment": "(a) The protocol (section 4) excludes and counts any replicate in which any of the four fits fails convergence; the manuscript (3.7) retains those replicates in the strategy scoring ('Those replicates are retained and reported'). Retention is arguably the better choice — exclusion would select exactly the cases where relaxation is easiest — but it is a deviation from the registered analysis and is not listed as a dated amendment, and no sensitivity of the strategy ranking to this choice is given. (b) Several numbers disagree across the supplied documents: convergence failures 0.068/0.24 (manuscript) vs 0.066/0.22 (evaluation); M2 clears its bar in '5 of 8 strata' (manuscript) vs '6 of 8' (evaluation); the M3 gap is given as 0.087 in the text while the manuscript's own type I table gives 0.0925 − 0.0125 = 0.080 and the evaluation gives 0.0875; calibration maximum absolute error is 0.058 in the manuscript table but 0.099 in the evaluation text; the prior-sensitivity arm is '960 fits' in the manuscript against the protocol's 8 cells × 100 replicates × 4 fits. These suggest version drift between snapshots.",
+   "what_would_satisfy": "Add the convergence-retention decision as a dated amendment with a with/without sensitivity of the strategy ranking; do a single consistency pass so every number in the manuscript matches its analysis output; and include a short errata note reconciling the evaluation document."
+  },
+  {
+   "id": 5,
+   "severity": "major",
+   "section": "Results 3.7 (decision curve) and Discussion",
+   "comment": "The decision-curve result is stacked by the noise floor and contradicts a neighboring headline without reconciliation. The outcome (realized material error) is dominated by estimation noise that no covariate check can in principle predict — the paper itself shows a 0.427–0.58 floor when the assumption holds exactly — so 'distrust everything' must dominate every check-based rule at almost any threshold; this restates the noise-floor finding rather than measuring the check, and no classifier built on the check statistic could do otherwise. It also sits unresolved against 'Following it is still worth doing' (RMSE ranking). A reader is left with two headlines pointing in opposite directions.",
+   "what_would_satisfy": "Add the companion analysis against systematic error (where the check has something to predict), state the prevalence decomposition alongside the net-benefit numbers, and reconcile in the Discussion: on estimation error the check earns its keep; on the decision to commission IPD, the noise floor dominates and that is a statement about network size, not about the check. Cite Vickers and Elkin (2006) for decision curve analysis."
+  },
+  {
+   "id": 6,
+   "severity": "minor",
+   "section": "Amendment arm (3.8) and Design",
+   "comment": "'Eight cells at drift 0.15, exactly one ε' — but ε = 0.1531, and the paper reports the induced error at displacement 1 as 0.0294, just below the 0.03 material threshold. 'The violation that exactly matters' and 'the violation at which the transported estimate becomes materially wrong' overstate: it is just short of material.",
+   "what_would_satisfy": "Say 'approximately one ε (0.98×)' and report the induced error as just under the threshold, or rerun the eight cells at drift 0.1531."
+  },
+  {
+   "id": 7,
+   "severity": "minor",
+   "section": "Title, What this measures, Discussion",
+   "comment": "'A network of the size population adjustment is applied to resolves the difference... two to twelve times' is conditional on design choices the headline does not carry: one IPD study, 250/200 patients per arm, J ∈ {6,12}, τ_x ∈ {0.25,0.60}, normal covariates, logit link, placebo risk 0.30. Resolution scales with per-arm n and with the number of IPD studies; the limitations list the one-IPD axis but not the sample-size axis, and the Discussion's first paragraph generalizes without the conditioning.",
+   "what_would_satisfy": "Carry the conditioning into the Discussion's opening ('networks of this size and composition, with a single IPD study...') and add one limitations sentence noting the resolution ratio scales with per-study sample size and IPD count."
+  },
+  {
+   "id": 8,
+   "severity": "minor",
+   "section": "Results 3.6 (strategies)",
+   "comment": "The claim that check-then-relax 'had the lowest error of the three strategies at every target population examined' rests on RMSE differences (0.0928 vs 0.0995 vs 0.1218 at s = 1) reported without uncertainty quantification, in a paper that otherwise insists on Monte Carlo discipline. Because strategies share replicates, paired differences are estimable precisely — but it must be shown. Also: 'decision reversal' is never defined, and the rule driving check_then_relax (presumably DIC-5) is not stated; and only displacements 0 and 1 are tabulated while the claim covers all four.",
+   "what_would_satisfy": "Report paired MCSEs (or a replicate-level bootstrap) for the RMSE/material-error differences between strategies at each displacement; define decision reversal; state the flagging rule used by check_then_relax; tabulate or reference all four displacements."
+  },
+  {
+   "id": 9,
+   "severity": "minor",
+   "section": "Results 3.6 (M4)",
+   "comment": "M4 is declared confirmed at 0.107 against a registered threshold of 0.10; with n = 3,200 the MCSE is ~0.0055, so the excess over threshold is ~1.3 SE — confirmed only narrowly by the paper's own standard that sub-MCSE differences are not findings. The substantive content is the one-sided decomposition (DIC-without-interval 0.0006 vs interval-without-DIC 0.106), which is precise.",
+   "what_would_satisfy": "Report M4 as 'confirmed, narrowly (0.107, 95% CI ...)' and foreground the subset structure rather than the threshold crossing."
+  }
+ ]
+}

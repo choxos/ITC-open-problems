@@ -98,16 +98,28 @@ def render(d):
 
     # Figures travel with the Markdown, which references them relatively. The
     # PDF and ODT embed their own copies, so only the Markdown needs this.
+    #
+    # Two sources. Quarto writes plots produced by R chunks into
+    # manuscript_files/figure-*; a study whose figures are built by a separate
+    # script and committed keeps them in manuscript/figures and references them
+    # as figures/*.png already. Both end up in out/figures, and the second is
+    # merged rather than replacing the first.
+    dst = os.path.join(out, "figures")
+    md = os.path.join(out, d["problem_id"] + ".md")
     for cand in glob.glob(os.path.join(os.path.dirname(src),
                                        "manuscript_files", "figure-*")):
-        dst = os.path.join(out, "figures")
         shutil.rmtree(dst, ignore_errors=True)
         shutil.copytree(cand, dst)
-        md = os.path.join(out, d["problem_id"] + ".md")
         if os.path.exists(md):
             t = open(md, encoding="utf8").read()
             t = re.sub(r"manuscript_files/figure-[a-z]+/", "figures/", t)
             open(md, "w", encoding="utf8").write(t)
+
+    static = os.path.join(os.path.dirname(src), "figures")
+    if os.path.isdir(static):
+        os.makedirs(dst, exist_ok=True)
+        for f in glob.glob(os.path.join(static, "*")):
+            shutil.copy2(f, dst)
 
     return problems + verify(d, out)
 

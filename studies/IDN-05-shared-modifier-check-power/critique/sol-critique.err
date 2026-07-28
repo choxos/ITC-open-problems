@@ -1,0 +1,584 @@
+Reading additional input from stdin...
+OpenAI Codex v0.144.4
+--------
+workdir: /Users/choxos/Documents/GitHub/ITC-open-problems/studies/IDN-05-shared-modifier-check-power/critique
+model: gpt-5.6-sol
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: max
+reasoning summaries: none
+session id: 019fa685-1abc-7923-9a0e-9136927b0c5a
+--------
+user
+You are an adversarial methodologist reviewing a simulation design BEFORE it is run. Answer from your own knowledge only. Do not use tools, sub-agents, or skills. Rank findings by severity (fatal / serious / minor) and be quantitative wherever you can; we will verify every claim numerically before accepting it.# Design for adversarial critique: the power and calibration of the split-interaction check
+
+**Status: not yet run. Nothing below has been executed. Attack it.**
+
+## The object under study
+
+Population adjustment across a network usually assumes *shared effect modification*: a
+covariate modifies the effect of every active treatment in a class in the same way. Phillippo
+et al. (2023, doi:10.1177/0272989X221117162) published the only within-network empirical check
+on this assumption and implemented it in `multinma`. The procedure is:
+
+1. Fit ML-NMR with `class_interactions = "common"` (one interaction per covariate, shared by
+   all treatments in the class).
+2. Refit with `class_interactions = "independent"` **for one covariate at a time**, giving
+   treatment-specific interactions for that covariate.
+3. Compare the posteriors of the treatment-specific interactions, and compare model fit by DIC.
+
+Their own words: "It is likely that this approach to assessing the shared effect modifier
+assumption has low power, particularly when data are lacking." Nobody has measured it. There
+is no threshold, no stability metric, and no statement of what a pass licenses.
+
+This study measures it.
+
+## What we already found before designing anything
+
+`multinma` 0.9.1.9002 documents `class_interactions = c("common", "exchangeable",
+"independent")`. Calling it with `"exchangeable"` raises **"Exchangeable treatment class
+interactions (class_interactions = "exchangeable") not yet supported"**. Our own catalog entry
+for IDN-05 states that the hierarchical relaxation "ships in multinma"; that is wrong for this
+version and will be corrected. Only `common` and `independent` are fittable, so the check is a
+binary comparison and the hierarchical middle ground is unavailable.
+
+Also: with `chains = 1`, `nma()` fails to initialize the Stan sampler
+(`nint_vec` dimension mismatch, raised during integration-convergence checking) and returns an
+object that *looks like* a fit; `dic()` then errors. We use `chains = 2` throughout and check
+every fit for draws before using it.
+
+## Data-generating mechanism
+
+Individual-level model, binomial outcome, logit link, for individual $i$ in study $j$ on
+treatment $k$:
+
+$$\mathrm{logit}\,p_{ijk} = \mu_j + \boldsymbol{\beta}'x_{ijk} + \mathbb{1}\{k \neq \text{PBO}\}\left(d_k + \boldsymbol{\gamma}_k' x_{ijk}\right)$$
+
+- 3 covariates, $x \sim N(\delta_j, \Sigma)$ within study $j$, $\Sigma$ with unit variances and
+  exchangeable correlation 0.25.
+- Prognostic effects $\boldsymbol{\beta} = (0.40, 0.40, 0.40)$; study intercepts
+  $\mu_j \sim N(-0.85, 0.15^2)$ so placebo response is near 0.30.
+- Treatments: reference PBO, and three active treatments A, B, C **in one class**, which is
+  what makes the shared-interaction restriction bind.
+- Main effects $d_A = d_B = d_C = 0.70$.
+- **Effect-modifier drift** is carried by $x_1$ only:
+  $\gamma_A[x_1] = \gamma_0 + \Delta$, $\gamma_B[x_1] = \gamma_0$, $\gamma_C[x_1] = \gamma_0 - \Delta$,
+  with $\gamma_0 = 0.30$.
+  $x_2$ and $x_3$ are **truly shared**: $\gamma_k[x_2] = \gamma_k[x_3] = 0.30$ for all $k$.
+  So every replicate supplies one power observation ($x_1$, when $\Delta > 0$) and two type I
+  error observations ($x_2$, $x_3$) from the same fits.
+
+## Network
+
+- $J$ studies, all two-arm and placebo-anchored.
+- $n_{\text{IPD}} \in \{1, 2\}$ studies contribute individual data; the rest contribute
+  arm-level summaries (mean and SD of each covariate, events, sample size).
+- **The IPD studies always compare PBO with A.** So A is the treatment for which
+  treatment-specific interactions are estimable within a study; B and C appear only in
+  aggregate studies and their interactions are identified only through between-study contrasts
+  of covariate means, which is the ecological route.
+- Aggregate studies rotate over A, B, C.
+- Study covariate means $\delta_j \sim N(0, \tau^2 I)$ with $\tau$ the **covariate spread**
+  factor. $\tau$ is what carries ecological information about interactions.
+- 400 patients per arm in IPD studies, 250 per arm in aggregate studies.
+
+## Design factors (fitting cells)
+
+| Factor | Levels |
+|---|---|
+| `drift` $\Delta$ | 0, 0.15, 0.30, 0.60 |
+| `n_ipd` | 1, 2 |
+| `n_studies` $J$ | 6, 12 |
+| `spread` $\tau$ | 0.25 (low), 0.60 (high) |
+
+$4 \times 2 \times 2 \times 2 = 32$ cells, 300 replicates each.
+
+**The target population is not a fitting factor.** The check reads only the fitted network; its
+output cannot depend on the population an analyst later transports to. So one set of fits is
+scored at every target displacement, and that is itself the mechanism this study is built
+around. Target covariate mean $\delta_T = (s, 0, 0)$ with $s \in \{0, 0.5, 1.0, 1.5\}$ standard
+deviations along the drifting covariate.
+
+## Models fitted per replicate
+
+Five fits, the complete lattice of the published procedure with $K = 3$:
+
+1. `common` — the restriction.
+2. `split-x1`, 3. `split-x2`, 4. `split-x3` — independent interactions for one covariate at a
+   time, which is the published check.
+5. `split-all` — independent interactions for every covariate, the full relaxation an analyst
+   would use if they abandoned the restriction.
+
+$32 \times 300 \times 5 = 48{,}000$ ML-NMR fits, 2 chains, 1000 iterations, 64 integration
+points. Measured cost 2.5 s per fit; about 5 hours on 7 workers.
+
+## Estimands
+
+1. **Mechanism scale.** Population-average relative effect in the target,
+   $\theta_k(T) = d_k + \boldsymbol{\gamma}_k' \delta_T$, on the log-odds scale, via
+   `relative_effects(fit, newdata = target)`. Linear in $x$, so the truth is exact and the bias
+   from imposing sharing is exactly $(\hat{\gamma} - \gamma_k)'\delta_T$.
+2. **Decision scale.** Marginal risk difference in the target population, via
+   `predict(fit, newdata = target, type = "response", level = "aggregate")` with the *true*
+   target baseline supplied. Truth by exact numerical integration of the true model over the
+   target covariate distribution. Supplying the true baseline is a deliberate simplification
+   that favors the check.
+3. **The decision contrast** is C versus A: an aggregate-only treatment against the IPD
+   treatment, which is the situation population adjustment exists for.
+
+## Operational readings of the check
+
+There is no agreed threshold, so we report all of them.
+
+- **DIC rule.** Flag covariate $k$ if $\mathrm{DIC}(\text{split-}x_k) < \mathrm{DIC}(\text{common}) - c$,
+  for $c \in \{2, 5, 10\}$.
+- **Posterior rule.** Flag if the 95% credible interval for the largest pairwise difference
+  among $\{\gamma_A[x_k], \gamma_B[x_k], \gamma_C[x_k]\}$ excludes zero.
+- **Continuous score.** $\Delta\mathrm{DIC}$ and the posterior probability of a nonzero
+  difference, both scored as classifiers by AUROC against realized error, so the study reports
+  a curve rather than pretending a cutoff exists.
+
+## Prespecified primary outcome and verdict rule
+
+**Material error**: the estimated marginal risk difference for C versus A in the target differs
+from the truth by more than 0.03 absolute risk.
+
+**The check is fit for the reassurance it is read as giving** if and only if, in every design
+stratum and at every target displacement, the DIC rule at $c = 5$ reaches sensitivity $\geq
+0.80$ for material error at specificity $\geq 0.50$. We expect this to fail. Registering it
+means the failure is a measurement, not a narrative.
+
+## Prespecified mechanism claims, with thresholds that permit failure
+
+- **M1, decoupling.** The check's power is invariant to target displacement (max power
+  difference across $s \in \{0, 0.5, 1.0, 1.5\}$ below 0.02, since the fits are identical),
+  while the false reassurance rate $P(\text{check passes} \cap \text{material error})$ rises by
+  at least 0.20 from $s = 0$ to $s = 1.5$. This is close to a theorem; the run checks the
+  implementation and quantifies the size.
+- **M2, IPD asymmetry.** At $\Delta = 0.30$, power to detect drift is at least 0.15 lower when
+  the contrast involves the aggregate-only treatment C than when it involves the IPD treatment
+  A.
+- **M3, multiplicity.** Family-wise type I error over the three covariates exceeds the
+  per-covariate rate by at least 0.03.
+- **M4, disagreement.** The DIC rule and the posterior rule disagree in at least 10% of
+  replicates, so "compare posteriors and model fit" is not one procedure.
+
+## Strategy comparison
+
+Three strategies an analyst could follow, scored on the target estimand under a declared
+deployment distribution over cells: **always common**, **always independent** (`split-all`),
+and **check then relax** (use `split-all` if the DIC rule flags any covariate, else `common`).
+Reported as RMSE, decision reversal rate, and net benefit across action thresholds.
+
+## Calibration
+
+Does "the check passed" mean the same thing in a setting the analyst has not seen? Fit a
+one-term logistic mapping from the check statistic to $P(\text{material error})$ in all cells
+but one level of one factor, evaluate absolute risk error in the held-out level.
+Leave-one-factor-level-out over all four factors.
+
+## Known limitations, stated before the run
+
+Covariates are normal with known target moments; outcomes are binomial with a logit link;
+studies are two-arm and placebo-anchored; conditional constancy holds; only $x_1$ drifts and it
+drifts linearly; there is no random-effects heterogeneity in the treatment effects; the target
+baseline risk is supplied rather than estimated; `exchangeable` interactions cannot be fitted
+in this version so the hierarchical middle ground is absent.
+
+---
+
+## What we want from you
+
+Find the errors. In particular:
+
+1. **Is any quantity above arithmetically wrong?** Check that $\Delta = 0.15$ on the log-odds
+   scale actually produces a material (0.03 absolute risk) error at $s = 1.0$, and that the
+   drift levels span the interesting range rather than all being detectable or all being
+   invisible. Compute it.
+2. **Is the drift parameterization confounded with anything?** $\gamma_C = \gamma_0 - \Delta$
+   changes both the spread among treatments and treatment C's own modifier strength. Does that
+   contaminate the C-versus-A contrast?
+3. **Is the estimand right?** Is `relative_effects(newdata =)` in `multinma` the
+   population-average effect we claim it is for a logit-link ML-NMR, or something else?
+4. **Is the network identified?** With one IPD study on PBO/A and aggregate studies on B and C,
+   are treatment-specific interactions for B and C estimable at all, or is `split-x1` fitting a
+   prior?
+5. **Are the design cells enumerated in an order that confounds a later split?** Study 4 of this
+   program had exactly this defect.
+6. **Is anything about the verdict rule rigged** so that it must fail regardless of the truth?
+7. **What is the most important thing this design leaves out?**
+
+Answer from your own knowledge. Be specific, quantitative where possible, and rank findings by
+severity. We will verify each numerically before accepting it.
+warning: loading hooks from both /Users/choxos/.codex/hooks.json and /Users/choxos/.codex/config.toml; prefer a single representation for this layer
+2026-07-28T02:19:31.718924Z ERROR rmcp::transport::worker: worker quit with fatal: Transport channel closed, when Auth(AuthorizationRequired)
+warning: Skill descriptions were shortened to fit the 2% skills context budget. Codex can still see every skill, but some descriptions are shorter. Disable unused skills or plugins to leave more room for the rest.
+hook: SessionStart
+hook: SessionStart
+hook: SessionStart
+hook: SessionStart
+hook: SessionStart
+hook: SessionStart
+hook: SessionStart
+hook: SessionStart
+hook: SessionStart
+hook: SessionStart
+hook: SessionStart
+hook: SessionStart Failed
+hook: SessionStart Completed
+hook: SessionStart Completed
+hook: SessionStart Completed
+hook: SessionStart Completed
+hook: SessionStart Completed
+hook: SessionStart Completed
+hook: SessionStart Completed
+hook: SessionStart Completed
+hook: SessionStart Completed
+hook: SessionStart Failed
+hook: UserPromptSubmit
+hook: UserPromptSubmit
+hook: UserPromptSubmit
+hook: UserPromptSubmit
+hook: UserPromptSubmit
+hook: UserPromptSubmit Failed
+hook: UserPromptSubmit Completed
+hook: UserPromptSubmit Completed
+hook: UserPromptSubmit Completed
+hook: UserPromptSubmit Failed
+codex
+Bottom line: the fit-count arithmetic is correct, and \(\Delta=0.15\) is already materially large for C versus A at \(s=1\). However, several parts of the design are not presently interpretable: some independent-interaction models are structurally unidentified, the posterior rule is mathematically degenerate as written, and the primary verdict tests the diagnostic against errors it is not designed to detect.
+
+## Fatal findings
+
+### 1. Several independent-interaction fits are unidentified and will be prior-driven
+
+Each two-arm placebo-controlled aggregate study contributes essentially one active-versus-placebo contrast after accounting for its study baseline.
+
+For an aggregate-only treatment:
+
+- `split-x1` requires estimating \(d_k\) and \(\gamma_{k1}\): at least two studies with distinct covariate means are required even for rank identification.
+- `split-all` requires \(d_k\) plus three interactions: at least four studies with a full-rank covariate-mean design are required.
+
+The proposed rotation gives:
+
+- \(J=6,n_{\mathrm{IPD}}=2\): four aggregate studies, allocated \(2,1,1\) across A/B/C. At least one of B or C has only one study. Its split interaction is unidentified.
+- \(J=6,n_{\mathrm{IPD}}=1\): five aggregate studies, allocated \(2,2,1\). Depending on rotation phase, an aggregate-only treatment may again have one study.
+- \(J=12,n_{\mathrm{IPD}}=2\): ten aggregate studies, allocated \(4,3,3\). At least one aggregate-only treatment has fewer than the four studies required for `split-all`.
+- \(J=12,n_{\mathrm{IPD}}=1\): eleven aggregate studies, allocated \(4,4,3\). This only reaches four studies each for B and C if the three-study allocation is deliberately assigned to A.
+
+Even four studies for four coefficients is merely rank identification, with no redundancy and extreme sensitivity to priors and random covariate geometry.
+
+A rough information calculation reinforces this. With 250 patients per arm and risks around 0.3 to 0.5, an aggregate log-odds ratio has SE around 0.18 to 0.20. With \(r\) studies and covariate spread \(\tau\),
+
+\[
+\operatorname{SE}(\hat\gamma_k)\approx
+\frac{0.19}{\tau\sqrt{r-1}}.
+\]
+
+For \(r=3\), this is approximately 0.54 at \(\tau=0.25\) and 0.22 at \(\tau=0.60\). Thus a deviation of 0.15 is weak even where nominally identified.
+
+You must specify exact priors and include prior-sensitivity analysis. Otherwise this study partly measures default-prior behavior under rank deficiency, not the published check’s power.
+
+### 2. The posterior rule is degenerate as written
+
+Two possible interpretations both fail:
+
+- If “largest pairwise difference” means the posterior range,
+  \[
+  \max_k\gamma_k-\min_k\gamma_k,
+  \]
+  it is positive with probability one under continuous posteriors. Its equal-tailed 95% interval will ordinarily exclude zero even under the null.
+- If you select the pair with the largest posterior mean difference and then inspect that pair’s ordinary 95% interval, selection invalidates the nominal 95% interpretation and inflates false positives.
+
+Likewise, the literal “posterior probability of a nonzero difference” is exactly one under continuous priors:
+
+\[
+P(\gamma_a\ne\gamma_b\mid y)=1.
+\]
+
+It cannot serve as an AUROC score.
+
+Use a prespecified nonzero margin \(\varepsilon\), such as
+
+\[
+P\!\left(\max_{a<b}|\gamma_a-\gamma_b|>\varepsilon\mid y\right),
+\]
+
+or simultaneous credible intervals for all prespecified pairwise contrasts. The choice of \(\varepsilon\) must be justified independently of the realized data.
+
+### 3. The primary verdict is misaligned with the diagnostic
+
+The split-interaction check tests treatment-specific effect modification. Your “material error” includes:
+
+- structural bias from sharing;
+- ordinary sampling error;
+- weak identification;
+- prior shrinkage;
+- numerical error.
+
+A perfect shared-modification diagnostic can fail your rule. At \(\Delta=0\), it should never flag. Yet occasional common-model estimates will exceed the 0.03 error threshold due to sampling variation. Its sensitivity for those errors would be zero, despite perfect performance for its intended hypothesis.
+
+The reverse happens near \(s=0\): the check can correctly detect \(\Delta>0\) even when transported error is immaterial. That becomes a “false positive” under the material-error label.
+
+Separate:
+
+1. Power and type I error for detecting the interaction violation.
+2. \(P(\text{material error}\mid\text{pass})\), which addresses reassurance.
+
+The latter is much more relevant than \(P(\text{pass}\cap\text{material error})\), which depends strongly on error prevalence.
+
+### 4. “Every stratum” makes the finite-simulation verdict nearly impossible to pass
+
+There are \(32\times4=128\) fitting-cell/target evaluations. Some will have few or zero material-error cases, making sensitivity unstable or undefined.
+
+Even if every stratum’s true sensitivity were exactly 0.80, an observed estimate will fall below 0.80 roughly half the time. Requiring every observed estimate to clear the boundary therefore has effectively zero joint probability.
+
+With 300 total replicates, the best-case SE of a sensitivity estimate near 0.80 is
+
+\[
+\sqrt{0.8(0.2)/300}=0.023.
+\]
+
+If only 20% of replicates have material error, the sensitivity denominator is about 60 and the SE is approximately 0.052. Roughly 1,537 material-error cases are needed for a 95% margin near \(\pm0.02\) at sensitivity 0.80.
+
+Use confidence-bound criteria in a small number of primary strata, or define a population-level minimax estimand and power the simulation for estimating it.
+
+### 5. M2 is not identified by this design
+
+There is only one DIC decision for `split-x1`; it has no treatment-specific “power involving A” or “power involving C.”
+
+You could compare posterior detection of A–B against C–B because both true gaps equal \(\Delta\), but even that comparison is confounded by:
+
+- A having IPD and C not;
+- different numbers of studies;
+- A having modifier \(\gamma_0+\Delta\) and C having \(\gamma_0-\Delta\);
+- resulting differences in event probabilities and covariate-induced variance;
+- potentially different aggregate rotation counts.
+
+To identify an IPD-availability effect, rotate which treatment receives IPD and independently rotate which treatment carries \(+\Delta\), \(0\), and \(-\Delta\), while holding study counts fixed.
+
+### 6. The aggregate covariate distribution is underspecified
+
+Means and SDs are insufficient for multivariable logistic ML-NMR when covariates are correlated. The integration requires their joint distribution.
+
+This is quantitatively important. Under the common active-treatment slope, the total outcome coefficients are \((0.7,0.7,0.7)\). Therefore
+
+\[
+b^\top\Sigma b=2.205
+\]
+
+with correlation 0.25, versus 1.47 if independence is assumed: a 50% difference. For placebo, the corresponding values are 0.72 versus 0.48, also a 50% difference.
+
+Supply the true correlation matrices, or specify how they are estimated from IPD and propagated to aggregate studies. Otherwise the simulation adds covariate-distribution misspecification to the interaction check.
+
+## Quantitative drift check
+
+The cell count and cost arithmetic are correct:
+
+- \(4\times2\times2\times2=32\) cells.
+- \(32\times300\times5=48{,}000\) fits.
+- \(48{,}000\times2.5\) seconds \(=33.3\) worker-hours, or 4.76 hours under ideal seven-worker scaling.
+
+For C versus A,
+
+\[
+\gamma_C-\gamma_A=-2\Delta,
+\]
+
+so at \(s=1\), \(\Delta=0.15\) creates a true conditional log-odds contrast of \(-0.30\), not \(-0.15\).
+
+Using \(\mu_T=-0.85\) and the stated target covariance:
+
+- A’s linear predictor is \(N(0.70,2.5425)\).
+- C’s linear predictor is \(N(0.40,1.9125)\).
+
+Numerical logistic-normal integration gives approximately
+
+\[
+P_A\simeq0.619,\qquad P_C\simeq0.573,
+\]
+
+so the true C-minus-A marginal RD is about \(-0.046\). An oracle common model with equal main effects predicts zero C–A difference, giving absolute structural error around 0.046, above 0.03.
+
+At the target mean without marginalization:
+
+\[
+P_A=\operatorname{expit}(0.70)=0.6682,\quad
+P_C=\operatorname{expit}(0.40)=0.5987,
+\]
+
+a difference of \(-0.0695\).
+
+Approximate oracle marginal C-minus-A RDs at \(s=1,\mu_T=-0.85\) are:
+
+| \(\Delta\) | True log-odds contrast | Marginal RD |
+|---:|---:|---:|
+| 0 | 0 | 0 |
+| 0.15 | -0.30 | -0.046 |
+| 0.30 | -0.60 | -0.091 |
+| 0.60 | -1.20 | -0.181 |
+
+For \(\Delta=0.15\), approximate RDs at \(s=0,0.5,1,1.5\) are \(-0.002,-0.024,-0.046,-0.064\). Thus the grid does cross the 0.03 boundary, although \(\Delta=0.60\) is extremely large.
+
+These are not exact design answers because the target baseline is not numerically specified. If the target marginal placebo risk is fixed at 0.30 by recalibrating its intercept, the \(\Delta=0.15,s=1\) marginal RD is approximately \(-0.053\).
+
+Also, \(\mu=-0.85\) gives conditional placebo risk 0.299 at \(x=0\), but the marginal placebo risk at \(\delta=0\) is approximately 0.324 because of logistic-normal averaging.
+
+## Serious findings
+
+### The drift parameter is half the relevant contrast
+
+For three treatments with deviations \((+\Delta,0,-\Delta)\):
+
+- Maximum pairwise range: \(2\Delta\).
+- Population SD across the three modifiers: \(\sqrt{2/3}\Delta\).
+- Sample SD across the three: \(\Delta\).
+
+Calling \(\Delta\) “drift” without stating which definition is used is misleading. The decision contrast deliberately uses the two extremes and doubles the input parameter.
+
+This is acceptable for a worst-case contrast, but it cannot isolate an aggregate-only-treatment effect.
+
+### `relative_effects(newdata=)` is not a marginal odds ratio
+
+The quantity
+
+\[
+d_k+\gamma_k^\top E(X)
+\]
+
+is the population mean of individual conditional log-odds ratios. It is not
+
+\[
+\operatorname{logit}\{E[p_k(X)]\}
+-\operatorname{logit}\{E[p_{\mathrm{PBO}}(X)]\},
+\]
+
+the marginal population log-odds ratio.
+
+Thus the mechanism estimand is valid if labeled “population-average conditional log-odds effect” or “average conditional log OR.” It should not be described as a marginal population effect. The aggregate-response prediction is the appropriate route for marginal risks.
+
+The claimed exact bias formula is also incomplete:
+
+\[
+\hat\theta_k-\theta_k
+=(\hat d_k-d_k)+(\hat\gamma_k-\gamma_k)^\top\delta_T.
+\]
+
+Under misspecification, treatment main effects absorb some slope error at the observed study means. For C versus A under the common model,
+
+\[
+\hat\theta_{CA}-\theta_{CA}
+=(\hat d_C-\hat d_A)+2\Delta s.
+\]
+
+Therefore the transported error is not exactly \(2\Delta s\) in an actual fitted replicate.
+
+### Target displacement also changes baseline risk
+
+Because \(x_1\) has prognostic coefficient 0.40, increasing \(s\) changes both:
+
+- the treatment-effect contrast;
+- the target placebo risk and the risk-scale derivative.
+
+Supplying the true baseline does not remove this scale effect. Either hold marginal placebo risk fixed across \(s\), add baseline risk as a factor, or state that M1 combines effect-modifier extrapolation with changing baseline risk.
+
+The asymmetric slopes also change marginal risks at \(s=0\) through different linear-predictor variances, explaining the small nonzero RD above.
+
+### M1 is partly tautological and partly internally constrained
+
+Since the same fitted check is copied to every target:
+
+\[
+P(\text{flag}\mid s=0)=\cdots=P(\text{flag}\mid s=1.5)
+\]
+
+exactly, not merely within 0.02. A nonzero empirical difference indicates a bookkeeping error.
+
+Also,
+
+\[
+P(\text{pass}\cap E_{1.5})-P(\text{pass}\cap E_0)
+\le P(\text{pass}).
+\]
+
+Thus the required 0.20 increase is impossible in any stratum where the pass rate is below 0.20, precisely the strata where the check has high power. M1 needs a clearly specified aggregation domain.
+
+### Type I error is contaminated under \(\Delta>0\)
+
+When testing `split-x2` or `split-x3`, the model still incorrectly forces \(x_1\) to be common. Because the covariates are correlated, treatment-specific \(x_2\) or \(x_3\) terms can absorb residual \(x_1\) misspecification.
+
+That is a useful “wrong-covariate attribution” rate, but it is not nominal type I error. Estimate nominal type I error under the global null \(\Delta=0\), and report leakage under \(\Delta>0\) separately.
+
+FWER “over three covariates” also applies only at \(\Delta=0\). Under \(\Delta>0\), only two covariates are null.
+
+### Five models are not the complete lattice
+
+With three covariates, the lattice contains \(2^3=8\) models. You omit:
+
+- split \(x_1+x_2\);
+- split \(x_1+x_3\);
+- split \(x_2+x_3\).
+
+The proposed check-then-relax strategy jumps to `split-all` whenever even one covariate flags. That is unnecessarily punitive and especially damaging because `split-all` is the least identified model.
+
+A natural strategy uses exactly the flagged subset, requiring all eight models.
+
+### Calibration omits the dominant deployment variable
+
+The same statistic corresponds to different material-error probabilities at different \(s\). A one-statistic logistic mapping cannot be calibrated across target displacement except by averaging over a fixed, prespecified distribution of \(s\).
+
+Target displacement must either:
+
+- enter the calibration model;
+- be held out as an additional factor;
+- or be explicitly excluded because the exercise is intentionally target-blind.
+
+All four target rows from one simulated dataset must remain in the same validation partition.
+
+### Monte Carlo and fitting checks are inadequate
+
+“Has draws” is not a valid-fit criterion. Prespecify checks for:
+
+- rank-normalized \(\hat R\);
+- bulk and tail ESS;
+- divergences and maximum treedepth;
+- DIC Monte Carlo error or repeated-fit stability;
+- integration-point sensitivity;
+- fit failures by cell and model;
+- prior sensitivity in weakly identified cells.
+
+With only two chains and roughly 1,000 post-warmup draws at best, DIC differences near 2 or 5 may be dominated by Monte Carlo instability. Validate 64 integration points against substantially larger values in a representative worst-case subset.
+
+## Minor or underspecified issues
+
+- The design description does not reveal whether cell ordering confounds a later split. It therefore cannot be certified.
+- Use a stable dataset ID based on `(drift, n_ipd, J, spread, replicate)`. Keep every model and target displacement for that dataset together.
+- Assign seeds before randomizing execution order. Do not derive train/test membership from row order.
+- Randomize or balance the aggregate-treatment rotation phase independently of the generated \(\delta_j\).
+- “Decision reversal” needs a rule for true ties, which are common at \(\Delta=0\).
+- “Net benefit across action thresholds” is not defined without actions, utilities, threshold direction, and treatment harms or costs.
+- The deployment distribution over cells must be numerically specified before aggregate strategy comparisons.
+- With 300 replicates, differences of 0.02 or 0.03 are generally below reliable Monte Carlo resolution.
+
+## Most important omitted factor
+
+Random treatment-effect heterogeneity is the major substantive omission. The ecological interaction signal for one treatment has between-study SD approximately \(\Delta\tau\). At \(\Delta=0.15\), this is only:
+
+\[
+0.15(0.25)=0.0375,\qquad 0.15(0.60)=0.09.
+\]
+
+A treatment-effect heterogeneity SD of 0.10 to 0.20 would equal or dominate that signal. It can both hide genuine interaction drift and create apparent drift under the null. Since B and C are identified through between-study patterns, excluding heterogeneity makes this a highly favorable best-case experiment.
+
+At minimum, add treatment-effect heterogeneity levels around 0, 0.10, and 0.20. Without them, the eventual conclusions should be restricted to homogeneous, correctly specified networks and should not be presented as realistic calibration of the check.
+hook: Stop
+hook: Stop
+hook: Stop
+hook: Stop
+hook: Stop Completed
+hook: Stop Completed
+hook: Stop Completed
+hook: Stop Failed
+tokens used
+64,526

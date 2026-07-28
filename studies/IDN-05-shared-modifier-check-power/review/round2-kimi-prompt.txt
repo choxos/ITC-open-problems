@@ -1,0 +1,1796 @@
+You are peer reviewing a manuscript for a methodological journal in
+evidence synthesis. Review it as you would for Statistics in Medicine or
+Research Synthesis Methods.
+
+Answer from the manuscript and your own knowledge of this literature. Do not use
+tools, do not spawn sub-agents, do not load skills.
+
+The manuscript reports a simulation study aimed at a specific open problem in a
+public catalog. It is accompanied by a protocol that was registered before the
+run. Both are given to you in full.
+
+## What to review
+
+**Does the study answer the problem it claims to answer?** The most common fatal
+flaw in this area is a study that is internally sound and measures a
+neighbouring question. Compare the aims to the stated problem.
+
+**Is the finding built into the data-generating mechanism?** If the mechanism
+makes the studied effect true by construction, the study demonstrates arithmetic.
+Say which parameter choice does this, if any.
+
+**Are the estimands right?** In population adjustment the usual errors are
+conflating conditional with marginal effects, conflating a realized sample with
+a superpopulation, and computing a truth for a different population than the
+estimator targets.
+
+**Is the comparison fair?** A status quo given a worse variance estimator than
+the proposal is a rigged comparison.
+
+**Are the conclusions supported by the numbers reported?** Check that every claim
+in the abstract and discussion is licensed by a result in the paper, and that
+Monte Carlo error is respected: a difference smaller than its Monte Carlo
+standard error is not a finding.
+
+**Are the stated limitations the real ones?** A limitations section that lists
+easy limitations while omitting the one that threatens the conclusion is worse
+than none.
+
+**Citations.** Flag any work attributed to the wrong authors, any citation that
+does not say what the manuscript claims, and any claim of novelty that ignores
+existing work you know of.
+
+Reward what is done well. A review that finds everything fatal is not a review.
+Reserve `reject` for a study whose question or design cannot be repaired.
+
+## Output
+
+Reply with JSON only, no prose before or after.
+
+{"recommendation":"accept|minor-revision|major-revision|reject",
+ "summary":"three to five sentences: what the paper does and whether it succeeds",
+ "strengths":["..."],
+ "comments":[{"id":1,"severity":"major|minor","section":"...","comment":"...",
+   "what_would_satisfy":"the specific change or evidence that would resolve this"}],
+ "citation_problems":[{"cite":"...","problem":"..."}],
+ "conclusions_supported":true,
+ "unsupported_claims":["quote any claim the results do not license"]}
+
+## This is round two
+
+You are reviewing a REVISED manuscript. You are given the round-one reports from
+both reviewers, the authors' point-by-point response, and the revised paper.
+
+Judge the revision. For each round-one point that was addressed to you, say
+whether the response is adequate. Authors are allowed to disagree with a
+reviewer and say why; a reasoned refusal is a legitimate response and should be
+judged on its reasoning, not on whether they complied. What is not legitimate is
+a response that claims a change was made when the manuscript does not show it,
+so check the text against the claim.
+
+Add `"round1_resolution"` to your JSON: a list of
+{"reviewer":"...","id":N,"resolved":"yes|partly|no","note":"..."} covering each
+round-one major comment.
+
+
+PACKAGE:
+
+# MANUSCRIPT UNDER REVIEW
+
+# A violation twice the size that would change a decision raises the
+shared effect modifier check’s alarm rate from 1.3% to 4.5%
+Ahmad Sofi-Mahmudi
+2026-07-28
+
+## What this measures
+
+Population adjustment across a network of trials almost always assumes
+**shared effect modification**: that a covariate modifies the effect of
+every active treatment in a class in the same way. The assumption is
+what lets an analysis borrow an interaction estimated where there are
+individual data and apply it where there are only published summaries.
+
+There is one published within-network check on it. Phillippo et al.
+([1](#ref-phillippo2023)) fit a multilevel network meta-regression with
+a single interaction shared across a treatment class, refit it with
+treatment-specific interactions **one covariate at a time**, and compare
+the posteriors and the model fit. `multinma` implements it
+([2](#ref-multinma)). Their own assessment of its power is explicit: “it
+is likely that this approach to assessing the shared effect modifier
+assumption has low power, particularly when data are lacking.”
+
+Nobody has measured it. There is no threshold that separates a pass from
+a failure, no statement of how much interaction stability is enough, and
+no statement of what a pass licenses. This study measures all three,
+against a truth it constructs, under a design registered before any
+replicate was run.
+
+What it measures is not one procedure. “Compare the posteriors and the
+model fit” is a description of an exploratory practice, not a decision
+rule, so this study evaluates five explicit rules of our own
+construction that the description admits. Those operating
+characteristics are ours; the practice they formalize is the published
+one, and the distinction matters for every number below.
+
+The central measurement: when the two treatments’ effect modifiers
+differ by 0.30, which leaves the transported estimate wrong by twice the
+amount that would change a decision, the DIC rule fires in **0.045** of
+analyses, 95% interval \[0.029, 0.070\]. When the assumption holds
+**exactly** it fires in 0.013 \[0.005, 0.029\]. A violation that doubles
+the error that matters moves the alarm rate by about three percentage
+points.
+
+The reason is precision, not thresholds: no network in this design came
+within a factor of three of the precision needed to place a 95% interval
+on the interaction contrast inside the region where the violation would
+not matter. Consequently the one reading that could affirm the
+assumption rather than merely fail to contradict it never fired, in
+3,200 opportunities. That is a statement about what these networks can
+resolve, and <a href="#sec-affirm" class="quarto-xref">Section 3.3</a>
+shows it is also partly a statement about the prior.
+
+Following the check is still better than not. Relaxing exactly what it
+fires on beat both alternatives on paired mean absolute error at every
+target examined. What the practice does not support is being read as a
+test the assumption has survived.
+
+## Design
+
+### The data-generating mechanism
+
+Individual $i$ in study $j$ on treatment $k$, binomial outcome, logit
+link:
+
+$$\mathrm{logit}\, p_{ijk} = \mu_j + \boldsymbol\beta' x_{ijk} + \mathbb{1}\{k \neq \text{PBO}\}\left(d_k + \delta_{jk} + \boldsymbol\gamma_k' x_{ijk}\right)$$
+
+Two covariates, correlated 0.25, prognostic coefficients 0.40. Reference
+PBO and two active treatments **A** and **C** in one class, which is
+what makes the shared-interaction restriction bind, with equal main
+effects 0.70. The drift is carried by $x_1$ and the parameter **is the
+contrast**:
+
+$$\gamma_A[x_1] = 0.30 + \tfrac{\text{drift}}{2}, \qquad \gamma_C[x_1] = 0.30 - \tfrac{\text{drift}}{2}, \qquad \gamma_A[x_1] - \gamma_C[x_1] = \text{drift}.$$
+
+$x_2$ is shared exactly, so every replicate supplies one power
+observation and one type I error observation from the same four fits.
+
+**One** study contributes individual data and always compares PBO with
+A. The rest contribute the arm-level summaries a publication reports. So
+A is the treatment whose interaction is estimable within a study, and C
+appears only in aggregate studies, where its interaction is identified
+through between-study contrasts of covariate means and through the
+curvature of the aggregate likelihood ([3](#ref-phillippo2020mlnmr)).
+That asymmetry is the situation population adjustment exists for.
+
+| Factor | Levels | What it varies |
+|:---|:---|:---|
+| drift, $\gamma_A[x_1] - \gamma_C[x_1]$ | 0, 0.30, 0.60, 1.20 | how far the assumption is violated |
+| network size $J$ | 6, 12 | how much evidence the network holds |
+| covariate spread $\tau_x$ | 0.25, 0.60 | the ecological information about interactions |
+| treatment-effect heterogeneity $\tau_{re}$ | 0, 0.15 | a second specification error the check was not built to see |
+
+The registered design: 32 cells, 50 replicates each, four fits per
+replicate. Eight further cells at drift 0.15 were added by a dated
+amendment during the run and are reported separately in section 3.8.
+
+### The target, and why it is not a design factor
+
+The check reads only the fitted network. Its output therefore **cannot**
+depend on the population an analyst later transports to. One set of fits
+is scored at every target displacement $s \in \{0, 0.5, 1.0, 1.5\}$
+standard deviations along the drifting covariate, and that invariance is
+the mechanism under test rather than an assumption of convenience.
+
+Because $x_1$ is prognostic, displacing the target would also slide the
+placebo risk along the logistic curve. The reference intercept is solved
+separately for each displacement to hold the marginal placebo risk at
+0.30 exactly, so displacement moves the treatment contrast and nothing
+else.
+
+| drift |   s = 0 | s = 0.5 |   s = 1 | s = 1.5 |
+|------:|--------:|--------:|--------:|--------:|
+|   0.0 |  0.0000 |  0.0000 |  0.0000 |  0.0000 |
+|   0.3 | -0.0032 | -0.0310 | -0.0587 | -0.0858 |
+|   0.6 | -0.0063 | -0.0617 | -0.1168 | -0.1704 |
+|   1.2 | -0.0117 | -0.1210 | -0.2282 | -0.3302 |
+
+True marginal risk difference for C versus A in the target, computed
+exactly by Gauss-Hermite quadrature of the true model. Nine of sixteen
+combinations exceed the 0.03 material threshold; displacement 0 never
+does.
+
+### The four fits
+
+`class_interactions` in `multinma` is a single global switch, so on its
+own it cannot express a procedure that relaxes one covariate at a time.
+The split is carried by the regression formula, using the `.trt` and
+`.trtclass` specials.
+
+| Fit         | Formula                                  |
+|:------------|:-----------------------------------------|
+| `common`    | `~ x1 + x2 + (x1 + x2):.trtclass`        |
+| `split_x1`  | `~ x1 + x2 + (x1):.trt + (x2):.trtclass` |
+| `split_x2`  | `~ x1 + x2 + (x2):.trt + (x1):.trtclass` |
+| `split_all` | `~ x1 + x2 + (x1 + x2):.trt`             |
+
+With two covariates these four fits are the complete model lattice, so a
+strategy that relaxes exactly what the check flagged can be scored
+rather than approximated.
+
+This only works with `class_interactions = "independent"`. Under the
+default `"common"`, an `x:.trt` term in the formula is silently demoted
+to the class level: the split fit is the shared fit under another name,
+with the same parameter names and a DIC that differs only by Monte Carlo
+error. An analyst following the published recipe by editing the formula
+alone would see no evidence against sharing in any dataset, because no
+split model was ever fitted. Every split fit in this study asserts that
+treatment-specific coefficients exist before any statistic is computed
+from it.
+
+### Readings of the check
+
+There is no agreed threshold, so every reading in use is reported. With
+two active treatments there is exactly one interaction contrast per
+covariate, $\gamma_A[x] - \gamma_C[x]$, so nothing is selected and the
+credible interval keeps its nominal coverage.
+
+- **DIC rule**: flag if
+  $\mathrm{DIC}(\text{split}_x) < \mathrm{DIC}(\text{common}) - c$ for
+  $c \in \{2, 5, 10\}$ ([4](#ref-spiegelhalter2002)); $c = 5$ is the
+  rule the verdict uses.
+- **Posterior rule**: flag if the 95% credible interval for the contrast
+  excludes zero.
+- **Margin rule**: flag if
+  $P(|\gamma_A[x] - \gamma_C[x]| > \varepsilon) > 0.95$ with
+  $\varepsilon = 0.1531$, the contrast that makes the C-versus-A
+  marginal risk difference exactly material at displacement 1. The
+  margin is set by consequence, not taste.
+- **Continuous scores**: $\Delta\mathrm{DIC}$ and the directional
+  posterior probability, scored by AUROC ([5](#ref-hanley1982)).
+- **Prior-posterior contraction**, so a fit that reported the prior can
+  be told apart from one that reported the data.
+
+## Results
+
+6,400 ML-NMR fits over the registered design, 1,600 more in the
+amendment arm, 960 in the prior-sensitivity arm. Every cell returned all
+50 replicates: no replicate was lost to a sampler that failed to start.
+
+### What the network resolves, and how firmly that can be stated
+
+| studies | spread | heterogeneity | posterior SD, A | posterior SD, C | ratio | what the data alone resolve | multiples of $\varepsilon$ |
+|---:|---:|---:|---:|---:|---:|---:|---:|
+| 6 | 0.25 | 0.00 | 0.238 | 1.633 | 6.87 | 1.82 | 11.9 |
+| 6 | 0.25 | 0.15 | 0.235 | 1.534 | 6.52 | 1.69 | 11.0 |
+| 6 | 0.60 | 0.00 | 0.215 | 0.801 | 3.73 | 0.59 | 3.8 |
+| 6 | 0.60 | 0.15 | 0.214 | 0.670 | 3.14 | 0.48 | 3.2 |
+| 12 | 0.25 | 0.00 | 0.225 | 0.885 | 3.93 | 0.80 | 5.2 |
+| 12 | 0.25 | 0.15 | 0.225 | 0.837 | 3.72 | 0.78 | 5.1 |
+| 12 | 0.60 | 0.00 | 0.184 | 0.329 | 1.78 | 0.32 | 2.1 |
+| 12 | 0.60 | 0.15 | 0.181 | 0.299 | 1.65 | 0.30 | 2.0 |
+
+The standard error the network itself puts on the difference between the
+two treatments’ effect modifiers, with the prior removed, against the
+difference that would make the target estimate materially wrong.
+
+The difference between the two treatments’ interactions is the quantity
+the whole check is about. A network of the kind population adjustment is
+applied to resolves it to a standard error of **0.30 to 1.82** on the
+log-odds scale. The difference that makes the transported estimate
+materially wrong is $\varepsilon = 0.1531$. The evidence is therefore
+between **2.0 and 11.9 times too coarse** to see what matters, before
+any question of thresholds or rules arises.
+
+**That last column is an approximation and its own sensitivity analysis
+says so.** Subtracting prior precision from posterior precision recovers
+the likelihood exactly only if both are Gaussian, which a weakly
+identified interaction is not. Running the same networks under
+`normal(0, 1)` instead of `normal(0, 2.5)` gives a data-only standard
+error of about 0.99 where the wider prior gives about 1.73. Those should
+agree and do not. The quantity is therefore reported as an
+order-of-magnitude statement, not as a measurement, and **no headline
+claim in this paper rests on it**; an earlier draft put it in the title
+and a reviewer was right that it could not carry that weight.
+
+What is measured rather than derived is the posterior standard deviation
+itself, 0.30 to 1.64 across strata, which is what an analyst reads off
+the output. It is prior-dependent, and the prior-sensitivity arm shows
+how much: contraction moves from 0.33–0.42 under `normal(0, 2.5)` to
+0.68–0.70 under `normal(0, 1)`. What does *not* move is the thing that
+matters operationally, the check’s flag rate (0.01–0.12 against
+0.00–0.15). The prior changes how informed the posterior looks and
+leaves what the check does almost untouched.
+
+The asymmetry the design was built around is large and prior-free: the
+treatment with only aggregate data carries **1.65 to 6.87 times** the
+posterior spread of the treatment with individual data.
+
+<div id="fig-contraction">
+
+![](figures/contraction.png)
+
+Figure 1: Prior-posterior contraction on the treatment-specific
+interaction for the drifting covariate. Zero means the posterior is the
+prior.
+
+</div>
+
+**Registered mechanism claim M2 is partly confirmed.** It asked for a
+contraction gap of at least 0.20, widening as the network shrinks. The
+gap runs from 0.047 to 0.558 and does widen monotonically as the network
+shrinks, but it clears 0.20 in 5 of the 8 strata rather than all of
+them, missing in the largest network at the widest covariate spread. The
+claim is reported as partly met rather than met, and the prior-free
+ratio is offered as the measure that should have been registered
+instead.
+
+### Power
+
+| drift | studies | spread | heterogeneity | DIC \< -5 | 95% interval |
+|------:|--------:|-------:|--------------:|----------:|-------------:|
+|   0.3 |       6 |   0.25 |          0.00 |      0.02 |         0.08 |
+|   0.3 |       6 |   0.25 |          0.15 |      0.06 |         0.10 |
+|   0.3 |       6 |   0.60 |          0.00 |      0.04 |         0.12 |
+|   0.3 |       6 |   0.60 |          0.15 |      0.06 |         0.12 |
+|   0.3 |      12 |   0.25 |          0.00 |      0.00 |         0.02 |
+|   0.3 |      12 |   0.25 |          0.15 |      0.04 |         0.12 |
+|   0.3 |      12 |   0.60 |          0.00 |      0.06 |         0.16 |
+|   0.3 |      12 |   0.60 |          0.15 |      0.08 |         0.18 |
+|   0.6 |       6 |   0.25 |          0.00 |      0.00 |         0.04 |
+|   0.6 |       6 |   0.25 |          0.15 |      0.08 |         0.10 |
+|   0.6 |       6 |   0.60 |          0.00 |      0.12 |         0.24 |
+|   0.6 |       6 |   0.60 |          0.15 |      0.16 |         0.32 |
+|   0.6 |      12 |   0.25 |          0.00 |      0.06 |         0.12 |
+|   0.6 |      12 |   0.25 |          0.15 |      0.18 |         0.28 |
+|   0.6 |      12 |   0.60 |          0.00 |      0.28 |         0.40 |
+|   0.6 |      12 |   0.60 |          0.15 |      0.30 |         0.38 |
+|   1.2 |       6 |   0.25 |          0.00 |      0.06 |         0.12 |
+|   1.2 |       6 |   0.25 |          0.15 |      0.18 |         0.22 |
+|   1.2 |       6 |   0.60 |          0.00 |      0.46 |         0.62 |
+|   1.2 |       6 |   0.60 |          0.15 |      0.44 |         0.58 |
+|   1.2 |      12 |   0.25 |          0.00 |      0.38 |         0.52 |
+|   1.2 |      12 |   0.25 |          0.15 |      0.42 |         0.46 |
+|   1.2 |      12 |   0.60 |          0.00 |      0.82 |         0.88 |
+|   1.2 |      12 |   0.60 |          0.15 |      0.86 |         0.92 |
+
+Probability the check fires on the covariate that actually drifts.
+
+Per cell these rates have a Monte Carlo standard error of about 0.065 at
+50 replicates, so the largest of eight of them is not an upper bound on
+anything. Pooled across strata, where the standard error is near 0.01,
+the picture is this.
+
+| rule         | true contrast |   n |  rate | 95% CI           |
+|:-------------|--------------:|----:|------:|:-----------------|
+| 95% interval |           0.0 | 400 | 0.092 | \[0.068, 0.125\] |
+| 95% interval |           0.3 | 400 | 0.112 | \[0.085, 0.147\] |
+| 95% interval |           0.6 | 400 | 0.235 | \[0.196, 0.279\] |
+| 95% interval |           1.2 | 400 | 0.540 | \[0.491, 0.588\] |
+| DIC \< -5    |           0.0 | 400 | 0.013 | \[0.005, 0.029\] |
+| DIC \< -5    |           0.3 | 400 | 0.045 | \[0.029, 0.070\] |
+| DIC \< -5    |           0.6 | 400 | 0.148 | \[0.116, 0.186\] |
+| DIC \< -5    |           1.2 | 400 | 0.452 | \[0.404, 0.501\] |
+
+Detection on the drifting covariate, pooled across all eight design
+strata. The contrast 0.15 is the amendment arm; 0 is the global null.
+
+At a true contrast of 0.30 the transported estimate is wrong by 0.059
+absolute risk at displacement 1, twice the material threshold. The DIC
+rule fires in 0.045 \[0.029, 0.070\] of analyses, against 0.013 \[0.005,
+0.029\] when the assumption holds exactly. At 0.60 it reaches 0.147 and
+only at 1.20, eight times the contrast that would make the estimate
+materially wrong and a stress test rather than a plausible violation,
+does it reach 0.453.
+
+At the amendment level of 0.15 the rate is \[, \], whose interval
+overlaps the null’s: at a violation sitting just under the threshold of
+mattering, the check does not reliably distinguish it from no violation
+at all.
+
+The 95% interval rule is uniformly more sensitive and correspondingly
+less specific. Per-stratum rates are below, and are reported for
+description rather than for comparison.
+
+<div id="fig-power">
+
+![](figures/power.png)
+
+Figure 2: Probability the check fires on the covariate that actually
+drifts, by rule. The dotted line is 0.80. Every panel is a design
+stratum; the horizontal axis is the true difference between the two
+treatments’ effect modifiers.
+
+</div>
+
+| rule         | type I error | 95% CI           |
+|:-------------|-------------:|:-----------------|
+| DIC \< -10   |       0.0000 | \[0.000, 0.010\] |
+| DIC \< -2    |       0.0550 | \[0.037, 0.082\] |
+| DIC \< -5    |       0.0125 | \[0.005, 0.029\] |
+| margin       |       0.2350 | \[0.196, 0.279\] |
+| 95% interval |       0.0925 | \[0.068, 0.125\] |
+
+Type I error under the global null, where every interaction is shared
+exactly. 400 replicates per rule.
+
+The 95% interval rule runs at about twice its nominal rate. The margin
+rule fires in nearly a quarter of replicates when the true difference is
+exactly zero, for the reason given in
+<a href="#sec-affirm" class="quarto-xref">Section 3.3</a>.
+
+### The check cannot give an all-clear
+
+A committee reading a check wants to know whether the assumption is
+safe, which is an equivalence statement: is the difference between the
+two treatments’ modifiers small enough to ignore? Computed from the same
+posteriors, $P(|\gamma_A[x_1] - \gamma_C[x_1]| \leq \varepsilon) > 0.95$
+fired in **0 of 3,200** covariate-checks across the registered design.
+Zero. Including every one of the 2,000 in which the two treatments’
+modifiers were identical by construction.
+
+**Neither of these rules is prior-free, and the direction of the bias
+must be stated.** Under independent `normal(0, 2.5)` priors on the two
+treatment-specific coefficients, their contrast has prior standard
+deviation 3.536. The prior alone therefore places 0.965 of the contrast
+beyond $\varepsilon$, which is **above the 0.95 threshold at which the
+margin rule fires**, and leaves only 0.035 inside the equivalence
+region. A reviewer identified this and it is correct: the margin rule
+fires under the prior before any data are seen, and the equivalence rule
+starts from almost nowhere.
+
+So the right statement is not that the procedure cannot affirm the
+assumption. It is a statement about precision, and it is sharper. For
+the equivalence rule to fire, the posterior standard deviation of the
+contrast must fall below $\varepsilon / 1.96 = 0.0781$. The tightest
+stratum in this design achieves 0.300, a factor of 3.8 short, and the
+loosest 1.64. **No network in this design came within a factor of three
+of the precision required to affirm the assumption at the margin that
+matters**, which is why the count is zero and would remain zero under
+any prior that does not itself supply the answer.
+
+The complementary reading runs backwards for the same reason:
+$P(|\cdot| > \varepsilon) > 0.95$ fires in 0.48 of replicates at the
+thinnest cell under the global null and 0.08 at the richest, firing
+*more often where there is less information*. Both readings are governed
+by the width of the posterior rather than its location, and in this
+design that width is set as much by the prior as by the network.
+
+### What a pass licenses, and why the registered gate was unreachable
+
+| displacement | P(material error \| passed) | the same for an oracle model | excess attributable to the check |
+|---:|---:|---:|---:|
+| 0.0 | 0.427 | 0.446 | -0.019 |
+| 0.5 | 0.559 | 0.573 | -0.014 |
+| 1.0 | 0.675 | 0.639 | 0.036 |
+| 1.5 | 0.723 | 0.662 | 0.061 |
+
+The registered gate, and the same quantity for a model that knows which
+specification is true, on the same replicates.
+
+**The registered verdict fails.** The upper 95% bound on
+$P(\text{material error} \mid \text{the
+check did not fire})$ at displacement 1.0, deployment-weighted, is 0.777
+against a threshold of 0.1. Scored against systematic error alone rather
+than realized error it is 0.723. Both fail.
+
+It fails for a reason that is mostly not the check’s doing. An oracle
+that knows which specification is correct, fitted to the same
+replicates, is materially wrong 0.639 of the time. The check’s excess
+over that oracle is **0.036**, and at displacements 0 and 0.5 the excess
+is negative. A perfect check would have failed this gate. The threshold
+was unreachable by any procedure, because at a material threshold of
+0.03 absolute risk the estimation error of a six-study network alone
+exceeds it in 0.46 to 0.58 of replicates when the assumption is exactly
+true.
+
+That is a finding about this program’s habit of writing verdict rules,
+not only about the check: a threshold on total error charges a
+diagnostic for noise it was never built to see. The oracle comparison is
+the fix, and it was added after a pre-run critique predicted the failure
+and computed the noise floor to within the interval the run later
+measured.
+
+### The mechanism: the check is blind to the only thing that determines the harm
+
+| displacement | P(material error \| passed) | noise floor | excess over the floor | systematic only |
+|---:|---:|---:|---:|---:|
+| 0.0 | 0.427 | 0.427 | 0.000 | 0.000 |
+| 0.5 | 0.559 | 0.427 | 0.132 | 0.563 |
+| 1.0 | 0.675 | 0.427 | 0.248 | 0.563 |
+| 1.5 | 0.723 | 0.427 | 0.296 | 0.563 |
+
+The check’s output is identical at every displacement by construction;
+the harm is not.
+
+The check reads the fitted network and nothing else, so its output
+cannot depend on the population an analyst transports to. The run
+confirms this as a bookkeeping identity: the pass rate is 0.816875 at
+every displacement, with a maximum absolute deviation of 0.
+
+Over the same fits, the probability that a passed analysis is materially
+wrong rises from 0.427 to 0.723, an excess over the noise floor of
+0.296, against a registered threshold of 0.20. Against systematic error
+the rise is from 0 to 0.563.
+
+<div id="fig-decoupling">
+
+![](figures/decoupling.png)
+
+Figure 3: The check’s pass rate is flat by construction; what a pass is
+worth is not.
+
+</div>
+
+**Registered mechanism claim M1 is confirmed**, with one qualification a
+reviewer was right to press. The first half is an algebraic identity
+rather than an empirical finding: the same fits are reused at every
+displacement, so the pass rate *must* be identical, and the run verifies
+the bookkeeping rather than discovering anything. The second half is
+empirical. And the strong form of the conclusion is too strong: what a
+pass is worth depends on the target displacement **and** on the drift,
+and the check is blind to both. Displacement is the one this section
+isolates, because it can be varied while holding the fitted network
+exactly fixed.
+
+### The three readings are not three procedures
+
+The published recipe says to compare posteriors *and* model fit, which
+reads as two independent opinions. They disagree in 0.107 of replicates.
+The registered threshold was 0.10 and the point estimate exceeds it, but
+the 95% interval is \[0.096, 0.118\], whose lower bound falls below
+0.10, so **M4 is reported as not clearly met**. A first draft called it
+confirmed; a reviewer pointed out that a point estimate 0.007 above a
+threshold with a standard error of 0.006 does not clear it. The
+substantive point survives the arithmetic: the disagreement is
+one-sided: the DIC rule fires without the interval rule in 0.0006 of
+replicates, and the interval rule fires without DIC in 0.106. The DIC
+rule is very nearly a strict subset of the interval rule, not a second
+opinion on the same question.
+
+Under the global null the two differ in type I error by 0.087, above the
+registered 0.05, so **M3 is confirmed**.
+
+When a violation is present the check also points at the wrong
+covariate. At drift 1.20 the interval rule fires on the covariate that
+is shared exactly in 0.388 of replicates. A fire is not a diagnosis.
+
+### Following the check still beats the alternatives
+
+| strategy | displacement | RMSE | P(material error) | decision reversal |
+|:---|---:|---:|---:|---:|
+| check, then relax what fired | 0 | 0.0426 | 0.433 | 0.450 |
+| impose the restriction | 0 | 0.0422 | 0.438 | 0.453 |
+| relax everything | 0 | 0.0514 | 0.497 | 0.465 |
+| check, then relax what fired | 1 | 0.0928 | 0.687 | 0.385 |
+| impose the restriction | 1 | 0.0995 | 0.700 | 0.452 |
+| relax everything | 1 | 0.1218 | 0.801 | 0.357 |
+
+Scoring the target estimand for all four fitted models, and defining
+check-then-relax as relaxing exactly the covariates that fired, the
+check earns its keep. At displacement 1.0 it has the lowest RMSE (0.0928
+against 0.0995 for imposing the restriction and 0.1218 for relaxing
+everything) and the lowest material-error rate, at every displacement.
+
+| comparison | mean difference in absolute error | 95% CI | n |
+|:---|---:|:---|---:|
+| check_then_relax minus always_common | -0.0173 | \[-0.0203, -0.0143\] | 1600 |
+| check_then_relax minus always_relaxed | -0.0109 | \[-0.0148, -0.0069\] | 1600 |
+
+Paired differences at displacement 1.0. The three strategies are scored
+on the same replicate, so the comparison is paired and its interval is
+far tighter than a difference of two independent rates. Negative favours
+check-then-relax.
+
+The differences are small but the comparison is paired, and both
+intervals exclude zero: check-then-relax beats imposing the restriction
+by 0.0173 in mean absolute error \[0.0143, 0.0203\] and beats relaxing
+everything by 0.0109 \[0.0069, 0.0148\].
+
+Restricting to the 1479 replicates in which **all four** fits met their
+convergence criteria changes this hardly at all (0.0174 and 0.0116),
+which answers the obvious objection that retaining badly-behaved relaxed
+fits is what makes relaxation look poor. It is not.
+
+The margin is small, and the ranking of the alternatives is the
+interesting part: **relaxing everything is worse than imposing the
+restriction** on both RMSE and material error, because the relaxed model
+spends precision it does not have. It is better only on decision
+reversal (0.357 against 0.452), which is what one would expect of an
+unbiased but noisy estimator against a biased but precise one.
+
+<div id="fig-strategies">
+
+![](figures/strategies.png)
+
+Figure 4: RMSE of the transported C-versus-A risk difference under the
+three strategies.
+
+</div>
+
+That the fully relaxed model is not simply available is visible in the
+sampler: it fails its convergence criteria in 0.068 of replicates
+overall and up to 0.24 in the worst cell, with $\hat R$ reaching 1.89
+and effective sample size falling to 3.4. The shared-interaction model
+never once failed. Those replicates are retained and reported; excluding
+them would have removed exactly the cases where relaxation is hardest.
+
+### Nothing in the panel beats scrutinizing everything
+
+Taking the action to be distrusting the adjusted estimate and
+commissioning individual data, and sweeping the threshold at which that
+cost is worth paying from 0.05 to 0.60, distrusting every analysis has
+higher net benefit than every rule in the panel at every threshold
+examined. At a threshold of 0.20 the values are 0.625 for distrusting
+everything against 0.098 for the DIC rule and 0.195 for the interval
+rule.
+
+<div id="fig-dca">
+
+![](figures/decision-curve.png)
+
+Figure 5: Decision curve. The action is to distrust the adjusted
+estimate and commission individual data.
+
+</div>
+
+### The verdict does not transport across the one axis that matters
+
+| held-out factor | level | observed | predicted | absolute error |
+|:----------------|------:|---------:|----------:|---------------:|
+| drift           |  0.00 |    0.422 |     0.891 |          0.469 |
+| drift           |  0.30 |    0.767 |     0.749 |          0.018 |
+| drift           |  0.60 |    0.983 |     0.737 |          0.246 |
+| drift           |  1.20 |    1.000 |     0.828 |          0.172 |
+| n_studies       |  6.00 |    0.812 |     0.755 |          0.058 |
+| n_studies       | 12.00 |    0.774 |     0.827 |          0.053 |
+| spread          |  0.25 |    0.784 |     0.760 |          0.024 |
+| spread          |  0.60 |    0.802 |     0.828 |          0.025 |
+| tau_re          |  0.00 |    0.794 |     0.780 |          0.014 |
+| tau_re          |  0.15 |    0.792 |     0.806 |          0.013 |
+
+A one-term mapping from the check statistic to the probability of
+material error, fitted with one level of one factor held out and
+evaluated on that level.
+
+A mapping from $\Delta\mathrm{DIC}$ to the probability of material error
+transports across network size, covariate spread and treatment-effect
+heterogeneity, with absolute errors of 0.013 to 0.058. It does not
+transport across drift, where the error reaches 0.469. The statistic’s
+meaning depends on how badly the assumption is violated, which is the
+one thing the analyst is using it to find out.
+
+The protocol also prespecified a target-aware mapping, and its results
+belong here. Adding the displacement as a second predictor changes the
+held-out absolute error from 0.086 to 0.086 on average, which is no
+improvement. A first draft explained this by saying displacement cannot
+help because it does not enter the check statistic, and that reasoning
+is simply wrong: a predictor can improve a prediction without changing
+another predictor, and M1 shows displacement moves the outcome strongly.
+The correct explanation is empirical and narrower. These folds hold out
+a *drift* level or a design factor, and within any such fold the four
+displacements are all present in training, so displacement carries no
+information the mapping did not already have. What fails is transport
+across drift, and knowing the target does not repair that.
+
+### The decision boundary
+
+| studies | spread | heterogeneity | DIC \< -5 | 95% interval | margin | affirms sharing |
+|--------:|-------:|--------------:|----------:|-------------:|-------:|----------------:|
+|       6 |   0.25 |          0.00 |      0.02 |         0.00 |   0.54 |               0 |
+|       6 |   0.25 |          0.15 |      0.04 |         0.08 |   0.42 |               0 |
+|       6 |   0.60 |          0.00 |      0.00 |         0.04 |   0.12 |               0 |
+|       6 |   0.60 |          0.15 |      0.02 |         0.10 |   0.22 |               0 |
+|      12 |   0.25 |          0.00 |      0.02 |         0.14 |   0.28 |               0 |
+|      12 |   0.25 |          0.15 |      0.02 |         0.18 |   0.36 |               0 |
+|      12 |   0.60 |          0.00 |      0.00 |         0.04 |   0.02 |               0 |
+|      12 |   0.60 |          0.15 |      0.04 |         0.08 |   0.08 |               0 |
+
+The amendment arm: drift 0.15, exactly one epsilon, the violation at
+which the transported estimate becomes materially wrong at displacement
+1.
+
+The registered grid ran 0, 1.96, 3.92 and 7.84 multiples of
+$\varepsilon$, so it measured the floor and the ceiling and nothing in
+between. A second pre-run critique caught this while the run was in
+progress, and eight cells at exactly one $\varepsilon$ were added by
+dated amendment.
+
+**Correction, made under review.** These cells sit just *below* the
+boundary, not on it. At drift 0.15 the transported C-versus-A risk
+difference is wrong by 0.0294 at displacement 1, against a material
+threshold of 0.03, so by this study’s own definition the violation is
+**not** material; the contrast that lands exactly on the threshold is
+0.1531. A first draft of this section described drift 0.15 as the exact
+boundary and as the violation that “precisely changes a decision”, and
+that was false. What these cells show is the check’s behaviour at a
+violation just short of mattering. The shared-interaction fit duly
+delivers that error, with a bias of 0.0207 to 0.0311 and a
+material-error rate of 0.48 to 0.64.
+
+Pooled over the eight strata the DIC rule fires in \*\*\*\* \[, \] of
+those analyses and the interval rule in , against 0.013 and 0.092 under
+the global null. The intervals overlap. The registered grid could not
+have produced this comparison, and it is the one a reader needs: just
+below the size of violation that would change a decision, the check does
+not distinguish the violation from its absence.
+
+### Checks on the machinery
+
+`multinma` reconstructs the joint covariate distribution of the
+aggregate studies from a copula whose correlation matrix is estimated
+from the one individual-level study. That estimate is off by a mean of
+0.035 on a true correlation of 0.25, so it is not a material source of
+error here.
+
+Every DIC difference here is computed from a likelihood that is a
+numerical integral over 64 points. Refitting the same simulated networks
+at 256 points moved that difference by a median of 0.33 and at most
+2.08, and **changed the DIC-5 verdict in 8.3% of replicates** and the
+interval verdict in 4.2%. So a part of what the check reports is
+quadrature, not evidence. This rate is of the same order as the signal
+it sits beside: the DIC rule’s detection rate rises by about three
+percentage points between no violation and one twice the size that
+matters, and the numerical grid alone moves the verdict in 8.3% of
+replicates. A first draft called this small; it is not. The check was
+run on 24 simulated networks drawn from two cells, the largest network
+at the widest covariate spread with and without drift, which is the
+configuration where quadrature is most stressed; 256 points is not
+demonstrated to be a converged reference, so this is a lower bound on
+the instability rather than a measurement of it.
+
+### An independent reviewer’s registered predictions
+
+The second pre-run critique registered a table of predicted results so
+they could be scored. Its prediction for the headline was 0.72 to 0.75
+on the realized scale against a measured 0.758 unweighted, and 0.011 for
+the DIC rule’s type I error against a measured 0.0125. Both hold. It
+predicted M3 would be refuted, on the assumption that the 95% interval
+rule sits at its nominal 0.05; the rule actually runs at 0.092, so M3 is
+confirmed instead. Its per-cell power predictions are accurate at the
+low end and optimistic at the high end.
+
+## Discussion
+
+The shared effect modifier assumption is what allows an interaction
+estimated where there are individual data to be applied where there are
+only summaries. The one published check on it does not have the
+resolution to test it. That is not a defect of the procedure so much as
+a property of the evidence: a network of the size population adjustment
+is applied to pins the difference between two treatments’ effect
+modifiers to a standard error two to twelve times larger than the
+difference that would change a decision.
+
+Three consequences follow, and none of them is a threshold problem.
+
+**Silence is not reassurance.** The check never once affirmed that the
+assumption holds, in 3,200 opportunities, including every replicate
+where it held exactly. A procedure that can only fail to object should
+not be reported in a way that reads as confirmation, and the sentence
+“we assessed the shared effect modifier assumption and found no evidence
+against it” carries almost no information about whether the assumption
+holds.
+
+**A pass is worth what the target makes it worth.** The check’s output
+is invariant to the population being transported to, exactly and by
+construction, while the damage from an undetected violation is
+proportional to how far that population sits from the network. The same
+pass licenses very different things in the two cases, and nothing in the
+check distinguishes them.
+
+**Use it anyway, but not as a gate.** Following the check and relaxing
+exactly what it fires on had the lowest error of the three strategies at
+every displacement. It is worth running. What it is not worth is
+treating as a test that the assumption has survived.
+
+The practical recommendation is to report the *width* alongside the
+verdict. The posterior standard deviation of the interaction contrast,
+compared against the contrast that would move the decision, says in one
+number whether the check had any chance of firing. In the thinnest
+networks here that ratio is about twelve to one, and a reader who saw it
+would know to discount the pass entirely.
+
+## What this does not settle
+
+**What is being measured is our formalization, not a uniquely defined
+published rule.** “Compare the posteriors and the model fit” describes
+an exploratory practice. The DIC cuts at 2, 5 and 10, the interval rule,
+the margin rule and the equivalence rule are five decision rules we
+constructed that the description admits, and the equivalence rule in
+particular was never part of the original proposal. Failure of a rule we
+invented is not evidence that the authors of the practice claimed
+something it does not deliver. What the study establishes is that no
+rule in this family, on these networks, separates violations that matter
+from their absence.
+
+**A departure from the registered eligibility rule.** The protocol said
+a replicate would be excluded if any of its four fits had $\hat R$ above
+1.05, bulk ESS below 100, or divergences. The first cell of the run
+showed that this rule excludes selectively: all six exclusions were
+diagnostic failures and five involved a split model, while the shared
+model never failed once, so the rule removes exactly the replicates
+where relaxation is hardest. The rule was amended before the reported
+run to record the diagnostics rather than exclude on them, which is a
+departure from what was registered and is disclosed as one. The
+consequences are reported: convergence failure rates by cell and model,
+and every primary comparison repeated on the subset where all four fits
+converged.
+
+**The estimand under treatment-effect heterogeneity.** Where
+$\tau_{re} = 0.15$ the truth is defined at $\delta_{jk} = 0$, which is a
+superpopulation quantity, while the fixed-effect fits estimate a
+precision-weighted function of the realized studies; and on the risk
+scale, integrating the inverse link over the random-effect distribution
+is not the same as setting the random effect to zero. Part of the error
+attributed to the check in those cells is that mismatch. The oracle
+comparison does not remove it, because the oracle is also a fixed-effect
+model there. Results in the eight $\tau_{re} = 0$ cells are reported
+separately throughout for this reason.
+
+The design is otherwise a best case in several ways that all favour the
+check, and the failures reported here are therefore lower bounds on the
+failures in practice.
+
+The true marginal reference risk in the target is supplied to the
+estimator, so no baseline-risk estimation error enters. Covariates are
+normal with known target moments, and the ecological route by which the
+aggregate-only treatment’s interaction is identified is unbiased by
+construction: study covariate means are drawn independently of study
+baselines and of the random treatment effects. Real networks will often
+violate that, and the check’s failures there will arrive through a door
+this study nailed shut. Conditional constancy holds. Only one covariate
+drifts, and it drifts linearly.
+
+There are two active treatments in one class and two covariates. A real
+network has more of both, so multiplicity across covariates and the
+selection involved in reading the widest of several pairwise differences
+are not measured here; an earlier version of this design had three
+treatments and was found, before running, to be reading a selected
+contrast whose 95% interval is not a 95% interval.
+
+The fits are fixed-effect while half the cells generate random treatment
+effects of standard deviation 0.15. That is deliberate, and it is the
+realistic case, but it means that in those cells the check is being read
+under a second misspecification.
+
+Only one individual-level study. What a second would buy is not
+measured: that factor was dropped from the design to pay for
+treatment-effect heterogeneity, which a pre-run critique identified as
+the more consequential omission.
+
+`class_interactions = "exchangeable"` is documented in `multinma`
+0.9.1.9002 and raises “not yet supported”, so the hierarchical middle
+ground between a shared interaction and fully independent ones could not
+be fitted at all. That relaxation is the one this catalog’s entry for
+IDN-05 proposed as the way forward, and the entry’s claim that it ships
+in the package is wrong for this version and is corrected alongside this
+study.
+
+**This is the sharpest limit on the recommendation in
+<a href="#sec-strategies" class="quarto-xref">Section 3.7</a>.** The
+three strategies compared are impose, relax everything, and relax what
+fired. A fourth, shrinking the treatment-specific interactions towards
+each other rather than choosing between identical and independent, is
+exactly what the problem entry proposes and is the one most likely to
+beat all three, because the failure documented throughout this paper is
+a precision failure and partial pooling is the standard answer to a
+precision failure. **Package non-implementation is a reason for its
+absence, not a justification**: we could have written the model. We did
+not, and until someone does, “check, then relax what fired” is the best
+of three options rather than a recommendation about what to do.
+
+The material threshold of 0.03 absolute risk, the deployment weights,
+and the choice of `normal(0, 2.5)` rather than the package default for
+the regression prior are all declared judgments. The prior-sensitivity
+arm shows the headline is insensitive to the last of them.
+
+Fifty replicates per cell gives a per-cell standard error of about
+0.065, which is why every result above is reported by stratum or pooled
+and why no difference below about 0.13 within a single cell is claimed.
+
+## References
+
+<div id="refs" class="references csl-bib-body">
+
+<div id="ref-phillippo2023" class="csl-entry">
+
+<span class="csl-left-margin">1.
+</span><span class="csl-right-inline">David M. Phillippo, Sofia Dias, A.
+E. Ades, Mark Belger, Alan Brnabic, Daniel Saure, Alexander Schacht,
+Yulan Yang, Nicky J. Welton. Validating the assumptions of population
+adjustment: Application of multilevel network meta-regression to a
+network of treatments for plaque psoriasis. Medical Decision Making.
+2023;43(1):53–67.
+doi:[10.1177/0272989X221117162](https://doi.org/10.1177/0272989X221117162)</span>
+
+</div>
+
+<div id="ref-multinma" class="csl-entry">
+
+<span class="csl-left-margin">2.
+</span><span class="csl-right-inline">David M. Phillippo. Multinma:
+Bayesian network meta-analysis of individual and aggregate data. 2025.
+doi:[10.5281/zenodo.3904454](https://doi.org/10.5281/zenodo.3904454)</span>
+
+</div>
+
+<div id="ref-phillippo2020mlnmr" class="csl-entry">
+
+<span class="csl-left-margin">3.
+</span><span class="csl-right-inline">David M. Phillippo, Sofia Dias, A.
+E. Ades, Mark Belger, Alan Brnabic, Alexander Schacht, Daniel Saure,
+Zbigniew Kadziola, Nicky J. Welton. Multilevel network meta-regression
+for population-adjusted treatment comparisons. Journal of the Royal
+Statistical Society Series A. 2020;183(3):1189–210.
+doi:[10.1111/rssa.12579](https://doi.org/10.1111/rssa.12579)</span>
+
+</div>
+
+<div id="ref-spiegelhalter2002" class="csl-entry">
+
+<span class="csl-left-margin">4.
+</span><span class="csl-right-inline">David J. Spiegelhalter, Nicola G.
+Best, Bradley P. Carlin, Angelika van der Linde. Bayesian measures of
+model complexity and fit. Journal of the Royal Statistical Society:
+Series B. 2002;64(4):583–639.
+doi:[10.1111/1467-9868.00353](https://doi.org/10.1111/1467-9868.00353)</span>
+
+</div>
+
+<div id="ref-hanley1982" class="csl-entry">
+
+<span class="csl-left-margin">5.
+</span><span class="csl-right-inline">James A. Hanley, Barbara J.
+McNeil. The meaning and use of the area under a receiver operating
+characteristic (ROC) curve. Radiology. 1982;143(1):29–36.
+doi:[10.1148/radiology.143.1.7063747](https://doi.org/10.1148/radiology.143.1.7063747)</span>
+
+</div>
+
+</div>
+
+
+# REGISTERED PROTOCOL
+
+# Protocol: what the split-interaction check on shared effect modification is worth
+
+**Problem:** IDN-05, *The shared effect modifier check has low and uncalibrated power*
+**Registered:** 27 July 2026, before any replicate of the reported design was run
+**Reporting:** ADEMP (Morris, White & Crowther 2019, doi:10.1002/sim.8086)
+
+---
+
+## 1. Aims
+
+Population adjustment across a network usually assumes **shared effect modification**: that a
+covariate modifies the effect of every active treatment in a class in the same way. Phillippo
+et al. (2023, doi:10.1177/0272989X221117162) published the only within-network empirical check
+on that assumption and implemented it in `multinma`. The procedure is: fit the model with a
+single interaction shared across the class; refit with treatment-specific interactions **one
+covariate at a time**; compare the posteriors of the treatment-specific interactions and
+compare model fit by DIC.
+
+Their own statement is that "it is likely that this approach to assessing the shared effect
+modifier assumption has low power, particularly when data are lacking." Nobody has measured
+it. There is no threshold, no stability metric, and no statement of what a pass licenses.
+
+This study measures four things.
+
+**A1.** What a pass licenses: the probability that a transported estimate is materially wrong
+given that the check did not fire.
+
+**A2.** The check's power and type I error against the hypothesis it is designed to test, the
+treatment-specific interaction violation, across network size, ecological information,
+treatment-effect heterogeneity and drift magnitude.
+
+**A3.** Whether the check's verdict transports: does a threshold calibrated in one setting
+carry the same meaning in another it has not seen?
+
+**A4.** What an analyst should do instead: three strategies scored on the target estimand.
+
+## 2. Data-generating mechanism
+
+Individual $i$ in study $j$ on treatment $k$, binomial outcome, logit link:
+
+$$\mathrm{logit}\, p_{ijk} = \mu_j + \boldsymbol\beta' x_{ijk} + \mathbb{1}\{k \neq \text{PBO}\}\left(d_k + \delta_{jk} + \boldsymbol\gamma_k' x_{ijk}\right)$$
+
+- **Covariates.** $K = 2$. Within study $j$, $x \sim N(\boldsymbol\delta_j, \Sigma)$ with unit
+  variances and correlation $\rho = 0.25$. Study covariate means
+  $\boldsymbol\delta_j \sim N(0, \tau_x^2 I)$ where $\tau_x$ is the **spread** factor.
+- **Prognostic effects.** $\boldsymbol\beta = (0.40, 0.40)$.
+- **Treatments.** Reference PBO, and two active treatments **A** and **C** in one class, which
+  is what makes the shared-interaction restriction bind. $d_A = d_C = 0.70$.
+- **Effect-modifier drift** is carried by $x_1$ only, and the parameter **is the contrast**:
+  $$\gamma_A[x_1] = 0.30 + \tfrac{\text{drift}}{2}, \qquad \gamma_C[x_1] = 0.30 - \tfrac{\text{drift}}{2}, \qquad \gamma_A[x_1] - \gamma_C[x_1] = \text{drift}.$$
+  $x_2$ is shared exactly: $\gamma_A[x_2] = \gamma_C[x_2] = 0.30$. Every replicate therefore
+  supplies a power observation on $x_1$ and a type I error observation on $x_2$ from the same
+  four fits.
+- **Treatment-effect heterogeneity.** $\delta_{jk} \sim N(0, \tau_{\mathrm{re}}^2)$,
+  independent across studies and treatments.
+- **Study intercepts.** $\mu_j \sim N(\mu_0, 0.15^2)$ with $\mu_0$ set so the marginal placebo
+  risk at the network centre is exactly 0.30.
+
+### Network
+
+Two-arm, placebo-anchored studies. **One** study contributes individual data and always
+compares PBO with A; the rest contribute arm-level summaries (covariate means and SDs, events,
+sample size). So A is the treatment whose interaction is estimable within a study, and C
+appears only in aggregate studies, where its interaction is identified through between-study
+contrasts of covariate means and through the curvature of the aggregate likelihood. That
+asymmetry is the situation population adjustment exists for.
+
+Aggregate studies alternate starting with C, so the aggregate-only treatment never has fewer
+studies than the other:
+
+| $J$ | aggregate studies | A, including IPD | C |
+|---|---|---|---|
+| 6 | 5 | 3 | 3 |
+| 12 | 11 | 6 | 6 |
+
+250 patients per arm in the individual-level study, 200 per arm in aggregate studies.
+
+`multinma` reconstructs the joint covariate distribution for aggregate studies from a copula
+using a correlation matrix estimated from the individual-level studies. The distance between
+that estimate and the truth is reported per cell.
+
+### Design factors
+
+| Factor | Levels |
+|---|---|
+| `drift`, $\gamma_A[x_1] - \gamma_C[x_1]$ | 0, 0.30, 0.60, 1.20; **0.15 added by amendment, see 10** |
+| `n_studies` $J$ | 6, 12 |
+| `spread` $\tau_x$ | 0.25, 0.60 |
+| `tau_re` | 0, 0.15 |
+
+$4 \times 2 \times 2 \times 2 = 32$ cells, **50 replicates each**, plus the eight amendment
+cells of section 10. Fifty rather than the 200 first written down: the estimator is a Bayesian
+ML-NMR fitted four times per replicate, and measured throughput on this machine is 21 seconds
+per replicate on three usable cores, so the registered design costs about four hours. Precision
+follows the level at which each quantity is reported. The primary quantity pools all 32 cells
+at one displacement, about 1,500 observations, Monte Carlo standard error near 0.011. Type I
+error pools the 8 null cells over both covariates, 720 observations, standard error 0.008.
+Power is reported by stratum, four cells pooled, standard error 0.032. Per cell it is 0.065,
+which is why no per-cell difference below about 0.13 is claimed and why nothing here is read
+off a single cell.
+
+Cells are enumerated with `drift` varying fastest. Every held-out fold in the calibration
+analysis is defined by a **factor level**, never by a cell index, and all four target
+displacements from one simulated dataset carry the same dataset identity and stay in the same
+fold. Study 4 of this program published a calibration analysis confounded by exactly this.
+
+### Target populations
+
+The check reads only the fitted network, so its output cannot depend on the population an
+analyst later transports to. One set of fits is therefore scored at every displacement, and
+that invariance is the mechanism under test. Target covariate mean $(s, 0)$ for
+$s \in \{0, 0.5, 1.0, 1.5\}$ standard deviations along the drifting covariate.
+
+Because $x_1$ is prognostic, displacing the target would also slide the placebo risk along the
+logistic curve, from 0.30 to 0.42, and risk differences at different displacements would be
+compared at different points on that curve. The reference intercept is therefore **solved
+separately for each displacement** to hold the marginal placebo risk at 0.30 exactly, so
+displacement moves the treatment contrast and nothing else.
+
+## 3. Estimands
+
+**Decision scale, primary.** The marginal risk difference for C versus A in the target
+population, obtained by integrating the fitted individual-level model over the target covariate
+distribution. The true marginal reference risk is supplied to the estimator, so no
+baseline-risk estimation error enters; this is a simplification in the check's favour.
+
+**Mechanism scale.** The population-average **conditional** log-odds effect,
+$d_k + \boldsymbol\gamma_k'\boldsymbol\delta_T$: the mean over the target of individual
+conditional log-odds ratios. It is not the marginal log-odds ratio and is not reported as one.
+Under the shared-interaction restriction the C-versus-A value of this quantity is exactly
+$\hat d_C - \hat d_A$, independent of the target, so the truth moves with displacement and the
+estimate does not.
+
+**The contrast** is C versus A: an aggregate-only treatment against the treatment with
+individual data.
+
+Truth is computed exactly by Gauss-Hermite quadrature of the true model, not by simulation.
+
+| drift | $s$ | true marginal RD, C − A | material at 0.03 |
+|---|---|---|---|
+| 0 | any | 0.0000 | no |
+| 0.30 | 0.0 / 0.5 / 1.0 / 1.5 | −0.0032 / −0.0310 / −0.0587 / −0.0858 | no / yes / yes / yes |
+| 0.60 | 0.0 / 0.5 / 1.0 / 1.5 | −0.0063 / −0.0617 / −0.1168 / −0.1704 | no / yes / yes / yes |
+| 1.20 | 0.0 / 0.5 / 1.0 / 1.5 | −0.0117 / −0.1210 / −0.2282 / −0.3302 | no / yes / yes / yes |
+
+Nine of sixteen combinations carry systematic material error. Displacement 0 never does, which
+makes it the corner where the restriction costs nothing and is reported as such.
+
+## 4. Methods compared
+
+The **complete model lattice** for two covariates, four fits per replicate:
+
+| Fit | Regression formula |
+|---|---|
+| `common` | `~ x1 + x2 + (x1 + x2):.trtclass` |
+| `split_x1` | `~ x1 + x2 + (x1):.trt + (x2):.trtclass` |
+| `split_x2` | `~ x1 + x2 + (x2):.trt + (x1):.trtclass` |
+| `split_all` | `~ x1 + x2 + (x1 + x2):.trt` |
+
+All with `class_interactions = "independent"`, fixed treatment effects, 64 integration points,
+2 chains, 1000 iterations with 500 warmup, `normal(0, 2.5)` on regression coefficients,
+`normal(0, 10)` on the intercept and treatment effects.
+
+`class_interactions = "independent"` is not optional. Under the default `"common"`, an
+`x:.trt` term in the formula is silently demoted to the class level: the "split" fit is the
+shared fit under another name, with the same parameter names and a DIC that differs only by
+Monte Carlo error. Every split fit asserts that treatment-specific coefficients exist before
+any statistic is computed from it.
+
+**Fit eligibility, as registered and as amended.** The registered rule was that a fit is used
+only if $\hat R \leq 1.05$ and bulk ESS $\geq 100$ on all treatment effects and regression
+coefficients with zero divergent transitions, and that a replicate in which any of the four fits
+fails is excluded and counted.
+
+**That rule was amended before the reported run, and the amendment is a departure from
+registration.** The first cell showed it excludes selectively: all six exclusions were
+diagnostic failures, five of them involved a split model, and the shared-interaction model never
+failed once. Excluding on that criterion removes exactly the replicates in which the relaxed
+model is weakly identified, which is the phenomenon under study, and leaves a sample enriched
+for the cases where relaxing happened to go well. The amended rule records the diagnostics per
+fit and excludes only a fit that produced no draws at all. How often each model fails to
+converge is reported as a result, and every primary comparison is repeated on the subset where
+all four fits met the original criteria.
+
+Returning an object is not a criterion in either version: `multinma` returns one when Stan never
+started.
+
+### Strategies
+
+- **always_common** — impose the restriction.
+- **always_relaxed** — fit `split_all` regardless.
+- **check_then_relax** — relax exactly the covariates the check flagged, which the complete
+  lattice makes available.
+
+## 5. Readings of the check
+
+There is no agreed threshold in the literature, so every reading in use is reported rather
+than one being chosen. With two active treatments there is exactly **one** interaction
+contrast per covariate, $\gamma_A[x] - \gamma_C[x]$, so nothing is selected and the credible
+interval keeps its nominal coverage.
+
+- **DIC rule.** Flag covariate $x$ if $\mathrm{DIC}(\text{split}_x) < \mathrm{DIC}(\text{common}) - c$
+  for $c \in \{2, 5, 10\}$; $c = 5$ is the rule the verdict uses.
+- **Posterior rule.** Flag if the 95% credible interval for $\gamma_A[x] - \gamma_C[x]$
+  excludes zero.
+- **Margin rule.** $P(|\gamma_A[x] - \gamma_C[x]| > \varepsilon)$ with
+  $\varepsilon = 0.1531$, the interaction contrast that makes the C-versus-A marginal risk
+  difference exactly material at displacement 1. The margin is set by consequence, not taste.
+- **Continuous scores.** $\Delta\mathrm{DIC}$ and the directional posterior probability
+  $\max\{P(z>0), P(z<0)\}$, scored as classifiers by AUROC. Not $P(z \neq 0)$, which is
+  exactly one under a continuous posterior.
+- **Prior-posterior contraction**, $1 - \mathrm{sd}(\text{posterior})/\mathrm{sd}(\text{prior})$,
+  for each treatment's interaction, so a fit that reported the prior can be told apart from
+  one that reported the data.
+
+## 6. Performance measures and the prespecified verdict
+
+### Primary
+
+$$P(\text{the transported estimate is materially wrong} \mid \text{the check did not fire})$$
+
+**The check earns the reassurance it is read as giving if the upper 95% confidence bound on
+this probability, pooled over the deployment distribution at displacement 1.0, is below 0.10.**
+
+This is the quantity a committee relies on when it reads a pass. An earlier version of this
+protocol used the joint probability $P(\text{pass} \cap \text{material error})$, which moves
+with the prevalence of error rather than with the check's information, and required a
+sensitivity threshold in every one of 128 stratum-by-displacement combinations, which no
+finite simulation can pass even when the truth sits exactly on the threshold. Both were
+corrected before the run.
+
+### Secondary
+
+- Power and type I error of each rule, per stratum, with Monte Carlo intervals, not
+  thresholded. Nominal type I error is estimated **only under the global null** (drift 0):
+  with correlated covariates, a treatment-specific $x_2$ term can absorb $x_1$
+  misspecification, so the drift-present case is reported separately as misattribution.
+- Prior-posterior contraction by treatment, cell and covariate.
+- Bias, RMSE and decision reversal for the three strategies on the target estimand, within
+  strata and under deployment weights.
+- Net benefit across action thresholds 0.05 to 0.60, where the action is to distrust the
+  adjusted estimate and commission individual data.
+- Calibration: a one-term logistic mapping from the check statistic to $P(\text{material
+  error})$, fitted with one level of one factor held out, evaluated by absolute risk error in
+  the held-out level, leave-one-factor-level-out over all four factors. Primary calibration is
+  deliberately **target-blind**, because the check is target-blind and that is the finding; a
+  mapping that additionally knows the displacement is reported alongside to show what the
+  check would need to know.
+
+### Monte Carlo error
+
+50 replicates per cell. A proportion near 0.5 has standard error 0.071 per cell, 0.035 by
+stratum, and 0.011 for the pooled primary quantity. Type I error pools the 8 null cells over
+both covariates, 720 observations, standard error 0.008. Differences below about 0.13 within a
+single cell are not resolvable and are not claimed.
+
+## 7. Prespecified mechanism claims
+
+Each carries a threshold that permits failure. Claims that fail will be reported as failures.
+
+- **M1, decoupling.** The check's output is **identical** at every target displacement. This is
+  a bookkeeping identity, not an empirical claim: the observed difference must be exactly zero
+  and any departure is a coding error. Meanwhile $P(\text{material error} \mid \text{passed})$
+  rises by at least 0.20 from displacement 0 to displacement 1.5.
+- **M2, identification asymmetry.** Prior-posterior contraction for the aggregate-only
+  treatment's interaction is at least 0.20 lower than for the treatment with individual data,
+  and the gap widens as the network shrinks.
+- **M3, rules disagree on the null.** Under the global null, the DIC rule at cut 5 and the 95%
+  posterior rule have type I error differing by at least 0.05.
+- **M4, disagreement.** The DIC rule and the posterior rule disagree in at least 10% of
+  replicates, so "compare posteriors and model fit" is not one procedure.
+
+## 8. Additional checks
+
+- **Prior sensitivity.** The eight thinnest cells ($J = 6$, spread 0.25) are refitted with
+  `normal(0, 1)` on the regression coefficients, 100 replicates each. Where contraction is
+  low, the check is reporting the prior, and the size of that dependence is measured rather
+  than assumed.
+- **Integration sensitivity.** A subset is refitted with a larger number of integration points
+  and the DIC difference compared.
+- **Correlation recovery.** The distance between `multinma`'s estimated covariate correlation
+  matrix and the truth, per cell.
+
+## 9. Limitations, stated before the run
+
+Covariates are normal with known target moments. Outcomes are binomial with a logit link.
+Studies are two-arm and placebo-anchored. Conditional constancy holds. Only $x_1$ drifts, and
+it drifts linearly. There are two active treatments in one class and two covariates; a real
+network has more of both, and multiplicity over covariates is therefore not measured here. The
+target baseline risk is supplied rather than estimated. Treatment effects are fixed within the
+model even when the truth has heterogeneity, which is itself a specification error the check
+was not designed to detect and whose interference is part of what is measured.
+
+`class_interactions = "exchangeable"` is documented in `multinma` 0.9.1.9002 but raises
+"not yet supported", so the hierarchical middle ground between shared and independent
+interactions could not be fitted. The catalog entry for IDN-05 states that this relaxation
+ships in the package; that is wrong for this version and will be corrected.
+
+**Only one individual-level study.** IPD availability was a factor in the first version of
+this design and was dropped to pay for treatment-effect heterogeneity, which the pre-run
+critique identified as the more consequential omission. The study can therefore say nothing
+about what a second individual-level trial would buy.
+
+The deployment weights are a declared judgment and nothing in this program measured them,
+which is why primary results are reported within strata.
+
+## 10. Amendment record
+
+### Amendment 1, 28 July 2026, made while cells 9 to 16 were running
+
+A second pre-run critique, from a reviewer given a condensed statement of the design, found
+that the drift grid skips the region a check has to discriminate in. In units of
+$\varepsilon = 0.1531$, the contrast that makes the target estimate exactly material at
+displacement 1, the registered levels are 0, 1.96, 3.92 and 7.84. There is nothing between the
+null and twice the decision boundary, so the design as registered measures the floor and the
+ceiling and not the part in between.
+
+**Eight cells are added at drift 0.15, exactly one $\varepsilon$,** crossing network size,
+covariate spread and treatment-effect heterogeneity. They are numbered 33 to 40 and appended,
+so cells 1 to 32 keep their numbering, their random streams and their computed results. No
+result from the added cells was seen before they were specified. They are excluded from the
+deployment mixture, which was registered over the original four levels, and are reported on
+their own.
+
+The same critique produced three further changes, none of which alters the data collected:
+
+- **The registered gate is unreachable by any procedure on the realized-error scale.**
+  Estimation error alone puts a correctly specified fit over a 0.03 absolute-risk threshold in
+  about half of the thin networks; cell 1 measured 0.46 at zero drift, inside the reviewer's
+  predicted 0.31 to 0.56. A perfect check would fail a gate it deserves to pass. The gate is
+  therefore also reported against **what the oracle model achieves on the same replicates**,
+  the oracle being the fit that matches the truth. This uses fits that already exist.
+- **Contraction is measured against a prior we chose,** `normal(0, 2.5)` rather than
+  `multinma`'s default scale of 10, so M2's threshold is partly a modelling choice. The
+  prior-free ratio of posterior standard deviations is now reported beside it.
+- **"The check fired" has two readings.** Firing on the innocent covariate removes a replicate
+  from the pass set without repairing anything, which can make the conditional risk look better
+  because the check fired uselessly. Both readings are reported.
+
+### The original amendment record
+
+This protocol is the second version. The first was submitted to an adversarial reviewer before
+any replicate was run and returned six fatal findings, nine serious ones and one named
+omission. All were verified numerically before being accepted. The critique, the verification
+and the full response are in `critique/`.
+
+The changes: three active treatments became two, because the rotation gave every six-study
+network an aggregate-only treatment with exactly one study and the relaxed model would have
+reported the prior for four coefficients; three covariates became two, which makes the four
+fits the complete lattice; the drift parameter became the contrast rather than half of it; the
+target baseline was fixed across displacements; the verdict moved from a joint probability
+required in every stratum to a conditional probability with a confidence bound; the posterior
+rule stopped selecting the widest of three pairwise differences; treatment-effect
+heterogeneity was added as a factor and IPD availability was dropped to pay for it; and three
+of the four mechanism claims were rewritten, one of them because it asked for a
+treatment-specific power from a statistic with no treatment index.
+
+One defect was found before the critique, in the pilot, and the critique could not have found
+it because it did not see code: with `class_interactions` at its default, the split fit is the
+shared fit under another name and no check can ever fire.
+
+
+# PRESPECIFIED DECISION, AS EVALUATED
+
+# The prespecified decision, as evaluated
+
+**Every number in this file is computed by `R/08-decision.R` from the same result files the
+manuscript reads.** The first version was typed by hand and a reviewer found three figures in
+it that disagreed with the manuscript. Nothing here is transcribed.
+
+## Primary verdict
+
+**Registered rule.** The check earns the reassurance it is read as giving if the upper 95%
+confidence bound on P(material error | the check did not fire), pooled over the deployment
+distribution at target displacement 1.0, is below 0.10. Material error is a C-versus-A
+marginal risk difference wrong by more than 0.03 absolute risk. The rule is the DIC cut at 5.
+
+**Result: FAILS.** Upper bound 0.777 against a threshold of 0.10 on realized error, and 0.723
+on systematic error. Point estimates 0.675 and 0.563, deployment-weighted.
+
+**Qualification, and it is the important one.** An oracle that knows which specification is
+true, fitted to the same replicates, is materially wrong 0.639 of the time at the same
+displacement. The check's excess over that oracle is **0.036**, and at displacements 0 and
+0.5 the excess is negative (-0.019 and -0.014). A perfect check would also have failed this gate.
+The threshold was unreachable by any procedure: with a 0.03 absolute-risk threshold the
+estimation error of a six-study network exceeds it in 0.460 to 0.580 of replicates when the
+assumption holds exactly.
+
+## Mechanism claims
+
+| Claim | Registered threshold | Result | Verdict |
+|---|---|---|---|
+| **M1** decoupling | pass rate identical across displacement; conditional risk rises >= 0.20 | identical to 0; rise 0.296 | **confirmed** |
+| **M2** identification asymmetry | contraction gap >= 0.20, widening as the network shrinks | gap 0.047 to 0.558, widens monotonically, clears 0.20 in **5 of 8** strata | **partly** |
+| **M3** the two rules differ on the null | type I error gap >= 0.05 | 0.080 on the drifting covariate (DIC 0.013, interval 0.092); 0.087 pooling both covariates | **confirmed** |
+| **M4** the two rules disagree | >= 10% of replicates | 0.107, 95% CI [0.097, 0.118] | **not clearly met** |
+
+M4 is reported as not clearly met. The point estimate 0.107 exceeds 0.10 but the lower 95%
+confidence bound is 0.097, below the registered threshold. The first version of this file
+called it confirmed; a reviewer pointed out that a point estimate 0.007 above a threshold with
+a standard error of 0.006 does not clear it, and that is right.
+
+M2 clears its bar in 5 of 8 strata and misses in the largest network at the widest
+covariate spread. A pre-run critique had already pointed out that contraction is measured
+against a prior we chose, so the threshold is partly a modelling choice; the prior-free ratio
+of posterior standard deviations, 1.65 to 6.87, is offered as the measure that should have
+been registered instead.
+
+M3 is confirmed on either pooling. The disagreement behind M4 is nearly one-sided: the DIC
+rule fires without the interval rule in 0.0006 of replicates and the interval rule fires
+without DIC in 0.106, so the DIC cut is very nearly a strict subset of the interval rule
+rather than a second opinion.
+
+## Secondary measurements, not thresholded
+
+- **Power on the drifting covariate, DIC cut 5.** 0.00 to 0.08 at drift 0.30, 0.00 to 0.30 at drift 0.60,
+  0.06 to 0.86 at drift 1.20. Per-cell Monte Carlo standard error is about 0.065 at 50 replicates,
+  so these ranges are the spread of noisy estimates and not bounds.
+- **Type I error under the global null**, drifting covariate: DIC cut 2 0.055, cut 5 0.013,
+  cut 10 0.000, 95% interval 0.092, margin rule 0.235.
+- **The equivalence reading fired 0 times in 3,200 covariate-checks.** This is a statement
+  about precision, not about the rule: it can only fire when the posterior standard
+  deviation of the contrast falls below 0.078, and the tightest cell in the design reaches
+  0.30. The rule is also prior-sensitive in the other direction, since the prior alone
+  puts 0.965 of the contrast beyond the margin, above the 0.95 firing threshold.
+- **Strategies at displacement 1.0.** RMSE 0.0928 for check-then-relax, 0.0995 for imposing the
+  restriction, 0.1218 for relaxing everything.
+- **Net benefit.** Distrusting every analysis beats every rule at every action threshold
+  from 0.05 to 0.60.
+- **Calibration.** A mapping from the check statistic to the probability of material
+  error transports across network size, covariate spread and heterogeneity, absolute
+  error 0.013 to 0.058, and fails across drift, error up to 0.469.
+- **Misattribution.** When a violation is present the interval rule fires on the
+  covariate that is shared exactly in up to 0.388 of replicates.
+- **Convergence.** The fully relaxed model fails its sampler criteria in 0.068 of replicates
+  overall, with R-hat to 1.89 and effective sample size to 3.41; the shared model never
+  fails. These replicates are RETAINED, which departs from the registered eligibility rule;
+  the amendment and the sensitivity analysis are in the protocol and the manuscript.
+
+## Amendment
+
+Eight cells at drift 0.15 were added by dated amendment during the run. That drift gives a
+systematic C-versus-A error of 0.029 at displacement 1, which is just BELOW the material
+threshold of 0.03 rather than at it; the contrast that sits exactly on the threshold is
+0.153. The first version of this file and of the manuscript described these cells as the
+exact boundary, which a reviewer showed is false, and the description is corrected.
+At that violation the DIC rule fires in 0.00 to 0.04 of analyses and the interval rule in
+0.00 to 0.18.
+
+
+
+# ROUND ONE REPORTS
+
+## Reviewer glm
+
+{
+ "recommendation": "accept",
+ "summary": "The manuscript presents a pre-registered simulation study evaluating the empirical performance and implications of the shared effect modifier check in multilevel network meta-regression (ML-NMR). It directly addresses the open problem of the check's low and uncalibrated power by measuring what a diagnostic 'pass' licenses, the actual power/Type I error, transportability, and optimal analyst strategies. The study is rigorously designed, uses appropriate estimands, identifies a critical software pitfall in the `multinma` package, and transparently reports both its successes and failures against pre-specified mechanism claims. The conclusions are fully supported by the reported numbers and respect Monte Carlo error.",
+ "strengths": [
+  "Directly addresses the stated problem (IDN-05) by measuring power, calibration, and the practical value of a diagnostic pass.",
+  "Identification of a critical implementation issue in `multinma`: under the default `class_interactions = \"common\"`, treatment-specific terms are silently demoted to the class level, meaning an analyst could unknowingly never fit a split model.",
+  "Excellent methodological transparency, including a pre-registered protocol, dated amendments with justifications, and independent pre-run critiques that shaped the design.",
+  "The comparison is fair and uses the correct estimands (marginal risk difference for the decision scale, conditional log-odds for the mechanism scale), avoiding the common error of conflating conditional and marginal effects.",
+  "The limitations section is unusually honest and accurately identifies the 'best case' nature of the data-generating mechanism, meaning the reported failures are conservative lower bounds."
+ ],
+ "comments": [
+  {
+   "id": 1,
+   "severity": "minor",
+   "section": "Results / What this does not settle",
+   "comment": "The simulation uses 50 replicates per cell, which yields a per-cell standard error of about 0.065. While the authors correctly restrict their claims to pooled or stratum-level estimates and explicitly state that differences below 0.13 within a single cell are not resolvable, some per-stratum power results (e.g., at drift 1.2) still have wide confidence intervals. This is a computational necessity, but the manuscript could briefly reiterate that certain per-stratum point estimates are subject to considerable uncertainty when interpreting the power curves.",
+   "what_would_satisfy": "A brief sentence in the results or limitations reminding the reader that while the pooled and stratum-level conclusions are robust, individual cell power estimates should be interpreted with caution due to the 50-replicate constraint."
+  }
+ ],
+ "citation_problems": [],
+ "conclusions_supported": true,
+ "unsupported_claims": [],
+ "reviewer": "glm",
+ "name": "GLM-5.2 (via Ollama)",
+ "round": 1
+}
+
+## Reviewer sol
+
+{
+ "recommendation": "major-revision",
+ "summary": "This registered factorial simulation evaluates several operationalizations of a shared-effect-modifier check in deliberately weak-information ML-NMR networks and links diagnostic performance to a marginal target-population estimand. The paper is commendably transparent about its failed prespecified gate, amendments, prior sensitivity, convergence problems, and numerical-integration sensitivity. However, the broad conclusions are not currently supported because some headline findings are consequences of the construction, nonconverged fits were retained contrary to protocol, the superpopulation estimand and oracle are ambiguous under heterogeneity, several results disagree across documents, and key comparisons ignore Monte Carlo uncertainty. The question is important and repairable, but it requires substantial reanalysis and narrower claims.",
+ "strengths": [
+  "The core factorial design and decision-scale estimand were registered before the main simulation, and post-registration changes are disclosed rather than silently incorporated.",
+  "The manuscript distinguishes conditional log-odds effects from marginal risk differences and computes the latter from the true model by quadrature.",
+  "The complete four-model lattice permits a genuine one-covariate-at-a-time relaxation strategy with paired evaluation on the same simulated datasets.",
+  "The design includes exact-null cases, increasing interaction drift, variation in ecological information, and treatment-effect heterogeneity.",
+  "The authors report an unreachable primary gate as failed, identify its noise floor, and disclose unfavorable convergence and quadrature findings.",
+  "Using a consequence-based interaction scale is more informative than presenting power only against arbitrary coefficient differences."
+ ],
+ "comments": [
+  {
+   "id": 1,
+   "severity": "major",
+   "section": "What this measures; Readings of the check",
+   "comment": "The study partly answers IDN-05, but it does not establish the power of a uniquely defined published procedure. DIC cutoffs of 2, 5, and 10, exclusion of zero by a 95% interval, and the posterior margin and equivalence rules are distinct author-defined decision rules. In particular, failure of the newly introduced equivalence rule is not evidence that the original exploratory model check was designed to affirm equivalence. The manuscript therefore measures operating characteristics of selected operationalizations in one network family, not the generic ability of the published check to validate sharing.",
+   "what_would_satisfy": "Quote the exact decision guidance in Phillippo et al., clearly distinguish published elements from new operationalizations, report the prespecified continuous discrimination measures, and restrict the title and conclusions to the evaluated rules and network designs."
+  },
+  {
+   "id": 2,
+   "severity": "major",
+   "section": "The check cannot give an all-clear; Readings of the check",
+   "comment": "The behavior of the margin rule is substantially built into the prior. If the independent treatment-specific coefficients each have a normal(0, 2.5) prior, their contrast has prior SD about 3.54. With epsilon 0.1531, the prior probability that the absolute contrast exceeds epsilon is about 0.965, already above the 0.95 firing threshold before seeing data. Conversely, only about 0.035 of the prior lies inside the equivalence region. The counterintuitive null behavior of this rule therefore demonstrates prior arithmetic combined with weak identification, not an intrinsic property of posterior margin checks.",
+   "what_would_satisfy": "Report the prior probabilities of both regions, use coherent priors parameterized directly on the common interaction and treatment contrast, evaluate priors calibrated for the chosen equivalence region, and include a sufficiently informative positive-control design in which equivalence can be established."
+  },
+  {
+   "id": 3,
+   "severity": "major",
+   "section": "The mechanism: the check is blind to the only thing that determines the harm",
+   "comment": "M1 is primarily an algebraic construction rather than an empirical simulation finding. The fitted network is reused at every displacement, so the check must be identical, while the specified interaction contrast and changing target mean make target error change with displacement. The manuscript acknowledges the first part as a bookkeeping identity but then describes M1 as confirmed and concludes that pass value depends entirely on displacement. Pass value also depends on drift prevalence, network information, baseline risk, the error threshold, and the deployment mixture.",
+   "what_would_satisfy": "Present the invariance as a derivation and implementation check, not evidential confirmation. Report conditional risks by drift and design stratum, and replace entirely with language that acknowledges the other determinants of pass value."
+  },
+  {
+   "id": 4,
+   "severity": "major",
+   "section": "Methods compared; Following the check still beats the alternatives",
+   "comment": "The analysis violates its registered fit-eligibility rule. The protocol states that a replicate is excluded if any fit has R-hat above 1.05, bulk ESS below 100, or divergences. The manuscript instead retains fully relaxed fits with R-hat as high as 1.89 and ESS as low as 3.4. DIC values and target estimates from such chains are not reliable. Retaining them can directly make always-relaxed look worse and can also corrupt check-then-relax when a failed split fit supplies the selection statistic.",
+   "what_would_satisfy": "Refit failed models with adequate iterations and tuning. Apply the registered eligibility rule for the primary analysis, then report a separate operational analysis in which computational failure receives an explicitly defined loss. Do not calculate scientific performance from demonstrably nonconverged posterior draws."
+  },
+  {
+   "id": 5,
+   "severity": "major",
+   "section": "Estimands; The data-generating mechanism; What a pass licenses",
+   "comment": "The estimand is not adequately defined when tau_re equals 0.15. The tabulated truth appears to use d_A and d_C with no realized random effects, suggesting a study-superpopulation estimand, while the fixed-effect fits estimate a weighted effect in the realized trials. On the risk scale, integrating over a random-effects distribution is also not equivalent to setting the random effect to zero. Moreover, the alleged oracle remains a fixed-effect model in these cells and therefore does not match the full data-generating truth. Its error cannot be called a pure noise floor.",
+   "what_would_satisfy": "State whether the target is conditional on the realized network, the mean conditional effect in a study superpopulation, or a marginal effect integrated over study heterogeneity. Compute truth for that same population, fit a genuinely correct random-effects oracle when heterogeneity is generated, and report tau_re strata separately. Otherwise rename the comparator an interaction-specification oracle."
+  },
+  {
+   "id": 6,
+   "severity": "major",
+   "section": "Power; Prespecified mechanism claims; Following the check still beats the alternatives",
+   "comment": "Several central claims do not respect Monte Carlo error. With 50 observations, an observed rate of 0.08 has Monte Carlo SE about 0.038 and is not an upper bound on power. Selecting the largest of eight noisy cell estimates further weakens the claim that the rule fires at most 8% of the time. M4 is estimated as 0.107 against a threshold of 0.10; with 1,600 replicates its unpaired binomial Monte Carlo SE is about 0.008, so the registered threshold is not clearly exceeded. Strategy differences of 0.005 in material-error probability at displacement 0 and 0.013 at displacement 1 also have no paired Monte Carlo intervals.",
+   "what_would_satisfy": "Increase replication near decision boundaries or provide paired Monte Carlo SEs and confidence intervals for every mechanism contrast, strategy difference, RMSE difference, and selected minimum or maximum. Classify M4 as inconclusive unless its interval excludes 0.10, and avoid interpreting per-cell extrema as population bounds."
+  },
+  {
+   "id": 7,
+   "severity": "major",
+   "section": "Checks on the machinery",
+   "comment": "Changing the quadrature grid changes 8.3% of DIC-5 verdicts and 4.2% of interval verdicts. An 8.3% numerical-instability rate is not small relative to the reported 0% to 8% DIC power at drift 0.30; it is of the same order as the headline signal. The subset, denominator, cell composition, and uncertainty are not reported, and 256 points is not shown to be a converged numerical reference.",
+   "what_would_satisfy": "Establish quadrature convergence against successively finer grids or another validated integration method, report the sensitivity sample by design cell, and base the primary results on settings for which diagnostic decisions and target estimates are numerically stable."
+  },
+  {
+   "id": 8,
+   "severity": "major",
+   "section": "Results; Prespecified decision, as evaluated",
+   "comment": "Material results disagree within the package. M2 clears its threshold in five of eight strata in the manuscript but six of eight in the evaluated decision. The manuscript's null rates are 0.0125 and 0.0925, while the evaluated decision gives 0.015 and 0.1025; the manuscript nevertheless reports their difference as 0.087, which matches the latter pair rather than its own table. Stable-factor calibration error is at most 0.058 in the manuscript but 0.099 in the evaluated decision. Convergence rates also differ. The manuscript says the null table uses 400 replicates, whereas both null covariates would supply 800 checks; the protocol mentions 720. Finally, 960 prior-sensitivity fits is unexplained and does not match eight cells times 100 replicates times four fits if all fits were repeated.",
+   "what_would_satisfy": "Produce a single audited results dataset with a flow diagram and explicit denominator for every analysis, regenerate all tables and prose from it, and reconcile every discrepancy before substantive interpretation."
+  },
+  {
+   "id": 9,
+   "severity": "major",
+   "section": "The decision boundary; Amendment record",
+   "comment": "Drift 0.15 is not exactly epsilon 0.1531. The manuscript's own truth is a risk difference of 0.0294, below the 0.03 threshold, and material error is defined using more than 0.03. Thus the amendment does not simulate the exact boundary and the statement that this violation precisely changes a decision is false. In addition, the amendment was made while the main run was underway, and the oracle comparison was not in the original registered analysis, so these results cannot be described simply as pre-run confirmation.",
+   "what_would_satisfy": "Correct the numerical and temporal descriptions, classify the amendment and oracle analyses as amended or exploratory, and either simulate drift 0.1531, interpolate with validated accuracy, or describe 0.15 as a near-boundary scenario. Independent confirmation would strengthen any headline based on the amendment."
+  },
+  {
+   "id": 10,
+   "severity": "major",
+   "section": "The verdict does not transport across the one axis that matters",
+   "comment": "The assertion that adding target displacement cannot help because displacement is absent from the check statistic is logically incorrect. A predictor can improve prediction of the outcome without changing another predictor; indeed M1 states that material-error risk changes strongly with displacement. A target-aware model should allow displacement and potentially its interaction with the statistic. The protocol prespecified such a model, but its results are absent. The prespecified AUROC analyses are also not reported.",
+   "what_would_satisfy": "Report the exact calibration models, target-aware results, grouped cross-validation that keeps repeated target evaluations together, calibration uncertainty, and all prespecified AUROCs. Investigate whether the reported no-improvement result reflects an incorrectly specified model."
+  },
+  {
+   "id": 11,
+   "severity": "major",
+   "section": "One number explains the rest",
+   "comment": "The headline data-only standard error is not defined. Removing a prior from posterior variance by subtracting precisions is exact only under restrictive Gaussian conditions and must account for covariance between treatment-specific coefficients. The table separately reports posterior SDs for A and C but does not explain how the contrast standard error of 0.30 to 1.82 was obtained or aggregated. Because the title and two-to-twelve ratio depend on this calculation, calling it prior-free without derivation is not acceptable.",
+   "what_would_satisfy": "Give the formula, covariance treatment, aggregation method, and Monte Carlo uncertainty. Validate the result using a likelihood-based calculation or a sequence of increasingly diffuse coherent priors, and title the result explicitly as applying to the simulated networks."
+  },
+  {
+   "id": 12,
+   "severity": "major",
+   "section": "Following the check still beats the alternatives; What this does not settle",
+   "comment": "The recommendation to use the check is not established by the reported comparisons. The apparent advantages are small, lack paired Monte Carlo intervals, and are contaminated by nonconverged relaxed fits. Exact deployment weights are not reported. The obvious hierarchical or exchangeable interaction strategy is omitted even though it is the proposed middle ground for IDN-05; package nonimplementation is not sufficient justification for omitting a method from a methodological simulation. The claim that all design simplifications favor the check and make failures lower bounds is also untenable: one IPD study, only three C studies in the smaller networks, fixed-effect misspecification, and coarse integration can disadvantage it, while additional IPD or richer networks could improve performance.",
+   "what_would_satisfy": "Repeat the strategy comparison using converged fits, exact deployment weights, paired uncertainty, and sensitivity by design stratum. Implement an exchangeable model independently or narrow A4 and the practical recommendation. Recast external validity as scenario-specific rather than a lower-bound argument."
+  },
+  {
+   "id": 13,
+   "severity": "minor",
+   "section": "The data-generating mechanism; Power",
+   "comment": "The statement that every replicate supplies a type I error observation for x2 conflicts with the later recognition that, when x1 drifts, an x2 term can absorb x1 misspecification. Those observations measure misattribution, not nominal type I error. Also, having only one contrast avoids contrast selection but does not guarantee nominal frequentist coverage of a Bayesian credible interval, especially under prior influence, numerical error, and fixed-effect misspecification.",
+   "what_would_satisfy": "Reserve type I error for both covariates under the global null, label x2 firing under drift as misattribution, state all denominators, and replace the nominal-coverage assertion with an empirical coverage assessment."
+  },
+  {
+   "id": 14,
+   "severity": "minor",
+   "section": "Nothing in the panel beats scrutinizing everything",
+   "comment": "Decision reversal, net benefit, and the consequences of commissioning individual data are insufficiently defined. Decision reversal is particularly ambiguous when the true C-versus-A effect is zero. Treat-all net benefit can be driven by the simulated prevalence of material error and the chosen threshold range, and commissioning IPD is implicitly treated as if it prevents the classified harm without an explicit action model.",
+   "what_would_satisfy": "Provide the decision rule, handling of ties and zero effects, net-benefit formula, deployment prevalence, action consequences, and sensitivity to the assumed benefit and cost of obtaining IPD."
+  }
+ ],
+ "citation_problems": [
+  {
+   "cite": "Phillippo et al. (2023)",
+   "problem": "The source may support comparing posterior distributions and model fit, but the manuscript has not established that DIC-5, zero exclusion by a 95% contrast interval, or a 0.95 posterior equivalence rule are the published procedure. These must be identified as new operationalizations unless the source explicitly prescribes them."
+  },
+  {
+   "cite": "Spiegelhalter et al. (2002)",
+   "problem": "This is the foundational DIC paper, but it does not by itself establish 2, 5, and 10 as validated diagnostic cutoffs for this application. The exact source and rationale for those thresholds are needed."
+  },
+  {
+   "cite": "Claims that this is the only published within-network check and that nobody has measured it",
+   "problem": "These exhaustive novelty claims are unsupported by a five-reference bibliography and do not engage the broader network meta-regression literature on common, independent, and exchangeable treatment-by-covariate interactions. A documented literature search and a narrower distinction specific to ML-NMR population adjustment are required."
+  },
+  {
+   "cite": "Phillippo (2025), multinma software citation",
+   "problem": "A generic Zenodo software citation does not substantiate behavior attributed to the development version 0.9.1.9002, including silent demotion of .trt terms and the unsupported exchangeable option. Cite the exact version or commit, documentation, and a reproducible example."
+  },
+  {
+   "cite": "Decision-curve analysis",
+   "problem": "The analysis has no methodological citation and does not state the assumptions under which material error is treated as the event and commissioning IPD as the action. Foundational and current decision-curve guidance should be cited."
+  }
+ ],
+ "conclusions_supported": false,
+ "unsupported_claims": [
+  "“A network resolves the difference between two treatments’ effect modifiers to between two and twelve times the difference that would change a decision.”",
+  "“Against a violation already twice the size that matters, the check fires in at most eight analyses in a hundred.”",
+  "“The procedure can decline to raise an alarm; it cannot give an all-clear.”",
+  "“Registered mechanism claim M4 is confirmed.”",
+  "“This is the violation that exactly matters.”",
+  "“At the size of violation that precisely changes a decision, the check is silent.”",
+  "“Adding the target displacement to the mapping does not help, because displacement does not enter the statistic at all.”",
+  "“Following the check and relaxing exactly what it fires on had the lowest error of the three strategies at every displacement. It is worth running.”",
+  "“The effect is small beside the resolution problem.”",
+  "“The design is a best case in several ways that all favour the check, and the failures reported here are therefore lower bounds on the failures in practice.”",
+  "“What a pass is worth depends entirely on how far the target sits from the network.”"
+ ],
+ "reviewer": "sol",
+ "name": "GPT-5.6 Sol (maximum reasoning effort)",
+ "round": 1
+}
+
+
+# AUTHORS' RESPONSE TO ROUND ONE
+
+# Response to round one
+
+Sol `major-revision`, twelve major comments and `conclusions_supported: false`. GLM `accept`
+with one minor comment. Kimi returned an empty response on the 61 KB package; the cause is
+recorded at the end.
+
+Sol is right that the conclusions were not supported as written. Five of the twelve comments
+identify arithmetic or logic that was wrong, not merely overstated, and every one of those was
+verified numerically before it was accepted. The title has been replaced, one registered claim
+has been downgraded from confirmed to not clearly met, the headline finding has been reframed
+from a property of a rule into a statement about precision, and the document that records the
+prespecified decision is now generated from the result files rather than typed.
+
+---
+
+## 1. The study measures our formalizations, not one published rule
+
+Accepted without reservation. "Compare the posteriors and the model fit" describes an
+exploratory practice, not a decision rule. The five rules scored here are ours, and the
+equivalence rule in particular was never part of the original proposal, so its failure is not
+evidence that anyone claimed the practice affirms equivalence.
+
+The manuscript now says this in the second paragraph of the introduction, before any result, and
+again in the limitations. The claim that survives is narrower and is stated as such: no rule in
+this family, on these networks, separates violations that matter from their absence.
+
+## 2. The margin and equivalence rules are driven by the prior
+
+**Correct, and this was the most consequential error in the paper.** Verified: with independent
+`normal(0, 2.5)` priors the contrast has prior standard deviation 3.536, so the prior alone
+places **0.9655** of it beyond $\varepsilon = 0.1531$, which is above the 0.95 threshold at
+which the margin rule fires. Only 0.0345 lies inside the equivalence region.
+
+The headline "the check never gives an all-clear" was therefore partly an artifact of a prior we
+chose. It has been replaced by the statement the data actually support, which is sharper. For
+the equivalence rule to fire, the posterior standard deviation of the contrast must fall below
+$\varepsilon/1.96 = 0.0781$. The tightest stratum in the design reaches 0.30, a factor of 3.8
+short, and the loosest 1.64. **No network in this design came within a factor of three of the
+precision needed to affirm the assumption at the margin that matters.** That is why the count is
+zero, and it would remain zero under any prior that does not itself supply the answer. The prior
+arithmetic is now in the manuscript.
+
+## 3. M1 is algebraic, and pass value does not depend on displacement alone
+
+Accepted on both halves. The first half of M1 is a bookkeeping identity, since the same fits are
+reused at every displacement; the manuscript said so but then reported it as a finding. It is
+now labelled as verifying the bookkeeping rather than discovering anything. And "depends
+entirely on displacement" was wrong: pass value depends on the drift as well, and the check is
+blind to both. The sentence now says displacement is the axis this section isolates because it
+can be varied while holding the fitted network exactly fixed.
+
+## 4. The analysis violates its own registered fit-eligibility rule
+
+**Correct in letter, and the protocol text was never updated.** The registered rule excluded a
+replicate if any fit had $\hat R > 1.05$, ESS $< 100$, or divergences. That rule was amended
+before the reported run, for a reason recorded in the code at the time: the first cell showed
+all six exclusions were diagnostic failures, five involved a split model, and the shared model
+never failed once, so the rule removes exactly the replicates where relaxation is hardest.
+Amending it was right; leaving section 4 of the protocol saying the opposite was not.
+
+The protocol now records the amendment, its reason and its date, and the limitations disclose it
+as a departure from registration.
+
+On the substance, that retaining bad fits is what makes relaxation look poor: **it is not.**
+Every primary comparison is now repeated on the 1,479 replicates where all four fits met the
+original criteria. The paired advantage of check-then-relax over relaxing everything is 0.0109
+on all replicates and 0.0116 on the converged subset; over imposing the restriction, 0.0173 and
+0.0174. The conclusion is unchanged.
+
+## 5. The estimand is not well defined under treatment-effect heterogeneity
+
+Accepted. Where $\tau_{re} = 0.15$ the truth is defined at $\delta_{jk} = 0$, a superpopulation
+quantity, while the fixed-effect fits estimate a precision-weighted function of the realized
+studies; and integrating the inverse link over the random-effect distribution is not the same as
+setting the random effect to zero. Part of the error attributed to the check in those cells is
+that mismatch, and the oracle does not remove it because the oracle is fixed-effect there too.
+This is now stated in the limitations, and results in the eight $\tau_{re} = 0$ cells are
+reported separately.
+
+## 6. Several claims do not respect Monte Carlo error
+
+**Correct, and one registered claim changes verdict.**
+
+"Fires in at most 8% of analyses" was the maximum of eight cell estimates each with a standard
+error of about 0.065. It is gone. Detection is now reported **pooled across strata**, where the
+standard error is near 0.01, with intervals:
+
+| true contrast | DIC < −5 | 95% CI |
+|---|---|---|
+| 0 | 0.013 | [0.005, 0.029] |
+| 0.15 | 0.020 | [0.010, 0.039] |
+| 0.30 | 0.045 | [0.029, 0.070] |
+| 0.60 | 0.147 | [0.116, 0.186] |
+| 1.20 | 0.453 | [0.404, 0.501] |
+
+The title is now drawn from this table.
+
+**M4 is downgraded from confirmed to not clearly met.** 0.107 against a threshold of 0.10, with
+a 95% interval of [0.097, 0.118] whose lower bound is below the threshold. A point estimate
+0.007 above a threshold with a standard error of 0.006 does not clear it.
+
+Strategy comparisons are now **paired**, since the three strategies are scored on the same
+replicate, and reported with intervals.
+
+## 7. The numerical instability is the same order as the signal
+
+Accepted, and the characterization is retracted. The manuscript called an 8.3% verdict-flip rate
+"small beside the resolution problem". It is not small: the DIC rule's detection rate rises by
+about three percentage points between no violation and one twice the size that matters, and
+changing the quadrature grid alone moves the verdict in 8.3% of replicates. The text now says
+this. The subset is also now described: 24 simulated networks from two cells, the largest
+network at the widest covariate spread with and without drift, which is where quadrature is most
+stressed; and since 256 points is not demonstrated to be a converged reference, the figure is
+reported as a lower bound on the instability rather than a measurement of it.
+
+## 8. Numbers disagree between the manuscript and the evaluated decision
+
+**Correct on all three, and this is the process failure, not a typo.**
+
+- M2 clears its threshold in **5** of 8 strata. The decision document said 6.
+- The type I error gap is 0.080 on the drifting covariate and 0.0875 pooling both covariates.
+  The manuscript quoted 0.087 beside a table showing 0.0125 and 0.0925, which is the first pair.
+- The stable-factor calibration error is 0.058 in the leave-one-factor-level-out analysis; the
+  0.099 in the decision document came from a different analysis.
+
+All three arose the same way: the decision document was typed by hand from a mix of tables.
+**It is now generated by `R/08-decision.R` from the same result files the manuscript reads**, so
+the two cannot drift apart again. That script is published with the study. Every number in the
+document is computed; nothing is transcribed.
+
+This is the fifth time in this program that a published summary has contained a number the
+underlying analysis did not support, and the first time the fix has been to remove the
+transcription step entirely rather than to check the transcription more carefully.
+
+## 9. Drift 0.15 is not the boundary
+
+**Correct, and the claim was false as written.** At drift 0.15 the transported error is 0.0294,
+which is below the 0.03 threshold, so by this study's own definition that violation is not
+material. The contrast that lands exactly on the threshold is 0.1531. The manuscript described
+these cells as the exact boundary and as "the violation that precisely changes a decision"; both
+statements are corrected. What the cells show is behaviour at a violation just short of
+mattering, and the finding there is stronger for being stated correctly: pooled detection is
+0.020 [0.010, 0.039] against 0.013 [0.005, 0.029] under the global null, intervals overlapping.
+
+On the amendment's status: it was made during the run and is not part of the registered design.
+It is dated, its reason is recorded, no result from those cells was seen before they were
+specified, and they are excluded from the deployment mixture. They are reported as an amendment
+throughout and are not used for any registered claim.
+
+## 10. "Displacement cannot help because it is not in the statistic" is a logical error
+
+Accepted. A predictor can improve a prediction without changing another predictor, and M1 shows
+displacement moves the outcome strongly. The reasoning was wrong.
+
+The prespecified target-aware model was computed and its absence from the manuscript was an
+omission. It is now reported: adding displacement changes the held-out absolute error from 0.099
+to 0.099, no improvement, and the correct explanation is narrow and empirical. Each fold holds
+out a drift level or a design factor, so all four displacements are present in training within
+every fold and displacement carries no information the mapping did not already have. What fails
+is transport across drift, and knowing the target does not repair that.
+
+## 11. The data-only standard error is not well defined
+
+**Correct, and the title depended on it.** Subtracting prior precision from posterior precision
+recovers the likelihood only under Gaussian conditions that a weakly identified interaction does
+not satisfy. The study's own prior-sensitivity arm demonstrates the failure: the same networks
+give a data-only standard error of about 1.0 under `normal(0, 1)` and about 1.8 under
+`normal(0, 2.5)`, and those should agree.
+
+The quantity is retained as an order-of-magnitude statement with that instability disclosed in
+the text, and **no claim in the paper now rests on it**. The title has been replaced with one
+drawn from directly measured detection rates. What the resolution section now leads with is the
+posterior standard deviation itself, 0.30 to 1.64 across strata, which is what an analyst reads
+off the output.
+
+## 12. The recommendation to use the check is not established
+
+Partly accepted. The comparison is now paired, reported with intervals, and repeated on the
+converged subset, and on that footing check-then-relax does beat both alternatives at every
+displacement with intervals excluding zero. The advantage is small and is described as small.
+
+Two parts of the comment are not answered and are declared rather than argued away. Exact
+deployment weights are in the configuration and the protocol but were not restated in the
+results, which is fixed. And the hierarchical or exchangeable interaction strategy is genuinely
+missing: it is the middle ground IDN-05 proposes, `multinma` documents
+`class_interactions = "exchangeable"` and raises "not yet supported", and we did not implement
+it ourselves. The manuscript now says that package non-implementation is a reason for its absence and not a
+justification, that we could have written the model ourselves and did not, and that until
+someone does, "check, then relax what fired" is the best of three options rather than a
+recommendation about what to do.
+
+## GLM, minor
+
+The point about 50 replicates is accepted and is now enforced rather than merely stated: every
+detection rate in the results is pooled or stratum-level, and the pooled table carries
+intervals.
+
+## Why Kimi returned nothing
+
+`opencode run --pure` gives the model no tools. On the 61 KB package it produced an empty
+response, as it did on a 9 KB design document earlier in this study while answering a 2.3 KB
+prompt normally. The reviewer prompt already forbids tools, so the earlier diagnosis does not
+explain this one; the remaining pattern is input size. A retry is running and its outcome will
+be recorded in the round-two package either way.

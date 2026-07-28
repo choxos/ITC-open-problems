@@ -1,0 +1,270 @@
+Critique of the revised IDN-05 design (design-short.md), round 2.
+Kimi-K3, pre-run, given the design and the round-1 record (design-for-critique.md,
+sol-critique.txt, response.md). Every number below was computed independently:
+exact marginal integration of the stated DGM (2e6 draws, Gauss-Hermite-checked),
+Fisher-information accounting per cell, and reproduction of the authors' own
+calibration constant.
+
+================================================================================
+WHAT WAS VERIFIED FIRST (so the findings can be trusted)
+================================================================================
+
+1. The authors' epsilon is right. Solving the exact marginal model for the
+   interaction contrast that makes the C-A risk difference exactly material
+   (0.03) at displacement 1.0 gives epsilon = 0.1505. They report 0.1531.
+   Agreement withAll computations check out and sharpen the findings substantially. Two of my numbers independently reproduce theirs (my exact ε = 0.1505 vs their calibrated 0.1531; the rotation counts), so the framework is calibrated. Now I'll write the critique.
+Critique complete — saved to `critique/kimi-critique.txt`. Full text below. Every number was verified independently (exact marginal integration of the stated DGM + Fisher-information accounting per cell); as a calibration check, my exact material-contrast ε = **0.1505** vs your calibrated **0.1531**, and the rotation counts (3/3, 6/6) check out. The symmetric drift coding and per-displacement intercept solve are confirmed good — the C–A contrast error is provably invariant to the compromise slope, ≈ 0.060 / 0.119 / 0.231 at s=1 for drift 0.3 / 0.6 / 1.2.
+
+## Fatal
+
+**F1 — The verdict is impossible on the realized error scale, for any estimator, including a perfect check.** "Reported both against realized error and against the cell's systematic error" never says which one the 0.10 gate reads. Realized error includes estimation noise in d_A, d_C, which the true baseline does *not* remove: SE(lnOR) = 0.187 (IPD) / 0.209 (AgD) per study gives SE(d_C−d_A) = 0.12–0.21 → risk-scale SD 0.029–0.051 → **P(material error) = 0.31–0.56 at the global null, s=0**. A *perfect* check passes only null cells and posts 0.43 > 0.10 — it fails a verdict it deserves to pass; a check that never fires posts ~0.72. The realized verdict cannot rank a perfect check above a broken one. On the systematic scale the verdict is well-defined but deterministic (per-cell 0/1), and my forecast puts it at **0.63–0.67** — known before running. Fix: gate on excess error vs the oracle fit, or declare the gate reads on systematic error only.
+
+**F2 — "The check" in the verdict is undefined: which rule, which covariate, what action on a fire.** Three rules (DIC-5, point-null posterior, margin-ε) × two covariates = ~6 readings with materially different answers. Worst case: if "fires" means *any* covariate, x2-misattribution firings (real: corr 0.25 leaks ≈0.25× the γ_A[x1] residual ≈ 0.03–0.10 against SE ≈ 0.17) remove high-error replicates from the conditioning set while relax-x2-only leaves the x1 error in place — **the verdict improves because the check fired uselessly**.
+
+**F3 — Deployment weights unstated.** The verdict spans ~0.44–0.9 (realized) / 0–1 (systematic) under admissible weights. An unstated weight vector on the headline endpoint is tunable post hoc. (The "upper 95% bound" construction on a weighted pooled proportion also needs a stated method.)
+
+## Serious
+
+**S1 — The drift grid skips the decision boundary.** In units of your own ε=0.153, the grid is {0, 1.96, 3.92, 7.84}. No sub-material-nonzero cell, nothing in (0.5ε, 1.5ε) where a useful check must discriminate. Predicted power at drift=0.3 (=2ε, error already 2× material): DIC-5 **0.01–0.04**, posterior **0.07–0.32**. You will measure the floor and the ceiling and nothing between. Add drift 0.10 and 0.15–0.20.
+
+**S2 — n=50 is a choice, not a constraint.** 6,400 fits ≈ 4.4 core-hours at your measured 2.5 s/fit; n=300 ≈ 27 core-hours on the 7 workers already budgeted. At n=50, per-cell SE=0.07 leaves the 8–16 cells with true power 0.02–0.10 (the entire spread-0.25 half at drift ≤ 0.6) unresolvable, and kills per-cell calibration. Only the pooled verdict survives — the least informative quantity in the design (F1).
+
+**S3 — Priors unstated; M2 is prior-determined; the smoke-test 0.162 contradicts multinma defaults.** Under default `prior_reg = normal(scale=10)`, my per-cell contraction gap is **0.003–0.054** — 4–60× short of M2's 0.20. But your smoke test reports contraction 0.162 (SD_post = 0.84×prior), which under a SD-10 prior requires data information 0.004 (SE ≥ 15) — 50× weaker than my estimate (SE ≈ 0.6–0.7). Either the fits run an informative prior of SD ≈ 0.4–0.5 (then every posterior is prior-shaped and you're not measuring the check analysts actually run), or the 0.162 came from a just-identified split-both fit and doesn't represent M2's fits. State the priors; register the prior-free SD ratio (1.2–3.9×) alongside contraction; reconcile 0.162 before the run — M2's fate is decided there, not by data.
+
+**S4 — `tau_re` is a DGM factor but the fits' `trt_effects` is unstated.** multinma default is `"fixed"`. If FE fits meet tau_re=0.15 cells, "power" there is confounded with heterogeneity misspecification — and it's the design's own arithmetic (RE SD 0.15 = 2× the ecological signal 0.075) that makes the confound first-order. If RE fits: state the DIC deviance convention, note τ from 6 studies is barely estimable, and re-measure cost/fit (2.5 s was a no-RE pilot).
+
+**S5 — The error of the remedy is never scored.** See headline omission below.
+
+**S6 — GOAL says "power and calibration"; the design contains no calibration analysis.** The verdict is one point on one curve. `response.md` gestures at a target-blind mapping with folds — put it in the contract or strike "calibration" from the goal.
+
+## Minor
+
+- **M-a**: ε is solved at s=1 but applied at all s; material contrast scales as ε/s — fine for M1's point, but keep the margin rule out of the verdict's "check."
+- **M-b**: M3 is likely refuted: predicted type I DIC-5 ≈ 0.011 vs point-null posterior ≈ 0.05 → gap ≈ **0.039 < 0.05** (SE ≈ 0.012). And name which posterior rule — the margin rule's type I is ≈ 0 (CrI half-width 0.4–1.5 vs ε=0.153), flipping both M3 and M4.
+- **M-c**: M4 pooled disagreement predicted 0.08–0.15, concentrated in spread-0.6/drift≥0.6 cells (0.15–0.40 there). Report by cell.
+- **M-d**: mu_j distribution, MCMC config, n_int, multinma version unstated. Round 1's chains=1 failure mode means the working config belongs in the contract.
+- **M-e**: True-baseline-supplied favors the check — the caveat survived in round 1's doc, dropped here. Failures remain valid; a pass wouldn't transport.
+- **M-f**: drift=1.2 flips γ_C[x1] to −0.3 (true RD ≈ −0.33 at s=1.5) — a stress test at 8ε; don't cite it as practice-relevant when the practice band (0.1–0.3) is where resolution is worst.
+- **M-g**: Pin "the published check (Phillippo 2023)" to the exact source; if the published procedure is informal, you're measuring your own formalization — say so.
+- **M-h**: M1's realized-scale rise is compressed by the 0.44 floor at s=0 (max observable rise ≈ 0.56). Report floor + excess decomposition.
+- **M-i**: M2's "IPD asymmetry" is a single configuration (IPD always on A, n_ipd=1) — don't generalize the claim wording beyond it.
+
+## The most important thing it leaves out
+
+**The error of the remedy — the study measures the check only on the branch where it does nothing.** The check is a decision rule: pass → share; fire → relax. You score the estimand only on the pass branch. But relaxing isn't free: γ_C's posterior SD is 0.16–0.73 log-odds (my information table), so the relaxed C–A contrast carries risk-scale error SD ≈ 0.03–0.15 → **P(material error) on the fire branch ≈ 0.45–0.85** — comparable to or worse than the pass branch at low drift, better only at high drift. Whether *following* the check beats always-sharing or always-relaxing is genuinely open, and it's the only question an analyst needs answered. As designed, the study can convict ("a pass doesn't guarantee safety") but can never rank the check against its alternatives — and per F2, the verdict can even improve when the check fires on the wrong covariate. Round 1's design had exactly this analysis (always-common / always-relax / check-then-relax, RMSE + decision reversal + net benefit) and the revision dropped it **while still paying for all four fits**. Scoring all four on the target estimand costs zero additional fits — only the `predict()` calls and bookkeeping are missing. That's the one-paragraph fix.
+
+Runners-up: the (0, 2ε) drift band (S1); any confounded-ecology cell (δ_j correlated with baselines or δ_jk — the ecological route is unbiased by construction here, so this is a clean-room lower bound on failure); the margin rule's strategy profile (fires least, relaxes most conservatively — invisible without S5).
+
+## Predicted results (registered for checking)
+
+Power on x1 (DIC-5 | posterior): drift 0.3 → .01–.04 | .07–.32; drift 0.6 → .02–1.0 | .13–.84; drift 1.2 → .05–1.0 | .36–1.0; type I .01 | .05. Verdict at s=1, uniform weights: **systematic 0.63–0.67, realized 0.72–0.75, vs 0.10**. If the run reports anything near 0.10 on either scale, my arithmetic or your pass rates are wrong somewhere — itself a finding. Claims: M1 confirmed; M2 refuted under defaults; M3 refuted (0.039); M4 borderline.
+
+Smallest fix set: (1) verdict — name the scale, rule, covariate, post-fire action, weights; (2) state priors + trt_effects, reconcile 0.162; (3) add drift 0.10/0.15–0.20 at n≥150 (the compute exists); (4) score all four fits and report the three strategies; (5) put the calibration analysis in the document or out of the goal.
+                0.987     0.984     0.003  1.2x
+
+But response.md reports a smoke-test contraction of 0.162 for gamma_C in a
+six-study network (SD_post = 0.84 * SD_prior). Under a SD-10 prior that
+requires data information I = 1/8.4^2 - 1/100 = 0.004, i.e. SE_data >= 15 —
+a flat likelihood, 50x weaker than my estimate (I ~= 2-3, SE ~= 0.6-0.7) for
+that network. One of these is true:
+
+  (a) the fits use an informative prior of roughly SD 0.4-0.5 on gamma — in
+      which case every posterior in the study is materially prior-shaped, the
+      check being measured is NOT the check analysts run under multinma
+      defaults, and M2's threshold is reachable only because the prior made
+      room for it; or
+  (b) the smoke-test number is from a just-identified fit (split-both on a
+      3-study treatment) and does not represent the split-x1 fits M2 reads.
+
+Either way: state the priors in the design; register the prior-free asymmetry
+measure alongside contraction (posterior SD ratio, 1.2-3.9x in my table);
+and reconcile the 0.162 against the stated prior before the run, because M2's
+fate is decided by that reconciliation, not by data.
+
+--------------------------------------------------------------------------------
+S4. tau_re is a DGM factor but the fitted models' trt_effects is unstated
+--------------------------------------------------------------------------------
+
+multinma's default is trt_effects = "fixed". If the four fits are fixed-effect
+while half the cells generate delta_jk with SD 0.15, then every tau_re = 0.15
+cell evaluates the check under model misspecification — and a confounded one:
+the design added tau_re precisely because the ecological drift signal (SD
+0.075 at drift 0.3, spread 0.25) is half the RE noise (0.15). In those cells
+"power" becomes "response to heterogeneity the fitted model cannot represent,"
+and DIC comparisons inherit the misspecification. If instead the fits are
+random-effects, say so — and then (i) state the DIC deviance convention for
+RE-ML-NMR fits (conditional vs marginal changes the effective DIC-5
+threshold), (ii) note that tau from 6 studies is barely estimable and its
+error propagates into every DIC difference, and (iii) re-measure cost per fit:
+RE + class interactions + 64-point integration is well beyond the 2.5 s
+measured on the no-RE pilot. The interpretation of the tau_re factor flips
+entirely depending on this choice; the design document must make it.
+
+--------------------------------------------------------------------------------
+S5. The error of the remedy is never scored — see "most important omission"
+--------------------------------------------------------------------------------
+
+The estimand is scored only where the check passes (common fit). What the
+analyst gets when the check fires — the relaxed fit — is never scored on the
+target estimand at all, despite split-x1, split-x2, and split-both already
+being fitted in every replicate. This caps the study's conclusion and
+interacts with F2. Expanded below.
+
+--------------------------------------------------------------------------------
+S6. The goal says "power and calibration"; the design contains no calibration
+    analysis
+--------------------------------------------------------------------------------
+
+The only calibration-adjacent quantity in the short design is the verdict's
+conditional probability — one point on one curve. response.md gestures at a
+target-blind mapping from the check statistic to P(material error) with
+folds, but the design document itself contains no calibration analysis: no
+statistic-to-risk mapping, no holdout, no transport evaluation. If the
+analysis exists, put it in the contract; if it was cut in the revision, the
+stated goal is unmet by construction.
+
+================================================================================
+MINOR
+================================================================================
+
+M-a. The margin epsilon (0.1531) is solved at displacement 1.0 but the rule is
+     applied at all displacements; the material contrast scales as epsilon/s,
+     so the margin rule is effectively 2x too loose at s=0.5 and 1.5x too
+     strict at s=1.5. That is the target-blindness point of M1 — fine — but
+     then do not let the margin rule anywhere near the verdict's "check."
+
+M-b. M3 as registered is a near-coin-flip and likely refuted: predicted type I
+     is ~0.011 for DIC-5 (P(chi2_1 > ~6.5)) vs ~0.05 for the point-null
+     posterior rule — gap ~0.039, just under the 0.05 claim; with ~400 null
+     replicates the SE of the gap is ~0.012. Also, "the 95% posterior rule"
+     must be named: if M3/M4 mean the MARGIN rule rather than point-null, its
+     type I is ~0 (credible-interval half-width 0.4-1.5 against epsilon 0.153)
+     and both claims change sign.
+
+M-c. M4 (disagreement >= 10%) is plausible but pooled-sensitive: predicted
+     disagreement is 0.03-0.07 in low-spread cells and 0.15-0.40 in
+     (spread 0.6, drift 0.6-1.2) cells; pooled ~0.08-0.15. Report by cell, not
+     just pooled.
+
+M-d. Unstated in the short design: distribution of mu_j (round 1 had
+     N(-0.85, 0.15^2)), the MCMC configuration (chains, iterations, n_int),
+     and the multinma version. Round 1 documented a chains=1 failure that
+     returns a fit-like object; the configuration that avoids it belongs in
+     the contract, not in institutional memory.
+
+M-e. True-baseline-supplied removes the dominant real-world error channel and
+     biases toward the check. Round 1 said this ("deliberate simplification
+     that favors the check"); the short design drops the caveat. Failures
+     remain valid; a pass would not transport. Keep the caveat attached to
+     every headline number.
+
+M-f. drift = 1.2 makes gamma_C[x1] = -0.3 — a sign-flipped modifier, with true
+     C-A risk difference ~ -0.33 at s=1.5. Useful as a stress test; but it is
+     8 epsilon, and results there should not be cited as practice-relevant.
+     The practice-relevant band (0.1-0.3) is exactly where power resolution
+     is worst (S1/S2).
+
+M-g. Pin the citation. "The published within-network check (Phillippo 2023)"
+     should name the exact source whose procedure is being measured
+     (the multinma documentation/JSS paper for class_interactions is the
+     operational reference; the 2023 MDM paper cited in round 1 is a methods
+     review). If the published procedure is the informal "compare posteriors
+     and DIC," then the study measures its own formalization of it — say so.
+
+M-h. M1's rise on the realized scale is compressed by the noise floor:
+     P(material|passed) at s=0 is ~0.44, so the observable rise to s=1.5 is
+     bounded by ~0.56. Report the floor decomposition (floor + excess) or the
+     0.20 threshold will be read against the wrong baseline.
+
+M-i. One IPD study, always on A, n_ipd dropped (declared as a limitation in
+     response.md — good). Consequence that is NOT yet declared: M2's
+     "IPD asymmetry" is a single-configuration observation; the claim's
+     wording should not generalize beyond it.
+
+================================================================================
+PREDICTED RESULTS (registered so they can be checked against the run)
+================================================================================
+
+Per-cell power on x1 (DIC-5 | posterior-95%):
+
+    J   spread  tau_re | drift 0.3     drift 0.6     drift 1.2     type I
+    6   0.25    0      | .01 / .08     .02 / .16     .10 / .49     .01 / .05
+    6   0.25    0.15   | .01 / .07     .02 / .13     .05 / .36     .01 / .05
+    6   0.6     0      | .02 / .17     .12 / .52     1.0 / .98     .01 / .05
+    6   0.6     0.15   | .02 / .14     .06 / .41     1.0 / .93     .01 / .05
+    12  0.25    0      | .01 / .11     .04 / .31     1.0 / .83     .01 / .05
+    12  0.25    0.15   | .01 / .09     .03 / .23     .44 / .68     .01 / .05
+    12  0.6     0      | .04 / .32     1.0 / .84     1.0 / 1.0     .01 / .05
+    12  0.6     0.15   | .03 / .24     .69 / .71     1.0 / 1.0     .01 / .05
+
+Headline verdict at s=1.0 under uniform weights: systematic scale 0.63-0.67,
+realized scale 0.72-0.75, against the 0.10 threshold. If the run reports
+anything near 0.10 on either scale, my arithmetic or the pass rates are wrong
+somewhere and that is itself a finding.
+
+Claims: M1 confirmed (rise 0.35-0.45 realized; ~0.9 systematic — but see M-h).
+M2 refuted as registered under default priors (gap <= 0.054); confirmed only
+if the priors are informative, which is S3's problem, not evidence. M3 refuted
+(gap ~0.039 < 0.05). M4 borderline (pooled ~0.08-0.15).
+
+================================================================================
+THE MOST IMPORTANT THING IT LEAVES OUT
+================================================================================
+
+The error of the remedy. The design measures the check only on the branch
+where it does nothing.
+
+The check is a decision rule: pass -> keep shared interactions; fire -> relax
+them. The study scores the target estimand only in the first branch. But the
+relaxed fit is not free: gamma_C is identified from 3-6 aggregate studies with
+posterior SD 0.16-0.73 on the logit scale (my information table), so the
+relaxed C-A contrast carries risk-scale error SD ~0.03-0.15, i.e. P(material
+error) on the FIRE branch of roughly 0.45-0.85 — comparable to or worse than
+the pass branch in low-drift cells, better only at high drift. Whether
+following the check beats always-sharing or always-relaxing is genuinely open,
+and it is the only question an analyst needs answered. As designed, the study
+can convict ("a pass does not guarantee safety") but can never rank the check
+against its alternatives — and, per F2, its verdict can even improve when the
+check fires on the wrong covariate, because fired replicates exit the
+conditioning set regardless of whether the remedy repairs the error.
+
+This is especially conspicuous because round 1's design had exactly this
+analysis — always-common vs always-independent vs check-then-relax, scored by
+RMSE, decision reversal, and net benefit — and the revision dropped it while
+keeping all four fitted models. Scoring all four fits on the target estimand
+in every replicate costs zero additional fits: the fits exist; only the
+predict() calls and the bookkeeping are missing. The verdict's whole framing
+("does a pass earn reassurance?") is half of a decision problem whose other
+half the design already pays for and then throws away.
+
+Fix, one paragraph: in every replicate, score the C-A target estimand error
+for all four fits; define check-then-relax as relaxing exactly the flagged
+covariates; report P(material error), RMSE, and decision-reversal for
+always-common, always-relax, and check-then-relax under the same (now to be
+stated) deployment weights. Then the study answers both "is a pass safe?" and
+"is using the check better than not using it?" — and the verdict's 0.10
+threshold acquires a denominator it can be compared against: the material-error
+rate of the strategy the analyst would otherwise have used.
+
+Runner-up omissions: (i) the (0, 2 epsilon) drift band (S1) — without it
+"calibration" is measured only at the asymptotes; (ii) any confounded-ecology
+cell (study covariate means correlated with baselines or with delta_jk): the
+ecological route is unbiased by construction here, so the study is a
+clean-room lower bound on the check's failure rate, and real-world failures
+will often arrive through exactly that door; (iii) the fired-branch cost of
+the margin rule specifically (it fires least and relaxes most conservatively —
+its strategy profile is invisible without S5's scoring).
+
+================================================================================
+SMALLEST SET OF CHANGES THAT MAKES THE RUN WORTH DOING
+================================================================================
+
+1. Verdict: name the error scale (systematic), name the rule and covariate,
+   name the post-fire action, state the deployment weights. (F1, F2, F3)
+2. State priors and trt_effects; reconcile the 0.162 smoke-test contraction;
+   register the posterior SD ratio next to contraction. (S3, S4)
+3. Add drift 0.10 and 0.15-0.20; fund it by raising n to >= 150 on the
+   boundary cells (the compute exists). (S1, S2)
+4. Score all four fits on the target estimand and report the three strategies.
+   (the omission)
+5. Put the calibration analysis in the document or out of the goal. (S6)

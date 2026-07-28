@@ -1,0 +1,206 @@
+{
+ "recommendation": "major-revision",
+ "summary": "This preregistered and amended simulation directly addresses IDN-05 for several author-defined operationalizations of the shared-effect-modifier check in sparse ML-NMR networks. The revision substantially improves the paper by exposing the prior-driven margin behavior, acknowledging that target invariance is constructed, correcting the near-boundary description, downgrading M4, and adding paired strategy comparisons. However, the revised manuscript remains internally unauditable, retains nonconverged fits, does not establish numerical integration convergence, and still pools an estimand-mismatched heterogeneity scenario into its central oracle and error results. The low alarm rates are potentially important, but the numerical, estimand, and reporting problems must be resolved before the headline and practical recommendations are reliable.",
+ "strengths": [
+  "The study addresses the catalog problem rather than a merely adjacent question, provided its conclusions remain restricted to the evaluated rules and simulated network family.",
+  "The marginal target-population risk-difference estimand is clearly distinguished from the conditional log-odds mechanism estimand in the no-heterogeneity scenarios.",
+  "The complete four-model lattice permits genuine one-covariate-at-a-time relaxation and paired strategy comparisons.",
+  "The authors respond unusually candidly to unfavorable findings, including the failed registered gate, prior dependence, convergence failures, and numerical integration sensitivity.",
+  "The revision correctly abandons the claim that the amendment simulated the exact decision boundary and correctly treats M4 as inconclusive given its Monte Carlo interval.",
+  "The manuscript explicitly distinguishes the exploratory published practice from the five decision rules constructed by the authors."
+ ],
+ "comments": [
+  {
+   "id": 1,
+   "severity": "major",
+   "section": "Results; Decision boundary; Registered protocol; Authors' response",
+   "comment": "The revised package is still not internally complete or numerically auditable. The manuscript contains literal blanks for the amendment result, including \"the rate is [, ]\" and \"the DIC rule fires in **** [, ]\", even though the response supplies 0.020 [0.010, 0.039]. The manuscript reports target-aware calibration error of 0.086 versus 0.086, while the response says 0.099 versus 0.099; it states an M3 gap of 0.087 beside a displayed single-covariate table whose rates differ by 0.080; and the protocol claims 720 global-null covariate checks although 8 cells × 50 replicates × 2 covariates gives 800 after the amended no-exclusion rule. The reported 960 prior-sensitivity fits also does not follow from eight cells, 100 replicates per cell, and four fits.",
+   "what_would_satisfy": "Regenerate every table, decision statement, and prose value from one versioned analysis dataset; fill all placeholders; provide an analysis-flow table with the exact denominator for every result; and explain exactly which models and replicates comprise the 960 prior-sensitivity fits."
+  },
+  {
+   "id": 2,
+   "severity": "major",
+   "section": "Checks on the machinery",
+   "comment": "Numerical convergence of the likelihood integration remains unestablished. Changing from 64 to 256 points changed the DIC verdict in 2 of only 24 networks and the interval verdict in 1 of 24, but 256 points was not shown to be converged. The observed discrepancy between two unconverged settings is not a lower bound on instability, and estimates based on one or two flips have very large Monte Carlo uncertainty. Because the DIC headline difference is only about three percentage points, this unresolved numerical error threatens the main result rather than merely qualifying it.",
+   "what_would_satisfy": "Demonstrate convergence across successively finer grids or against a validated alternative integration method, report uncertainty and cell composition for the sensitivity study, and rerun the primary DIC and target-estimand analyses using a numerically stable setting."
+  },
+  {
+   "id": 3,
+   "severity": "major",
+   "section": "Estimands; What a pass licenses; What this does not settle",
+   "comment": "The central estimand and oracle remain invalidly pooled when tau_re = 0.15. Truth is defined at a random effect of zero, the fitted fixed-effect model targets a function of the realized trials, and a population risk integrated over heterogeneity is different again. The so-called oracle remains fixed-effect in these cells, so it does not know the full true specification and cannot define a pure noise floor. Merely listing this as a limitation does not repair pooled primary, oracle, or strategy results, and the claim that tau_re = 0 results are reported separately \"throughout\" is not borne out by the displayed primary and strategy tables.",
+   "what_would_satisfy": "Define one target under heterogeneity and compute truth and estimates for that same target; fit a genuinely correct random-effects oracle, or restrict the principal conclusions to tau_re = 0; and rename the current comparator an interaction-specification oracle wherever heterogeneous cells remain."
+  },
+  {
+   "id": 4,
+   "severity": "major",
+   "section": "Fit eligibility; Following the check still beats the alternatives",
+   "comment": "The converged-subset comparison is useful, but it does not validate scientific results calculated from chains with R-hat up to 1.89 and effective sample size near 3.4. Such draws can corrupt both the fully relaxed estimator and the split-model DIC used by check-then-relax. Conditioning on all four fits passing diagnostics is also selective because convergence is related to the method's difficulty. The revision therefore shows that the reported mean-absolute-error ranking is not obviously driven by the failed fits, but it does not make the main analysis using those fits valid.",
+   "what_would_satisfy": "Refit failed models with sufficient chains, iterations, and tuning until prespecified diagnostics are met, or treat computational failure as a separately defined operational outcome with an explicit loss. Scientific posterior summaries and DIC values should be based on diagnostically usable fits."
+  },
+  {
+   "id": 5,
+   "severity": "major",
+   "section": "What this measures; Readings of the check; Results",
+   "comment": "The distinction between the published exploratory practice and the authors' decision rules is now much clearer. Nevertheless, the broad conclusion that no rule in this family separates consequential violations from their absence is not supported because the prespecified AUROCs are absent, operating characteristics are not fully reported for every rule, and no calibrated positive-control setting shows what each rule can achieve. The paper measures selected operationalizations in one sparse network family, not the generic validating ability of the published practice.",
+   "what_would_satisfy": "Report all prespecified continuous discrimination results and complete operating characteristics, add or clearly justify the absence of positive controls, and restrict conclusions to the named rules, thresholds, priors, and simulated network designs."
+  },
+  {
+   "id": 6,
+   "severity": "major",
+   "section": "The verdict does not transport across the one axis that matters",
+   "comment": "The revised explanation for the target-aware calibration result is still logically unsound. Having all four displacements represented in training makes a displacement effect estimable; it does not make displacement redundant. Because the check statistic is identical across the four target rows while material-error risk changes strongly, displacement necessarily contains information unavailable from that statistic alone unless the conditional outcome unexpectedly does not vary. The conflict between 0.086 in the manuscript and 0.099 in the response further prevents assessment.",
+   "what_would_satisfy": "Report the exact target-blind and target-aware formulas, coefficients, predictions and errors by displacement and held-out level; keep repeated targets from each dataset grouped; verify the implementation; and explain any lack of improvement from those results rather than from the fold structure."
+  },
+  {
+   "id": 7,
+   "severity": "major",
+   "section": "What the network resolves; The check cannot give an all-clear; Discussion",
+   "comment": "The prior arithmetic is now correctly disclosed, but several replacement claims remain unsupported. The condition posterior SD < epsilon/1.96 is a necessary condition only under an approximately normal posterior centered optimally within the equivalence region, whereas the manuscript itself says weakly identified posteriors are non-Gaussian. The contrast SD requires the covariance between treatment-specific interactions, which is not shown. A ratio of two posterior SDs is also not \"prior-free\" merely because no precision subtraction was performed. Finally, the discussion and practical recommendation still rely on the two-to-twelve and twelve-to-one resolution ratios despite claiming that no conclusion rests on the unstable data-only calculation.",
+   "what_would_satisfy": "Show the contrast-variance calculation including covariance and posterior shape, evaluate priors parameterized directly on the shared component and contrast, include a positive-control equivalence setting, report sensitivity of the posterior-SD ratio to the prior, and remove the data-only ratio from substantive conclusions unless it is validated by likelihood-based calculations."
+  },
+  {
+   "id": 8,
+   "severity": "major",
+   "section": "Following the check still beats the alternatives; Discussion; What this does not settle",
+   "comment": "The evidence does not yet establish the recommendation \"use it anyway.\" Paired mean-absolute-error intervals are shown only at displacement 1, while the abstract and discussion claim superiority at every target. The displayed displacement-0 table actually gives the common model a slightly lower RMSE than check-then-relax, and the fully relaxed model is best for decision reversal, demonstrating that the ranking depends on the loss. Exact deployment weights are still absent, nonconverged fits remain in the main comparison, and the most relevant partial-pooling strategy is omitted. The limitations acknowledge the missing hierarchical model, but the abstract and discussion continue to make a practical recommendation beyond the three-way comparison.",
+   "what_would_satisfy": "Report paired differences and intervals at every displacement, by design stratum and for each declared loss, using valid fits and explicit deployment weights. Either implement a coherent exchangeable or hierarchical comparator or narrow A4 and all recommendations to a descriptive comparison of the three evaluated strategies."
+  },
+  {
+   "id": 9,
+   "severity": "minor",
+   "section": "The mechanism: the check is blind to the only thing that determines the harm",
+   "comment": "The revision now acknowledges that invariant pass rates are a bookkeeping identity and that pass value also depends on drift, which is a substantial improvement. However, the section title still calls displacement \"the only thing\" determining harm, and M1 is still described as empirically confirmed even though its first half and the direction of target harm are induced by reusing fits and by the chosen interaction-plus-displacement mechanism.",
+   "what_would_satisfy": "Present the invariance as an algebraic derivation and implementation check, report conditional risks by drift or design stratum, and reserve empirical confirmation for quantities not fixed by construction."
+  },
+  {
+   "id": 10,
+   "severity": "minor",
+   "section": "Readings of the check; Power",
+   "comment": "The statement that one unselected contrast means the credible interval \"keeps its nominal coverage\" is false as a frequentist claim and is contradicted by the reported 9.25% global-null exclusion rate. Avoiding contrast selection preserves the nominal posterior probability label, not repeated-sampling coverage.",
+   "what_would_satisfy": "Call it an unselected 95% credible interval and report its empirical coverage or null exclusion rate without asserting nominal frequentist coverage."
+  },
+  {
+   "id": 11,
+   "severity": "minor",
+   "section": "Nothing in the panel beats scrutinizing everything",
+   "comment": "The decision-curve conclusion remains underdefined. Treat-all net benefit depends on the simulated prevalence and threshold range, while commissioning individual data is treated as the action without specifying its cost, delay, probability of acquisition, or probability of preventing material error. Consequently, \"nothing beats scrutinizing everything\" is a property of the chosen coding and deployment mixture, not a general decision recommendation.",
+   "what_would_satisfy": "Provide the net-benefit formula, deployment prevalence and weights, explicit consequences of commissioning individual data, sensitivity analyses for those consequences, and an appropriate decision-curve citation; otherwise remove the practical conclusion."
+  }
+ ],
+ "citation_problems": [
+  {
+   "cite": "Phillippo et al. (2023)",
+   "problem": "The paper supports comparing treatment-specific posterior interactions and model fit, but the manuscript has not shown that DIC-5, zero exclusion, the posterior margin, or equivalence are prescribed published decision rules. The revision acknowledges this, but several conclusions still refer generically to \"the check.\""
+  },
+  {
+   "cite": "Spiegelhalter et al. (2002)",
+   "problem": "The foundational DIC article does not by itself validate cutoffs of 2, 5, and 10 for detecting shared-effect-modifier violations. These should remain explicitly author-chosen heuristics with their application-specific rationale stated."
+  },
+  {
+   "cite": "Claims that there is one published within-network check and that nobody has measured it",
+   "problem": "These exhaustive novelty claims are not supported by the five-reference bibliography or a documented search and do not engage the broader network meta-regression literature on common, independent, and exchangeable treatment-by-covariate interactions."
+  },
+  {
+   "cite": "Phillippo (2025), multinma",
+   "problem": "A generic software citation does not substantiate behavior attributed to development version 0.9.1.9002, including silent demotion of .trt terms and failure of the documented exchangeable option. Cite the exact version or commit and provide a reproducible example."
+  },
+  {
+   "cite": "Decision-curve analysis",
+   "problem": "No methodological citation or explicit action-loss model is supplied. Foundational decision-curve guidance, such as Vickers and Elkin, and assumptions linking the action of commissioning IPD to prevention of harm are needed."
+  }
+ ],
+ "conclusions_supported": false,
+ "unsupported_claims": [
+  "“No rule in this family, on these networks, separates violations that matter from their absence.”",
+  "“No network in this design came within a factor of three of the precision required to affirm the assumption at the margin that matters.”",
+  "“That is why the count is zero and would remain zero under any prior that does not itself supply the answer.”",
+  "“The evidence is therefore between 2.0 and 11.9 times too coarse to see what matters.”",
+  "“The asymmetry the design was built around is large and prior-free.”",
+  "“An oracle that knows which specification is correct, fitted to the same replicates, is materially wrong 0.639 of the time.”",
+  "“Following the check and relaxing exactly what it fires on had the lowest error of the three strategies at every displacement.”",
+  "“Within any such fold the four displacements are all present in training, so displacement carries no information the mapping did not already have.”",
+  "“This is a lower bound on the instability rather than a measurement of it.”",
+  "“The design is otherwise a best case in several ways that all favour the check, and the failures reported here are therefore lower bounds on the failures in practice.”",
+  "“With two active treatments there is exactly one interaction contrast per covariate, so nothing is selected and the credible interval keeps its nominal coverage.”",
+  "“There is one published within-network check on it.”",
+  "“Nobody has measured it.”"
+ ],
+ "round1_resolution": [
+  {
+   "reviewer": "sol",
+   "id": 1,
+   "resolved": "partly",
+   "note": "The manuscript now clearly distinguishes the published exploratory practice from the author-defined rules and narrows its scope, but the prespecified continuous discrimination results remain absent and the exhaustive novelty claims remain unsupported."
+  },
+  {
+   "reviewer": "sol",
+   "id": 2,
+   "resolved": "partly",
+   "note": "The prior probabilities are now correctly reported and the strongest all-clear claim was withdrawn, but no coherent contrast prior or positive control was added, and the replacement SD argument assumes posterior normality that the manuscript elsewhere rejects."
+  },
+  {
+   "reviewer": "sol",
+   "id": 3,
+   "resolved": "partly",
+   "note": "The invariance is now identified as bookkeeping and the text acknowledges drift as another determinant, but the section heading still overstates displacement and conditional risks by drift and design stratum are not reported."
+  },
+  {
+   "reviewer": "sol",
+   "id": 4,
+   "resolved": "partly",
+   "note": "The departure from the registered eligibility rule is disclosed and a converged-subset strategy analysis is supplied, but demonstrably nonconverged draws remain in the primary scientific analyses and failed models were not refitted or assigned an explicit operational loss."
+  },
+  {
+   "reviewer": "sol",
+   "id": 5,
+   "resolved": "no",
+   "note": "The estimand mismatch under heterogeneity is acknowledged but not repaired; pooled central results still use truth at zero random effect and a fixed-effect comparator that is incorrectly called an oracle."
+  },
+  {
+   "reviewer": "sol",
+   "id": 6,
+   "resolved": "partly",
+   "note": "The revision pools headline power, adds intervals, downgrades M4, and supplies a paired mean-absolute-error interval at displacement 1, but uncertainty for the headline rate difference and strategy comparisons at every claimed displacement remains missing."
+  },
+  {
+   "reviewer": "sol",
+   "id": 7,
+   "resolved": "partly",
+   "note": "The sensitivity subset and verdict changes are now described and the claim that the instability was small was retracted, but numerical convergence is still not established and the primary analysis still uses 64 points."
+  },
+  {
+   "reviewer": "sol",
+   "id": 8,
+   "resolved": "no",
+   "note": "The decision document is said to be generated, but the manuscript still contains blank results, unexplained denominators and fit counts, and conflicts with the response for target-aware calibration."
+  },
+  {
+   "reviewer": "sol",
+   "id": 9,
+   "resolved": "partly",
+   "note": "The main prose correctly calls drift 0.15 just below the boundary, but the protocol and amendment-table caption still call it exactly one epsilon, and the corresponding pooled results are blank."
+  },
+  {
+   "reviewer": "sol",
+   "id": 10,
+   "resolved": "partly",
+   "note": "A target-aware result is now mentioned and the original logical argument was withdrawn, but the replacement explanation is also logically inadequate, its reported value conflicts with the response, and the prespecified AUROCs remain absent."
+  },
+  {
+   "reviewer": "sol",
+   "id": 11,
+   "resolved": "partly",
+   "note": "The title was changed and the precision-subtraction instability is disclosed, but the calculation and covariance remain undocumented, the posterior-SD ratio is incorrectly called prior-free, and the discussion still relies on the two-to-twelve ratio."
+  },
+  {
+   "reviewer": "sol",
+   "id": 12,
+   "resolved": "partly",
+   "note": "Paired uncertainty and a converged-subset comparison were added and the missing hierarchical model is candidly acknowledged, but the practical recommendation persists without all-displacement evidence, explicit deployment weights, valid main fits, or the relevant partial-pooling comparator."
+  }
+ ],
+ "reviewer": "sol",
+ "name": "GPT-5.6 Sol (maximum reasoning effort)",
+ "round": 2
+}

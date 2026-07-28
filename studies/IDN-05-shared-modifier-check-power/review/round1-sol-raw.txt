@@ -1,0 +1,148 @@
+{
+  "recommendation": "major-revision",
+  "summary": "This registered factorial simulation evaluates several operationalizations of a shared-effect-modifier check in deliberately weak-information ML-NMR networks and links diagnostic performance to a marginal target-population estimand. The paper is commendably transparent about its failed prespecified gate, amendments, prior sensitivity, convergence problems, and numerical-integration sensitivity. However, the broad conclusions are not currently supported because some headline findings are consequences of the construction, nonconverged fits were retained contrary to protocol, the superpopulation estimand and oracle are ambiguous under heterogeneity, several results disagree across documents, and key comparisons ignore Monte Carlo uncertainty. The question is important and repairable, but it requires substantial reanalysis and narrower claims.",
+  "strengths": [
+    "The core factorial design and decision-scale estimand were registered before the main simulation, and post-registration changes are disclosed rather than silently incorporated.",
+    "The manuscript distinguishes conditional log-odds effects from marginal risk differences and computes the latter from the true model by quadrature.",
+    "The complete four-model lattice permits a genuine one-covariate-at-a-time relaxation strategy with paired evaluation on the same simulated datasets.",
+    "The design includes exact-null cases, increasing interaction drift, variation in ecological information, and treatment-effect heterogeneity.",
+    "The authors report an unreachable primary gate as failed, identify its noise floor, and disclose unfavorable convergence and quadrature findings.",
+    "Using a consequence-based interaction scale is more informative than presenting power only against arbitrary coefficient differences."
+  ],
+  "comments": [
+    {
+      "id": 1,
+      "severity": "major",
+      "section": "What this measures; Readings of the check",
+      "comment": "The study partly answers IDN-05, but it does not establish the power of a uniquely defined published procedure. DIC cutoffs of 2, 5, and 10, exclusion of zero by a 95% interval, and the posterior margin and equivalence rules are distinct author-defined decision rules. In particular, failure of the newly introduced equivalence rule is not evidence that the original exploratory model check was designed to affirm equivalence. The manuscript therefore measures operating characteristics of selected operationalizations in one network family, not the generic ability of the published check to validate sharing.",
+      "what_would_satisfy": "Quote the exact decision guidance in Phillippo et al., clearly distinguish published elements from new operationalizations, report the prespecified continuous discrimination measures, and restrict the title and conclusions to the evaluated rules and network designs."
+    },
+    {
+      "id": 2,
+      "severity": "major",
+      "section": "The check cannot give an all-clear; Readings of the check",
+      "comment": "The behavior of the margin rule is substantially built into the prior. If the independent treatment-specific coefficients each have a normal(0, 2.5) prior, their contrast has prior SD about 3.54. With epsilon 0.1531, the prior probability that the absolute contrast exceeds epsilon is about 0.965, already above the 0.95 firing threshold before seeing data. Conversely, only about 0.035 of the prior lies inside the equivalence region. The counterintuitive null behavior of this rule therefore demonstrates prior arithmetic combined with weak identification, not an intrinsic property of posterior margin checks.",
+      "what_would_satisfy": "Report the prior probabilities of both regions, use coherent priors parameterized directly on the common interaction and treatment contrast, evaluate priors calibrated for the chosen equivalence region, and include a sufficiently informative positive-control design in which equivalence can be established."
+    },
+    {
+      "id": 3,
+      "severity": "major",
+      "section": "The mechanism: the check is blind to the only thing that determines the harm",
+      "comment": "M1 is primarily an algebraic construction rather than an empirical simulation finding. The fitted network is reused at every displacement, so the check must be identical, while the specified interaction contrast and changing target mean make target error change with displacement. The manuscript acknowledges the first part as a bookkeeping identity but then describes M1 as confirmed and concludes that pass value depends entirely on displacement. Pass value also depends on drift prevalence, network information, baseline risk, the error threshold, and the deployment mixture.",
+      "what_would_satisfy": "Present the invariance as a derivation and implementation check, not evidential confirmation. Report conditional risks by drift and design stratum, and replace entirely with language that acknowledges the other determinants of pass value."
+    },
+    {
+      "id": 4,
+      "severity": "major",
+      "section": "Methods compared; Following the check still beats the alternatives",
+      "comment": "The analysis violates its registered fit-eligibility rule. The protocol states that a replicate is excluded if any fit has R-hat above 1.05, bulk ESS below 100, or divergences. The manuscript instead retains fully relaxed fits with R-hat as high as 1.89 and ESS as low as 3.4. DIC values and target estimates from such chains are not reliable. Retaining them can directly make always-relaxed look worse and can also corrupt check-then-relax when a failed split fit supplies the selection statistic.",
+      "what_would_satisfy": "Refit failed models with adequate iterations and tuning. Apply the registered eligibility rule for the primary analysis, then report a separate operational analysis in which computational failure receives an explicitly defined loss. Do not calculate scientific performance from demonstrably nonconverged posterior draws."
+    },
+    {
+      "id": 5,
+      "severity": "major",
+      "section": "Estimands; The data-generating mechanism; What a pass licenses",
+      "comment": "The estimand is not adequately defined when tau_re equals 0.15. The tabulated truth appears to use d_A and d_C with no realized random effects, suggesting a study-superpopulation estimand, while the fixed-effect fits estimate a weighted effect in the realized trials. On the risk scale, integrating over a random-effects distribution is also not equivalent to setting the random effect to zero. Moreover, the alleged oracle remains a fixed-effect model in these cells and therefore does not match the full data-generating truth. Its error cannot be called a pure noise floor.",
+      "what_would_satisfy": "State whether the target is conditional on the realized network, the mean conditional effect in a study superpopulation, or a marginal effect integrated over study heterogeneity. Compute truth for that same population, fit a genuinely correct random-effects oracle when heterogeneity is generated, and report tau_re strata separately. Otherwise rename the comparator an interaction-specification oracle."
+    },
+    {
+      "id": 6,
+      "severity": "major",
+      "section": "Power; Prespecified mechanism claims; Following the check still beats the alternatives",
+      "comment": "Several central claims do not respect Monte Carlo error. With 50 observations, an observed rate of 0.08 has Monte Carlo SE about 0.038 and is not an upper bound on power. Selecting the largest of eight noisy cell estimates further weakens the claim that the rule fires at most 8% of the time. M4 is estimated as 0.107 against a threshold of 0.10; with 1,600 replicates its unpaired binomial Monte Carlo SE is about 0.008, so the registered threshold is not clearly exceeded. Strategy differences of 0.005 in material-error probability at displacement 0 and 0.013 at displacement 1 also have no paired Monte Carlo intervals.",
+      "what_would_satisfy": "Increase replication near decision boundaries or provide paired Monte Carlo SEs and confidence intervals for every mechanism contrast, strategy difference, RMSE difference, and selected minimum or maximum. Classify M4 as inconclusive unless its interval excludes 0.10, and avoid interpreting per-cell extrema as population bounds."
+    },
+    {
+      "id": 7,
+      "severity": "major",
+      "section": "Checks on the machinery",
+      "comment": "Changing the quadrature grid changes 8.3% of DIC-5 verdicts and 4.2% of interval verdicts. An 8.3% numerical-instability rate is not small relative to the reported 0% to 8% DIC power at drift 0.30; it is of the same order as the headline signal. The subset, denominator, cell composition, and uncertainty are not reported, and 256 points is not shown to be a converged numerical reference.",
+      "what_would_satisfy": "Establish quadrature convergence against successively finer grids or another validated integration method, report the sensitivity sample by design cell, and base the primary results on settings for which diagnostic decisions and target estimates are numerically stable."
+    },
+    {
+      "id": 8,
+      "severity": "major",
+      "section": "Results; Prespecified decision, as evaluated",
+      "comment": "Material results disagree within the package. M2 clears its threshold in five of eight strata in the manuscript but six of eight in the evaluated decision. The manuscript's null rates are 0.0125 and 0.0925, while the evaluated decision gives 0.015 and 0.1025; the manuscript nevertheless reports their difference as 0.087, which matches the latter pair rather than its own table. Stable-factor calibration error is at most 0.058 in the manuscript but 0.099 in the evaluated decision. Convergence rates also differ. The manuscript says the null table uses 400 replicates, whereas both null covariates would supply 800 checks; the protocol mentions 720. Finally, 960 prior-sensitivity fits is unexplained and does not match eight cells times 100 replicates times four fits if all fits were repeated.",
+      "what_would_satisfy": "Produce a single audited results dataset with a flow diagram and explicit denominator for every analysis, regenerate all tables and prose from it, and reconcile every discrepancy before substantive interpretation."
+    },
+    {
+      "id": 9,
+      "severity": "major",
+      "section": "The decision boundary; Amendment record",
+      "comment": "Drift 0.15 is not exactly epsilon 0.1531. The manuscript's own truth is a risk difference of 0.0294, below the 0.03 threshold, and material error is defined using more than 0.03. Thus the amendment does not simulate the exact boundary and the statement that this violation precisely changes a decision is false. In addition, the amendment was made while the main run was underway, and the oracle comparison was not in the original registered analysis, so these results cannot be described simply as pre-run confirmation.",
+      "what_would_satisfy": "Correct the numerical and temporal descriptions, classify the amendment and oracle analyses as amended or exploratory, and either simulate drift 0.1531, interpolate with validated accuracy, or describe 0.15 as a near-boundary scenario. Independent confirmation would strengthen any headline based on the amendment."
+    },
+    {
+      "id": 10,
+      "severity": "major",
+      "section": "The verdict does not transport across the one axis that matters",
+      "comment": "The assertion that adding target displacement cannot help because displacement is absent from the check statistic is logically incorrect. A predictor can improve prediction of the outcome without changing another predictor; indeed M1 states that material-error risk changes strongly with displacement. A target-aware model should allow displacement and potentially its interaction with the statistic. The protocol prespecified such a model, but its results are absent. The prespecified AUROC analyses are also not reported.",
+      "what_would_satisfy": "Report the exact calibration models, target-aware results, grouped cross-validation that keeps repeated target evaluations together, calibration uncertainty, and all prespecified AUROCs. Investigate whether the reported no-improvement result reflects an incorrectly specified model."
+    },
+    {
+      "id": 11,
+      "severity": "major",
+      "section": "One number explains the rest",
+      "comment": "The headline data-only standard error is not defined. Removing a prior from posterior variance by subtracting precisions is exact only under restrictive Gaussian conditions and must account for covariance between treatment-specific coefficients. The table separately reports posterior SDs for A and C but does not explain how the contrast standard error of 0.30 to 1.82 was obtained or aggregated. Because the title and two-to-twelve ratio depend on this calculation, calling it prior-free without derivation is not acceptable.",
+      "what_would_satisfy": "Give the formula, covariance treatment, aggregation method, and Monte Carlo uncertainty. Validate the result using a likelihood-based calculation or a sequence of increasingly diffuse coherent priors, and title the result explicitly as applying to the simulated networks."
+    },
+    {
+      "id": 12,
+      "severity": "major",
+      "section": "Following the check still beats the alternatives; What this does not settle",
+      "comment": "The recommendation to use the check is not established by the reported comparisons. The apparent advantages are small, lack paired Monte Carlo intervals, and are contaminated by nonconverged relaxed fits. Exact deployment weights are not reported. The obvious hierarchical or exchangeable interaction strategy is omitted even though it is the proposed middle ground for IDN-05; package nonimplementation is not sufficient justification for omitting a method from a methodological simulation. The claim that all design simplifications favor the check and make failures lower bounds is also untenable: one IPD study, only three C studies in the smaller networks, fixed-effect misspecification, and coarse integration can disadvantage it, while additional IPD or richer networks could improve performance.",
+      "what_would_satisfy": "Repeat the strategy comparison using converged fits, exact deployment weights, paired uncertainty, and sensitivity by design stratum. Implement an exchangeable model independently or narrow A4 and the practical recommendation. Recast external validity as scenario-specific rather than a lower-bound argument."
+    },
+    {
+      "id": 13,
+      "severity": "minor",
+      "section": "The data-generating mechanism; Power",
+      "comment": "The statement that every replicate supplies a type I error observation for x2 conflicts with the later recognition that, when x1 drifts, an x2 term can absorb x1 misspecification. Those observations measure misattribution, not nominal type I error. Also, having only one contrast avoids contrast selection but does not guarantee nominal frequentist coverage of a Bayesian credible interval, especially under prior influence, numerical error, and fixed-effect misspecification.",
+      "what_would_satisfy": "Reserve type I error for both covariates under the global null, label x2 firing under drift as misattribution, state all denominators, and replace the nominal-coverage assertion with an empirical coverage assessment."
+    },
+    {
+      "id": 14,
+      "severity": "minor",
+      "section": "Nothing in the panel beats scrutinizing everything",
+      "comment": "Decision reversal, net benefit, and the consequences of commissioning individual data are insufficiently defined. Decision reversal is particularly ambiguous when the true C-versus-A effect is zero. Treat-all net benefit can be driven by the simulated prevalence of material error and the chosen threshold range, and commissioning IPD is implicitly treated as if it prevents the classified harm without an explicit action model.",
+      "what_would_satisfy": "Provide the decision rule, handling of ties and zero effects, net-benefit formula, deployment prevalence, action consequences, and sensitivity to the assumed benefit and cost of obtaining IPD."
+    }
+  ],
+  "citation_problems": [
+    {
+      "cite": "Phillippo et al. (2023)",
+      "problem": "The source may support comparing posterior distributions and model fit, but the manuscript has not established that DIC-5, zero exclusion by a 95% contrast interval, or a 0.95 posterior equivalence rule are the published procedure. These must be identified as new operationalizations unless the source explicitly prescribes them."
+    },
+    {
+      "cite": "Spiegelhalter et al. (2002)",
+      "problem": "This is the foundational DIC paper, but it does not by itself establish 2, 5, and 10 as validated diagnostic cutoffs for this application. The exact source and rationale for those thresholds are needed."
+    },
+    {
+      "cite": "Claims that this is the only published within-network check and that nobody has measured it",
+      "problem": "These exhaustive novelty claims are unsupported by a five-reference bibliography and do not engage the broader network meta-regression literature on common, independent, and exchangeable treatment-by-covariate interactions. A documented literature search and a narrower distinction specific to ML-NMR population adjustment are required."
+    },
+    {
+      "cite": "Phillippo (2025), multinma software citation",
+      "problem": "A generic Zenodo software citation does not substantiate behavior attributed to the development version 0.9.1.9002, including silent demotion of .trt terms and the unsupported exchangeable option. Cite the exact version or commit, documentation, and a reproducible example."
+    },
+    {
+      "cite": "Decision-curve analysis",
+      "problem": "The analysis has no methodological citation and does not state the assumptions under which material error is treated as the event and commissioning IPD as the action. Foundational and current decision-curve guidance should be cited."
+    }
+  ],
+  "conclusions_supported": false,
+  "unsupported_claims": [
+    "“A network resolves the difference between two treatments’ effect modifiers to between two and twelve times the difference that would change a decision.”",
+    "“Against a violation already twice the size that matters, the check fires in at most eight analyses in a hundred.”",
+    "“The procedure can decline to raise an alarm; it cannot give an all-clear.”",
+    "“Registered mechanism claim M4 is confirmed.”",
+    "“This is the violation that exactly matters.”",
+    "“At the size of violation that precisely changes a decision, the check is silent.”",
+    "“Adding the target displacement to the mapping does not help, because displacement does not enter the statistic at all.”",
+    "“Following the check and relaxing exactly what it fires on had the lowest error of the three strategies at every displacement. It is worth running.”",
+    "“The effect is small beside the resolution problem.”",
+    "“The design is a best case in several ways that all favour the check, and the failures reported here are therefore lower bounds on the failures in practice.”",
+    "“What a pass is worth depends entirely on how far the target sits from the network.”"
+  ]
+}
