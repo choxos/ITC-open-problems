@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """Peer review for the study program, run like a journal rather than a checklist.
 
-Two independent reviewers, two rounds, and the whole exchange published beside
-the manuscript: reports, author responses, and what changed between rounds. A
-review that nobody can read is an assertion that review happened.
+Independent reviewers, two rounds, and the whole exchange published beside the
+manuscript: reports, author responses, and what changed between rounds. A review
+that nobody can read is an assertion that review happened.
 
-The two reviewers are different model families on purpose. They fail in
+The reviewers are different model families on purpose. They fail in
 different ways, and a criticism both raise independently is worth more than one
 raised twice by the same model. Where a reviewer is unavailable that is recorded
 in the published record as an unavailable reviewer, never quietly dropped: a
@@ -361,7 +361,8 @@ def publish(slug):
          f"Study aimed at catalog problem **{meta['problem_id']}**"
          + (f", also bearing on {', '.join(meta.get('also_bears_on') or [])}"
             if meta.get("also_bears_on") else "") + ".", "",
-         "Two independent reviewers, two rounds. Reports, author responses and the",
+         f"{len([c for c in REVIEWERS.values() if not c.get('optional')])} independent "
+         "reviewers, two rounds. Reports, author responses and the",
          "editorial decision are reproduced in full and unedited. Reviewers were",
          "given the manuscript, the protocol registered before the run, and the",
          "prespecified decision as evaluated; in round two they additionally saw",

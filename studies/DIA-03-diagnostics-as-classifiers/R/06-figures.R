@@ -27,10 +27,12 @@ cells$channel <- with(cells, ifelse(omit == 0 & joint == 0, "neither",
 cells$channel <- factor(cells$channel,
                         c("neither", "omitted modifier", "cross-moment", "both"))
 p1 <- ggplot(cells, aes(ess, material, color = channel, size = w_deploy)) +
-  annotate("rect", xmin = -Inf, xmax = 35, ymin = -Inf, ymax = Inf,
-           fill = "grey88", alpha = 0.8) +
-  annotate("text", x = 35, y = 1.02, label = "  ESS < 35 fires", hjust = 0,
-           size = 3, color = "grey35") +
+  annotate("rect", xmin = 0, xmax = 35, ymin = -Inf, ymax = Inf,
+           fill = "grey80", alpha = 0.55) +
+  annotate("segment", x = 35, xend = 35, y = -Inf, yend = Inf,
+           linetype = 2, linewidth = 0.4, color = "grey30") +
+  annotate("text", x = 37, y = 0.02, label = "ESS < 35 fires to the left",
+           hjust = 0, size = 3, color = "grey30") +
   geom_point(alpha = 0.85) +
   scale_x_log10(breaks = c(5, 10, 20, 35, 70, 150, 350, 800)) +
   scale_size_continuous(range = c(1, 4.5), guide = "none") +
@@ -40,7 +42,7 @@ p1 <- ggplot(cells, aes(ess, material, color = channel, size = w_deploy)) +
   labs(x = "median effective sample size in the cell (log scale)",
        y = "rate of material error",
        title = "The same effective sample size means different things",
-       subtitle = "One point per design cell; point size is its deployment weight. A rule reading only the horizontal axis cannot separate the colors.")
+       subtitle = "One point per design cell, sized by deployment weight.\nA rule reading only the horizontal axis cannot separate the colors.")
 ggsave(file.path(FIG, "fig1-ess-vs-error.png"), p1, width = 8, height = 4.6, dpi = 200)
 
 ## 2. ROC curves, against total realized error and against the transport component

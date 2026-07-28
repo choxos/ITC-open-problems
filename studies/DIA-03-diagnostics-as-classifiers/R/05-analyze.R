@@ -120,11 +120,16 @@ wauc <- function(score, event, w) {
   s <- score[o]; e <- event[o]; ww <- w[o]
   ctrl <- ww * (!e)
   cum <- cumsum(ctrl)
-  ## Control weight strictly below, and tied, for each position.
-  g <- match(s, unique(s))
-  tot_by <- as.vector(tapply(ctrl, g, sum))
-  below <- c(0, cumsum(tot_by))[g]
-  tied <- tot_by[g]
+  ## Control weight strictly below each score, and tied with it. Done with run
+  ## boundaries on the sorted vector rather than a split-apply, which on half a
+  ## million rows and a hundred bootstrap resamples is the difference between
+  ## seconds and half an hour.
+  g <- cumsum(c(TRUE, diff(s) != 0))
+  end_i <- which(!duplicated(g, fromLast = TRUE))
+  tot_end <- cum[end_i]
+  tot_start <- c(0, tot_end[-length(tot_end)])
+  below <- tot_start[g]
+  tied <- (tot_end - tot_start)[g]
   num <- sum(ww[e] * (below[e] + 0.5 * tied[e]))
   W1 <- sum(ww[e]); W0 <- sum(ctrl)
   if (W1 <= 0 || W0 <= 0) return(NA_real_)

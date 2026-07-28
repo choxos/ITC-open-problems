@@ -77,8 +77,8 @@ against the part it has a claim on rather than only against the part it does not
 design has `r nrow(cells)` cells crossing an omitted effect modifier, a cross-moment
 modifier that no baseline table could ever reveal, overlap, source size, how correlated the
 omitted modifier is with the adjustment set, and a target dispersion ratio that destroys
-effective sample size while adding no bias at all. `r format(n_rep, big.mark=",")`
-replicates per cell, four estimators.
+effective sample size while adding no bias wherever the modifier structure is correctly
+specified. `r format(n_rep, big.mark=",")` replicates per cell, four estimators.
 
 The prespecified verdict is **`r verdict`**. Reading the panel is not reading a warning
 about bias: effective sample size separates the noise component at AUROC
@@ -276,13 +276,24 @@ knitr::kable(data.frame(
 Discrimination is not zero. Nothing here is uninformative in the sense of being independent
 of error. But the ordering in the last two columns is the answer to what the panel is
 measuring: every weight-based statistic reads the noise channel better than the transport
-channel, and the gap for effective sample size is `r f3(d("ess","auc_noise") - d("ess","auc_transport"))`.
-That is the sense in which a variance statistic is being read as a bias warning.
+channel, and the gap for effective sample size is
+`r f3(d("ess","auc_noise") - d("ess","auc_transport"))`. That is the sense in which a
+variance statistic is being read as a bias warning.
 
-The oracle row is there to separate two different failures. The cross-moment oracle uses the
-target's true $\mathbb{E}[X_1X_2]$, which no baseline table reports, and reaches
-`r f3(d("orc_cross","auc_transport"))` against transport error. Where it beats everything
-computable, the information is missing, not the statistic.
+The oracle row separates two different failures. The cross-moment oracle uses the target's
+true $\mathbb{E}[X_1X_2]$, which no baseline table reports, and reaches
+`r f3(d("orc_cross","auc_transport"))` against transport error while everything computable
+sits near `r f3(max(disc$auc_transport[disc$diagnostic %in% routine]))`. Where the oracle
+wins, the information is missing rather than the statistic being the wrong function of it.
+
+One row needs a warning label. The balance statistic on the matched moments shows AUROC
+`r f3(d("smd_matched","auc_deploy"))`, which is not 0.5 and might be read as weak signal. It
+is not. That statistic never exceeded
+`r formatC(max(red$smd_matched_max), format="e", digits=1)` anywhere in the run: what is
+being ranked is floating-point residual from the calibration solver, and the residual is
+larger in cells where the equations were harder to solve, which are also harder cells. The
+apparent discrimination is discrimination of arithmetic difficulty. Scoring a statistic that
+is identically zero produces a number, and the number means nothing.
 
 ## The panel is smaller than it looks {#sec-redundancy}
 
@@ -317,11 +328,40 @@ knitr::kable(data.frame(
   check.names = FALSE), align = c("l", rep("r", 4)))
 ```
 
+The weight-dispersion statistics calibrate tolerably across cells they have not seen:
+effective sample size has intercept `r f3(cal$cal_intercept[cal$diagnostic=="ess"])` and
+slope `r f3(cal$cal_slope[cal$diagnostic=="ess"])`, with an integrated calibration error of
+`r f3(cal$ice[cal$diagnostic=="ess"])`. The overlap statistics do not: the pre-weighting
+imbalance mapping carries an error of `r f3(cal$ice[cal$diagnostic=="smd_pre"])` on new
+cells against `r f3(cal$ice_same_cells[cal$diagnostic=="smd_pre"])` when refitted on the
+cells it is scored in, so nearly half of its apparent calibration is memory of the setting.
+That gap is the reason the split is across cells rather than across replicates, and an
+adversarial review of the design is the reason it is.
+
 ## Is acting on the warning better than not acting? {#sec-dca}
 
 Net benefit relative to flagging nothing, over a range of threshold probabilities at which
 an analyst would act [@vickers2006]. A rule earns its place only above both flagging
 nothing and flagging everything.
+
+```{r}
+#| label: tbl-dca
+#| tbl-cap: "Net benefit relative to flagging nothing, under the deployment weights."
+sel <- c("pt", "flag_none", "flag_all", "ess", "ess_pct", "smd_pre", "maha", "bias_hat")
+nm <- c("action threshold", "flag nothing", "flag everything", "ESS < 35", "ESS < 50%",
+        "imbalance > 0.25", "Mahalanobis > 1", "estimated bias > 0.10")
+tt <- dca[, sel]; names(tt) <- nm
+knitr::kable(tt, digits = 3, align = rep("r", ncol(tt)))
+```
+
+Every rule in the panel is beaten by flagging everything at action thresholds up to
+`r f3(max(dca$pt[dca$flag_all > apply(dca[, c("ess","ess_pct","smd_pre","maha","bias_hat")], 1, max)]))`.
+An analyst who would act on a `r pct(min(dca$pt))` chance of material error does better
+scrutinizing every population adjustment than reading any of these numbers. Only once the
+action threshold reaches `r f3(min(dca$pt[dca$flag_all < dca$ess_pct]))`, meaning the analyst
+will only intervene when material error is at least that likely, does a diagnostic earn its
+place, and the one that does it is the relative effective-sample-size rule rather than the
+absolute one that gets quoted.
 
 ![](../results/figures/fig5-decision-curve.png)
 
@@ -340,7 +380,30 @@ knitr::kable(data.frame(
   row.names = NULL), align = c("l", "c", "l"))
 ```
 
-![](../results/figures/fig1-ess-vs-error.png)
+Two of the four hold and two do not, and the two that do not are reported as they were
+registered rather than adjusted until they did.
+
+**The threshold-transportability claim failed as written, and the complementary quantity is
+the interesting one.** We registered a span of at least 0.30 in the material-error rate
+across the cells the rule *flags*. The observed span is
+`r f3(diff(range(cells$material[cells$fires_ess35 >= 0.5])))`, and the reason is visible in
+@fig-ess: the flagged cells are all in the low-effective-sample-size region where almost
+everything is wrong, so there is little room for a spread. The cells the rule is **silent**
+on are where a spread matters, because silence is what an analyst acts on, and there the
+material-error rate runs from
+`r f3(min(cells$material[cells$fires_ess35 <= 0.01]))` to
+`r f3(max(cells$material[cells$fires_ess35 <= 0.01]))`, a span of
+`r f3(diff(range(cells$material[cells$fires_ess35 <= 0.01])))` across
+`r sum(cells$fires_ess35 <= 0.01)` cells. That is a stronger result than the one registered
+and it was not prespecified, so it is reported as an observation and not as a passed test.
+
+**The proposal missed its bar too.** Registered at a gain of at least 0.10 in area under the
+ROC curve against the transport component in the diagnosable stratum; observed
+`r f3(MECH$bias_hat_helps$proposed)` against `r f3(MECH$bias_hat_helps$routine)`, a gain of
+`r f3(MECH$bias_hat_helps$proposed - MECH$bias_hat_helps$routine)`. It is a real improvement
+and it is not the one we said would count.
+
+![](../results/figures/fig1-ess-vs-error.png){#fig-ess}
 
 ![](../results/figures/fig3-components.png)
 
@@ -358,6 +421,25 @@ knitr::kable(data.frame(
   coverage = f3(other$coverage), check.names = FALSE, row.names = NULL),
   align = c("l", "l", rep("r", 5)))
 ```
+
+The unadjusted comparison is the control that explains the rest of the paper. Its
+pre-weighting imbalance statistic predicts its own transport error at AUROC
+`r f3(other$auc_transport[other$method=="unadj" & other$diagnostic=="smd_pre"])`, against
+`r f3(d("smd_pre","auc_transport"))` for the same statistic applied to MAIC. The statistic
+is not weak. It is an excellent measure of the gap between the two populations, and the gap
+between the two populations is exactly the error of an estimator that does nothing about it.
+Once weighting has closed those gaps, the statistic is measuring something that has been
+removed, and what remains is the part of the modifier structure the weights never touched.
+The diagnostic is informative about the problem and uninformative about the solution.
+
+Means-only MAIC is worth a line for the same reason. It carries a median effective sample
+size of `r f3(other$median_ess[other$method=="maic_mean"][1])` against
+`r f3(median(cells$ess))` for the version that also matches standard deviations, and a lower
+material-error rate,
+`r f3(other$material[other$method=="maic_mean"][1])` against `r f3(prev)`. Calibrating
+second moments that the modifier structure does not use costs effective sample size and buys
+nothing here. A reader should not generalize that: with a modifier that is nonlinear in the
+covariates, those moments would matter.
 
 # What this answers, and what it does not {#sec-scope}
 
