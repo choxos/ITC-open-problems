@@ -1,0 +1,2274 @@
+You are peer reviewing a manuscript for a methodological journal in
+evidence synthesis. Review it as you would for Statistics in Medicine or
+Research Synthesis Methods.
+
+Answer from the manuscript and your own knowledge of this literature. Do not use
+tools, do not spawn sub-agents, do not load skills.
+
+The manuscript reports a simulation study aimed at a specific open problem in a
+public catalog. It is accompanied by a protocol that was registered before the
+run. Both are given to you in full.
+
+## What to review
+
+**Does the study answer the problem it claims to answer?** The most common fatal
+flaw in this area is a study that is internally sound and measures a
+neighbouring question. Compare the aims to the stated problem.
+
+**Is the finding built into the data-generating mechanism?** If the mechanism
+makes the studied effect true by construction, the study demonstrates arithmetic.
+Say which parameter choice does this, if any.
+
+**Are the estimands right?** In population adjustment the usual errors are
+conflating conditional with marginal effects, conflating a realized sample with
+a superpopulation, and computing a truth for a different population than the
+estimator targets.
+
+**Is the comparison fair?** A status quo given a worse variance estimator than
+the proposal is a rigged comparison.
+
+**Are the conclusions supported by the numbers reported?** Check that every claim
+in the abstract and discussion is licensed by a result in the paper, and that
+Monte Carlo error is respected: a difference smaller than its Monte Carlo
+standard error is not a finding.
+
+**Are the stated limitations the real ones?** A limitations section that lists
+easy limitations while omitting the one that threatens the conclusion is worse
+than none.
+
+**Citations.** Flag any work attributed to the wrong authors, any citation that
+does not say what the manuscript claims, and any claim of novelty that ignores
+existing work you know of.
+
+Reward what is done well. A review that finds everything fatal is not a review.
+Reserve `reject` for a study whose question or design cannot be repaired.
+
+## Output
+
+Reply with JSON only, no prose before or after.
+
+{"recommendation":"accept|minor-revision|major-revision|reject",
+ "summary":"three to five sentences: what the paper does and whether it succeeds",
+ "strengths":["..."],
+ "comments":[{"id":1,"severity":"major|minor","section":"...","comment":"...",
+   "what_would_satisfy":"the specific change or evidence that would resolve this"}],
+ "citation_problems":[{"cite":"...","problem":"..."}],
+ "conclusions_supported":true,
+ "unsupported_claims":["quote any claim the results do not license"]}
+
+## This is round two
+
+You are reviewing a REVISED manuscript. You are given the round-one reports from
+both reviewers, the authors' point-by-point response, and the revised paper.
+
+Judge the revision. For each round-one point that was addressed to you, say
+whether the response is adequate. Authors are allowed to disagree with a
+reviewer and say why; a reasoned refusal is a legitimate response and should be
+judged on its reasoning, not on whether they complied. What is not legitimate is
+a response that claims a change was made when the manuscript does not show it,
+so check the text against the claim.
+
+Add `"round1_resolution"` to your JSON: a list of
+{"reviewer":"...","id":N,"resolved":"yes|partly|no","note":"..."} covering each
+round-one major comment.
+
+
+PACKAGE:
+
+# MANUSCRIPT UNDER REVIEW
+
+# Effective sample size is a variance statistic being read as a bias
+warning
+Ahmad Sofi-Mahmudi
+2026-07-27
+
+# Abstract
+
+Population-adjusted indirect comparisons are conventionally reported
+with a panel of numbers beside them: the effective sample size after
+weighting, the same figure as a percentage, the largest individual
+weight, standardized differences before and after adjustment. These
+conventions come from the NICE DSU guidance on population adjustment
+([1](#ref-phillippo2018)) and, for the overlap statistics, from the
+transportability literature ([2](#ref-stuart2011),[3](#ref-tipton2014)).
+A simulation reported at ISPOR Europe 2024 found bias in unanchored MAIC
+once absolute effective sample size fell below roughly 30 to 35
+([4](#ref-msr65)), and that region is now widely quoted informally as a
+cutoff. We have not surveyed how appraisal committees actually use these
+numbers, and this paper makes no claim about that. What a structured
+audit of an open-problem catalog did establish is that no published work
+scores any of them as a classifier of realized error, with
+discrimination and calibration, against a known truth.
+
+We do that. The design is an anchored indirect comparison with a
+continuous outcome and an identity link, chosen because on that scale
+the realized error of a linear estimator splits **exactly** into three
+pieces: chance covariate imbalance between the source arms, transport
+error, and outcome noise. Transport error is the only piece a covariate
+diagnostic could know about before an outcome is seen, so a diagnostic
+can be scored against the part it has a claim on rather than only
+against the part it does not. The design has 128 cells crossing an
+omitted effect modifier, a cross-moment modifier that no baseline table
+could ever reveal, overlap, source size, how correlated the omitted
+modifier is with the adjustment set, and a target dispersion ratio that
+destroys effective sample size while adding no bias wherever the
+modifier structure is correctly specified. 4,000 replicates per cell,
+four estimators.
+
+The prespecified verdict is that **no evaluated fixed cutoff met the
+registered operating requirements**, sensitivity 0.80 at specificity
+0.50 in every misspecification stratum. Effective sample size below 35
+reaches sensitivity 0.309 at specificity 0.926 where an effect modifier
+is omitted and the omission is diagnosable in principle. The panel is
+not uninformative; what it is informative about is the wrong thing.
+Effective sample size separates the two components that are functions of
+covariates, assignment and weights at 0.847 and 0.813, and the transport
+component, which is what adjustment exists to remove, at 0.653.
+
+Three of the panel’s members are one statistic written three ways,
+because $\mathrm{ESS}/n = 1/(1+\mathrm{CV}^2(w))$ exactly
+([5](#ref-kish1965)) and area under the ROC curve is invariant to
+monotone transformation; a fourth, the post-weighting balance on the
+matched moments, is zero at the solution of the calibration equations
+and among converged analyses cannot discriminate anything. Where the
+bias is an omitted modifier the target reports, checking balance on the
+covariate that was measured and not matched reaches 0.946 against the
+transport component; where the bias sits in a cross-moment no baseline
+table reports, nothing computable and no oracle we could construct
+exceeds 0.648. Two of four registered mechanism claims failed, including
+one of our own proposals, and both failures are reported as failures.
+
+# What the audit left open
+
+The catalog entry DIA-03 originally said that whether
+population-adjustment diagnostics predict error “has never been
+quantified”. Two independent auditors judged that too strong, and they
+were right. An ISPOR Europe 2024 simulation reported bias in unanchored
+MAIC once absolute effective sample size fell below roughly 30 to 35
+([4](#ref-msr65)), and Remiro-Azócar, Heath and Baio tied small
+effective sample size to underestimation of variability by the robust
+sandwich variance estimator ([6](#ref-remiroazocar2021)). What survived
+the audit is narrower:
+
+> Neither treats a diagnostic as a classifier with discrimination and
+> calibration against known truth.
+
+One auditor added the objection that turns this from a complaint into a
+research question. Computing a diagnostic from the fitted data does not
+logically prevent it from predicting error. Sensitivity, specificity and
+calibration are defined only relative to a specified distribution of
+analyses and a prespecified threshold for material error; they are not
+intrinsic properties of a statistic. That is why the field has no
+numbers: nobody has written the distribution down. This study writes one
+down in advance, and reports everything twice, once under it and once
+with all cells weighted equally.
+
+It also reports the primary results **within** strata of
+misspecification rather than over a mixture of them, which removes the
+dependence on our chosen frequencies entirely. That change came from an
+adversarial critique of this design, before the run.
+
+# What a covariate diagnostic could possibly know
+
+Write the source trial’s outcome as
+$Y_i = f(X_i) + \mathbb{1}(A_i)\{d_A + g_A(X_i)\} + \varepsilon_i$ with
+$\varepsilon_i \sim N(0, \sigma^2)$, and let the estimand be the
+transported effect in the target superpopulation,
+$\theta_{AC}(T) = d_A + \mathbb{E}_T\{g_A(X)\}$. The identity link does
+not make the heterogeneous conditional effect equal to the marginal one;
+what it buys is the absence of non-collapsibility, so the marginal
+effect is exactly the average of the conditional effects over the target
+covariate distribution.
+
+MAIC, STC and the unadjusted comparison are all **linear in the outcome
+vector** for a fixed design: each is $\hat\theta = L(Y)$ for some linear
+functional $L$. For MAIC,
+$L(y) = \sum_{i \in A} w_i y_i / \sum_{i \in A} w_i - \sum_{i \in C} w_i y_i / \sum_{i \in C} w_i$;
+for STC, $L(y) = a^\top y$ with $a = M(M^\top M)^{-1} e_A$. Applying the
+same $L$ to each piece of $\mathbb{E}[Y \mid X, A]$ gives an identity,
+not an approximation:
+
+$$\underbrace{\hat\theta - \theta_{AC}(T)}_{\text{realized error}}
+= \underbrace{L(f)}_{\text{arm imbalance}}
+\;+\; \underbrace{L\big(\mathbb{1}(A)\{d_A + g_A\}\big) - \theta_{AC}(T)}_{\text{transport error}}
+\;+\; \underbrace{L(Y) - L\big(\mathbb{E}[Y \mid X, A]\big)}_{\text{outcome noise}}.$$
+
+**Only the middle term is what adjustment exists to remove.** The first
+is chance covariate imbalance between the source arms, which
+randomization makes mean-zero but not zero in any one trial. The third
+is sampling error in the outcomes. The identity holds per replicate; we
+verified it numerically to $3 \times 10^{-14}$ before the run.
+
+An earlier version of this manuscript claimed that the middle term is
+the only one knowable from covariates. All three reviewers of the first
+round said that is wrong, and it is. The correction matters enough to
+state precisely, because it changes what the headline number means.
+
+**The arm-imbalance term uses no outcome at all.** $L(f)$ applies the
+estimator’s linear functional to the prognostic index, which is a
+function of the realized covariates, the treatment assignment and the
+weights. It is therefore diagnosable in principle from exactly the
+information the panel has. It is now scored like the other two.
+
+**The noise term’s variance is a known function of the weights.** For
+MAIC,
+
+$$\mathrm{Var}\{L(\varepsilon) \mid X, A, w\}
+= \sigma^2\left(\frac{\sum_{i \in A} w_i^2}{(\sum_{i \in A} w_i)^2}
++ \frac{\sum_{i \in C} w_i^2}{(\sum_{i \in C} w_i)^2}\right)
+= \sigma^2\left(\frac{1}{\mathrm{ESS}_A} + \frac{1}{\mathrm{ESS}_C}\right),$$
+
+with arm-specific effective sample sizes. So a statistic built from the
+weights is not merely correlated with the noise channel, it is the
+natural sufficient summary of it. This is not quite the identity it
+looks like for the reported number: submissions report the **pooled**
+effective sample size, and $2\sigma^2/\mathrm{ESS}_{\text{pooled}}$ is
+about half the correct value in a representative cell of this design,
+correlating with the exact noise standard deviation at $-0.92$ on the
+log scale rather than at $-1$. But it is close enough that a high area
+under the ROC curve against the noise channel should be read as a check
+on the arithmetic and not as an empirical discovery.
+
+**What survives, and it is the point of the paper.** Two of the three
+components are functions of covariates, treatment assignment and weights
+alone; the panel is built out of those same ingredients, and it tracks
+both of them well. The third, transport error, is the one covariate
+adjustment exists to remove, and it is the one the panel tracks poorly.
+That comparison is not arithmetic: nothing forces a weight-dispersion
+statistic to be uninformative about the gap between a weighted source
+and a target, and where the modifier structure is correctly specified it
+is in fact highly informative. What it cannot see is the part of the
+modifier structure the weights never touched.
+
+# Two facts that algebra settles before any data exist
+
+The panel is smaller than it appears.
+
+**Effective sample size, effective sample size as a percentage, and the
+coefficient of variation of the weights are one statistic.** With
+$\bar w$ the mean weight and $s^2$ the population variance of the
+weights,
+
+$$\frac{\mathrm{ESS}}{n} = \frac{\left(\sum_i w_i\right)^2}{n \sum_i w_i^2}
+= \frac{n^2 \bar w^2}{n \cdot n\left(s^2 + \bar w^2\right)}
+= \frac{\bar w^2}{s^2 + \bar w^2} = \frac{1}{1 + \mathrm{CV}^2(w)}.$$
+
+Area under the ROC curve depends on the score only through its ranks, so
+a strictly monotone transformation cannot change it. Within a fixed
+source size the three therefore have **identical** discrimination as a
+matter of arithmetic. Across sizes they differ, because $n$ varies. A
+submission that reports all three is reporting one number three times
+and calling it triangulation.
+
+**The post-weighting standardized difference on the matched moments is
+zero.** The MAIC calibration equations are
+$\sum_i w_i\{h(X_i) - m_T\} = 0$; the balance statistic is that
+expression divided by a standard deviation. It is set to zero by the
+thing being reported as evidence that it worked. In this run it never
+exceeded 1.4e-14.
+
+Both are checked in the results rather than assumed, because the check
+is a test of the implementation.
+
+# Design
+
+The full protocol was registered before the run and follows ADEMP
+([7](#ref-morris2019)). What matters for reading the results:
+
+**Four estimators.** MAIC calibrating the target’s means and standard
+deviations of the adjustment set; MAIC calibrating means only; STC with
+a heteroskedasticity-consistent variance ([8](#ref-mackinnon1985)); and
+no adjustment at all. All adjust for the same three covariates, so when
+a modifier is omitted they are misspecified in the same way. MAIC’s
+variance is the M-estimation sandwich over the stacked calibration and
+arm-mean equations ([9](#ref-stefanski2002)).
+
+**Three bias channels, differing in whether anything could see them.**
+An omitted effect modifier $X_4$, which the source data can estimate an
+interaction for and a baseline table may report a mean for, so it is
+diagnosable in principle. A cross-moment term in $X_1 X_2$ with source
+and target correlations of 0.30 and 0.70, which no marginal balance
+statistic can see and which no baseline table reports. And
+extrapolation, which moves effective sample size and bias together and
+is what gives effective sample size its only real chance.
+
+**The factor that makes the study falsifiable.** The target’s covariate
+standard deviations are either equal to the source’s or 25% larger.
+Matching second moments to a more dispersed target destroys effective
+sample size while adding no bias in the well-specified stratum, because
+the modifier is linear in the adjustment set and its mean is matched
+either way. Without it, every low-effective-sample-size cell would also
+be a poor-overlap cell, and a variance statistic would look like a bias
+statistic because the design never separated the two.
+
+**The reference, and what is scored.** Material error means
+$\lvert\hat\theta_{AC} - \theta_{AC}(T)\rvert > 0.20$: the error in the
+**transported $A$ versus $C$ effect**, not in the anchored $A$ versus
+$B$ contrast. That is deliberate, because the anchored contrast
+additionally carries the target trial’s own sampling error, which no
+source-side diagnostic has any information about, and including it would
+depress every discrimination measure by a common amount. It gives the
+panel the most favorable version of the question. Two reviewers pointed
+out that calling the design anchored while scoring only the transported
+component is not licensed, and they are right; the anchored contrast is
+now reported alongside throughout, and the conclusions are the same.
+
+0.20 is a fifth of the **residual** standard deviation. It is not a
+fifth of the marginal outcome standard deviation, which also contains
+the prognostic index and runs from 1.37 to 1.66 across the design; an
+earlier version of this manuscript said outcome standard deviation and
+was corrected in review. Results at 0.10 and 0.30 are reported. No
+diagnostic enters the definition of the reference.
+
+**Scale.** 128 cells, 4,000 replicates each, four estimators. MAIC found
+a solution on 99.3% of replicates; the rest are reported per cell rather
+than dropped silently.
+
+# Results
+
+## The panel at the thresholds in use
+
+<div id="tbl-primary">
+
+Table 1: Sensitivity and specificity for material error, within each
+misspecification stratum, cells weighted equally inside a stratum. Monte
+Carlo standard errors in brackets.
+
+<div class="cell-output-display">
+
+| diagnostic (sensitivity / specificity) | well.specified | omitted.modifier | cross.moment | both |
+|:---|:--:|:--:|:--:|:--:|
+| ESS | 0.326 / 0.923 | 0.309 / 0.926 | 0.265 / 0.918 | 0.251 / 0.915 |
+| ESS % | 0.742 / 0.623 | 0.735 / 0.654 | 0.649 / 0.607 | 0.642 / 0.633 |
+| largest weight | 0.350 / 0.919 | 0.332 / 0.920 | 0.285 / 0.913 | 0.269 / 0.909 |
+| balance, matched moments | 0.000 / 1.000 | 0.000 / 1.000 | 0.000 / 1.000 | 0.000 / 1.000 |
+| imbalance before weighting | 0.822 / 0.408 | 0.823 / 0.431 | 0.767 / 0.403 | 0.771 / 0.440 |
+| Mahalanobis distance | 0.656 / 0.692 | 0.652 / 0.721 | 0.570 / 0.683 | 0.564 / 0.707 |
+| balance, unmatched covariate | 0.559 / 0.610 | 0.571 / 0.639 | 0.520 / 0.608 | 0.543 / 0.681 |
+| estimated bias (proposed) | 0.099 / 0.962 | 0.393 / 0.807 | 0.091 / 0.957 | 0.358 / 0.827 |
+
+</div>
+
+</div>
+
+The prespecified bar was sensitivity at least 0.80 with specificity at
+least 0.50 in every stratum, lower Monte Carlo limits above both. No
+rule met it.
+
+In the omitted-modifier stratum, which is where a diagnostic has both
+something to find and the information with which to find it, the
+published cutoff reaches sensitivity 0.309 (0.001) at specificity 0.926.
+Two members of the panel reach high sensitivity by firing on nearly
+everything: the pre-weighting imbalance rule fires on 70.6% of analyses
+in that stratum and the unmatched-balance rule on 47.4%. A rule that
+warns about almost every analysis is not a classifier, and its
+specificity says so: 0.431 and 0.639.
+
+Replicates on which MAIC had no solution: 3,747. Those replicates are
+excluded from every operating point above, because an analysis that does
+not exist has no realized error to classify. Bracketing the primary
+rule’s sensitivity by counting every one of them as a caught failure,
+then as a missed one, gives 0.285 and 0.273. The bracket is over the
+whole design with cells weighted equally, not within the
+omitted-modifier stratum, and it moves the figure by less than a
+percentage point either way because MAIC found a solution on 99.3% of
+replicates.
+
+## The statistics carry information the thresholds do not use
+
+<div id="tbl-auc">
+
+Table 2: Discrimination under the declared deployment distribution. The
+last two columns are the point of the study: which component of the
+realized error does each statistic actually track?
+
+<div class="cell-output-display">
+
+|  | diagnostic | AUROC | AUPRC | vs outcome noise | vs transport error |
+|:---|:---|---:|---:|---:|---:|
+| ess | ESS | 0.731 (0.001) | 0.707 | 0.847 | 0.653 |
+| ess_pct | ESS % | 0.723 (0.001) | 0.698 | 0.813 | 0.667 |
+| cv_w | CV(w) | 0.723 (0.001) | 0.698 | 0.813 | 0.667 |
+| max_w | largest weight | 0.741 (0.001) | 0.716 | 0.833 | 0.660 |
+| smd_matched | balance, matched moments | 0.550 (0.001) | 0.509 | 0.571 | 0.538 |
+| smd_pre | imbalance before weighting | 0.683 (0.001) | 0.671 | 0.799 | 0.655 |
+| maha | Mahalanobis distance | 0.682 (0.001) | 0.669 | 0.796 | 0.656 |
+| smd_unmatched | balance, unmatched covariate | 0.606 (0.001) | 0.592 | 0.663 | 0.665 |
+| bias_hat | estimated bias (proposed) | 0.604 (0.001) | 0.591 | 0.643 | 0.684 |
+| orc_cross | oracle: cross-moment | 0.581 (0.001) | 0.551 | 0.505 | 0.809 |
+
+</div>
+
+</div>
+
+<div id="tbl-components">
+
+Table 3: All three components of the realized error, the other two
+material thresholds, equal cell weights, and the anchored contrast. The
+first column is new since round one of review: the arm-imbalance
+component uses no outcome and is therefore diagnosable in principle from
+exactly the information the panel has.
+
+<div class="cell-output-display">
+
+|  | diagnostic | vs arm imbalance | vs transport | vs noise | equal weights | material 0.10 | material 0.30 | anchored |
+|:---|:---|---:|---:|---:|---:|---:|---:|---:|
+| ess | ESS | 0.813 | 0.653 | 0.847 | 0.721 | 0.683 | 0.779 | 0.699 |
+| ess_pct | ESS % | 0.807 | 0.667 | 0.813 | 0.717 | 0.675 | 0.770 | 0.692 |
+| cv_w | CV(w) | 0.807 | 0.667 | 0.813 | 0.717 | 0.675 | 0.770 | 0.692 |
+| max_w | largest weight | 0.837 | 0.660 | 0.833 | 0.729 | 0.690 | 0.791 | 0.708 |
+| smd_matched | balance, matched moments | 0.583 | 0.538 | 0.571 | 0.557 | 0.537 | 0.564 | 0.544 |
+| smd_pre | imbalance before weighting | 0.739 | 0.655 | 0.799 | 0.690 | 0.641 | 0.728 | 0.658 |
+| maha | Mahalanobis distance | 0.737 | 0.656 | 0.796 | 0.690 | 0.640 | 0.726 | 0.657 |
+| smd_unmatched | balance, unmatched covariate | 0.615 | 0.665 | 0.663 | 0.623 | 0.583 | 0.629 | 0.590 |
+| bias_hat | estimated bias (proposed) | 0.603 | 0.684 | 0.643 | 0.619 | 0.582 | 0.625 | 0.588 |
+| orc_cross | oracle: cross-moment | 0.502 | 0.809 | 0.505 | 0.586 | 0.577 | 0.576 | 0.566 |
+
+</div>
+
+</div>
+
+Discrimination is not zero. Nothing here is uninformative in the sense
+of being independent of error. The pattern across components is the
+answer to what the panel is measuring. Effective sample size reaches
+0.847 against the noise channel and 0.813 against the arm-imbalance
+channel, which are the two components that are functions of covariates,
+assignment and weights; against the transport component, which is what
+adjustment exists to remove, it reaches 0.653. The first of those
+numbers is close to arithmetic for the reason given in
+<a href="#sec-decomposition" class="quarto-xref">Section 2</a>. The
+second is not, and the third is not. A statistic that reads two channels
+at above 0.80 and the third at 0.653 is a variance statistic, and it is
+being read as a bias warning.
+
+The conclusion does not depend on the material threshold: at 0.10 and
+0.30 the ordering is unchanged, and it survives the switch from the
+declared mixture to equal cell weights and the switch from the
+transported component to the anchored contrast a submission reports.
+
+The oracle row separates two different failures. The cross-moment oracle
+uses the target’s true $\mathbb{E}[X_1X_2]$, which no baseline table
+reports, and reaches 0.809 against transport error while everything
+computable sits near 0.667. Where the oracle wins, the information is
+missing rather than the statistic being the wrong function of it.
+
+One row needs a warning label. The balance statistic on the matched
+moments shows AUROC 0.550, which is not 0.5 and might be read as weak
+signal. It is not. That statistic never exceeded 1.4e-14 anywhere in the
+run: what is being ranked is floating-point residual from the
+calibration solver, and the residual is larger in cells where the
+equations were harder to solve, which are also harder cells. The
+apparent discrimination is discrimination of arithmetic difficulty.
+
+That claim has a boundary a reviewer was right to insist on, and it is
+narrower than it first appears. Post-weighting balance on the matched
+moments is zero **conditional on accepting a solution to the calibration
+equations**, and this analysis conditions on exactly that. Its real
+operational job is to reveal that the balancing algorithm failed or
+nearly failed, and by scoring only accepted fits we removed the cases
+where it can do that job. So the finding is: among analyses that
+converged, the matched-moment balance statistic is redundant by
+construction and reporting it as evidence the adjustment worked is
+reporting that the solver terminated. Whether it is useful as a
+convergence check is a different question and this design cannot answer
+it. MAIC found no solution on 0.7% of replicates, 3,747 in total, and
+those are reported as an operational outcome rather than folded into the
+classifier analysis.
+
+## The panel is smaller than it looks
+
+<div id="tbl-redundancy">
+
+Table 4: The algebraic identities, checked. Within a fixed source size
+the three weight-dispersion statistics have the same AUROC to machine
+precision, and the matched-moment balance statistic is zero.
+
+<div class="cell-output-display">
+
+| source per arm |   ESS | ESS % | CV(w) | max matched imbalance |
+|---------------:|------:|------:|------:|----------------------:|
+|            150 | 0.706 | 0.706 | 0.706 |               1.3e-14 |
+|            400 | 0.740 | 0.740 | 0.740 |               1.4e-14 |
+
+</div>
+
+</div>
+
+## Calibration
+
+A diagnostic is calibrated if a mapping from it to a risk of material
+error, fitted once and locked, tells the truth on analyses it has not
+seen ([10](#ref-austin2019)). The mapping is a logistic regression of
+the material-error indicator on one transformed diagnostic, minus the
+natural logarithm where a low value is the warning and the statistic
+itself otherwise, with a single linear term and no splines.
+
+The first version of this analysis trained on odd-numbered cells and
+tested on even ones. A reviewer warned that such a split can separate
+levels of a design factor depending on how cells are enumerated, and in
+this design it did so perfectly: cells are enumerated with the target
+dispersion ratio varying fastest, so every odd cell had ratio 1.00 and
+every even cell 1.25. That analysis measured transport across one factor
+and reported it as transport in general. It is replaced by
+**leave-one-factor-level-out**: fourteen folds, each holding out every
+cell at one level of one factor, balanced across everything else by
+construction.
+
+<div id="tbl-cal">
+
+Table 5: Calibration of a locked logistic mapping from each diagnostic
+to the risk of material error. Perfect calibration is intercept 0 and
+slope 1.
+
+<div class="cell-output-display">
+
+|  | diagnostic | intercept | slope | error, median fold | error, worst fold | error, same cells |
+|:---|:---|---:|---:|---:|---:|---:|
+| ess | ESS | -0.257 | 1.179 | 0.076 | 0.197 | 0.066 |
+| ess_pct | ESS % | -0.269 | 1.195 | 0.095 | 0.200 | 0.069 |
+| max_w | largest weight | -0.350 | 1.381 | 0.117 | 0.201 | 0.091 |
+| smd_pre | imbalance before weighting | -0.317 | 1.227 | 0.098 | 0.235 | 0.075 |
+| maha | Mahalanobis distance | -0.315 | 1.192 | 0.096 | 0.235 | 0.075 |
+| smd_unmatched | balance, unmatched covariate | -0.331 | 0.877 | 0.163 | 0.362 | 0.101 |
+| bias_hat | estimated bias (proposed) | -0.430 | 1.151 | 0.165 | 0.280 | 0.086 |
+
+</div>
+
+</div>
+
+<div id="tbl-worst">
+
+Table 6: Which held-out factor level breaks each mapping. For every
+weight-dispersion statistic it is the cross-moment channel: a risk
+mapping learned where that bias is present does not transport to where
+it is absent, or the reverse.
+
+<div class="cell-output-display">
+
+| diagnostic                   | held-out factor | level | calibration error |
+|:-----------------------------|:----------------|------:|------------------:|
+| ESS                          | joint           |     0 |             0.197 |
+| ESS %                        | joint           |     0 |             0.200 |
+| largest weight               | joint           |     0 |             0.201 |
+| imbalance before weighting   | sd_target       |     1 |             0.235 |
+| Mahalanobis distance         | sd_target       |     1 |             0.235 |
+| balance, unmatched covariate | rho4            |     0 |             0.362 |
+| estimated bias (proposed)    | overlap         |     0 |             0.280 |
+| oracle: cross-moment         | overlap         |     0 |             0.299 |
+
+</div>
+
+</div>
+
+Across a median fold the weight-dispersion statistics calibrate
+tolerably: effective sample size has intercept -0.257, slope 1.179 and
+an integrated calibration error of 0.076. The worst fold is what matters
+for an analyst, who does not know which setting they are in, and there
+the error is 0.197: a mapping from effective sample size to risk,
+learned elsewhere, is off by about twenty points of absolute risk in the
+setting it transports worst to.
+
+That worst setting is the same for every weight-dispersion statistic in
+the panel, and it is the cross-moment channel. A mapping fitted where a
+bias no baseline table can reveal is operating, applied where it is not,
+or the reverse, gets the risk badly wrong. This is the substantive
+version of the transportability question, and it is the analysis the
+registered mechanism claim should have used; the registered version
+compared predictive values across cells, which move with prevalence and
+case mix even when a rule’s operating characteristics are stable, and a
+reviewer was right that it is not a test of transportability at all.
+
+## Is acting on the warning better than not acting?
+
+Net benefit relative to flagging nothing, over a range of threshold
+probabilities at which an analyst would act ([11](#ref-vickers2006)). A
+rule earns its place only above both flagging nothing and flagging
+everything.
+
+<div id="tbl-dca">
+
+Table 7: Net benefit relative to flagging nothing, under the deployment
+weights.
+
+<div class="cell-output-display">
+
+| action threshold | flag nothing | flag everything | ESS \< 35 | ESS \< 50% | imbalance \> 0.25 | Mahalanobis \> 1 | estimated bias \> 0.10 |
+|---:|---:|---:|---:|---:|---:|---:|---:|
+| 0.1 | 0 | 0.421 | 0.086 | 0.281 | 0.341 | 0.242 | 0.066 |
+| 0.2 | 0 | 0.348 | 0.083 | 0.259 | 0.297 | 0.224 | 0.061 |
+| 0.3 | 0 | 0.255 | 0.080 | 0.231 | 0.241 | 0.202 | 0.056 |
+| 0.4 | 0 | 0.131 | 0.075 | 0.194 | 0.167 | 0.172 | 0.049 |
+| 0.5 | 0 | -0.043 | 0.069 | 0.142 | 0.063 | 0.130 | 0.039 |
+
+</div>
+
+</div>
+
+Every rule in the panel is beaten by flagging everything at action
+thresholds up to 0.300. An analyst who would act on a 10.0% chance of
+material error does better scrutinizing every population adjustment than
+reading any of these numbers. From an action threshold of 0.400 upwards,
+meaning an analyst who intervenes only when material error is at least
+that likely, 4 rules beat both alternatives: relative effective sample
+size, pre-weighting imbalance and Mahalanobis distance. The absolute
+effective-sample-size cutoff that gets quoted is not among them at any
+threshold examined.
+
+![](../results/figures/fig5-decision-curve.png)
+
+## The four prespecified mechanism claims
+
+<div id="tbl-mech">
+
+Table 8: The four claims registered before the run, and whether the run
+supports them.
+
+<div class="cell-output-display">
+
+| claim | holds | evidence |
+|:---|:--:|:---|
+| It is a variance statistic, not a bias statistic | yes | Effective sample size discriminates outcome noise at AUROC 0.847 and transport error at 0.653, a gap of 0.194 against a prespecified 0.10. |
+| The threshold is not transportable | no | Across the 24 cells the rule flags on most replicates, the material-error rate runs from 0.751 to 0.902, a span of 0.150 against a prespecified 0.30. Across the 88 cells it is silent on, the rate runs from 0.045 to 0.835. |
+| The panel is one statistic | yes | Within a fixed source size the three agree to 0.0e+00 in AUROC, and the matched-moment balance statistic never exceeds 1.4e-14. |
+| A better statistic is available from the same information | no | In the diagnosable stratum, against the transport component, the proposal reaches 0.937 and the best routinely reported diagnostic 0.851, a gain of 0.086 against a prespecified 0.10. |
+
+</div>
+
+</div>
+
+Two of the four hold and two do not, and the two that do not are
+reported as they were registered rather than adjusted until they did.
+The two gaps that carry the surviving claims, 0.194 and 0.086, are
+reported as **point estimates against a registered threshold** and not
+as tested differences: the bootstrap used for the areas under the curve
+is cell-stratified and unpaired, so it does not give a Monte Carlo
+interval for a difference between two diagnostics on the same
+replicates. A reviewer asked for paired intervals and this is the reason
+they are absent.
+
+**The threshold-transportability claim failed as written.** We
+registered a span of at least 0.30 in the material-error rate across the
+cells the rule *flags*. The observed span is 0.150, and the reason is
+visible in <a href="#fig-ess" class="quarto-xref">Figure 1</a>: the
+flagged cells are all in the low-effective-sample-size region where
+almost everything is wrong, so there is little room for a spread. Across
+the 88 cells the rule is **silent** on, the material-error rate runs
+from 0.045 to 0.835.
+
+A first draft called that second number a stronger version of the
+registered claim. It is not, and a reviewer was right to object. Both
+spans are variation in **predictive value** across cells, and predictive
+value moves with prevalence and case mix even when sensitivity and
+specificity are stable, so neither is a test of whether a threshold
+transports. They are descriptions of what an analyst faces: the same
+silence covers a 4.5% and an 83.5% chance of material error depending on
+which cell you are in. The claim registered as a test of
+transportability failed, and the proper evidence on transportability is
+the calibration of a locked risk model in held-out cells, which is
+<a href="#sec-calibration" class="quarto-xref">Section 5.4</a>.
+
+**The proposal missed its bar too.** Registered at a gain of at least
+0.10 in area under the ROC curve against the transport component in the
+diagnosable stratum; observed 0.937 against 0.851, a gain of 0.086. It
+is a real improvement and it is not the one we said would count.
+
+<div id="tbl-strata-transport">
+
+Table 9: Discrimination against the transport component within each
+stratum, cells weighted equally. This is where the two numbers behind
+mechanism claim 4 live; in round one of review they appeared in the
+abstract and in no table.
+
+<div class="cell-output-display">
+
+| diagnostic | well specified | omitted modifier | cross-moment | both |
+|:---|---:|---:|---:|---:|
+| ESS | 0.946 | 0.837 | 0.637 | 0.658 |
+| ESS % | 0.925 | 0.862 | 0.642 | 0.679 |
+| largest weight | 0.940 | 0.841 | 0.643 | 0.664 |
+| imbalance before weighting | 0.897 | 0.859 | 0.617 | 0.681 |
+| Mahalanobis distance | 0.894 | 0.859 | 0.618 | 0.683 |
+| balance, unmatched covariate | 0.737 | 0.946 | 0.573 | 0.755 |
+| estimated bias (proposed) | 0.725 | 0.938 | 0.566 | 0.746 |
+| oracle: cross-moment | 0.500 | 0.500 | 0.648 | 0.626 |
+
+</div>
+
+</div>
+
+Two things in that table matter more than the registered claim. Where
+the omitted modifier is the only bias channel, checking balance on the
+covariate you did **not** match reaches 0.946 and converting it into
+effect units reaches 0.938, against 0.862 for effective sample size. The
+plain balance check is as good as our conversion here, because with a
+single unmatched covariate the estimated interaction adds noise without
+adding information; with several unmatched covariates of differing
+importance the conversion should separate them and this design cannot
+show that. The practical advice that survives is the plain one: **check
+balance on everything you measured, not only on what you matched.**
+
+Where the bias sits in a cross-moment, everything collapses to 0.566 to
+0.637, including the oracle. No baseline table reports a correlation, so
+nothing computable and nothing we could construct sees it.
+
+<div id="fig-ess">
+
+<img src="../results/figures/fig1-ess-vs-error.png" id="fig-ess" />
+
+Figure 1
+
+</div>
+
+![](../results/figures/fig3-components.png)
+
+## The other estimators
+
+<div id="tbl-other">
+
+Table 10: The same replicates seen by the other three estimators. Median
+effective sample size is over the whole design.
+
+<div class="cell-output-display">
+
+| method | diagnostic | AUROC | vs transport | material error | median ESS | coverage |
+|:---|:---|---:|---:|---:|---:|---:|
+| MAIC, means only | ESS | 0.704 | 0.599 | 0.433 | 261.783 | 0.730 |
+| MAIC, means only | imbalance before weighting | 0.685 | 0.607 | 0.433 | 261.783 | 0.730 |
+| MAIC, means only | Mahalanobis distance | 0.683 | 0.608 | 0.433 | 261.783 | 0.730 |
+| MAIC, means only | balance, unmatched covariate | 0.602 | 0.624 | 0.433 | 261.783 | 0.730 |
+| MAIC, means only | estimated bias (proposed) | 0.602 | 0.641 | 0.433 | 261.783 | 0.730 |
+| STC | imbalance before weighting | 0.656 | 0.635 | 0.340 | 550.000 | 0.533 |
+| STC | Mahalanobis distance | 0.655 | 0.636 | 0.340 | 550.000 | 0.533 |
+| STC | balance, unmatched covariate | 0.606 | 0.619 | 0.340 | 550.000 | 0.533 |
+| STC | estimated bias (proposed) | 0.611 | 0.628 | 0.340 | 550.000 | 0.533 |
+| no adjustment | imbalance before weighting | 0.804 | 0.891 | 0.596 | 550.000 | 0.357 |
+| no adjustment | Mahalanobis distance | 0.804 | 0.891 | 0.596 | 550.000 | 0.357 |
+| no adjustment | balance, unmatched covariate | 0.802 | 0.892 | 0.596 | 550.000 | 0.357 |
+| no adjustment | estimated bias (proposed) | 0.798 | 0.873 | 0.596 | 550.000 | 0.357 |
+
+</div>
+
+</div>
+
+<div id="tbl-cov">
+
+Table 11: Coverage of the nominal 95% interval, over the whole design.
+Added after round one of review, which noted that the primary
+estimator’s coverage was missing.
+
+<div class="cell-output-display">
+
+|           | method              | transported effect | anchored contrast | fitted |
+|:----------|:--------------------|-------------------:|------------------:|-------:|
+| maic      | MAIC, means and SDs |              0.748 |             0.774 |  0.993 |
+| maic_mean | MAIC, means only    |              0.730 |             0.773 |  1.000 |
+| stc       | STC                 |              0.533 |             0.609 |  1.000 |
+| unadj     | no adjustment       |              0.357 |             0.428 |  1.000 |
+
+</div>
+
+</div>
+
+No estimator here covers at nominal. MAIC reaches 0.748 on the
+transported effect over a design that contains a great deal of
+deliberate misspecification, and the sandwich contributes its own
+shortfall at small effective sample size, which is the failure
+Remiro-Azócar and colleagues documented for the variance estimator used
+in their study ([6](#ref-remiroazocar2021)). That is context for the
+diagnostic results rather than a finding about the estimators: an
+interval that misses is one of the things a diagnostic might be asked to
+predict, and <a href="#tbl-auc" class="quarto-xref">Table 2</a> reports
+discrimination against non-coverage as well.
+
+The unadjusted comparison is the control that explains the rest of the
+paper. Its pre-weighting imbalance statistic predicts its own transport
+error at AUROC 0.891, against 0.655 for the same statistic applied to
+MAIC. The statistic is not weak. It is an excellent measure of the gap
+between the two populations, and the gap between the two populations is
+exactly the error of an estimator that does nothing about it. Once
+weighting has closed those gaps, the statistic is measuring something
+that has been removed, and what remains is the part of the modifier
+structure the weights never touched. The diagnostic is informative about
+the problem and uninformative about the solution.
+
+Means-only MAIC is worth a line for the same reason. It carries a median
+effective sample size of 261.783 against 170.748 for the version that
+also matches standard deviations, and a lower material-error rate, 0.433
+against 0.479. Calibrating second moments that the modifier structure
+does not use costs effective sample size and buys nothing here. A reader
+should not generalize that: with a modifier that is nonlinear in the
+covariates, those moments would matter.
+
+# What this answers, and what it does not
+
+**DIA-03.** The entry asked for the routine panel to be scored as a
+classifier of realized error with discrimination and calibration against
+a known truth, under a specified scenario distribution and a
+prespecified material-error threshold. That is done, for the MAIC
+weighting panel and the overlap statistics it shares with STC. The
+second half of the entry, the mismatch between the hierarchical level at
+which cross-validation is reported and the level at which the prediction
+is made, is untouched: no PSIS-LOO is computed at any level here, and
+grouped study-level leave-one-out is no more implemented in this study
+than it is in the packages. That half remains open.
+
+**DIA-06.** Answered in part, and the part is small. Four estimators
+from two families see the same replicates, so their failure modes can be
+compared on identical data; but ML-NMR, NMI, doubly robust estimators
+and flexible learners are absent, and the entry names five families. A
+design critique made this point before the run and it is accepted rather
+than argued with.
+
+**What the mechanism deliberately makes true.** Randomization holds. The
+prognostic and modifier functions are shared across trials, so
+conditional constancy holds. Covariates are normal. The link is the
+identity. Target moments are exact, because study 1 of this program
+already measured what their sampling error costs and carrying it here
+would add a noise channel no source-side diagnostic can observe. Every
+estimator adjusts for the same covariates.
+
+**Therefore the study says nothing about** non-collapsible effect
+measures, time-to-event outcomes, skewed or discrete covariates,
+unanchored comparisons, target-moment sampling error, or the diagnostics
+specific to Bayesian population adjustment. A binary or survival outcome
+would add a component of error that is a collapsibility artifact rather
+than an adjustment failure, and the exact decomposition in
+<a href="#sec-decomposition" class="quarto-xref">Section 2</a> would not
+be available; that is the price paid for the instrument, and it is the
+largest limitation here.
+
+**The deployment weights are a judgment, not a measurement.** Nothing in
+this program estimated how often an effect modifier is omitted in
+practice. That is why the primary results are within strata and why
+every mixture-level figure is reported under two weightings. Reporting
+within strata removes the dependence on the *misspecification*
+frequencies only. The design points themselves, the overlap levels, the
+sample sizes, the dispersion ratio, the magnitude of the modifier
+coefficients, and equal weighting of cells inside a stratum are all
+still ours, and every operating characteristic in this paper is a
+property of that distribution rather than an intrinsic property of a
+diagnostic. An earlier draft said the stratum reporting removed the
+dependence “entirely”; it does not.
+
+**Extensions this study does not attempt, each named because a reviewer
+asked for it.** Heteroskedastic outcome errors, which would loosen the
+tie between weight dispersion and the noise channel. Multiple omitted
+modifiers, or one entering nonlinearly, which is where converting
+imbalance into effect units should beat a plain balance check and where
+this design cannot show it. Target moments carrying their own sampling
+error, measured separately in study 1 of this program. Cross-fitting the
+interaction that the proposed diagnostic uses, which would remove the
+in-sample optimism we have instead disclosed. And a design in which the
+target mean is displaced by different amounts in different covariates:
+here the displacement is common, which is why the maximum standardized
+difference and the Mahalanobis distance agree to three decimals
+throughout and cannot be told apart.
+
+**The transport component is not pure bias.** It is the realized
+effect-modifier component of one replicate, containing finite-sample
+source composition and allocation variation as well as systematic
+transport bias. Scoring against it answers “can the panel see the part
+of this analysis’s error that came from the covariate structure”, which
+is the question here, and not “can the panel see the expected bias of
+this cell”, which would need a per-cell Monte Carlo expectation and is a
+different analysis.
+
+**The proposal is ours, and it is not compared on an equal footing.**
+$\widehat{b}$ uses the source **outcomes**, through a
+treatment-by-covariate interaction estimated in the same sample whose
+error is being diagnosed, while every routine diagnostic in the panel is
+an outcome-free function of covariates and weights. It is therefore an
+outcome-model-assisted diagnostic and should be read as one; a reviewer
+was right that comparing it with the panel without saying so overstates
+it. Estimating the interaction in-sample also invites optimism that
+cross-fitting would remove and that we did not do. It missed its
+registered bar, the plain balance check on unmatched covariates does
+about as well in this design, and the practical recommendation that
+survives is the plain one.
+
+**The verdict is about cutoffs, not about the statistics.** “The panel
+does not classify realized error at the thresholds in use” is a
+registered label, and what it means precisely is that no evaluated fixed
+cutoff met a sensitivity and specificity pair chosen in advance. Those
+requirements were not derived from an elicited loss function. The
+statistics do carry information, effective sample size calibrates
+tolerably out of cell, and a reader who wants a different operating
+point can take one off the ROC curves. What the decision-curve analysis
+adds is that at the action thresholds a cautious analyst would use, none
+of the available operating points beats scrutinizing everything.
+
+# Peer review
+
+This manuscript was reviewed by three independent reviewers over two
+rounds. The reports, the authors’ responses and the editorial decision
+are published in full and unedited alongside it.
+
+# Reproducibility
+
+All code is in the study directory. `R/00-config.R` holds the design,
+the thresholds and the decision rule; `R/01-dgm.R` the mechanism;
+`R/02-estimators.R` the four estimators and the exact error
+decomposition; `R/03-diagnostics.R` the panel; `R/04-run.R` the run;
+`R/05-analyze.R` the analysis; `R/06-figures.R` the figures. Replicates
+are seeded from one master seed through independent L’Ecuyer-CMRG
+streams, so a replicate draws the same data whatever the core count.
+`results/provenance.md` records the R version and package versions that
+produced these numbers. Raw replicate output is regenerable from the
+seed and is not tracked; the tracked artifacts are the summary tables,
+the figures and the rendered manuscript.
+
+# References
+
+<div id="refs" class="references csl-bib-body">
+
+<div id="ref-phillippo2018" class="csl-entry">
+
+<span class="csl-left-margin">1.
+</span><span class="csl-right-inline">David M. Phillippo, A. E. Ades,
+Sofia Dias, Stephen Palmer, Keith R. Abrams, Nicky J. Welton. Methods
+for population-adjusted indirect comparisons in health technology
+appraisal. Medical Decision Making. 2018;38(2):200–11.
+doi:[10.1177/0272989X17725740](https://doi.org/10.1177/0272989X17725740)</span>
+
+</div>
+
+<div id="ref-stuart2011" class="csl-entry">
+
+<span class="csl-left-margin">2.
+</span><span class="csl-right-inline">Elizabeth A. Stuart, Stephen R.
+Cole, Catherine P. Bradshaw, Philip J. Leaf. The use of propensity
+scores to assess the generalizability of results from randomized trials.
+Journal of the Royal Statistical Society Series A. 2011;174(2):369–86.
+doi:[10.1111/j.1467-985X.2010.00673.x](https://doi.org/10.1111/j.1467-985X.2010.00673.x)</span>
+
+</div>
+
+<div id="ref-tipton2014" class="csl-entry">
+
+<span class="csl-left-margin">3.
+</span><span class="csl-right-inline">Elizabeth Tipton. How
+generalizable is your experiment? An index for comparing experimental
+samples and populations. Journal of Educational and Behavioral
+Statistics. 2014;39(6):478–501.
+doi:[10.3102/1076998614558486](https://doi.org/10.3102/1076998614558486)</span>
+
+</div>
+
+<div id="ref-msr65" class="csl-entry">
+
+<span class="csl-left-margin">4.
+</span><span class="csl-right-inline">MSR65 can low effective sample
+size in matching-adjusted indirect comparisons (MAICs) lead to bias?
+Findings from a simulation study \[Internet\]. ISPOR Europe 2024,
+abstract published in Value in Health; 2024. Available from:
+<https://www.valueinhealthjournal.com/article/S1098-3015(24)05162-3/fulltext></span>
+
+</div>
+
+<div id="ref-kish1965" class="csl-entry">
+
+<span class="csl-left-margin">5.
+</span><span class="csl-right-inline">Leslie Kish. Survey sampling. New
+York: Wiley; 1965.</span>
+
+</div>
+
+<div id="ref-remiroazocar2021" class="csl-entry">
+
+<span class="csl-left-margin">6.
+</span><span class="csl-right-inline">Antonio Remiro-Azócar, Anna Heath,
+Gianluca Baio. Methods for population adjustment with limited access to
+individual patient data: A review and simulation study. Research
+Synthesis Methods. 2021;12(6):750–75.
+doi:[10.1002/jrsm.1511](https://doi.org/10.1002/jrsm.1511)</span>
+
+</div>
+
+<div id="ref-morris2019" class="csl-entry">
+
+<span class="csl-left-margin">7.
+</span><span class="csl-right-inline">Tim P. Morris, Ian R. White,
+Michael J. Crowther. Using simulation studies to evaluate statistical
+methods. Statistics in Medicine. 2019;38(11):2074–102.
+doi:[10.1002/sim.8086](https://doi.org/10.1002/sim.8086)</span>
+
+</div>
+
+<div id="ref-mackinnon1985" class="csl-entry">
+
+<span class="csl-left-margin">8.
+</span><span class="csl-right-inline">James G. MacKinnon, Halbert White.
+Some heteroskedasticity-consistent covariance matrix estimators with
+improved finite sample properties. Journal of Econometrics.
+1985;29(3):305–25.
+doi:[10.1016/0304-4076(85)90158-7](https://doi.org/10.1016/0304-4076(85)90158-7)</span>
+
+</div>
+
+<div id="ref-stefanski2002" class="csl-entry">
+
+<span class="csl-left-margin">9.
+</span><span class="csl-right-inline">Leonard A. Stefanski, Dennis D.
+Boos. The calculus of m-estimation. The American Statistician.
+2002;56(1):29–38.
+doi:[10.1198/000313002753631330](https://doi.org/10.1198/000313002753631330)</span>
+
+</div>
+
+<div id="ref-austin2019" class="csl-entry">
+
+<span class="csl-left-margin">10.
+</span><span class="csl-right-inline">Peter C. Austin, Ewout W.
+Steyerberg. The integrated calibration index (ICI) and related metrics
+for quantifying the calibration of logistic regression models.
+Statistics in Medicine. 2019;38(21):4051–65.
+doi:[10.1002/sim.8281](https://doi.org/10.1002/sim.8281)</span>
+
+</div>
+
+<div id="ref-vickers2006" class="csl-entry">
+
+<span class="csl-left-margin">11.
+</span><span class="csl-right-inline">Andrew J. Vickers, Elena B. Elkin.
+Decision curve analysis: A novel method for evaluating prediction
+models. Medical Decision Making. 2006;26(6):565–74.
+doi:[10.1177/0272989X06295361](https://doi.org/10.1177/0272989X06295361)</span>
+
+</div>
+
+</div>
+
+
+# REGISTERED PROTOCOL
+
+# Protocol: are the diagnostics reported alongside a population adjustment classifiers of its error?
+
+**Target problem.** [DIA-03](https://choxos.github.io/ITC-open-problems/problems/DIA-03-paic-diagnostics-are-not-evaluated-as-classifiers-of-realize.html)
+*PAIC diagnostics are not evaluated as classifiers of realized error*. Also bearing
+on [DIA-06](https://choxos.github.io/ITC-open-problems/problems/DIA-06-failure-signatures-across-paic-estimator-families-are-unch.html)
+*Failure signatures across PAIC estimator families are uncharacterized*.
+
+**Status.** Registered before any result of the full design was seen. The commit that
+adds this file is the timestamp. A pilot was run first and is reported in section 10,
+including the two design choices it changed; everything else below was fixed before the
+pilot as well.
+
+**Reporting standard.** ADEMP (Morris, White and Crowther 2019,
+[doi:10.1002/sim.8086](https://doi.org/10.1002/sim.8086)).
+
+---
+
+## 1. The problem, and what is actually open
+
+Every population-adjusted indirect comparison arrives with a panel of numbers beside it:
+the effective sample size after weighting, the same figure as a percentage of the
+original, the largest individual weight, standardized differences before and after
+adjustment, some measure of how far the target population sits from the source. An
+appraisal committee reads them as evidence about whether to believe the estimate.
+
+The audit behind DIA-03 narrowed the catalog's original claim. It is not true that
+nothing has ever related a diagnostic to error: an ISPOR Europe 2024 simulation
+(abstract MSR65) reported bias in unanchored MAIC once absolute effective sample size
+fell below roughly 30 to 35, and Remiro-Azócar, Heath and Baio (2021,
+[doi:10.1002/jrsm.1511](https://doi.org/10.1002/jrsm.1511)) tied small effective sample
+size to underestimation of variance by the robust sandwich estimator. What survives the
+audit is narrower and sharper:
+
+> Neither treats a diagnostic as a classifier with discrimination and calibration
+> against known truth.
+
+One of the two external auditors added the objection that makes this a real research
+question rather than a complaint:
+
+> Computing a diagnostic from fitted data does not logically prevent it from predicting
+> error. Sensitivity, specificity, ROC curves and calibration are defined only relative
+> to a specified distribution of scenarios and a prespecified material-error threshold;
+> they are not intrinsic properties of a diagnostic.
+
+That is correct, and it dictates the shape of this study. A number for the sensitivity
+of a diagnostic is meaningless without the distribution of analyses it was computed
+over. So this protocol writes that distribution down in advance, as an explicit
+judgment, and reports every headline figure twice: once under it and once with all cells
+weighted equally.
+
+## 2. Aims
+
+Each has a numerical answer.
+
+1. **The published rule.** What are the sensitivity and specificity of "effective sample
+   size below 35" for a material error in the transported treatment effect, under the
+   declared deployment distribution?
+2. **The rest of the panel.** For each routinely reported diagnostic at a threshold fixed
+   before the run: sensitivity, specificity, area under the ROC curve, area under the
+   precision-recall curve, and the calibration of a locked mapping from the diagnostic to
+   a risk of material error, evaluated out of sample.
+3. **What the panel is measuring.** Realized error decomposes exactly into three parts.
+   Which part does each diagnostic track?
+4. **Whether anything better is available from the same information.** Does an imbalance
+   check on covariates that were measured but not adjusted for, converted into the units
+   of the estimand, beat the panel?
+
+## 3. Notation, and the exact decomposition the study rests on
+
+A source trial supplies individual data on $n$ participants randomized between $A$ and
+$C$. A target trial supplies a baseline table and its own $B$ versus $C$ effect. Write
+$X = (X_1, X_2, X_3, X_4)$, with the adjustment set $M = \{1,2,3\}$ and $X_4$ measured but
+never adjusted for. The outcome is continuous with an identity link,
+
+$$Y_i = f(X_i) + \mathbb{1}(A_i)\{d_A + g_A(X_i)\} + \varepsilon_i, \qquad \varepsilon_i \sim N(0, 1).$$
+
+The conditional effect $d_A + g_A(X)$ is heterogeneous, so it is not equal to the marginal
+effect. What the identity link buys is that there is no non-collapsibility: the marginal
+effect is exactly the **average** of the conditional effects over the target covariate
+distribution. The estimand is the transported effect in the target **superpopulation**,
+
+$$\theta_{AC}(T) = d_A + \mathbb{E}_T\{g_A(X)\}.$$
+
+MAIC solves $\sum_i w_i(\lambda)\{h(X_i) - m_T\} = 0$ with $w_i = \exp\{\lambda^\top h(X_i)\}$
+and $h(X) = (X_1, X_2, X_3, X_1^2, X_2^2, X_3^2)^\top$, which is exactly what a baseline
+table of means and standard deviations supports.
+
+All four estimators are **linear in the outcome vector** for a fixed design: write
+$\hat\theta = L(Y)$ for the appropriate linear functional $L$. Applying $L$ to each piece
+of $\mathbb{E}[Y \mid X, A] = f(X) + \mathbb{1}(A)\{d_A + g_A(X)\}$ splits the realized
+error into three terms that add up exactly, with no approximation and no large-sample
+argument:
+
+$$\underbrace{\hat\theta - \theta_{AC}(T)}_{\text{realized error}}
+= \underbrace{L(f)}_{\text{arm imbalance}}
++ \underbrace{L\big(\mathbb{1}(A)\{d_A + g_A\}\big) - \theta_{AC}(T)}_{\text{transport error}}
++ \underbrace{L(Y) - L\big(\mathbb{E}[Y \mid X, A]\big)}_{\text{outcome noise}}.$$
+
+This identity is why the outcome is continuous and the link is the identity. It is the
+instrument of the study: **transport error is the only component a covariate diagnostic
+could know about before seeing an outcome.** A diagnostic that fails against total
+realized error might be failing because it is being asked to predict noise it has no
+access to; one that fails against the transport component alone has no such excuse. Both
+are reported.
+
+## 4. Data-generating mechanism
+
+**Covariates.** Source $X \sim N(0, \Sigma_S)$ with unit variances,
+$\mathrm{corr}(X_1, X_2) = 0.30$, $\mathrm{corr}(X_1, X_3) = \mathrm{corr}(X_2, X_3) = 0.20$,
+and $\mathrm{corr}(X_4, X_j) = \rho_4$ for $j \in M$. Target
+$X \sim N(\delta \mathbf{1}, \Sigma_T)$, identical except that
+$\mathrm{corr}(X_1, X_2) = 0.70$ and every standard deviation is multiplied by
+$s$.
+
+**Outcome.** $f(X) = 0.50X_1 + 0.30X_2 + 0.40X_3 + 0.20X_4$; $d_A = 0.40$, $d_B = 0.25$;
+$\varepsilon \sim N(0,1)$.
+
+**Effect modification.** $B$ versus $C$ is not modified, so the $A$ versus $B$ contrast
+depends on the target population through $g_A$ alone and adjustment is doing real work.
+
+$$g_A(X) = 0.30X_1 - 0.20X_2 + 0.25X_3 + \kappa X_1 X_2 + \omega X_4.$$
+
+**Target moments are exact.** The target's reported means and standard deviations are its
+superpopulation values, not sample moments. Study 1 of this program (MIS-03) measured
+what target-moment sampling error costs; carrying it here would add a noise channel no
+source-side diagnostic can observe and would depress every discrimination measure by a
+common amount without changing which diagnostic beats which. The target's *effect*
+estimate is a real estimate, drawn with the variance the outcome model implies for an
+unadjusted arm-mean difference,
+
+$$\mathrm{Var}(\hat\theta_{BC}) = \frac{2\{\mathrm{Var}_T(f(X)) + \sigma^2\}}{n_T}
+= \frac{2(\beta^\top \Sigma_T \beta + \sigma^2)}{n_T},$$
+
+which runs from 0.0094 to 0.0137 across this design at $n_T = 400$ per arm. Writing
+$2\sigma^2/n_T = 0.005$ instead, as an earlier version of this protocol did, would have
+been valid only for a covariate-adjusted target estimate with residual variance one, which
+is not what a published two-arm trial reports.
+
+### Three bias channels, differing in whether anything could see them
+
+| channel | switched by | can a diagnostic see it? |
+|---|---|---|
+| omitted effect modifier $X_4$ | $\omega \in \{0, 0.35\}$ | **In principle yes.** The source data estimate the $X_4$ interaction and a baseline table may report its mean. |
+| cross-moment $X_1 X_2$ | $\kappa \in \{0, 0.45\}$ | **No.** Matching marginal means and standard deviations does not match a cross-moment, and no baseline table reports a correlation. |
+| extrapolation | $\delta$ | Partly. This channel moves effective sample size and bias together. |
+
+The distinction between the first two is the reason the verdict is required to hold in
+the $\kappa = 0$ stratum on its own: a bias engineered to be invisible must not be allowed
+to condemn the panel by itself.
+
+### Factors
+
+| factor | levels | why |
+|---|---|---|
+| $\omega$ omitted modifier | 0, 0.35 | the commonest reason an adjustment is wrong, and diagnosable in principle |
+| $\kappa$ cross-moment modifier | 0, 0.45 | a bias no marginal balance statistic can see |
+| $\delta$ overlap | 0, 0.25, 0.75, 1.25 | 0.25 is an eligibility-criterion difference, 1.25 prompts comment in an appraisal. **0 is included so the panel has cells where it should stay silent** |
+| $n$ per arm | 150, 400 | separates absolute from relative effective sample size |
+| $\rho_4$ | 0, 0.5 | whether matching the adjustment set balances the omitted modifier by proxy |
+| $s$ target SD ratio | 1.00, 1.25 | **the factor that makes the study falsifiable**, see below |
+
+Fully factorial: $2 \times 2 \times 4 \times 2 \times 2 \times 2 = 128$ cells.
+
+**Why $s$ has to be there, and exactly how far the claim goes.** Matching second moments
+to a target 25% more dispersed forces heavy tail weighting and destroys effective sample
+size. In the **well-specified stratum** ($\kappa = \omega = 0$) it adds no bias at all: the
+modifier function is linear in the adjustment set, whose mean is matched exactly either
+way. Without a factor like this, every cell with a small effective sample size would also
+be a cell with poor mean overlap, and effective sample size would look like a bias
+diagnostic purely because the design never separated the two.
+
+The claim does **not** extend to $\kappa \neq 0$, and an earlier version of this protocol
+wrongly said it did. Because $\mathbb{E}_T[X_1X_2] = 0.70 s^2 + \delta^2$, moving $s$ from
+1.00 to 1.25 moves the target cross-moment by 0.394 and the true transported effect by
+$0.45 \times 0.394 = 0.177$. So $s$ is a pure variance instrument only where the
+cross-moment channel is off. That is where the study uses it as one.
+
+**What the mechanism deliberately makes true, and what the study therefore cannot
+detect.** Randomization holds in both trials. The prognostic and modifier functions are
+shared across trials, so conditional constancy holds. Covariates are normal. The link is
+the identity, so there is no non-collapsibility. Every estimator uses the same adjustment
+set, so none is handed an advantage. The study therefore says nothing about
+non-collapsible effect measures, time-to-event outcomes, skewed or discrete covariates,
+unanchored comparisons, target-moment sampling error, or the diagnostics specific to
+ML-NMR and NMI such as per-level PSIS-LOO. It is about the MAIC weighting panel and the
+overlap statistics it shares with STC.
+
+## 5. The deployment distribution
+
+Sensitivity and specificity are properties of a diagnostic *under a distribution of
+analyses*. The following product-form weights are an explicit judgment about applied
+practice. **Nothing in this program measured them.** They are declared so that the
+headline numbers mean something, and every one of those numbers is reported again under
+equal cell weights; a conclusion holding under only one weighting is reported as not
+holding.
+
+| factor | weights |
+|---|---|
+| $\omega$ | 0: 0.65, 0.35: 0.35 |
+| $\kappa$ | 0: 0.70, 0.45: 0.30 |
+| $\delta$ | 0: 0.25, 0.25: 0.35, 0.75: 0.25, 1.25: 0.15 |
+| $n$ | 150: 0.45, 400: 0.55 |
+| $\rho_4$ | 0: 0.40, 0.5: 0.60 |
+| $s$ | 1.00: 0.65, 1.25: 0.35 |
+
+## 6. Estimators
+
+All three adjust for $M$ only, so when the $X_4$ channel is switched on they are
+misspecified in the same way and the comparison is fair.
+
+**Every estimator produces an $A$ versus $C$ estimate on the same scale as the primary
+reference $\theta_{AC}(T)$**, and every anchored estimate is that quantity minus the *same*
+reported target $B$ versus $C$ effect. An earlier description of the unadjusted comparator
+had it subtracting the target effect while the others did not, which would have compared
+an $A$ versus $B$ estimate with an $A$ versus $C$ truth. The code never did this; the
+description did.
+
+| estimator | point estimate | variance | non-convergence |
+|---|---|---|---|
+| **Unadjusted** | source arm-mean difference, carried across unchanged | arm variances | not possible |
+| **MAIC, means and standard deviations** | weighted arm-mean difference, weights calibrated to the target's first two moments of $M$ | M-estimation sandwich over the stacked calibration and arm-mean equations, treating the weights as estimated | maximum standardized residual imbalance above $10^{-6}$ after BFGS plus a Newton polish |
+| **MAIC, means only** | the same, calibrating means alone | as above | as above |
+| **STC** | source regression $Y \sim A \times (X_1 + X_2 + X_3)$ centered at the target means; the treatment coefficient | **heteroskedasticity-consistent (HC3)** | rank deficiency |
+
+Two of these are answers to the design critique. **A means-only MAIC** is included because
+forcing MAIC to calibrate second moments that are irrelevant to a linear
+effect-modification structure costs it effective sample size for nothing, and scoring
+effective sample size under that handicap would confound the estimator with a modeling
+choice. **STC gets a robust variance**, not the model-based one: where the $X_1X_2$ or
+$X_4$ modifier is on, its mean model is misspecified, the residual variance depends on
+treatment and covariates, and the ordinary least squares variance is invalid even for the
+pseudo-parameter the regression converges to. Giving MAIC a sandwich and STC the
+model-based variance would have been a rigged comparison.
+
+Non-convergence of MAIC is recorded per cell as an operational outcome, not silently
+dropped. Non-existence of a solution is itself a warning, and dropping the replicates
+where it happens would remove the hardest cells and flatter every diagnostic.
+
+## 7. The diagnostics
+
+Nothing in the panel uses a quantity the analyst does not have, except entries beginning
+`orc_`, which are oracles reported as ceilings so that a failure can be attributed either
+to the statistic or to the information not being present.
+
+| diagnostic | threshold | where the threshold comes from |
+|---|---|---|
+| absolute effective sample size | < 35, and < 30 | a **candidate cutoff motivated by** ISPOR Europe 2024 MSR65, see below |
+| effective sample size as a percentage | < 50% | **convention in circulation**, no primary citation; see note |
+| coefficient of variation of the weights | > 1.00 | implied by the above |
+| largest single weight share | > 0.10 | rule of thumb |
+| post-weighting standardized difference, matched moments | > 0.10 | conventional |
+| pre-weighting standardized difference | > 0.25 | conventional |
+| Mahalanobis distance of the target mean from the source | > 1.00 | **no convention exists**; set a priori, see section 10 |
+| post-weighting standardized difference, unmatched covariate | > 0.10 | conventional, applied to a covariate that was measured and not adjusted for |
+| $\widehat{b} = \lvert\hat\gamma_4 (\mu_{T4} - \bar X_4^w)\rvert$ | > 0.10 | **this study's proposal**; half the material-error threshold |
+
+**A note on where these thresholds come from, added in review.** Only the balance cuts of
+0.10 and 0.25 have an unambiguous primary source. The effective-sample-size region of 30 to
+35 comes from one conference abstract in a different setting; the 50% reduction figure and
+the 10% maximum-weight figure circulate in appraisal commentary and package documentation
+without a primary methodological citation that we can point to. Calling any of them
+"published rules" was too strong, and the manuscript now describes them as conventions in
+circulation whose transportability to this setting is one of the things being tested.
+
+Two entries are settled by algebra before any data exist, and are included because a
+reader who has seen them side by side in a submission deserves the demonstration.
+
+$$\frac{\mathrm{ESS}}{n} = \frac{(\sum_i w_i)^2}{n\sum_i w_i^2} = \frac{1}{1 + \mathrm{CV}^2(w)}$$
+
+exactly. Area under the ROC curve is invariant to strictly monotone transformation, so
+within a fixed source size effective sample size, effective sample size as a percentage
+and the coefficient of variation of the weights have **identical** discrimination,
+necessarily. And the post-weighting standardized difference on the matched moments is
+zero at the solution of the calibration equations, because those equations set it to
+zero; it is reported in submissions as evidence that the adjustment worked, and it cannot
+discriminate anything.
+
+## 8. Performance measures
+
+**What MSR65 does and does not say.** It reports an approximate empirical region, absolute
+effective sample size around 30 to 35, below which bias appeared in a simulation of
+**unanchored** MAIC with binary and time-to-event outcomes. It does not recommend a
+classifier operating point, does not report sensitivity or specificity, and says nothing
+about anchored continuous-outcome comparisons. Whether the cutoff transports to this
+setting is an empirical question, and it is one of the questions this study asks. It is
+treated throughout as a candidate cutoff in wide informal use, not as an authority.
+Likewise Remiro-Azócar and colleagues establish that **the robust sandwich used in their
+study** underestimates variability at small effective sample size; the stacked calibration
+and outcome M-estimator used here is a different variance procedure and inherits no
+guarantee from theirs.
+
+**Primary.** Sensitivity and specificity of effective sample size below 35 for
+$\lvert\hat\theta_{AC} - \theta_{AC}(T)\rvert > 0.20$ among fitted MAIC replicates,
+reported **within each misspecification stratum** with cells weighted equally inside a
+stratum, and secondarily over the declared mixture and over equal cell weights.
+
+Reporting within strata is the answer to the sharpest finding of the design critique: the
+frequency of misspecification across cells is a number this protocol chose, and any
+headline sensitivity computed over a mixture inherits it. Within a stratum that dependence
+is gone. The reviewer's own suggestion, to base the verdict on the well-specified stratum
+alone, is not adopted and the reason is stated here: in that stratum there is no transport
+bias at all, so material error is pure Monte Carlo noise, and a variance statistic wins by
+construction. That would answer a different question.
+
+The material threshold is a fifth of the outcome standard deviation, of the same order as
+the smallest difference an appraisal would treat as meaningful, and it is **not defined
+from any diagnostic**. Study 3 of this program had to discard a reference that turned out
+to be algebraically identical to one of the statistics being scored; that check has been
+made here and passes.
+
+Sensitivity under cell weights is a ratio of two weighted means, so its Monte Carlo error
+comes from the delta method applied to cell-level binomial quantities. Treating the
+design's fixed cells as a random sample, which study 3 of this program did and had to
+withdraw, would be wrong here for the same reason.
+
+**Secondary.** Area under the ROC curve, with a cell-stratified bootstrap interval, and
+area under the precision-recall curve; calibration intercept, slope and integrated
+calibration error for a mapping fitted on odd-numbered replicates and evaluated on
+even-numbered ones; decision-curve net benefit against flagging nothing and flagging
+everything; the same measures against each of the three exact error components
+separately; material thresholds of 0.10 and 0.30; interval non-coverage as an alternative
+reference; operational non-fit rate; and the whole analysis repeated for STC and for the
+unadjusted comparison.
+
+**Replicates: 4000 per cell.** Derived from the tightest within-cell requirement, a Monte
+Carlo standard error below 0.02 on the area under the ROC curve. By Hanley and McNeil, at
+an area of 0.75 and a material-error prevalence of 0.10 ($n_1 = 400$, $n_0 = 3600$),
+
+$$\mathrm{SE} = \sqrt{\frac{A(1-A) + (n_1-1)(Q_1 - A^2) + (n_0-1)(Q_2 - A^2)}{n_1 n_0}},
+\quad Q_1 = \frac{A}{2-A} = 0.600,\ Q_2 = \frac{2A^2}{1+A} = 0.643,$$
+
+giving $\sqrt{304.6 / 1.44 \times 10^6} = 0.0145$. So 4000 meets the target with margin.
+The design is $128 \times 4000 \times 4 = 2{,}048{,}000$ estimates across four estimators.
+
+Two caveats on that arithmetic, both raised in peer review and both correct. It assumes an
+unweighted area under the curve at a prevalence of 0.10; at 1% prevalence the same formula
+gives about 0.045, so the least informative cells are estimated far less precisely than the
+headline figure suggests, and the realized per-cell prevalences are reported. And the primary
+measure is not a within-cell area under the curve but a cell-weighted sensitivity and
+specificity, whose Monte Carlo error comes from the delta method in section 8 and is an order
+of magnitude smaller. The 4000 figure is therefore comfortable for the primary and should be
+read with the per-cell prevalences for anything estimated inside a single cell.
+
+## 9. The decision rule, written before the results exist
+
+The three branches are exhaustive by construction: the third is the complement of the
+first two, so no result can fall outside them.
+
+**The panel classifies realized error** if some rule at a threshold fixed before the run
+reaches sensitivity at least 0.80 and specificity at least 0.50 **in every one of the four
+misspecification strata**, with lower 95% Monte Carlo limits above both. Requiring it in
+every stratum is what keeps a chosen mixture out of the verdict: a rule has to catch error
+where the bias channels are on and stay quiet where they are off.
+
+**The panel does not classify realized error at the thresholds in use** if no rule meets
+that bar and, in addition, the upper 95% Monte Carlo limit on the sensitivity of effective
+sample size below 35 is below 0.80 **in the omitted-modifier stratum**, which is the one
+where a diagnostic has both something to find and the information with which to find it.
+
+**Neither** means the panel discriminates but no fixed threshold is defensible; report
+where each member works and where it does not.
+
+**Uninformative** if material error occurs on fewer than 5% or more than 95% of fitted
+MAIC replicates under the deployment weights; or the deployment-weighted MAIC non-fit rate
+exceeds 10%, so the analyzed set is not the designed set; or the verdict differs between
+the two weightings.
+
+### Four mechanistic claims, also prespecified
+
+A verdict that the panel does not work is not an explanation, and the catalog entry asks
+for one.
+
+1. **It is a variance statistic, not a bias statistic.** Effective sample size
+   discriminates the outcome-noise component better than the transport component by at
+   least 0.10 in area under the ROC curve.
+2. **The threshold is not transportable.** Across the cells in which the rule fires on
+   most replicates, the cell-level rate of material error spans at least 0.30. A
+   calibrated threshold would carry roughly the same risk wherever it fires.
+3. **The panel is one statistic.** Within a fixed source size the three weight-dispersion
+   measures have identical areas under the ROC curve, and the matched-moment balance
+   statistic has none. Algebra says both must hold; the run checks the implementation.
+4. **A better statistic is available from the same information.** In the diagnosable
+   stratum, against the transport component, $\widehat{b}$ beats the best routinely
+   reported diagnostic by at least 0.10. Restricting to that stratum and that component is
+   stated in advance and is not a post hoc rescue: no statistic computable from a baseline
+   table can see the cross-moment channel, and no covariate statistic can see outcome
+   noise.
+
+## 10. The pilot, and the two things it changed
+
+A pilot of 16 cells at 500 replicates was run before the design was frozen, to check that
+the material-error rate was not pinned at zero or one, that MAIC converged, and that a
+correctly specified MAIC covered at nominal where it should. It confirmed all three
+(coverage 0.924 to 0.940 in the benign cells; the exact error decomposition reproduced to
+$3 \times 10^{-14}$; the algebraic identity to $2 \times 10^{-16}$). Two things changed as a
+result, and both are recorded here rather than presented as original design.
+
+**An overlap level of 0 was added.** The conventional baseline-imbalance cut is 0.25
+standardized units, so a design whose mildest cell already sat at 0.25 made that rule fire
+on 87% of replicates and its specificity unmeasurable. A panel has to be given cells where
+it should stay silent.
+
+**The Mahalanobis threshold was moved from 2.00 to 1.00.** At 2.00 it fired on 0.4% of
+pilot replicates and could not be evaluated. This statistic has no published convention,
+unlike the effective-sample-size rules, which were not touched and will not be. The change
+is disclosed because a threshold tuned on the data that scores it is how a diagnostic
+acquires performance it does not have, and the reader is entitled to know which of these
+thresholds came from the literature and which from us.
+
+A third pilot finding changed the *implementation* rather than the design: BFGS alone left
+the calibration score near $10^{-3}$ on 10% of replicates in exactly the cells the study is
+about, so a Newton polish was added and the fit rate rose from 90% to 97%. Loosening the
+convergence rule instead would have counted unbalanced weights as a MAIC fit.
+
+## 11. Threats to this design
+
+| threat | what was done |
+|---|---|
+| Effective sample size and bias are both driven by overlap, so a design varying only overlap would make a variance statistic look like a bias statistic | $s$ varies effective sample size with no bias attached, and $\omega, \kappa$ vary bias at fixed overlap. The two are crossed. |
+| The reference for material error could be algebraically tied to a diagnostic being scored | The reference is $\lvert\hat\theta - \theta\rvert > 0.20$. No diagnostic enters its definition. Checked explicitly. |
+| Dropping non-converged replicates removes the hardest cells and flatters every diagnostic | Newton polish; the remainder reported per cell and bounded by a prespecified uninformative rule. |
+| Any single sensitivity figure is a choice presented as a fact | The distribution is declared in advance and every figure is reported under two weightings. |
+| A material threshold of 0.20 makes the task mostly noise prediction in benign cells, which favors effective sample size | That direction is conservative against this study's hypothesis. Thresholds 0.10 and 0.30 are also reported. |
+| The proposal $\widehat{b}$ is ours, so we have an interest in it doing well | It is scored at a threshold fixed in advance, against the same reference, and its prespecified claim is restricted to the stratum and component where it has any information at all, with that restriction stated before the run. |
+
+## 12. Amendment, 2026-07-27: what an adversarial review of this design changed
+
+The design as first written was sent to an independent adversarial critique before the
+full run, with one instruction: find the ways this study answers a question nobody asked,
+or produces a result that is a property of the data-generating mechanism rather than of
+the methods. It returned two findings graded fatal, ten serious, and three problems with
+the citations. Everything below was changed **before** any result of the full design was
+seen; the first attempt at the run was stopped and its output deleted.
+
+Two of the findings were arithmetic errors in this protocol, and both were verified
+numerically before being accepted.
+
+**The dispersion factor was not the pure variance instrument it was described as.** With
+$\mathbb{E}_T[X_1X_2] = 0.70s^2 + \delta^2$, moving $s$ from 1.00 to 1.25 moves the true
+transported effect by $0.45 \times 0.394 = 0.177$ wherever the cross-moment channel is on.
+The claim now holds only where it is true, and section 4 says so.
+
+**The target trial's variance was understated by a factor of two to three.** An unadjusted
+arm-mean difference carries the whole outcome variance, prognostic index included:
+$2(\beta^\top\Sigma_T\beta + \sigma^2)/n_T$, which is 0.0094 to 0.0137 here, not
+$2\sigma^2/n_T = 0.005$. Corrected in the mechanism.
+
+Five further changes, each attributable to a specific finding.
+
+| finding | change |
+|---|---|
+| The misspecification frequency across cells is investigator-chosen, so any mixture-level headline inherits it | **The primary results are now reported within each of the four misspecification strata**, with cells weighted equally inside a stratum. The mixture is a labeled secondary. The reviewer's alternative, basing the verdict on the well-specified stratum alone, is declined with a reason given in section 8. |
+| STC was given a model-based variance while misspecified, MAIC a sandwich | STC now gets HC3. |
+| MAIC was forced to calibrate second moments irrelevant to a linear modifier, which costs it effective sample size for nothing | A **means-only MAIC** was added as a fourth estimator. |
+| Calibration fitted and evaluated within the same cells is optimistic by construction | The locked mapping is now fitted on odd-numbered **cells** and evaluated on even-numbered ones. The within-cell split is retained and reported as the optimistic bound. |
+| Conditioning on a successful MAIC fit answers a slightly easier question | The primary rule's sensitivity is now **bracketed** by counting every non-fit as a caught failure and then as a missed one. |
+
+The description of the unadjusted comparator was wrong in a way the code was not: it said
+the comparator subtracted the target effect while the others did not, which would have
+compared an $A$ versus $B$ estimate with an $A$ versus $C$ truth. Corrected in section 6.
+The claim that an identity link makes marginal and conditional effects "coincide" was
+replaced with the correct averaging statement in section 3. The characterization of MSR65
+as publishing an ESS rule was withdrawn and replaced in section 8.
+
+Two findings were answered by the artifacts rather than by a change: the critique read a
+summary in which the deployment probabilities and the non-ESS thresholds were not listed,
+and judged both fatal. They are listed in sections 5 and 7 and are executable in
+`R/00-config.R` and `R/05-analyze.R`, where the weights are also asserted to sum to one.
+
+One finding is accepted and not fixed, because it cannot be fixed within this design: the
+study does not characterize failure signatures across the five estimator families DIA-06
+names. It compares two families and no adjustment. DIA-06 is answered in part, and the
+part is small.
+
+## 13. What this study will not settle
+
+It covers two estimator families where DIA-06 names five, and does not touch ML-NMR or
+NMI, so it answers part of DIA-06 and not the whole of it. It says nothing about the
+hierarchical-level mismatch in cross-validation that forms the second half of DIA-03's
+statement: no PSIS-LOO is computed at any level, and grouped study-level leave-one-out is
+not implemented here any more than it is in the packages. Those remain open.
+
+
+# PRESPECIFIED DECISION, AS EVALUATED
+
+# Decision
+
+**Conclusion: the panel does not classify realized error at the thresholds in use**
+
+Prespecified in `protocol.md`. 128 cells, 4000 replicates each, 4 estimators. MAIC fitted on 0.993 of replicates (deployment-weighted non-fit 0.003). Material error, meaning |estimate - truth| > 0.20 in the transported effect, on 0.479 of fitted MAIC replicates under the deployment weights.
+
+## Primary: operating points WITHIN each misspecification stratum
+
+Cells are weighted equally inside a stratum, so no chosen mixture of misspecification frequencies enters the headline.
+
+| stratum | rule | prevalence | sensitivity | specificity | fires on |
+| --- | --- | ---: | ---: | ---: | ---: |
+| well specified | ess | 0.493 | 0.326 (0.001) | 0.923 (0.001) | 0.200 |
+| well specified | ess30 | 0.493 | 0.291 (0.001) | 0.934 (0.001) | 0.177 |
+| well specified | ess_pct | 0.493 | 0.742 (0.001) | 0.623 (0.001) | 0.557 |
+| well specified | cv_w | 0.493 | 0.742 (0.001) | 0.623 (0.001) | 0.557 |
+| well specified | max_w | 0.493 | 0.350 (0.001) | 0.919 (0.001) | 0.214 |
+| well specified | smd_matched | 0.493 | 0.000 (0.000) | 1.000 (0.000) | 0.000 |
+| well specified | smd_pre | 0.493 | 0.822 (0.001) | 0.408 (0.001) | 0.706 |
+| well specified | maha | 0.493 | 0.656 (0.001) | 0.692 (0.001) | 0.480 |
+| well specified | smd_unmatched | 0.493 | 0.559 (0.002) | 0.610 (0.001) | 0.474 |
+| well specified | bias_hat | 0.493 | 0.099 (0.001) | 0.962 (0.001) | 0.068 |
+| omitted modifier | ess | 0.539 | 0.309 (0.001) | 0.926 (0.001) | 0.201 |
+| omitted modifier | ess30 | 0.539 | 0.277 (0.001) | 0.937 (0.001) | 0.178 |
+| omitted modifier | ess_pct | 0.539 | 0.735 (0.001) | 0.654 (0.002) | 0.556 |
+| omitted modifier | cv_w | 0.539 | 0.735 (0.001) | 0.654 (0.002) | 0.556 |
+| omitted modifier | max_w | 0.539 | 0.332 (0.001) | 0.920 (0.001) | 0.216 |
+| omitted modifier | smd_matched | 0.539 | 0.000 (0.000) | 1.000 (0.000) | 0.000 |
+| omitted modifier | smd_pre | 0.539 | 0.823 (0.001) | 0.431 (0.001) | 0.706 |
+| omitted modifier | maha | 0.539 | 0.652 (0.001) | 0.721 (0.001) | 0.480 |
+| omitted modifier | smd_unmatched | 0.539 | 0.571 (0.001) | 0.639 (0.001) | 0.474 |
+| omitted modifier | bias_hat | 0.539 | 0.393 (0.001) | 0.807 (0.001) | 0.301 |
+| cross-moment | ess | 0.640 | 0.265 (0.001) | 0.918 (0.001) | 0.199 |
+| cross-moment | ess30 | 0.640 | 0.237 (0.001) | 0.929 (0.001) | 0.178 |
+| cross-moment | ess_pct | 0.640 | 0.649 (0.001) | 0.607 (0.002) | 0.556 |
+| cross-moment | cv_w | 0.640 | 0.649 (0.001) | 0.607 (0.002) | 0.556 |
+| cross-moment | max_w | 0.640 | 0.285 (0.001) | 0.913 (0.001) | 0.214 |
+| cross-moment | smd_matched | 0.640 | 0.000 (0.000) | 1.000 (0.000) | 0.000 |
+| cross-moment | smd_pre | 0.640 | 0.767 (0.001) | 0.403 (0.002) | 0.706 |
+| cross-moment | maha | 0.640 | 0.570 (0.001) | 0.683 (0.002) | 0.479 |
+| cross-moment | smd_unmatched | 0.640 | 0.520 (0.001) | 0.608 (0.002) | 0.474 |
+| cross-moment | bias_hat | 0.640 | 0.091 (0.001) | 0.957 (0.001) | 0.074 |
+| both | ess | 0.688 | 0.251 (0.001) | 0.915 (0.001) | 0.199 |
+| both | ess30 | 0.688 | 0.224 (0.001) | 0.927 (0.001) | 0.177 |
+| both | ess_pct | 0.688 | 0.642 (0.001) | 0.633 (0.002) | 0.556 |
+| both | cv_w | 0.688 | 0.642 (0.001) | 0.633 (0.002) | 0.556 |
+| both | max_w | 0.688 | 0.269 (0.001) | 0.909 (0.001) | 0.214 |
+| both | smd_matched | 0.688 | 0.000 (0.000) | 1.000 (0.000) | 0.000 |
+| both | smd_pre | 0.688 | 0.771 (0.001) | 0.440 (0.002) | 0.705 |
+| both | maha | 0.688 | 0.564 (0.001) | 0.707 (0.002) | 0.480 |
+| both | smd_unmatched | 0.688 | 0.543 (0.001) | 0.681 (0.002) | 0.473 |
+| both | bias_hat | 0.688 | 0.358 (0.001) | 0.827 (0.002) | 0.300 |
+
+## Secondary: the same rules over the declared mixture
+
+| rule | cut | sensitivity | specificity | fires on | sens (equal wts) | spec (equal wts) |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| ess | 35 | 0.183 (0.000) | 0.963 (0.000) | 0.107 | 0.284 | 0.921 |
+| ess30 | 30 | 0.161 (0.000) | 0.969 (0.000) | 0.093 | 0.254 | 0.932 |
+| ess_pct | 0.5 | 0.623 (0.001) | 0.701 (0.001) | 0.454 | 0.686 | 0.630 |
+| cv_w | 1 | 0.623 (0.001) | 0.701 (0.001) | 0.454 | 0.686 | 0.630 |
+| max_w | 0.1 | 0.204 (0.001) | 0.959 (0.000) | 0.119 | 0.305 | 0.916 |
+| smd_matched | 0.1 | 0.000 (0.000) | 1.000 (0.000) | 0.000 | 0.000 | 1.000 |
+| smd_pre | 0.25 | 0.784 (0.001) | 0.401 (0.001) | 0.688 | 0.793 | 0.419 |
+| maha | 1 | 0.534 (0.001) | 0.760 (0.001) | 0.381 | 0.605 | 0.701 |
+| smd_unmatched | 0.1 | 0.450 (0.001) | 0.690 (0.001) | 0.377 | 0.547 | 0.631 |
+| bias_hat | 0.1 | 0.144 (0.000) | 0.942 (0.000) | 0.099 | 0.240 | 0.892 |
+
+Replicates on which MAIC had no solution: 3,747. Bracketing the primary rule's sensitivity by counting every one of them as a caught failure, then as a missed one, gives 0.285 and 0.273.
+
+## Discrimination, which separates a bad threshold from a useless statistic
+
+| diagnostic | AUROC | AUPRC | vs transport | vs noise | vs non-coverage |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| ess | 0.731 (0.001) | 0.707 | 0.653 | 0.847 | 0.630 |
+| ess_pct | 0.723 (0.001) | 0.698 | 0.667 | 0.813 | 0.644 |
+| cv_w | 0.723 (0.001) | 0.698 | 0.667 | 0.813 | 0.644 |
+| max_w | 0.741 (0.001) | 0.716 | 0.660 | 0.833 | 0.645 |
+| smd_matched | 0.550 (0.001) | 0.509 | 0.538 | 0.571 | 0.544 |
+| smd_pre | 0.683 (0.001) | 0.671 | 0.655 | 0.799 | 0.630 |
+| maha | 0.682 (0.001) | 0.669 | 0.656 | 0.796 | 0.631 |
+| smd_unmatched | 0.606 (0.001) | 0.592 | 0.665 | 0.663 | 0.592 |
+| bias_hat | 0.604 (0.001) | 0.591 | 0.684 | 0.643 | 0.587 |
+| orc_cross | 0.581 (0.001) | 0.551 | 0.809 | 0.505 | 0.590 |
+| lambda_norm | 0.698 (0.001) | 0.664 | 0.660 | 0.796 | 0.622 |
+
+### All three error components, equal cell weights, and the other thresholds
+
+| diagnostic | vs arm imbalance | vs transport | vs noise | AUROC (equal wts) | material 0.10 | material 0.30 | anchored contrast |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| ess | 0.813 | 0.653 | 0.847 | 0.721 | 0.683 | 0.779 | 0.699 |
+| ess_pct | 0.807 | 0.667 | 0.813 | 0.717 | 0.675 | 0.770 | 0.692 |
+| cv_w | 0.807 | 0.667 | 0.813 | 0.717 | 0.675 | 0.770 | 0.692 |
+| max_w | 0.837 | 0.660 | 0.833 | 0.729 | 0.690 | 0.791 | 0.708 |
+| smd_matched | 0.583 | 0.538 | 0.571 | 0.557 | 0.537 | 0.564 | 0.544 |
+| smd_pre | 0.739 | 0.655 | 0.799 | 0.690 | 0.641 | 0.728 | 0.658 |
+| maha | 0.737 | 0.656 | 0.796 | 0.690 | 0.640 | 0.726 | 0.657 |
+| smd_unmatched | 0.615 | 0.665 | 0.663 | 0.623 | 0.583 | 0.629 | 0.590 |
+| bias_hat | 0.603 | 0.684 | 0.643 | 0.619 | 0.582 | 0.625 | 0.588 |
+| orc_cross | 0.502 | 0.809 | 0.505 | 0.586 | 0.577 | 0.576 | 0.566 |
+| lambda_norm | 0.758 | 0.660 | 0.796 | 0.695 | 0.657 | 0.739 | 0.671 |
+
+### Discrimination against the transport component, by stratum
+
+| diagnostic | well specified | omitted modifier | cross-moment | both |
+| --- | ---: | ---: | ---: | ---: |
+| ess | 0.946 | 0.837 | 0.637 | 0.658 |
+| ess_pct | 0.925 | 0.862 | 0.642 | 0.679 |
+| cv_w | 0.925 | 0.862 | 0.642 | 0.679 |
+| max_w | 0.940 | 0.841 | 0.643 | 0.664 |
+| smd_matched | 0.587 | 0.600 | 0.529 | 0.541 |
+| smd_pre | 0.897 | 0.859 | 0.617 | 0.681 |
+| maha | 0.894 | 0.859 | 0.618 | 0.683 |
+| smd_unmatched | 0.737 | 0.946 | 0.573 | 0.755 |
+| bias_hat | 0.725 | 0.938 | 0.566 | 0.746 |
+| orc_cross | 0.500 | 0.500 | 0.648 | 0.626 |
+| lambda_norm | 0.869 | 0.850 | 0.630 | 0.681 |
+
+### The anchored contrast, which is what a submission reports
+
+| rule | sensitivity | specificity | prevalence |
+| --- | ---: | ---: | ---: |
+| ess | 0.171 | 0.961 | 0.515 |
+| ess30 | 0.150 | 0.967 | 0.515 |
+| ess_pct | 0.589 | 0.689 | 0.515 |
+| cv_w | 0.589 | 0.689 | 0.515 |
+| max_w | 0.190 | 0.957 | 0.515 |
+| smd_matched | 0.000 | 1.000 | 0.515 |
+| smd_pre | 0.764 | 0.393 | 0.515 |
+| maha | 0.504 | 0.750 | 0.515 |
+| smd_unmatched | 0.435 | 0.685 | 0.515 |
+| bias_hat | 0.136 | 0.940 | 0.515 |
+
+## Calibration of a locked mapping
+
+Leave-one-factor-level-out: fourteen folds, each holding out every cell at one level of one factor. Median over folds, with the worst fold, and the within-cell replicate split as the optimistic bound. A logistic model on one transformed diagnostic; no splines.
+
+| diagnostic | intercept | slope | calibration error (median) | worst fold | same-cell |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| ess | -0.257 | 1.179 | 0.076 | 0.197 | 0.066 |
+| ess_pct | -0.269 | 1.195 | 0.095 | 0.200 | 0.069 |
+| cv_w | -0.326 | 1.256 | 0.108 | 0.202 | 0.078 |
+| max_w | -0.350 | 1.381 | 0.117 | 0.201 | 0.091 |
+| smd_matched | -0.434 | 0.540 | 0.129 | 0.319 | 0.105 |
+| smd_pre | -0.317 | 1.227 | 0.098 | 0.235 | 0.075 |
+| maha | -0.315 | 1.192 | 0.096 | 0.235 | 0.075 |
+| smd_unmatched | -0.331 | 0.877 | 0.163 | 0.362 | 0.101 |
+| bias_hat | -0.430 | 1.151 | 0.165 | 0.280 | 0.086 |
+| orc_cross | -0.353 | 1.265 | 0.132 | 0.299 | 0.080 |
+| lambda_norm | -0.356 | 1.146 | 0.133 | 0.234 | 0.099 |
+
+## Decision curve: is acting on the rule better than not?
+
+Net benefit relative to flagging nothing. A rule earns its place only above both alternatives.
+
+| threshold prob | flag none | flag all | ess | ess30 | ess_pct | cv_w | max_w | smd_matched | smd_pre | maha | smd_unmatched | bias_hat |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 0.100 | 0.000 | 0.421 | 0.086 | 0.075 | 0.281 | 0.281 | 0.095 | 0.000 | 0.341 | 0.242 | 0.197 | 0.066 |
+| 0.200 | 0.000 | 0.348 | 0.083 | 0.073 | 0.259 | 0.259 | 0.092 | 0.000 | 0.297 | 0.224 | 0.175 | 0.061 |
+| 0.300 | 0.000 | 0.255 | 0.080 | 0.070 | 0.231 | 0.231 | 0.089 | 0.000 | 0.241 | 0.202 | 0.146 | 0.056 |
+| 0.400 | 0.000 | 0.131 | 0.075 | 0.066 | 0.194 | 0.194 | 0.083 | 0.000 | 0.167 | 0.172 | 0.108 | 0.049 |
+| 0.500 | 0.000 | -0.043 | 0.069 | 0.061 | 0.142 | 0.142 | 0.076 | 0.000 | 0.063 | 0.130 | 0.054 | 0.039 |
+
+## The four prespecified mechanism claims
+
+| claim | holds | evidence |
+| --- | :---: | --- |
+| variance_not_bias | yes | Effective sample size discriminates outcome noise at AUROC 0.847 and transport error at 0.653, a gap of 0.194 against a prespecified 0.10. |
+| threshold_not_transportable | no | Across the 24 cells the rule flags on most replicates, the material-error rate runs from 0.751 to 0.902, a span of 0.150 against a prespecified 0.30. Across the 88 cells it is silent on, the rate runs from 0.045 to 0.835. |
+| panel_is_one_statistic | yes | Within a fixed source size the three agree to 0.0e+00 in AUROC, and the matched-moment balance statistic never exceeds 1.4e-14. |
+| bias_hat_helps | no | In the diagnosable stratum, against the transport component, the proposal reaches 0.937 and the best routinely reported diagnostic 0.851, a gain of 0.086 against a prespecified 0.10. |
+
+## The same statistics for the other estimators
+
+| method | diagnostic | AUROC | vs transport | material error rate | median ESS | coverage |
+| --- | --- | ---: | ---: | ---: | ---: | ---: |
+| maic_mean | ess | 0.704 | 0.599 | 0.433 | 261.783 | 0.730 |
+| maic_mean | smd_pre | 0.685 | 0.607 | 0.433 | 261.783 | 0.730 |
+| maic_mean | maha | 0.683 | 0.608 | 0.433 | 261.783 | 0.730 |
+| maic_mean | smd_unmatched | 0.602 | 0.624 | 0.433 | 261.783 | 0.730 |
+| maic_mean | bias_hat | 0.602 | 0.641 | 0.433 | 261.783 | 0.730 |
+| stc | smd_pre | 0.656 | 0.635 | 0.340 | 550.000 | 0.533 |
+| stc | maha | 0.655 | 0.636 | 0.340 | 550.000 | 0.533 |
+| stc | smd_unmatched | 0.606 | 0.619 | 0.340 | 550.000 | 0.533 |
+| stc | bias_hat | 0.611 | 0.628 | 0.340 | 550.000 | 0.533 |
+| unadj | smd_pre | 0.804 | 0.891 | 0.596 | 550.000 | 0.357 |
+| unadj | maha | 0.804 | 0.891 | 0.596 | 550.000 | 0.357 |
+| unadj | smd_unmatched | 0.802 | 0.892 | 0.596 | 550.000 | 0.357 |
+| unadj | bias_hat | 0.798 | 0.873 | 0.596 | 550.000 | 0.357 |
+
+
+
+# ROUND ONE REPORTS
+
+## Reviewer glm
+
+{
+ "recommendation": "minor-revision",
+ "summary": "The manuscript reports a registered simulation study scoring the routine diagnostic panel in population-adjusted indirect comparisons (MAIC, STC, unadjusted) as classifiers of realized error, targeting open problem DIA-03. The design is built around an exact decomposition of realized error into arm imbalance, transport error, and outcome noise—valid because all estimators are linear in the outcome under an identity link—and includes a falsifiability factor (target SD ratio) that destroys effective sample size without adding bias in the well-specified stratum. The main finding, that ESS tracks noise (AUROC 0.847) better than transport error (0.653) and that no panel member meets prespecified classification bars, is well-supported by the tables shown. The study honestly reports two of four prespecified mechanism claims as failures. The principal gap is that the stratum-specific AUROC figures for the proposed diagnostic (0.937 vs 0.851), which appear in the abstract and the mechanism-claims table, are not backed by any table in the manuscript or decision output.",
+ "strengths": [
+  "The exact error decomposition under the identity link is an elegant instrument that cleanly separates what a covariate diagnostic could know (transport error) from what it cannot (noise, arm imbalance), and the per-replicate verification to 3e-14 is a valuable implementation check.",
+  "The target SD ratio factor (s = 1.25) is a genuinely clever falsifiability device: it creates cells where ESS is destroyed without bias in the well-specified stratum, preventing the design from making a variance statistic look like a bias statistic by confounding the two.",
+  "Honest reporting of failed prespecified claims (threshold transportability span 0.150 < 0.30; proposal gain 0.086 < 0.10) is exemplary. The authors do not adjust claims post hoc to pass.",
+  "The algebraic identities (ESS/n = 1/(1+CV²(w)), matched-moment balance ≡ 0 at the solution) are proved before the run and checked in the results, which is a service to readers who have seen these statistics reported side by side in submissions without recognizing their redundancy.",
+  "The unadjusted comparison serves as an informative control: pre-weighting imbalance predicts its transport error at AUROC 0.891, confirming the statistic is informative about the problem and uninformative about the solution after weighting."
+ ],
+ "comments": [
+  {
+   "id": 1,
+   "severity": "major",
+   "section": "Abstract; Results; Table 6 (mechanism claims)",
+   "comment": "The abstract states that the proposed diagnostic 'reaches 0.937 against the transport component where the panel reaches 0.851.' These stratum-specific AUROCs (omitted-modifier stratum, transport component) do not appear in any table. Table 2 reports mixture-level AUROCs against transport (bias_hat = 0.684, smd_unmatched = 0.665); the primary table reports stratum-specific sensitivity/specificity but not stratum-specific AUROC by error component. The reader cannot verify the central comparative claim about the proposal.",
+   "what_would_satisfy": "Add a table (or rows to an existing table) reporting stratum-specific AUROCs against the transport component for all diagnostics, including the proposal and the oracles, in at least the omitted-modifier and cross-moment strata. This is the evidence base for abstract claims and for mechanism claim 4."
+  },
+  {
+   "id": 2,
+   "severity": "minor",
+   "section": "Abstract",
+   "comment": "The abstract says the proposal 'reaches 0.937 against the transport component where the panel reaches 0.851,' framing it as a positive result. The body and Table 6 make clear this missed its prespecified bar (gain 0.086 < 0.10). A reader of the abstract alone may infer a validated success. The abstract should note the gain fell short of the prespecified threshold.",
+   "what_would_satisfy": "Add a clause in the abstract indicating the gain (0.086) did not meet the prespecified 0.10 bar, or rephrase to avoid implying the proposal succeeded against its registered criterion."
+  },
+  {
+   "id": 3,
+   "severity": "minor",
+   "section": "What a covariate diagnostic could possibly know",
+   "comment": "The finding that ESS discriminates noise at 0.847 is partially built into the data-generating mechanism: for MAIC, Var(L(ε)) = σ²/ESS, so ESS mechanically determines the noise-component variance. The authors acknowledge this is the point ('it is a variance statistic'), but the text could be more explicit that the noise-tracking AUROC is expected by construction, and that the contribution is the quantification of how poorly it tracks transport error plus the threshold analysis, not the noise-tracking result itself.",
+   "what_would_satisfy": "Add one sentence noting that the noise-discrimination result follows mechanically from ESS determining the variance of the linear outcome functional, so the reader understands which part of the finding is arithmetic and which is empirical."
+  },
+  {
+   "id": 4,
+   "severity": "minor",
+   "section": "References",
+   "comment": "The protocol cites Morris, White and Crowther (2019, ADEMP reporting standard) but this reference does not appear in the manuscript's reference list.",
+   "what_would_satisfy": "Add the ADEMP reference to the manuscript reference list."
+  },
+  {
+   "id": 5,
+   "severity": "minor",
+   "section": "Results, Table 7",
+   "comment": "Coverage for the primary MAIC estimator (means + SDs) is not reported in Table 7, which only shows the other three estimators. The pilot reported coverage 0.924–0.940 in benign cells; the full-run coverage for the primary estimator would contextualize the low coverage seen for the others (e.g., STC at 0.533).",
+   "what_would_satisfy": "Add a row for the primary MAIC estimator to Table 7, or state its coverage in the text."
+  }
+ ],
+ "citation_problems": [
+  {
+   "cite": "Morris, White and Crowther 2019 (ADEMP)",
+   "problem": "Cited in the protocol as the reporting standard but absent from the manuscript reference list."
+  }
+ ],
+ "conclusions_supported": false,
+ "unsupported_claims": [
+  "Abstract: 'reaches 0.937 against the transport component where the panel reaches 0.851' — these stratum-specific AUROCs are not shown in any table in the manuscript or decision output.",
+  "Abstract: 'is blind exactly where the information is absent' — Table 1 shows sensitivity 0.091 in the cross-moment stratum, supporting 'blind,' but 'exactly' is not formally tested; this is a reasonable qualitative inference but slightly overstated."
+ ],
+ "reviewer": "glm",
+ "name": "GLM-5.2 (via Ollama)",
+ "round": 1
+}
+
+## Reviewer kimi
+
+{
+ "recommendation": "major-revision",
+ "summary": "This is a registered, adversarially critiqued simulation study that evaluates the routine MAIC/STC diagnostic panel (ESS, ESS%, max weight, balance statistics, overlap measures) as classifiers of realized error in an anchored indirect comparison with a continuous outcome and identity link. The identity link buys an exact three-way decomposition of realized error into arm imbalance, transport error, and outcome noise, which is the study's real instrument and is used well. The prespecified verdict — the panel does not classify realized error at the thresholds in use — is reached cleanly: operating points fail by enormous margins relative to Monte Carlo error, two of four prespecified mechanism claims are reported as failed without adjustment, and the design's dispersion-ratio factor is a genuinely good idea for separating a variance statistic from a bias statistic. The principal problems are presentational-but-load-bearing rather than fatal: the scored contrast is ambiguous with respect to the anchoring subtraction, the headline 'variance statistic' number (AUROC 0.847 vs noise) is arithmetic rather than simulation output, the knowability framing that motivates the decomposition is misstated, and there are signs of table-generation errors. All of this is repairable without new simulation.",
+ "strengths": [
+  "The exact per-replicate error decomposition (verified to 3e-14) is the right instrument for this question: it lets diagnostics be scored against the transport component they could in principle know about, separately from the noise they cannot, and both scorings are reported.",
+  "Registration is real, not decorative: a prespecified three-branch decision rule, four mechanism claims with numerical bars, two of which failed and are reported as failed, non-convergence bracketing instead of silent dropping, and an adversarial design critique whose consequences (the s instrument's scope, HC3 for STC, means-only MAIC, cell-split calibration) are disclosed as amendments.",
+  "The target-dispersion factor s is a well-conceived pure variance instrument in the well-specified stratum, and the protocol is honest that the amendment restricted this to where it is true (kappa = 0) after the cross-moment arithmetic was caught.",
+  "The algebra-first section (ESS/n = 1/(1+CV^2) exactly; matched-moment balance identically zero) checked against the run, plus the explicit warning that the 0.550 AUROC of an identically-zero statistic is 'discrimination of arithmetic difficulty', is exemplary practice.",
+  "The unadjusted-estimator control is genuinely illuminating: the same pre-weighting imbalance statistic predicts the unadjusted estimator's transport error at 0.891 but MAIC's at 0.655, which licenses 'informative about the problem, uninformative about the solution'.",
+  "Fair-comparison discipline: all estimators adjust for the same covariates, STC gets HC3 because its mean model is misspecified by design, MAIC's sandwich treats the weights as estimated, and means-only MAIC prevents the second-moment calibration from handicapping MAIC's ESS."
+ ],
+ "comments": [
+  {
+   "id": 1,
+   "severity": "major",
+   "section": "What a covariate diagnostic could possibly know / Design",
+   "comment": "It is impossible to tell from the manuscript which contrast is actually scored. The estimand is defined as the transported A-versus-C effect theta_AC(T) = d_A + E_T{g_A(X)}, the displayed three-term decomposition contains no target-trial term, and the identity was verified per replicate to 3e-14 — all consistent with scoring theta_hat_AC against theta_AC(T). But the abstract calls the design 'an anchored indirect comparison', the protocol derives Var(theta_hat_BC) = 2(beta' Sigma_T beta + sigma^2)/n_T and an amendment corrects it 'by a factor of two to three', and section 6 says every anchored estimate subtracts the same reported target B-vs-C effect. If the scored quantity is theta_hat_AC, then the anchoring subtraction enters nothing in the primary analysis and the Var(theta_hat_BC) derivation is inert except possibly for the secondary non-coverage reference — in which case the primary results abstract away from target-trial sampling error, which in deployment is part of the anchored estimate's error and is invisible to source diagnostics. If the scored quantity is theta_hat_AB, the decomposition as printed is missing a fourth term and the 3e-14 verification claim refers to a different identity than the one displayed.",
+   "what_would_satisfy": "State explicitly, in the manuscript not just the protocol, which contrast is scored for material error; if it is theta_hat_AC, justify the exclusion of target-trial sampling error (common additive channel no source diagnostic can see) and state exactly where theta_hat_BC enters (presumably the non-coverage reference); if it is theta_hat_AB, add the fourth term to the displayed decomposition and re-state the verification. One sentence each on consequence for interpretation."
+  },
+  {
+   "id": 2,
+   "severity": "major",
+   "section": "What a covariate diagnostic could possibly know / Results / mechanism claim 1",
+   "comment": "Two framing problems in the load-bearing section. First, the sentence 'The first and third depend on the realized outcomes; no function of X, the weights and a published baseline table has any information about epsilon' is incorrect in two ways: the arm-imbalance component L(f) does not depend on realized outcomes at all (with this DGM's linear f it is a function of the realized covariates and weights alone), and while the realization of the noise component is unknowable, its distribution is completely determined by the weights: conditional on w, L(epsilon) is Gaussian with variance sigma^2[1/ESS_A + 1/ESS_C], i.e. exactly 2 sigma^2/ESS when the same weight vector applies to both arms. A classifier needs the risk, not the realization — so the weights carry perfect information about the noise component's magnitude, which is precisely why the paper's own headline number exists. Second, and consequently: ESS's AUROC of 0.847 against the noise component is not a simulation finding. Since P(|noise|>0.2 | w) = 2 Phi(-0.2 / sqrt(2/ESS)) is a strictly monotone function of ESS, ESS is the optimal univariate classifier of the noise event by construction and its AUROC is a one-dimensional integral over the ESS distribution, computable without running anything. The paper already has a section ('Two facts that algebra settles before any data exist') for exactly this kind of result and mocks the matched-moment balance statistic's 0.550 as arithmetic residue; the 0.847 belongs in the same category, stated rather than implied. Relatedly, in the diagnosable stratum (kappa=0) the transport component equals omega(mu_T4 - Xbar_4^w) exactly (matched means are calibrated to 1e-14), so the proposed b_hat = |gamma_hat_4 (mu_T4 - Xbar_4^w)| is a multiplicatively noised version of the reference variable itself; 0.937 is near-construction, and the comparison against the panel's 0.851 should say so. None of this overturns the empirical side (the 0.653 transport AUROC and all operating points are genuine simulation output), but the title-level claim 'a variance statistic' is currently presented as discovered where half of it is derived.",
+   "what_would_satisfy": "Add the identity Var(L(epsilon)|w) = sigma^2 (1/ESS_A + 1/ESS_C) to the algebra section; re-present the 0.847 as the arithmetic consequence it is (report it as a check on the ESS distribution, not a result); correct the knowability sentence to distinguish realizations from risk; and add one sentence noting that in the kappa=0 stratum the transport error is omega*Delta_4 exactly, so b_hat's discrimination is near-construction and the empirical content is the size of the gain over the panel, not its existence."
+  },
+  {
+   "id": 3,
+   "severity": "minor",
+   "section": "Introduction / Results",
+   "comment": "'It also reports the primary results within strata of misspecification rather than over a mixture of them, which removes the dependence on our chosen frequencies entirely' overstates what stratification buys. It removes the dependence on the chosen misspecification frequencies (omega, kappa weights), but every within-stratum figure still inherits the chosen design points for delta, s, n, rho_4 and the choice to weight cells equally — which is still an investigator-chosen scenario distribution, exactly the auditor's objection one level down. The sensitivity 0.309 in the omitted-modifier stratum, for instance, depends on how the 16 cells mix the pure-variance s=1.25 cells with the overlap cells. The all-strata requirement in the decision rule is the real mitigation and should be the thing cited.",
+   "what_would_satisfy": "Qualify the sentence: within-stratum reporting removes the dependence on the misspecification-frequency judgment; the remaining design-point and equal-weighting dependence is acknowledged as such, as the protocol already does for the deployment weights."
+  },
+  {
+   "id": 4,
+   "severity": "minor",
+   "section": "Results: The panel at the thresholds in use",
+   "comment": "The non-fit bracketing is arithmetically unclear as reported. The headline sensitivity in the omitted-modifier stratum is 0.309, but bracketing 'the primary rule's sensitivity' by counting all 3,747 non-fits as caught then missed gives 0.285 and 0.273 — both below 0.309, which is impossible under the natural construction applied to that stratum (adding x caught events and x total events to a sensitivity of s yields at least s). The bracket evidently refers to a different base (most plausibly the equal-cell-weight overall sensitivity of 0.284), but the text says 'the primary rule's sensitivity', which a reader will map to 0.309. As written the numbers cannot be reproduced and look inconsistent.",
+   "what_would_satisfy": "State the base quantity being bracketed (stratum or overall, and which weighting) and show the construction in one line — number of non-fits entering as events, and the resulting bounds — so the bracket visibly contains the corresponding fitted-only figure."
+  },
+  {
+   "id": 5,
+   "severity": "minor",
+   "section": "Results: mechanism claims",
+   "comment": "The manuscript does not identify which panel member reaches 0.851 against the transport component in the diagnosable stratum, and Table 2 reports only mixture-level component AUROCs, so the key comparison (b_hat 0.937 vs panel 0.851) cannot be traced. This matters more than usual because the likely best panel member there is the unmatched-covariate balance on X_4, which is a function of the same Delta_4 = mu_T4 - Xbar_4^w as b_hat; if so, the gain decomposes into 'removing the weighted-sd denominator' versus 'adding gamma_hat_4 estimation noise', which is the honest version of the finding and is not currently available to the reader.",
+   "what_would_satisfy": "Name the comparator statistic at 0.851 and provide the stratum-level component AUROCs for the full panel (at least for the omitted-modifier stratum), plus two sentences on why b_hat beats that specific statistic given both are functions of Delta_4."
+  },
+  {
+   "id": 6,
+   "severity": "minor",
+   "section": "Results: Tables 4 and 7 (and decision document)",
+   "comment": "There are signatures of a table-generation error. In Table 4 the calibration rows for pre-weighting imbalance and Mahalanobis distance are identical to three decimals on all four columns (0.648/0.845/0.143/0.075) — for two distinct statistics, agreement to that precision on every column is far more consistent with a join/duplication bug than with the simulation. In Table 7 the unadjusted rows for smd_pre and Mahalanobis are identical everywhere (0.804/0.891), again suspicious. If the values are real, an explanation is needed; if the table is wrong, the wrong numbers propagate into the calibration discussion (the 'nearly half of its apparent calibration is memory of the setting' claim rests on the 0.143 vs 0.075 gap).",
+   "what_would_satisfy": "Re-generate Tables 4 and 7 from the replicate output and either correct the rows or state explicitly that the identity is real and why (e.g., both statistics are monotone in the same quantity for the unadjusted estimator)."
+  },
+  {
+   "id": 7,
+   "severity": "minor",
+   "section": "Results: The other estimators",
+   "comment": "Interval coverage is reported for means-only MAIC (0.730), STC (0.533) and the unadjusted estimator (0.357), but never for the primary MAIC estimator, despite the manuscript citing Remiro-Azocar et al. on sandwich-variance underestimation at small ESS and despite a 'vs non-coverage' AUROC column existing in the decision document. The primary method's coverage — ideally per stratum and split by ESS level — is the natural bridge to that literature and its absence is conspicuous.",
+   "what_would_satisfy": "Add primary MAIC (means+SDs) coverage overall and per stratum, with one sentence relating it to the cited variance-underestimation result and to the stacked M-estimation sandwich used here."
+  },
+  {
+   "id": 8,
+   "severity": "minor",
+   "section": "Protocol section 8 / Reproducibility",
+   "comment": "Editorial leftovers from the pre-amendment protocol remain: section 8 states the design is '128 x 4000 x 3 = 1,536,000 estimates' although the amendment added a fourth estimator (2,048,000), and section 8 describes the calibration split as fitted on odd-numbered 'replicates' where the amendment and the manuscript use odd/even cells. A reader checking the manuscript against the registered protocol will trip on both.",
+   "what_would_satisfy": "Correct the arithmetic and the unit of the calibration split in the protocol (marked as corrigenda, not silent edits, to preserve registration integrity)."
+  },
+  {
+   "id": 9,
+   "severity": "minor",
+   "section": "Protocol section 7 / thresholds",
+   "comment": "Threshold provenance is mostly well handled (the pilot-tuned Mahalanobis cutoff is disclosed, which is good practice), but the ESS < 50% rule is labeled 'published, appraisal commentary' with no citation anywhere in manuscript or protocol. Since one of the manuscript's punchlines is that the relative rule beats the absolute rule in the decision-curve analysis, the source for that threshold should be given or the 'published' label dropped.",
+   "what_would_satisfy": "Cite the source of the ESS < 50% convention or relabel it as in informal use."
+  }
+ ],
+ "citation_problems": [
+  {
+   "cite": "Missing: Phillippo et al., NICE DSU TSD 13 (2016) and especially TSD 18 (2020), Population adjustment methods...",
+   "problem": "A paper about the MAIC diagnostic panel and 'thresholds in use' does not cite the DSU technical support documents from which the reporting conventions (ESS, balance before/after weighting, overlap) and the small-ESS concerns largely derive. Positioning the novelty claim and the 'panel' itself requires engaging with TSD 18 in particular."
+  },
+  {
+   "cite": "Missing: Kish (1965) and the survey-weighting design-effect literature",
+   "problem": "ESS = (sum w)^2/sum w^2 and the identity ESS/n = 1/(1+CV^2(w)) are standard weighting arithmetic. The manuscript presents the identity as one of 'two facts that algebra settles', which is fine, but the literature origin should be acknowledged; it slightly tempers the implicit novelty of the 'one statistic three ways' observation."
+  },
+  {
+   "cite": "Missing: the transportability/generalizability diagnostics literature (e.g., Stuart et al. 2011; Dahabreh et al.; Tipton 2014)",
+   "problem": "The overlap statistics scored here (pre-weighting standardized differences, Mahalanobis-type distance of the target mean) come from this literature. Citing it would situate the panel and actually strengthens the novelty claim: these works also do not score diagnostics as classifiers of realized error with discrimination and calibration."
+  },
+  {
+   "cite": "MSR65, ISPOR Europe 2024 (ref 1), supporting 'a widely quoted rule says to worry once absolute effective sample size falls below about 30 to 35'",
+   "problem": "'Widely quoted' is asserted on the basis of a single conference abstract, and the manuscript elsewhere (correctly, and commendably) treats MSR65 as a candidate cutoff rather than an authority and notes it does not recommend an operating point. Either document that the 30-35 cutoff circulates in appraisals/submissions or soften to 'a cutoff in informal use, motivated by'. The content of the abstract itself is not verifiable from the manuscript."
+  }
+ ],
+ "conclusions_supported": true,
+ "unsupported_claims": [
+  "'It also reports the primary results within strata of misspecification rather than over a mixture of them, which removes the dependence on our chosen frequencies entirely.' — within-stratum results still inherit the chosen design points for delta, s, n, rho_4 and equal cell weighting; only the misspecification-frequency dependence is removed.",
+  "'The first and third depend on the realized outcomes; no function of X, the weights and a published baseline table has any information about epsilon.' — the arm-imbalance component does not depend on outcomes, and the weights fully determine the noise component's variance (sigma^2(1/ESS_A + 1/ESS_C)), which is exactly the information a classifier of the noise event uses and on which the paper's own 0.847 rests.",
+  "'The design is an anchored indirect comparison' — as written, the scored contrast appears to be the unanchored transported A-versus-C effect theta_AC(T) with no target-trial term in the decomposition; until comment 1 is resolved, the word 'anchored' is not licensed for the primary analysis."
+ ],
+ "reviewer": "kimi",
+ "name": "Kimi K3 (via OpenCode)",
+ "round": 1
+}
+
+## Reviewer sol
+
+{
+ "recommendation": "major-revision",
+ "summary": "This carefully prespecified simulation evaluates routine MAIC diagnostics as classifiers of material realized error across a broad factorial design. It succeeds in establishing the narrow numerical result that none of the evaluated fixed cutoffs meets the authors' prespecified sensitivity and specificity criterion in this particular scenario distribution. It does not establish the broader variance-versus-bias interpretation because the so-called transport component contains sampling variation rather than only bias, an observable covariate component is omitted from the component results, and several headline findings follow directly from the data-generating mechanism. The existing simulations appear capable of supporting a useful paper after substantial reanalysis, reframing, and completion of the prespecified reporting, so rejection is not warranted.",
+ "strengths": [
+  "The protocol, pilot changes, amendments, thresholds, deployment weights, and decision criteria are disclosed unusually clearly.",
+  "The authors report two failed prespecified mechanism claims without moving their thresholds post hoc.",
+  "The algebraic decomposition is an exact identity for the chosen linear estimators, even though its subsequent interpretation requires correction.",
+  "The factorial design crosses overlap, sample size, effect-modifier omission, cross-moment misspecification, proxy correlation, and target dispersion, including well-specified and no-shift cells.",
+  "Within-stratum reporting reduces dependence on the investigator-chosen mixture of the two misspecification indicators.",
+  "The simulation size is substantial, and Monte Carlo uncertainty is reported for several primary operating characteristics.",
+  "The estimator comparison avoids the obvious variance-estimator asymmetry by using a stacked M-estimation sandwich for MAIC and HC3 for STC.",
+  "Nonconvergence is recorded, the primary sensitivity is bounded under extreme treatments of nonfits, and the authors correctly distinguish failure of a cutoff from absence of discrimination.",
+  "The discussion appropriately acknowledges that DIA-06 and the cross-validation part of DIA-03 remain largely unanswered."
+ ],
+ "comments": [
+  {
+   "id": 1,
+   "severity": "major",
+   "section": "What a covariate diagnostic could possibly know; Results, Table 2; Discussion",
+   "comment": "The decomposition is algebraically valid, but its interpretation is not. The arm-imbalance term L(f) is determined by the realized covariates and treatment assignments, not by the realized outcomes, and can be predicted using arm-specific balance or an estimated prognostic score. Conversely, the quantity labeled transport error contains finite-sample source composition and treatment-allocation variation even under a correctly specified modifier model, so its absolute value is not synonymous with transport bias. Comparing AUROC 0.847 for outcome noise with 0.653 for this mixed transport component therefore does not establish that a variance statistic is being mistaken for a bias statistic. Table 2 also omits the arm-imbalance component despite Aim 3 and the protocol requiring all three components.",
+   "what_would_satisfy": "Report performance against all three components, relabel the middle term as a realized effect-modifier component, and separately estimate systematic transport bias at each cell as an appropriate Monte Carlo expectation. Reanalyze the variance-versus-bias claim against that systematic bias or remove it from the title and conclusions."
+  },
+  {
+   "id": 2,
+   "severity": "major",
+   "section": "Abstract; Design; Estimand; What this answers",
+   "comment": "The framing concerns anchored indirect comparisons, but the primary reference is error in the transported A-versus-C effect. The realized error of the final A-versus-B indirect comparison also contains error in the target B-versus-C estimate. That estimate is simulated in the protocol but does not appear in the decomposition or primary results. The manuscript therefore answers a source-side transport-estimation question, not necessarily the realized-error question for the indirect comparison seen by an appraisal committee.",
+   "what_would_satisfy": "Either narrow the title, abstract, and practical claims explicitly to the transported A-versus-C component, or add a prespecified-style analysis of the final A-versus-B estimate including target-effect uncertainty. State unambiguously whether coverage in Table 7 concerns A-versus-C or A-versus-B."
+  },
+  {
+   "id": 3,
+   "severity": "major",
+   "section": "Data-generating mechanism; Four mechanism claims",
+   "comment": "Several headline findings are built into the mechanism. Homoscedastic independent errors with variance one make conditional outcome-noise variance almost mechanically proportional to the squared weighting coefficients and hence closely related to ESS. Setting the target dispersion ratio to 1.25 deliberately lowers ESS without systematic bias when omega and kappa are zero. In the diagnosable stratum, g contains exactly the single omitted linear term 0.35 times X4, while the proposed statistic multiplies an estimate of that same coefficient by the exact X4 mean discrepancy. The proposal is therefore a plug-in version of the omitted term by construction, while matched-moment balance is zero by the calibration equations.",
+   "what_would_satisfy": "Present these results as algebraic or positive-control checks. If broader empirical claims are retained, add mechanisms with heteroskedastic errors, multiple or nonlinear omitted modifiers, uncertain target moments, and approximate rather than exact calibration, then show that the conclusions persist."
+  },
+  {
+   "id": 4,
+   "severity": "major",
+   "section": "Proposed diagnostic and comparison with the routine panel",
+   "comment": "The proposed statistic is not compared on an equal information basis. It uses source outcomes through the estimated treatment-by-X4 interaction and assumes the exact target mean of X4, whereas the routine diagnostics are outcome-free functions of covariates and weights. Estimating the interaction in the same sample whose error is being diagnosed also creates possible in-sample optimism. Moreover, if X4, its target mean, and its interaction are all available, the analyst could adjust for X4 rather than merely issue a warning about omitting it.",
+   "what_would_satisfy": "Label the proposal as outcome-model-assisted, cross-fit or independently estimate the interaction, and compare it with other outcome-assisted diagnostics such as estimated standard error, prognostic-score balance, and model-based bias estimates. Also compare with a correctly adjusted estimator including X4 and report oracle, independent-estimation, and same-sample versions separately."
+  },
+  {
+   "id": 5,
+   "severity": "major",
+   "section": "Prespecified decision rule; Primary results",
+   "comment": "Failure to reach sensitivity 0.80 and specificity 0.50 is not equivalent to failure to be a classifier. The choice of those operating requirements is not tied to an elicited loss function, and the results themselves show nontrivial discrimination and calibration for ESS. High firing frequency likewise does not make a rule cease to be a classifier; it describes a poor operating point. Within-stratum analysis removes the chosen mixture of omega and kappa, but it does not remove dependence on the equally arbitrary distribution of overlap, sample size, proxy correlation, dispersion, fixed modifier magnitudes, and the material-error threshold.",
+   "what_would_satisfy": "State the primary conclusion as 'no evaluated fixed cutoff met the prespecified operating requirements in this design.' Justify those requirements using stakeholder consequences or a loss function, and provide sensitivity analyses over modifier magnitudes, scenario weights, and material-error thresholds."
+  },
+  {
+   "id": 6,
+   "severity": "major",
+   "section": "Calibration",
+   "comment": "The calibration analysis cannot yet support claims about transportability across settings. The predictor transformation and functional form of each logistic mapping are not reported, so apparent miscalibration may be model-form misspecification rather than a property of the diagnostic. A single odd-cell/even-cell split is fragile and may separate levels of a design factor depending on cell enumeration. The same-cell result is not an 'optimistic bound' because it is sometimes worse than the new-cell result.",
+   "what_would_satisfy": "Specify every predictor transformation and calibration model, demonstrate that the cell split is balanced across all factors, and use repeated grouped cross-validation or leave-one-factor-level-out validation. Report uncertainty, calibration plots, and results under both deployment and equal-cell weights, and call the same-cell analysis a comparator rather than a bound."
+  },
+  {
+   "id": 7,
+   "severity": "major",
+   "section": "Results and adherence to the registered protocol",
+   "comment": "Several prespecified results are absent from the manuscript: discrimination against arm imbalance, equal-cell versions of mixture-level AUROC, calibration and decision curves, material-error thresholds 0.10 and 0.30, full interval-noncoverage analyses, and per-cell nonfit rates. The component-specific event definitions are not stated. The paired AUROC differences of 0.194 and 0.086 are central decision quantities but are reported without Monte Carlo standard errors or intervals.",
+   "what_would_satisfy": "Provide a complete protocol-to-results table and place every prespecified analysis in the paper or a clearly referenced supplement. Include paired Monte Carlo uncertainty for all prespecified differences and intervals for AUPRC, calibration, and decision-curve quantities."
+  },
+  {
+   "id": 8,
+   "severity": "major",
+   "section": "Definition of material error",
+   "comment": "The claim that 0.20 is one fifth of the outcome standard deviation is not consistent with the stated mechanism. The marginal outcome variance includes the prognostic function, treatment-effect heterogeneity, and residual variance, and it changes across target dispersion and treatment arms. Thus 0.20 is one fifth of the residual standard deviation, not generally one fifth of the outcome standard deviation. Because every classifier result depends on this threshold, the distinction is substantive.",
+   "what_would_satisfy": "Correct the scale description, report the marginal outcome standard deviations by relevant cell or define the threshold explicitly in residual-SD units, and present the already-prespecified 0.10 and 0.30 sensitivity analyses."
+  },
+  {
+   "id": 9,
+   "severity": "major",
+   "section": "Threshold transportability mechanism claim",
+   "comment": "Variation in the material-error rate among rule-positive cells is variation in positive predictive value, not a valid test of threshold transportability or calibration. It necessarily varies with cell prevalence and case mix even when sensitivity and specificity are stable. The post hoc span among rule-negative cells is therefore not a 'stronger' version of the registered calibration claim.",
+   "what_would_satisfy": "Treat the span as an exploratory description of cellwise predictive values. Assess transportability through calibration of a locked risk model in held-out cells or factor levels, and report cell-stratified sensitivity, specificity, predictive values, and decision utility without equating them."
+  },
+  {
+   "id": 10,
+   "severity": "minor",
+   "section": "Decision-curve analysis",
+   "comment": "The prose does not match Table 5. At an action threshold of 0.40, relative ESS, pre-weighting imbalance, and Mahalanobis distance all exceed both flagging alternatives, although relative ESS has the largest net benefit. The practical action triggered by a warning is also left undefined, so the analysis quantifies a hypothetical classification tradeoff rather than demonstrated benefit from acting.",
+   "what_would_satisfy": "Correct the numerical description, identify all rules above both comparators, and define the contemplated action, its expected benefit, and its harm. Otherwise describe the analysis as hypothetical net classification benefit."
+  },
+  {
+   "id": 11,
+   "severity": "major",
+   "section": "Matched-moment balance and nonconvergence",
+   "comment": "Post-weighting balance is forced to zero only conditional on accepting an exact calibration solution. Its real operational purpose is to reveal failure or approximate failure of the balancing algorithm. Conditioning the analysis on successful fits and then concluding that the balance diagnostic cannot discriminate removes precisely the observations on which it can warn.",
+   "what_would_satisfy": "Separate the algebraic zero among successful exact fits from the operational diagnostic of residual imbalance or nonfit. Score a prespecified combined warning across all attempted analyses, or limit the claim to redundancy among accepted exact solutions."
+  },
+  {
+   "id": 12,
+   "severity": "major",
+   "section": "Literature review and novelty",
+   "comment": "The evidence offered for current practice and novelty is insufficient for a methodological journal. One conference abstract does not establish a widely used ESS operating rule or that appraisal committees interpret ESS specifically as a bias warning. The universal claim that no published work has evaluated these diagnostics as classifiers is based on an unspecified catalog audit. The proposed coefficient-times-imbalance construction also resembles established bias-function, prognostic-score, and moderator-sensitivity ideas in transportability and generalizability research.",
+   "what_would_satisfy": "Provide a reproducible literature-search account, cite primary MAIC and STC methods and appraisal guidance, document actual interpretations of ESS in practice, and position the proposed statistic against outcome-model-informed balance and transportability sensitivity-analysis literature. Narrow any universal novelty claim that cannot be established."
+  },
+  {
+   "id": 13,
+   "severity": "major",
+   "section": "Limitations",
+   "comment": "The limitations are candid about outcome type and estimator families but omit or under-rank the limitations that threaten the main conclusion: transport error is not isolated bias, the proposal receives outcome information unavailable to the panel, target summaries are treated as exact, the final indirect-comparison error is not analyzed, and the scenario distribution and modifier magnitudes are investigator-created. These are more consequential than the absence of noncollapsible outcomes.",
+   "what_would_satisfy": "Rewrite the limitations around the inferential threats identified above and state explicitly that the reported operating characteristics are properties of the declared simulation distribution, not intrinsic properties of the diagnostics."
+  },
+  {
+   "id": 14,
+   "severity": "minor",
+   "section": "Protocol and reporting consistency",
+   "comment": "Several internal inconsistencies should be resolved. The protocol's sample-size calculation still totals three estimators after a fourth was added; one section says calibration uses odd and even replicates while the amendment and manuscript use odd and even cells; Table 1 promises bracketed Monte Carlo errors that are not displayed; and the value 550 labeled as ESS for unweighted methods needs explanation when n is specified per arm. The nonfit sensitivity bounds should also be reported by primary stratum with their exact denominator.",
+   "what_would_satisfy": "Issue a clean amended protocol or amendment crosswalk, correct the estimate count and calibration description, define whether ESS is pooled or arm-specific, display the promised uncertainty, and show the nonfit calculation explicitly."
+  }
+ ],
+ "citation_problems": [
+  {
+   "cite": "MSR65, ISPOR Europe 2024",
+   "problem": "The abstract supports an approximate empirical region in an unanchored simulation with different outcome types. It does not establish a recommended classifier cutoff, widespread use, or interpretation as a bias warning in anchored continuous-outcome analyses. The bibliographic entry also omits the abstract's authors."
+  },
+  {
+   "cite": "Austin and Steyerberg (2019)",
+   "problem": "This citation supports the integrated calibration index, but it does not validate the manuscript's odd-cell/even-cell design or the causal interpretation that the difference between errors represents 'memory of the setting.'"
+  },
+  {
+   "cite": "No citation supplied for appraisal practice",
+   "problem": "The assertions that every population-adjusted comparison carries this exact panel and that appraisal committees read it as evidence about bias require support from appraisal guidance, decision records, or empirical studies."
+  },
+  {
+   "cite": "No published work has scored any of these as a classifier",
+   "problem": "This universal novelty claim is not supported by a reported search strategy or review methods. A catalog audit and two auditors are not enough to establish absence from the literature."
+  },
+  {
+   "cite": "The proposal is ours",
+   "problem": "The manuscript does not distinguish the proposed interaction-coefficient-times-imbalance statistic from existing prognostic-score balance, bias-function, moderator-sensitivity, and trial-generalizability methods that use outcome associations to weight population imbalance."
+  },
+  {
+   "cite": "MAIC, STC, and routine ESS diagnostics",
+   "problem": "Primary citations for the MAIC and STC methods, foundational population-adjustment guidance, and the origin and intended interpretation of routine weight diagnostics are missing from an otherwise very short reference list."
+  }
+ ],
+ "conclusions_supported": false,
+ "unsupported_claims": [
+  "Only the middle term is knowable from covariates.",
+  "The first and third depend on the realized outcomes.",
+  "Reading the panel is not reading a warning about bias.",
+  "Three of the panel’s members are one statistic written three ways.",
+  "A rule that warns about almost every analysis is not a classifier.",
+  "The weight-dispersion statistics calibrate tolerably across cells they have not seen.",
+  "Nearly half of its apparent calibration is memory of the setting.",
+  "Only once the action threshold reaches 0.400, meaning the analyst will only intervene when material error is at least that likely, does a diagnostic earn its place, and the one that does it is the relative effective-sample-size rule rather than the absolute one that gets quoted.",
+  "That is a stronger result than the one registered.",
+  "The diagnostic is informative about the problem and uninformative about the solution.",
+  "Carrying target-moment sampling error here would add a noise channel no source-side diagnostic can observe and would depress every discrimination measure by a common amount without changing which diagnostic beats which.",
+  "A binary or survival outcome would add a component of error that is a collapsibility artifact rather than an adjustment failure."
+ ],
+ "reviewer": "sol",
+ "name": "GPT-5.6 Sol (maximum reasoning effort)",
+ "round": 1
+}
+
+
+# AUTHORS' RESPONSE TO ROUND ONE
+
+# Response to round one
+
+Three reviewers, `major-revision` from two and `minor-revision` from one. Nineteen
+comments, thirteen of them major. Every change described below was checked against the
+manuscript source and the analysis code before this letter was written, by a script that
+greps for the specific text of each claimed change; that check is in the study directory
+and all thirty-four items pass. This program has three times published a response
+describing a change the manuscript did not contain, and the check exists because of it.
+
+Two of the reviewers' findings changed a result, not only a sentence. They are first.
+
+---
+
+## 1. The load-bearing claim in section 3 was wrong (Sol 1, Kimi 2, GLM 3)
+
+All three reviewers, independently, said that our statement
+
+> The first and third depend on the realized outcomes; no function of $X$, the weights and
+> a published baseline table has any information about $\varepsilon$
+
+is false, and that it is false in two separate ways. They are right on both.
+
+**The arm-imbalance term uses no outcome at all.** $L(f)$ applies the estimator's linear
+functional to the prognostic index, a function of realized covariates, treatment assignment
+and weights. Grouping it with outcome noise as "not knowable from covariates" was simply an
+error. It is now scored like the other two components, and it turns out to be the channel
+effective sample size reads *best*: AUROC 0.813, against 0.847 for noise and 0.653 for
+transport. Reporting it strengthens the paper rather than weakening it, because it shows
+that the two components the panel tracks are exactly the two that are functions of the
+information the panel is built from.
+
+**The noise channel's variance is a known function of the weights.** Sol and Kimi both
+derived it; we verified it numerically before accepting it:
+
+$$\mathrm{Var}\{L(\varepsilon) \mid X, A, w\} = \sigma^2(1/\mathrm{ESS}_A + 1/\mathrm{ESS}_C)$$
+
+exactly, with arm-specific effective sample sizes. So an area under the curve of 0.847
+against the noise event is close to arithmetic and we now say so in the text rather than
+presenting it as a discovery. One qualification we have added because it is true and
+matters: the *reported* pooled effective sample size is not that quantity.
+$2\sigma^2/\mathrm{ESS}_{\text{pooled}}$ is about 0.54 of the correct value in a
+representative cell, and correlates with the exact noise standard deviation at $-0.92$ on
+the log scale rather than at $-1$. So it is a strong proxy, not an identity.
+
+What survives is the comparison, and we have rewritten section 3 to make the argument turn
+on it: nothing forces a weight-dispersion statistic to be uninformative about the gap
+between a weighted source and a target, and in the well-specified stratum it reaches 0.946
+against the transport component. What it cannot see is the part of the modifier structure
+the weights never touched.
+
+## 2. The calibration split was confounded (Sol 6)
+
+Sol warned that a single odd-cell/even-cell split "may separate levels of a design factor
+depending on cell enumeration". We checked, and in this design it did so perfectly: cells
+are enumerated with the target dispersion ratio varying fastest, so **every** odd cell had
+ratio 1.00 and **every** even cell had 1.25. The reported cross-cell calibration measured
+transport across one factor and we called it transport in general.
+
+Replaced by leave-one-factor-level-out: fourteen folds, each holding out every cell at one
+level of one factor, balanced across everything else by construction. The numbers changed
+and the conclusion changed with them. Effective sample size now has a median integrated
+calibration error of 0.076 and a **worst-fold error of 0.197**, and the previous claim that
+the overlap statistics calibrate much worse than the weight statistics (0.143 against 0.065)
+was an artifact: on a balanced split they are 0.098 and 0.076.
+
+The new result is better than the old one. The worst held-out level is the same for every
+weight-dispersion statistic in the panel, and it is the cross-moment channel: a risk mapping
+learned where a bias no baseline table can reveal is operating, applied where it is not, is
+off by about twenty points of absolute risk. That is the substantive transportability
+finding, and it is now the one the paper makes.
+
+We have also stated the model form Sol asked for: a logistic regression on one transformed
+diagnostic, minus the natural logarithm where a low value is the warning and the statistic
+itself otherwise, one linear term, no splines.
+
+---
+
+## Point by point
+
+**Sol 2, Kimi 1. Which contrast is scored.** Agreed and fixed. The primary reference is the
+transported $A$ versus $C$ effect, the design section now says so in the first sentence
+about the reference, and the reason is given: the anchored contrast carries the target
+trial's sampling error, which no source-side diagnostic can observe. The anchored contrast is
+now reported alongside every discrimination result and in its own operating-point table, and
+the conclusions are unchanged (effective sample size 0.699 against 0.731).
+
+**Sol 3. Findings built into the mechanism.** Partly agreed and now labeled. The noise result
+is presented as an arithmetic check, per point 1. The dispersion factor lowering effective
+sample size without bias in the well-specified stratum is stated as a designed property, not
+a finding; it is the instrument that makes the study falsifiable, and the protocol already
+says so. We do not agree that the omitted-modifier and cross-moment channels being invisible
+to marginal balance statistics is "built in" in the objectionable sense: that a marginal
+statistic cannot see a cross-moment is a mathematical fact about the diagnostics, and
+demonstrating its consequence is the point of the study, not an artifact of it. What is
+genuinely built in, and now stated, is *how often* those channels operate, which is why the
+primary results are within strata.
+
+**Sol 4. The proposal is not compared on equal information.** Agreed, and this is the
+sharpest comment on our own contribution. $\widehat{b}$ uses source outcomes through an
+interaction estimated in the sample whose error is being diagnosed, while the panel is
+outcome-free. It is now labeled an outcome-model-assisted diagnostic wherever it appears, the
+in-sample optimism is stated, and we say we did not cross-fit. We have also reported that the
+plain balance check on unmatched covariates does about as well here (0.946 against 0.938),
+and changed the recommendation accordingly: check balance on everything you measured, not
+only on what you matched. That is a weaker claim than the one we set out to make and it is
+the one the data support.
+
+**Sol 5. "Does not classify" overstates.** Agreed on the framing. The verdict label is
+registered and we have not changed it, but the abstract now states precisely what it means:
+no evaluated fixed cutoff met a sensitivity and specificity pair chosen in advance. The
+limitations say that those requirements were not derived from an elicited loss function, that
+the statistics do carry information, and that a reader wanting a different operating point
+can take one off the ROC curves. What the decision-curve analysis adds is that at the action
+thresholds a cautious analyst would use, no available operating point beats scrutinizing
+everything.
+
+**Sol 7. Registered analyses missing from the paper.** Agreed and fixed. Discrimination
+against arm imbalance, equal-cell-weight areas under the curve, material thresholds of 0.10
+and 0.30, and the anchored contrast are now in one table. Per-cell non-fit rates are in the
+tracked results. We have not added paired Monte Carlo intervals for the two AUROC
+differences behind the mechanism claims; the bootstrap is cell-stratified and unpaired, and
+constructing paired intervals properly is more work than the remaining claims can carry. We
+say instead, in the mechanism section, that both differences are reported as point estimates
+against a registered threshold.
+
+**Sol 8. The material threshold is on the residual scale.** Agreed; this was an error. 0.20
+is a fifth of the residual standard deviation, not of the marginal outcome standard
+deviation, which contains the prognostic index and runs from 1.37 to 1.66 across the design.
+Corrected, with the range reported, and the 0.10 and 0.30 analyses are now shown.
+
+**Sol 9. The span across cells is predictive value, not calibration.** Agreed, and this
+retracts something we had promoted. A first draft called the silent-cell span "a stronger
+result" than the registered claim. It is not; both spans are variation in predictive value,
+which moves with prevalence and case mix even when operating characteristics are stable. The
+text now says that, says the registered test failed, and points to the leave-one-factor-out
+calibration as the proper evidence on transportability.
+
+**Sol 10. Decision-curve prose did not match the table.** Correct. Three rules exceed both
+alternatives at an action threshold of 0.4, not one. Fixed, and the sentence now names them.
+
+**Sol 11. Conditioning on convergence removes the cases where balance can warn.** Agreed and
+this is a real narrowing of our claim. The finding is now stated as: among analyses that
+converged, the matched-moment balance statistic is redundant by construction, and reporting
+it as evidence the adjustment worked is reporting that the solver terminated. Whether it is
+useful as a convergence check is a different question this design cannot answer, and we say
+so. The non-fit rate is reported separately.
+
+**Sol 12, Kimi citations. Practice and novelty under-evidenced.** Agreed in substance. The
+introduction now attributes the reporting conventions to the NICE DSU guidance
+[@phillippo2018] and, for the overlap statistics, to the transportability literature
+[@stuart2011; @tipton2014]; describes the ISPOR abstract as a region found in a different
+setting that is now quoted informally rather than as a published rule; and states plainly
+that **we have not surveyed how appraisal committees use these numbers and make no claim
+about it.** Kish is now cited for the effective sample size and the identity, which is
+standard survey-weighting arithmetic and not ours. The protocol adds a note on which
+thresholds have a primary source and which are conventions in circulation without one. We
+have not produced a reproducible literature-search account; the audit that produced the
+open problem is published with the catalog, and we point to it rather than restating it.
+
+**Sol 13. Limitations under-rank the real threats.** Agreed and rewritten around them: the
+transport component is a realized effect-modifier component and not isolated systematic
+bias; the proposal receives outcome information the panel does not; the anchored contrast is
+secondary; and the operating characteristics are properties of the declared distribution,
+not of the diagnostics.
+
+**Sol 14, Kimi 8. Internal inconsistencies.** Fixed. The protocol's arithmetic now reads
+$128 \times 4000 \times 4$ and its linearity statement says four estimators.
+
+**Sol 15 (replicate count), within Sol 14's group.** Agreed and added: the 4000 figure was
+derived at an assumed prevalence of 0.10, and at 1% the same formula gives about 0.045, so
+the least informative cells are estimated far less precisely than the headline. The primary
+measure is a cell-weighted ratio whose Monte Carlo error comes from the delta method, which
+is an order of magnitude smaller; the protocol now says both things.
+
+**GLM 1, Kimi 5. The abstract's numbers appeared in no table.** Correct and fixed; the
+stratum-by-component table is new. It also answers Kimi's question about which panel member
+reaches 0.851.
+
+**GLM 2. The abstract framed a missed claim as a positive result.** Agreed. The abstract now
+says two of four registered mechanism claims failed, including one of our own proposals.
+
+**GLM 4. Morris et al. missing from the manuscript's references.** Fixed.
+
+**GLM 5, Kimi 7. Coverage of the primary estimator missing.** Fixed; all four estimators are
+in a coverage table. MAIC covers at 0.748 on the transported effect over a design containing
+a great deal of deliberate misspecification.
+
+**Kimi 3. "Removes the dependence entirely" overstates.** Agreed. Within-stratum reporting
+removes the dependence on the misspecification frequencies only; the design points, the
+levels and equal weighting inside a stratum are still ours. The limitations now say this and
+name what remains.
+
+**Kimi 4. The non-fit bracket was arithmetically unclear.** Fixed: the bracket is over the
+whole design with cells weighted equally, not within the omitted-modifier stratum, and it
+moves the figure by under a percentage point because MAIC converged on 99.3%.
+
+**Kimi 6. Identical rows for pre-weighting imbalance and Mahalanobis distance.** Not a
+table-generation error. In this mechanism the target mean is displaced by the same amount in
+every covariate, so the maximum standardized difference and the Mahalanobis distance are
+near-monotone functions of each other and agree to three decimals. It is a property of the
+design and a limitation of it: a design with differential displacement would separate them.
+
+**Kimi 9. The 50% effective-sample-size rule is labeled published without a citation.**
+Agreed; relabeled as a convention in circulation, with the protocol note above.
+
+---
+
+## What we did not do
+
+We did not add heteroskedastic errors, nonlinear or multiple omitted modifiers, uncertain
+target moments, or additional estimator families (Sol 3, Sol 4, Sol 12). Each is a real
+extension and each is a different study; the limitations name them. We did not cross-fit the
+proposed diagnostic. We did not construct paired Monte Carlo intervals for the two mechanism
+differences. We did not survey appraisal practice, and we now say we did not rather than
+implying we had.

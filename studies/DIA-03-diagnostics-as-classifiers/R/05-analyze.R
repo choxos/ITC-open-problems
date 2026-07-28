@@ -169,26 +169,36 @@ wauprc <- function(score, event, w) {
 ## fitted once and locked, tells the truth on data it did not see. The mapping is
 ## fitted on odd-numbered replicates and evaluated on even-numbered ones, which is
 ## deterministic and needs no extra seed.
-## `split_by` chooses what is held out. "replicate" fits on odd replicates and
-## evaluates on even ones within the same cells, which measures calibration in
-## settings the mapping has already seen and is the optimistic bound. "cell" fits
-## on odd-numbered cells and evaluates on even-numbered ones, which is the
-## question an analyst actually faces: does a risk mapping calibrated elsewhere
-## tell the truth here. The critique was right that only the second one tests
-## what "calibrated" is supposed to mean, and both are reported.
-calib <- function(d, nm, event, w, split_by = c("cell", "replicate")) {
-  split_by <- match.arg(split_by)
+## THE MODEL, STATED. The mapping is a logistic regression of the material-error
+## indicator on a single transformed diagnostic: minus the natural logarithm for
+## the statistics where a LOW value is the warning, the statistic itself
+## otherwise. One linear term, no splines. Peer review asked for this to be stated
+## because apparent miscalibration of an unstated model form is uninterpretable.
+##
+## `fit_i` says which rows train it. Peer review also caught a real defect in the
+## first version, which trained on odd-numbered cells and tested on even ones:
+## because cells are enumerated with the target dispersion ratio varying fastest,
+## that split put every dispersion-1.00 cell in training and every 1.25 cell in
+## test, so it measured transport across one factor and called it transport in
+## general. It is replaced by leave-one-factor-level-out, which is balanced by
+## construction, and by the within-cell replicate split as the optimistic bound.
+calib <- function(d, nm, event, w, fit_i) {
   x <- d[[nm]]
   ok <- is.finite(x)
   x <- if (isTRUE(DIRECTION[[nm]])) -log(pmax(x[ok], 1e-6)) else x[ok]
-  y <- event[ok]; ww <- w[ok]
-  fit_i <- if (split_by == "replicate") d$rep[ok] %% 2L == 1L else
-    d$scenario[ok] %% 2L == 1L
+  y <- event[ok]; ww <- w[ok]; fit_i <- fit_i[ok]
   if (sum(fit_i) < 50 || length(unique(y[fit_i])) < 2) return(c(NA, NA, NA))
   m <- stats::glm(y[fit_i] ~ x[fit_i], family = stats::binomial())
-  lp <- stats::coef(m)[1] + stats::coef(m)[2] * x[!fit_i]
+  b <- stats::coef(m)
+  ## A predictor that is constant to machine precision, which the matched-moment
+  ## balance statistic is, gives an unusable slope. Return empty rather than a
+  ## number that would read as a calibration result.
+  if (length(b) < 2 || any(!is.finite(b))) return(c(NA, NA, NA))
+  lp <- b[1] + b[2] * x[!fit_i]
   yv <- y[!fit_i]; wv <- ww[!fit_i]
-  if (length(unique(yv)) < 2) return(c(NA, NA, NA))
+  if (length(unique(yv)) < 2 || !any(is.finite(lp))) return(c(NA, NA, NA))
+  keep <- is.finite(lp)
+  lp <- lp[keep]; yv <- yv[keep]; wv <- wv[keep]
   ## Calibration intercept with the slope fixed at one, then the slope.
   ci <- stats::glm(yv ~ offset(lp), family = stats::binomial(), weights = wv)
   cs <- stats::glm(yv ~ lp, family = stats::binomial(), weights = wv)
@@ -225,7 +235,14 @@ res$material10 <- abs(res$err) > 0.10
 res$material30 <- abs(res$err) > 0.30
 res$big_transport <- abs(res$transport) > MATERIAL
 res$big_noise <- abs(res$noise) > MATERIAL
+## Added after peer review. Two reviewers pointed out independently that the
+## arm-imbalance term is a function of the realized covariates, the treatment
+## assignment and the weights, and of no outcome at all, so it is in principle
+## diagnosable from covariates and the manuscript was wrong to group it with the
+## outcome noise. It is now scored like the other two.
+res$big_arm <- abs(res$arm_imbalance) > MATERIAL
 res$noncover <- !res$covered
+res$material_anchored <- abs(res$err_anchored) > MATERIAL
 
 fit_rate <- vapply(split(res$fitted[res$method == "maic"],
                          res$scenario[res$method == "maic"]), mean, 0)
@@ -326,10 +343,35 @@ disc <- do.call(rbind, lapply(ALL_D, function(nm) {
     auprc_deploy = wauprc(s, M$material, M$w_deploy),
     auc_transport = wauc(s, M$big_transport, M$w_deploy),
     auc_noise = wauc(s, M$big_noise, M$w_deploy),
+    auc_arm = wauc(s, M$big_arm, M$w_deploy),
     auc_noncover = wauc(s, M$noncover, M$w_deploy),
+    auc_anchored = wauc(s, M$material_anchored, M$w_deploy),
     auc_10 = wauc(s, M$material10, M$w_deploy),
     auc_30 = wauc(s, M$material30, M$w_deploy),
     stringsAsFactors = FALSE)
+}))
+
+## Discrimination against the transport component, within each misspecification
+## stratum. Registered mechanism claim 4 lives here, and peer review was right
+## that the two numbers behind it appeared in the abstract and in no table.
+disc_str <- do.call(rbind, lapply(STRATUM, function(st) {
+  z <- M[M$stratum == st, ]
+  data.frame(stratum = st,
+             t(vapply(ALL_D, function(nm)
+               wauc(sgn(nm, z[[nm]]), z$big_transport, z$w_equal), 0)),
+             check.names = FALSE, stringsAsFactors = FALSE)
+}))
+
+## The anchored contrast, which is what a submission actually reports. The primary
+## reference is the transported source-side effect, because that is the part a
+## source-side diagnostic could know about; two reviewers noted that calling the
+## design anchored while scoring only that component is not licensed, so the
+## anchored analysis is reported alongside rather than left in the protocol.
+anch <- do.call(rbind, lapply(rules, function(r) {
+  a <- oper(M, r, M$material_anchored, "deploy")
+  data.frame(rule = r, sensitivity = a[["sensitivity"]],
+             specificity = a[["specificity"]], prevalence = a[["prevalence"]],
+             stringsAsFactors = FALSE)
 }))
 
 ## --- ROC curves, thinned so the tracked artifact stays small ----------------
@@ -355,10 +397,28 @@ roc$target <- "material error"; roc_t$target <- "transport error"
 roc <- rbind(roc, roc_t)
 
 ## --- calibration -------------------------------------------------------------
+## Leave-one-factor-level-out folds: hold out every cell at one level of one
+## factor, train on the rest. Fourteen folds, balanced across everything else by
+## construction.
+FOLDS <- do.call(c, lapply(names(LEVELS), function(f)
+  lapply(LEVELS[[f]], function(l) list(factor = f, level = l))))
+
+cal_folds <- do.call(rbind, lapply(ALL_D, function(nm)
+  do.call(rbind, lapply(FOLDS, function(fd) {
+    v <- calib(M, nm, M$material, M$w_deploy, M[[fd$factor]] != fd$level)
+    data.frame(diagnostic = nm, factor = fd$factor, level = fd$level,
+               cal_intercept = v[1], cal_slope = v[2], ice = v[3],
+               stringsAsFactors = FALSE)
+  }))))
+
 cal <- do.call(rbind, lapply(ALL_D, function(nm) {
-  a <- calib(M, nm, M$material, M$w_deploy, "cell")
-  b <- calib(M, nm, M$material, M$w_deploy, "replicate")
-  data.frame(diagnostic = nm, cal_intercept = a[1], cal_slope = a[2], ice = a[3],
+  out <- cal_folds[cal_folds$diagnostic == nm, ]
+  b <- calib(M, nm, M$material, M$w_deploy, M$rep %% 2L == 1L)
+  data.frame(diagnostic = nm,
+             cal_intercept = stats::median(out$cal_intercept, na.rm = TRUE),
+             cal_slope = stats::median(out$cal_slope, na.rm = TRUE),
+             ice = stats::median(out$ice, na.rm = TRUE),
+             ice_worst = max(out$ice, na.rm = TRUE),
              ice_same_cells = b[3], slope_same_cells = b[2],
              stringsAsFactors = FALSE)
 }))
@@ -456,6 +516,14 @@ cells <- do.call(rbind, lapply(split(M, M$scenario), function(z) {
              bias = mean(z$err), transport = mean(z$transport),
              ess = median(z$ess), fires_ess35 = mean(z$ess < 35),
              fires_bias_hat = mean(z$bias_hat > THRESH$bias_hat),
+             ## Marginal outcome standard deviation in the target, so the material
+             ## threshold can be stated on the right scale. Peer review pointed
+             ## out that 0.20 is a fifth of the RESIDUAL standard deviation, not
+             ## of the outcome standard deviation, which also includes the
+             ## prognostic index and the treatment-effect heterogeneity.
+             sd_outcome = sqrt(as.numeric(crossprod(
+               BETA_PROG, cov_matrix(RHO_12_TARGET, s$rho4, s$sd_target) %*%
+                 BETA_PROG)) + SIGMA^2),
              stringsAsFactors = FALSE)
 }))
 rownames(cells) <- NULL
@@ -520,12 +588,29 @@ L <- c("# Decision", "",
   sprintf("| %s | %s (%s) | %s | %s | %s | %s |", disc$diagnostic,
           f3(disc$auc_deploy), f3(disc$auc_mcse), f3(disc$auprc_deploy),
           f3(disc$auc_transport), f3(disc$auc_noise), f3(disc$auc_noncover)), "",
+  "### All three error components, equal cell weights, and the other thresholds", "",
+  "| diagnostic | vs arm imbalance | vs transport | vs noise | AUROC (equal wts) | material 0.10 | material 0.30 | anchored contrast |",
+  "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
+  sprintf("| %s | %s | %s | %s | %s | %s | %s | %s |", disc$diagnostic,
+          f3(disc$auc_arm), f3(disc$auc_transport), f3(disc$auc_noise),
+          f3(disc$auc_equal), f3(disc$auc_10), f3(disc$auc_30),
+          f3(disc$auc_anchored)), "",
+  "### Discrimination against the transport component, by stratum", "",
+  paste("| diagnostic |", paste(disc_str$stratum, collapse = " | "), "|"),
+  paste0("| --- |", strrep(" ---: |", nrow(disc_str))),
+  vapply(ALL_D, function(nm) sprintf("| %s | %s |", nm,
+    paste(f3(disc_str[[nm]]), collapse = " | ")), ""), "",
+  "### The anchored contrast, which is what a submission reports", "",
+  "| rule | sensitivity | specificity | prevalence |", "| --- | ---: | ---: | ---: |",
+  sprintf("| %s | %s | %s | %s |", anch$rule, f3(anch$sensitivity),
+          f3(anch$specificity), f3(anch$prevalence)), "",
   "## Calibration of a locked mapping", "",
-  "Fitted on odd-numbered cells and evaluated on even-numbered ones, which is the question an analyst faces: does a risk mapping calibrated elsewhere tell the truth here. The last column refits within the same cells and is the optimistic bound.",
-  "", "| diagnostic | intercept | slope | integrated calibration error | same-cell error |",
-  "| --- | ---: | ---: | ---: | ---: |",
-  sprintf("| %s | %s | %s | %s | %s |", cal$diagnostic, f3(cal$cal_intercept),
-          f3(cal$cal_slope), f3(cal$ice), f3(cal$ice_same_cells)), "",
+  "Leave-one-factor-level-out: fourteen folds, each holding out every cell at one level of one factor. Median over folds, with the worst fold, and the within-cell replicate split as the optimistic bound. A logistic model on one transformed diagnostic; no splines.",
+  "", "| diagnostic | intercept | slope | calibration error (median) | worst fold | same-cell |",
+  "| --- | ---: | ---: | ---: | ---: | ---: |",
+  sprintf("| %s | %s | %s | %s | %s | %s |", cal$diagnostic, f3(cal$cal_intercept),
+          f3(cal$cal_slope), f3(cal$ice), f3(cal$ice_worst),
+          f3(cal$ice_same_cells)), "",
   "## Decision curve: is acting on the rule better than not?", "",
   "Net benefit relative to flagging nothing. A rule earns its place only above both alternatives.",
   "", paste("| threshold prob | flag none | flag all |",
@@ -552,9 +637,21 @@ utils::write.csv(op_diag, file.path(RES, "operating-points-diagnosable.csv"), ro
 utils::write.csv(other, file.path(RES, "other-estimators.csv"), row.names = FALSE)
 utils::write.csv(disc, file.path(RES, "discrimination.csv"), row.names = FALSE)
 utils::write.csv(cal, file.path(RES, "calibration.csv"), row.names = FALSE)
+utils::write.csv(cal_folds, file.path(RES, "calibration-folds.csv"), row.names = FALSE)
 utils::write.csv(dca, file.path(RES, "decision-curve.csv"), row.names = FALSE)
 utils::write.csv(cells, file.path(RES, "cells.csv"), row.names = FALSE)
 utils::write.csv(roc, file.path(RES, "roc.csv"), row.names = FALSE)
+utils::write.csv(disc_str, file.path(RES, "discrimination-by-stratum.csv"), row.names = FALSE)
+utils::write.csv(anch, file.path(RES, "anchored-operating-points.csv"), row.names = FALSE)
+utils::write.csv(
+  data.frame(method = c("maic", "maic_mean", "stc", "unadj"),
+             coverage = vapply(c("maic", "maic_mean", "stc", "unadj"), function(m)
+               mean(res$covered[res$method == m & res$fitted]), 0),
+             coverage_anchored = vapply(c("maic", "maic_mean", "stc", "unadj"), function(m)
+               mean(res$covered_anchored[res$method == m & res$fitted]), 0),
+             fitted = vapply(c("maic", "maic_mean", "stc", "unadj"), function(m)
+               mean(res$fitted[res$method == m]), 0)),
+  file.path(RES, "coverage.csv"), row.names = FALSE)
 utils::write.csv(one_stat, file.path(RES, "panel-redundancy.csv"), row.names = FALSE)
 saveRDS(MECH, file.path(RES, "mechanism.rds"))
 cat(paste(L, collapse = "\n"), "\n")

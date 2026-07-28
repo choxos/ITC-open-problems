@@ -85,7 +85,7 @@ MAIC solves $\sum_i w_i(\lambda)\{h(X_i) - m_T\} = 0$ with $w_i = \exp\{\lambda^
 and $h(X) = (X_1, X_2, X_3, X_1^2, X_2^2, X_3^2)^\top$, which is exactly what a baseline
 table of means and standard deviations supports.
 
-All three estimators are **linear in the outcome vector** for a fixed design: write
+All four estimators are **linear in the outcome vector** for a fixed design: write
 $\hat\theta = L(Y)$ for the appropriate linear functional $L$. Applying $L$ to each piece
 of $\mathbb{E}[Y \mid X, A] = f(X) + \mathbb{1}(A)\{d_A + g_A(X)\}$ splits the realized
 error into three terms that add up exactly, with no approximation and no large-sample
@@ -245,7 +245,7 @@ to the statistic or to the information not being present.
 | diagnostic | threshold | where the threshold comes from |
 |---|---|---|
 | absolute effective sample size | < 35, and < 30 | a **candidate cutoff motivated by** ISPOR Europe 2024 MSR65, see below |
-| effective sample size as a percentage | < 50% | **published**, appraisal commentary |
+| effective sample size as a percentage | < 50% | **convention in circulation**, no primary citation; see note |
 | coefficient of variation of the weights | > 1.00 | implied by the above |
 | largest single weight share | > 0.10 | rule of thumb |
 | post-weighting standardized difference, matched moments | > 0.10 | conventional |
@@ -253,6 +253,14 @@ to the statistic or to the information not being present.
 | Mahalanobis distance of the target mean from the source | > 1.00 | **no convention exists**; set a priori, see section 10 |
 | post-weighting standardized difference, unmatched covariate | > 0.10 | conventional, applied to a covariate that was measured and not adjusted for |
 | $\widehat{b} = \lvert\hat\gamma_4 (\mu_{T4} - \bar X_4^w)\rvert$ | > 0.10 | **this study's proposal**; half the material-error threshold |
+
+**A note on where these thresholds come from, added in review.** Only the balance cuts of
+0.10 and 0.25 have an unambiguous primary source. The effective-sample-size region of 30 to
+35 comes from one conference abstract in a different setting; the 50% reduction figure and
+the 10% maximum-weight figure circulate in appraisal commentary and package documentation
+without a primary methodological citation that we can point to. Calling any of them
+"published rules" was too strong, and the manuscript now describes them as conventions in
+circulation whose transportability to this setting is one of the things being tested.
 
 Two entries are settled by algebra before any data exist, and are included because a
 reader who has seen them side by side in a submission deserves the demonstration.
@@ -322,7 +330,16 @@ $$\mathrm{SE} = \sqrt{\frac{A(1-A) + (n_1-1)(Q_1 - A^2) + (n_0-1)(Q_2 - A^2)}{n_
 \quad Q_1 = \frac{A}{2-A} = 0.600,\ Q_2 = \frac{2A^2}{1+A} = 0.643,$$
 
 giving $\sqrt{304.6 / 1.44 \times 10^6} = 0.0145$. So 4000 meets the target with margin.
-The design is $128 \times 4000 \times 3 = 1{,}536{,}000$ estimates.
+The design is $128 \times 4000 \times 4 = 2{,}048{,}000$ estimates across four estimators.
+
+Two caveats on that arithmetic, both raised in peer review and both correct. It assumes an
+unweighted area under the curve at a prevalence of 0.10; at 1% prevalence the same formula
+gives about 0.045, so the least informative cells are estimated far less precisely than the
+headline figure suggests, and the realized per-cell prevalences are reported. And the primary
+measure is not a within-cell area under the curve but a cell-weighted sensitivity and
+specificity, whose Monte Carlo error comes from the delta method in section 8 and is an order
+of magnitude smaller. The 4000 figure is therefore comfortable for the primary and should be
+read with the per-cell prevalences for anything estimated inside a single cell.
 
 ## 9. The decision rule, written before the results exist
 

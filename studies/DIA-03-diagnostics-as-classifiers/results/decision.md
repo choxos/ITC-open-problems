@@ -84,23 +84,70 @@ Replicates on which MAIC had no solution: 3,747. Bracketing the primary rule's s
 | orc_cross | 0.581 (0.001) | 0.551 | 0.809 | 0.505 | 0.590 |
 | lambda_norm | 0.698 (0.001) | 0.664 | 0.660 | 0.796 | 0.622 |
 
+### All three error components, equal cell weights, and the other thresholds
+
+| diagnostic | vs arm imbalance | vs transport | vs noise | AUROC (equal wts) | material 0.10 | material 0.30 | anchored contrast |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| ess | 0.813 | 0.653 | 0.847 | 0.721 | 0.683 | 0.779 | 0.699 |
+| ess_pct | 0.807 | 0.667 | 0.813 | 0.717 | 0.675 | 0.770 | 0.692 |
+| cv_w | 0.807 | 0.667 | 0.813 | 0.717 | 0.675 | 0.770 | 0.692 |
+| max_w | 0.837 | 0.660 | 0.833 | 0.729 | 0.690 | 0.791 | 0.708 |
+| smd_matched | 0.583 | 0.538 | 0.571 | 0.557 | 0.537 | 0.564 | 0.544 |
+| smd_pre | 0.739 | 0.655 | 0.799 | 0.690 | 0.641 | 0.728 | 0.658 |
+| maha | 0.737 | 0.656 | 0.796 | 0.690 | 0.640 | 0.726 | 0.657 |
+| smd_unmatched | 0.615 | 0.665 | 0.663 | 0.623 | 0.583 | 0.629 | 0.590 |
+| bias_hat | 0.603 | 0.684 | 0.643 | 0.619 | 0.582 | 0.625 | 0.588 |
+| orc_cross | 0.502 | 0.809 | 0.505 | 0.586 | 0.577 | 0.576 | 0.566 |
+| lambda_norm | 0.758 | 0.660 | 0.796 | 0.695 | 0.657 | 0.739 | 0.671 |
+
+### Discrimination against the transport component, by stratum
+
+| diagnostic | well specified | omitted modifier | cross-moment | both |
+| --- | ---: | ---: | ---: | ---: |
+| ess | 0.946 | 0.837 | 0.637 | 0.658 |
+| ess_pct | 0.925 | 0.862 | 0.642 | 0.679 |
+| cv_w | 0.925 | 0.862 | 0.642 | 0.679 |
+| max_w | 0.940 | 0.841 | 0.643 | 0.664 |
+| smd_matched | 0.587 | 0.600 | 0.529 | 0.541 |
+| smd_pre | 0.897 | 0.859 | 0.617 | 0.681 |
+| maha | 0.894 | 0.859 | 0.618 | 0.683 |
+| smd_unmatched | 0.737 | 0.946 | 0.573 | 0.755 |
+| bias_hat | 0.725 | 0.938 | 0.566 | 0.746 |
+| orc_cross | 0.500 | 0.500 | 0.648 | 0.626 |
+| lambda_norm | 0.869 | 0.850 | 0.630 | 0.681 |
+
+### The anchored contrast, which is what a submission reports
+
+| rule | sensitivity | specificity | prevalence |
+| --- | ---: | ---: | ---: |
+| ess | 0.171 | 0.961 | 0.515 |
+| ess30 | 0.150 | 0.967 | 0.515 |
+| ess_pct | 0.589 | 0.689 | 0.515 |
+| cv_w | 0.589 | 0.689 | 0.515 |
+| max_w | 0.190 | 0.957 | 0.515 |
+| smd_matched | 0.000 | 1.000 | 0.515 |
+| smd_pre | 0.764 | 0.393 | 0.515 |
+| maha | 0.504 | 0.750 | 0.515 |
+| smd_unmatched | 0.435 | 0.685 | 0.515 |
+| bias_hat | 0.136 | 0.940 | 0.515 |
+
 ## Calibration of a locked mapping
 
-Fitted on odd-numbered cells and evaluated on even-numbered ones, which is the question an analyst faces: does a risk mapping calibrated elsewhere tell the truth here. The last column refits within the same cells and is the optimistic bound.
+Leave-one-factor-level-out: fourteen folds, each holding out every cell at one level of one factor. Median over folds, with the worst fold, and the within-cell replicate split as the optimistic bound. A logistic model on one transformed diagnostic; no splines.
 
-| diagnostic | intercept | slope | integrated calibration error | same-cell error |
-| --- | ---: | ---: | ---: | ---: |
-| ess | 0.297 | 0.888 | 0.065 | 0.066 |
-| ess_pct | 0.248 | 0.837 | 0.061 | 0.069 |
-| cv_w | 0.259 | 0.744 | 0.072 | 0.078 |
-| max_w | 0.243 | 0.801 | 0.069 | 0.091 |
-| smd_matched | 0.388 | 0.467 | 0.095 | 0.105 |
-| smd_pre | 0.648 | 0.845 | 0.143 | 0.075 |
-| maha | 0.649 | 0.844 | 0.143 | 0.075 |
-| smd_unmatched | 0.534 | 0.765 | 0.127 | 0.101 |
-| bias_hat | 0.535 | 0.766 | 0.130 | 0.086 |
-| orc_cross | 0.588 | 0.484 | 0.139 | 0.080 |
-| lambda_norm | 0.622 | 1.310 | 0.147 | 0.099 |
+| diagnostic | intercept | slope | calibration error (median) | worst fold | same-cell |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| ess | -0.257 | 1.179 | 0.076 | 0.197 | 0.066 |
+| ess_pct | -0.269 | 1.195 | 0.095 | 0.200 | 0.069 |
+| cv_w | -0.326 | 1.256 | 0.108 | 0.202 | 0.078 |
+| max_w | -0.350 | 1.381 | 0.117 | 0.201 | 0.091 |
+| smd_matched | -0.434 | 0.540 | 0.129 | 0.319 | 0.105 |
+| smd_pre | -0.317 | 1.227 | 0.098 | 0.235 | 0.075 |
+| maha | -0.315 | 1.192 | 0.096 | 0.235 | 0.075 |
+| smd_unmatched | -0.331 | 0.877 | 0.163 | 0.362 | 0.101 |
+| bias_hat | -0.430 | 1.151 | 0.165 | 0.280 | 0.086 |
+| orc_cross | -0.353 | 1.265 | 0.132 | 0.299 | 0.080 |
+| lambda_norm | -0.356 | 1.146 | 0.133 | 0.234 | 0.099 |
 
 ## Decision curve: is acting on the rule better than not?
 

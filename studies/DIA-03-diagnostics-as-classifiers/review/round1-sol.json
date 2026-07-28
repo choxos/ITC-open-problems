@@ -1,0 +1,159 @@
+{
+ "recommendation": "major-revision",
+ "summary": "This carefully prespecified simulation evaluates routine MAIC diagnostics as classifiers of material realized error across a broad factorial design. It succeeds in establishing the narrow numerical result that none of the evaluated fixed cutoffs meets the authors' prespecified sensitivity and specificity criterion in this particular scenario distribution. It does not establish the broader variance-versus-bias interpretation because the so-called transport component contains sampling variation rather than only bias, an observable covariate component is omitted from the component results, and several headline findings follow directly from the data-generating mechanism. The existing simulations appear capable of supporting a useful paper after substantial reanalysis, reframing, and completion of the prespecified reporting, so rejection is not warranted.",
+ "strengths": [
+  "The protocol, pilot changes, amendments, thresholds, deployment weights, and decision criteria are disclosed unusually clearly.",
+  "The authors report two failed prespecified mechanism claims without moving their thresholds post hoc.",
+  "The algebraic decomposition is an exact identity for the chosen linear estimators, even though its subsequent interpretation requires correction.",
+  "The factorial design crosses overlap, sample size, effect-modifier omission, cross-moment misspecification, proxy correlation, and target dispersion, including well-specified and no-shift cells.",
+  "Within-stratum reporting reduces dependence on the investigator-chosen mixture of the two misspecification indicators.",
+  "The simulation size is substantial, and Monte Carlo uncertainty is reported for several primary operating characteristics.",
+  "The estimator comparison avoids the obvious variance-estimator asymmetry by using a stacked M-estimation sandwich for MAIC and HC3 for STC.",
+  "Nonconvergence is recorded, the primary sensitivity is bounded under extreme treatments of nonfits, and the authors correctly distinguish failure of a cutoff from absence of discrimination.",
+  "The discussion appropriately acknowledges that DIA-06 and the cross-validation part of DIA-03 remain largely unanswered."
+ ],
+ "comments": [
+  {
+   "id": 1,
+   "severity": "major",
+   "section": "What a covariate diagnostic could possibly know; Results, Table 2; Discussion",
+   "comment": "The decomposition is algebraically valid, but its interpretation is not. The arm-imbalance term L(f) is determined by the realized covariates and treatment assignments, not by the realized outcomes, and can be predicted using arm-specific balance or an estimated prognostic score. Conversely, the quantity labeled transport error contains finite-sample source composition and treatment-allocation variation even under a correctly specified modifier model, so its absolute value is not synonymous with transport bias. Comparing AUROC 0.847 for outcome noise with 0.653 for this mixed transport component therefore does not establish that a variance statistic is being mistaken for a bias statistic. Table 2 also omits the arm-imbalance component despite Aim 3 and the protocol requiring all three components.",
+   "what_would_satisfy": "Report performance against all three components, relabel the middle term as a realized effect-modifier component, and separately estimate systematic transport bias at each cell as an appropriate Monte Carlo expectation. Reanalyze the variance-versus-bias claim against that systematic bias or remove it from the title and conclusions."
+  },
+  {
+   "id": 2,
+   "severity": "major",
+   "section": "Abstract; Design; Estimand; What this answers",
+   "comment": "The framing concerns anchored indirect comparisons, but the primary reference is error in the transported A-versus-C effect. The realized error of the final A-versus-B indirect comparison also contains error in the target B-versus-C estimate. That estimate is simulated in the protocol but does not appear in the decomposition or primary results. The manuscript therefore answers a source-side transport-estimation question, not necessarily the realized-error question for the indirect comparison seen by an appraisal committee.",
+   "what_would_satisfy": "Either narrow the title, abstract, and practical claims explicitly to the transported A-versus-C component, or add a prespecified-style analysis of the final A-versus-B estimate including target-effect uncertainty. State unambiguously whether coverage in Table 7 concerns A-versus-C or A-versus-B."
+  },
+  {
+   "id": 3,
+   "severity": "major",
+   "section": "Data-generating mechanism; Four mechanism claims",
+   "comment": "Several headline findings are built into the mechanism. Homoscedastic independent errors with variance one make conditional outcome-noise variance almost mechanically proportional to the squared weighting coefficients and hence closely related to ESS. Setting the target dispersion ratio to 1.25 deliberately lowers ESS without systematic bias when omega and kappa are zero. In the diagnosable stratum, g contains exactly the single omitted linear term 0.35 times X4, while the proposed statistic multiplies an estimate of that same coefficient by the exact X4 mean discrepancy. The proposal is therefore a plug-in version of the omitted term by construction, while matched-moment balance is zero by the calibration equations.",
+   "what_would_satisfy": "Present these results as algebraic or positive-control checks. If broader empirical claims are retained, add mechanisms with heteroskedastic errors, multiple or nonlinear omitted modifiers, uncertain target moments, and approximate rather than exact calibration, then show that the conclusions persist."
+  },
+  {
+   "id": 4,
+   "severity": "major",
+   "section": "Proposed diagnostic and comparison with the routine panel",
+   "comment": "The proposed statistic is not compared on an equal information basis. It uses source outcomes through the estimated treatment-by-X4 interaction and assumes the exact target mean of X4, whereas the routine diagnostics are outcome-free functions of covariates and weights. Estimating the interaction in the same sample whose error is being diagnosed also creates possible in-sample optimism. Moreover, if X4, its target mean, and its interaction are all available, the analyst could adjust for X4 rather than merely issue a warning about omitting it.",
+   "what_would_satisfy": "Label the proposal as outcome-model-assisted, cross-fit or independently estimate the interaction, and compare it with other outcome-assisted diagnostics such as estimated standard error, prognostic-score balance, and model-based bias estimates. Also compare with a correctly adjusted estimator including X4 and report oracle, independent-estimation, and same-sample versions separately."
+  },
+  {
+   "id": 5,
+   "severity": "major",
+   "section": "Prespecified decision rule; Primary results",
+   "comment": "Failure to reach sensitivity 0.80 and specificity 0.50 is not equivalent to failure to be a classifier. The choice of those operating requirements is not tied to an elicited loss function, and the results themselves show nontrivial discrimination and calibration for ESS. High firing frequency likewise does not make a rule cease to be a classifier; it describes a poor operating point. Within-stratum analysis removes the chosen mixture of omega and kappa, but it does not remove dependence on the equally arbitrary distribution of overlap, sample size, proxy correlation, dispersion, fixed modifier magnitudes, and the material-error threshold.",
+   "what_would_satisfy": "State the primary conclusion as 'no evaluated fixed cutoff met the prespecified operating requirements in this design.' Justify those requirements using stakeholder consequences or a loss function, and provide sensitivity analyses over modifier magnitudes, scenario weights, and material-error thresholds."
+  },
+  {
+   "id": 6,
+   "severity": "major",
+   "section": "Calibration",
+   "comment": "The calibration analysis cannot yet support claims about transportability across settings. The predictor transformation and functional form of each logistic mapping are not reported, so apparent miscalibration may be model-form misspecification rather than a property of the diagnostic. A single odd-cell/even-cell split is fragile and may separate levels of a design factor depending on cell enumeration. The same-cell result is not an 'optimistic bound' because it is sometimes worse than the new-cell result.",
+   "what_would_satisfy": "Specify every predictor transformation and calibration model, demonstrate that the cell split is balanced across all factors, and use repeated grouped cross-validation or leave-one-factor-level-out validation. Report uncertainty, calibration plots, and results under both deployment and equal-cell weights, and call the same-cell analysis a comparator rather than a bound."
+  },
+  {
+   "id": 7,
+   "severity": "major",
+   "section": "Results and adherence to the registered protocol",
+   "comment": "Several prespecified results are absent from the manuscript: discrimination against arm imbalance, equal-cell versions of mixture-level AUROC, calibration and decision curves, material-error thresholds 0.10 and 0.30, full interval-noncoverage analyses, and per-cell nonfit rates. The component-specific event definitions are not stated. The paired AUROC differences of 0.194 and 0.086 are central decision quantities but are reported without Monte Carlo standard errors or intervals.",
+   "what_would_satisfy": "Provide a complete protocol-to-results table and place every prespecified analysis in the paper or a clearly referenced supplement. Include paired Monte Carlo uncertainty for all prespecified differences and intervals for AUPRC, calibration, and decision-curve quantities."
+  },
+  {
+   "id": 8,
+   "severity": "major",
+   "section": "Definition of material error",
+   "comment": "The claim that 0.20 is one fifth of the outcome standard deviation is not consistent with the stated mechanism. The marginal outcome variance includes the prognostic function, treatment-effect heterogeneity, and residual variance, and it changes across target dispersion and treatment arms. Thus 0.20 is one fifth of the residual standard deviation, not generally one fifth of the outcome standard deviation. Because every classifier result depends on this threshold, the distinction is substantive.",
+   "what_would_satisfy": "Correct the scale description, report the marginal outcome standard deviations by relevant cell or define the threshold explicitly in residual-SD units, and present the already-prespecified 0.10 and 0.30 sensitivity analyses."
+  },
+  {
+   "id": 9,
+   "severity": "major",
+   "section": "Threshold transportability mechanism claim",
+   "comment": "Variation in the material-error rate among rule-positive cells is variation in positive predictive value, not a valid test of threshold transportability or calibration. It necessarily varies with cell prevalence and case mix even when sensitivity and specificity are stable. The post hoc span among rule-negative cells is therefore not a 'stronger' version of the registered calibration claim.",
+   "what_would_satisfy": "Treat the span as an exploratory description of cellwise predictive values. Assess transportability through calibration of a locked risk model in held-out cells or factor levels, and report cell-stratified sensitivity, specificity, predictive values, and decision utility without equating them."
+  },
+  {
+   "id": 10,
+   "severity": "minor",
+   "section": "Decision-curve analysis",
+   "comment": "The prose does not match Table 5. At an action threshold of 0.40, relative ESS, pre-weighting imbalance, and Mahalanobis distance all exceed both flagging alternatives, although relative ESS has the largest net benefit. The practical action triggered by a warning is also left undefined, so the analysis quantifies a hypothetical classification tradeoff rather than demonstrated benefit from acting.",
+   "what_would_satisfy": "Correct the numerical description, identify all rules above both comparators, and define the contemplated action, its expected benefit, and its harm. Otherwise describe the analysis as hypothetical net classification benefit."
+  },
+  {
+   "id": 11,
+   "severity": "major",
+   "section": "Matched-moment balance and nonconvergence",
+   "comment": "Post-weighting balance is forced to zero only conditional on accepting an exact calibration solution. Its real operational purpose is to reveal failure or approximate failure of the balancing algorithm. Conditioning the analysis on successful fits and then concluding that the balance diagnostic cannot discriminate removes precisely the observations on which it can warn.",
+   "what_would_satisfy": "Separate the algebraic zero among successful exact fits from the operational diagnostic of residual imbalance or nonfit. Score a prespecified combined warning across all attempted analyses, or limit the claim to redundancy among accepted exact solutions."
+  },
+  {
+   "id": 12,
+   "severity": "major",
+   "section": "Literature review and novelty",
+   "comment": "The evidence offered for current practice and novelty is insufficient for a methodological journal. One conference abstract does not establish a widely used ESS operating rule or that appraisal committees interpret ESS specifically as a bias warning. The universal claim that no published work has evaluated these diagnostics as classifiers is based on an unspecified catalog audit. The proposed coefficient-times-imbalance construction also resembles established bias-function, prognostic-score, and moderator-sensitivity ideas in transportability and generalizability research.",
+   "what_would_satisfy": "Provide a reproducible literature-search account, cite primary MAIC and STC methods and appraisal guidance, document actual interpretations of ESS in practice, and position the proposed statistic against outcome-model-informed balance and transportability sensitivity-analysis literature. Narrow any universal novelty claim that cannot be established."
+  },
+  {
+   "id": 13,
+   "severity": "major",
+   "section": "Limitations",
+   "comment": "The limitations are candid about outcome type and estimator families but omit or under-rank the limitations that threaten the main conclusion: transport error is not isolated bias, the proposal receives outcome information unavailable to the panel, target summaries are treated as exact, the final indirect-comparison error is not analyzed, and the scenario distribution and modifier magnitudes are investigator-created. These are more consequential than the absence of noncollapsible outcomes.",
+   "what_would_satisfy": "Rewrite the limitations around the inferential threats identified above and state explicitly that the reported operating characteristics are properties of the declared simulation distribution, not intrinsic properties of the diagnostics."
+  },
+  {
+   "id": 14,
+   "severity": "minor",
+   "section": "Protocol and reporting consistency",
+   "comment": "Several internal inconsistencies should be resolved. The protocol's sample-size calculation still totals three estimators after a fourth was added; one section says calibration uses odd and even replicates while the amendment and manuscript use odd and even cells; Table 1 promises bracketed Monte Carlo errors that are not displayed; and the value 550 labeled as ESS for unweighted methods needs explanation when n is specified per arm. The nonfit sensitivity bounds should also be reported by primary stratum with their exact denominator.",
+   "what_would_satisfy": "Issue a clean amended protocol or amendment crosswalk, correct the estimate count and calibration description, define whether ESS is pooled or arm-specific, display the promised uncertainty, and show the nonfit calculation explicitly."
+  }
+ ],
+ "citation_problems": [
+  {
+   "cite": "MSR65, ISPOR Europe 2024",
+   "problem": "The abstract supports an approximate empirical region in an unanchored simulation with different outcome types. It does not establish a recommended classifier cutoff, widespread use, or interpretation as a bias warning in anchored continuous-outcome analyses. The bibliographic entry also omits the abstract's authors."
+  },
+  {
+   "cite": "Austin and Steyerberg (2019)",
+   "problem": "This citation supports the integrated calibration index, but it does not validate the manuscript's odd-cell/even-cell design or the causal interpretation that the difference between errors represents 'memory of the setting.'"
+  },
+  {
+   "cite": "No citation supplied for appraisal practice",
+   "problem": "The assertions that every population-adjusted comparison carries this exact panel and that appraisal committees read it as evidence about bias require support from appraisal guidance, decision records, or empirical studies."
+  },
+  {
+   "cite": "No published work has scored any of these as a classifier",
+   "problem": "This universal novelty claim is not supported by a reported search strategy or review methods. A catalog audit and two auditors are not enough to establish absence from the literature."
+  },
+  {
+   "cite": "The proposal is ours",
+   "problem": "The manuscript does not distinguish the proposed interaction-coefficient-times-imbalance statistic from existing prognostic-score balance, bias-function, moderator-sensitivity, and trial-generalizability methods that use outcome associations to weight population imbalance."
+  },
+  {
+   "cite": "MAIC, STC, and routine ESS diagnostics",
+   "problem": "Primary citations for the MAIC and STC methods, foundational population-adjustment guidance, and the origin and intended interpretation of routine weight diagnostics are missing from an otherwise very short reference list."
+  }
+ ],
+ "conclusions_supported": false,
+ "unsupported_claims": [
+  "Only the middle term is knowable from covariates.",
+  "The first and third depend on the realized outcomes.",
+  "Reading the panel is not reading a warning about bias.",
+  "Three of the panel’s members are one statistic written three ways.",
+  "A rule that warns about almost every analysis is not a classifier.",
+  "The weight-dispersion statistics calibrate tolerably across cells they have not seen.",
+  "Nearly half of its apparent calibration is memory of the setting.",
+  "Only once the action threshold reaches 0.400, meaning the analyst will only intervene when material error is at least that likely, does a diagnostic earn its place, and the one that does it is the relative effective-sample-size rule rather than the absolute one that gets quoted.",
+  "That is a stronger result than the one registered.",
+  "The diagnostic is informative about the problem and uninformative about the solution.",
+  "Carrying target-moment sampling error here would add a noise channel no source-side diagnostic can observe and would depress every discrimination measure by a common amount without changing which diagnostic beats which.",
+  "A binary or survival outcome would add a component of error that is a collapsibility artifact rather than an adjustment failure."
+ ],
+ "reviewer": "sol",
+ "name": "GPT-5.6 Sol (maximum reasoning effort)",
+ "round": 1
+}
