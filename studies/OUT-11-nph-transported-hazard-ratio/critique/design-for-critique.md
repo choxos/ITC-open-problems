@@ -1,0 +1,306 @@
+# THE OPEN PROBLEM (catalog entry OUT-11, verbatim)
+
+---
+title: "Non-proportional hazards and the transported hazard ratio"
+description: "The transported hazard ratio remains the default reported quantity in survival indirect comparisons, and on the marginal scale it can be population-dependent and time-varying through risk-set selection, while under non-proportional hazards a fitted Cox coefficient is a censoring- and event-weighted constant summary of a time-varying contrast. A conditional hazard ratio under a proportional-hazards model is constant by definition, so the instability belongs to the marginal scale or to non-proportionality rather than to the coefficient as such. The recommended alternatives are not missing from software: multinma has shipped survival models since 0.6.0 with predict() types including survival, hazard, cumulative hazard, mean, median, quantile and restricted mean survival time, marginal_effects() returns RMST and survival-probability differences standardized to a target population, and auxiliary parameters can be stratified by treatment to relax proportional hazards. The gap is between available methods and prevailing practice, and in the absence of any simulation benchmark comparing these estimators against proportional-hazards MAIC and STC under crossing hazards and differential censoring."
+pid: "OUT-11"
+topic: "Outcome-specific problems"
+categories: ["Outcome-specific problems", "Very high priority", "Overstated"]
+priority: "Very high"
+prank: 1
+verdict: "Overstated"
+verdictslug: "overstated"
+maturity: "Promising"
+tractability: 3
+---
+::: {.problem-meta}
+[OUT-11]{.problem-id}
+[Overstated]{.verdict .verdict-overstated}
+[Very high priority]{.chip .chip-priority-very-high}
+[Promising]{.chip .chip-maturity-promising}
+[Tractability 3/5]{.chip}
+:::
+::: {.source-unsourced}
+**Source note.** This entry derives in part from a source document whose inline citations
+were ChatGPT interface tokens rather than references, and so resolve to nothing. Claims
+below are attributed to that document and were checked independently where possible;
+anything that could not be independently sourced is marked in the verification trail.
+:::
+
+## Statement
+
+The transported hazard ratio remains the default reported quantity in survival indirect comparisons, and on the marginal scale it can be population-dependent and time-varying through risk-set selection, while under non-proportional hazards a fitted Cox coefficient is a censoring- and event-weighted constant summary of a time-varying contrast. A conditional hazard ratio under a proportional-hazards model is constant by definition, so the instability belongs to the marginal scale or to non-proportionality rather than to the coefficient as such. The recommended alternatives are not missing from software: multinma has shipped survival models since 0.6.0 with predict() types including survival, hazard, cumulative hazard, mean, median, quantile and restricted mean survival time, marginal_effects() returns RMST and survival-probability differences standardized to a target population, and auxiliary parameters can be stratified by treatment to relax proportional hazards. The gap is between available methods and prevailing practice, and in the absence of any simulation benchmark comparing these estimators against proportional-hazards MAIC and STC under crossing hazards and differential censoring.
+
+## Why it is open
+
+Practice still reports a coefficient, so the mismatch between the estimand a reimbursement decision needs and the estimand produced persists even though the tooling exists in one package. Separating a baseline-hazard difference from an effect-modifier difference requires assumptions that published Kaplan-Meier curves cannot adjudicate, and the standard proportional-hazards test is often underpowered. No simulation study compares general-likelihood ML-NMR against proportional-hazards MAIC and STC on Weibull, Gompertz and multistate mechanisms with crossing hazards and differential censoring, so the relative operating characteristics of the recommended replacements are unknown. Component PAIC implementations such as cpaic still hold treatment effects proportional and lack target-marginal survival contrasts.
+
+## What has been tried
+
+::: {.table-scroll}
+
+| Work | What it contributes |
+|---|---|
+| [Phillippo, Dias, Ades and Welton 2025, Multilevel network meta-regression for general likelihoods: synthesis of individual and aggregate data with applications to survival analysis, Journal of the Royal Statistical Society Series A](https://doi.org/10.1093/jrsssa/qnaf169) | extends ML-NMR to individual-level likelihoods of any form, removing the closed-form aggregate-likelihood restriction that had prevented application to time-to-event outcomes, and delivers population-average marginal survival functions and restricted means in a target population by integrating the marginal survival function to a horizon |
+| [multinma (CRAN), survival models since 0.6.0 and marginal_effects() since 0.7.0](https://cran.r-project.org/package=multinma) | implements flexible survival likelihoods with auxiliary parameters that may be stratified by treatment to relax proportional hazards, predict() types covering survival probabilities, hazards, cumulative hazards, mean, median, quantile and restricted mean survival time, and marginal RMST and survival-probability differences standardized to a target population |
+| [cpaic, unreleased development package on GitHub (not on CRAN), commit 9d150e9](https://github.com/choxos/cpaic) | provides survival likelihoods, flexible study baselines, delayed entry and interval censoring, but keeps treatment effects proportional, returns only a conditional hazard ratio at one covariate profile from relative_effects(), and averages survival over each observed arm rather than a common target distribution |
+
+:::
+
+## Probable solution or research direction
+
+Run the benchmark rather than rebuild the estimators: compare general-likelihood ML-NMR and one-step exact-likelihood survival network meta-analysis against proportional-hazards MAIC and STC on Weibull, Gompertz and multistate data-generating mechanisms with crossing hazards and differential censoring, reporting RMST bias, hazard-ratio instability and calibration over time. Report target-standardized survival curves, milestone contrasts and RMST differences at prespecified horizons the data support, with the horizon declared as part of the estimand, without asserting that RMST is universally required. Add target-marginal survival contrasts and time-varying treatment effects to the component PAIC implementations that lack them.
+
+## Verification
+
+::: {.verification-trail}
+**Verdict.** Overstated. 2 independent auditors judged the claim as stated too strong. The transported hazard ratio remains the default reported quantity in survival indirect comparisons even though it is non-collapsible, population-dependent and time-varying; RMST differences and target-standardised survival curves are already implemented in multinma and demonstrated in the general-likelihood ML-NMR paper, so the gap is between available methods and prevailing practice, and in the absence of any simulation benchmark comparing these estimators under crossing hazards and differential censoring.
+
+**The source said.** "Proportional hazards frequently fails, especially in oncology and immunology, yet the hazard ratio remains the standard transported quantity in survival indirect comparison; it is simultaneously non-collapsible, population-dependent, and time-varying, and a single value can conceal crossing hazards entirely. The report states that the primary output should instead be the restricted mean survival time difference between target-standardized survival curves."
+
+**What was wrong with it.** The claim that target-standardized survival curves and milestone probabilities are outputs current PAIC software does not routinely produce is false; both auditors found them implemented in multinma, which is the software for the general-likelihood ML-NMR paper the entry already cited (doi:10.1093/jrsssa/qnaf169), and the File A material in this entry was unattributed in the source and is now anchored to that paper and to the multinma release notes. The code auditor also rejected the normative framing that RMST must be the primary estimand and that one-step exact-likelihood synthesis is automatically superior, and found that at commit 9d150e9 cpaic, an unreleased development package on GitHub that is not installable from CRAN, still returns only a conditional hazard ratio at one covariate profile and averages survival over each observed arm rather than over a common target distribution.
+
+**Revised by the full-text reading.** Applied 2026-07-26 full-text reading of the consolidated library (687 papers).
+
+closure-upheld
+:   **10 findings from the reading assert this problem is open; the closure was re-examined and stands** Put to an independent reviewer with the closing auditors' reasoning, the work they relied on, and the new findings in view together. The new findings document widespread proportional-hazards failure, continued hazard-ratio reporting, and incomplete uptake of alternatives. Those are precisely the closure's residual: available target-standardized survival and RMST methods have not displaced prevailing practice, and comparative benchmarking remains absent. The 2024 case study's call for time-varying hazard ratios does not show that the cited ML-NMR methods cannot produce non-PH survival estimands; it shows that one applied implementation retained a PH model. None of the findings contradicts multinma's documented prediction and marginalization capabilities or supplies the missing benchmark. (reviewer confidence: high)
+
+Flagged for reopening
+:   **24 findings from the reading assert this problem is open while the registry carries `overstated`** Flagged, not applied: reversing an earlier audit's closure needs the closure's own evidence re-examined alongside this, which the reading did not do. See documentation/audit/reading/PROPOSED.md.
+
+Literature and prior-art check
+:   **partially-solved / overstated.** The single prior_work citation is faithful: Phillippo, Dias, Ades and Welton, 'Multilevel network meta-regression for general likelihoods' (JRSSA, doi 10.1093/jrsssa/qnaf169) does extend ML-NMR to survival, stating 'implementation of this method so far has required the aggregate-level likelihood to have a known closed form, which has prevented application to time-to-event outcomes' and 'We extend ML-NMR to individual-level likelihoods of any form'. But the claim that target-standardised survival curves and milestone survival probabilities are 'open outputs not routinely produced by current PAIC software' is contradicted by the software that implements that very paper. multinma has shipped survival models since 0.6.0 (2024-01-24) with predict() types survival, hazard, cumhaz, mean, median, quantile and rmst, and marginal_effects() returns RMST differences and survival-probability differences standardised to a target population. Non-proportional hazards are also modellable: the NDMM vignette stratifies spline coefficients by treatment as well as study (aux_by = c(.study, .trt)). What is genuinely open is the benchmarking programme described in the proposed direction; I found no simulation study comparing general-likelihood ML-NMR against PH MAIC/STC on crossing-hazard mechanisms.
+    Cites doi:10.1093/jrsssa/qnaf169: Delivers population-average marginal survival functions and restricted means in a target population from an ML-NMR fit..
+    Cites repo:dmphillippo/multinma NEWS 0.6.0 and 0.7.0: Ships RMST, survival-probability and quantile predictions plus marginal RMST/survival-probability differences standardised to a target population..
+
+GPT-5.6 Sol, technical and source-code lens
+:   **partially-solved / overstated.** The central warning is correct, but the scales must be named. A conditional hazard ratio under a proportional-hazards model is constant by definition. Under covariate heterogeneity, the corresponding marginal hazard ratio can be population-dependent and time-varying through risk-set selection; under non-proportional hazards, a fitted Cox coefficient is a censoring- and event-weighted constant summary of a time-varying contrast. C5-C6 and the RMST identity in C11 are sound. C10 and C13 are normative overstatements: RMST at a prespecified supported horizon is often preferable under non-proportionality, but it is not universally the required primary estimand, and exact-likelihood one-step synthesis is not automatically superior for every data configuration. C12 is false broadly because multinma produces survival, RMST, and marginal survival effects and can model treatment-specific auxiliary parameters. At the requested cpaic revision, survival likelihoods, flexible study baselines, delayed entry, and interval censoring exist, but treatment effects remain proportional; relative_effects() returns only a conditional hazard ratio at one covariate profile, and plot_survival() averages over each observed arm rather than a common target distribution.
+    Cites doi:10.1093/jrsssa/qnaf169: Extends ML-NMR to general individual-level likelihoods, including survival..
+    Cites CRAN:multinma@0.6.0: Implements flexible survival likelihoods, treatment-stratified auxiliary parameters, survival predictions, and RMST predictions..
+    Cites CRAN:multinma@0.7.0: Implements marginal RMST differences and time-varying marginal hazard ratios..
+
+Decision path
+:   `R3:partially-solved(n=2) → R8:overstated-majority(n=2)`
+
+:::
+
+## How the evidence falls in time
+
+24 papers in the reviewed corpus bear on this problem, published 2010 to 2026. Progress and a fresh assertion of openness land in the same year.
+
+This problem is **recurrent**: three or more papers spanning at least eight years assert it independently. Sustained restatement by authors who mostly do not cite each other is the strongest evidence this reading can offer that a gap is real rather than one group's framing.
+
+It is also being **closed in pieces**: partial results come from more than one paper in more than one year, each covering a different part.
+
+::: {.table-scroll}
+
+| Year | Says | Paper |
+|---|---|---|
+| 2010 | confirms it is open | Network meta-analysis on the log-hazard scale, combining count and hazard ratio statistics accounting for multi-arm trials: a tutorial |
+| 2011 | partly addresses it | Network meta-analysis of survival data with fractional polynomials |
+| 2012 | partly addresses it | Meta-regression models to address heterogeneity and inconsistency in network meta-analysis of survival outcomes |
+| 2013 | partly addresses it | Quantitative summaries of treatment effect estimates obtained with network meta-analysis of survival curves to inform decision-making |
+| 2014 | partly addresses it | A process for assessing the feasibility of a network meta-analysis: a case study of everolimus in combination with hormonal therapy versus chemotherapy for advanced breast cancer |
+| 2015 | partly addresses it | One-step individual patient data (IPD) network meta-analysis of survival data using royston-parmar models |
+| 2016 | confirms it is open | Review of the Reporting of Survival Analyses within Randomised Controlled Trials and the Implications for Meta-Analysis |
+| 2017 | partly addresses it | Bayesian one-step IPD network meta-analysis of time-to-event data using Royston-Parmar models |
+| 2017 | partly addresses it | Second-line Treatments for Advanced Gastric Cancer: A Network Meta-Analysis of Overall Survival Using Parametric Modelling Methods |
+| 2019 | partly addresses it | Individual patient data network meta-analysis using either restricted mean survival time difference or hazard ratios: is there a difference? A case study on locoregionally advanced nasopharyngeal carcinomas |
+| 2020 | confirms it is open | Uptake of methodological advances for synthesis of continuous and time-to-event outcomes would maximize use of the evidence base |
+| 2022 | partly addresses it | Challenges of modelling approaches for network meta-analysis of time-to-event outcomes in the presence of non-proportional hazards to aid decision making: Application to a melanoma network |
+| 2023 | confirms it is open | Individual participant data from digital sources informed and improved precision in the evaluation of predictive biomarkers in Bayesian network meta-analysis |
+| 2024 | confirms it is open | Implementing Multilevel Network Meta-Regression for Time-To-Event Outcomes: A Case Study in Relapsed Refractory Multiple Myeloma |
+| 2024 | confirms it is open | Advancing unanchored simulated treatment comparisons: A novel implementation and simulation study |
+| 2024 | confirms it is open | Response to discussant comments on "NMA, the first 20 years" |
+| 2025 | partly addresses it | Effect modification and non-collapsibility together may lead to conflicting treatment decisions: A review of marginal and conditional estimands and recommendations for decision-making |
+| 2025 | partly addresses it | Unanchored simulated treatment comparison on survival outcomes using parametric and Royston-Parmar models with application to lenvatinib plus pembrolizumab in renal cell carcinoma |
+| 2025 | partly addresses it | The hazards of using hazard ratios from proportional hazard models in indirect treatment comparisons |
+| 2025 | confirms it is open | Network Meta-Analysis With Individual Participant-Level Data of Time-to-Event Outcomes Using Cox Regression |
+| 2026 | partly addresses it | Population-adjusted network meta-analyses provide new insights into the efficacy of treatment alternatives for metastatic castration-sensitive prostate cancer |
+| 2026 | partly addresses it | Reframing Population-Adjusted Indirect Comparisons as a Transportability Problem: An Estimand-Based Perspective and Implications for Health Technology Assessment (Chandler & Ishak; arXiv:2602.17041v3). The batch file points at media/media/Table_1_v2.pdf; the full LaTeX source Transportability_PAIC.tex sits in the same arXiv package and was read. |
+| 2026 | confirms it is open | Efficacy of selpercatinib as a first-line treatment for RET-fusion positive non-small-cell lung cancer: a novel two-stage Bayesian network meta-analysis |
+| 2026 | confirms it is open | Re-evaluating Treatments for Advanced Urothelial Carcinoma Using Restricted Mean Survival Time: A Systematic Review and Network Meta-analysis |
+
+:::
+
+## Related problems
+
+::: {.related-links}
+- [CMP-10 — Component PAIC lacks a marginal target-standardized estimand path](CMP-10-component-paic-lacks-a-marginal-target-standardized-estimand.qmd)
+- [EST-03 — Non-collapsible marginal effects are not portable across populations](EST-03-non-collapsible-marginal-effects-are-not-portable-across-pop.qmd)
+- [EST-08 — Effect scales chosen by convention rather than transportability](EST-08-effect-scales-chosen-by-convention-rather-than-transportabil.qmd)
+- [EST-15 — No bound for effect-measure non-transitivity in anchored survival comparisons](EST-15-no-bound-for-effect-measure-non-transitivity-in-anchored-sur.qmd)
+- [HET-07 — Heterogeneity structure is undefined for multi-parameter survival NMA](HET-07-heterogeneity-structure-is-undefined-for-multi-parameter-sur.qmd)
+- [MIS-02 — No robustness theory for censoring-weighted survival transport](MIS-02-no-robustness-theory-for-censoring-weighted-survival-transpo.qmd)
+- [MOD-02 — Convenience functional forms and untested flexible alternatives](MOD-02-convenience-functional-forms-and-untested-flexible-alternati.qmd)
+- [MOD-06 — No TMLE or RMST-targeted estimator for population-adjusted transport](MOD-06-no-tmle-or-rmst-targeted-estimator-for-population-adjusted-t.qmd)
+- [OUT-22 — No consistency test for vector-valued effects in survival NMA](OUT-22-no-consistency-test-for-vector-valued-effects-in-survival-nm.qmd)
+- [OUT-24 — No rule selects the common RMST horizon across unequal follow-up](OUT-24-no-rule-selects-the-common-rmst-horizon-across-unequal-follo.qmd)
+:::
+
+## Source
+
+Derived from A:L74, A:L182, C:L214-215, C:L244, C:L1578-1580, C:L1578-1588, C:L1596-1604, C:L2152 of the reviewed corpus.
+
+
+# THE PROPOSED DESIGN
+
+# OUT-11: what a transported hazard ratio is a summary of
+
+Draft design, for adversarial critique before anything is run.
+
+## The problem, narrowed
+
+The catalog entry for OUT-11 is marked **overstated**, and its own verification trail says why.
+The source claimed target-standardized survival curves and RMST are outputs current software
+does not produce. That is false: `multinma` has shipped survival likelihoods since 0.6.0,
+`marginal_effects()` returns target-standardized RMST and survival-probability differences since
+0.7.0, and auxiliary parameters can be stratified by treatment (`aux_by = c(.study, .trt)`) to
+relax proportional hazards.
+
+Two auditors also corrected the statement's framing, and the correction defines this study. A
+**conditional** hazard ratio under a proportional-hazards model is constant by definition. What
+is unstable is either the **marginal** hazard ratio, which is population-dependent and
+time-varying through risk-set selection, or, under non-proportional hazards, a fitted Cox
+coefficient, which is a **censoring- and event-weighted constant summary of a time-varying
+contrast**.
+
+So the residual, in the entry's own words, is the absence of "any simulation benchmark comparing
+these estimators against proportional-hazards MAIC and STC under crossing hazards and
+differential censoring". That is what this study builds.
+
+## What would make this study worthless
+
+Stating this first, because three ways of getting it wrong are all easy.
+
+**Showing that proportional-hazards methods fail when hazards cross is arithmetic.** If the
+shape difference is large enough, any PH summary is wrong by construction and the study
+demonstrates its own data-generating mechanism. The non-proportionality must be calibrated to a
+magnitude that a real analysis would plausibly fail to detect, and the design must include a
+proportional-hazards cell where the PH methods should **win** on efficiency. If they do not win
+there, the comparison is rigged and the study says so.
+
+**Comparing a hazard ratio to an RMST difference is a category error.** They are different
+quantities and one cannot be biased for the other. Every method here is therefore scored on a
+**common estimand**: the target-population marginal RMST difference at a declared horizon.
+A proportional-hazards MAIC can produce one, by integrating its fitted survival curves. The
+question is not which quantity to report but how much error each modeling route puts into the
+same number.
+
+**Confounding the method family with the assumption.** "ML-NMR beats MAIC" and "a flexible
+baseline beats a proportional one" are different claims, and a two-arm comparison cannot
+separate them. The design crosses them.
+
+## The estimand
+
+Target population: the aggregate-study population of a designated target study, with covariate
+distribution known through published means and standard deviations.
+
+Primary: **RMST difference between B and A in the target population at horizon $\tau$**,
+
+$$\Delta_{\text{RMST}}(\tau) = \int_0^\tau \bar S_B(t)\,dt - \int_0^\tau \bar S_A(t)\,dt,
+\qquad \bar S_k(t) = \mathbb{E}_{x \sim \text{target}}\!\left[S_k(t \mid x)\right].$$
+
+$\tau$ is declared as part of the estimand and set to a quantile of follow-up that every cell
+supports, so it is never extrapolation.
+
+Secondary: milestone survival difference $\bar S_B(t^*) - \bar S_A(t^*)$; the **true time-varying
+marginal hazard ratio** $\bar h_B(t)/\bar h_A(t)$; and, for each method that reports one, the
+constant hazard ratio it reports.
+
+Truth is computed exactly, not simulated: with a Weibull conditional model the marginal survival
+function is an expectation over the target covariate law, evaluated by Gauss-Hermite quadrature,
+and the RMST integral to high precision. The same device as study 5, and for the same reason:
+a truth estimated from a large sample carries Monte Carlo error into every bias.
+
+## The data-generating mechanism
+
+Individual $i$ in study $j$ on treatment $k$, Weibull, with treatment acting on **both** the
+scale and the shape:
+
+$$T \sim \text{Weibull}\!\left(\text{shape} = \nu_0 e^{\phi_k},\
+\text{scale} = \exp\{\lambda_j + (d_k + \gamma_k x_1)\}\right)$$
+
+$\phi_k \neq 0$ is what makes the hazards cross; $\phi_k = 0$ recovers proportional hazards
+exactly, because a Weibull family with common shape and a shift in log-scale is a
+proportional-hazards model. So the proportional-hazards cell is a special case of the same
+mechanism rather than a separate one, and nothing about the comparison changes between them
+except the parameter under test.
+
+$\gamma_k$ carries effect modification, so population adjustment is necessary rather than
+decorative.
+
+**One** study contributes individual data and compares PBO with A. The rest are aggregate and
+compare PBO with B, so B's effect modifier is identified only through between-study contrasts of
+covariate means. That is the situation population adjustment exists for, and it is the same
+asymmetry study 5 used.
+
+Censoring is independent exponential, with rate set **per study**, which is what makes the
+differential-censoring factor a manipulation of a nuisance rather than of the truth.
+
+## The factor that carries the paper
+
+Everything above is setup for one experiment.
+
+**The censoring manipulation.** Hold the true survival functions, and therefore the true RMST
+difference and the true time-varying hazard ratio, **exactly fixed**. Change only the censoring
+distribution. Then:
+
+- the true estimand does not move, by construction;
+- the RMST difference at a supported horizon should not move, if a method is estimating it;
+- a fitted constant hazard ratio **should** move, if the audit's characterization is right,
+  because the weights it averages the time-varying contrast under are event- and
+  censoring-determined.
+
+If the transported hazard ratio moves by a decision-relevant amount when nothing about the
+treatments has changed, that is the cleanest possible statement of the problem, it is
+mechanistic rather than empirical, and it does not depend on any threshold this study chooses.
+If it does not move, the entry's central warning is weaker than stated and this study says so.
+
+## Methods compared, crossed rather than listed
+
+| | proportional baseline | flexible baseline |
+|---|---|---|
+| **weighting** | PH MAIC, weighted Cox, robust SE, Bucher | MAIC with a flexible weighted parametric fit |
+| **outcome regression** | PH STC, marginalized over the target law | flexible STC |
+| **ML-NMR** | `aux_by = .study` | `aux_by = c(.study, .trt)` |
+
+Every cell of that table produces the same target RMST difference, so the row effect isolates the
+method family and the column effect isolates the proportional-hazards assumption. A comparison
+that reports only the diagonal cannot tell the two apart, and the diagonal is what a naive
+version of this benchmark would report.
+
+A marginalized STC is used rather than the mean-profile version, because plugging target means
+into a nonlinear model returns a conditional quantity at an average covariate profile and is a
+known error; using it would make the comparison unfair in the proposal's favour.
+
+## Design factors
+
+| Factor | Levels | What it varies |
+|---|---|---|
+| non-proportionality $\phi_B$ | 0, moderate, strong | whether and how far the hazards cross |
+| censoring | common light, common heavy, **differential** | the nuisance the fitted HR is weighted by |
+| effect modification $\gamma$ | moderate, strong | how much adjustment is needed |
+| population separation | near, far | how far the target sits from the IPD study |
+
+Not all crossed: the censoring manipulation is run at fixed everything else, so its effect is
+identified without confounding.
+
+## Prespecified decision
+
+The transported constant hazard ratio is fit for purpose if, across the censoring manipulation
+with truth held fixed, the deployment-weighted range of the reported hazard ratio implies a
+change in the target RMST difference smaller than the amount that would change a decision. That
+threshold is declared before the run and derived from a consequence, not from taste.
+
+## What this cannot settle
+
+It is one covariate, one parametric family for the truth, and independent censoring. Weibull and
+Gompertz cross in specific ways and a multistate mechanism would cross differently. It does not
+address digitization error in reconstructing aggregate survival curves, which is a real and
+separate source of error in every applied use of these methods.
+
+
+# MEASURED FEASIBILITY
+
+One flexible survival ML-NMR fit on a 1-IPD-study plus 5-aggregate-study network (250 and 200 per arm, mspline likelihood, 3 internal knots, aux_by = c(.study,.trt), 32 integration points, 2 chains x 1000 iterations) took 251 seconds wall clock on this machine and converged with max Rhat 1.00. Leaner configurations are being timed. The design needs two ML-NMR fits per replicate (proportional and flexible baseline), so a replicate costs roughly twice a single fit. Three worker processes run in parallel. Judge the replicate count the design can afford against this.

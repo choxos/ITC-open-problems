@@ -1,0 +1,206 @@
+{
+  "verdict": "unsound",
+  "summary": "The protocol remains unsound because its censoring experiments study a direct head-to-head Cox projection rather than the transported anchored indirect quantity in OUT-11, while its proportional-hazards comparators are custom curve procedures rather than standard MAIC and STC. Several claimed round-3 fixes are contradicted later in the document: the rejected variance-normalized decision rule is re-registered, and four chains, 500 bootstraps and 40 replicates coexist with two, 250 and 25. The frozen design cannot resolve important coverage and bias outcomes, and neither the integration choice nor the runtime total follows from the reported measurements. The target-superpopulation RMST estimand, fixed horizon, marginal-hazard definition and paired-replicate principle are otherwise sound.",
+  "findings": [
+    {
+      "axis": "answers-problem",
+      "severity": "fatal",
+      "what": "E1 and E2 evaluate the Cox coefficient from a direct B-versus-A trial in the target population. OUT-11 concerns a transported anchored indirect comparison formed from separate A-versus-placebo and B-versus-placebo evidence. Under non-proportional hazards, the three least-false Cox coefficients are not transitive, so the direct A-versus-B coefficient is not what the indirect comparison recovers. Using one common censoring survival within the direct trial also omits the central case of different censoring across the two studies.",
+      "fix": "Define separate Cox score limits for A versus placebo and B versus placebo under their respective study-specific censoring laws, combine them using the actual anchored procedure, and make E2 simulate the two-study indirect comparison. Alternatively, relabel E1 and E2 as studies of a direct Cox projection and remove claims that they settle the transported-hazard-ratio question."
+    },
+    {
+      "axis": "answers-problem",
+      "severity": "fatal",
+      "what": "The E3 proportional comparators are not proportional-hazards MAIC and STC as ordinarily practiced. B is obtained from a directly fitted aggregate-side survival curve shared across rows, while proportionality is toggled principally in the IPD-side A model. Consequently, most crossing-hazard cells place κA at zero and never expose the conventional B-versus-placebo Cox summary to the non-proportionality and censoring that OUT-11 asks about.",
+      "fix": "Include the conventional anchored PH procedures using both leg-specific reported Cox effects and their recommended uncertainty calculations. Keep the curve-based hybrids as separately named procedures, and cross the location of non-proportionality with the two evidence legs."
+    },
+    {
+      "axis": "answers-problem",
+      "severity": "serious",
+      "what": "Deleting the aggregate trial's covariate column does not fully turn it into aggregate evidence. The design still treats reconstructed individual event and censoring records as exact observations, fits individual-record models and bootstraps those pseudo-individuals. An exact digitized Kaplan-Meier curve does not uniquely reveal the original censoring histories, and an individual bootstrap does not reproduce uncertainty from published aggregate survival information.",
+      "fix": "Either use an arm-level survival likelihood and reported-summary uncertainty, or explicitly make reconstructed pseudo-IPD the study's evidence setting, simulate the reconstruction step and propagate its uncertainty. Do not claim this structurally reproduces a conventional aggregate-data comparison."
+    },
+    {
+      "axis": "dgm-builds-in-finding",
+      "severity": "limitation",
+      "what": "The exact ranking is not algebraically forced, but its asymptotic direction is heavily favored: κ not equal to zero knowingly misspecifies the PH rows while the flexible rows use spline families tailored to the smooth Weibull and Gompertz hazards being generated. This can quantify the penalty in these cells, but it cannot establish general superiority of flexible methods.",
+      "fix": "Limit conclusions to these smooth, favorable non-proportional-hazard mechanisms. A broader conclusion would require mechanisms that also misspecify the flexible models."
+    },
+    {
+      "axis": "dgm-builds-in-finding",
+      "severity": "fatal",
+      "what": "The registered explanation for the large STC-PH pilot bias is incompatible with both the DGM and the claimed STC correction. The protocol first establishes that x is not prognostic under placebo and says corrected STC transports the conditional model and solves the target baseline exactly. It later attributes biases of about 0.38 months at κA = κB = 0 to transporting a marginal effect across baselines in the presence of a prognostic covariate. That is the obsolete graft mechanism, and it cannot explain results from the corrected estimator under this DGM.",
+      "fix": "Remove the anticipated mechanism and rerun the pilot using the final conditional-transport implementation. Before running the study, require the κA = κB = 0 cells to demonstrate the expected near-unbiased behavior or diagnose the remaining implementation error."
+    },
+    {
+      "axis": "estimand",
+      "severity": "fatal",
+      "what": "D3 has no consistently defined estimand. Section 2 says it applies the two leg-specific reported hazard ratios to the target placebo curve; E1 is defined as a direct cox_limit(A, B); and section 10 says D3 uses the singular analytic least-false parameter from E1. Those quantities are unequal under the registered non-proportional hazards.",
+      "fix": "Write one explicit D3 functional from the two study-specific data laws, including both censoring distributions, the anchored combination and the curve conversion. Use that same functional in E1, D3 and the code."
+    },
+    {
+      "axis": "estimand",
+      "severity": "serious",
+      "what": "The κA = κB = 0.30 cell is not a proportional target contrast on the study's stated marginal scale. Only the conditional B-versus-A hazard ratio is constant; the protocol's own marginal hazard-ratio range is 0.828 to 0.858. It therefore cannot serve as the claimed negative control for reacting to arm-level rather than contrast-level non-proportionality.",
+      "fix": "Call this a conditional-PH cell and interpret it accordingly. For a genuinely marginal-PH control with both active-versus-placebo arms non-proportional, use a construction that yields a constant marginal ratio, such as checking whether γ = 0 with equal κ supplies the required control."
+    },
+    {
+      "axis": "estimand",
+      "severity": "serious",
+      "what": "The claim that n_int = 64 is biased by 0.066 months treats the 256-point estimate as truth even though the protocol repeatedly acknowledges that 256 was not shown to be converged. Three paired replicates establish numerical sensitivity, not bias, and the 128-versus-256 uncertainty is of the same order as the biases expected for the best methods.",
+      "fix": "Call the quantity an integration-order difference, not bias. Establish an external numerical reference or a defensible convergence bound, and use adequate integration across all primary cells rather than only a two-cell sensitivity subset."
+    },
+    {
+      "axis": "fair-comparison",
+      "severity": "fatal",
+      "what": "The invalid marginal log-cumulative-hazard graft retained for MAIC is not a recommended MAIC estimator of target RMST. Its error is therefore a property of an invented conversion procedure, not automatically a property of MAIC. Giving STC a valid conditional transport while scoring MAIC through a knowingly invalid graft cannot support a method-family comparison.",
+      "fix": "Report that conventional MAIC does not identify the chosen RMST estimand without additional assumptions, or compare it on the hazard-ratio estimand its method supports. If the graft is retained, label it as a separate PH plug-in and do not attribute its bias to MAIC generally."
+    },
+    {
+      "axis": "fair-comparison",
+      "severity": "serious",
+      "what": "The ML-NMR sampling policy is internally contradictory. Section 7 registers four chains and repeats the disproven claim that four chains cost the same wall time, while sections 13 and 14 say that claim was false and freeze production at two chains. Two chains also weaken R-hat diagnostics relative to the usual four-chain recommendation.",
+      "fix": "Choose one chain configuration, regenerate every policy and cost statement from it, and justify any two-chain exception with diagnostics measured under the final configuration."
+    },
+    {
+      "axis": "decision-rule",
+      "severity": "fatal",
+      "what": "The rejected own-variance-floor rule remains active. Sections 10.0 and 10.1 say estimation quality replaced thresholded decision performance, but sections 10.2 and 10.3 again define D1 as a primary fit-for-purpose rule, retain the 0.10 cutoff and repeat the false assurance that using each estimator's own variance prevents gaming. Inflating variance still drives both the observed error and its floor toward 0.5.",
+      "fix": "Delete the operative D1 and threshold sections, including the tuned pilot table and fit-for-purpose conclusion. Retain decision loss only as the explicitly secondary descriptive appendix promised in section 10.0."
+    },
+    {
+      "axis": "decision-rule",
+      "severity": "serious",
+      "what": "With the frozen six primary cells times 25 replicates, pooled coverage uses only 150 observations. Under an exact two-sided binomial interval, even 150 successes out of 150 has a lower limit of about 0.976, so the interval still overlaps the upper calibration boundary of 0.98. The rule can never classify overcoverage as miscalibrated, and nominal 0.95 coverage will often be inconclusive.",
+      "fix": "Specify the Monte Carlo interval method and increase the replicate count enough for both boundaries to be reachable, or abandon the three-way threshold classification and report coverage with its Monte Carlo interval."
+    },
+    {
+      "axis": "decision-rule",
+      "severity": "serious",
+      "what": "Mean absolute cell bias is poorly resolved at 25 replicates. With the stated per-replicate SD near 0.75 months, a cell mean has SE about 0.15 months; even when true bias is zero, its absolute value has an expected Monte Carlo noise floor near 0.12 months. The quoted pooled signed-bias SE of 0.061 does not describe this nonlinear statistic, and pairing does not automatically remove its upward bias.",
+      "fix": "Increase replication, use a bias-corrected cell-level statistic, or report signed cell biases separately with paired contrasts rather than taking noisy absolute values."
+    },
+    {
+      "axis": "feasibility",
+      "severity": "fatal",
+      "what": "The run is not actually frozen. Section 8 registers 40 replicates and 560 total, section 9 performs precision calculations at 40, and section 14 registers 25 and 350. Section 7 registers 500 bootstrap resamples while section 14 registers 250. The locked-parameter table also prints κA = 0 despite κA being a design factor.",
+      "fix": "Make the machine-readable configuration authoritative and regenerate all tables, precision calculations and prose from it. The run must refuse to start unless the generated protocol artifact exactly matches the configuration."
+    },
+    {
+      "axis": "feasibility",
+      "severity": "serious",
+      "what": "The 24.1-hour total cannot be reconciled with the unit costs. At 0.658 seconds, 350 times 250 bootstrap pipelines require about 16 CPU-hours, not two, unless at least eight-way parallelism is assumed but unstated. The sensitivity variants are excluded from the displayed total, the two prior settings and two knot settings are each costed as though they were one setting, the 256-point arm is costed like 128 points, and sampler refits are unbudgeted despite observed divergences.",
+      "fix": "State CPU and wall-clock concurrency separately, multiply every variant and refit explicitly, include all registered sensitivity arms in the total, and provide a conservative completion range rather than the current point estimate."
+    },
+    {
+      "axis": "citation",
+      "severity": "serious",
+      "what": "The bibliographic attributions appear broadly correct, but the cited MAIC, STC and ML-NMR papers do not support several implementation-specific claims made from them. In particular, they do not establish the marginal cumulative-hazard graft, the flexible Royston-Parmar extensions, the pseudo-IPD bootstrap, or the current multinma aux_regression and integration-default behavior as each method's author-recommended specification.",
+      "fix": "Cite current package documentation and the exact methodological sources for every implemented extension. Separate author-recommended procedures from study-specific adaptations."
+    }
+  ],
+  "citation_problems": [
+    {
+      "cite": "Struthers and Kalbfleisch 1986; Xu and O'Quigley 2000",
+      "problem": "These works support pseudo-true Cox limits under misspecification, but they do not support treating the direct A-versus-B limit as equal to an anchored combination of the two trial-specific limits. The protocol's inferential step is unsupported and generally false."
+    },
+    {
+      "cite": "Signorovitch et al. 2012 and 2010; Ishak et al. 2015",
+      "problem": "The author and DOI corrections appear sound, but these sources do not validate the protocol's flexible spline extensions, marginal cumulative-hazard graft, exact pseudo-IPD treatment or bootstrap as the authors' recommended implementations."
+    },
+    {
+      "cite": "Phillippo et al. 2020",
+      "problem": "This supports the ML-NMR framework, not all current multinma survival API claims, aux_by or aux_regression behavior, prediction limitations, version history or n_int = 64L default. Those claims need current software documentation and a frozen package version."
+    },
+    {
+      "cite": "multinma survival support since 0.6.0, marginal_effects since 0.7.0, and n_int = 64L",
+      "problem": "No software citation, release note or documentation reference is supplied for these version-specific claims."
+    }
+  ],
+  "round3_resolution": [
+    {
+      "finding": "STC quadrature weights",
+      "resolved": "partly",
+      "note": "The guard and weighted integration are described, but the retained STC pilot interpretation is incompatible with the corrected estimator and DGM."
+    },
+    {
+      "finding": "invalid STC marginal graft",
+      "resolved": "partly",
+      "note": "Conditional transport is specified in section 7, but section 10 still attributes pilot bias to the obsolete marginal-transport mechanism."
+    },
+    {
+      "finding": "aggregate study analyzed as IPD",
+      "resolved": "partly",
+      "note": "Individual covariates are removed, but reconstructed individual outcome histories are still treated and bootstrapped as exact IPD."
+    },
+    {
+      "finding": "own-variance decision floor",
+      "resolved": "no",
+      "note": "The rule is declared dead and then re-registered in sections 10.2 and 10.3."
+    },
+    {
+      "finding": "non-proportionality quarantined on aggregate side",
+      "resolved": "partly",
+      "note": "Two κA cells were added, but most crossing cells retain κA = 0 and the aggregate B curve remains shared outside the PH toggle."
+    },
+    {
+      "finding": "pilot-tuned 0.10 cutoff",
+      "resolved": "no",
+      "note": "The cutoff is called moot but remains an operative fit-for-purpose threshold."
+    },
+    {
+      "finding": "integration acceptance rule",
+      "resolved": "partly",
+      "note": "The old threshold is gone and 128 is frozen, but 256 is unconverged and its difference from 64 is still mislabeled as bias."
+    },
+    {
+      "finding": "locked configuration",
+      "resolved": "no",
+      "note": "The document retains conflicting replicate, bootstrap, chain and κA settings."
+    },
+    {
+      "finding": "study cannot settle OUT-11",
+      "resolved": "yes",
+      "note": "Section 12b plainly states that OUT-11 remains open and identifies the omitted components."
+    },
+    {
+      "finding": "sensitivity arms omitted from runtime",
+      "resolved": "partly",
+      "note": "They are listed, but excluded from the displayed total and undercounted."
+    },
+    {
+      "finding": "four chains cost the same wall clock",
+      "resolved": "no",
+      "note": "The claim is acknowledged as false in sections 13 and 14 but remains registered in section 7."
+    },
+    {
+      "finding": "bootstrap cost",
+      "resolved": "partly",
+      "note": "A unit cost is measured, but the active resample count conflicts and the two-hour total requires unstated parallelism."
+    },
+    {
+      "finding": "in-window crossings",
+      "resolved": "yes",
+      "note": "The main Weibull and Gompertz non-proportional cells now contain reported crossings within follow-up."
+    },
+    {
+      "finding": "comparator attribution",
+      "resolved": "partly",
+      "note": "Correct papers are named, but they do not support all study-specific implementations presented as recommended practice."
+    },
+    {
+      "finding": "gamma role",
+      "resolved": "partly",
+      "note": "Section 3 correctly calls gamma a pure effect modifier, but section 10 later invokes a prognostic-covariate mechanism."
+    }
+  ],
+  "what_is_sound": [
+    "The protocol correctly distinguishes a constant conditional coefficient under proportional hazards from a population-dependent marginal hazard ratio and from a least-false Cox summary under non-proportional hazards.",
+    "The target-superpopulation RMST estimand is clearly defined, uses a fixed horizon and evaluates both treatments under the same target baseline and covariate law.",
+    "Supplying the same known target moments to every method removes the previous realized-sample versus superpopulation mismatch, while explicitly excluding target-summary uncertainty.",
+    "The marginal hazard definition E[hS]/E[S] is correct, and the survival-difference time grid addresses calibration beyond a single horizon.",
+    "Solving betaB to hold RMST truth fixed does not itself force a method ranking, and the exact PH control plus in-window crossing cells are useful design features.",
+    "Pairing estimator comparisons on each simulated network and using common random numbers across censoring regimes are appropriate variance-reduction choices.",
+    "The listed author, year and DOI combinations appear bibliographically plausible; the principal citation defect is unsupported extension of what those sources establish, not obvious author misattribution."
+  ]
+}

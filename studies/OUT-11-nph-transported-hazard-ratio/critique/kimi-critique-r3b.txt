@@ -1,0 +1,76 @@
+```json
+{
+  "verdict": "needs-revision",
+  "summary": "The rebuild is genuinely responsive to rounds 1-2: the unfirable v2 rule is replaced by an excess-recommendation-error rule with a per-estimator noise floor and mandatory margin cells, the runtime is measured rather than asserted, and every citation in this half checks out. Three serious defects remain in the new material. The integration-order acceptance threshold (0.02 months) sits below the paired measurement's own standard error (0.024), so the rule will reject a truly converged order about 40% of the time and the 256-point reference is itself unverified. The registered D1 averages eight cells (six primary plus two margin) while the 0.10 threshold was calibrated on a six-cell pilot with a different recommend/decline mix, and the primary outcome's cell membership is not reconcilable from this text. Finally, the excess-over-own-floor metric is a standardized-bias measure that shrinks as an estimator's variance grows, so 'fit for purpose' can certify an estimator with a raw recommendation-error rate near 0.45, contrary to the protocol's no-gaming claim.",
+  "findings": [
+    {
+      "axis": "decision-rule",
+      "severity": "serious",
+      "what": "The integration-order rule accepts the lowest order whose paired difference from the 256-point reference is below 0.02 months, but the paired standard error is 0.024 - the acceptance threshold is below one standard error of the measurement. A truly converged order (true difference 0) is rejected with probability ~0.40 per test (P(|N(0,0.024)| > 0.02) = 0.405), so the rule will routinely escalate order or trigger the replicate cut without cause. Additionally the 256-point reference is unverified - the protocol itself cites IDN-05 for exactly that gap - so quadrature bias shared by all orders would produce paired differences near zero and pass every order.",
+      "fix": "Restate as an equivalence test: accept the lowest order whose upper 95% confidence bound on the paired |difference| is below 0.02, and size the sweep so the SE is at most ~0.01 by running longer chains on the sweep fits (only ~64 fits; a few core-hours). Add one order above 256 (e.g., 512) as a convergence check on the reference, and state the common-mode-bias caveat."
+    },
+    {
+      "axis": "decision-rule",
+      "severity": "serious",
+      "what": "D1 is registered as the uniform mean over 'the six primary and two margin cells' (8 cells), but the pilot that calibrated the 0.10 threshold ran 'the six Weibull cells' (four recommend plus two margin), and the design totals 12 cells. The primary outcome's cell membership cannot be reconciled from this text; the margin share drops from 1/3 to 1/4, diluting the very protection the margin cells exist for; and a threshold calibrated to separate rows on a 4R+2D average does not automatically separate them on a 6R+2D average.",
+      "fix": "Enumerate exactly which cells enter D1, reconcile with the 12-cell matrix and the pilot, and either restrict D1 to the six piloted cells or pilot the additional cells and re-derive the threshold for the registered 8-cell average."
+    },
+    {
+      "axis": "decision-rule",
+      "severity": "serious",
+      "what": "The excess-over-own-floor metric is a standardized-bias measure: for fixed bias b, excess is approximately |b|/sigma * phi(d/sigma), which decreases as the estimator's SD grows. A high-variance biased estimator (e.g., MAIC under ESS loss, or a flexible ML-NMR with wider posteriors) therefore scores systematically better than a low-variance estimator with identical bias, and an estimator can be certified fit for purpose while its raw recommendation-error rate is ~0.45 (floor ~0.37 plus excess < 0.10). The stated protection ('cannot be gamed by shrinking variance') covers only one direction; inflating variance hides bias. The floor is also estimated from 40 replicates (~11% relative SE) under a normality plug-in, and neither uncertainty is propagated.",
+      "fix": "Report the raw error rate and the floor per cell alongside the excess, and require the raw rate (or another absolute-error criterion) below a registered value for the fit-for-purpose verdict. Note that within-family PH-versus-flexible comparisons are roughly variance-matched so the headline contrast is robust to this; cross-family reads and the certification itself are not."
+    },
+    {
+      "axis": "feasibility",
+      "severity": "serious",
+      "what": "The Stan budget counts 960 fits (480 replicates times 'two arms each'), but the change log registers a prior-sensitivity analysis and a knot-complexity sensitivity arm that do not visibly appear in the runtime table. If the x2 does not already cover them, this is the same omission class that was a round-2 fatal (analyses present in the design, absent from the budget).",
+      "fix": "State explicitly what the x2 per replicate covers and add every registered sensitivity fit (prior sensitivity, complexity arm, and sampler-policy refits beyond the 10% allowance) to the core-hour table."
+    },
+    {
+      "axis": "feasibility",
+      "severity": "minor",
+      "what": "The change log quotes the bootstrap as '11.0 hours against roughly 3 hours of Stan', while section 14 gives 43.9 core-hours = 5.5 h wall on eight workers for the bootstrap and 4.9 h for Stan at 64 points. Same quantities, different numbers; a reader cannot tell which is current or what concurrency assumption sits behind the 11.0 and 3.0.",
+      "fix": "Reconcile the two figures and state the worker count behind each wall-clock number."
+    },
+    {
+      "axis": "decision-rule",
+      "severity": "minor",
+      "what": "D2 coverage is pooled, so over-coverage in some cells can cancel under-coverage in others - the same flaw class this revision fixed for signed bias one level up. The inconclusive width is quoted at 240 replicates while the design runs 480, leaving the pooling unit ambiguous.",
+      "fix": "State the pooling unit (240 implies per-family pooling; 480 implies global). Report per-cell coverage min/max alongside the pooled figure, with the caveat that per-cell coverage is unresolvable at 40 replicates."
+    },
+    {
+      "axis": "decision-rule",
+      "severity": "limitation",
+      "what": "The 0.10 threshold was placed in the pilot-observed gap between the flexible (0.036-0.076) and PH (0.188-0.203) frequentist rows, so failure of the PH comparators is near-guaranteed by construction; excluding ML-NMR from the pilot protects only the recommended methods' verdicts from being tuned. The disclosure is exemplary and the protection argument is correct as far as it goes, but the frequentist verdicts are partly self-fulfilling and only the ML-NMR verdict is fully prospective.",
+      "fix": "Not fixable within this design; retain the disclosure and add one sentence stating plainly that the threshold guarantees the frequentist separation only if the run reproduces the pilot's gap."
+    }
+  ],
+  "citation_problems": [],
+  "what_is_sound": [
+    "The study answers the stated problem: a two-study anchored benchmark of multinma flexible-survival ML-NMR against PH MAIC and STC, with in-window hazard crossings (now 6-14 months against an 18-month horizon) and between-study differential censoring, on the target-population marginal RMST-difference scale that the entry's recommended methods produce.",
+    "The excess-recommendation-error construction is a coherent replacement for the unfirable v2 rule: beta_B solved per cell makes truths straddle the boundary (0.75/0.35 vs 0.50), the 37% irreducible-error arithmetic checks (Phi(-0.25/0.75) = 0.369), signed cancellation is closed by the mean-absolute rule (pilot: +0.435 and -0.318 averaging to +0.072), and the margin cells provably stop upward bias from being rewarded (STC-PH excess of -0.192 in a recommend cell).",
+    "The threshold-calibration disclosure, with ML-NMR excluded from the pilot, is the honest version of pilot-based calibration and the tuning-protection argument is correct as far as it goes.",
+    "D3 uses the analytic least-false parameter with one fixed target baseline curve, carrying zero Monte Carlo noise and cleanly separating E1's mechanism from E2's finite-sample scatter, exactly as round 2 demanded.",
+    "Feasibility arithmetic in section 14 is internally consistent and verified: 500 x 480 x 0.658 s = 43.9 core-hours; 960 fits x 74 s x 2 chains = 39.5 core-hours; 960 x 167 s x 2 = 89.1; wall-clock conversions at 8 cores check; the bootstrap is correctly named the dominant cost; the MCSE figures (0.047 per fit, 0.024 paired) are correct.",
+    "The pilot produced what a confirmatory pilot should: the MAIC-PH identical-to-MAIC-Cox null result (basis inert under the PH restriction), registration of STC-PH's non-collapsibility bias (+0.383/+0.397 at kappa_B=0, gamma=0.30) as an anticipated mechanism, and documentation of the kappa_B=0.15 cancellation coincidence.",
+    "All three epidemiology citations in this half are correctly attributed with correct DOIs: Hernan, 'The hazards of hazard ratios', Epidemiology 2010 (10.1097/EDE.0b013e3181c1ea43); Aalen, Cook and Roysland, Lifetime Data Analysis 2015 (10.1007/s10985-015-9335-y); Stensrud and Hernan, JAMA 2020 (10.1001/jama.2020.1267); and multinma's n_int = 64 default is as stated."
+  ],
+  "round2_resolution": [
+    {"finding": "0.5-month threshold does not justify a 0.5-month bias tolerance (fatal)", "resolved": "yes", "note": "Rule restated as recommendation error with cells straddling the boundary; the 37% floor arithmetic verifies. New defects in the replacement metric (variance reward; cell-set mismatch) are filed separately."},
+    {"finding": "Censoring regimes absent from cell matrix, replicate total and runtime (fatal)", "resolved": "yes", "note": "Change log assigns four regimes to E1/E2 and two to E3 with recomputed totals; D3 spans four regimes; nothing in this half contradicts the accounting, and 480 replicates / 960 fits are internally consistent."},
+    {"finding": "MAIC and STC cannot consume three aggregate studies (fatal)", "resolved": "yes", "note": "Two-study network throughout; runtime accounting consistent with it."},
+    {"finding": "DGM not numerically locked (fatal)", "resolved": "partly", "note": "This half shows beta_B solved per cell with registration in R/00-config.R and section 3; the lock itself lives in the other half and cannot be confirmed here."},
+    {"finding": "Runtime omitted the bootstrap (serious)", "resolved": "yes", "note": "Measured at 0.658 s per resample, 43.9 core-hours, correctly identified as dominant; arithmetic verified. A 5.5 h vs 11.0 h discrepancy between sections 13 and 14 is filed as minor."},
+    {"finding": "Integration-order citation argued against the choice it justified (serious)", "resolved": "partly", "note": "Now measured with the right experiment (paired within replicate on shared data), but the acceptance threshold is below the measurement's own SE and the 256-point reference is unverified; the replacement rule is not yet fit."},
+    {"finding": "Coverage unresolvable with no inconclusive region (serious)", "resolved": "yes", "note": "Three-way calibrated/miscalibrated/inconclusive verdict with the wide inconclusive region disclosed; pooling-unit ambiguity (240 vs 480) filed as minor."},
+    {"finding": "No cell produced an in-window hazard crossing (serious)", "resolved": "yes", "note": "Claimed resolved as a side effect of solving beta_B to a decision margin; crossings at 6-14 months. Verification lives in section 8 (other half)."},
+    {"finding": "Two censoring-dependence sources called exactly separable (serious)", "resolved": "yes", "note": "Reframed as a factorial with interaction, only the two exact ablations claimed."},
+    {"finding": "'Nobody appears to have quantified it' overclaims the marginal-HR literature (citation)", "resolved": "yes", "note": "Claim narrowed to censoring-regime dependence; Hernan 2010, Aalen/Cook/Roysland 2015 and Stensrud/Hernan 2020 now cited - all three verified correctly attributed in this half."},
+    {"finding": "PH-versus-flexible columns changed likelihood and basis as well (serious)", "resolved": "yes", "note": "The pilot's MAIC-PH agreeing with MAIC-Cox to three decimals in every cell is direct evidence the basis is inert under the PH restriction, supporting the rebuilt rows that toggle only treatment-by-time terms."},
+    {"finding": "D2 underspecified: statistic, weights, allocation, baseline (serious)", "resolved": "yes", "note": "D3 now fixes the baseline curve, the range statistic, uniform regime weights, and is labeled a PH plug-in procedure; evaluated on the noise-free analytic parameter as requested."},
+    {"finding": "Broad title overstates a partial benchmark (limitation)", "resolved": "yes", "note": "Scoped to Weibull and Gompertz, with multistate mechanisms explicitly named as beyond reach in section 12."},
+    {"finding": "gamma's role ambiguous between prognostic and treatment-specific (minor)", "resolved": "yes", "note": "gamma stated as shared across A and B; consistent with the pilot showing STC-PH non-collapsibility bias arising purely from a prognostic covariate under exact conditional PH."}
+  ]
+}
+```

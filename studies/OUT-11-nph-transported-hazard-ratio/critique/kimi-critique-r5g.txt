@@ -1,0 +1,123 @@
+```json
+{
+  "verdict": "needs-revision",
+  "summary": "The freeze architecture is genuinely improved: measured unit costs with hard failure on unmeasured inputs, N_INT-keyed cost selection that kills the silent-stale-cost bug, per-replicate checkpointing, a capped and costed refit contingency, and an integration-order decision that is now evidence-based (256 registered, 512 bounding arm) rather than resting on the withdrawn 597 s figure. The estimand reasoning flagged as new (least-false coefficient under the IPD baseline; MAIC graft and STC transport errors as exact structural quantities) is correct. But the budget section still contains numbers that do not follow from each other, two of them factor-of-two class: the Stan pass multiplies per-replicate cost by 840 with no concurrency treatment despite claiming the figure was measured at production concurrency (two replicates in flight), and the sensitivity arms are described as two cells at 50 replicates while the code costs 50 replicates total. Below that sits a layer of 0.1-hour display drift where no printed total follows from the printed unit costs — small, but in the one section whose entire claim is that this failure class is eliminated. Nothing here threatens the scientific answer or the 8-day feasibility conclusion; the budget's auditability claim is what needs repair before the freeze is credible.",
+  "findings": [
+    {
+      "axis": "feasibility",
+      "severity": "serious",
+      "what": "The Stan budget computes 840 x 442.0 s = 103.2 h with no concurrency factor, while the document states every figure is 'wall clock at the stated concurrency' and production runs two replicates in flight. If 442.0 s is the per-replicate latency measured with two replicates running, the pair finishes in 442 s and 840 replicates cost ~51.6 h — the budget overstates its dominant line two-fold. If instead 442.0 s was measured solo on the verified-quiet machine, production contention will inflate it and the budget understates — the same failure class as the 597 s episode the section dissects. The document never says which quantity was measured, and the bootstrap side does apply a measured concurrency correction (2.10x), making the asymmetry conspicuous.",
+      "fix": "State the measurement protocol for stan_replicate_256_secs (and the 128 s figure) explicitly: per-replicate latency under two-in-flight, or amortized per-replicate throughput. If latency, divide the Stan line by the in-flight factor; if throughput, say so and have R/11 record concurrency alongside load average. Add an assertion tying the Stan line to the declared concurrency."
+    },
+    {
+      "axis": "feasibility",
+      "severity": "serious",
+      "what": "Sensitivity-arm replicate count contradicts between prose and code. The text says each arm 'runs on the same prespecified subset of two primary cells at 50 replicates' — two cells x 50 = 100 replicates per arm. The budget code sets n_sens <- 50 and costs every arm at 50 replicates (50 x 442/3600 = 6.1 h, matching the printed 6.1). If the prose governs, each arm is under-costed ~2x: arms total ~45.8 h instead of 22.9 h, and the grand total ~216 h instead of 193.3 h. This is the same defect class as round 4's 2.6-fold arm understatement, reappearing in the section written to eliminate it.",
+      "fix": "Decide whether 50 is per cell or total, make prose, config, and budget agree, and register the arm design (cells x replicates) in the exported design JSON with an assertion against section 14."
+    },
+    {
+      "axis": "decision-rule",
+      "severity": "minor",
+      "what": "The integration-order narrative misattributes its own arithmetic. Under the stated halving model (+0.040 from 64 to 128, +0.020 from 128 to 256), the residual at 128 against the converged value is ~0.04 (the measured 0.020 increment plus ~0.020 of future increments), and ~0.02 is what remains at 256. The text says 'roughly 0.02 months still missing at 128' and then calls that 'the same size as the entire measured bias of the flexible estimator rows (-0.043 to -0.046)' — 0.02 is about half of 0.043-0.046. The registered decision (256 with a 512 bound) is unchanged and arguably stronger than stated, but the justification's numbers do not follow from its own model.",
+      "fix": "Rewrite the sentence: residual at 128 is ~0.04 vs converged (which genuinely is the size of the flexible rows' bias); residual at 256 is ~0.02, bounded empirically by the 512 arm."
+    },
+    {
+      "axis": "feasibility",
+      "severity": "minor",
+      "what": "No printed total follows from the printed unit costs. 840 x 442.0/3600 = 103.13 h (document: 103.2); main = 103.13 + 25.94 = 129.07 (document: 129.2); per condition 6.1 (document: 6.2); arms 10.6 + 6.1 + 6.1 = 22.8 (document total: 22.9); the document's own grand components 129.2 + 22.9 + 41.3 = 193.4 (document total: 193.3); the superseded 128-point Stan figure computes to 59.9 (document: 60.0). All discrepancies are ~0.1 h, consistent with totals computed from unrounded values in production-timing.rds while unit costs are displayed rounded — but then a reader cannot reproduce any total from the printed costs, and the 109-assertion suite evidently does not check that displayed components sum to displayed totals. Rounds 3 and 4 both produced fatal findings for exactly this class.",
+      "fix": "Either print unit costs to enough digits that the totals reproduce, or extend the assertions to verify displayed-component sums equal displayed totals after display rounding."
+    },
+    {
+      "axis": "feasibility",
+      "severity": "minor",
+      "what": "The budget file whose stated purpose is 'no typed numbers' contains a typed fallback: ratio <- if (!is.null(timing$ratio_256_128)) ... else 1.72 hardcodes the extrapolation ratio if the measurement is absent, and the refit line hardcodes 2 fits per replicate. Every other input hard-stops when unmeasured; these two silently proceed on constants.",
+      "fix": "Make a missing ratio_256_128 a hard error like the other unmeasured inputs, and read fits-per-replicate from the config rather than a literal."
+    },
+    {
+      "axis": "decision-rule",
+      "severity": "minor",
+      "what": "The 512-point arm 'bounds what remains' at 256, but no registered rule says what happens with the result. If 512 - 256 exceeds some threshold, is the primary analysis re-registered at 512, reported with an inflated error statement, or left unchanged with a caveat? As written the arm is informational only, and the choice of how to react remains available post hoc.",
+      "fix": "Register the action rule for the 512 result before the run (e.g., if |512-256| > the registered bias tolerance, primary ML-NMR rows are recomputed or flagged)."
+    },
+    {
+      "axis": "feasibility",
+      "severity": "minor",
+      "what": "The frozen design table never explains its own crossing: 10 distinct parameter cells but 21 cell-by-censoring conditions, which is neither 10x2 nor 10x3. The claim that the third censoring condition lifts E3's coverage of E1's range from 45% to 87% depends on which cells received which regimes, and that allocation is not stated in this section.",
+      "fix": "State the cells-by-regime allocation explicitly (which cells carry two regimes, which carry three) in the frozen table or in R/00-config.R's exported design."
+    },
+    {
+      "axis": "feasibility",
+      "severity": "minor",
+      "what": "Production runs 2 chains per ML-NMR fit. With 2 chains, R-hat and between-chain diagnostics are weak, so the sampler policy that triggers the refit escalation can detect divergences but cannot reliably detect poor mixing; the 20% cap is calibrated to a divergence-based probe and may under-detect the failures that matter.",
+      "fix": "Acceptable for a simulation study, but state in the protocol what the 2-chain sampler policy can and cannot detect, and note ESS-based criteria as the primary guard if R-hat is unreliable at 2 chains."
+    },
+    {
+      "axis": "feasibility",
+      "severity": "limitation",
+      "what": "The observed fit-failure rate is 3 of 16 (18.75%), just under the 20% cap, with a small-sample confidence interval roughly 4-46%; there is a substantial chance the cap is exceeded in production. Failures are also near-certainly concentrated in particular cells rather than uniform, so 'recorded as failure, primary repeated on the all-passed subset' conditions on informative missingness and unbalances the 40-per-condition design. The handling itself (cap, cost, excess-as-failures, subset analysis) is the right mitigation.",
+      "fix": "Not fixable within this design; state the MCAR-type assumption, report the per-cell failure distribution as a registered output, and pre-commit to how the all-passed subset analysis is described if failures cluster."
+    },
+    {
+      "axis": "feasibility",
+      "severity": "limitation",
+      "what": "The integration-order evidence rests on n=3-5 paired replicates per contrast (one batch partly lost to the machine's job kills). The headline t=9.1 has 2 degrees of freedom, and the halving-extrapolation that motivates the 512 arm is fitted to two noisy increments. The decision is robust because the differences are the size of the entire pilot bias, and the 512 arm supplies the real empirical bound — but the precision of the increments themselves is thin.",
+      "fix": "State the evidence base alongside the contrasts; treat the 512 arm, not the extrapolation, as the registered bound."
+    }
+  ],
+  "citation_problems": [
+    {
+      "cite": "multinma default n_int = 64L",
+      "problem": "No problem found: the attribution is accurate — Phillippo's multinma package does default to 64 numerical integration points for ML-NMR. The claim that this default is measurably inadequate for this estimand is supported by the paired data presented."
+    },
+    {
+      "cite": "IDN-05 (same program): 64-to-256 changed 8.3% of DIC verdicts; 256 not shown converged",
+      "problem": "Internal program citation; the 8.3% figure and the 'not shown converged' claim cannot be verified from this payload. Its use here is internally consistent (this study registers 256 and adds the 512 bound IDN-05 lacked), but it should be checked against IDN-05's actual text before the run."
+    }
+  ],
+  "what_is_sound": [
+    "Estimand discipline in the new material: computing leg A's least-false coefficient under the IPD study's own baseline is correct — population adjustment reweights patients and does not transport a baseline hazard — and treating MAIC's marginal-graft and STC's conditional-transport errors as exact structural quantities rather than Monte Carlo noise is the right formulation.",
+    "The integration-order decision procedure: paired-within-replicate measurement (fixing the earlier unpaired comparison whose MC error swamped the differences), explicit retraction of the withdrawn 597 s cost premise, registration of 256 on a cost-plus-accuracy argument, and a 512-point arm to bound what remains — exactly what IDN-05 recorded it could not do.",
+    "The budget architecture, as designed: costs computed from a measured rds with hard failure on unmeasured inputs, cost selected by N_INT with an error rather than a silent fallback (closing the round-4 stale-cost bug), the superseded 128-point total retained for audit, the 512 extrapolation labeled as an extrapolation, and the bootstrap corrected by a measured speedup rather than an assumed core count.",
+    "Contamination handling: the earlier inflation was root-caused (quiet-check grepped for Rscript while the process is named R), corrected figures are reported beside the wrong ones (0.711 to 0.467 s; 597 to 255 s), and the measurement script now records load average and its own process count.",
+    "The freeze mechanics: R/07-run.R refusing to start on an unfrozen configuration, per-replicate checkpointing yielding 840 resumable units on a machine with a documented history of killing long jobs, separate freq/ML-NMR passes to avoid oversubscription, and a refit contingency that is capped (20% of fits), costed (41.3 h), included in the total, and has an excess-as-failures rule rather than a mid-run budget revision.",
+    "The main-run arithmetic that is checkable is internally consistent: 21 conditions x 40 replicates = 840; 840 x 500 x 0.467/2.10/3600 = 25.9 h bootstrap; refit 336 refits x 442 s = 41.3 h; the 1.72 ratio is 442.0/256.9; the three t-statistics match their mean/SE pairs."
+  ],
+  "round4_resolution": [
+    {
+      "finding": "hand-written budget totals not following from unit costs (rounds 3 and 4)",
+      "resolved": "partly",
+      "note": "Budget is now computed from measured rds values with hard failure on unmeasured inputs, which is the right structural fix. But displayed totals still do not follow from displayed unit costs (103.13 printed as 103.2; 129.07 as 129.2; arms 22.8 printed as 22.9; grand total 193.3 matches neither its printed components 193.4 nor the code's 193.2), and the typed 1.72 fallback survives in the code. The assertion suite evidently does not cover displayed-component sums."
+    },
+    {
+      "finding": "integration/sensitivity arm costed at another order's prices (2.6-fold understatement)",
+      "resolved": "partly",
+      "note": "Each arm is now costed at its own unit price and the 512 arm's 1.72 extrapolation is labeled. However a new 2-fold ambiguity replaces it: prose says two primary cells at 50 replicates (100 per arm) while the code costs n_sens = 50 per arm. Prose, config, and code must be reconciled and asserted."
+    },
+    {
+      "finding": "refit escalation described but uncapped and unbudgeted",
+      "resolved": "yes",
+      "note": "Registered 20%-of-fits cap, costed at 41.3 h with doubled iterations and adapt_delta 0.99, included in the grand total, observed probe rate (3/16) reported alongside, and excess fits handled by a pre-specified recorded-as-failure rule rather than mid-run budget revision."
+    },
+    {
+      "finding": "N_INT still NA / registered integration order decoupled from quoted cost (round 3)",
+      "resolved": "yes",
+      "note": "N_INT = 256 is registered, the budget selects the measured cost by N_INT and hard-stops on any order without a measurement, and the superseded 128-point total (60.0 h) is retained for audit. The change of registered order is thereby auditable rather than asserted."
+    },
+    {
+      "finding": "replicate counts contradicting between sections",
+      "resolved": "partly",
+      "note": "Within this part the main run is consistent (10 cells, 21 conditions, 40 reps, 840 total, 500 resamples). But the sensitivity arms reintroduce the same class: 'two primary cells at 50 replicates' vs n_sens = 50 in code. The 10-cells-to-21-conditions crossing is also never explained."
+    },
+    {
+      "finding": "primary comparison resting on a premise the document had withdrawn (v4's 128 registration on the 597 s figure)",
+      "resolved": "yes",
+      "note": "The 185-hour figure is quoted as wrong, the contention cause is named, and 256 is re-registered on quiet-machine paired measurements plus an accuracy argument, with a 512 arm bounding the remainder. No claim in this part still rests on the contended timings."
+    },
+    {
+      "finding": "decision rule declared replaced but still registered as primary; results table carrying values from deleted code",
+      "resolved": "partly",
+      "note": "Not assessable from part G: those elements live in the sections on registered outcomes and results, which are not in this excerpt. Nothing in part G contradicts the claimed fixes, but their presence cannot be confirmed here and should be re-checked in the parts that contain them."
+    }
+  ]
+}
+```

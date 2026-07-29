@@ -1,0 +1,321 @@
+{
+  "verdict": "unsound",
+  "summary": "The revision fixes the original algebraic DGM flaw and correctly reframes censoring dependence of the Cox projection as a known result whose magnitude is to be measured. It is still not an executable preregistration because essential parameters and crossing times are absent, while four censoring regimes are required by the analyses but omitted from the stated 9-cell, 360-replicate matrix. The MAIC and STC pipelines do not explain how all aggregate studies are combined, and their PH versus NPH columns still change baseline model and likelihood as well as proportionality. The decision rules conflate a reimbursement threshold with an acceptable estimation error, have inadequate Monte Carlo resolution for coverage, and accompany a runtime estimate that omits most censoring-regime and bootstrap fits.",
+  "findings": [
+    {
+      "axis": "answers-problem",
+      "severity": "fatal",
+      "what": "The benchmark matrix does not contain the differential-censoring experiment. Section 7 defines 9 cells times 40 replicates as the entire 360-replicate run, while sections 5 and 8 require four censoring regimes, finite-sample estimator fits under those regimes, and common random numbers across them. If every base replicate is analyzed under four regimes, there are 1,440 estimator datasets rather than 360; if it is not, Contribution B does not benchmark the methods under differential censoring as OUT-11 requests.",
+      "fix": "Add censoring explicitly as a crossed or nested factor, give all four numerical regimes, state which estimator fits are repeated, and revise the replicate, Monte Carlo error, and runtime calculations accordingly."
+    },
+    {
+      "axis": "answers-problem",
+      "severity": "serious",
+      "what": "OUT-11 asks for calibration over time. The revision adds interval coverage only for RMST at 18 months. It does not prespecify bias or coverage for survival probabilities over time, milestone coverage, simultaneous curve calibration, or any other time-indexed calibration outcome.",
+      "fix": "Prespecify a supported time grid or named milestones and define pointwise or simultaneous bias and coverage summaries, including how they are aggregated across scenarios."
+    },
+    {
+      "axis": "answers-problem",
+      "severity": "limitation",
+      "what": "The design omits multistate mechanisms, a distinct one-step survival NMA comparator, and within-comparison arm-differential censoring. These omissions are disclosed, so the work can be a partial benchmark, but the current broad title and the statement that Contribution B is what the catalog asked for still overstate what it settles. Fitting an exact likelihood within ML-NMR does not by itself establish equivalence to a distinct one-step NMA estimator.",
+      "fix": "Call the work a partial Weibull/Gompertz benchmark throughout, including in the actual title, and do not claim that the omitted one-step comparator is subsumed without a formal estimator-level equivalence argument."
+    },
+    {
+      "axis": "dgm-builds-in-finding",
+      "severity": "fatal",
+      "what": "The DGM is still not numerically locked. Missing quantities include beta_A and beta_B, gamma_A and gamma_B or a statement identifying which treatment the single gamma factor changes, kappa_A, a0, xi, every s_j, b_j and mu_j, arm allocations and sample sizes, and all censoring rates. The B-versus-A conditional contrast is determined by the differences in beta, kappa and gamma, so kappa_B greater than zero does not by itself guarantee a conditional or target-marginal crossing inside 0 to 36 months. The calibration paragraph reports only the null rejection rate at kappa equal to zero, not the rejection rates at 0.15 and 0.30 or the resulting crossing times.",
+      "fix": "Register a complete numerical parameter table and report conditional and target-marginal crossing times, risk-set support, event fractions, overlap or effective sample size, and PH-test power for every retained non-PH level."
+    },
+    {
+      "axis": "dgm-builds-in-finding",
+      "severity": "serious",
+      "what": "The direction of Contribution A is correctly acknowledged as built in: kappa not equal to zero creates conditional non-PH, while gamma not equal to zero with positive covariate variance can create marginal non-PH even when kappa is zero. However, calling these two sources exactly separable goes beyond the stated ablations. The least-false Cox root is nonlinear, so when both mechanisms operate their contributions generally interact and cannot be added uniquely.",
+      "fix": "Describe them as two pathways to marginal non-PH and report a prespecified factorial decomposition with an interaction term, rather than claiming an exact additive separation."
+    },
+    {
+      "axis": "estimand",
+      "severity": "serious",
+      "what": "The protocol names a superpopulation estimand but does not align every estimator and truth calculation to it. It simultaneously says MAIC targets the realized aggregate sample, although balancing a few realized moments targets a moment-defined weighted distribution, not the realized empirical distribution. If target moments are re-estimated in every replicate while truth remains N(mu_tgt,1), target-sampling error is mixed with method bias; if truth follows the realized target, it must be recomputed per replicate.",
+      "fix": "Choose either fixed known superpopulation parameters or a replicate-specific target. Specify which target summaries each estimator receives, the MAIC weighting basis, the truth used for scoring, and whether interval procedures include uncertainty in the target summaries."
+    },
+    {
+      "axis": "fair-comparison",
+      "severity": "fatal",
+      "what": "The assertion that every method uses the same studies is not implemented. Ordinary pairwise MAIC and STC do not automatically use all three aggregate PBO-versus-B studies. The protocol does not define how their study-specific baselines and flexible B effects are pooled, what scale Bucher operates on under NPH, or how a single target B-versus-A RMST curve is constructed from those components. Consequently, several of the six estimators are not yet defined.",
+      "fix": "Give an explicit estimator algorithm for each row, including the study-level models, pooling equations, target standardization, indirect contrast, and bootstrap resampling units. If MAIC or STC cannot use all studies without becoming a different network method, declare and interpret that evidence asymmetry instead of asserting it away."
+    },
+    {
+      "axis": "fair-comparison",
+      "severity": "serious",
+      "what": "The claimed within-family PH toggle is still false outside ML-NMR. Weighted Cox with a Breslow baseline is compared with Royston-Parmar, and PH Weibull STC is compared with Royston-Parmar STC. Those changes alter likelihood and baseline representation as well as treatment-by-time terms. In the Gompertz cells, PH Weibull STC is baseline-misspecified even when the treatment effect is proportional, while Cox and spline competitors need not be.",
+      "fix": "Use the same baseline family and likelihood within each row, toggling only treatment-by-time terms, such as PH and treatment-stratified versions of the same Royston-Parmar model. Otherwise abandon row and column effect interpretations and report six inseparable pipelines."
+    },
+    {
+      "axis": "fair-comparison",
+      "severity": "serious",
+      "what": "Equal numbers of internal knots do not match flexibility across Royston-Parmar restricted cubic splines and ML-NMR M-splines; their scales, degrees of freedom, constraints, and approximation properties differ. Knot locations are also not specified. The comparison therefore has no demonstrated complexity balance.",
+      "fix": "Specify basis, scale, boundary and internal knot locations, effective degrees of freedom, and any smoothing priors. Use each method's recommended specification and add a common complexity-sensitivity analysis instead of equating knot counts."
+    },
+    {
+      "axis": "fair-comparison",
+      "severity": "serious",
+      "what": "The uncertainty comparison remains incomplete. No ML-NMR priors are specified despite gamma_B being weakly identified from only three aggregate-study means. The bootstrap interval type and resampling of aggregate outcomes, moments, and indirect-comparison components are unstated, and 500 resamples may add material inner Monte Carlo error. Maximum R-hat alone is not a convergence or posterior-accuracy policy.",
+      "fix": "Register priors and prior sensitivity, bootstrap interval construction and resampling units, aggregate-summary uncertainty treatment, and thresholds for rank-normalized R-hat, bulk and tail ESS, divergences, treedepth, and posterior Monte Carlo error."
+    },
+    {
+      "axis": "fair-comparison",
+      "severity": "serious",
+      "what": "The integration choice is not validated. The protocol cites an unidentified study in which moving from 64 to 256 points changed 8.3 percent of verdicts, then selects only 32 points and checks 64 on an unspecified subset. If that precedent is relevant, 64 is not an accuracy reference and 32 can selectively damage ML-NMR.",
+      "fix": "Prespecify the sensitivity subset and compare 32 and 64 points with a demonstrably converged high-order reference, such as 128 or 256 points, using numerical error tolerances on predictions and decisions."
+    },
+    {
+      "axis": "decision-rule",
+      "severity": "fatal",
+      "what": "The 0.5-month decision threshold does not justify a 0.5-month bias tolerance. A reimbursement boundary at an RMST gain of 0.5 months implies that decision error depends on the cell-specific margin between the true gain and 0.5. The displayed true gains are 1.155, 1.817 and 2.359 months, so their margins are 0.655, 1.317 and 1.859 months. A 0.5-month estimation error or censoring-induced movement need not change any recommendation. Moreover, taking the absolute value of one pooled signed bias permits large positive and negative cell biases to cancel.",
+      "fix": "Define pass or failure through recommendation error, expected net benefit, or regret under a fully specified cost and value model. At minimum, use deployment-weighted absolute cell bias rather than absolute pooled signed bias and report sensitivity across externally justified decision thresholds."
+    },
+    {
+      "axis": "decision-rule",
+      "severity": "serious",
+      "what": "The coverage rule cannot be resolved at the stated budget. D1 pools only the six core cells, giving 240 replicates, not 360. The Monte Carlo standard error at 95 percent coverage is therefore about 0.014, not 0.011, and is large relative to the narrow acceptance interval of 0.90 to 0.98. The rule uses a point estimate and supplies no inconclusive region or Monte Carlo confidence requirement.",
+      "fix": "Increase the core replicate count substantially or classify using a Monte Carlo confidence interval with an explicit inconclusive outcome. Include inner bootstrap and MCMC error in the resolution calculation."
+    },
+    {
+      "axis": "decision-rule",
+      "severity": "serious",
+      "what": "D2 remains underspecified. It does not define whether the four-regime change is a maximum-minus-minimum range, a named contrast, or an expected loss; gives no censoring-regime weights; leaves allocation probabilities and censoring functions in the Cox projection unspecified; and does not say whether one common placebo curve or four separately estimated curves are used. Separate estimated baselines would mix baseline noise with HR movement. Applying a constant HR to a placebo curve is a defined PH use case, but it is not a general conversion from an HR to the true NPH RMST contrast.",
+      "fix": "Specify one statistic, censoring weights, allocation, censoring laws, a fixed baseline curve for isolating HR movement, paired uncertainty, and an inconclusive rule. Label the result as performance of the PH plug-in decision procedure."
+    },
+    {
+      "axis": "feasibility",
+      "severity": "serious",
+      "what": "The eight-hour estimate omits the design implied elsewhere. Four censoring regimes would require 1,440 estimator datasets and 2,880 Stan fits, which at 118 seconds per fit and three workers is about 31.5 hours before refits or integration sensitivity. The frequentist uncertainty procedure entails 720,000 bootstrap fits without the censoring multiplier and 2.88 million with it. No measured frequentist timing, integration-sensitivity sample size, or credible failure-rate pilot is supplied.",
+      "fix": "Recalculate from the complete matrix using measured tail timings for every estimator, bootstrap layer, high-integration subset, and refit escalation. State what happens if failures exceed the assumed 10 percent budget."
+    },
+    {
+      "axis": "citation",
+      "severity": "serious",
+      "what": "The Struthers-Kalbfleisch and Xu-O'Quigley author attributions and broad substantive use are consistent with the classical literature, and the Phillippo et al. attribution remains plausible. Citation control is nevertheless incomplete: Study 5 remains unidentified twice despite section 12 claiming it was removed; CrossRef verifies metadata rather than paper content; the alleged author-recommended bootstrap procedures are uncited; and neither the one-step-equivalence argument nor the negative claim that no qualifying benchmark exists has a reproducible source assessment.",
+      "fix": "Identify Study 5 fully, cite the exact comparator implementations and uncertainty recommendations, verify substantive claims from full texts rather than CrossRef metadata, and document the search and eligibility assessment supporting the novelty claim."
+    }
+  ],
+  "round1_resolution": [
+    {
+      "reviewer": "sol",
+      "finding": "OUT-11 benchmark scope",
+      "resolved": "partly",
+      "note": "Gompertz and explicit scope limitations were added, but multistate, a distinct one-step comparator, arm-differential censoring, and calibration over time remain absent."
+    },
+    {
+      "reviewer": "sol",
+      "finding": "performance outcomes undefined",
+      "resolved": "partly",
+      "note": "RMST bias and coverage were added, but time-indexed calibration, complete failure handling, and several operating-characteristic definitions remain missing."
+    },
+    {
+      "reviewer": "sol",
+      "finding": "censoring movement is a known theorem",
+      "resolved": "yes",
+      "note": "The direction is now treated as known, the limiting projection is computed, and simulation is confined to finite-sample behavior."
+    },
+    {
+      "reviewer": "sol",
+      "finding": "conditional-PH cell was not marginal-PH",
+      "resolved": "yes",
+      "note": "A kappa-equals-zero, gamma-equals-zero control was added; it is a clean marginal-PH control if gamma is zero for every treatment contrast."
+    },
+    {
+      "reviewer": "sol",
+      "finding": "DGM levels unset",
+      "resolved": "no",
+      "note": "Kappa and gamma grids are given, but treatment effects, treatment-specific modifier assignments, baselines, study means, sample allocations, and censoring rates remain unset."
+    },
+    {
+      "reviewer": "sol",
+      "finding": "crossing not calibrated in supported window",
+      "resolved": "no",
+      "note": "No conditional or target-marginal crossing times are reported, and the PH-test powers at kappa 0.15 and 0.30 are omitted."
+    },
+    {
+      "reviewer": "sol",
+      "finding": "target superpopulation versus realized sample",
+      "resolved": "partly",
+      "note": "A normal superpopulation target is named, but the protocol retains a different alleged realized-sample target for MAIC without changing the scoring truth."
+    },
+    {
+      "reviewer": "sol",
+      "finding": "marginal hazard truth undefined",
+      "resolved": "yes",
+      "note": "The marginal hazard is correctly defined through the survival-weighted hazard ratio."
+    },
+    {
+      "reviewer": "sol",
+      "finding": "constant HRs were different estimands",
+      "resolved": "partly",
+      "note": "A common Cox-projection equation was added, but allocation, censoring functions, and its use in the four-regime statistic are not fully fixed."
+    },
+    {
+      "reviewer": "sol",
+      "finding": "RMST horizon moved with censoring",
+      "resolved": "yes",
+      "note": "Tau is fixed at 18 months across all cells and regimes."
+    },
+    {
+      "reviewer": "sol",
+      "finding": "MAIC targets a different distribution",
+      "resolved": "no",
+      "note": "The mismatch is acknowledged but not resolved, and the weighting basis needed to recover the stated normal target is not specified."
+    },
+    {
+      "reviewer": "sol",
+      "finding": "PH versus flexible columns mislabeled",
+      "resolved": "no",
+      "note": "The MAIC and STC columns still change baseline family or likelihood as well as treatment-by-time terms, contradicting the claimed isolation."
+    },
+    {
+      "reviewer": "sol",
+      "finding": "Bucher and HR did not define RMST",
+      "resolved": "partly",
+      "note": "A target placebo baseline and arm curves are now mentioned, but the exact multistudy pooling and NPH indirect-comparison construction remain undefined."
+    },
+    {
+      "reviewer": "sol",
+      "finding": "unequal evidence sets",
+      "resolved": "no",
+      "note": "The protocol asserts that all methods use every study but does not provide a network-compatible MAIC or STC algorithm that does so."
+    },
+    {
+      "reviewer": "sol",
+      "finding": "uncertainty procedures incomplete",
+      "resolved": "partly",
+      "note": "Bootstrap and posterior intervals were named, but priors, bootstrap interval type, aggregate-summary resampling, and sampler diagnostics remain unspecified."
+    },
+    {
+      "reviewer": "sol",
+      "finding": "no operational decision rule",
+      "resolved": "partly",
+      "note": "Numeric thresholds and core-cell weights were added, but no censoring weights, Monte Carlo confidence requirement, or inconclusive outcome is defined."
+    },
+    {
+      "reviewer": "sol",
+      "finding": "HR-to-RMST mapping absent",
+      "resolved": "partly",
+      "note": "A PH plug-in mapping onto a target placebo curve was added, but the baseline handling, four-regime statistic, and uncertainty are not fully specified."
+    },
+    {
+      "reviewer": "sol",
+      "finding": "noisy range and unpaired regimes",
+      "resolved": "partly",
+      "note": "Common random numbers and pairing were added, but the raw across-regime statistic and its Monte Carlo decision rule remain undefined."
+    },
+    {
+      "reviewer": "sol",
+      "finding": "runtime not auditable",
+      "resolved": "partly",
+      "note": "A nominal matrix and measured Stan timing were added, but the four censoring regimes, bootstrap fits, sensitivity fits, and refits are omitted from the total."
+    },
+    {
+      "reviewer": "sol",
+      "finding": "MCMC diagnostics inadequate",
+      "resolved": "no",
+      "note": "Only maximum R-hat from timing fits is reported; ESS, divergences, treedepth, posterior Monte Carlo error, and a fixed escalation policy are absent."
+    },
+    {
+      "reviewer": "sol",
+      "finding": "citation traceability",
+      "resolved": "partly",
+      "note": "Classical Cox citations were added, but Study 5 remains unidentified and comparator-specific recommendations and the novelty search remain uncited."
+    },
+    {
+      "reviewer": "kimi",
+      "finding": "centerpiece demonstrated a theorem",
+      "resolved": "yes",
+      "note": "The protocol accepts the objection, computes the limiting quantity, and restricts simulation to magnitude and finite-sample behavior."
+    },
+    {
+      "reviewer": "kimi",
+      "finding": "flexible aggregate-side fits undefined",
+      "resolved": "partly",
+      "note": "Reconstructed survival records and flexible models are mentioned, but the aggregate-study pooling and flexible indirect-comparison algorithm are not defined."
+    },
+    {
+      "reviewer": "kimi",
+      "finding": "evidence-base asymmetry",
+      "resolved": "no",
+      "note": "Saying every method uses the same studies does not explain how pairwise MAIC and STC consume all three aggregate B studies."
+    },
+    {
+      "reviewer": "kimi",
+      "finding": "decision inputs missing",
+      "resolved": "partly",
+      "note": "A number and a PH plug-in mapping were supplied, but the number lacks a real consequence derivation, censoring weights are missing, and Monte Carlo resolution is inadequate."
+    },
+    {
+      "reviewer": "kimi",
+      "finding": "replicate budget and convergence",
+      "resolved": "partly",
+      "note": "Forty replicates per base cell and a timing table were added, but the censoring multiplier and bootstrap workload are omitted and convergence criteria remain incomplete."
+    },
+    {
+      "reviewer": "kimi",
+      "finding": "Weibull-only scope",
+      "resolved": "yes",
+      "note": "Gompertz was added and the remaining multistate omission is explicitly declared."
+    },
+    {
+      "reviewer": "kimi",
+      "finding": "one-step comparator omitted",
+      "resolved": "partly",
+      "note": "The omission is now explicit, but the claim that ML-NMR subsumes the comparator because both use an exact likelihood is not established."
+    },
+    {
+      "reviewer": "kimi",
+      "finding": "target estimand and priors",
+      "resolved": "partly",
+      "note": "The superpopulation target is named, but the MAIC target remains inconsistent and no ML-NMR priors or prior sensitivity are registered."
+    },
+    {
+      "reviewer": "kimi",
+      "finding": "two censoring roles inconsistent",
+      "resolved": "no",
+      "note": "Four regimes are mentioned, but they are absent from the cell matrix, replicate total, deployment weights, and runtime calculation."
+    }
+  ],
+  "citation_problems": [
+    {
+      "cite": "Study 5 published a maximum over eight noisy cell estimates",
+      "problem": "Study 5 is still not identified, despite section 12 stating that the unverifiable cross-reference was removed."
+    },
+    {
+      "cite": "Study 5 found that moving from 64 to 256 integration points flipped 8.3% of its verdicts",
+      "problem": "The work and its integration setup are unidentified, so the result cannot justify selecting 32 integration points."
+    },
+    {
+      "cite": "Struthers and Kalbfleisch 1986; Xu and O'Quigley 2000",
+      "problem": "The author attributions and broad claims are consistent with the literature, but checking CrossRef verifies bibliographic metadata, not that the full texts establish the precise displayed projection equation under this design's assumptions."
+    },
+    {
+      "cite": "Uncertainty, per method, by its own authors' recommendation",
+      "problem": "No authors or methodological sources are cited for bootstrapping the proposed flexible MAIC and STC pipelines, reconstructed aggregate data, and target re-standardization."
+    },
+    {
+      "cite": "ML-NMR already fits the exact individual-level likelihood to both",
+      "problem": "No source establishes that this makes a distinct one-step survival NMA comparator redundant; exactness conditional on reconstructed pseudo-data is also not the same as an exact likelihood for the unreconstructed aggregate evidence."
+    },
+    {
+      "cite": "No simulation study compares the specified estimators",
+      "problem": "This negative novelty claim still lacks a reproducible search strategy and study-level eligibility assessment for the exact comparison."
+    }
+  ],
+  "what_is_sound": [
+    "The rebuilt hazard-multiplier parameterization removes the original mechanical treatment-by-study inconsistency; the conditional treatment contrast no longer contains the study baseline.",
+    "Using g(t0) equal to zero holds the reference-time conditional contrast fixed while kappa changes its time slope.",
+    "The qualitative censoring dependence is no longer presented as an open empirical hypothesis. Computing the least-false Cox projection and using simulation only for finite-sample behavior is appropriate.",
+    "The marginal hazard is correctly derived from the marginalized survival curve rather than averaged directly over conditional hazards.",
+    "A fixed 18-month RMST horizon avoids changing the estimand with censoring.",
+    "The kappa-equals-zero, gamma-equals-zero cell is a valid marginal-PH control if those restrictions apply to every relevant treatment contrast.",
+    "A common Cox-projection functional applied to fitted target curves is the right way to avoid comparing native conditional and marginal coefficients directly.",
+    "Marginalized STC, exact quadrature truth, paired estimator comparisons, and common random numbers are sound design choices in principle.",
+    "The Phillippo, Dias, Ades and Welton attribution and the stated multinma survival and marginalization capabilities show no apparent author mismatch."
+  ]
+}

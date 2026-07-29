@@ -1,0 +1,73 @@
+```json
+{
+  "verdict": "needs-revision",
+  "summary": "The design targets the right residual question — the missing benchmark of ML-NMR against PH MAIC/STC under crossing hazards and differential censoring — and gets the hard structural things right: a common marginal RMST estimand, exact quadrature truth, a proportional-hazards control cell where PH methods must win, and an attempt to cross method family with the PH assumption. Its centerpiece, however, is arithmetic in disguise: once the treatment changes the Weibull shape, the Cox coefficient's movement under changing censoring is a known analytic property of the partial-likelihood estimand, so the experiment can only quantify, never refute, and the quantification is steerable through an undefined 'deployment weighting'. The crossed table is clean only in the ML-NMR row, the evidence base per row is unspecified, and the decision rule cannot be checked for firing because the numeric threshold, the weights, the HR-to-RMST conversion device, and the replicate budget are all absent from the draft.",
+  "findings": [
+    {
+      "axis": "dgm-builds-in-finding",
+      "severity": "serious",
+      "what": "The 'factor that carries the paper' is guaranteed by theory. With treatment on the Weibull shape (phi_B != 0), the limiting Cox partial-likelihood estimate is a censoring- and event-weighted average of the time-varying log-hazard contrast (Struthers & Kalbfleisch 1986; Xu & O'Quigley 2000; reiterated by Stensrud & Hernan 2020). Changing only the censoring distribution while holding survival fixed must move the fitted constant HR; 'if it does not move, the entry's central warning is weaker' is not a live possibility, so the experiment demonstrates a theorem rather than testing it. The genuine empirical content is magnitude, and the magnitude is controlled by exactly the knobs the designer chooses: the spread of censoring rates across scenarios and the undefined 'deployment-weighted' average over them. A motivated author picks aggressive censoring contrasts and weights them heavily, and the headline 'decision-relevant movement' follows by construction.",
+      "fix": "Reframe the experiment as quantification of a known analytic result and cite Struthers & Kalbfleisch / Xu & O'Quigley in the protocol. Predeclare the deployment-weighting distribution over censoring scenarios, derived from observed censoring patterns in real HTA survival submissions rather than chosen freely. Run the manipulation at the moderate-phi_B cell (calibrated to evade a PH test), not only the strong one, since that is the decision-relevant case. The phi_B = 0 cell, where the HR provably does not move, should be reported as the null control."
+    },
+    {
+      "axis": "fair-comparison",
+      "severity": "serious",
+      "what": "The claim that 'the column effect isolates the proportional-hazards assumption' holds only for the ML-NMR row, where aux_by = .study vs aux_by = c(.study, .trt) genuinely toggles PH within one machinery. For MAIC/STC, the aggregate-side inputs as practiced are published constant hazard ratios; a 'flexible MAIC' can flex the IPD-side weighted fit, but unless flexible fits to the aggregate studies' survival data are also constructed, both columns consume the same PH summaries from the B-vs-PBO studies and the column contrast is only half-thrown. If flexible aggregate fits are constructed, that cell is no longer MAIC/STC as its authors and practice define it, which breaks the design's own fairness principle in the other direction.",
+      "fix": "Specify exactly what each flexible-baseline cell fits to the aggregate data. Either construct flexible fits from the aggregate studies' (simulated) survival data for the flexible column and declare that this exceeds current MAIC/STC practice, or restrict the column-isolation claim to the ML-NMR row and reinterpret the MAIC/STC rows as a comparison of IPD-side modeling only."
+    },
+    {
+      "axis": "fair-comparison",
+      "severity": "serious",
+      "what": "The evidence base per row is unspecified. ML-NMR fits the full 6-study network and identifies gamma_B through between-study covariate contrasts across the 5 aggregate studies. Anchored MAIC/STC as practiced are pairwise against the single target study and cannot use the other 4 aggregate studies at all. The row effect then conflates method family with information base: ML-NMR may win because it sees five more studies, not because of anything intrinsic. The design explicitly wanted to avoid conflating method family with other things and misses this one.",
+      "fix": "State which studies each method consumes. Either give every row the same evidence (multi-study anchored MAIC variants exist and can be enumerated), or declare the network-vs-pairwise asymmetry as inherent to prevailing practice and interpret row effects as 'method family plus its customary evidence base', saying so in the protocol."
+    },
+    {
+      "axis": "decision-rule",
+      "severity": "serious",
+      "what": "As drafted the rule cannot be audited for whether it fires. Three components are missing: (1) the numeric RMST threshold 'derived from a consequence' is promised but not stated; (2) the deployment-weighting distribution over censoring scenarios is undefined, and it is the single most steering-sensitive object in the study; (3) the device converting a range of reported hazard ratios into an implied change in target RMST is unspecified — that conversion requires a baseline survival function and a population, and if it is a proportional-hazards conversion of the transported HR onto a target baseline, the verdict on the HR inherits exactly the assumption under test. Monte Carlo resolution is probably adequate (the HR range across scenarios is a systematic between-scenario difference, so its MCSE shrinks fast with replicates), but the draft shows nothing.",
+      "fix": "Before running: declare the numeric RMST threshold and its clinical derivation; declare the deployment weights; declare the HR-to-RMST conversion device explicitly (baseline, population, and whether it assumes PH) with a sensitivity over conversion choices; and show from pilot replicates that the MCSE of the deployment-weighted HR range is small relative to the threshold."
+    },
+    {
+      "axis": "feasibility",
+      "severity": "serious",
+      "what": "The runtime measurement is honest (251 s per flexible ML-NMR fit, ~2 fits per replicate, 3 workers), but there is no replicate budget: no cell count times replicates times wall-clock, and no MCSE target for the RMST-bias comparisons. Rough arithmetic: a full crossing (3 x 3 x 2 x 2 = 36 cells) at even 250 replicates is ~9,000 replicates at ~8-9 min each, i.e. ~17-19 days continuous on 3 workers — feasible only with stated compromises. Separately, 2 chains x 1000 iterations on a treatment-stratified mspline ML-NMR is thin; across thousands of simulated datasets some fits will diverge or fail Rhat/ESS criteria, and no failure-handling rule is stated. Silent or ad hoc exclusion of failed replicates is a known source of bias in simulation studies.",
+      "fix": "State the final factor cross, replicates per cell, total wall-clock budget, and the MCSE each estimand achieves at that budget. Prespecify convergence criteria (max Rhat, min ESS), a refit-with-longer-chains escalation, and a rule for replicates that still fail, with the failure rate reported per cell."
+    },
+    {
+      "axis": "answers-problem",
+      "severity": "limitation",
+      "what": "The truth-generating mechanism is Weibull-only, while the catalog entry's missing benchmark explicitly spans Weibull, Gompertz and multistate mechanisms, which produce crossings of structurally different kinds (Weibull with treatment on shape gives a log-HR linear in log t with a single crossing; Gompertz and multistate crossings differ). The design acknowledges this in 'What this cannot settle'.",
+      "fix": "Keep the acknowledgment in the protocol, scope all conclusions to Weibull-type single-crossing non-proportionality, and register Gompertz/multistate arms as follow-on work rather than silently generalizing."
+    },
+    {
+      "axis": "answers-problem",
+      "severity": "minor",
+      "what": "The entry's proposed direction names two replacement families: general-likelihood ML-NMR and one-step exact-likelihood survival IPD network meta-analysis (the Royston-Parmar one-step line in the entry's own timeline). The design drops the second comparator without comment.",
+      "fix": "Either add a one-step flexible IPD-NMA comparator or state explicitly why it is omitted (e.g., that ML-NMR with treatment-stratified auxiliary parameters subsumes its relevant operating characteristics in this network geometry)."
+    },
+    {
+      "axis": "estimand",
+      "severity": "minor",
+      "what": "The estimand machinery is otherwise right, but two things are unstated: (1) whether the target is the realized aggregate-study sample (what MAIC actually targets) or the target superpopulation law (what the quadrature truth computes) — with only means/SDs shared these nearly coincide, but the protocol should name one; (2) ML-NMR priors are unspecified, and gamma_B, identified only from between-study contrasts of five covariate means, will be prior-sensitive, which leaks into the target RMST difference.",
+      "fix": "Declare the estimand as the target superpopulation (or sample) explicitly, and state all priors with a prior-sensitivity arm for the weakly identified effect-modification coefficient."
+    },
+    {
+      "axis": "decision-rule",
+      "severity": "minor",
+      "what": "Censoring appears twice in inconsistent roles: as a three-level crossed design factor and as a dedicated manipulation 'run at fixed everything else'. The relationship between the censoring main effect in the crossed design and the headline fixed-truth manipulation is not stated.",
+      "fix": "Define both analyses and their factor settings explicitly; the fixed-truth manipulation should be run at a minimum at the moderate- and strong-phi_B settings with the phi_B = 0 null control."
+    }
+  ],
+  "citation_problems": [],
+  "what_is_sound": [
+    "The study answers the catalog entry's actual residual gap — a benchmark of ML-NMR against PH MAIC and STC under crossing hazards and differential censoring — rather than a neighbouring question, and it correctly declines to re-litigate the parts of the entry the audit already settled.",
+    "Scoring every method on one common estimand (target-population marginal RMST difference at a declared, supported horizon) avoids the HR-vs-RMST category error, and using a marginalized STC rather than the mean-profile version avoids the known conditional-at-the-mean error that would have rigged the comparison in the proposal's favour.",
+    "Truth is computed exactly by quadrature over the target covariate law rather than estimated from a large simulated sample, so no Monte Carlo error propagates into the bias estimates — the right device, correctly justified.",
+    "The proportional-hazards cell is a special case of the same mechanism (phi_B = 0), and the design pre-commits to the check that PH methods must win there on efficiency, declaring the comparison rigged if they do not — a genuine, stated rigging guard.",
+    "Censoring enters as an independent per-study nuisance, so the fixed-truth manipulation is correctly constructed: true survival, true RMST and the true time-varying marginal HR really are unchanged across its levels.",
+    "The runtime figure is measured, not guessed (251 s for the exact flexible configuration, with convergence reported), which is more honest than most simulation protocols at draft stage.",
+    "Checked citations are accurate: Phillippo, Dias, Ades and Welton 2025 (JRSS A, doi:10.1093/jrsssa/qnaf169) is the general-likelihood ML-NMR paper and does deliver target-population marginal survival and restricted means; multinma's survival models since 0.6.0 and marginal_effects() since 0.7.0 are correctly described; no misattributions found."
+  ]
+}
+```
+ion so a reviewer can confirm the device and asymmetry match."},{"cite":"'a fitted Cox coefficient is a censoring- and event-weighted constant summary of a time-varying contrast' (carried from the entry's audit trail)","problem":"Not a misattribution but an omission: the result is classical (Struthers & Kalbfleisch 1986; Xu & O'Quigley 2000). Citing it would have surfaced that the centerpiece experiment's direction is known analytically before any simulation is run. The entry-level citations the design relies on (multinma survival since 0.6.0, marginal_effects() since 0.7.0, aux_by = c(.study,.trt); Phillippo, Dias, Ades & Welton, JRSS A 2025, qnaf169) are consistent with the literature as far as can be checked."}],"what_is_sound":["Crossing method family (weighting / outcome regression / ML-NMR) with the proportional-hazards assumption, so 'ML-NMR beats MAIC' and 'flexible beats PH' are separable rather than confounded; the naive diagonal-only comparison is explicitly rejected.","A single common estimand (target-population marginal RMST difference at a declared tau) with every method routed to it, avoiding the HR-vs-RMST category error; the horizon is declared as part of the estimand.","Truth computed analytically by Gauss-Hermite quadrature over the target covariate law rather than from a large simulated sample, keeping Monte Carlo error out of every bias.","The PH cell is an exact special case of the same DGM (phi = 0), with an explicit efficiency-win check for PH methods and an explicit statement that if they do not win there the comparison is rigged.","Marginalized STC is used instead of the mean-profile plug-in, with the plug-in correctly identified as a known error that would have rigged the comparison in the proposal's favour.","Censoring is manipulated as a nuisance with the true survival functions held exactly fixed, which is the right structure for the transport question even though the outcome's direction is known analytically.","The runtime disclosure is genuine measurement, not extrapolation, and the per-replicate cost model is conservative in the honest direction.","The 'What this cannot settle' section (one covariate, Weibull-only, independent censoring, no digitization error) is the right list and is stated rather than buried."]}

@@ -1,0 +1,145 @@
+{
+  "verdict": "needs-revision",
+  "summary": "The protocol is substantially more honest and the anchored-indirect reconstruction addresses the central round-four error. It is nevertheless not ready to run as a decision-rule benchmark: D3 remains dimensionally ambiguous, its verdict is already predetermined, and the claimed MAIC-graft bound is not shown to cover the full production grid. The restored 40-replicate coverage rule is also statistically under-resolved. The study can be a useful partial benchmark after revision, but it cannot close OUT-11.",
+  "findings": [
+    {
+      "axis": "answers-problem",
+      "severity": "limitation",
+      "what": "The protocol now explicitly says it does not settle OUT-11: it omits multistate mechanisms, the separate one-step exact-likelihood estimator, and component PAIC, and uses only a two-study fixed-effect network. That is a neighboring partial benchmark, not the full catalog question. The disclosure is appropriate, but any downstream claim that OUT-11 has been closed would be wrong.",
+      "fix": "Keep OUT-11 marked open and confine all claims to the Weibull/Gompertz two-study anchored comparison actually studied. Covering the omitted estimators and mechanisms requires a different design."
+    },
+    {
+      "axis": "dgm-builds-in-finding",
+      "severity": "serious",
+      "what": "Decision relevance is engineered by solving beta_B so that cells straddle the 0.50-month recommendation boundary; the same calibration moved hazard crossings into the 6-14-month window. D3 failures and decision-loss frequencies are therefore guaranteed to be visible near the boundary and cannot be interpreted as evidence about how often these methods make wrong recommendations in unselected settings.",
+      "fix": "Frame D3 and the decision-loss appendix strictly as boundary stress tests. State that their rates are design-conditioned, and add or separately label untuned effect sizes before making any practical-frequency claim."
+    },
+    {
+      "axis": "estimand",
+      "severity": "serious",
+      "what": "D3 is still described with incompatible units. It is called the across-regime range of a plug-in hazard ratio, but its value is reported as 1.3805 months and compared with an RMST-gain threshold. A hazard-ratio or log-hazard-ratio range cannot be measured in months. If D3 is actually the RMST range induced by plugging regime-specific coefficients into a fixed baseline, that mapping is not stated here. This is particularly concerning because a fatal D3-estimand inconsistency was supposedly resolved in round four.",
+      "fix": "Define D3 once by formula and units: either a unitless/log-HR coefficient range or an RMST range in months, including the fixed baseline curve and tau used for the mapping. Propagate exactly that definition to every section."
+    },
+    {
+      "axis": "fair-comparison",
+      "severity": "serious",
+      "what": "The dismissal of the MAIC-graft handicap rests on a bound stated as at most 0.0116 months, but the only comparator supplied is MAIC-PH's pilot bias. The setting also contains the features most favorable to MAIC: one same-variance normal covariate, shared gamma, oracle target summaries, and exact moment transport. The text does not establish that the maximum is over every production cell, censoring pair, kappa value, and gamma value. STC's machine-precision result is likewise only a structural result under the correctly specified transport calculation, not evidence of estimator accuracy.",
+      "fix": "Report the MAIC graft error and STC conditional-transport error cell by cell across the frozen production grid, explicitly stating the domain of the maximum. Reserve 'exact' for structural algebra and keep sampling and model error separate."
+    },
+    {
+      "axis": "decision-rule",
+      "severity": "serious",
+      "what": "D3 is declared a failure before the expensive benchmark, using a five-significant-digit value with no Monte Carlo interval or inconclusive region. If 1.3805 is an analytic quantity, it is not a simulation-triggered decision rule; if it is estimated, its uncertainty is missing. Either way, the registered pass/fail verdict cannot be changed by the run, and the 0.40/0.60 sensitivity analysis is non-firing.",
+      "fix": "Classify D3 explicitly as an exact analytic result, or else report its Monte Carlo uncertainty and a pass/inconclusive/fail rule that can actually respond to the simulation output."
+    },
+    {
+      "axis": "decision-rule",
+      "severity": "serious",
+      "what": "Forty replicates per cell cannot support precise coverage verdicts. At nominal 95% coverage, the Monte Carlo standard error is sqrt(0.95*0.05/40)=0.0345, giving an approximate 95% Monte Carlo interval of ±6.8 percentage points. This is much coarser than the previously corrected 240-replicate arithmetic and leaves most calibrated-versus-miscalibrated distinctions unresolved.",
+      "fix": "Increase replicates where coverage is a substantive claim, or label coverage exploratory and report Monte Carlo intervals with an explicit inconclusive verdict at 40 replicates."
+    },
+    {
+      "axis": "feasibility",
+      "severity": "minor",
+      "what": "The 41.3-hour refit-escalation cap has no stated consequence if it binds. Exhausting the cap could leave unequal numbers of escalated fits across cells, unresolved convergence failures, or silently incomplete replicates.",
+      "fix": "Pre-register the cap-exhaustion rule: stop with an explicit failure, mark affected cells inconclusive, or allocate refits deterministically and carry nonconvergence as an outcome."
+    },
+    {
+      "axis": "fair-comparison",
+      "severity": "limitation",
+      "what": "Known target summaries, one normal covariate, exact curve reconstruction, independent censoring, and shared effect modification make this a best-case population-adjustment comparison. MAIC can exactly transport a same-variance normal, while aggregate-data methods face no digitization error. These conditions are disclosed, but they bound external validity and can affect rankings.",
+      "fix": "State all rankings as conditional on these idealizations and do not generalize them to noisy digitized curves, multivariate or non-normal covariates, arm-differential censoring, or violated shared effect modification."
+    }
+  ],
+  "citation_problems": [],
+  "what_is_sound": [
+    "Rebuilding E1 and E2 on the anchored indirect contrast is the right correction, and computing leg A under the IPD study's own baseline is conceptually correct: population adjustment reweights patients but does not transport a baseline hazard.",
+    "The D1 withdrawal now appears real rather than cosmetic: section 11 confines the 0.50-month threshold to D3 and the secondary decision-loss appendix.",
+    "The scope statement is candid. It explicitly leaves OUT-11 open and narrows the novelty claim instead of repeating the earlier overclaim.",
+    "Demoting matched-flexibility method-family contrasts to descriptive status and recording effective degrees of freedom avoids relying on a premise the protocol had already withdrawn.",
+    "The measured quiet-machine timing program, separate costing of the 256-point arm, and machine-checked transcription of tables are genuine improvements over typed budgets and hand-propagated values.",
+    "The three visible literature citations are correctly attributed and relevant: Hernán 2010, Aalen/Cook/Røysland 2015, and Stensrud/Hernán 2020 do support the stated marginal-hazard-ratio drift and selection concerns."
+  ],
+  "round4_resolution": [
+    {
+      "finding": "E1/E2 used a direct contrast rather than an anchored indirect comparison",
+      "resolved": "yes",
+      "note": "The stated redesign uses two anchored legs, each with its own baseline and censoring regime, crossed over a 4x4 grid."
+    },
+    {
+      "finding": "Section 10.3 retained pre-fix STC pilot values",
+      "resolved": "yes",
+      "note": "The twelve deleted-code values are reported removed, the artifact-based finding is withdrawn, and whole-table machine checks are now claimed."
+    },
+    {
+      "finding": "D1 remained registered as primary after being claimed replaced",
+      "resolved": "yes",
+      "note": "D1 is deleted, and section 11 confirms that the threshold now enters only D3 and the secondary appendix."
+    },
+    {
+      "finding": "Bootstrap budget contradicted the unit cost",
+      "resolved": "yes",
+      "note": "The unit cost was re-measured as 0.711 seconds and section 14 was rebuilt."
+    },
+    {
+      "finding": "Stan unit cost was below a measured 128-point fit",
+      "resolved": "yes",
+      "note": "The protocol says the exact production configuration was re-measured."
+    },
+    {
+      "finding": "Sections quoted superseded replicate arithmetic",
+      "resolved": "yes",
+      "note": "Counts were restored to 40 per cell and 500 resamples and propagated by machine check; the statistical adequacy of 40 remains a separate concern."
+    },
+    {
+      "finding": "Matched-flexibility primary contrasts relied on a withdrawn premise",
+      "resolved": "yes",
+      "note": "Those contrasts are now descriptive, with effective degrees of freedom recorded per replicate."
+    },
+    {
+      "finding": "MAIC was scored through an invalid graft while STC received valid transport",
+      "resolved": "partly",
+      "note": "Structural errors were computed, but the excerpt does not prove that the 0.0116-month maximum covers the full frozen grid rather than the favorable pilot setting."
+    },
+    {
+      "finding": "D3 estimand was stated three incompatible ways",
+      "resolved": "partly",
+      "note": "A single definition is claimed, but the current text still mixes a hazard-ratio range with a value in months and an RMST threshold."
+    },
+    {
+      "finding": "256-point sensitivity arm was costed at 128-point prices",
+      "resolved": "yes",
+      "note": "It was recosted using measured 256-point timings."
+    },
+    {
+      "finding": "Coverage rule lacked operating characteristics",
+      "resolved": "partly",
+      "note": "Calibrated and miscalibrated scenarios were tabulated, but 40 replicates give coverage Monte Carlo error of about ±6.8 percentage points."
+    },
+    {
+      "finding": "Refit escalation had no budget line",
+      "resolved": "yes",
+      "note": "A capped 41.3-hour line is now included, although the consequence of exhausting the cap is not stated."
+    },
+    {
+      "finding": "Both anchored legs were evaluated at the target baseline",
+      "resolved": "yes",
+      "note": "Leg A was moved to the IPD study's own baseline and the D3 value was recomputed."
+    },
+    {
+      "finding": "Timing measurements were inflated by machine contention",
+      "resolved": "yes",
+      "note": "Timings were re-measured on a verified-quiet machine with load recorded, changing N_INT to 256."
+    },
+    {
+      "finding": "E3 censoring factor was one-sided",
+      "resolved": "partly",
+      "note": "A mirrored condition makes the factor two-sided, but 87% range coverage still leaves incomplete coverage of the E1 range."
+    },
+    {
+      "finding": "E2 seed stride caused shared datasets across cells",
+      "resolved": "yes",
+      "note": "The stride was raised above the replicate count with a guard. The claim that no reported value was affected should still be checked for cross-cell quantities such as ranges."
+    }
+  ]
+}

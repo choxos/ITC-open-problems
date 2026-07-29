@@ -1,0 +1,212 @@
+{
+  "verdict": "unsound",
+  "summary": "The protocol remains unsound because its primary E3 comparisons answer a neighboring question rather than the benchmark that section 1 says OUT-11 leaves open. Several claimed round-four fixes are not propagated: the design has 21 conditions and 840 replicates, while the coverage rule still uses 14 and 560, and the decision-loss table still uses the old six-cell mixture. The D3 rule compares an across-regime range with an economic threshold that is not a variability tolerance, while the anticipated STC-PH bias contradicts the protocol's own claim that conditional STC transport is exact. The target marginal RMST estimand and rebuilt anchored E1 calculation are largely sound, but the expensive run should not start until these contradictions are resolved.",
+  "findings": [
+    {
+      "axis": "answers-problem",
+      "severity": "fatal",
+      "what": "Section 1 defines the open benchmark as general-likelihood ML-NMR against proportional-hazards MAIC and STC. Section 10.1 instead makes flexible-versus-proportional comparisons within each method family primary. The comparisons that match the stated problem, MLNMR-flex versus MAIC-PH and MLNMR-flex versus STC-PH, are not registered even as descriptive contrasts. This study can answer whether relaxing proportional hazards helps within each implementation, but not the comparative benchmark it says it settles.",
+      "fix": "Either redefine the study explicitly as a within-method proportionality stress test, or register the two comparisons named by OUT-11 as primary and design their flexibility, numerical-error, and transport checks around those comparisons."
+    },
+    {
+      "axis": "answers-problem",
+      "severity": "serious",
+      "what": "The proportional-hazards rejection probabilities in section 8 concern a hypothetical direct B-versus-A trial with 200 participants per arm. No such trial exists in the simulated network. An actual analyst observes A-versus-placebo at 250 per arm and B-versus-placebo at 200 per arm, and would diagnose those two legs separately. In particular, kappa_A = kappa_B makes the direct B-versus-A contrast proportional but does not make either observed active-versus-placebo leg proportional.",
+      "fix": "Replace the direct-trial diagnostic calibration with leg-specific rejection probabilities at the actual sample sizes and report the probability that the prespecified two-leg diagnostic strategy selects a flexible model."
+    },
+    {
+      "axis": "dgm-builds-in-finding",
+      "severity": "serious",
+      "what": "The primary flexible-versus-PH result is largely built into the DGM. Nonzero kappa_A or kappa_B creates exactly the treatment-by-time term omitted by every PH row, while the Weibull mechanism is exactly representable by treatment-specific flexible parametric curves. The control cell checks implementation, but it does not turn superiority under deliberately correct-versus-misspecified models into a general method comparison.",
+      "fix": "Describe this as a quantified misspecification stress test, and add mechanisms under which both model classes are approximate, including shapes outside either fitted spline family and settings where flexibility has a meaningful variance cost."
+    },
+    {
+      "axis": "dgm-builds-in-finding",
+      "severity": "fatal",
+      "what": "The conclusion that a constant decision rule beats all estimators is engineered by the scenario distribution and is also calculated from the wrong matrix. The printed losses 0.0500 and 0.1667 equal the old six-cell mixture with four recommend cells and two decline cells. The current 21-condition design has 19 recommend conditions and only two decline conditions; under uniform weights and margins of +0.25 and -0.15 months, always-recommend has loss 2/21 times 0.15 = 0.0143 before any estimator is considered. This demonstrates an imbalanced artificial deployment distribution, not that decision metrics cannot discriminate at these sample sizes.",
+      "fix": "Specify externally justified deployment probabilities and losses, or balance the two true decisions and their regret margins. Recompute all constant and estimator rules over the frozen 21-condition design and report results conditional on the true decision as well as averaged."
+    },
+    {
+      "axis": "dgm-builds-in-finding",
+      "severity": "serious",
+      "what": "The small MAIC graft error is favored by the chosen baseline families. Across studies, the Weibull baseline changes only scale while retaining a common shape, and the Gompertz baseline changes only level while retaining a common rate. With the selected treatment-time functions, the conditional cumulative-hazard ratio therefore cancels the study-specific scale or level when gamma = 0. The near-zero graft error is a designed algebraic property, not evidence that the invalid graft is generally harmless.",
+      "fix": "Vary Weibull shape and Gompertz rate between studies, and vary the covariate shift and gamma. Treat the present cells as favorable controls for the graft rather than as resolution of the structural objection."
+    },
+    {
+      "axis": "estimand",
+      "severity": "fatal",
+      "what": "The registered STC-PH mechanism contradicts the estimator and truth defined elsewhere. At kappa_A = kappa_B = 0, a conditional STC model containing the treatment-by-covariate interaction is correctly specified; reconstructing the target placebo baseline and marginalizing over the target law gives the target RMST exactly. Section 7 even reports STC conditional-transport error below 4e-15 in every cell. Section 10.3 nevertheless attributes biases of +0.186 and +0.198 to non-collapsibility under exact conditional PH. Non-collapsibility changes a marginal hazard ratio; it does not bias correctly standardized survival or RMST.",
+      "fix": "Run an infinite-sample or deterministic limit check of STC-PH in the kappa_A = kappa_B = 0 cells. If it is not exact, the implementation is not the conditional standardization described in section 7. Remove the anticipated mechanism until the code and estimator definition agree."
+    },
+    {
+      "axis": "estimand",
+      "severity": "serious",
+      "what": "The DGM is not consistently locked in the document. The locked-parameter table lists kappa_A as 0 without marking it cell-specific, while the cell matrix and KAPPA_A_LEVELS include 0.30. Section 2 and earlier configuration comments say E3 uses two censoring regimes, whereas E3_CENS contains three. A reader cannot reconstruct the executed design from the purported transcription without knowing which statements to disregard.",
+      "fix": "Generate every parameter and regime table directly from the frozen configuration and remove stale prose. Represent kappa_A as a cell-specific factor in the main locked table."
+    },
+    {
+      "axis": "fair-comparison",
+      "severity": "serious",
+      "what": "The argument that the MAIC graft cannot affect method-family comparisons uses the wrong reference scale. The maximum graft error is 0.0116 months, while the pilot biases of MAIC-flex and STC-flex differ by only 0.003 months. Comparing 0.0116 with MAIC-PH's 0.725-month bias does not establish that the graft is negligible for the flexible family contrast; it is several times larger than the observed contrast.",
+      "fix": "Compare structural transport error with each registered paired contrast and its Monte Carlo uncertainty. Do not interpret a MAIC-versus-STC or MAIC-versus-ML-NMR difference smaller than the graft error as a method-family difference."
+    },
+    {
+      "axis": "fair-comparison",
+      "severity": "serious",
+      "what": "The flexible MAIC and marginalized conditional STC rows are bespoke extensions, not simply the methods described by the cited original MAIC and STC papers. STC receives an exact conditional baseline reconstruction and marginalization, whereas MAIC is forced through a knowingly nonidentifying absolute-survival graft. This can support within-row sensitivity analyses, but not a claim that each published method received its own authors' recommended treatment.",
+      "fix": "Name the rows as explicit extensions, cite the later methods that justify marginal STC and flexible survival implementations, and separate comparisons of standard published procedures from comparisons of these enhanced implementations."
+    },
+    {
+      "axis": "fair-comparison",
+      "severity": "serious",
+      "what": "E2 does not specify whether each misspecified Cox fit uses model-based or robust sandwich variance. Under non-proportional hazards, the ordinary inverse-information variance need not estimate the sampling variance of the least-false coefficient. The reported Bucher coverage can therefore reflect a variance-estimator choice rather than finite-sample behavior of the anchored point estimator.",
+      "fix": "Register robust sandwich variance for each leg and combine the two independent robust variances in the Bucher interval. If ordinary practice is also of interest, report it as a separate row."
+    },
+    {
+      "axis": "fair-comparison",
+      "severity": "serious",
+      "what": "The numerical-integration reference is not established before the main run. The 256-minus-128 estimate is based on five noisy paired runs, and the claimed halving pattern compares tiny, partly different replicate sets. The 512-point check is deferred to two cells after 256 has already been used for every primary result. Residual integration error near 0.01 months can exceed the flexible-method differences the protocol intends to interpret.",
+      "fix": "Complete 256-versus-512 convergence checks before freezing the main run, using all structurally distinct worst-case cells and a prespecified bound smaller than the smallest scientifically interpreted comparison."
+    },
+    {
+      "axis": "fair-comparison",
+      "severity": "serious",
+      "what": "The failed-fit policy conditions the comparison on successful computation. Fits exceeding the refit cap become failures, and the primary analysis is repeated on the subset where every fit passes. Because failure is likely related to method, flexibility, and difficult cells, complete-case selection can make an unstable method look better and breaks the registered paired comparison.",
+      "fix": "Make computational failure a reported method outcome, predefine how it enters comparisons, and define an abort or redesign threshold. Do not use an all-passed subset as the validity analysis without modeling or conservatively penalizing the missing outcomes."
+    },
+    {
+      "axis": "decision-rule",
+      "severity": "fatal",
+      "what": "The coverage rule still uses the superseded design. Section 9, section 10.3, and the locked-configuration comments use 14 conditions and pooled n = 560. The frozen matrix contains 21 conditions and 840 replicates. The reported operating probabilities of 0.953, 0.047, and 0.000 therefore do not apply to the run, directly contradicting the claim that replicate arithmetic was propagated by machine check.",
+      "fix": "Recompute the coverage operating characteristics for the exact 21-condition stratified design and update every dependent table, comment, budget statement, and assertion."
+    },
+    {
+      "axis": "decision-rule",
+      "severity": "fatal",
+      "what": "D3 compares the range of implied RMST differences with the 0.50-month reimbursement threshold. The threshold is a boundary for the level of benefit, not a tolerance for variation across censoring regimes. A range of 1.38 months can leave every estimate above 0.50, while a range of 0.05 can straddle 0.50 and reverse the decision. Therefore D3's declared failure does not follow from its statistic.",
+      "fix": "For every cell, report whether the implied RMST values straddle the recommendation threshold and calculate recommendation disagreement or regret. If stability of estimates is the target, compare maximum error with a separately justified accuracy tolerance."
+    },
+    {
+      "axis": "decision-rule",
+      "severity": "serious",
+      "what": "Pooled coverage cannot justify calling an estimator calibrated. Severe undercoverage in some cells can be offset by overcoverage in others, and the fixed 40-per-condition allocation is stratified rather than an iid binomial sample. The asymmetric acceptance band of 0.90 to 0.98 also labels substantial undercoverage as acceptable without a stated scientific justification.",
+      "fix": "Call the quantity deployment-mixture average coverage, use a stratified Monte Carlo variance, justify symmetric or asymmetric equivalence margins, and require adequate coverage within prespecified scenario groups."
+    },
+    {
+      "axis": "decision-rule",
+      "severity": "serious",
+      "what": "The primary mean absolute cell-bias statistic is substantially biased upward by Monte Carlo noise. With the registered planning SD of 0.75 and 40 replicates, a cell mean has SE about 0.119 months; even when true bias is zero, its expected absolute value is about 0.095 months. Averaging absolute values across cells does not remove this floor, which is larger than the pilot biases of the flexible rows.",
+      "fix": "Increase cell-level replication or use a Monte Carlo-error-corrected squared-bias decomposition. Register uncertainty for the nonlinear absolute-bias contrast using a method valid near zero."
+    },
+    {
+      "axis": "feasibility",
+      "severity": "serious",
+      "what": "The Stan wall-clock budget does not follow from the stated concurrency. At 442 seconds per replicate and two replicates in flight, 840 replicates require about 51.6 hours, not 103.2. The locked configuration separately says about 69 hours, which is 560 times 442 seconds and preserves the obsolete 14-condition count. Either the unit is not measured at the stated production concurrency or the budget double-counts wall time.",
+      "fix": "Define whether each unit cost is elapsed time per concurrent batch or per replicate, then regenerate the budget from batches. Remove the obsolete 69-hour statement and remeasure a complete two-replicate production batch."
+    },
+    {
+      "axis": "feasibility",
+      "severity": "serious",
+      "what": "The sensitivity-arm costs are not auditable. Prior sensitivity has two alternative scales, and knot sensitivity has two knot settings for both bases, yet each is assigned only 6.1 hours, the cost of roughly one 100-replicate configuration at the optimistic concurrency convention. The refit cost also inherits the inconsistent main-run convention.",
+      "fix": "Enumerate the exact number and type of fits in every sensitivity setting and compute each line from measured per-fit or per-batch costs. Include bootstrap work and failed sensitivity fits where applicable."
+    },
+    {
+      "axis": "citation",
+      "severity": "serious",
+      "what": "The citations identify the original MAIC, STC, and ML-NMR methods correctly, but they do not support the stronger claim that the particular flexible parametric models, conditional baseline reconstruction, marginal graft, knot choices, and uncertainty procedures are what each method's own authors recommend.",
+      "fix": "Replace the blanket attribution with claim-specific citations to the survival extensions actually implemented, and label uncited adaptations as choices made for this study."
+    },
+    {
+      "axis": "citation",
+      "severity": "minor",
+      "what": "Phillippo et al. 2020 does not by itself document the later multinma survival API, aux_by and aux_regression behavior, default integration order, or the claimed 0.6.0 and 0.7.0 feature history.",
+      "fix": "Cite versioned multinma documentation, release notes, and any survival-specific methods publication for those software claims."
+    }
+  ],
+  "citation_problems": [
+    {
+      "cite": "Signorovitch et al. 2012 and Signorovitch et al. 2010",
+      "problem": "These support core MAIC methodology and an application, but not the weighted Royston-Parmar extensions, absolute-RMST marginal graft, three-knot specification, or full procedure described here."
+    },
+    {
+      "cite": "Ishak et al. 2015",
+      "problem": "This identifies STC but does not by itself establish the exact marginalized conditional-survival reconstruction used in the protocol. Later marginalization and survival-transport sources are needed."
+    },
+    {
+      "cite": "Phillippo et al. 2020",
+      "problem": "This supports ML-NMR generally but is insufficient support for current multinma survival options, aux_regression transport behavior, integration defaults, and version-specific feature claims."
+    }
+  ],
+  "what_is_sound": [
+    "The primary target-population marginal RMST difference is correctly distinguished from conditional effects, and the marginal hazard is correctly defined as E[hS]/E[S].",
+    "Using known target superpopulation moments for every method aligns the stated superpopulation truth with the supplied adjustment targets and deliberately excludes target-summary sampling error.",
+    "The rebuilt E1 anchored contrast correctly gives each leg its own study baseline and censoring distribution and crosses the two censoring regimes independently.",
+    "Fixing the RMST horizon numerically and varying only independent censoring keeps the survival truth invariant across censoring regimes.",
+    "The two-study network gives every estimator access to the same trials, and replicate pairing is appropriate for estimator comparisons.",
+    "The conventional MAIC-Cox row, proportional control cell, full-pipeline frequentist bootstrap, and explicit recording of numerical failures are useful safeguards, although the failure-analysis rule still needs correction.",
+    "The protocol now states plainly that multistate mechanisms, a distinct one-step estimator, component PAIC, target-summary uncertainty, and digitization error remain outside scope, so those omissions are limitations rather than hidden claims.",
+    "No obvious author or DOI identity mismatch appears among the named external references; the citation defects concern what those papers are being asked to support."
+  ],
+  "round4_resolution": [
+    {
+      "finding": "direct coefficient used instead of anchored indirect contrast",
+      "resolved": "yes",
+      "note": "E1 and E2 now use two study-specific least-false roots combined by Bucher, with independently crossed censoring regimes."
+    },
+    {
+      "finding": "pilot retained pre-fix STC values",
+      "resolved": "partly",
+      "note": "The printed values were replaced, but the surviving STC-PH interpretation contradicts the protocol's own exact conditional-transport result and is not validated."
+    },
+    {
+      "finding": "withdrawn D1 still registered as primary",
+      "resolved": "yes",
+      "note": "D1 remains only as clearly labeled history and no longer issues a primary verdict."
+    },
+    {
+      "finding": "bootstrap budget contradicted its unit cost",
+      "resolved": "yes",
+      "note": "The main frequentist line now follows 840 times 500 times 0.467 seconds divided by the measured 2.10 speedup, giving about 25.9 hours."
+    },
+    {
+      "finding": "Stan unit cost below a single-fit measurement",
+      "resolved": "partly",
+      "note": "The units were remeasured coherently, but applying 442 seconds to 840 replicates ignores the stated two-replicate concurrency and conflicts with the separate 69-hour statement."
+    },
+    {
+      "finding": "replicate arithmetic stale across sections",
+      "resolved": "no",
+      "note": "The matrix and runtime use 21 conditions and 840 replicates, while sections 9 and 10.3 and configuration comments still use 14 and 560."
+    },
+    {
+      "finding": "matched-flexibility premise retained for primary family comparisons",
+      "resolved": "yes",
+      "note": "Across-family comparisons are demoted to descriptive and effective degrees of freedom are to be recorded."
+    },
+    {
+      "finding": "invalid MAIC graft undermines family comparison",
+      "resolved": "partly",
+      "note": "The graft error is computed, but it is compared with MAIC-PH's large bias rather than with the much smaller flexible family contrasts it could dominate."
+    },
+    {
+      "finding": "D3 stated three incompatible ways",
+      "resolved": "yes",
+      "note": "D3 now has one consistent definition, although that definition still makes the new conceptual error of treating an economic threshold as a range tolerance."
+    },
+    {
+      "finding": "256-point sensitivity priced at 128-point cost",
+      "resolved": "yes",
+      "note": "The 512-point arm is priced from the measured 256-to-128 ratio and explicitly labeled as extrapolated."
+    },
+    {
+      "finding": "coverage-rule operating characteristics absent",
+      "resolved": "partly",
+      "note": "Operating characteristics are tabulated, but for the superseded 14-condition and 560-replicate design rather than the frozen 21-condition run."
+    },
+    {
+      "finding": "refit escalation lacked a budget",
+      "resolved": "partly",
+      "note": "A capped line is present, but its cost inherits the inconsistent Stan concurrency arithmetic and the scientific handling of failures remains biased by complete-case selection."
+    }
+  ]
+}
