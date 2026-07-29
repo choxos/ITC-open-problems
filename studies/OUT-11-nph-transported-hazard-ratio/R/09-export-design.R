@@ -619,6 +619,8 @@ if (file.exists("results/anchoring-truth.rds")) {
 if (file.exists("results/production-timing.rds")) {
   ti <- readRDS("results/production-timing.rds")
   out$cost <- lapply(ti, function(z) if (is.numeric(z)) round(z, 4) else z)
+  out$refit_rate_assumed <- REFIT_RATE_ASSUMED
+  out$divergent_rate_max <- DIVERGENT_RATE_MAX
   Sys.setenv(BUDGET_NOMAIN = "1"); source("R/10-budget.R")
   b <- budget(ti); b$unit <- NULL
   out$budget <- b

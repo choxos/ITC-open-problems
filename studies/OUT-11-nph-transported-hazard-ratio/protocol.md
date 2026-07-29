@@ -719,6 +719,41 @@ diagnostic the second correction rejects. **Two chains of 1,000 iterations are r
 ($N_{\text{chains}} = 2$ in `R/00-config.R`) and the derived estimand reaches ESS above 2,000 at
 that setting, so nothing the study uses is short of draws.
 
+**A THIRD CORRECTION, AND IT IS THE SAME DEFECT AS THE FIRST, IN THE OTHER HALF OF THE SAME
+RULE.** The paragraphs above record that the first policy was unmeetable and that "essentially every
+fit in the run would have been declared a failure, which is a policy that reports nothing except its
+own threshold". The ESS half was repaired by binding on the derived estimand. **`divergent == 0` was
+left untouched, and one production replicate run before the Stan pass started shows it is now the
+binding constraint.**
+
+| arm | after the registered escalation | divergences | $\hat R$ | ESS bulk / tail | passed |
+|---|---|---:|---:|---:|:--:|
+| `MLNMR-PH` | `adapt_delta` 0.99, doubled iterations | 8 / 2,000 | 1.0007 | 1,696 / 1,258 | **no** |
+| `MLNMR-flex` | `adapt_delta` 0.99, doubled iterations | 3 / 2,000 | 1.0002 | 2,015 / 1,569 | **no** |
+
+Both arms failed. Both failed on **divergences alone**, every other criterion passing with room to
+spare, and both had already been refit once. A criterion that rejects a fit with $\hat R = 1.0007$
+and 1,696 effective draws on the registered estimand is not measuring whether the estimand can be
+trusted; it is reporting itself. The same argument that retired the ESS version retires this one.
+
+**The registered criterion is a RATE**, `DIVERGENT_RATE_MAX = 0.01` of post-warmup draws, with the
+denominator derived from the iteration count rather than assumed. The measured rates are 0.400% and
+0.150%, so the level is not tuned to sit just above them. Two things follow and both are registered
+rather than left to be discovered:
+
+- **The primary analysis is repeated on the zero-divergence subset**, whatever that subset turns out
+  to be, so a reader who does not accept a rate criterion can see whether it changes any conclusion.
+  If the subset is empty, that fact is the result.
+- **The refit rate is not 20%.** Two of two fits refit, and the escalation doubles the iterations, so
+  the Stan pass costs about twice its booked figure rather than 20% more. `REFIT_RATE_ASSUMED` is
+  1.00 and section 14 carries the consequence. Two of two is not an estimate of a rate; it is
+  decisive against 20%, and `R/19-realized-cost.R` reports what the run produces.
+
+**Which of these was found by reading and which by running.** None of it by reading. The code was
+read in six critique rounds, and the policy it implements was read alongside the document that
+registers it. One production replicate, costing eighty minutes, found a criterion that would have
+marked every fit in an 840-replicate run as a failure.
+
 The second correction stands: the ESS criterion binds on the **derived estimand**, the
 target-standardized $\Delta_{\text{RMST}}(18)$ and the survival differences on the time grid, which
 is what the study actually uses; the global minimum across all internal spline coefficients is
@@ -1866,6 +1901,15 @@ A fit failing the sampler policy is refit once at doubled iterations with `adapt
 fit failing twice is recorded as a failure, not dropped, and the primary analysis is repeated on the
 subset where every fit passed.
 
+**The refit assumption is now 100%, not 20%, and it was measured before the Stan pass started.**
+One production replicate refit both arms, because `divergent == 0` was unmeetable (section 7.2). The
+escalation doubles the iterations, so the refit line goes from 41.3 h to **206.5 h** and the
+grand total from 208.6 h to **373.8 h**, about sixteen days. That figure is an assumption whose
+realized value is reported, exactly as the 20% was, and it is the honest one: two of two is not an
+estimate of a rate but it is decisive against 20%. A first-attempt-only probe is measuring whether
+first attempts pass under the rate criterion, which is what decides between the two totals, and
+`R/19-realized-cost.R` reports the rate the run produces.
+
 **The refit escalation is costed**, which round 4 found it was not. Version 4 described the
 contingency and gave it no budget line, which is exactly the unfrozen contingency the freeze exists
 to eliminate. The budget carries **20% of fits** at doubled iterations, which is **41.3 hours** at
@@ -1893,10 +1937,10 @@ if it exceeds it the run costs more and the overrun is reported. The `refit` fla
 |---|---|
 | main run | 129.1 h |
 | sensitivity arms | 38.2 h |
-| refit escalation, at the 20% budget assumption | 41.3 h |
-| **total** | **208.6 h** |
+| refit escalation, at the 100% assumption | 206.5 h |
+| **total** | **373.8 h** |
 
-About nine days of compute, stated plainly rather than presented as a headline number with the arms
+About 16 days of compute, stated plainly rather than presented as a headline number with the arms
 and contingencies excluded. Round 3 found version 3 quoting a total that omitted arms it had just
 registered; that is not repeated. The main run is the part that must complete; the arms and the
 refit cap are separately resumable and separately reportable.

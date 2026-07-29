@@ -197,9 +197,15 @@ while lo > 0 and lines[lo - 1].lstrip().startswith("|") \
 hi = anchor + 1
 while hi < len(lines) and lines[hi].lstrip().startswith("|"):
     hi += 1
+# THE LABEL IS DERIVED TOO, not just the value. The refit row read "at the 20%
+# budget assumption" while carrying the 100% figure, because this script
+# regenerated numbers and left the words that describe them typed. A label that
+# contradicts the value beside it is the same defect as a stale value, and it is
+# the one this file exists to prevent.
+_refit_pct = DESIGN["refit_rate_assumed"] * 100
 rows = [f"| main run | {B['main_total_h']:.1f} h |",
         f"| sensitivity arms | {B['arms_total_h']:.1f} h |",
-        f"| refit escalation, at the 20% budget assumption "
+        f"| refit escalation, at the {_refit_pct:.0f}% assumption "
         f"| {B['refit_cap_h']:.1f} h |",
         f"| **total** | **{B['grand_total_h']:.1f} h** |"]
 if lines[lo:hi] != rows:

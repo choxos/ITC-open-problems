@@ -125,7 +125,14 @@ budget <- function(timing = NULL,
   ## contingency has a number instead of a promise. The observed failure rate in
   ## the probe was 3 of 16 fits, so the cap is set above it and the cost of
   ## hitting the cap is stated rather than discovered mid-run.
-  refit_rate_cap <- 0.20
+  ## THE REFIT RATE WAS MEASURED BEFORE THE STAN PASS STARTED, AND IT IS NOT 20%.
+  ## One production replicate refit BOTH arms, because the `divergent == 0`
+  ## criterion was unmeetable; see DIVERGENT_RATE_MAX in R/00-config.R. Two of two
+  ## is not an estimate of a rate, but it is decisive against 20%, and the
+  ## escalation doubles the iterations, so the honest assumption is that the Stan
+  ## pass costs about twice its per-replicate figure rather than 20% more.
+  ## R/19-realized-cost.R reports the rate the run actually produces.
+  refit_rate_cap <- REFIT_RATE_ASSUMED
   refit_h <- reps * 2 * refit_rate_cap * 2 * per_rep / 2 / 3600
 
   ## EVERY TOTAL IS A SUM OF THE ROUNDED COMPONENTS, NOT A ROUNDED SUM.

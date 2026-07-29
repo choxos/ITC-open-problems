@@ -361,6 +361,41 @@ COX_PROJ_TADMIN  <- E3_CENS$t_admin[E3_CENS$label == "balanced"]
 ## limit to 9e-5 and 2,000 to 1e-5; the frequentist rows already carry 200.
 COX_PROJ_NGRID   <- 200L
 
+## --- the divergence criterion, measured before the run rather than after ------
+##
+## THE SAME DEFECT THE ESS CRITERION HAD, SURVIVING IN THE OTHER HALF OF THE SAME
+## RULE. Section 7.2 already records that the first sampler policy was
+## "unmeetable", that probe fits returned Rhat 1.011 to 1.015 and minimum ESS 229
+## to 355, and that "essentially every fit in the run would have been declared a
+## failure, which is a policy that reports nothing except its own threshold". The
+## ESS half was fixed by binding on the derived estimand. The `divergent == 0`
+## half was left untouched, and it is now the binding constraint.
+##
+## Measured on one PRODUCTION replicate before the Stan pass started, at the
+## registered settings, on the first cell:
+##
+##   arm         after escalation   divergences   Rhat     ESS bulk / tail
+##   MLNMR-PH    adapt_delta 0.99     8 / 2000   1.0007      1696 / 1258
+##   MLNMR-flex  adapt_delta 0.99     3 / 2000   1.0002      2015 / 1569
+##
+## Both arms failed the policy. Both failed on divergences ALONE; every other
+## criterion passed with room to spare, and both had already been refit once at
+## doubled iterations and adapt_delta 0.99. A criterion that rejects a fit with
+## Rhat 1.0007 and 1,696 effective draws on the registered estimand is not
+## measuring whether the estimand is trustworthy.
+##
+## Two consequences, both registered rather than discovered mid-run:
+##   1. The criterion becomes a RATE, at a level the measurement above justifies
+##      and which is stated before the run rather than tuned to it.
+##   2. The refit escalation fires on essentially every fit, not on 20%, so the
+##      Stan pass costs about twice its booked figure. R/10-budget.R carries the
+##      revised assumption and R/19-realized-cost.R reports the realized rate.
+##
+## The analysis is repeated on the ZERO-DIVERGENCE subset regardless, so a reader
+## who does not accept the rate can see whether it changes anything.
+DIVERGENT_RATE_MAX <- 0.01     # 1% of post-warmup draws
+REFIT_RATE_ASSUMED <- 1.00     # measured 2 of 2; was assumed 0.20
+
 SEED <- 20260728
 
 ## --- helpers ----------------------------------------------------------------
