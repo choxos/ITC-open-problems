@@ -1906,12 +1906,20 @@ Three fatal findings in this protocol have been budget arithmetic, and every fix
 the arithmetic, because until the run started there was nothing to check it against.
 `R/19-realized-cost.R` reads the per-replicate wall clock off the gaps between consecutive
 checkpoint files, which needs no instrumentation inside the fitting code and excludes startup, and
-reports it beside the figure above. **At the first checkpoints the frequentist pass is running at
-1.93 times its budgeted per-replicate cost**, projecting 50 h against the 25.9 h booked here; the unit
-price was measured on a machine with no other R process, and this one is also running the operating
-system's media and metadata indexers. The rule is the same one the refit cap follows: a run costing
-more than its estimate is a fact about the estimate, and editing the estimate afterwards would destroy
-the only evidence of it. The paper reports both numbers.
+reports it beside the figure above.
+
+**The first projection from this instrument was wrong, and the instrument is what corrected it.** At
+two completed replicates the frequentist pass measured 1.93 times its budgeted per-replicate cost,
+projecting 50 h against the 25.9 h booked here. At 71 measured gaps it is **1.15 times**, projecting
+29.9 h. The early figure was contention, not cost: the run's first minutes overlapped this study's own
+probes, its smoke test and two external reviewer processes, and a two-point estimate of a quantity
+that varies with machine load is worth very little. The lesson is recorded rather than the number
+quietly replaced, because projecting from two points and reporting it is the same error class as the
+budget arithmetic this section exists to guard.
+
+The rule is the same one the refit cap follows: a run costing more than its estimate is a fact about
+the estimate, and editing the estimate afterwards would destroy the only evidence of it. The paper
+reports both numbers.
 
 **Every total here is the sum of its rounded components, not a rounded sum.** Round 6 found the arms
 table printing $10.6 + 6.1 + 6.1$ against a total of 22.9. Both were correct in their own terms, which
