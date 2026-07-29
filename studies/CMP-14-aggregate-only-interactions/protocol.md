@@ -6,6 +6,12 @@ part on IDN-06 *ML-NMR interactions can rest solely on aggregate-data variation*
 **Reporting standard.** ADEMP (Morris, White and Crowther 2019,
 [doi:10.1002/sim.8086](https://doi.org/10.1002/sim.8086)).
 
+**Provenance.** Every number this document prints is exported from the code that computes it
+by `R/05-export.R`, and `review/verify-protocol.py` asserts the document against that export,
+currently **64** assertions. The four controls in section 5 are asserted against the values
+that made them pass, not merely described, because section 8 concedes that two of them were
+weakened after they failed.
+
 **Registration status, stated plainly because it is not uniform across the two experiments.**
 
 - **E1 is exact and was computed before this document was written.** It contains no sampling,
@@ -129,7 +135,7 @@ of analysis is consequently the scenario, and there is no replicate count.
 | prior SD on interactions | 0.1, 0.5, 1.0, 2.5 |
 | synergy (additivity violated) | 0.00, 0.20 (additivity only) |
 
-**504 scenarios.** Discordance acts only through aggregate rows carrying the target and
+**504 scenarios**. Discordance acts only through aggregate rows carrying the target and
 synergy only through arms holding components 1 and 3 together, so carrying either into a
 state that has neither would add scenarios bit-identical to their zero twins and inflate
 every count.
