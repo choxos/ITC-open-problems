@@ -114,6 +114,36 @@ evaluate_e2 <- function(row) {
   }
   w_in <- prec_from(inf$within); w_bt <- prec_from(inf$between)
   tot <- w_in + w_bt
+
+  ## THE AGGREGATE SHARE, SPLIT INTO ITS TWO ROUTES.
+  ##
+  ## Round 2 found the registered source-share falsifier unable to fire. It asked
+  ## whether `source_share` separates `curvature` from `ecological`; in both
+  ## states every target-bearing row is aggregate, so both score zero BY
+  ## CONSTRUCTION and no data could make them differ. A safeguard that cannot
+  ## fail is decoration, and E2's report that the two states agree was arithmetic
+  ## rather than a finding.
+  ##
+  ## The fix is a three-way decomposition that CAN come out either way. Aggregate
+  ## information reaches the target by two routes: the contrast in covariate
+  ## MEANS across studies, which exists on any link, and the contrast in
+  ## covariate VARIANCES, which exists only where the link is curved. Holding the
+  ## SDs equal at their average removes the second while leaving the first, so
+  ## the difference between the full aggregate information and that counterfactual
+  ## is the curvature route's contribution. It is zero on an identity link and
+  ## positive on a logit link, which is what makes the split real rather than a
+  ## relabeling.
+  net_flat <- net
+  net_flat$sd[!as.logical(net_flat$ipd)] <-
+    mean(net_flat$sd[!as.logical(net_flat$ipd)])
+  b_flat <- build_design(net_flat)
+  inf_flat <- logit_info(b_flat, theta_true_nl(b_flat))
+  prec_flat <- function(Is) {
+    V <- solve(Is + prior_precision(b_flat, row$prior_sd))
+    max(1 / V[gi_of(b_flat), gi_of(b_flat)] - P0[gi, gi], 0)
+  }
+  w_mean <- prec_flat(inf_flat$between)
+  w_curv <- max(w_bt - w_mean, 0)
   u <- numeric(b$p); u[gi] <- 1
   estimable <- sum(abs(I %*% (MASS::ginv(I) %*% u) - u)) < 1e-6
 
@@ -122,6 +152,11 @@ evaluate_e2 <- function(row) {
     eff_rank = er$eff_rank, estimable = estimable,
     prec_within = w_in, prec_between = w_bt,
     share_within = if (tot > 0) w_in / tot else NA_real_,
+    prec_agg_mean = w_mean, prec_agg_curv = w_curv,
+    ## The share of the AGGREGATE information that arrives through curvature
+    ## rather than through the between-study mean gradient. This is the quantity
+    ## that can distinguish the two aggregate routes, and it is free.
+    share_curv = if (w_bt > 0) w_curv / w_bt else NA_real_,
     bias = bias, post_sd = sd_post, samp_sd = sqrt(v_samp),
     coverage = stats::pnorm(hi) - stats::pnorm(lo),
     stringsAsFactors = FALSE)) |>
@@ -187,7 +222,7 @@ if (!interactive() && Sys.getenv("E2_NOMAIN") == "") main()
 ## is arithmetic, and so a reader can see it was not reached by looking at a
 ## table of ranges and forming an impression.
 e2_verdict <- function(res) {
-  nominal <- res$coverage >= NOMINAL - 0.01
+  nominal <- res$coverage >= NOMINAL - COVER_TOL
   keep <- res$failed | nominal
   r <- res[keep, ]
   sep <- function(stat, groups, safe_low) {
@@ -209,12 +244,27 @@ e2_verdict <- function(res) {
                separates = sep("target_ratio", c("curvature", "additivity"), FALSE)))
   ## The second registered condition: if source_share DOES separate curvature
   ## from ecological, the claim that they are the same kind of evidence is wrong.
-  cs <- unique(res$share_within[res$state == "curvature" & !is.na(res$share_within)])
-  es <- unique(res$share_within[res$state == "ecological" & !is.na(res$share_within)])
+  ## THE SOURCE-SHARE CONDITION, ON A STATISTIC THAT CAN ACTUALLY DIFFER.
+  ## `share_within` is zero in both aggregate-only states by construction, so it
+  ## is reported but carries no evidence. `share_curv` splits the aggregate
+  ## information into its mean-gradient and curvature routes and is free to come
+  ## out either way, which is what a falsifier has to be.
+  cs <- unique(round(res$share_within[res$state == "curvature" &
+                                        !is.na(res$share_within)], 6))
+  es <- unique(round(res$share_within[res$state == "ecological" &
+                                        !is.na(res$share_within)], 6))
+  cc <- res$share_curv[res$state == "curvature" & res$sd_ratio > 1 &
+                         !is.na(res$share_curv)]
+  ec <- res$share_curv[res$state == "ecological" & !is.na(res$share_curv)]
   list(rules = rules,
        withdraw_e1 = isTRUE(any(rules$separates)),
        curvature_share = cs, ecological_share = es,
-       share_separates_curvature = !identical(sort(cs), sort(es)))
+       share_within_is_constructional = TRUE,
+       share_curv_curvature = if (length(cc)) range(round(cc, 4)) else NA,
+       share_curv_ecological = if (length(ec)) range(round(ec, 4)) else NA,
+       ## Separated if the two states' curvature shares do not overlap at all.
+       share_curv_separates = length(cc) > 0 && length(ec) > 0 &&
+         (min(cc) > max(ec) || min(ec) > max(cc)))
 }
 
 if (!interactive() && Sys.getenv("E2_NOMAIN") == "") {

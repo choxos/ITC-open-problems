@@ -48,7 +48,7 @@ load_e1 <- function(path = "results/e1.rds") {
 ## separate the good from the bad, because 0.91 is not good. Scenarios between
 ## COVER_BAD and nominal are neither and are excluded from both sides.
 overlap_table <- function(d) {
-  nominal <- d$coverage >= NOMINAL - 0.01
+  nominal <- d$coverage >= NOMINAL - COVER_TOL
   d <- d[d$failed | nominal, ]
   stats <- list(
     contraction  = d$contraction,
@@ -94,7 +94,16 @@ overlap_table <- function(d) {
 ## a component interaction identified through additivity from randomized
 ## within-study evidence, against one identified only by the between-study
 ## gradient. Restricted to scenarios where nothing else differs: no synergy, and
-## matched on spread, arm size and prior scale.
+## matched on spread, TOTAL PATIENT BUDGET and prior scale.
+##
+## THE MATCHING IS ON THE BUDGET, NOT ON ARM SIZE, and it cannot be on both.
+## Round 2 pointed out that the two states have twelve and ten arms, so equal
+## totals mean per-arm sizes of n/12 and n/10. That is unavoidable: the states
+## differ in structure, which is the whole comparison, and structure determines
+## how many arms a fixed budget is spread over. Matching per-arm size instead
+## would give `additivity` 20% more patients, which is exactly the defect round 1
+## found. The budget is the quantity an investigator controls, so it is the one
+## held fixed, and the per-arm consequence is stated rather than hidden.
 state_pairs <- function(d) {
   key <- function(z) paste(z$spread, z$n, z$prior_sd)
   a <- d[d$state == "additivity" & d$synergy == 0, ]

@@ -96,13 +96,13 @@ main <- function() {
   ## characterized is a control; one whose threshold is widened until it passes
   ## is not, and this is the fourth guard in this file to be changed after
   ## failing.
-  under <- null_rows[null_rows$coverage < NOMINAL - 0.01, ]
+  under <- null_rows[null_rows$coverage < NOMINAL - COVER_TOL, ]
   if (nrow(under))
     stop("the null control undercovers in ", nrow(under), " scenarios ",
          "(coverage ", sprintf("%.3f to %.3f", min(under$coverage),
                                max(under$coverage)),
          "); any collapse elsewhere cannot be attributed to confounding")
-  over <- null_rows[null_rows$coverage > NOMINAL + 0.01, ]
+  over <- null_rows[null_rows$coverage > NOMINAL + COVER_TOL, ]
   if (nrow(over) && !all(over$state == "ecological" &
                          over$spread <= 0.6 & over$post_sd > over$samp_sd))
     stop("the null control overcovers outside the shrinkage mechanism it is ",
@@ -122,7 +122,7 @@ main <- function() {
   ## below nominal, AND the spread across states must be small enough that the
   ## failure is attributable to the prior rather than to the evidence structure.
   by_state <- tapply(tight$coverage, tight$state, max)
-  if (any(by_state >= NOMINAL - 0.01))
+  if (any(by_state >= NOMINAL - COVER_TOL))
     stop("the tight prior does not depress every state at the smallest budget ",
          "(max coverage ",
          paste(sprintf("%s=%.3f", names(by_state), by_state), collapse = ", "),

@@ -133,6 +133,21 @@ SOURCE_OK    <- 0.50
 COVER_BAD <- 0.90
 NOMINAL   <- 0.95
 
+## THE TOLERANCE AROUND NOMINAL, REGISTERED RATHER THAN SLIPPED IN.
+##
+## Round 2 found `NOMINAL - 0.01` written into four files as though it were
+## nominal, while the null control's minimum is 0.9474 and the document claimed
+## no scenario covers below nominal. It does: exact coverage of a Bayesian
+## interval is not exactly 0.95 even with no misspecification, because the
+## posterior SD and the sampling SD of its centre differ under any prior that
+## contributes precision.
+##
+## The slack is therefore named, registered and used from here, so that "nominal"
+## in this study means a stated interval rather than a threshold that moves by a
+## hidden hundredth wherever it is convenient. A scenario is NOMINAL if its
+## coverage lies within COVER_TOL of NOMINAL.
+COVER_TOL <- 0.01
+
 ## --- E2, the nonlinear arm ---------------------------------------------------
 ##
 ## Round 1 found E2 registered as a fitted `multinma` arm whose sampler policy,

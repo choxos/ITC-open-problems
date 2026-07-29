@@ -48,6 +48,7 @@ out$contract_ok <- CONTRACT_OK
 out$eff_ratio_ok <- EFF_RATIO_OK
 out$source_ok <- SOURCE_OK
 out$cover_bad <- COVER_BAD
+out$cover_tol <- COVER_TOL
 out$nominal <- NOMINAL
 out$diagnostics <- DIAGNOSTICS
 out$e2_link <- E2_LINK; out$e2_states <- E2_STATES
@@ -129,7 +130,9 @@ out$e2_n_scenarios <- nrow(e2)
 out$e2_rules <- lapply(seq_len(nrow(ev$rules)), function(i)
   list(rule = ev$rules$rule[i], separates = ev$rules$separates[i]))
 out$e2_withdraw_e1 <- ev$withdraw_e1
-out$e2_share_separates_curvature <- ev$share_separates_curvature
+out$e2_share_curv_separates <- ev$share_curv_separates
+out$e2_share_curv_curvature <- ev$share_curv_curvature
+out$e2_share_curv_ecological <- ev$share_curv_ecological
 out$e2_curvature_share <- ev$curvature_share
 out$e2_ecological_share <- ev$ecological_share
 out$e2_by_state <- lapply(split(e2, e2$state), function(z) list(

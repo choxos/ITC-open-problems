@@ -8,7 +8,7 @@ part on IDN-06 *ML-NMR interactions can rest solely on aggregate-data variation*
 
 **Provenance.** Every number this document prints is exported from the code that computes it
 by `R/05-export.R`, and `review/verify-protocol.py` asserts the document against that export,
-currently **81** assertions. The four controls in section 5 are asserted against the values
+currently **87** assertions. The four controls in section 5 are asserted against the values
 that made them pass, not merely described, because section 8 concedes that two of them were
 weakened after they failed.
 
@@ -21,9 +21,13 @@ weakened after they failed.
   the analysis was run before this protocol existed. **E1 is therefore reported as exact and
   exploratory**, and section 8 records every design choice that was changed after seeing a
   number.
-- **E2 is confirmatory and is registered blind.** It has not been run. It tests the same
-  claims in the setting where they cannot be deduced: a nonlinear link, where aggregate
-  curvature carries real information, fitted by MCMC rather than solved.
+- **E2 is partly confirmatory and partly not, and the split is stated in section 7.** Its four
+  separation rules were committed before it ran and are confirmatory with respect to it. Its
+  equal-SD condition was **observed first** and is exploratory, and section 7 says so rather than
+  presenting it as a registered test. E2 involves **no MCMC and fits no model**: it is an
+  asymptotic calculation from the Fisher information of a logistic component model. An earlier
+  version of this bullet said "fitted by MCMC rather than solved" while section 7 said the
+  opposite; round 2 found the contradiction and it is resolved in favour of what the code does.
 
 Pre-registration exists to stop data-dependent choices from manufacturing a result. For a
 deterministic computation the corresponding risk is choosing the grid or the outcome
@@ -217,9 +221,16 @@ and are excluded from both sides.
 never used, so one of the two summaries CMP-14 actually asks for appeared in no outcome. Primary
 1 now covers the per-parameter likelihood-to-prior ratio *and* the whole-model count.
 
-**Primary 2.** `additivity` against `ecological`, matched on spread, arm size and prior scale,
-with synergy off. This is the comparison CMU-02 could not make. Reported as the pairs whose
-contraction differs by less than 0.02 and what their coverage does.
+**Primary 2.** `additivity` against `ecological`, matched on spread, **total patient budget** and
+prior scale, with synergy off. This is the comparison CMU-02 could not make. Reported as the pairs
+whose contraction differs by less than 0.02 and what their coverage does.
+
+**The matching is on the budget and cannot also be on arm size.** The two states have twelve and
+ten arms, so an equal total means per-arm sizes of $n/12$ and $n/10$. That is unavoidable:
+the states differ in structure, structure determines how many arms a fixed budget is spread over,
+and matching per-arm size instead would hand `additivity` 20% more patients, which is precisely the
+defect round 1 found. The budget is what an investigator controls, so it is what is held fixed, and
+the per-arm consequence is stated rather than left for a reader to discover.
 
 **Primary 3.** Within the confounded family, the rank correlation between contraction and
 coverage. **Read the sign carefully: low contraction is the reassuring value, so a POSITIVE
@@ -286,8 +297,12 @@ separate either from `additivity`.
 - If **`source_share` separates `curvature` from `ecological`**, then the claim that they are
   the same kind of evidence is wrong and the statistic is measuring something narrower than
   advertised; that is reported as a defect in the proposed replacement, not hidden.
-- If `curvature` proves **estimable with equal aggregate SDs** on the logit link, the mechanism
-  above is wrong and the state is withdrawn entirely.
+- **Exploratory, not confirmatory.** If `curvature` proves **estimable with equal aggregate SDs**
+  on the logit link, the mechanism above is wrong and the state is withdrawn. This condition was
+  **checked before it was written down**: `R/06-nonlinear.R` was run, its answer read, and the
+  rule then recorded. Round 2 found it presented as a registered test and it is not one. It is
+  retained as a standing guard in `R/07-run-e2.R`, which stops the run if it ever fails, but it
+  cannot be counted as confirmatory evidence.
 
 **E2 has been run and none of the three conditions fires.** It was run after these rules were
 committed, so the rules are registered with respect to it even though E1's are not.
@@ -298,14 +313,34 @@ committed, so the rules are registered with respect to it even though E1's are n
 | contraction separates `additivity` from `curvature` | no |
 | target ratio separates `additivity` from `ecological` | no |
 | target ratio separates `additivity` from `curvature` | no |
-| `source_share` separates `curvature` from `ecological` | no; both take the value 0 |
+| `share_within` separates `curvature` from `ecological` | no, but see below: **it cannot** |
+| `share_curv` separates `curvature` from `ecological` | **yes** |
 | `curvature` estimable with equal aggregate SDs | no |
 
-**E1's conclusion is therefore not withdrawn**, and the corrected thesis holds on the nonlinear
-link: `curvature` and `ecological` are the same kind of evidence, both scoring 0 on the share of
-likelihood precision contributed by randomized within-study rows, while `own_ipd` and
-`additivity` both score 1. The two summaries CMP-14 asks for separate none of these four states
-from each other.
+**E1's conclusion is not withdrawn**: neither summary CMP-14 asks for separates any of these four
+states from any other, on the nonlinear link as on the linear one.
+
+**But the source-share condition fired, and it reverses something this study reported.** An
+earlier version claimed E2 confirmed that `curvature` and `ecological` are the same kind of
+evidence, because both scored 0 on `share_within`. Round 2 found that this could not have come
+out otherwise: in both states every target-bearing row is aggregate, so both score 0 **by
+construction**, and a safeguard that cannot fail is decoration. That report was arithmetic
+presented as a finding, and it is withdrawn.
+
+Made able to fire, it fires. Aggregate information reaches the target by two routes: the
+between-study contrast in covariate **means**, which exists on any link, and the contrast in
+covariate **variances**, which exists only where the link is curved. Holding the aggregate SDs
+equal at their average removes the second and leaves the first, so the difference measures the
+curvature route. The resulting share separates the two states cleanly: **0.933 to 0.969 in
+`curvature` against 0.000 in `ecological`**, with no overlap.
+
+**What that changes and what it does not.** The claim that both routes are *unrandomized* stands,
+and it is the claim that carries the causal argument: nobody randomized a study's covariate
+spread any more than its mean. What does not stand is the stronger claim that no summary should
+or does distinguish them. One does, it costs nothing, and it is strictly more informative than
+either summary CMP-14 asked for. The study's proposed replacement is therefore a **three-way**
+decomposition, into randomized within-study information, the between-study mean gradient and the
+between-study curvature route, and the two-way version reported earlier was too coarse.
 
 ## 8. Every design choice changed after seeing a number
 
@@ -324,9 +359,15 @@ version of this list incomplete; it now covers changes made both before and afte
 | **Round 1:** "alike" withdrawn from the prior-domination control | The tight prior's mean bias runs $-0.114$, $-0.177$ and $-0.278$ across states, a spread of 0.165 against a truth of 0.40 | A claim of uniformity the numbers do not support |
 | **Round 1:** primary 1 compares failures with *nominal* scenarios | It had compared them with merely non-failing ones, so an overlap could rest on a scenario covering at 0.91 | An overlap claim resting on scenarios that are not good either |
 | **Round 1:** whole-model effective rank added to the outcomes | It was computed and never analyzed, so one of the two summaries CMP-14 asks for appeared in no reported outcome | The study answering only half the question it was written for |
+| **Pre-protocol:** IPD fraction dropped as a design factor | `DESIGN.md`, written after three numerical probes, listed it; the grid varies the target's information state instead, which subsumes it for one target component | A factor considered and dropped after probes had been read |
+| **Pre-protocol:** per-component states replaced by one target component | `DESIGN.md` proposed varying every component's state; the design holds components 1, 2 and 4 fixed so the target's behavior is not confounded with a globally weak network | The same |
+| **Pre-protocol:** AUC dropped as the primary outcome | `DESIGN.md` proposed it; an AUC over a chosen grid reports the grid's shape, so primary 1 became a weighting-free existence claim | An outcome definition changed after probes had been read |
+| **Pre-protocol:** target-population contrast dropped from the estimand | `DESIGN.md` listed it alongside the conditional interaction; only the conditional one is registered, and section 9 says so | A second estimand quietly removed |
+| **Round 2:** source-share made three-way | The two-way version scored `curvature` and `ecological` at zero by construction, so the registered falsifier could not fire and E2's agreement between them was arithmetic | A safeguard that cannot fail, and a reported finding that was not one |
+| **Round 2:** the 0.01 coverage slack registered as `COVER_TOL` | `NOMINAL - 0.01` was written into four files as though it were nominal, while the null minimum is 0.9474 and the document claimed nothing covers below nominal | A threshold moving by a hidden hundredth wherever convenient |
 | **Round 1:** curvature state redesigned and E2 implemented | The state was rank deficient as specified, and none of E2 existed while the document claimed its operating rules were registered | A confirmatory arm that could not be run and whose central state identified nothing |
 
-**Five of these are guards that were written from expectation, failed, and were changed.** That
+**Six of these are guards that were written from expectation, failed, and were changed**, counting the smoke test's own first assertion, which required the interaction prior to leave every nuisance posterior variance untouched and was wrong because the information matrix couples the coordinates. That
 sequence is exactly how a control becomes decorative, so each restatement above says what the
 control now tests rather than only that it passes, and `review/verify-protocol.py` asserts each
 one against the values that made it pass.

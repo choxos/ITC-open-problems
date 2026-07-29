@@ -107,8 +107,8 @@ ok("absent is prior-only", all(d$contraction[d$state == "absent"] > 0.999))
 nl <- d[d$discord == 0 & d$synergy == 0 & d$prior_sd >= 0.5 &
           d$state != "absent", ]
 ok("the null control does not undercover",
-   min(nl$coverage) >= NOMINAL - 0.01, sprintf("min %.4f", min(nl$coverage)))
-over <- nl[nl$coverage > NOMINAL + 0.01, ]
+   min(nl$coverage) >= NOMINAL - COVER_TOL, sprintf("min %.4f", min(nl$coverage)))
+over <- nl[nl$coverage > NOMINAL + COVER_TOL, ]
 ok("null overcoverage is confined to the stated shrinkage mechanism",
    !nrow(over) || all(over$state == "ecological" & over$spread <= 0.6 &
                         over$post_sd > over$samp_sd),
@@ -140,9 +140,9 @@ ok("primary 1 covers both forms of effective rank",
    all(c("target_ratio", "eff_rank") %in% ov$statistic),
    paste(ov$statistic, collapse = ", "))
 ok("primary 1 compares against NOMINAL scenarios",
-   all(ov$n_nominal == sum(d$coverage >= NOMINAL - 0.01)),
+   all(ov$n_nominal == sum(d$coverage >= NOMINAL - COVER_TOL)),
    sprintf("%s against %d", paste(unique(ov$n_nominal), collapse = ","),
-           sum(d$coverage >= NOMINAL - 0.01)))
+           sum(d$coverage >= NOMINAL - COVER_TOL)))
 
 ## --- E2: the negative control and the registered verdict --------------------
 cat("\n=== E2 ===\n")
@@ -157,11 +157,21 @@ ok("curvature is identified with unequal aggregate SDs",
 v <- e2_verdict(e2)
 ok("no registered separation rule fires", !isTRUE(v$withdraw_e1),
    paste(v$rules$rule[isTRUE(v$rules$separates)], collapse = "; "))
-ok("source share groups curvature with ecological",
-   !v$share_separates_curvature,
+## Round 2 found the two-way share unable to separate these states by
+## construction, so it is checked as a CONSTRUCTIONAL fact rather than as
+## evidence, and the statistic that can actually fire is checked separately.
+ok("share_within is zero in both aggregate-only states, by construction",
+   identical(v$curvature_share, 0) && identical(v$ecological_share, 0),
    sprintf("curvature %s, ecological %s",
            paste(v$curvature_share, collapse = ","),
            paste(v$ecological_share, collapse = ",")))
+ok("the three-way split separates the two aggregate routes",
+   isTRUE(v$share_curv_separates),
+   sprintf("curvature %s, ecological %s",
+           paste(v$share_curv_curvature, collapse = "-"),
+           paste(v$share_curv_ecological, collapse = "-")))
+ok("the curvature route is absent from the mean-gradient state",
+   all(v$share_curv_ecological == 0))
 
 cat(sprintf("\n%s\n", strrep("-", 70)))
 if (length(fails)) {

@@ -77,8 +77,9 @@ REQUIRED_KEYS = [
     "probe_null_cover_min", "probe_null_cover_max",
     "contract_ok", "eff_ratio_ok", "source_ok", "cover_bad", "nominal",
     "spreads", "discord", "total_n", "prior_sd", "synergy", "states",
-    "curvature_rank", "e2_rules", "e2_withdraw_e1",
-    "e2_share_separates_curvature", "e2_by_state",
+    "curvature_rank", "e2_rules", "e2_withdraw_e1", "cover_tol",
+    "e2_share_curv_separates",
+    "e2_by_state",
     "e2_link", "e2_states", "e2_sd_ratio", "e2_base_p", "gamma_w",
 ]
 for k in REQUIRED_KEYS:
@@ -169,16 +170,38 @@ check("primary 3's sign is explained the way it must be read",
 check("E1 is declared exploratory",
       "**E1 is therefore reported as exact and exploratory**" in PROTOCOL,
       "the exploratory concession is missing")
-check("E2 is declared confirmatory and unrun",
-      "E2 is confirmatory and is registered blind" in PROTOCOL
-      and "It has not been run" in PROTOCOL,
+check("E2's split registration status is stated",
+      "E2 is partly confirmatory and partly not" in PROTOCOL
+      and "no MCMC and fits no model" in PROTOCOL,
       "E2's status is not stated")
 DISC = table_after("| change | why | what it would have hidden |")
-check("the disclosure list covers both rounds of changes",
-      len(DISC) >= 10 and sum("**Round 1:**" in r for r in DISC) >= 7,
-      f"{len(DISC)} rows, {sum('**Round 1:**' in r for r in DISC)} from round 1")
+check("the disclosure list covers all three phases of changes",
+      len(DISC) >= 16 and sum("**Round 1:**" in r for r in DISC) >= 7
+      and sum("**Round 2:**" in r for r in DISC) >= 2
+      and sum("**Pre-protocol:**" in r for r in DISC) >= 4,
+      f"{len(DISC)} rows: {sum('**Pre-protocol:**' in r for r in DISC)} pre, "
+      f"{sum('**Round 1:**' in r for r in DISC)} r1, "
+      f"{sum('**Round 2:**' in r for r in DISC)} r2")
+check("the coverage tolerance is registered rather than slipped in",
+      f"`COVER_TOL`" in PROTOCOL and DESIGN["cover_tol"] == 0.01,
+      "the 0.01 slack is still unnamed")
+check("the source-share reversal is reported, not quietly replaced",
+      "That report was arithmetic\npresented as a finding, and it is withdrawn" in RAW
+      or "arithmetic presented as a finding, and it is withdrawn" in PROTOCOL,
+      "the withdrawn E2 claim is not recorded")
+check("the three-way decomposition separates the aggregate routes",
+      DESIGN["e2_share_curv_separates"] is True,
+      "the finer statistic does not separate them after all")
+check("the equal-SD condition is marked exploratory",
+      "**Exploratory, not confirmatory.**" in PROTOCOL
+      and "checked before it was written down" in PROTOCOL,
+      "an observed-first condition is still presented as registered")
+check("E2 is not described as fitted by MCMC anywhere",
+      "fitted by MCMC" not in PROTOCOL or
+      'said "fitted by MCMC rather than solved"' in PROTOCOL,
+      "the MCMC contradiction survives")
 check("the disclosure counts the guards that were weakened",
-      "Five of these are guards that were written from expectation, failed, and were changed"
+      "Six of these are guards that were written from expectation, failed, and were changed"
       in PROTOCOL,
       "the weakened guards are not counted")
 check("round 1's single-reviewer status is recorded",
@@ -217,21 +240,20 @@ check("the probe's null control is nominal",
 
 # --- E2's verdict, bound to the run rather than typed beside it -------------
 E2T = table_after("| registered rule | fires? |")
-check("the E2 verdict table has one row per registered rule",
-      len(E2T) == len(DESIGN["e2_rules"]) + 2,
-      f"{len(E2T)} rows against {len(DESIGN['e2_rules'])} separation rules "
-      "plus the source-share and equal-SD conditions")
-check("no registered E2 rule fires",
+check("the E2 verdict table covers every registered condition",
+      len(E2T) == len(DESIGN["e2_rules"]) + 3,
+      f"{len(E2T)} rows against {len(DESIGN['e2_rules'])} separation rules plus "
+      "the two source-share conditions and the equal-SD one")
+check("no SEPARATION rule fires, so E1 stands",
       all(r["separates"] is False for r in DESIGN["e2_rules"])
-      and all("| no" in r for r in E2T),
+      and DESIGN["e2_withdraw_e1"] is False
+      and "**E1's conclusion is not withdrawn**" in PROTOCOL,
       f"{DESIGN['e2_rules']}")
-check("E1's conclusion is not withdrawn",
-      DESIGN["e2_withdraw_e1"] is False
-      and "**E1's conclusion is therefore not withdrawn**" in PROTOCOL,
-      "the document and the run disagree about the verdict")
-check("source share does not separate curvature from ecological",
-      DESIGN["e2_share_separates_curvature"] is False
-      and DESIGN["e2_curvature_share"] == DESIGN["e2_ecological_share"],
+check("the table records that one condition DID fire",
+      sum("**yes**" in r for r in E2T) == 1,
+      f"{sum('**yes**' in r for r in E2T)} rows report a firing condition")
+check("share_within is zero in both aggregate states, by construction",
+      DESIGN["e2_curvature_share"] == DESIGN["e2_ecological_share"] == 0,
       f"curvature {DESIGN['e2_curvature_share']}, "
       f"ecological {DESIGN['e2_ecological_share']}")
 check("E2 is stated to have been run after its rules were committed",
