@@ -219,12 +219,14 @@ check("E2's split registration status is stated",
       "E2's status is not stated")
 DISC = table_after("| change | why | what it would have hidden |")
 check("the disclosure list covers all three phases of changes",
-      len(DISC) >= 16 and sum("**Round 1:**" in r for r in DISC) >= 7
+      len(DISC) >= 22 and sum("**Round 1:**" in r for r in DISC) >= 7
       and sum("**Round 2:**" in r for r in DISC) >= 2
+      and sum("**Round 3:**" in r for r in DISC) >= 6
       and sum("**Pre-protocol:**" in r for r in DISC) >= 4,
       f"{len(DISC)} rows: {sum('**Pre-protocol:**' in r for r in DISC)} pre, "
       f"{sum('**Round 1:**' in r for r in DISC)} r1, "
-      f"{sum('**Round 2:**' in r for r in DISC)} r2")
+      f"{sum('**Round 2:**' in r for r in DISC)} r2, "
+      f"{sum('**Round 3:**' in r for r in DISC)} r3")
 check("the coverage tolerance is registered rather than slipped in",
       f"`COVER_TOL`" in PROTOCOL and DESIGN["cover_tol"] == 0.01,
       "the 0.01 slack is still unnamed")
@@ -265,7 +267,7 @@ check("E2 is not described as fitted by MCMC anywhere",
       'said "fitted by MCMC rather than solved"' in PROTOCOL,
       "the MCMC contradiction survives")
 check("the disclosure counts the guards that were weakened",
-      "Six of these are guards that were written from expectation, failed, and were changed"
+      "Seven of these are guards that were written from expectation, failed, and were changed"
       in PROTOCOL,
       "the weakened guards are not counted")
 check("round 1's single-reviewer status is recorded",
@@ -308,6 +310,30 @@ check("the E2 verdict table covers every registered condition",
       len(E2T) == len(DESIGN["e2_rules"]) + 3,
       f"{len(E2T)} rows against {len(DESIGN['e2_rules'])} separation rules plus "
       "the two source-share conditions and the equal-SD one")
+check("the withdrawal rule covers both forms of effective rank",
+      any("eff_rank" in r["rule"] for r in DESIGN["e2_rules"])
+      and any("target_ratio" in r["rule"] for r in DESIGN["e2_rules"]),
+      f"rules cover {[r['rule'] for r in DESIGN['e2_rules']]}")
+check("E2 coverage is reported only where the model is correct",
+      "COVERAGE IS REPORTED ONLY WHERE THE MODEL IS CORRECT" in
+      (ROOT / "R" / "07-run-e2.R").read_text()
+      and "MISSPECIFIED COVERAGE ON A NONLINEAR LINK IS OUT OF SCOPE" in
+      (ROOT / "R" / "07-run-e2.R").read_text(),
+      "misspecified coverage is not scoped out")
+check("the source-share results are labeled exploratory",
+      "**The source-share results are exploratory throughout**" in PROTOCOL,
+      "a post hoc statistic is presented as registered")
+check("the expected-design substitution is stated precisely",
+      "not the same as averaging any reported quantity over realized designs"
+      in re.sub(r"\*+", "", PROTOCOL),
+      "the substitution is still described loosely")
+check("the nuisance-prior claim is narrowed to what was tested",
+      "**What was tested is exactly that**" in PROTOCOL,
+      "the sensitivity claim still exceeds the test")
+check("the fourth control is a group property",
+      "as a\n   group, so a single conforming scenario cannot carry the control" in RAW
+      or "a single conforming scenario cannot carry the control" in PROTOCOL,
+      "the control still passes on one scenario")
 check("no SEPARATION rule fires, so E1 stands",
       all(r["separates"] is False for r in DESIGN["e2_rules"])
       and DESIGN["e2_withdraw_e1"] is False

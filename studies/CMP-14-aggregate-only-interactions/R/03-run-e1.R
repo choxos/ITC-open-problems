@@ -168,9 +168,18 @@ main <- function() {
   ## wide and wrong when it is tight and misplaced. Both must occur, or the grid
   ## contains only one kind of prior-driven parameter and the classifier analysis
   ## has nothing to separate.
+  ## Round 3: this took the MAX per prior scale, so one conforming scenario made
+  ## the control pass while its words promise "essentially always" and
+  ## "essentially never". Both are now group properties: every wide-prior absent
+  ## scenario must cover above 0.99 and every tight-prior one below 0.01.
   a <- res[res$state == "absent", ]
+  wide_a <- a[a$prior_sd >= 0.5, ]; tight_a <- a[a$prior_sd == min(PRIOR_SD), ]
+  if (!(all(tight_a$coverage < 0.01) && all(wide_a$coverage > 0.99)))
+    stop("the absent state does not contain both kinds of prior-driven ",
+         "parameter as a group: tight max ", sprintf("%.3f", max(tight_a$coverage)),
+         ", wide min ", sprintf("%.3f", min(wide_a$coverage)))
   cov_by_prior <- tapply(a$coverage, a$prior_sd, max)
-  if (!(min(cov_by_prior) < 0.01 && max(cov_by_prior) > 0.99))
+  if (FALSE)
     stop("the absent state does not contain both a harmless and a harmful ",
          "prior-driven parameter: coverage ",
          paste(sprintf("sd=%s:%.2f", names(cov_by_prior), cov_by_prior),

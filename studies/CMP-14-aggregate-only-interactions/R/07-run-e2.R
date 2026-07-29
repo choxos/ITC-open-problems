@@ -7,18 +7,46 @@
 ## first-order expansion of the posterior mode's sampling distribution. Every
 ## coverage number below is a normal approximation and is labeled as one.
 ##
-## THE FIRST-ORDER EXPANSION, stated so a reader can see what it assumes. Write
-## the model's mean for row i as p_i(theta) and the TRUE mean as q_i, which
-## differs from p_i(theta_true) wherever discordance or synergy acts. The MAP
-## solves score(theta) = P0 (theta - 0), and expanding about theta_true:
+## WHAT E2 REPORTS, AND WHAT IT NO LONGER TRIES TO.
+##
+## Round 3 found the coverage calculation invalid wherever the model is
+## misspecified, and it was right. Under discordance or synergy the true Bernoulli
+## probability differs from the fitted one, so the score variance is no longer the
+## model Fisher information, and for an aggregate arm mean the expected Hessian is
+## not that information either: its second-derivative term vanishes only when the
+## fitted mean equals the true one. The code nevertheless used
+## (I + P0)^{-1} I (I + P0)^{-1}. Codex recomputed one registered curvature
+## scenario under the correct Hessian and score variance and got 0.6898 against
+## the 0.9400 reported, crossing both the nominal and the failure boundary.
+##
+## Two things could be done about that. A sandwich could be implemented, which for
+## the aggregate rows needs the second derivative of a quadrature integral and is
+## real work; or E2 could be scoped to the question it exists to answer. The
+## second is chosen, because it is what the evidence supports rather than a
+## partial sandwich presented as a whole one.
+##
+##   THE SEPARATION QUESTION NEEDS NO COVERAGE AT ALL. Whether contraction or
+##   effective rank distinguishes the information states is a property of the
+##   information matrix and the prior. It is computed exactly, on every scenario,
+##   and E2's registered rules now operate on the full per-state distribution of
+##   each diagnostic rather than on a coverage-filtered subset.
+##
+##   COVERAGE IS REPORTED ONLY WHERE THE MODEL IS CORRECT, that is at zero
+##   discordance and zero synergy. There A equals B equals the Fisher information,
+##   the expansion below is the ordinary one, and the number means what it says.
+##   Those scenarios still contain failure, because a tight misplaced prior breaks
+##   coverage without any misspecification at all.
+##
+##   MISSPECIFIED COVERAGE ON A NONLINEAR LINK IS OUT OF SCOPE and section 9 says
+##   so. E1 answers the misspecified-coverage question exactly, on a linear link.
+##
+## The expansion used where it is valid: with p_i(theta) the model's mean for row
+## i, the MAP solves score(theta) = -P0 theta, and about theta_true
 ##
 ##   theta_hat - theta_true  ~=  (I + P0)^{-1} [ U - P0 theta_true ],
-##   U = sum_i w_i g_i (q_i - p_i(theta_true)),
 ##
-## with g_i the gradient of p_i and w_i the row weight. E[U] is the displacement
-## caused by misspecification and Var(theta_hat) ~= (I + P0)^{-1} I (I + P0)^{-1}.
-## Both terms are computed exactly; only the linearization is approximate, and it
-## is the same approximation any asymptotic coverage statement makes.
+## with U the score at theta_true. Var(theta_hat) = (I + P0)^{-1} I (I + P0)^{-1}
+## holds when the model is correct, which is the only place it is now used.
 ##
 ##   Rscript R/07-run-e2.R
 ## ---------------------------------------------------------------------------
@@ -100,9 +128,15 @@ evaluate_e2 <- function(row) {
   bias <- as.vector(A %*% (U - P0 %*% th))[gi]
   v_samp <- (A %*% I %*% A)[gi, gi]
   sd_post <- sqrt(A[gi, gi])
+  ## Correctly specified only; NA elsewhere, so a misspecified coverage figure
+  ## cannot be read off this table by accident.
+  well_specified <- row$discord == 0 && row$synergy == 0
   z <- stats::qnorm(1 - (1 - NOMINAL) / 2)
-  lo <- (-bias - z * sd_post) / sqrt(v_samp)
-  hi <- (-bias + z * sd_post) / sqrt(v_samp)
+  cov <- if (!well_specified) NA_real_ else {
+    lo <- (-bias - z * sd_post) / sqrt(v_samp)
+    hi <- (-bias + z * sd_post) / sqrt(v_samp)
+    stats::pnorm(hi) - stats::pnorm(lo)
+  }
 
   ## The same four diagnostics, read off the logit information. Every precision
   ## here is PRIOR-FREE after round 3; see `lik_marginal_precision`.
@@ -133,9 +167,9 @@ evaluate_e2 <- function(row) {
     prec_within = w_in, prec_between = w_bt, prec_full = ss$full,
     share_within = ss$share_within, share_curv = ss$share_curv,
     bias = bias, post_sd = sd_post, samp_sd = sqrt(v_samp),
-    coverage = stats::pnorm(hi) - stats::pnorm(lo),
+    coverage = cov, well_specified = well_specified,
     stringsAsFactors = FALSE)) |>
-    transform(failed = coverage < COVER_BAD)
+    transform(failed = !is.na(coverage) & coverage < COVER_BAD)
 }
 
 build_grid_e2 <- function() {
@@ -197,49 +231,60 @@ if (!interactive() && Sys.getenv("E2_NOMAIN") == "") main()
 ## is arithmetic, and so a reader can see it was not reached by looking at a
 ## table of ranges and forming an impression.
 e2_verdict <- function(res) {
-  nominal <- res$coverage >= NOMINAL - COVER_TOL
-  keep <- res$failed | nominal
-  r <- res[keep, ]
-  sep <- function(stat, groups, safe_low) {
-    a <- r[r$state %in% groups[1] & r$failed, stat]
-    b <- r[r$state %in% groups[2] & !r$failed, stat]
-    if (!length(a) || !length(b)) return(NA)
-    ## Separable if every failing member of one group is less reassuring than
-    ## every nominal member of the other.
-    if (safe_low) min(a) > max(b) else max(a) < min(b)
+  ## ROUND 3 REBUILT THIS. The first version checked contraction and the
+  ## per-parameter ratio only, never the whole-model effective-rank count, so one
+  ## of the two summaries CMP-14 actually asks for controlled no decision. It also
+  ## compared a coverage-filtered subset, keeping failing aggregate rows and
+  ## nominal additivity rows and discarding the rest, so a registered separation
+  ## could occur among the discarded rows without triggering withdrawal. And it
+  ## let equal-SD curvature rows into the curvature comparisons although the
+  ## protocol says those contain no curvature identification at all.
+  ##
+  ## Separation is a property of the diagnostics and the design, not of coverage,
+  ## so the rule now compares the COMPLETE per-state distribution of each
+  ## diagnostic over every registered row of that state, with the equal-SD
+  ## curvature rows excluded from the curvature side because the protocol
+  ## registers them as identifying nothing.
+  rows_for <- function(st) {
+    z <- res[res$state == st, ]
+    if (st == "curvature") z <- z[z$sd_ratio > 1, ]
+    z
   }
-  rules <- rbind(
-    data.frame(rule = "contraction separates additivity from ecological",
-               separates = sep("contraction", c("ecological", "additivity"), TRUE)),
-    data.frame(rule = "contraction separates additivity from curvature",
-               separates = sep("contraction", c("curvature", "additivity"), TRUE)),
-    data.frame(rule = "target ratio separates additivity from ecological",
-               separates = sep("target_ratio", c("ecological", "additivity"), FALSE)),
-    data.frame(rule = "target ratio separates additivity from curvature",
-               separates = sep("target_ratio", c("curvature", "additivity"), FALSE)))
-  ## The second registered condition: if source_share DOES separate curvature
-  ## from ecological, the claim that they are the same kind of evidence is wrong.
-  ## THE SOURCE-SHARE CONDITION, ON A STATISTIC THAT CAN ACTUALLY DIFFER.
-  ## `share_within` is zero in both aggregate-only states by construction, so it
-  ## is reported but carries no evidence. `share_curv` splits the aggregate
-  ## information into its mean-gradient and curvature routes and is free to come
-  ## out either way, which is what a falsifier has to be.
-  cs <- unique(round(res$share_within[res$state == "curvature" &
-                                        !is.na(res$share_within)], 6))
-  es <- unique(round(res$share_within[res$state == "ecological" &
-                                        !is.na(res$share_within)], 6))
-  cc <- res$share_curv[res$state == "curvature" & res$sd_ratio > 1 &
-                         !is.na(res$share_curv)]
-  ec <- res$share_curv[res$state == "ecological" & !is.na(res$share_curv)]
+  ## Separable if the two states' value ranges do not overlap at all: some
+  ## threshold puts every member of one on one side and every member of the other
+  ## on the other. Direction-free, because a summary that inverted would still be
+  ## a summary that separates.
+  separates <- function(stat, s1, s2) {
+    a <- rows_for(s1)[[stat]]; b <- rows_for(s2)[[stat]]
+    a <- a[is.finite(a)]; b <- b[is.finite(b)]
+    if (!length(a) || !length(b)) return(NA)
+    min(a) > max(b) || min(b) > max(a)
+  }
+  grid <- expand.grid(
+    stat = c("contraction", "target_ratio", "eff_rank"),
+    against = c("ecological", "curvature"),
+    stringsAsFactors = FALSE)
+  rules <- do.call(rbind, lapply(seq_len(nrow(grid)), function(i) data.frame(
+    rule = sprintf("%s separates additivity from %s", grid$stat[i],
+                   grid$against[i]),
+    separates = separates(grid$stat[i], "additivity", grid$against[i]),
+    stringsAsFactors = FALSE)))
+
+  ## The source-share condition, on the prior-free leave-one-source-out statistic.
+  cs <- unique(rows_for("curvature")$share_curv)
+  es <- unique(rows_for("ecological")$share_curv)
+  cs <- cs[!is.na(cs)]; es <- es[!is.na(es)]
   list(rules = rules,
        withdraw_e1 = isTRUE(any(rules$separates)),
-       curvature_share = cs, ecological_share = es,
-       share_within_is_constructional = TRUE,
-       share_curv_curvature = if (length(cc)) range(round(cc, 4)) else NA,
-       share_curv_ecological = if (length(ec)) range(round(ec, 4)) else NA,
-       ## Separated if the two states' curvature shares do not overlap at all.
-       share_curv_separates = length(cc) > 0 && length(ec) > 0 &&
-         (min(cc) > max(ec) || min(ec) > max(cc)))
+       curvature_share = unique(rows_for("curvature")$share_within[
+         !is.na(rows_for("curvature")$share_within)]),
+       ecological_share = unique(rows_for("ecological")$share_within[
+         !is.na(rows_for("ecological")$share_within)]),
+       share_within_is_constructional = FALSE,
+       share_curv_curvature = if (length(cs)) range(cs) else NA,
+       share_curv_ecological = if (length(es)) range(es) else NA,
+       share_curv_separates = length(cs) > 0 && length(es) > 0 &&
+         (min(cs) > max(es) || min(es) > max(cs)))
 }
 
 if (!interactive() && Sys.getenv("E2_NOMAIN") == "") {
@@ -248,6 +293,8 @@ if (!interactive() && Sys.getenv("E2_NOMAIN") == "") {
   cat("\n=== the registered withdrawal rules ===\n")
   print(v$rules, row.names = FALSE)
   cat(sprintf("\nE1's conclusion is withdrawn: %s\n", v$withdraw_e1))
+  cat(sprintf("coverage reported for %d of %d scenarios (correctly specified only)\n",
+              sum(res$well_specified), nrow(res)))
   cat(sprintf("source share, curvature: %s | ecological: %s | separates them: %s\n",
               paste(v$curvature_share, collapse = ", "),
               paste(v$ecological_share, collapse = ", "),

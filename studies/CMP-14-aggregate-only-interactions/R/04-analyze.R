@@ -48,7 +48,13 @@ load_e1 <- function(path = "results/e1.rds") {
 ## separate the good from the bad, because 0.91 is not good. Scenarios between
 ## COVER_BAD and nominal are neither and are excluded from both sides.
 overlap_table <- function(d) {
-  nominal <- d$coverage >= NOMINAL - COVER_TOL
+  ## ROUND 3: "nominal" was one-sided, so a scenario covering at 1.000 counted as
+  ## nominal and sat on the good side of primary 1. Gross overcoverage is not
+  ## nominal; it is a different failure, and the absent state under a wide prior
+  ## produces it by having no likelihood information at all. Nominal is now a
+  ## two-sided band and the over-covering scenarios join the intermediate ones in
+  ## belonging to neither side.
+  nominal <- abs(d$coverage - NOMINAL) <= COVER_TOL
   d <- d[d$failed | nominal, ]
   stats <- list(
     contraction  = d$contraction,

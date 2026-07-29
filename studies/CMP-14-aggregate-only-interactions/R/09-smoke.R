@@ -140,9 +140,9 @@ ok("primary 1 covers both forms of effective rank",
    all(c("target_ratio", "eff_rank") %in% ov$statistic),
    paste(ov$statistic, collapse = ", "))
 ok("primary 1 compares against NOMINAL scenarios",
-   all(ov$n_nominal == sum(d$coverage >= NOMINAL - COVER_TOL)),
+   all(ov$n_nominal == sum(abs(d$coverage - NOMINAL) <= COVER_TOL)),
    sprintf("%s against %d", paste(unique(ov$n_nominal), collapse = ","),
-           sum(d$coverage >= NOMINAL - COVER_TOL)))
+           sum(abs(d$coverage - NOMINAL) <= COVER_TOL)))
 
 ## --- E2: the negative control and the registered verdict --------------------
 cat("\n=== E2 ===\n")

@@ -8,7 +8,7 @@ part on IDN-06 *ML-NMR interactions can rest solely on aggregate-data variation*
 
 **Provenance.** Every number this document prints is exported from the code that computes it
 by `R/05-export.R`, and `review/verify-protocol.py` asserts the document against that export,
-currently **115** assertions. The four controls in section 5 are asserted against the values
+currently **121** assertions. The four controls in section 5 are asserted against the values
 that made them pass, not merely described, because section 8 concedes that two of them were
 weakened after they failed.
 
@@ -153,10 +153,16 @@ The first version overstated this as "functions of the design alone, computable 
 patient is enrolled", and round 1 was right to reject it: for individual data the information
 is $X'X/\sigma^2$, which depends on the covariates actually observed, so realized contraction
 does carry replicate-level variation. E1 represents each individual-data arm by its
-Gauss-Hermite nodes, which is the **expected** covariate design, so every E1 number is exact
-for a study whose covariate distribution is realized exactly and is an expectation otherwise.
-The unit of analysis is the scenario **conditional on that design**, and that conditioning is a
-limitation carried in section 9 rather than a property being claimed.
+Gauss-Hermite nodes, which is the **expected** covariate design.
+
+Round 3 asked for the consequence to be stated precisely rather than as "an expectation", and it
+is right that the loose wording hid something. Substituting the expected information is not the
+same as averaging any reported quantity over realized designs, because coverage and contraction
+are nonlinear functions of the design. Every E1 number is exact for a study whose covariate
+distribution is realized exactly at the quadrature weights, and for one that is not it is neither
+an average, nor an upper bound, nor a lower bound. The unit of analysis is the scenario
+**conditional on that design**, and that conditioning is a limitation carried in section 9 rather
+than a property being claimed.
 
 **The interaction prior is applied to the interactions only.** The first version set one prior
 scale on every coordinate, so a result attributed to the registered factor could have been
@@ -168,7 +174,9 @@ doing work" was a claim with nothing behind it. Every scenario is re-evaluated w
 scale at 3 and at 30, an order of magnitude either side, and the largest movement in any
 registered quantity across the whole grid is **0.0007 in coverage, 0.0002 in contraction and
 0.0000 in the source share**. The interaction prior is the only prior doing work, within that
-tolerance.
+tolerance. **What was tested is exactly that**: two alternative scales on E1's grid, on the
+identity link. Round 3 found the claim stated more broadly than the test, so it is narrowed here.
+E2's nuisance prior is not varied, and neither arm establishes invariance outside the range 3 to 30.
 
 **The grid**, a full factorial with two structural restrictions (`R/03-run-e1.R`):
 
@@ -211,7 +219,11 @@ as what it actually tests, after round 1 found two of them promising more than t
    so the state with the least information was the one not being checked.
 4. **Both kinds of prior-driven parameter are present.** The absent state must cover the truth
    essentially always under a wide prior and essentially never under a tight misplaced one.
-   Without both, the grid contains only the harmless kind and the comparison is rigged.
+   Without both, the grid contains only the harmless kind and the comparison is rigged. Round 3
+   found the check testing only that a scenario of each kind **exists**, which is weaker than the
+   words "essentially always" and "essentially never"; it now requires the wide-prior absent
+   scenarios to cover above 0.99 **as a group** and the tight-prior ones to cover below 0.01 as a
+   group, so a single conforming scenario cannot carry the control.
 
 ## 6. Outcomes
 
@@ -221,11 +233,14 @@ compatible with both a nominal and a badly failing scenario establishes that **n
 separates them**, whatever the grid contains. Reported as the most reassuring failure, the
 least reassuring success, and the fraction of the **comparison set** lying between them. The comparison set is the failing scenarios plus the nominal ones; the intermediate band belongs to neither and is excluded from the denominator as well as from both sides.
 
-**Nominal means nominal.** The first version contrasted failing scenarios with merely
-non-failing ones, which lumps a scenario covering at 0.91 in with one covering at 0.950. An
-overlap established against a 0.91 scenario is not evidence that a threshold cannot separate
-good from bad, because 0.91 is not good. Scenarios between `COVER_BAD` and nominal are neither
-and are excluded from both sides.
+**Nominal means nominal, and the band is two-sided.** The first version contrasted failing
+scenarios with merely non-failing ones, which lumps a scenario covering at 0.91 in with one
+covering at 0.950. Round 3 found the repair still one-sided, so a scenario covering at **1.000**
+counted as nominal and sat on the good side: gross overcoverage is not nominal, it is a different
+failure, and the `absent` state under a wide prior produces it by having no likelihood information
+at all. Nominal is now $|{\text{coverage}} - 0.95| \leq$ `COVER_TOL`, and both the intermediate
+band and the over-covering scenarios belong to neither side. That drops the nominal count from 241
+to 165 and the comparison set from 493 to 417; every statistic still overlaps.
 
 **Both forms of effective rank are analyzed.** Round 1 found the whole-model count computed and
 never used, so one of the two summaries CMP-14 actually asks for appeared in no outcome. Primary
@@ -319,11 +334,13 @@ committed, so the rules are registered with respect to it even though E1's are n
 
 | registered rule | fires? |
 |---|:--:|
-| contraction separates `additivity` from `ecological` | no |
-| contraction separates `additivity` from `curvature` | no |
-| target ratio separates `additivity` from `ecological` | no |
-| target ratio separates `additivity` from `curvature` | no |
-| `share_within` separates `curvature` from `ecological` | no, but see below: **it cannot** |
+| contraction separates additivity from ecological | no |
+| target_ratio separates additivity from ecological | no |
+| eff_rank separates additivity from ecological | no |
+| contraction separates additivity from curvature | no |
+| target_ratio separates additivity from curvature | no |
+| eff_rank separates additivity from curvature | no |
+| `share_within` separates `curvature` from `ecological` | no; both are 0 |
 | `share_curv` separates `curvature` from `ecological` | **yes** |
 | `curvature` estimable with equal aggregate SDs | no |
 
@@ -344,6 +361,14 @@ a coordinate is not identified by a source, the expression still returns a posit
 supplied entirely by regularization. In the curvature state's aggregate rows it returned 0.2275
 and 0.0072 for quantities whose prior-free value is **exactly zero**, and the ratio of those two
 artifacts, 0.933 to 0.969, was reported here as this study's headline. **Withdrawn.**
+
+**All of this is post hoc and is labeled so.** The statistic was not registered in advance in any
+of its three forms: the two-way version was written with E1, the aggregate split was prompted by
+round 2's finding that the two-way version could not fire, and the leave-one-source-out version by
+round 3's finding that the split was not a decomposition. Round 3 asked for that to be stated
+rather than left implicit. **The source-share results are exploratory throughout**, they are not
+covered by any registered rule, and the only registered thing about them is that E2 must report
+whether they separate the two aggregate routes, which it does.
 
 **The well-posed question is leave-one-source-out, and it is cleaner than either attempt.**
 Asking what share of a parameter's precision comes from each source presumes each source
@@ -397,8 +422,14 @@ version of this list incomplete; it now covers changes made both before and afte
 | **Round 2:** source-share made three-way | The two-way version scored `curvature` and `ecological` at zero by construction, so the registered falsifier could not fire and E2's agreement between them was arithmetic | A safeguard that cannot fail, and a reported finding that was not one |
 | **Round 2:** the 0.01 coverage slack registered as `COVER_TOL` | `NOMINAL - 0.01` was written into four files as though it were nominal, while the null minimum is 0.9474 and the document claimed nothing covers below nominal | A threshold moving by a hidden hundredth wherever convenient |
 | **Round 1:** curvature state redesigned and E2 implemented | The state was rank deficient as specified, and none of E2 existed while the document claimed its operating rules were registered | A confirmatory arm that could not be run and whose central state identified nothing |
+| **Round 3:** every precision made prior-free | Each source's "likelihood precision" was the posterior marginal precision minus the prior's diagonal, so a source identifying nothing still scored positive. In the curvature state's aggregate rows it returned 0.2275 and 0.0072 for quantities whose prior-free value is exactly zero | The ratio of two prior artifacts, 0.933 to 0.969, reported as this study's headline decomposition |
+| **Round 3:** source share made leave-one-source-out | Decomposing a parameter's marginal precision by source presumes each source identifies it alone, which is false in the curvature state | A decomposition that was not one, for the second time |
+| **Round 3:** E2 coverage scoped to correctly specified scenarios | Under misspecification the score variance is not the model Fisher information and the aggregate Hessian is not either; one curvature scenario recomputed correctly moves from 0.9400 to 0.6898 | Coverage figures, failure labels and every rule conditioned on them, all invalid |
+| **Round 3:** the withdrawal rule rebuilt | It checked two of the three diagnostics, on a coverage-filtered subset, with equal-SD curvature rows included | A registered separation occurring without triggering withdrawal |
+| **Round 3:** nominal made two-sided | A scenario covering at 1.000 counted as nominal, so gross overcoverage sat on the good side of primary 1 | 76 over-covering scenarios treated as successes |
+| **Round 3:** the fourth control made a group property | It tested only that one scenario of each kind exists, while its words promise "essentially always" | A control carried by a single conforming scenario |
 
-**Six of these are guards that were written from expectation, failed, and were changed**, counting the smoke test's own first assertion, which required the interaction prior to leave every nuisance posterior variance untouched and was wrong because the information matrix couples the coordinates. That
+**Seven of these are guards that were written from expectation, failed, and were changed**, counting the smoke test's own first assertion, which required the interaction prior to leave every nuisance posterior variance untouched and was wrong because the information matrix couples the coordinates. That
 sequence is exactly how a control becomes decorative, so each restatement above says what the
 control now tests rather than only that it passes, and `review/verify-protocol.py` asserts each
 one against the values that made it pass.
