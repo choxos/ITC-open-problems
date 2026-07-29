@@ -1901,14 +1901,28 @@ A fit failing the sampler policy is refit once at doubled iterations with `adapt
 fit failing twice is recorded as a failure, not dropped, and the primary analysis is repeated on the
 subset where every fit passed.
 
-**The refit assumption is now 100%, not 20%, and it was measured before the Stan pass started.**
-One production replicate refit both arms, because `divergent == 0` was unmeetable (section 7.2). The
-escalation doubles the iterations, so the refit line goes from 41.3 h to **206.5 h** and the
-grand total from 208.6 h to **373.8 h**, about sixteen days. That figure is an assumption whose
-realized value is reported, exactly as the 20% was, and it is the honest one: two of two is not an
-estimate of a rate but it is decisive against 20%. A first-attempt-only probe is measuring whether
-first attempts pass under the rate criterion, which is what decides between the two totals, and
-`R/19-realized-cost.R` reports the rate the run produces.
+**The refit assumption stays at 20%, and correcting it back records a reasoning error.** On seeing
+both arms of the first production replicate refit, this section briefly said 100% and carried a grand
+total of 373.8 h. That was wrong in a specific way: those two refits were triggered by the
+`divergent == 0` rule, which section 7.2 had just replaced. A rate was revised using measurements
+taken under a criterion that no longer existed.
+
+Measured properly, on a first-attempt-only probe at the production settings with the rate rule in
+force, **neither arm needed a refit**:
+
+| arm | divergences | rate | $\hat R$ | ESS bulk / tail | refit needed |
+|---|---:|---:|---:|---:|:--:|
+| `MLNMR-PH` | 0 / 1,000 | 0.0000 | 1.0030 | 1,193 / 560 | no |
+| `MLNMR-flex` | 4 / 1,000 | 0.0040 | 1.0024 | 755 / 626 | no |
+
+Two of two is not evidence for 0% any more than it was evidence for 100%, so the assumption returns
+to the 0.20 that came from the integration probe's 3 failures in 16 fits, which these two are
+consistent with. The realized rate is reported and the run costs what it costs.
+
+**The old rule would have been worse than merely expensive.** Under `divergent == 0` the flexible
+arm's 4 divergences trigger a refit, and the refit measured earlier still had 8 and 3, so the fit
+would have been recorded as a failure after paying twice for it. The rate rule accepts both first
+attempts and pays once.
 
 **The refit escalation is costed**, which round 4 found it was not. Version 4 described the
 contingency and gave it no budget line, which is exactly the unfrozen contingency the freeze exists
@@ -1937,10 +1951,10 @@ if it exceeds it the run costs more and the overrun is reported. The `refit` fla
 |---|---|
 | main run | 129.1 h |
 | sensitivity arms | 38.2 h |
-| refit escalation, at the 100% assumption | 206.5 h |
-| **total** | **373.8 h** |
+| refit escalation, at the 20% assumption | 41.3 h |
+| **total** | **208.6 h** |
 
-About 16 days of compute, stated plainly rather than presented as a headline number with the arms
+About nine days of compute, stated plainly rather than presented as a headline number with the arms
 and contingencies excluded. Round 3 found version 3 quoting a total that omitted arms it had just
 registered; that is not repeated. The main run is the part that must complete; the arms and the
 refit cap are separately resumable and separately reportable.

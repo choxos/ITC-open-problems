@@ -394,7 +394,28 @@ COX_PROJ_NGRID   <- 200L
 ## The analysis is repeated on the ZERO-DIVERGENCE subset regardless, so a reader
 ## who does not accept the rate can see whether it changes anything.
 DIVERGENT_RATE_MAX <- 0.01     # 1% of post-warmup draws
-REFIT_RATE_ASSUMED <- 1.00     # measured 2 of 2; was assumed 0.20
+
+## THE REFIT ASSUMPTION, AND A REASONING ERROR OF MINE THAT IT RECORDS.
+##
+## On seeing both arms of the first production replicate refit, I set this to 1.00
+## and let the grand total go from 208.6 h to 373.8 h. That was wrong, and wrong
+## in a specific way worth keeping: those two refits were triggered by the
+## `divergent == 0` rule, which I had just replaced. I revised a rate using
+## measurements taken under a criterion that no longer existed.
+##
+## Measured properly, on a first-attempt-only probe at the production settings
+## with the RATE rule in force:
+##
+##   arm         divergences   rate     Rhat     ESS bulk / tail   passes
+##   MLNMR-PH      0 / 1000   0.0000   1.0030      1193 / 560       yes
+##   MLNMR-flex    4 / 1000   0.0040   1.0024       755 / 626       yes
+##
+## Neither needed a refit. Two of two is not evidence for 0% any more than it was
+## evidence for 100%, so the assumption returns to the 0.20 that came from the
+## integration probe's 3 failures in 16 fits, which the two production first
+## attempts are consistent with. R/19-realized-cost.R reports the rate the run
+## produces, and the run costs what it costs.
+REFIT_RATE_ASSUMED <- 0.20
 
 SEED <- 20260728
 
