@@ -13,7 +13,7 @@ been discarded except time.
 **In each of the last three rounds the largest single category of fatal finding was a defect
 introduced while fixing the round before.** That is why the numbers in this document are no longer
 typed: `R/09-export-design.R` writes every quoted value out of the code that computes it, and
-`review/verify-protocol.py` asserts the document against that file, currently **346** assertions
+`review/verify-protocol.py` asserts the document against that file, currently **348** assertions
 including whole tables cell by cell, the arithmetic that connects printed units to printed totals, and the per-cell tables in `results/e1-results.md` and `results/e2-results.md`, which until now were guarded by nothing.
 Three separate fatal findings were tables of stale or hand-copied numbers, so a value that only
 exists in prose is treated here as a value that has not been checked.
@@ -1900,6 +1900,18 @@ About nine days of compute, stated plainly rather than presented as a headline n
 and contingencies excluded. Round 3 found version 3 quoting a total that omitted arms it had just
 registered; that is not repeated. The main run is the part that must complete; the arms and the
 refit cap are separately resumable and separately reportable.
+
+**The realized cost is reported against this budget, and the budget is not revised to match it.**
+Three fatal findings in this protocol have been budget arithmetic, and every fix so far has been to
+the arithmetic, because until the run started there was nothing to check it against.
+`R/19-realized-cost.R` reads the per-replicate wall clock off the gaps between consecutive
+checkpoint files, which needs no instrumentation inside the fitting code and excludes startup, and
+reports it beside the figure above. **At the first checkpoints the frequentist pass is running at
+1.93 times its budgeted per-replicate cost**, projecting 50 h against the 25.9 h booked here; the unit
+price was measured on a machine with no other R process, and this one is also running the operating
+system's media and metadata indexers. The rule is the same one the refit cap follows: a run costing
+more than its estimate is a fact about the estimate, and editing the estimate afterwards would destroy
+the only evidence of it. The paper reports both numbers.
 
 **Every total here is the sum of its rounded components, not a rounded sum.** Round 6 found the arms
 table printing $10.6 + 6.1 + 6.1$ against a total of 22.9. Both were correct in their own terms, which

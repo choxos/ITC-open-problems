@@ -875,6 +875,13 @@ check("the total table's own column adds up",
       and near(sum(_parts), _tot),
       f"{_parts} sums to {sum(p for p in _parts if p is not None)}, printed {_tot}")
 
+check("the realized run cost is reported against the budget",
+      "R/19-realized-cost.R` reads the per-replicate wall clock" in PROTOCOL,
+      "nothing checks the registered budget against the run it budgets")
+check("the budget is not revised to match the realized cost",
+      "editing the estimate afterwards would destroy" in PROTOCOL,
+      "the protocol does not forbid retrofitting the budget to the run")
+
 # --- the sensitivity program --------------------------------------------------
 SENS_TBL = table_after("reruns bootstrap")
 SENS_SET = DESIGN["budget"]["sens_table"]
