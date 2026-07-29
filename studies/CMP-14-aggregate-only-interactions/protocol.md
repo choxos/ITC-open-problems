@@ -8,7 +8,7 @@ part on IDN-06 *ML-NMR interactions can rest solely on aggregate-data variation*
 
 **Provenance.** Every number this document prints is exported from the code that computes it
 by `R/05-export.R`, and `review/verify-protocol.py` asserts the document against that export,
-currently **72** assertions. The four controls in section 5 are asserted against the values
+currently **81** assertions. The four controls in section 5 are asserted against the values
 that made them pass, not merely described, because section 8 concedes that two of them were
 weakened after they failed.
 
@@ -288,6 +288,24 @@ separate either from `additivity`.
   advertised; that is reported as a defect in the proposed replacement, not hidden.
 - If `curvature` proves **estimable with equal aggregate SDs** on the logit link, the mechanism
   above is wrong and the state is withdrawn entirely.
+
+**E2 has been run and none of the three conditions fires.** It was run after these rules were
+committed, so the rules are registered with respect to it even though E1's are not.
+
+| registered rule | fires? |
+|---|:--:|
+| contraction separates `additivity` from `ecological` | no |
+| contraction separates `additivity` from `curvature` | no |
+| target ratio separates `additivity` from `ecological` | no |
+| target ratio separates `additivity` from `curvature` | no |
+| `source_share` separates `curvature` from `ecological` | no; both take the value 0 |
+| `curvature` estimable with equal aggregate SDs | no |
+
+**E1's conclusion is therefore not withdrawn**, and the corrected thesis holds on the nonlinear
+link: `curvature` and `ecological` are the same kind of evidence, both scoring 0 on the share of
+likelihood precision contributed by randomized within-study rows, while `own_ipd` and
+`additivity` both score 1. The two summaries CMP-14 asks for separate none of these four states
+from each other.
 
 ## 8. Every design choice changed after seeing a number
 

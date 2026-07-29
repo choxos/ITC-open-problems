@@ -77,8 +77,9 @@ REQUIRED_KEYS = [
     "probe_null_cover_min", "probe_null_cover_max",
     "contract_ok", "eff_ratio_ok", "source_ok", "cover_bad", "nominal",
     "spreads", "discord", "total_n", "prior_sd", "synergy", "states",
-    "curvature_rank",
-    "e2_link", "e2_states", "e2_n_rep", "e2_scenarios", "gamma_w",
+    "curvature_rank", "e2_rules", "e2_withdraw_e1",
+    "e2_share_separates_curvature", "e2_by_state",
+    "e2_link", "e2_states", "e2_sd_ratio", "e2_base_p", "gamma_w",
 ]
 for k in REQUIRED_KEYS:
     check(f"the export carries {k}", k in DESIGN,
@@ -213,6 +214,30 @@ check("the probe inversion is real",
 check("the probe's null control is nominal",
       DESIGN["probe_null_cover_min"] >= 0.94,
       f"probe null coverage from {DESIGN['probe_null_cover_min']}")
+
+# --- E2's verdict, bound to the run rather than typed beside it -------------
+E2T = table_after("| registered rule | fires? |")
+check("the E2 verdict table has one row per registered rule",
+      len(E2T) == len(DESIGN["e2_rules"]) + 2,
+      f"{len(E2T)} rows against {len(DESIGN['e2_rules'])} separation rules "
+      "plus the source-share and equal-SD conditions")
+check("no registered E2 rule fires",
+      all(r["separates"] is False for r in DESIGN["e2_rules"])
+      and all("| no" in r for r in E2T),
+      f"{DESIGN['e2_rules']}")
+check("E1's conclusion is not withdrawn",
+      DESIGN["e2_withdraw_e1"] is False
+      and "**E1's conclusion is therefore not withdrawn**" in PROTOCOL,
+      "the document and the run disagree about the verdict")
+check("source share does not separate curvature from ecological",
+      DESIGN["e2_share_separates_curvature"] is False
+      and DESIGN["e2_curvature_share"] == DESIGN["e2_ecological_share"],
+      f"curvature {DESIGN['e2_curvature_share']}, "
+      f"ecological {DESIGN['e2_ecological_share']}")
+check("E2 is stated to have been run after its rules were committed",
+      "It was run after these rules were\ncommitted" in RAW
+      or "run after these rules were committed" in PROTOCOL,
+      "the registration order of E2 is not stated")
 
 # The header cites how many assertions guard the document, so that number has to
 # be the number that ran.

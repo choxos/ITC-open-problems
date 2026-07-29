@@ -23,7 +23,8 @@ source("R/03-run-e1.R")
 
 REQUIRED <- c("results/e1.rds", "results/state-probe.rds",
               "results/collision-probe.rds", "results/anticorrelation-probe.rds",
-              "results/curvature-rank.rds")
+              "results/curvature-rank.rds", "results/e2.rds",
+              "results/e2-verdict.rds")
 missing <- REQUIRED[!file.exists(REQUIRED)]
 if (length(missing))
   stop("the export is missing artifacts the protocol quotes, so the verifier ",
@@ -50,7 +51,7 @@ out$cover_bad <- COVER_BAD
 out$nominal <- NOMINAL
 out$diagnostics <- DIAGNOSTICS
 out$e2_link <- E2_LINK; out$e2_states <- E2_STATES
-out$e2_n_rep <- E2_N_REP; out$e2_scenarios <- E2_SCENARIOS
+out$e2_sd_ratio <- E2_SD_RATIO; out$e2_base_p <- E2_BASE_P
 
 ## --- the grid, counted from the grid rather than from memory ----------------
 out$n_scenarios <- nrow(d)
@@ -121,6 +122,23 @@ out$curvature_rank <- list(
   equal_sd_identity_estimable = cr$check[["1"]]$identity_estimable,
   unequal_sd_logit_estimable = cr$check[["2"]]$logit_estimable,
   unequal_sd_identity_estimable = cr$check[["2"]]$identity_estimable)
+
+## --- E2, run after its rules were committed ---------------------------------
+e2 <- readRDS("results/e2.rds"); ev <- readRDS("results/e2-verdict.rds")
+out$e2_n_scenarios <- nrow(e2)
+out$e2_rules <- lapply(seq_len(nrow(ev$rules)), function(i)
+  list(rule = ev$rules$rule[i], separates = ev$rules$separates[i]))
+out$e2_withdraw_e1 <- ev$withdraw_e1
+out$e2_share_separates_curvature <- ev$share_separates_curvature
+out$e2_curvature_share <- ev$curvature_share
+out$e2_ecological_share <- ev$ecological_share
+out$e2_by_state <- lapply(split(e2, e2$state), function(z) list(
+  state = z$state[1], n = nrow(z),
+  cover_min = round(min(z$coverage), 3), cover_max = round(max(z$coverage), 3),
+  contract_min = round(min(z$contraction), 4),
+  contract_max = round(max(z$contraction), 4),
+  share_within = if (all(is.na(z$share_within))) NA_real_ else
+    unique(round(z$share_within[!is.na(z$share_within)], 3))))
 
 writeLines(toJSON(out, auto_unbox = TRUE, digits = 8, null = "null"),
            "results/registered-design.json")
