@@ -133,16 +133,37 @@ SOURCE_OK    <- 0.50
 COVER_BAD <- 0.90
 NOMINAL   <- 0.95
 
-## --- E2, the fitted arm, registered and blocked ------------------------------
-## The aggregate-curvature state exists only on a nonlinear link: there the
-## aggregate arm mean depends on the covariate VARIANCE as well as its mean, so
-## a single aggregate study carries interaction information with no between-study
-## contrast at all. That state cannot be represented in the exact arm and it is
-## the one CMP-14 is named for, so E2 fits real ML-NMR models on a logit link.
-## It is registered here and cannot start until the machine is free.
-E2_LINK      <- "logit"
-E2_STATES    <- c("own_ipd", "additivity", "ecological", "curvature", "absent")
-E2_N_REP     <- 200L
-E2_SCENARIOS <- 24L
+## --- E2, the nonlinear arm ---------------------------------------------------
+##
+## Round 1 found E2 registered as a fitted `multinma` arm whose sampler policy,
+## refit rule, failure handling, grid, sample sizes and priors did not exist
+## anywhere, while the protocol said they were "registered in R/00-config.R
+## alongside the rest". They are registered here now, and E2 is no longer claimed
+## to be fitted: it is an asymptotic calculation from the Fisher information of a
+## logistic component model (R/06-nonlinear.R), which needs no sampler and
+## therefore no sampler policy.
+E2_LINK   <- "logit"
+E2_STATES <- c("own_ipd", "additivity", "ecological", "curvature", "absent")
+
+## The curvature state is identified by a contrast in covariate SDs, not means.
+## Ratio 1.0 is the negative control: equal SDs must identify nothing, on either
+## link, which is what makes the state nonlinear-only rather than merely weak.
+E2_SD_RATIO <- c(1.0, 1.5, 3.0)
+
+## A reduced factorial, because E2 exists to test whether E1's conclusion
+## survives a nonlinear link rather than to re-map the whole surface. The levels
+## kept are the ones E1 found the conclusion turns on: the between-study spread,
+## the discordance, and the prior scale spanning tight to weak.
+E2_SPREADS  <- c(0.6, 2.0)
+E2_DISCORD  <- c(0.00, 0.40)
+E2_TOTAL_N  <- c(3000L, 10000L)
+E2_PRIOR_SD <- c(0.1, 1.0)
+E2_SYNERGY  <- c(0.00, 0.20)
+
+## The outcome prevalence the logistic model is centred on. Away from 0.5,
+## because that is where the link is most curved and where an aggregate arm's
+## dependence on the covariate variance is strongest; at exactly 0.5 the
+## second-order term that carries the curvature route is smallest.
+E2_BASE_P <- 0.30
 
 SEED <- 20260729L
