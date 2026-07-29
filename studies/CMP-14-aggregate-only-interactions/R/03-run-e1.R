@@ -22,7 +22,7 @@ source("R/02-diagnostics.R")
 ##     only `ecological` has. Same argument.
 build_grid <- function() {
   g <- expand.grid(state = STATES, spread = SPREADS, discord = DISCORD,
-                   n = ARM_N, prior_sd = PRIOR_SD, synergy = SYNERGY,
+                   n = TOTAL_N, prior_sd = PRIOR_SD, synergy = SYNERGY,
                    KEEP.OUT.ATTRS = FALSE, stringsAsFactors = FALSE)
   g <- g[!(g$synergy != 0 & g$state != "additivity"), ]
   g <- g[!(g$discord != 0 & g$state != "ecological"), ]
@@ -78,10 +78,35 @@ main <- function() {
   wide <- res$prior_sd >= 0.5
   null_rows <- res[res$discord == 0 & res$synergy == 0 & wide &
                      res$state != "absent", ]
-  bad <- null_rows[null_rows$coverage < 0.94, ]
-  if (nrow(bad))
-    stop("the null control is not nominal in ", nrow(bad), " scenarios; any ",
-         "collapse elsewhere cannot be attributed to confounding")
+  ## Round 1 found this testing only for UNDERcoverage while its name promised
+  ## nominality, so a scenario covering at 0.999 would have passed. Checked
+  ## two-sided, it fails: five scenarios cover at 0.962 to 0.986.
+  ##
+  ## THE OVERCOVERAGE IS REAL AND IS NOT A DEFECT, so the control is restated
+  ## rather than re-thresholded. All five are `ecological` at the smallest
+  ## between-study spread with a shrinkage prior, where the posterior SD exceeds
+  ## the sampling SD of its own centre (0.400 against 0.240 in the worst case).
+  ## That is ordinary Bayesian shrinkage producing a conservative interval, and
+  ## it is the harmless end of prior domination: the prior supplies most of the
+  ## precision and the answer is still right.
+  ##
+  ## The control therefore asserts NO UNDERCOVERAGE, which is what matters for a
+  ## study about intervals that miss, and separately requires the overcoverage to
+  ## be confined to the mechanism just named. A control whose exceptions are
+  ## characterized is a control; one whose threshold is widened until it passes
+  ## is not, and this is the fourth guard in this file to be changed after
+  ## failing.
+  under <- null_rows[null_rows$coverage < NOMINAL - 0.01, ]
+  if (nrow(under))
+    stop("the null control undercovers in ", nrow(under), " scenarios ",
+         "(coverage ", sprintf("%.3f to %.3f", min(under$coverage),
+                               max(under$coverage)),
+         "); any collapse elsewhere cannot be attributed to confounding")
+  over <- null_rows[null_rows$coverage > NOMINAL + 0.01, ]
+  if (nrow(over) && !all(over$state == "ecological" &
+                         over$spread <= 0.6 & over$post_sd > over$samp_sd))
+    stop("the null control overcovers outside the shrinkage mechanism it is ",
+         "attributed to, in ", nrow(over), " scenarios")
 
   ## Measured before being asserted, after two guards written from expectation
   ## rather than from the numbers both failed. At the tight prior the collapse is
@@ -89,14 +114,42 @@ main <- function() {
   ## grows, which is correct behavior and not something to assert away: at
   ## n = 1000 coverage recovers to 0.94, 0.84 and 0.80. The control is therefore
   ## stated at the smallest arm size, where the prior is unambiguously in charge.
-  tight <- res[res$prior_sd == min(PRIOR_SD) & res$n == min(ARM_N) &
+  tight <- res[res$prior_sd == min(PRIOR_SD) & res$n == min(TOTAL_N) &
                  res$discord == 0 & res$synergy == 0 & res$state != "absent", ]
+  ## Round 1: "collapse in every state alike" was asserted and only "below
+  ## nominal in every state" was tested, which is a much weaker claim and does
+  ## not support the word alike. Both halves are now checked: every state must be
+  ## below nominal, AND the spread across states must be small enough that the
+  ## failure is attributable to the prior rather than to the evidence structure.
   by_state <- tapply(tight$coverage, tight$state, max)
-  if (any(by_state >= 0.94))
-    stop("the tight prior does not dominate in every state at the smallest arm ",
-         "size (max coverage ",
+  if (any(by_state >= NOMINAL - 0.01))
+    stop("the tight prior does not depress every state at the smallest budget ",
+         "(max coverage ",
          paste(sprintf("%s=%.3f", names(by_state), by_state), collapse = ", "),
          "); the prior-domination control does not hold")
+  ## "ALIKE" IS WITHDRAWN. The first statement of this control claimed the tight
+  ## prior depresses every state alike; checked, the mean bias runs -0.114 in
+  ## `additivity`, -0.177 in `own_ipd` and -0.278 in `ecological`, a spread of
+  ## 0.165 against a truth of 0.40. The prior pulls every state toward zero, but
+  ## by an amount that depends on how much likelihood information the state has
+  ## to resist with, which is exactly what one should expect and is not what the
+  ## word alike says.
+  ##
+  ## What the control can honestly assert is the part that carries the argument:
+  ## the pull is in the SAME DIRECTION in every state, so the failure is the
+  ## prior's and not a property of any one evidence structure. Its magnitude
+  ## ordering is reported as a finding rather than asserted away, and it points
+  ## the right way: the state with the least information is hurt the most.
+  bias_by_state <- tapply(tight$bias, tight$state, mean)
+  if (!all(bias_by_state < 0))
+    stop("the tight prior does not pull every state toward zero: ",
+         paste(sprintf("%s=%+.3f", names(bias_by_state), bias_by_state),
+               collapse = ", "))
+  if (which.min(bias_by_state) != which(names(bias_by_state) == "ecological"))
+    stop("the tight prior does not hurt the least-informed state most, so the ",
+         "stated mechanism does not hold: ",
+         paste(sprintf("%s=%+.3f", names(bias_by_state), bias_by_state),
+               collapse = ", "))
 
   ## THE POSITIVE CONTROL FOR THE DIAGNOSTICS. With no likelihood information at
   ## all the posterior is the prior, so the answer is right when the prior is

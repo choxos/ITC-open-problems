@@ -33,40 +33,49 @@ PBO <- numeric(K_COMP)
 ##
 ## Components 1, 2 and 4 are always in state A with their own individual-data
 ## trials, so the network is otherwise well identified. Only component 3 moves.
-## Every state carries the SAME total number of patients, so a difference
-## between states is a difference of evidence structure and not of sample size.
-## The first version of this file did not equalize them and state E looked worse
-## than state A partly because it had one study fewer.
-build_state <- function(state, spread, n) {
+##
+## THE PATIENT BUDGET IS EQUALIZED, AND IN THE FIRST VERSION IT WAS NOT.
+## Round 1 found every arm given `n` patients while `additivity` has twelve arms
+## against the others' ten, so it ran on 20% more data, and a comment here
+## asserted the totals were equal. The states are now built first and the arm
+## size is derived by dividing `total_n` among however many arms that state has,
+## so a difference between states is a difference of evidence structure alone.
+build_state <- function(state, spread, total_n) {
   base <- list(
-    list(ipd = TRUE, mu = 0.0, sd = 1, n = n, arms = list(PBO, e_vec(1))),
-    list(ipd = TRUE, mu = 0.2, sd = 1, n = n, arms = list(PBO, e_vec(2))),
-    list(ipd = TRUE, mu = 0.1, sd = 1, n = n, arms = list(PBO, e_vec(4))))
+    list(ipd = TRUE, mu = 0.0, sd = 1, arms = list(PBO, e_vec(1))),
+    list(ipd = TRUE, mu = 0.2, sd = 1, arms = list(PBO, e_vec(2))),
+    list(ipd = TRUE, mu = 0.1, sd = 1, arms = list(PBO, e_vec(4))))
   target <- switch(state,
     own_ipd = list(
-      list(ipd = TRUE, mu = 0.1 - spread / 2, sd = 1, n = n,
+      list(ipd = TRUE, mu = 0.1 - spread / 2, sd = 1,
            arms = list(PBO, e_vec(3))),
-      list(ipd = TRUE, mu = 0.1 + spread / 2, sd = 1, n = n,
+      list(ipd = TRUE, mu = 0.1 + spread / 2, sd = 1,
            arms = list(PBO, e_vec(3)))),
     additivity = list(
-      list(ipd = TRUE, mu = 0.1 - spread / 2, sd = 1, n = n,
+      list(ipd = TRUE, mu = 0.1 - spread / 2, sd = 1,
            arms = list(PBO, e_vec(1), e_vec(1, 3))),
-      list(ipd = TRUE, mu = 0.1 + spread / 2, sd = 1, n = n,
+      list(ipd = TRUE, mu = 0.1 + spread / 2, sd = 1,
            arms = list(PBO, e_vec(1), e_vec(1, 3)))),
     ecological = list(
-      list(ipd = FALSE, mu = 0.1 - spread / 2, sd = 1, n = n,
+      list(ipd = FALSE, mu = 0.1 - spread / 2, sd = 1,
            arms = list(PBO, e_vec(3))),
-      list(ipd = FALSE, mu = 0.1 + spread / 2, sd = 1, n = n,
+      list(ipd = FALSE, mu = 0.1 + spread / 2, sd = 1,
            arms = list(PBO, e_vec(3)))),
     absent = list(
       ## Two studies of the same total size that do not touch component 3, so
       ## the absent state is not also a smaller study.
-      list(ipd = TRUE, mu = 0.1 - spread / 2, sd = 1, n = n,
+      list(ipd = TRUE, mu = 0.1 - spread / 2, sd = 1,
            arms = list(PBO, e_vec(1))),
-      list(ipd = TRUE, mu = 0.1 + spread / 2, sd = 1, n = n,
+      list(ipd = TRUE, mu = 0.1 + spread / 2, sd = 1,
            arms = list(PBO, e_vec(2)))),
     stop("unregistered information state: ", state))
-  net <- make_network(c(base, target))
+  studies <- c(base, target)
+  ## Divide the budget by the number of ARMS this state contains, so every state
+  ## enrolls the same patients however many arms its structure needs.
+  n_arms <- sum(vapply(studies, function(z) length(z$arms), 0L))
+  per_arm <- total_n / n_arms
+  studies <- lapply(studies, function(z) { z$n <- per_arm; z })
+  net <- make_network(studies)
   ## `make_network` drops all-zero component columns when no arm uses them, which
   ## would silently change the parameter vector's length between states.
   for (k in seq_len(K_COMP)) {
@@ -147,8 +156,18 @@ mean_true <- function(b, discord, synergy) {
 }
 
 ## --- the exact posterior and exact coverage ---------------------------------
+## The prior precision, with the registered interaction prior applied ONLY to the
+## interaction coefficients. Round 1 found a single scale applied to every
+## coordinate, so a result attributed to the interaction prior could have been
+## shrinkage of study intercepts and main effects whose true values are nonzero.
+prior_precision <- function(b, prior_sd) {
+  sd_vec <- rep(PRIOR_SD_NUISANCE, b$p)
+  sd_vec[b$S + b$K + 1 + seq_len(b$K)] <- prior_sd
+  diag(1 / sd_vec^2, b$p)
+}
+
 exact_fit <- function(b, prior_sd, discord, synergy) {
-  P0 <- diag(1 / prior_sd^2, b$p)
+  P0 <- prior_precision(b, prior_sd)
   W <- b$prec
   I <- crossprod(b$X * sqrt(W))
   Vpost <- solve(I + P0)

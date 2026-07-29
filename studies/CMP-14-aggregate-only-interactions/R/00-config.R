@@ -67,8 +67,23 @@ SPREADS <- c(0.3, 0.6, 1.0, 1.4, 2.0, 3.0)
 ## observed elsewhere is a property of the geometry rather than of confounding.
 DISCORD <- c(0.00, 0.15, 0.40)
 
-## Arm size, and prior scale on the interaction coefficients.
-ARM_N      <- c(100L, 300L, 1000L)
+## THE PATIENT BUDGET, not the arm size. Round 1 found the states carrying
+## different totals: every arm was given `n` patients and `additivity` has twelve
+## arms against ten, so it ran on 3,600 patients where the others ran on 3,000.
+## Primary 2 then compared an evidence structure that also had 20% more data, and
+## both this file and the protocol asserted the totals were equal.
+##
+## The budget is now fixed per state and divided among that state's arms, so a
+## difference between states is a difference of structure alone.
+TOTAL_N    <- c(1000L, 3000L, 10000L)
+
+## Prior scale on the INTERACTION coefficients, which is the registered factor.
+## Round 1 found `exact_fit` applying it to study intercepts, main effects and
+## the prognostic slope as well, so every reported quantity could have been
+## reflecting shrinkage of nuisance parameters whose true values are nonzero
+## rather than the prior the study varies. The nuisance prior is now separate and
+## deliberately weak: it is not a factor and it must not be doing work.
+PRIOR_SD_NUISANCE <- 10.0
 
 ## Prior scale on the interaction coefficients. The tight end is not decoration.
 ## A first run of the grid without it found the ABSENT state covering the truth

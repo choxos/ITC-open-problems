@@ -76,7 +76,8 @@ REQUIRED_KEYS = [
     "probe_inverts", "probe_best_ecological", "probe_worst_randomized",
     "probe_null_cover_min", "probe_null_cover_max",
     "contract_ok", "eff_ratio_ok", "source_ok", "cover_bad", "nominal",
-    "spreads", "discord", "arm_n", "prior_sd", "synergy", "states",
+    "spreads", "discord", "total_n", "prior_sd", "synergy", "states",
+    "curvature_rank",
     "e2_link", "e2_states", "e2_n_rep", "e2_scenarios", "gamma_w",
 ]
 for k in REQUIRED_KEYS:
@@ -99,7 +100,7 @@ GRID = table_after("| factor | levels |")
 check("the grid table is present", len(GRID) >= 6, f"{len(GRID)} rows")
 LEVELS = {
     "between-study covariate spread": DESIGN["spreads"],
-    "arm size": DESIGN["arm_n"],
+    "total patients per network": DESIGN["total_n"],
     "prior SD on interactions": DESIGN["prior_sd"],
 }
 for label, want in LEVELS.items():
@@ -121,11 +122,11 @@ check("the states table lists every registered state",
 check("the absent state really is prior-only",
       DESIGN["control_absent_min_contraction"] > 0.999,
       f"min contraction {DESIGN['control_absent_min_contraction']}")
-check("the null control really is nominal",
-      DESIGN["control_null_min_coverage"] >= 0.94,
+check("the null control does not undercover",
+      DESIGN["control_null_min_coverage"] >= DESIGN["nominal"] - 0.01,
       f"min coverage {DESIGN['control_null_min_coverage']}")
 tight = DESIGN["control_tight_max_coverage"]
-check("the tight prior dominates every state at the smallest arm size",
+check("the tight prior depresses every state at the smallest budget",
       all(v < 0.94 for v in tight.values()),
       f"max coverage per state {tight}")
 byp = DESIGN["control_absent_cover_by_prior"]
@@ -134,10 +135,19 @@ check("the grid holds both a harmless and a harmful prior-driven parameter",
       f"absent-state coverage by prior SD {byp}")
 check("the protocol lists all four controls",
       RAW.count("\n1. **Absent is prior-only.**") == 1
-      and "**Null control.**" in PROTOCOL
-      and "**Prior-domination positive control.**" in PROTOCOL
+      and "**The null control does not undercover.**" in PROTOCOL
+      and "**The tight prior pulls every state toward zero, and hurts the "
+          "least-informed state most.**" in PROTOCOL
       and "**Both kinds of prior-driven parameter are present.**" in PROTOCOL,
       "a control described in section 5 is missing")
+# The two controls round 1 found overpromising must state what they now test,
+# not merely that they pass.
+check("the null control no longer claims nominality",
+      "It is *not* claimed to be nominal" in PROTOCOL,
+      "the control still promises more than it checks")
+check("the prior-domination control withdraws the word alike",
+      '**"Alike" is withdrawn.**' in PROTOCOL,
+      "the withdrawn claim is still standing")
 
 # --- the primary outcomes ----------------------------------------------------
 check("primary 1 is stated as an existence claim, not an average",
@@ -163,15 +173,38 @@ check("E2 is declared confirmatory and unrun",
       and "It has not been run" in PROTOCOL,
       "E2's status is not stated")
 DISC = table_after("| change | why | what it would have hidden |")
-check("the disclosure list has one row per change made after seeing a number",
-      len(DISC) == 4, f"{len(DISC)} rows")
-check("the disclosure names the weakened guards",
-      "written from expectation rather than from measurement, and both\nfailed" in RAW,
-      "the weakened guards are not named as such")
+check("the disclosure list covers both rounds of changes",
+      len(DISC) >= 10 and sum("**Round 1:**" in r for r in DISC) >= 7,
+      f"{len(DISC)} rows, {sum('**Round 1:**' in r for r in DISC)} from round 1")
+check("the disclosure counts the guards that were weakened",
+      "Five of these are guards that were written from expectation, failed, and were changed"
+      in PROTOCOL,
+      "the weakened guards are not counted")
+check("round 1's single-reviewer status is recorded",
+      "Round 1 was a single reviewer" in PROTOCOL
+      and "neither is counted as agreement" in PROTOCOL,
+      "the unavailable reviewers are not recorded as not obtained")
 check("E2 carries a condition that would withdraw E1's conclusion",
-      "then E1's central claim is an artifact of the identity link and is withdrawn"
+      "then E1's central claim is an artifact of the identity link and **is withdrawn**"
       in PROTOCOL,
       "E2 has no registered falsifier for E1")
+check("E2's rule names the states E2 exists to compare",
+      "separates `additivity`\nfrom `ecological` or from `curvature`" in RAW
+      or "separates `additivity` from `ecological` or from `curvature`" in PROTOCOL,
+      "the withdrawal rule still compares the wrong states")
+check("E2 is not claimed to be fitted",
+      "**Every E2 coverage figure is a normal approximation and is labeled as one.**"
+      in PROTOCOL and "It is not a fitted arm" in PROTOCOL,
+      "E2 overstates what it runs")
+# The curvature mechanism is a claim about rank and is asserted against the check.
+CURV = DESIGN["curvature_rank"]
+check("the curvature state is unidentified with equal aggregate SDs",
+      CURV["equal_sd_logit_estimable"] is False,
+      "equal SDs identify the target, so the stated mechanism is wrong")
+check("the curvature state is identified on the logit link only",
+      CURV["unequal_sd_logit_estimable"] is True
+      and CURV["unequal_sd_identity_estimable"] is False,
+      "curvature is not a nonlinear-only state")
 
 # --- the groundwork the protocol's section 3 rests on ------------------------
 check("the probe inversion is real",

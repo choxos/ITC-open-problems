@@ -22,7 +22,8 @@ Sys.setenv(E1_NOMAIN = "1")
 source("R/03-run-e1.R")
 
 REQUIRED <- c("results/e1.rds", "results/state-probe.rds",
-              "results/collision-probe.rds", "results/anticorrelation-probe.rds")
+              "results/collision-probe.rds", "results/anticorrelation-probe.rds",
+              "results/curvature-rank.rds")
 missing <- REQUIRED[!file.exists(REQUIRED)]
 if (length(missing))
   stop("the export is missing artifacts the protocol quotes, so the verifier ",
@@ -38,7 +39,8 @@ out$gamma_w <- GAMMA_W
 out$states <- STATES
 out$spreads <- SPREADS
 out$discord <- DISCORD
-out$arm_n <- ARM_N
+out$total_n <- TOTAL_N
+out$prior_sd_nuisance <- PRIOR_SD_NUISANCE
 out$prior_sd <- PRIOR_SD
 out$synergy <- SYNERGY
 out$contract_ok <- CONTRACT_OK
@@ -95,7 +97,7 @@ out$control_absent_min_contraction <- round(min(abs_rows$contraction), 4)
 wide <- d$prior_sd >= 0.5
 nullr <- d[d$discord == 0 & d$synergy == 0 & wide & d$state != "absent", ]
 out$control_null_min_coverage <- round(min(nullr$coverage), 4)
-tight <- d[d$prior_sd == min(PRIOR_SD) & d$n == min(ARM_N) &
+tight <- d[d$prior_sd == min(PRIOR_SD) & d$n == min(TOTAL_N) &
              d$discord == 0 & d$synergy == 0 & d$state != "absent", ]
 out$control_tight_max_coverage <- as.list(round(tapply(tight$coverage,
                                                        tight$state, max), 3))
@@ -110,6 +112,15 @@ out$probe_worst_randomized <- signif(max(cp$E[, 1]), 4)
 ac <- readRDS("results/anticorrelation-probe.rds")
 out$probe_null_cover_min <- round(min(ac$null_coverage), 3)
 out$probe_null_cover_max <- round(max(ac$null_coverage), 3)
+
+## --- E2's curvature mechanism, checked rather than asserted -----------------
+cr <- readRDS("results/curvature-rank.rds")
+out$curvature_rank <- list(
+  holds = cr$holds,
+  equal_sd_logit_estimable = cr$check[["1"]]$logit_estimable,
+  equal_sd_identity_estimable = cr$check[["1"]]$identity_estimable,
+  unequal_sd_logit_estimable = cr$check[["2"]]$logit_estimable,
+  unequal_sd_identity_estimable = cr$check[["2"]]$identity_estimable)
 
 writeLines(toJSON(out, auto_unbox = TRUE, digits = 8, null = "null"),
            "results/registered-design.json")

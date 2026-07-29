@@ -8,7 +8,7 @@ part on IDN-06 *ML-NMR interactions can rest solely on aggregate-data variation*
 
 **Provenance.** Every number this document prints is exported from the code that computes it
 by `R/05-export.R`, and `review/verify-protocol.py` asserts the document against that export,
-currently **64** assertions. The four controls in section 5 are asserted against the values
+currently **72** assertions. The four controls in section 5 are asserted against the values
 that made them pass, not merely described, because section 8 concedes that two of them were
 weakened after they failed.
 
@@ -74,16 +74,37 @@ Each source of evidence is a different linear functional of $\Gamma$:
 | **own_ipd** | its own individual-data trial; within-study covariate variation | yes | ✓ | ✓ |
 | **additivity** | only inside the combination $1{+}k$, alongside an arm for 1 alone, so the slope difference is exactly $\Gamma_k$ | yes, if additivity holds | ✓ | ✓ |
 | **ecological** | only in aggregate studies, so only the contrast between reported covariate means | **no** | ✓ | ✓ |
-| **curvature** | a single aggregate study on a **nonlinear** link, whose arm mean depends on the covariate variance | yes, but weak | — | ✓ |
+| **curvature** | two aggregate studies at the **same covariate mean** and **different covariate SDs**, on a **nonlinear** link | **no** | — | ✓ |
 | **absent** | nothing; the coordinate is rank-deficient | n/a | ✓ | ✓ |
 
 **`additivity` is the state component methods create and no other design has**, and
 **`curvature` exists only on a nonlinear link**, which is why CMU-02's identity-link design
 could not contain it and why E2 is necessary rather than decorative.
 
+**The curvature state was specified wrongly in the first version and round 1 caught it.** That
+version said a *single* aggregate study identifies the interaction because its arm mean depends
+on the covariate variance. Depending on the variance does not create a second observation: one
+aggregate arm supplies one proportion for two unknown target parameters, $\delta_3$ and
+$\Gamma_3$, so the information is rank one and a change in one is absorbed by the other. The
+corrected state uses **two** aggregate studies at the same covariate mean and different
+covariate SDs. Verified rather than asserted (`R/06-nonlinear.R`): with equal SDs the target is
+not estimable on either link, because the two studies give identical equations; with unequal
+SDs it is not estimable on the identity link and **is** estimable on the logit link. That is
+precisely what makes `curvature` a nonlinear-only state.
+
+**A consequence sharper than the original framing.** The curvature route is still a
+*between-study* contrast; the link's nonlinearity changes only which moment of the covariate
+distribution carries it, from the mean to the variance. Nobody randomized a study's covariate
+spread any more than its covariate mean. So **every aggregate-only route is an unrandomized
+between-study route**, and a summary that groups them together is not failing to distinguish
+them; it is refusing to distinguish two things that are the same kind of evidence.
+
 The target is component 3 throughout. Components 1, 2 and 4 stay in `own_ipd`, so the network
 is otherwise well identified and the target's behavior is not confounded with a globally weak
-design. Every state carries the same total number of patients.
+design. **Every state enrolls the same total number of patients**, which is enforced by
+dividing a registered budget among however many arms a state's structure needs; the first
+version gave every arm the same size and `additivity`, which has twelve arms against the
+others' ten, silently ran on 20% more data.
 
 ## 3. Estimand
 
@@ -118,11 +139,26 @@ diagnostic would carry sampling noise of unknown size and a failure to flag coul
 separated from a failure to converge. With a conjugate Gaussian model the posterior, the
 coverage and every diagnostic are closed form, so a failure belongs to the diagnostic.
 
-**A consequence that is a result, not a convenience.** The posterior covariance is
-$(I + P_0)^{-1}$, which contains no data. **Contraction and effective likelihood rank are
-therefore functions of the design alone, computable before a single patient is enrolled.**
-Whatever they measure, it cannot be anything about what the data turned out to say. The unit
-of analysis is consequently the scenario, and there is no replicate count.
+**A consequence that is a result, not a convenience, stated more carefully than in the first
+version.** The posterior covariance is $(I + P_0)^{-1}$, which does not involve the outcomes.
+**Contraction and effective likelihood rank therefore depend on the data only through the
+realized covariate design, never through what the outcomes turned out to say.** Whatever these
+summaries measure, it is not the content of the evidence.
+
+The first version overstated this as "functions of the design alone, computable before a single
+patient is enrolled", and round 1 was right to reject it: for individual data the information
+is $X'X/\sigma^2$, which depends on the covariates actually observed, so realized contraction
+does carry replicate-level variation. E1 represents each individual-data arm by its
+Gauss-Hermite nodes, which is the **expected** covariate design, so every E1 number is exact
+for a study whose covariate distribution is realized exactly and is an expectation otherwise.
+The unit of analysis is the scenario **conditional on that design**, and that conditioning is a
+limitation carried in section 9 rather than a property being claimed.
+
+**The interaction prior is applied to the interactions only.** The first version set one prior
+scale on every coordinate, so a result attributed to the registered factor could have been
+shrinkage of study intercepts and main effects whose true values are nonzero. Nuisance
+coefficients now carry a fixed weak `PRIOR_SD_NUISANCE = 10`, which is not a factor and must
+not be doing work.
 
 **The grid**, a full factorial with two structural restrictions (`R/03-run-e1.R`):
 
@@ -131,7 +167,7 @@ of analysis is consequently the scenario, and there is no replicate count.
 | information state | own_ipd, additivity, ecological, absent |
 | between-study covariate spread | 0.3, 0.6, 1.0, 1.4, 2.0, 3.0 |
 | discordance $\Gamma_B - \Gamma_W$ | 0.00, 0.15, 0.40 (ecological only) |
-| arm size | 100, 300, 1000 |
+| total patients per network | 1000, 3000, 10000 |
 | prior SD on interactions | 0.1, 0.5, 1.0, 2.5 |
 | synergy (additivity violated) | 0.00, 0.20 (additivity only) |
 
@@ -140,14 +176,25 @@ synergy only through arms holding components 1 and 3 together, so carrying eithe
 state that has neither would add scenarios bit-identical to their zero twins and inflate
 every count.
 
-**Four controls, all of which must hold or the run stops** (`R/03-run-e1.R`):
+**Four controls, all of which must hold or the run stops** (`R/03-run-e1.R`). Each is stated
+as what it actually tests, after round 1 found two of them promising more than they checked.
 
 1. **Absent is prior-only.** Contraction $> 0.999$ in every absent scenario.
-2. **Null control.** With no discordance, no synergy and a prior that is not itself the
-   problem, coverage is nominal.
-3. **Prior-domination positive control.** At the tightest prior and smallest arm size,
-   coverage is below nominal in *every* state alike, which is what shows the mechanism is the
-   prior and not the evidence structure.
+2. **The null control does not undercover.** With no discordance, no synergy and a prior that
+   is not itself the problem, no scenario covers below nominal. It is *not* claimed to be
+   nominal: five scenarios overcover, at 0.962 to 0.986, and all five are `ecological` at the
+   smallest between-study spread where the posterior SD exceeds the sampling SD of its own
+   centre (0.400 against 0.240 at worst). That is ordinary shrinkage producing a conservative
+   interval, which is the harmless end of prior domination, and the control requires the
+   overcoverage to be confined to that mechanism rather than widening its threshold until it
+   passes.
+3. **The tight prior pulls every state toward zero, and hurts the least-informed state most.**
+   The first version said it depresses every state *alike*; measured, the mean bias runs
+   $-0.114$ in `additivity`, $-0.177$ in `own_ipd` and $-0.278$ in `ecological`, a spread of
+   0.165 against a truth of 0.40. **"Alike" is withdrawn.** What holds, and what the argument
+   needs, is that the pull is in the same direction everywhere, so the failure belongs to the
+   prior and not to any one evidence structure; the ordering is asserted too, and it points the
+   right way.
 4. **Both kinds of prior-driven parameter are present.** The absent state must cover the truth
    essentially always under a wide prior and essentially never under a tight misplaced one.
    Without both, the grid contains only the harmless kind and the comparison is rigged.
@@ -159,6 +206,16 @@ values taken by *failing* scenarios overlap the range taken by *nominal* ones? A
 compatible with both a nominal and a badly failing scenario establishes that **no threshold
 separates them**, whatever the grid contains. Reported as the most reassuring failure, the
 least reassuring success, and the fraction of the grid lying between them.
+
+**Nominal means nominal.** The first version contrasted failing scenarios with merely
+non-failing ones, which lumps a scenario covering at 0.91 in with one covering at 0.950. An
+overlap established against a 0.91 scenario is not evidence that a threshold cannot separate
+good from bad, because 0.91 is not good. Scenarios between `COVER_BAD` and nominal are neither
+and are excluded from both sides.
+
+**Both forms of effective rank are analyzed.** Round 1 found the whole-model count computed and
+never used, so one of the two summaries CMP-14 actually asks for appeared in no outcome. Primary
+1 now covers the per-parameter likelihood-to-prior ratio *and* the whole-model count.
 
 **Primary 2.** `additivity` against `ecological`, matched on spread, arm size and prior scale,
 with synergy off. This is the comparison CMU-02 could not make. Reported as the pairs whose
@@ -177,44 +234,91 @@ as such.
 A scenario **fails** if coverage of the 95% interval for $\Gamma_{W,3}$ is below
 `COVER_BAD = 0.90`.
 
-## 7. E2: the confirmatory arm, registered blind and not yet run
+## 7. E2: the nonlinear arm, rebuilt after round 1 destroyed its premise
 
 E1 cannot contain the state CMP-14 is named for. On an identity link an aggregate arm mean
 depends only on the covariate mean, so aggregate data carry interaction information *only*
-through the between-study contrast. On a **nonlinear** link the arm mean depends on the
-covariate variance as well, so a single aggregate study carries information with no
-between-study contrast at all. That is the `curvature` state, and whether the two summaries
-distinguish it from `ecological` is the question E1 is structurally unable to answer.
+through the between-study contrast in means. On a nonlinear link the arm mean depends on the
+covariate variance as well, so a contrast in **variances** carries information the identity
+link cannot.
 
-**Registered before running:** logit link, five states including `curvature`, 24 scenarios,
-200 replicates each, fitted with `multinma`. Because the posterior is no longer conjugate,
-contraction acquires genuine replicate-level variation and MCMC error enters, so E2 also
-measures how much of E1's conclusion survives the approximation. Sampler policy, refit rule
-and failure handling are registered in `R/00-config.R` alongside the rest.
+**Round 1 found three defects here and all three held.** The state was rank deficient as
+specified; the registered withdrawal rule compared the wrong pair of states using one of the
+two summaries; and none of E2 existed, while the protocol claimed a sampler policy, refit rule
+and failure handling were "registered in `R/00-config.R` alongside the rest" when that file
+held a link name, five labels and two counts. **That is the registered-but-unimplementable
+defect the previous study in this programme found five times, reappearing in round 1 of this
+one.** It is the reason E2 is now code before it is prose.
 
-**E2 is blocked on hardware**, not on design: the OUT-11 benchmark currently holds the
-machine. It runs when that finishes.
+**What E2 is.** An asymptotic nonlinear arm (`R/06-nonlinear.R`), computed from the Fisher
+information of a logistic component model. A logistic likelihood is not conjugate, so there is
+no closed-form posterior; what *is* closed form is the information, and from it the
+large-sample posterior covariance and the large-sample sampling distribution of the mode.
+**Every E2 coverage figure is a normal approximation and is labeled as one.** The corrected
+`curvature` state is two aggregate studies at the same covariate mean with different covariate
+SDs.
 
-**What E2 would have to show for E1's conclusion to be withdrawn.** If, on a nonlinear link,
-contraction separates `ecological` from `additivity` at any threshold across the 24 scenarios,
-then E1's central claim is an artifact of the identity link and is withdrawn.
+**What E2 is not.** It is not a fitted arm. No `multinma` model is run, no MCMC is involved,
+and no sampler policy is registered, because none is needed for an information calculation and
+registering one would repeat exactly the defect round 1 found. **A fitted arm remains future
+work and is not registered here as a promise.**
+
+**The mechanism, verified rather than asserted** (`R/06-nonlinear.R`):
+
+| aggregate SD ratio | estimable on identity link | estimable on logit link |
+|---|:--:|:--:|
+| 1.0, equal SDs | no | no |
+| 2.0, unequal SDs | no | **yes** |
+
+Equal SDs give two identical equations and identify nothing on either link. Unequal SDs
+identify the target on the logit link and not on the identity link, which is what makes
+`curvature` a nonlinear-only state and is what the first version got wrong.
+
+**The registered rule, now attached to the states E2 exists to compare.** The claim under test
+is that `curvature` and `ecological` are the same *kind* of evidence, both unrandomized
+between-study contrasts differing only in which moment carries them, and that no summary of
+the information matrix should or does separate them from each other while all of them fail to
+separate either from `additivity`.
+
+- If, on the logit link, **contraction or either form of effective rank separates `additivity`
+  from `ecological` or from `curvature` at any threshold** across the E2 scenarios, then E1's
+  central claim is an artifact of the identity link and **is withdrawn**.
+- If **`source_share` separates `curvature` from `ecological`**, then the claim that they are
+  the same kind of evidence is wrong and the statistic is measuring something narrower than
+  advertised; that is reported as a defect in the proposed replacement, not hidden.
+- If `curvature` proves **estimable with equal aggregate SDs** on the logit link, the mechanism
+  above is wrong and the state is withdrawn entirely.
 
 ## 8. Every design choice changed after seeing a number
 
 Recorded because E1 was computed before this document existed, and a disclosure list is the
-only thing that makes an exploratory exact computation interpretable.
+only thing that makes an exploratory exact computation interpretable. Round 1 found the first
+version of this list incomplete; it now covers changes made both before and after that review.
 
 | change | why | what it would have hidden |
 |---|---|---|
-| Added `PRIOR_SD = 0.1` | The first grid had the absent state covering the truth 100% of the time: the likelihood contributes nothing, the posterior is the prior, and a wide prior still contains a truth 0.40 away. The diagnostics' positive control was never a failure, so flagging it counted as a false alarm | It made every diagnostic look worse than it is, by scoring a correct warning as a false alarm |
-| Null-control guard restricted to `prior_sd >= 0.5` | The first version required nominal coverage whenever discordance and synergy are zero, and it failed in 54 scenarios, all at the tight prior. That is the tight prior doing what it was added to do, not a defect | It would have conflated a prior-induced failure with a confounding-induced one |
-| Prior-domination control restated at the smallest arm size | The first version asserted collapse at the tight prior in every state; measured, coverage recovers to 0.94, 0.84 and 0.80 at $n = 1000$ as the likelihood wins. Correct behavior, wrongly asserted away | It would have asserted a false claim about the tight prior's reach |
-| Every state given equal total patients | An earlier layout gave `additivity` one study fewer, so it looked worse than `own_ipd` partly on sample size | A difference of sample size reported as a difference of evidence structure |
+| Added `PRIOR_SD = 0.1` | The first grid had the absent state covering the truth 100% of the time: the likelihood contributes nothing, the posterior is the prior, and a wide prior still contains a truth 0.40 away. The diagnostics' positive control was never a failure | It scored a correct warning as a false alarm, making every diagnostic look worse than it is |
+| Null-control guard restricted to `prior_sd >= 0.5` | The first version required nominal coverage whenever discordance and synergy are zero, and it failed in 54 scenarios, all at the tight prior. That is the tight prior doing what it was added to do | It would have conflated a prior-induced failure with a confounding-induced one |
+| Prior-domination control restated at the smallest budget | The first version asserted collapse at the tight prior in every state; measured, coverage recovers to 0.94, 0.84 and 0.80 at the largest budget as the likelihood wins | It would have asserted a false claim about the tight prior's reach |
+| **Round 1:** total patients equalized across states | Every arm had been given the same size, so `additivity` with twelve arms ran on 20% more data than the others' ten, while both the code and this document claimed the totals were equal | A difference of sample size reported as a difference of evidence structure |
+| **Round 1:** interaction prior separated from nuisance priors | One scale had been applied to every coordinate, including study intercepts and main effects whose true values are nonzero | A result attributed to the registered prior factor that was really nuisance shrinkage |
+| **Round 1:** null control restated as "no undercoverage" | Tested two-sided as its name promised, it failed: five scenarios overcover at 0.962 to 0.986. All five are `ecological` at the smallest spread where the posterior SD exceeds the sampling SD of its centre, which is ordinary shrinkage | A conservative interval counted as a violation, or the threshold widened until it passed |
+| **Round 1:** "alike" withdrawn from the prior-domination control | The tight prior's mean bias runs $-0.114$, $-0.177$ and $-0.278$ across states, a spread of 0.165 against a truth of 0.40 | A claim of uniformity the numbers do not support |
+| **Round 1:** primary 1 compares failures with *nominal* scenarios | It had compared them with merely non-failing ones, so an overlap could rest on a scenario covering at 0.91 | An overlap claim resting on scenarios that are not good either |
+| **Round 1:** whole-model effective rank added to the outcomes | It was computed and never analyzed, so one of the two summaries CMP-14 asks for appeared in no reported outcome | The study answering only half the question it was written for |
+| **Round 1:** curvature state redesigned and E2 implemented | The state was rank deficient as specified, and none of E2 existed while the document claimed its operating rules were registered | A confirmatory arm that could not be run and whose central state identified nothing |
 
-Two of those four were guards written from expectation rather than from measurement, and both
-failed. The third was written only after printing the numbers first. That sequence is recorded
-rather than tidied, because "assert, observe failure, weaken assertion" is exactly how a
-control becomes decorative, and the disclosure is what stops it.
+**Five of these are guards that were written from expectation, failed, and were changed.** That
+sequence is exactly how a control becomes decorative, so each restatement above says what the
+control now tests rather than only that it passes, and `review/verify-protocol.py` asserts each
+one against the values that made it pass.
+
+**Round 1 was a single reviewer.** GPT-5.6 Sol returned `unsound` with eight fatal and four
+serious findings, every one of which is addressed above or in section 7. The two other
+reviewers this programme uses were unavailable: `opencode/kimi-k3` had reached its weekly quota
+and Grok returned HTTP 402, usage balance exhausted. Both are recorded as **not obtained** and
+neither is counted as agreement. A second round with a second reviewer is required before this
+protocol is treated as having cleared critique.
 
 ## 9. What this cannot settle
 
@@ -229,7 +333,13 @@ control becomes decorative, and the disclosure is what stops it.
 - **The thresholds are the conventional ones**, taken from how such summaries are described
   rather than tuned. Primary 1 does not depend on them; the secondary table does.
 - **E1's identity link cannot represent aggregate curvature**, which is the state CMP-14 is
-  named for. That is E2's job and until E2 runs the study answers the component-routing
-  question and not the curvature question.
-- Fixed-effect synthesis, known residual variance, correctly specified linear mean. Nothing
-  transfers directly to a non-conjugate posterior, which is again E2's job.
+  named for; E2 covers it.
+- **E1's diagnostics are conditional on the expected covariate design.** Individual-data arms
+  are represented by Gauss-Hermite nodes, so every E1 number is exact for a study whose
+  covariate distribution is realized exactly and is an expectation otherwise. Realized
+  contraction carries replicate-level variation that E1 does not measure.
+- **E2 is asymptotic, not fitted.** Its coverage figures are normal approximations from the
+  Fisher information. No `multinma` model is run and no posterior is sampled, so nothing here
+  measures MCMC error or the behavior of these summaries under a genuinely non-conjugate
+  posterior. A fitted arm is future work.
+- Fixed-effect synthesis, known residual variance, correctly specified linear mean.

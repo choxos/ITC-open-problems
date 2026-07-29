@@ -40,13 +40,27 @@ load_e1 <- function(path = "results/e1.rds") {
 ## containing both a nominal scenario and a failing one. Reported as the
 ## OVERLAP: the best (lowest-risk) diagnostic value at which some scenario still
 ## fails, against the worst value at which some scenario is still fine.
+##
+## THE COMPARISON IS AGAINST NOMINAL SCENARIOS, NOT MERELY NON-FAILING ONES.
+## Round 1 found the first version contrasting `failed` with `!failed`, which
+## lumps a scenario covering at 0.91 in with one covering at 0.950. An overlap
+## established against a 0.91 scenario is not evidence that a threshold cannot
+## separate the good from the bad, because 0.91 is not good. Scenarios between
+## COVER_BAD and nominal are neither and are excluded from both sides.
 overlap_table <- function(d) {
+  nominal <- d$coverage >= NOMINAL - 0.01
+  d <- d[d$failed | nominal, ]
   stats <- list(
     contraction  = d$contraction,
     target_ratio = d$target_ratio,
+    eff_rank     = d$eff_rank,
     share_within = ifelse(is.na(d$share_within), 0, d$share_within))
   ## For each statistic, the direction in which "looks safe" points.
-  safe_low <- c(contraction = TRUE, target_ratio = FALSE, share_within = FALSE)
+  ## Finding 7 of round 1: the whole-model effective rank was computed and never
+  ## analyzed, so one of the two summaries CMP-14 actually asks for was absent
+  ## from every reported outcome. It is included here in both forms.
+  safe_low <- c(contraction = TRUE, target_ratio = FALSE, eff_rank = FALSE,
+                share_within = FALSE)
   do.call(rbind, lapply(names(stats), function(nm) {
     v <- stats[[nm]]; fail <- d$failed
     if (safe_low[[nm]]) {
@@ -61,6 +75,7 @@ overlap_table <- function(d) {
       overlaps  <- best_fail >= worst_ok
     }
     data.frame(statistic = nm, safe_is_low = safe_low[[nm]],
+               n_failed = sum(fail), n_nominal = sum(!fail),
                most_reassuring_failure = best_fail,
                least_reassuring_success = worst_ok,
                overlaps = overlaps,

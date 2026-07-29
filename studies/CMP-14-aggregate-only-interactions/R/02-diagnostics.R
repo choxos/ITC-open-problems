@@ -74,7 +74,7 @@ diag_rank_screen <- function(fit, tol = 1e-8) {
 ##             across studies. Not randomized, and confounded by whatever else
 ##             differs between the populations.
 diag_source_share <- function(b, prior_sd, fit) {
-  P0 <- diag(1 / prior_sd^2, b$p)
+  P0 <- prior_precision(b, prior_sd)
   gi <- fit$gi
   prec_from <- function(keep) {
     if (!any(keep)) return(0)
