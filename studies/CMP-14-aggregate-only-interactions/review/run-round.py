@@ -39,6 +39,15 @@ ROOT = Path(__file__).resolve().parent.parent
 # protocol produces confident findings about sections that were cut away.
 KIMI_BUDGET = 32_000
 
+# A reviewer that times out on the whole document is not a reviewer that has no
+# findings. Round 3's first codex attempt ran the full 3600 s on a 35 KB prompt
+# and was killed, which the driver records as NOT OBTAINED; that is correct but
+# it also loses the round. Any reviewer can now be retried in parts, and the
+# parts are packed to this budget. Splitting beats trimming for the reason the
+# kimi path documented: a trimmed protocol produces confident findings about
+# sections that were cut away.
+SPLIT_BUDGET = 24_000
+
 PREAMBLE = """You are reviewing a PRE-REGISTRATION for a simulation study. Nothing has been
 run yet. Your job is to find defects while they are still free to fix.
 
@@ -149,6 +158,8 @@ def main() -> None:
     ap.add_argument("--round", type=int, required=True)
     ap.add_argument("--only", default=None, help="comma-separated reviewer names")
     ap.add_argument("--parts", default=None, help="comma-separated part names to rerun")
+    ap.add_argument("--no-split", action="store_true",
+                    help="do not fall back to a split review on repeated failure")
     args = ap.parse_args()
 
     outdir = ROOT / "review" / f"round{args.round}"
@@ -197,6 +208,41 @@ load skills.
                   flush=True)
             out, err, rc, secs2 = REVIEWERS[reviewer](prompt)
             secs += secs2
+        if not usable(out) and part == "whole" and not args.no_split:
+            # Second failure on the whole document: fall back to parts. The
+            # findings are weaker, because a part cannot see a contradiction with
+            # a section it was not shown, and that limitation is recorded in the
+            # manifest rather than left for a reader to infer.
+            chunks = split_protocol(protocol, SPLIT_BUDGET)
+            print(f"[{tag}] whole-document review failed twice; splitting into "
+                  f"{len(chunks)} parts", flush=True)
+            pieces = []
+            for i, (name, chunk) in enumerate(chunks, 1):
+                sub = PREAMBLE + f"""
+You are given PART {i} of {len(chunks)} of a longer protocol, containing: {name}. Sections not
+shown here exist. Do not report that something is missing unless the text you were given claims
+to define it. Internal contradictions WITHIN this part, and arithmetic, are what you can check.
+
+--- PROTOCOL, PART {i} ---
+""" + chunk
+                o, e, r, sc = REVIEWERS[reviewer](sub)
+                secs += sc
+                print(f"[{tag}] part {i}/{len(chunks)}: "
+                      f"{'ok' if usable(o) else 'NOT OBTAINED'} "
+                      f"{len(o.encode()):,} bytes", flush=True)
+                if usable(o):
+                    pieces.append(f"\n\n<!-- PART {i}: {name} -->\n{o}")
+            if pieces:
+                out = ("VERDICT: needs-revision\n\n<!-- ASSEMBLED FROM "
+                       f"{len(pieces)} OF {len(chunks)} PARTS after the whole-document "
+                       "review timed out twice. A part cannot see a contradiction with a "
+                       "section it was not shown, so cross-section findings are weaker "
+                       "in this round than in one reviewed whole. -->\n"
+                       + "".join(pieces))
+                rc = 0
+            split_used = True
+        else:
+            split_used = False
         ok = usable(out)
         # Never clobber an earlier reply. Re-running one reviewer against a
         # revised document produces a DIFFERENT review, and the second codex
@@ -214,6 +260,7 @@ load skills.
                            f"--- stdout ---\n{out}\n--- stderr ---\n{err[-4000:]}\n")
         manifest.append(dict(reviewer=reviewer, part=part, ok=ok, rc=rc,
                              protocol_sha256=doc_sha, protocol_bytes=doc_bytes,
+                             split_fallback=split_used,
                              prompt_bytes=len(prompt.encode()),
                              reply_bytes=len(out.encode()), secs=round(secs, 1)))
         print(f"[{tag}] {'ok' if ok else 'NOT OBTAINED'} "
