@@ -422,28 +422,52 @@ paired_contrast <- function(d, a, b) {
 ## the study's own question along with the unsupportable ones. Round 5 caught
 ## that. The withdrawn premise applies to MATCHED comparisons and has no bearing
 ## on these two, which are unmatched on purpose.
-practice_contrasts <- function(d) transform(do.call(rbind, list(
+## A CONTRAST SET CAN BE EMPTY, AND A PARTIAL RUN MUST STILL ANALYZE.
+##
+## `paired_contrast` returns NULL when one of its two estimators has no finite
+## estimate anywhere, which is exactly what a resumable run looks like while one
+## pass is still going: the frequentist checkpoints exist and the ML-NMR ones do
+## not. `transform(NULL, standing = ...)` then fails with "arguments imply
+## differing number of rows: 0, 1", so the whole production analysis died on real
+## partial output. The smoke test did not catch it because it always populated
+## both passes.
+##
+## `load_cells` promises in its own comment that "a partially complete run is
+## analyzable and a pass that failed is visible instead of silently shrinking the
+## sample". This is what makes that true rather than aspirational.
+stack_contrasts <- function(parts, standing) {
+  z <- do.call(rbind, Filter(Negate(is.null), parts))
+  if (is.null(z) || !nrow(z))
+    return(data.frame(worse = character(), better = character(),
+                      outcome = character(), n = integer(), diff = numeric(),
+                      se = numeric(), se_indep = numeric(), ci_lo = numeric(),
+                      ci_hi = numeric(), note = character(),
+                      standing = character(), stringsAsFactors = FALSE))
+  transform(z, standing = standing)
+}
+
+practice_contrasts <- function(d) stack_contrasts(list(
   paired_contrast(d, "MAIC-PH", "MLNMR-flex"),
-  paired_contrast(d, "STC-PH",  "MLNMR-flex"))), standing = "primary-entry")
+  paired_contrast(d, "STC-PH",  "MLNMR-flex")), "primary-entry")
 
 ## PRIMARY 2: flexible versus proportional, within a row. Both members share an
 ## implementation, a weighting or regression step and a code path, so only the
 ## survival-model restriction differs. This isolates the mechanism; primary 1
 ## measures the practical consequence.
-primary_contrasts <- function(d) transform(do.call(rbind, list(
+primary_contrasts <- function(d) stack_contrasts(list(
   paired_contrast(d, "MAIC-PH",  "MAIC-flex"),
   paired_contrast(d, "STC-PH",   "STC-flex"),
-  paired_contrast(d, "MLNMR-PH", "MLNMR-flex"))), standing = "primary-within")
+  paired_contrast(d, "MLNMR-PH", "MLNMR-flex")), "primary-within")
 
 ## DESCRIPTIVE: method family across rows AT MATCHED FLEXIBILITY. Version 4
 ## registered these as primary on a premise round 2 had already withdrawn, since
 ## a 3-knot Royston-Parmar spline and a 3-knot M-spline do not carry the same
 ## effective flexibility. Round 4 caught the contradiction. They are reported
 ## with the measured flexibility gap alongside, never as a method-family verdict.
-descriptive_contrasts <- function(d) transform(do.call(rbind, list(
+descriptive_contrasts <- function(d) stack_contrasts(list(
   paired_contrast(d, "MAIC-flex", "MLNMR-flex"),
   paired_contrast(d, "STC-flex",  "MLNMR-flex"),
-  paired_contrast(d, "MAIC-PH",   "MLNMR-PH"))), standing = "descriptive")
+  paired_contrast(d, "MAIC-PH",   "MLNMR-PH")), "descriptive")
 
 registered_contrasts <- function(d)
   rbind(practice_contrasts(d), primary_contrasts(d), descriptive_contrasts(d))
@@ -547,18 +571,28 @@ main <- function(dir = "results/cells") {
   }
   ct <- calibration_table(cal)
   print(ct, row.names = FALSE, digits = 4)
+  ## The completeness guard binds on a COMPLETE run. On a partial one, which the
+  ## resumable design makes a normal state, a missing estimator means its pass
+  ## has not finished rather than that the outcome is unproducible, and stopping
+  ## would make the very partial analysis `load_cells` promises impossible.
   miss <- setdiff(ROWS, unique(ct$estimator))
-  if (length(miss))
+  if (length(miss) && complete)
     stop("primary outcome 4 is missing estimators: ", paste(miss, collapse = ", "))
+  if (length(miss))
+    cat(sprintf("NOTE: partial run; outcome 4 has no rows yet for %s\n",
+                paste(miss, collapse = ", ")))
   saveRDS(list(long = cal, table = ct), "results/e3-calibration.rds")
 
   cat("\n=== the registered common Cox projection, same functional per method ===\n")
   cx <- load_cox(dir); ctab <- cox_table(cx)
   print(ctab, row.names = FALSE, digits = 4)
   miss <- setdiff(ROWS, ctab$estimator[is.finite(ctab$mean_log_hr)])
-  if (length(miss))
+  if (length(miss) && complete)
     stop("the registered Cox projection is missing estimators: ",
          paste(miss, collapse = ", "))
+  if (length(miss))
+    cat(sprintf("NOTE: partial run; the Cox projection has no rows yet for %s\n",
+                paste(miss, collapse = ", ")))
   saveRDS(list(long = cx, table = ctab), "results/e3-cox.rds")
 
   cat("\n=== secondary: decision loss ===\n");      print(decision_appendix(d), row.names = FALSE, digits = 4)

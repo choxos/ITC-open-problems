@@ -356,6 +356,40 @@ if (!inherits(out, "try-error")) {
               file.path(SMOKE_DIR, "analysis-output.txt")))
 }
 
+## --- stage 6: A PARTIAL RUN, WHICH IS A NORMAL STATE AND WAS UNTESTED --------
+##
+## The run is checkpointed per replicate and resumable, so "one pass finished and
+## the other still going" is what the output looks like for most of the run's
+## life, and `load_cells` promises in its own comment that such a run is
+## analyzable. It was not. Every earlier stage of this file populated BOTH passes,
+## so the production analysis was never once exercised on the shape its own
+## design guarantees, and on real partial output it died with "arguments imply
+## differing number of rows: 0, 1": `paired_contrast` returns NULL when one of
+## its estimators has no finite estimate anywhere, and `transform(NULL, ...)`
+## fails.
+##
+## This stage runs the analysis with the ML-NMR checkpoints hidden.
+cat("\n=== stage 6: the analysis on a partial run, ML-NMR pass absent ===\n")
+PART_DIR <- file.path(SMOKE_DIR, "partial")
+dir.create(PART_DIR, showWarnings = FALSE)
+file.copy(list.files(SMOKE_DIR, "^freq-.*\\.rds$", full.names = TRUE), PART_DIR,
+          overwrite = TRUE)
+pout <- try(capture.output(main(PART_DIR)), silent = TRUE)
+ok("the analysis survives a missing pass", !inherits(pout, "try-error"),
+   if (inherits(pout, "try-error")) conditionMessage(attr(pout, "condition")) else "")
+if (!inherits(pout, "try-error")) {
+  ptxt <- paste(pout, collapse = "\n")
+  ok("it says the run is partial", grepl("PARTIAL run", ptxt, fixed = TRUE))
+  ok("it notes which estimators are not there yet",
+     grepl("partial run; outcome 4 has no rows yet", ptxt, fixed = TRUE))
+  for (sec in c("primary 1: bias and RMSE", "primary 2: coverage, all 21 conditions",
+                "PRIMARY 1: the catalog entry's question",
+                "primary 4: calibration over time",
+                "every primary outcome repeated on the all-passed subset"))
+    ok(sprintf("partial run still emits: %s", sec),
+       grepl(sec, ptxt, fixed = TRUE))
+}
+
 cat(sprintf("\n%s\n", strrep("-", 70)))
 if (length(fails)) {
   cat(sprintf("SMOKE TEST FAILED: %d of %d checks\n", length(fails), n_checks))
