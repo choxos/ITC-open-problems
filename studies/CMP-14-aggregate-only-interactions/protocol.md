@@ -8,7 +8,7 @@ part on IDN-06 *ML-NMR interactions can rest solely on aggregate-data variation*
 
 **Provenance.** Every number this document prints is exported from the code that computes it
 by `R/05-export.R`, and `review/verify-protocol.py` asserts the document against that export,
-currently **108** assertions. The four controls in section 5 are asserted against the values
+currently **115** assertions. The four controls in section 5 are asserted against the values
 that made them pass, not merely described, because section 8 concedes that two of them were
 weakened after they failed.
 
@@ -337,12 +337,33 @@ out otherwise: in both states every target-bearing row is aggregate, so both sco
 construction**, and a safeguard that cannot fail is decoration. That report was arithmetic
 presented as a finding, and it is withdrawn.
 
-Made able to fire, it fires. Aggregate information reaches the target by two routes: the
-between-study contrast in covariate **means**, which exists on any link, and the contrast in
-covariate **variances**, which exists only where the link is curved. Holding the aggregate SDs
-equal at their average removes the second and leaves the first, so the difference measures the
-curvature route. The resulting share separates the two states cleanly: **0.933 to 0.969 in
-`curvature` against 0.000 in `ecological`**, with no overlap.
+**The first repair was also wrong, and round 3 caught it.** It computed each route's
+"precision" as the posterior marginal precision minus the prior's diagonal, then subtracted two
+such quantities and reported their ratio. That is not a decomposition of Fisher information: when
+a coordinate is not identified by a source, the expression still returns a positive number
+supplied entirely by regularization. In the curvature state's aggregate rows it returned 0.2275
+and 0.0072 for quantities whose prior-free value is **exactly zero**, and the ratio of those two
+artifacts, 0.933 to 0.969, was reported here as this study's headline. **Withdrawn.**
+
+**The well-posed question is leave-one-source-out, and it is cleaner than either attempt.**
+Asking what share of a parameter's precision comes from each source presumes each source
+identifies it alone; in the curvature state none does, because the aggregate rows carry the target
+while the individual-data rows are what pin down the prognostic slope and study intercepts it must
+be separated from. Asking instead how much precision *survives* when a source is deleted needs no
+additivity and no prior. Computed that way, from the likelihood's own marginal precision
+$1/[I^{-1}]_{gg}$, and exactly zero where the likelihood does not identify the coordinate at all:
+
+| state | share surviving without aggregate rows | share lost without the variance contrast |
+|---|---:|---:|
+| `own_ipd` | **1** | 0 |
+| `additivity` | **1** | 0 |
+| `ecological` | 0 | 0 |
+| `curvature` | 0 | **1** |
+| `absent` | undefined | undefined |
+
+Exact zeros and ones, not artifacts near them, and the three identified routes separate pairwise.
+`absent` is undefined rather than zero, because a parameter the likelihood does not identify at
+all has no shares to apportion.
 
 **What that changes and what it does not.** The claim that both routes are *unrandomized* stands,
 and it is the claim that carries the causal argument: nobody randomized a study's covariate

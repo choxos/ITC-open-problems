@@ -232,9 +232,30 @@ check("the source-share reversal is reported, not quietly replaced",
       "That report was arithmetic\npresented as a finding, and it is withdrawn" in RAW
       or "arithmetic presented as a finding, and it is withdrawn" in PROTOCOL,
       "the withdrawn E2 claim is not recorded")
-check("the three-way decomposition separates the aggregate routes",
+check("the leave-one-source-out shares separate the aggregate routes",
       DESIGN["e2_share_curv_separates"] is True,
-      "the finer statistic does not separate them after all")
+      "the statistic does not separate them after all")
+# Round 3 found the protocol printing 0.933 to 0.969 while the run had been
+# rewritten; the verifier passed because it asserted only the boolean. The
+# VALUES are asserted now, which is the same lesson round 2 taught about control
+# justifications and which this study had to learn twice.
+_sw = DESIGN["e2_by_state"]
+for st, want in (("own_ipd", 1), ("additivity", 1), ("ecological", 0),
+                 ("curvature", 0)):
+    check(f"the share-within value for {st} is the run's own",
+          _sw[st]["share_within"] == want,
+          f"exported {_sw[st]['share_within']}, document says {want}")
+check("the curvature share is exactly one, not an artifact near it",
+      set(DESIGN["e2_share_curv_curvature"]) == {1},
+      f"exported {DESIGN['e2_share_curv_curvature']}")
+check("the absent state has no shares to apportion",
+      _sw["absent"]["share_within"] == "NA"
+      and "undefined rather than zero" in PROTOCOL,
+      f"exported {_sw['absent']['share_within']}")
+check("the withdrawn 0.933 to 0.969 figures are recorded as withdrawn",
+      "0.933 to 0.969, was reported here as this study's headline. **Withdrawn.**"
+      in PROTOCOL,
+      "the withdrawn headline is not recorded")
 check("the equal-SD condition is marked exploratory",
       "**Exploratory, not confirmatory.**" in PROTOCOL
       and "checked before it was written down" in PROTOCOL,

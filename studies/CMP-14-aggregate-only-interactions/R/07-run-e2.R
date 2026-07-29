@@ -104,59 +104,34 @@ evaluate_e2 <- function(row) {
   lo <- (-bias - z * sd_post) / sqrt(v_samp)
   hi <- (-bias + z * sd_post) / sqrt(v_samp)
 
-  ## The same four diagnostics, read off the logit information.
+  ## The same four diagnostics, read off the logit information. Every precision
+  ## here is PRIOR-FREE after round 3; see `lik_marginal_precision`.
   contraction <- sd_post / row$prior_sd
-  target_ratio <- (1 / A[gi, gi] - P0[gi, gi]) / P0[gi, gi]
+  target_ratio <- lik_marginal_precision(I, gi) / P0[gi, gi]
   er <- eff_rank(I, P0, thresh = EFF_RATIO_OK)
-  prec_from <- function(Is) {
-    V <- solve(Is + P0)
-    max(1 / V[gi, gi] - P0[gi, gi], 0)
-  }
-  w_in <- prec_from(inf$within); w_bt <- prec_from(inf$between)
-  tot <- w_in + w_bt
+  u <- numeric(b$p); u[gi] <- 1
+  estimable <- sum(abs(I %*% (MASS::ginv(I) %*% u) - u)) < 1e-6
 
-  ## THE AGGREGATE SHARE, SPLIT INTO ITS TWO ROUTES.
-  ##
-  ## Round 2 found the registered source-share falsifier unable to fire. It asked
-  ## whether `source_share` separates `curvature` from `ecological`; in both
-  ## states every target-bearing row is aggregate, so both score zero BY
-  ## CONSTRUCTION and no data could make them differ. A safeguard that cannot
-  ## fail is decoration, and E2's report that the two states agree was arithmetic
-  ## rather than a finding.
-  ##
-  ## The fix is a three-way decomposition that CAN come out either way. Aggregate
-  ## information reaches the target by two routes: the contrast in covariate
-  ## MEANS across studies, which exists on any link, and the contrast in
-  ## covariate VARIANCES, which exists only where the link is curved. Holding the
-  ## SDs equal at their average removes the second while leaving the first, so
-  ## the difference between the full aggregate information and that counterfactual
-  ## is the curvature route's contribution. It is zero on an identity link and
-  ## positive on a logit link, which is what makes the split real rather than a
-  ## relabeling.
+  ## The flattened design, which removes the between-study contrast in covariate
+  ## SDs while leaving the contrast in means. Round 3 showed the previous version
+  ## subtracted two prior-regularized aggregate-only precisions, both of which are
+  ## exactly zero prior-free, and reported their ratio as this study's headline.
+  ## The well-posed question is leave-one-source-out on the FULL information,
+  ## which does identify the target.
   net_flat <- net
   net_flat$sd[!as.logical(net_flat$ipd)] <-
     mean(net_flat$sd[!as.logical(net_flat$ipd)])
   b_flat <- build_design(net_flat)
   inf_flat <- logit_info(b_flat, theta_true_nl(b_flat))
-  prec_flat <- function(Is) {
-    V <- solve(Is + prior_precision(b_flat, row$prior_sd))
-    max(1 / V[gi_of(b_flat), gi_of(b_flat)] - P0[gi, gi], 0)
-  }
-  w_mean <- prec_flat(inf_flat$between)
-  w_curv <- max(w_bt - w_mean, 0)
-  u <- numeric(b$p); u[gi] <- 1
-  estimable <- sum(abs(I %*% (MASS::ginv(I) %*% u) - u)) < 1e-6
+  ss <- source_shares(I, inf$within, inf_flat$total, gi)
+  w_in <- lik_marginal_precision(inf$within, gi)
+  w_bt <- lik_marginal_precision(inf$between, gi)
 
   cbind(row, data.frame(
     contraction = contraction, target_ratio = target_ratio,
     eff_rank = er$eff_rank, estimable = estimable,
-    prec_within = w_in, prec_between = w_bt,
-    share_within = if (tot > 0) w_in / tot else NA_real_,
-    prec_agg_mean = w_mean, prec_agg_curv = w_curv,
-    ## The share of the AGGREGATE information that arrives through curvature
-    ## rather than through the between-study mean gradient. This is the quantity
-    ## that can distinguish the two aggregate routes, and it is free.
-    share_curv = if (w_bt > 0) w_curv / w_bt else NA_real_,
+    prec_within = w_in, prec_between = w_bt, prec_full = ss$full,
+    share_within = ss$share_within, share_curv = ss$share_curv,
     bias = bias, post_sd = sd_post, samp_sd = sqrt(v_samp),
     coverage = stats::pnorm(hi) - stats::pnorm(lo),
     stringsAsFactors = FALSE)) |>

@@ -32,8 +32,12 @@ diag_contraction <- function(fit, prior_sd)
 ##                 needs.
 diag_eff_rank <- function(fit) {
   er <- eff_rank(fit$I, fit$P0, thresh = EFF_RATIO_OK)
-  ratio <- (1 / fit$Vpost[fit$gi, fit$gi] - fit$P0[fit$gi, fit$gi]) /
-    fit$P0[fit$gi, fit$gi]
+  ## Round 3: this was the posterior marginal precision minus the prior's
+  ## diagonal, which credits the likelihood with identification the prior
+  ## supplied. It is now the likelihood's own marginal precision, prior-free,
+  ## over the prior's, which is what "the data are worth more than the prior
+  ## along this coordinate" has to mean.
+  ratio <- lik_marginal_precision(fit$I, fit$gi) / fit$P0[fit$gi, fit$gi]
   list(eff_rank = er$eff_rank, rank = er$rank, n_par = er$n_par,
        target_ratio = ratio)
 }
@@ -73,21 +77,28 @@ diag_rank_screen <- function(fit, tol = 1e-8) {
 ##   between : rows from aggregate arms, where the only covariate contrast is
 ##             across studies. Not randomized, and confounded by whatever else
 ##             differs between the populations.
+## Round 3: the first two versions of this were both wrong, in the same way and
+## for the same reason. Both computed each source's "precision" from a
+## prior-regularized inverse, so a source that identifies nothing still scored
+## positive, and both then took a ratio of such numbers. See
+## `lik_marginal_precision` and `source_shares` in R/00-geometry.R for the
+## prior-free, well-posed replacement.
 diag_source_share <- function(b, prior_sd, fit) {
-  P0 <- prior_precision(b, prior_sd)
   gi <- fit$gi
-  prec_from <- function(keep) {
-    if (!any(keep)) return(0)
-    Xs <- b$X[keep, , drop = FALSE]; Ws <- b$prec[keep]
-    Is <- crossprod(Xs * sqrt(Ws))
-    V <- solve(Is + P0)
-    max(1 / V[gi, gi] - P0[gi, gi], 0)
+  info_of <- function(keep) {
+    if (!any(keep)) return(matrix(0, b$p, b$p))
+    crossprod(b$X[keep, , drop = FALSE] * sqrt(b$prec[keep]))
   }
-  within  <- prec_from(!b$agd)
-  between <- prec_from(b$agd)
-  tot <- within + between
-  list(within = within, between = between,
-       share_within = if (tot > 0) within / tot else NA_real_)
+  ## On an identity link the aggregate arm mean does not depend on the covariate
+  ## SD at all, so flattening the SDs changes nothing and `share_curv` is
+  ## identically zero. That is not a limitation to work around: it is the fact
+  ## that makes `curvature` a nonlinear-only state, and E1 reports it as such.
+  ss <- source_shares(info_of(rep(TRUE, nrow(b$X))), info_of(!b$agd),
+                      info_of(rep(TRUE, nrow(b$X))), gi)
+  list(within = lik_marginal_precision(info_of(!b$agd), gi),
+       between = lik_marginal_precision(info_of(b$agd), gi),
+       share_within = ss$share_within, share_curv = ss$share_curv,
+       full = ss$full)
 }
 
 ## --- every diagnostic for one scenario, in one place -------------------------
@@ -103,8 +114,8 @@ all_diagnostics <- function(b, prior_sd, fit) {
     eff_rank = er$eff_rank, eff_rank_of = er$n_par,
     target_ratio = er$target_ratio,
     estimable = rs$estimable, lik_rank = rs$rank,
-    prec_within = ss$within, prec_between = ss$between,
-    share_within = ss$share_within,
+    prec_within = ss$within, prec_between = ss$between, prec_full = ss$full,
+    share_within = ss$share_within, share_curv = ss$share_curv,
     stringsAsFactors = FALSE)
 }
 

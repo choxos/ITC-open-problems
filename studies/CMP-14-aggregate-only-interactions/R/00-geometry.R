@@ -160,3 +160,62 @@ gamma_idx <- function(net) {
   S <- max(net$study); K <- K_of(net)
   S + K + 1 + seq_len(K)
 }
+
+
+## --- the likelihood's own marginal precision, with no prior in it ------------
+##
+## ROUND 3 FOUND EVERY PRECISION IN THIS STUDY CONTAMINATED BY THE PRIOR. They
+## were computed as 1/V[g,g] - P0[g,g] with V = (I + P0)^{-1}, which is the
+## posterior marginal precision minus the prior's diagonal. That is not the
+## likelihood's marginal contribution: when the coordinate is not identified by
+## the likelihood alone the expression still returns a positive number, supplied
+## entirely by regularization. In the curvature state's aggregate rows it
+## returned 0.2275 and 0.0072 for quantities whose prior-free value is exactly
+## zero, and the ratio of those two artifacts was reported as this study's
+## headline decomposition.
+##
+## The prior-free quantity is the Schur complement of the LIKELIHOOD information
+## alone: 1 / [I^{-1}]_{gg} where I is invertible along that coordinate, and
+## exactly zero where it is not, because a likelihood that cannot identify a
+## parameter contributes no marginal precision about it.
+lik_marginal_precision <- function(I, gi, tol = 1e-6) {
+  u <- numeric(nrow(I)); u[gi] <- 1
+  Ip <- MASS::ginv(I)
+  if (sum(abs(I %*% (Ip %*% u) - u)) > tol) return(0)
+  v <- Ip[gi, gi]
+  if (!is.finite(v) || v <= 0) return(0)
+  1 / v
+}
+
+## --- where a parameter's identification comes from, asked well-posedly -------
+##
+## The obvious question, "what share of this parameter's precision comes from
+## each source", is ILL-POSED, and round 3 is what made that clear. It presumes
+## each source identifies the parameter on its own; in the curvature state no
+## source does, because the aggregate rows carry the target while the
+## individual-data rows are what pin down the prognostic slope and the study
+## intercepts it must be separated from. Decomposing a marginal precision that no
+## single source can produce is not a decomposition.
+##
+## The well-posed version is LEAVE-ONE-SOURCE-OUT on the full information, which
+## does identify the target: how much of the parameter's precision survives if a
+## source is removed? That is the question an analyst actually has, it needs no
+## additivity, and it is exactly zero or one in the clean cases rather than an
+## artifact near them.
+##
+##   share_within : the fraction of the target's marginal likelihood precision
+##                  that survives when every aggregate row is deleted. One when
+##                  randomized within-study evidence identifies it alone.
+##   share_curv   : the fraction LOST when the between-study contrast in
+##                  covariate variances is removed, by flattening the aggregate
+##                  SDs to their mean. One when the parameter is identified by
+##                  the curvature route and nothing else; exactly zero on a
+##                  linear link, where that route does not exist.
+source_shares <- function(I_full, I_within, I_noflat, gi) {
+  full <- lik_marginal_precision(I_full, gi)
+  if (full <= 0) return(list(full = 0, share_within = NA_real_,
+                             share_curv = NA_real_))
+  list(full = full,
+       share_within = lik_marginal_precision(I_within, gi) / full,
+       share_curv = max(1 - lik_marginal_precision(I_noflat, gi) / full, 0))
+}
