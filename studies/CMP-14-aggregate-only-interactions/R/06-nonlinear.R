@@ -164,8 +164,11 @@ if (!interactive() && Sys.getenv("NL_NOMAIN") == "") {
   cat("\nExpected, and the reason curvature is a nonlinear-only state:\n")
   cat("  equal SDs   -> NOT estimable on either link (two identical equations)\n")
   cat("  unequal SDs -> NOT estimable on the identity link, estimable on logit\n")
-  ok <- !ck[["1"]]$logit_estimable && !ck[["2"]]$identity_estimable &&
-        ck[["2"]]$logit_estimable
+  ## Round 2: the first version omitted the equal-SD IDENTITY half, so the state
+  ## could have stopped being nonlinear-only while this still printed TRUE. All
+  ## four cells of the two-by-two are required.
+  ok <- !ck[["1"]]$logit_estimable && !ck[["1"]]$identity_estimable &&
+        !ck[["2"]]$identity_estimable && ck[["2"]]$logit_estimable
   cat(sprintf("\nmechanism holds: %s\n", ok))
   saveRDS(list(check = ck, holds = ok), "results/curvature-rank.rds")
   cat("written: results/curvature-rank.rds\n")

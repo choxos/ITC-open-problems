@@ -55,6 +55,8 @@ out$e2_link <- E2_LINK; out$e2_states <- E2_STATES
 out$e2_sd_ratio <- E2_SD_RATIO; out$e2_base_p <- E2_BASE_P
 
 ## --- the grid, counted from the grid rather than from memory ----------------
+ns <- attr(d, "nuisance_sensitivity")
+out$nuisance_sensitivity <- if (is.null(ns)) NULL else as.list(round(ns, 4))
 out$n_scenarios <- nrow(d)
 out$n_failed <- sum(d$failed)
 out$n_ok <- sum(!d$failed)
@@ -105,6 +107,27 @@ out$control_tight_max_coverage <- as.list(round(tapply(tight$coverage,
                                                        tight$state, max), 3))
 out$control_absent_cover_by_prior <- as.list(round(
   tapply(abs_rows$coverage, abs_rows$prior_sd, max), 3))
+
+## --- THE CONTROL JUSTIFICATIONS, which are numbers the protocol prints in
+## --- prose and which nothing asserted until round 2 found one of them stale.
+## The protocol quoted tight-prior recovery as "0.94, 0.84 and 0.80"; recomputed
+## after the patient budget was equalized it is 0.938, 0.875 and 0.798, and no
+## scenario rounds to 0.84. The figure came from the pre-budget-fix run and
+## survived because the provenance claim did not cover control justifications.
+tight_big <- d[d$prior_sd == min(PRIOR_SD) & d$n == max(TOTAL_N) &
+                 d$discord == 0 & d$synergy == 0 & d$state != "absent", ]
+out$control_tight_recovery <- as.list(round(
+  tapply(tight_big$coverage, tight_big$state, max), 3))
+tight_sm <- d[d$prior_sd == min(PRIOR_SD) & d$n == min(TOTAL_N) &
+                d$discord == 0 & d$synergy == 0, ]
+out$control_tight_bias <- as.list(round(tapply(tight_sm$bias, tight_sm$state, mean), 3))
+over <- nullr[nullr$coverage > NOMINAL + COVER_TOL, ]
+out$control_null_n_over <- nrow(over)
+out$control_null_over_range <- if (nrow(over)) round(range(over$coverage), 3) else NA
+out$control_null_over_states <- unique(over$state)
+out$control_null_worst_shrinkage <- if (nrow(over)) c(
+  post_sd = round(max(over$post_sd), 3),
+  samp_sd = round(over$samp_sd[which.max(over$post_sd)], 3)) else NA
 
 ## --- the groundwork probes the protocol's section 3 rests on ----------------
 cp <- readRDS("results/collision-probe.rds")

@@ -140,13 +140,25 @@ main <- function() {
   ## prior's and not a property of any one evidence structure. Its magnitude
   ## ordering is reported as a finding rather than asserted away, and it points
   ## the right way: the state with the least information is hurt the most.
+  ## Round 2: the claim said "every state" and the guard removed `absent`, which
+  ## is the actual least-informed state, so neither half of the sentence was
+  ## being tested where it matters most. `absent` is now included, and it must
+  ## carry the largest pull because it has no likelihood information at all to
+  ## resist with. If it does not, the stated mechanism is wrong.
+  tight_all <- res[res$prior_sd == min(PRIOR_SD) & res$n == min(TOTAL_N) &
+                     res$discord == 0 & res$synergy == 0, ]
+  bias_all <- tapply(tight_all$bias, tight_all$state, mean)
+  if (names(bias_all)[which.min(bias_all)] != "absent")
+    stop("the tight prior does not pull the state with NO information hardest: ",
+         paste(sprintf("%s=%+.3f", names(bias_all), bias_all), collapse = ", "))
   bias_by_state <- tapply(tight$bias, tight$state, mean)
   if (!all(bias_by_state < 0))
     stop("the tight prior does not pull every state toward zero: ",
          paste(sprintf("%s=%+.3f", names(bias_by_state), bias_by_state),
                collapse = ", "))
   if (which.min(bias_by_state) != which(names(bias_by_state) == "ecological"))
-    stop("the tight prior does not hurt the least-informed state most, so the ",
+    stop("among the states that HAVE information, the tight prior does not hurt ",
+         "the least-informed most, so the ",
          "stated mechanism does not hold: ",
          paste(sprintf("%s=%+.3f", names(bias_by_state), bias_by_state),
                collapse = ", "))
@@ -163,6 +175,32 @@ main <- function() {
          "prior-driven parameter: coverage ",
          paste(sprintf("sd=%s:%.2f", names(cov_by_prior), cov_by_prior),
                collapse = ", "))
+
+  ## THE NUISANCE PRIOR IS MEASURED, NOT DECLARED INERT.
+  ## Round 2: the protocol said the weak nuisance prior "must not be doing work"
+  ## and nothing checked it. Every scenario is re-evaluated with the nuisance
+  ## scale moved by an order of magnitude in each direction; if any registered
+  ## quantity moves materially, the interaction prior is not the only prior doing
+  ## work and the claim is false.
+  probe_nuis <- function(sd_n) {
+    old <- PRIOR_SD_NUISANCE
+    assign("PRIOR_SD_NUISANCE", sd_n, envir = globalenv())
+    on.exit(assign("PRIOR_SD_NUISANCE", old, envir = globalenv()), add = TRUE)
+    do.call(rbind, lapply(seq_len(nrow(g)), function(i) evaluate_one(g[i, ])))
+  }
+  r_lo <- probe_nuis(3); r_hi <- probe_nuis(30)
+  nuis_move <- c(
+    coverage = max(abs(r_lo$coverage - res$coverage),
+                   abs(r_hi$coverage - res$coverage)),
+    contraction = max(abs(r_lo$contraction - res$contraction),
+                      abs(r_hi$contraction - res$contraction)),
+    share_within = max(abs(r_lo$share_within - res$share_within), na.rm = TRUE))
+  attr(res, "nuisance_sensitivity") <- nuis_move
+  cat(sprintf("\nnuisance-prior sensitivity (scale 3 and 30 against %g):\n",
+              PRIOR_SD_NUISANCE))
+  cat(sprintf("  worst move in coverage %.4f, contraction %.4f, source share %.4f\n",
+              nuis_move[["coverage"]], nuis_move[["contraction"]],
+              nuis_move[["share_within"]]))
 
   saveRDS(res, "results/e1.rds")
   cat(sprintf("written: results/e1.rds  (%d rows)\n", nrow(res)))

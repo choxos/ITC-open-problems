@@ -79,9 +79,13 @@ overlap_table <- function(d) {
                most_reassuring_failure = best_fail,
                least_reassuring_success = worst_ok,
                overlaps = overlaps,
-               ## The share of scenarios that fall in the overlapping region,
-               ## which is how much of the grid a threshold cannot classify.
-               unclassifiable = if (!overlaps) 0 else
+               ## The share of the COMPARISON SET that falls in the overlapping
+               ## region. Round 2 found this called "the fraction of the grid"
+               ## while its denominator is the retained scenarios, the failing
+               ## ones plus the nominal ones, with the intermediate band already
+               ## removed. The two differ and the name now says which it is.
+               n_compared = length(v),
+               unclassifiable_of_compared = if (!overlaps) 0 else
                  mean(if (safe_low[[nm]]) v >= best_fail & v <= worst_ok
                       else v <= best_fail & v >= worst_ok),
                stringsAsFactors = FALSE)

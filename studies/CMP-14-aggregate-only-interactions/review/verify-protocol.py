@@ -79,7 +79,9 @@ REQUIRED_KEYS = [
     "spreads", "discord", "total_n", "prior_sd", "synergy", "states",
     "curvature_rank", "e2_rules", "e2_withdraw_e1", "cover_tol",
     "e2_share_curv_separates",
-    "e2_by_state",
+    "e2_by_state", "control_tight_recovery", "control_tight_bias",
+    "control_null_over_range", "control_null_n_over",
+    "control_null_worst_shrinkage", "nuisance_sensitivity",
     "e2_link", "e2_states", "e2_sd_ratio", "e2_base_p", "gamma_w",
 ]
 for k in REQUIRED_KEYS:
@@ -150,6 +152,47 @@ check("the null control no longer claims nominality",
 check("the prior-domination control withdraws the word alike",
       '**"Alike" is withdrawn.**' in PROTOCOL,
       "the withdrawn claim is still standing")
+
+# --- the control JUSTIFICATIONS, which round 2 found unasserted and stale ----
+# The protocol quoted tight-prior recovery as "0.94, 0.84 and 0.80" from before
+# the patient budget was equalized; no scenario rounded to 0.84. Every number a
+# control's justification prints is now exported and matched here.
+for st, v in DESIGN["control_tight_recovery"].items():
+    check(f"the tight-prior recovery figure for {st} is the run's own",
+          f"{v:.3f}" in PROTOCOL, f"{v:.3f} does not appear")
+for st, v in DESIGN["control_tight_bias"].items():
+    check(f"the tight-prior bias figure for {st} is the run's own",
+          f"{v:.3f}" in PROTOCOL, f"{v:.3f} does not appear")
+_ov = DESIGN["control_null_over_range"]
+check("the null overcoverage range is the run's own",
+      f"{_ov[0]:.3f} to {_ov[1]:.3f}" in PROTOCOL,
+      f"{_ov} does not appear")
+check("the null overcoverage count is the run's own",
+      f"{DESIGN['control_null_n_over']} scenarios overcover" in PROTOCOL
+      or f"{DESIGN['control_null_n_over']} scenarios cover" in PROTOCOL,
+      f"{DESIGN['control_null_n_over']} not stated")
+_sh = DESIGN["control_null_worst_shrinkage"]
+check("the shrinkage comparison is the run's own",
+      f"{_sh[0]:.3f} against {_sh[1]:.3f}" in PROTOCOL,
+      f"{_sh} does not appear")
+check("the stale recovery figures are recorded as stale, not deleted",
+      '"0.94, 0.84 and 0.80", stale from before the patient budget was equalized'
+      in PROTOCOL, "the withdrawn figures are not recorded")
+check("the absent state is inside the tight-prior ordering claim",
+      "is\npulled hardest of any state" in RAW
+      or "pulled hardest of any state" in PROTOCOL,
+      "the least-informed state is still outside the claim")
+
+NS = DESIGN["nuisance_sensitivity"]
+check("the nuisance prior's inertness is measured, not declared",
+      f"{NS['coverage']:.4f} in coverage" in PROTOCOL,
+      f"measured {NS} but the document does not print it")
+check("the nuisance prior really is inert",
+      max(NS.values()) < 0.01, f"largest movement {max(NS.values())}")
+check("the study's own threshold is not called conventional",
+      "`SOURCE_OK`\n  cannot be conventional" in RAW
+      or "cannot be conventional" in PROTOCOL,
+      "a novel threshold is still presented as convention")
 
 # --- the primary outcomes ----------------------------------------------------
 check("primary 1 is stated as an existence claim, not an average",

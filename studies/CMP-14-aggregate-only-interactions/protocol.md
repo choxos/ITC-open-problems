@@ -8,7 +8,7 @@ part on IDN-06 *ML-NMR interactions can rest solely on aggregate-data variation*
 
 **Provenance.** Every number this document prints is exported from the code that computes it
 by `R/05-export.R`, and `review/verify-protocol.py` asserts the document against that export,
-currently **87** assertions. The four controls in section 5 are asserted against the values
+currently **108** assertions. The four controls in section 5 are asserted against the values
 that made them pass, not merely described, because section 8 concedes that two of them were
 weakened after they failed.
 
@@ -161,8 +161,14 @@ limitation carried in section 9 rather than a property being claimed.
 **The interaction prior is applied to the interactions only.** The first version set one prior
 scale on every coordinate, so a result attributed to the registered factor could have been
 shrinkage of study intercepts and main effects whose true values are nonzero. Nuisance
-coefficients now carry a fixed weak `PRIOR_SD_NUISANCE = 10`, which is not a factor and must
-not be doing work.
+coefficients now carry a fixed weak `PRIOR_SD_NUISANCE = 10`.
+
+**That it is doing no work is measured, not asserted.** Round 2 pointed out that "must not be
+doing work" was a claim with nothing behind it. Every scenario is re-evaluated with the nuisance
+scale at 3 and at 30, an order of magnitude either side, and the largest movement in any
+registered quantity across the whole grid is **0.0007 in coverage, 0.0002 in contraction and
+0.0000 in the source share**. The interaction prior is the only prior doing work, within that
+tolerance.
 
 **The grid**, a full factorial with two structural restrictions (`R/03-run-e1.R`):
 
@@ -186,19 +192,23 @@ as what it actually tests, after round 1 found two of them promising more than t
 1. **Absent is prior-only.** Contraction $> 0.999$ in every absent scenario.
 2. **The null control does not undercover.** With no discordance, no synergy and a prior that
    is not itself the problem, no scenario covers below nominal. It is *not* claimed to be
-   nominal: five scenarios overcover, at 0.962 to 0.986, and all five are `ecological` at the
+   nominal: **5 scenarios overcover**, at 0.962 to 0.986, and all five are `ecological` at the
    smallest between-study spread where the posterior SD exceeds the sampling SD of its own
-   centre (0.400 against 0.240 at worst). That is ordinary shrinkage producing a conservative
-   interval, which is the harmless end of prior domination, and the control requires the
-   overcoverage to be confined to that mechanism rather than widening its threshold until it
+   centre (0.555 against 0.462 at worst). That is ordinary shrinkage producing a
+   conservative interval, which is the harmless end of prior domination, and the control requires
+   the overcoverage to be confined to that mechanism rather than widening its threshold until it
    passes.
 3. **The tight prior pulls every state toward zero, and hurts the least-informed state most.**
    The first version said it depresses every state *alike*; measured, the mean bias runs
-   $-0.114$ in `additivity`, $-0.177$ in `own_ipd` and $-0.278$ in `ecological`, a spread of
-   0.165 against a truth of 0.40. **"Alike" is withdrawn.** What holds, and what the argument
-   needs, is that the pull is in the same direction everywhere, so the failure belongs to the
-   prior and not to any one evidence structure; the ordering is asserted too, and it points the
-   right way.
+   $-0.114$ in `additivity`, $-0.177$ in `own_ipd`,
+   $-0.278$ in `ecological` and $-0.400$ in `absent`, a spread of
+   0.286 against a truth of 0.40. **"Alike" is withdrawn.**
+   What holds, and what the argument needs, is that the pull is in the same direction everywhere,
+   so the failure belongs to the prior and not to any one evidence structure. Two orderings are
+   asserted and both point the right way: `absent`, which has no likelihood information at all, is
+   pulled hardest of any state, and among the states that do have information `ecological` is
+   pulled hardest. Round 2 found the guard excluding `absent` while the claim said "every state",
+   so the state with the least information was the one not being checked.
 4. **Both kinds of prior-driven parameter are present.** The absent state must cover the truth
    essentially always under a wide prior and essentially never under a tight misplaced one.
    Without both, the grid contains only the harmless kind and the comparison is rigged.
@@ -209,7 +219,7 @@ as what it actually tests, after round 1 found two of them promising more than t
 values taken by *failing* scenarios overlap the range taken by *nominal* ones? A single value
 compatible with both a nominal and a badly failing scenario establishes that **no threshold
 separates them**, whatever the grid contains. Reported as the most reassuring failure, the
-least reassuring success, and the fraction of the grid lying between them.
+least reassuring success, and the fraction of the **comparison set** lying between them. The comparison set is the failing scenarios plus the nominal ones; the intermediate band belongs to neither and is excluded from the denominator as well as from both sides.
 
 **Nominal means nominal.** The first version contrasted failing scenarios with merely
 non-failing ones, which lumps a scenario covering at 0.91 in with one covering at 0.950. An
@@ -352,7 +362,7 @@ version of this list incomplete; it now covers changes made both before and afte
 |---|---|---|
 | Added `PRIOR_SD = 0.1` | The first grid had the absent state covering the truth 100% of the time: the likelihood contributes nothing, the posterior is the prior, and a wide prior still contains a truth 0.40 away. The diagnostics' positive control was never a failure | It scored a correct warning as a false alarm, making every diagnostic look worse than it is |
 | Null-control guard restricted to `prior_sd >= 0.5` | The first version required nominal coverage whenever discordance and synergy are zero, and it failed in 54 scenarios, all at the tight prior. That is the tight prior doing what it was added to do | It would have conflated a prior-induced failure with a confounding-induced one |
-| Prior-domination control restated at the smallest budget | The first version asserted collapse at the tight prior in every state; measured, coverage recovers to 0.94, 0.84 and 0.80 at the largest budget as the likelihood wins | It would have asserted a false claim about the tight prior's reach |
+| Prior-domination control restated at the smallest budget | The first version asserted collapse at the tight prior in every state; measured, coverage recovers to 0.938, 0.875 and 0.798 at the largest budget as the likelihood wins. **Round 2 found the figures previously printed here, "0.94, 0.84 and 0.80", stale from before the patient budget was equalized, and no scenario rounded to 0.84** | It would have asserted a false claim about the tight prior's reach |
 | **Round 1:** total patients equalized across states | Every arm had been given the same size, so `additivity` with twelve arms ran on 20% more data than the others' ten, while both the code and this document claimed the totals were equal | A difference of sample size reported as a difference of evidence structure |
 | **Round 1:** interaction prior separated from nuisance priors | One scale had been applied to every coordinate, including study intercepts and main effects whose true values are nonzero | A result attributed to the registered prior factor that was really nuisance shrinkage |
 | **Round 1:** null control restated as "no undercoverage" | Tested two-sided as its name promised, it failed: five scenarios overcover at 0.962 to 0.986. All five are `ecological` at the smallest spread where the posterior SD exceeds the sampling SD of its centre, which is ordinary shrinkage | A conservative interval counted as a violation, or the threshold widened until it passed |
@@ -389,8 +399,13 @@ protocol is treated as having cleared critique.
   contrast; that is a further step and a further set of assumptions.
 - **Numerical summaries only.** A prior-versus-posterior plot read by an experienced analyst
   is a different instrument and is not evaluated.
-- **The thresholds are the conventional ones**, taken from how such summaries are described
-  rather than tuned. Primary 1 does not depend on them; the secondary table does.
+- **Two of the three thresholds are conventional and one is this study's own.** `CONTRACT_OK` and
+  `EFF_RATIO_OK` are taken from how such summaries are described rather than tuned. `SOURCE_OK`
+  cannot be conventional, because `source_share` is introduced here: no prior source defines the
+  statistic, so no prior source defines a cut point for it. Round 2 found all three described as
+  conventional. Its 0.50 is a stipulation, chosen as the point at which randomized evidence stops
+  being the majority contributor, and the secondary table is the only outcome that depends on it.
+  Primary 1 depends on none of them.
 - **E1's identity link cannot represent aggregate curvature**, which is the state CMP-14 is
   named for; E2 covers it.
 - **E1's diagnostics are conditional on the expected covariate design.** Individual-data arms
