@@ -25,6 +25,7 @@ NOT OBTAINED, never as agreement.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import re
 import subprocess
@@ -153,6 +154,15 @@ def main() -> None:
     outdir = ROOT / "review" / f"round{args.round}"
     outdir.mkdir(parents=True, exist_ok=True)
     protocol = (ROOT / "protocol.md").read_text()
+    # WHICH VERSION DID THIS REVIEWER SEE? The manifest recorded byte counts and
+    # durations but nothing identifying the document, so a round run against a
+    # protocol that was edited afterwards could not be told from one run against
+    # the current text. That matters here: round 2 was sent before E2's results
+    # were added, so some of its findings address a document that no longer
+    # exists in that form, and a reader has to be able to establish that.
+    doc_sha = hashlib.sha256(protocol.encode()).hexdigest()[:16]
+    doc_bytes = len(protocol.encode())
+    print(f"protocol sha256:{doc_sha} ({doc_bytes:,} bytes)", flush=True)
 
     jobs: list[tuple[str, str, str]] = []          # (reviewer, part name, prompt)
 
@@ -203,6 +213,7 @@ load skills.
             out if ok else f"NOT OBTAINED\nrc={rc}\nbytes={len(out.encode())}\n\n"
                            f"--- stdout ---\n{out}\n--- stderr ---\n{err[-4000:]}\n")
         manifest.append(dict(reviewer=reviewer, part=part, ok=ok, rc=rc,
+                             protocol_sha256=doc_sha, protocol_bytes=doc_bytes,
                              prompt_bytes=len(prompt.encode()),
                              reply_bytes=len(out.encode()), secs=round(secs, 1)))
         print(f"[{tag}] {'ok' if ok else 'NOT OBTAINED'} "
