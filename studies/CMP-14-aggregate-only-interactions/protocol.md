@@ -14,7 +14,7 @@ replaced is in the history.
 
 **Provenance.** Every number here is exported from the code that computes it by `R/05-export.R`,
 emitted into the document by `review/emit-tables.py`, and asserted back by
-`review/verify-protocol.py`, currently **87** assertions. The exporter
+`review/verify-protocol.py`, currently **94** assertions. The exporter
 refuses to run when an artifact is older than the code that produces it; the verifier refuses to run
 when the export is older than the code.
 
@@ -184,9 +184,28 @@ for an information calculation. Coverage is reported **only where the model is c
 since under misspecification the score variance is not the Fisher information and the aggregate
 arm's expected Hessian is not either.
 
-**Contraction in E2 is contraction of a Laplace approximation**, not of a posterior, and the gap is
-bounded by nothing measured here. Effective rank is unaffected, being a property of the information
-matrix directly.
+**Contraction in E2 is contraction of a normal approximation whose covariance is
+$(I(\theta_{\text{true}}) + P_0)^{-1}$**, the expected Fisher information at the true parameter plus
+the prior precision. **It is not a Laplace approximation**, which would invert the Hessian of the log
+posterior at the posterior *mode*. An earlier version of this document called it one. The two
+coincide when the information does not depend on the parameter, which holds on an identity link and
+fails on the logit link E2 uses, and when the mode equals the truth, which a proper prior centred at
+zero makes false by construction.
+
+**The registered quantity is the one evaluated at the truth, deliberately.** E2 is an exact
+information calculation with no data and no sampling, so evaluating at the truth is deterministic and
+is a property of the design rather than of a realized dataset. A Laplace covariance would make the
+diagnostic depend on where the prior happens to pull the mode, which is the prior's behavior and not
+the design's.
+
+**The gap is measured rather than admitted.** `R/09-contraction-gap.R` solves for the mode under data
+at their expectation, $U(\theta;\,\mathbb{E}[y \mid \theta_{\text{true}}]) = P_0\theta$, by Newton
+iteration and recomputes the contraction there. Across the 44 correctly specified E2 scenarios the
+**maximum absolute difference is 0.0351 and the median is 0.00093, a maximum of 4.73% in relative
+terms**. Misspecified scenarios are excluded because their mode is displaced for a second reason and
+the two causes would be confounded.
+
+Effective rank is unaffected, being a property of the information matrix directly.
 
 ## 9. What this cannot settle
 

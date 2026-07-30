@@ -97,6 +97,41 @@ simulates individuals; every quantity is an exact Fisher information with $n$ as
 weight, so a non-integer $n$ is a legitimate information scale and rounding would
 put an artifact into an exact computation for nothing. The protocol now says so.
 
+## A wrong label, an admission, and a guard that was enforcing the label
+
+The protocol said two things about E2's contraction. **"Contraction of a Laplace
+approximation"** was a wrong label: `evaluate_e2` forms
+$(I(\theta_{\text{true}}) + P_0)^{-1}$, the expected Fisher information at the
+**true parameter**, while a Laplace covariance inverts the Hessian of the log
+posterior at the **mode**. The two agree when the information is parameter-free,
+which holds on an identity link and fails on the logit link E2 uses, and when the
+mode equals the truth, which a proper prior centred at zero rules out.
+
+**The code is right and the label was wrong.** E2 is an exact information
+calculation with no data and no sampling, so evaluating at the truth is
+deterministic and is a property of the design; a Laplace covariance would make
+the diagnostic depend on where the prior pulls the mode, which is the prior's
+behaviour rather than the design's. So the label changed, not the computation.
+
+The second sentence was **"the gap is bounded by nothing measured here"**, which
+is an admission that can be deleted by measuring it. `R/09-contraction-gap.R`
+solves $U(\theta;\,\mathbb{E}[y \mid \theta_{\text{true}}]) = P_0\theta$ by Newton
+iteration and recomputes the contraction at that mode. Across the 44 correctly
+specified E2 scenarios the **maximum absolute difference is 0.0351, the median is
+0.00093, and the maximum relative difference is 4.73%**. `displacement()` could
+not be reused, because it recomputes the true proportions at whatever $\theta$ it
+is handed and therefore returns zero; the score had to separate the
+data-generating parameter from the evaluation parameter.
+
+**And the verifier was enforcing the mislabel.** One of its assertions required
+the protocol to *contain the phrase* "contraction of a Laplace approximation", so
+correcting the document failed the check and the failure read as a regression. **A
+guard that pins a wrong description in place is worse than no guard**, and it is
+the second in this study to behave that way, after the equal-SD guard that kept
+certifying a mechanism under a restriction nobody had registered. The assertion now
+requires the approximation to be *named*, and separate assertions check that the
+name is the right one and that neither the mislabel nor the admission has returned.
+
 ## Three numbers that went stale, and what finally stopped it
 
 Rounds 2, 4 and 5 each found a printed number that no longer followed from the code.

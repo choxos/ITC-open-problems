@@ -24,7 +24,7 @@ source("R/03-run-e1.R")
 REQUIRED <- c("results/e1.rds", "results/state-probe.rds",
               "results/collision-probe.rds", "results/anticorrelation-probe.rds",
               "results/curvature-rank.rds", "results/e2.rds",
-              "results/e2-verdict.rds")
+              "results/e2-verdict.rds", "results/contraction-gap.rds")
 missing <- REQUIRED[!file.exists(REQUIRED)]
 if (length(missing))
   stop("the export is missing artifacts the protocol quotes, so the verifier ",
@@ -169,6 +169,17 @@ out$probe_worst_randomized <- signif(max(cp$E[, 1]), 4)
 ac <- readRDS("results/anticorrelation-probe.rds")
 out$probe_null_cover_min <- round(min(ac$null_coverage), 3)
 out$probe_null_cover_max <- round(max(ac$null_coverage), 3)
+
+## --- how far the registered contraction sits from a Laplace one -------------
+## The protocol used to call E2's contraction a Laplace approximation, which it
+## is not, and then say the gap was "bounded by nothing measured here". The label
+## is corrected and the bound is now a number rather than a caveat.
+cg <- readRDS("results/contraction-gap.rds")
+out$contraction_gap <- list(
+  n_scenarios = cg$n_scenarios,
+  max_abs = round(cg$max_abs, 4),
+  median_abs = round(cg$median_abs, 5),
+  max_rel_pct = round(100 * cg$max_rel, 2))
 
 ## --- E2's curvature mechanism, checked rather than asserted -----------------
 cr <- readRDS("results/curvature-rank.rds")

@@ -172,8 +172,15 @@ check("E2 is not claimed to be fitted",
 check("E2 coverage is scoped to correct specification",
       "only where the model is correctly specified" in PROTOCOL,
       "misspecified coverage is not scoped out")
-check("E2's contraction is described as Laplace",
-      "contraction of a Laplace approximation" in PROTOCOL,
+# This assertion used to require the protocol to SAY "contraction of a Laplace
+# approximation", so the verifier was enforcing the mislabel: correcting the
+# document would have failed the check and the failure would have looked like a
+# regression. A guard that pins a wrong description in place is worse than no
+# guard, and it is the second one in this study to behave that way. It now
+# requires the approximation to be named, whichever name is right; the assertions
+# near the end of this file check that the name is the correct one.
+check("E2's contraction names the approximation it uses",
+      "normal approximation whose covariance is" in PROTOCOL,
       "the approximation is not stated")
 check("no E2 separation rule fires",
       all(r["separates"] is False for r in DESIGN["e2_rules"])
@@ -210,6 +217,33 @@ for needle in ("Rounds 1 to 4 used one reviewer",
 check("the history keeps the full disclosure list",
       "Every design choice changed after seeing a number" in CHANGES,
       "the disclosure list was lost in the split")
+
+# --- the contraction gap, which used to be an admission -----------------------
+# The protocol called E2's contraction a Laplace approximation and then said the
+# gap was bounded by nothing measured here. Both are now wrong to say, so both
+# are asserted against: the label must not have come back, and the four numbers
+# must match the export.
+_cg = DESIGN["contraction_gap"]
+check("the Laplace mislabel has not returned",
+      "contraction of a Laplace approximation" not in PROTOCOL,
+      "the protocol calls the quantity a Laplace approximation again")
+check("the protocol names the quantity actually computed",
+      "I(\\theta_{\\text{true}}) + P_0" in PROTOCOL,
+      "the normal-approximation covariance is not stated")
+check("the unmeasured-gap admission is gone",
+      "bounded by nothing measured here" not in PROTOCOL,
+      "the admission survived the measurement that replaced it")
+check("contraction-gap scenario count matches the export",
+      f"{_cg['n_scenarios']} correctly specified E2 scenarios" in PROTOCOL,
+      f"export says {_cg['n_scenarios']}")
+check("contraction-gap maximum absolute difference matches the export",
+      f"{_cg['max_abs']:.4f}" in PROTOCOL, f"export says {_cg['max_abs']:.4f}")
+check("contraction-gap median matches the export",
+      f"{_cg['median_abs']:.5f}" in PROTOCOL,
+      f"export says {_cg['median_abs']:.5f}")
+check("contraction-gap maximum relative difference matches the export",
+      f"{_cg['max_rel_pct']:.2f}%" in PROTOCOL,
+      f"export says {_cg['max_rel_pct']:.2f}%")
 
 # --- the header's assertion count must be the count that ran ------------------
 _claimed = re.search(r"\*\*(\d+)\*\* assertions", PROTOCOL)
