@@ -353,6 +353,18 @@ check("E2 is stated to have been run after its rules were committed",
       or "run after these rules were committed" in PROTOCOL,
       "the registration order of E2 is not stated")
 
+# A finding accepted in part must record which part was rejected, or the
+# concession reads as full agreement and the reviewer's overstatement becomes the
+# study's position.
+check("the partly-upheld round-5 finding records what was rejected",
+      "the literal claim is wrong" in PROTOCOL
+      and "Both summaries are computed." in PROTOCOL,
+      "the rejected half of the finding is not stated")
+check("and records what was accepted",
+      "contraction of a Laplace\napproximation" in RAW
+      or "contraction of a Laplace approximation" in PROTOCOL,
+      "the accepted half is not stated")
+
 # The header cites how many assertions guard the document, so that number has to
 # be the number that ran.
 _claimed = re.search(r"\*\*(\d+)\*\* assertions", PROTOCOL)

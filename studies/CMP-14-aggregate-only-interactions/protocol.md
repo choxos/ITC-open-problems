@@ -8,7 +8,7 @@ part on IDN-06 *ML-NMR interactions can rest solely on aggregate-data variation*
 
 **Provenance.** Every number this document prints is exported from the code that computes it
 by `R/05-export.R`, and `review/verify-protocol.py` asserts the document against that export,
-currently **123** assertions. The four controls in section 5 are asserted against the values
+currently **125** assertions. The four controls in section 5 are asserted against the values
 that made them pass, not merely described, because section 8 concedes that two of them were
 weakened after they failed.
 
@@ -317,6 +317,22 @@ large-sample posterior covariance and the large-sample sampling distribution of 
 `curvature` state is two aggregate studies at the same covariate mean with different covariate
 SDs.
 
+**A round-5 finding partly upheld, and the part that is wrong is worth saying too.** Grok's first
+finding was that "Fisher information of a logistic component model ... does not form a prior or a
+posterior, so it cannot compute prior-to-posterior contraction", and that at most one of the two
+summaries CMP-14 names is therefore in scope for E2. Checked against the code, the literal claim is
+wrong: `evaluate_e2` forms the prior precision $P_0$ explicitly, forms $(I + P_0)^{-1}$ as the
+posterior covariance, and takes the ratio of marginal standard deviations. Both summaries are
+computed.
+
+**The underlying objection survives in a weaker and correct form.** $(I + P_0)^{-1}$ is a Gaussian
+approximation to a posterior that is not Gaussian. Contraction of that approximation is not
+contraction of the posterior, and for a logistic likelihood with a weakly identified interaction the
+gap is not bounded by anything this study measures. So E2 examines **contraction of a Laplace
+approximation**, which is the right description and is not the same object CMP-14 asks to be reported.
+Effective rank is on firmer ground, being a property of the information matrix directly. Section 9
+carries this.
+
 **What E2 is not.** It is not a fitted arm. No `multinma` model is run, no MCMC is involved,
 and no sampler policy is registered, because none is needed for an information calculation and
 registering one would repeat exactly the defect round 1 found. **A fitted arm remains future
@@ -487,8 +503,13 @@ protocol is treated as having cleared critique.
   are represented by Gauss-Hermite nodes, so every E1 number is exact for a study whose
   covariate distribution is realized exactly and is an expectation otherwise. Realized
   contraction carries replicate-level variation that E1 does not measure.
-- **E2 is asymptotic, not fitted.** Its coverage figures are normal approximations from the
-  Fisher information. No `multinma` model is run and no posterior is sampled, so nothing here
+- **E2 is asymptotic, not fitted, and its contraction figures are contraction of a Laplace
+  approximation rather than of a posterior.** A round-5 finding overstated this as E2 being unable to
+  compute contraction at all, which is wrong because the prior and the approximate posterior are both
+  formed explicitly; but the approximation gap is real, is unbounded by anything measured here, and
+  matters most exactly where the interaction is weakly identified, which is the case the study is
+  about. Effective rank is unaffected, being a property of the information matrix itself. Its coverage
+  figures are normal approximations from the Fisher information. No `multinma` model is run and no posterior is sampled, so nothing here
   measures MCMC error or the behavior of these summaries under a genuinely non-conjugate
   posterior. A fitted arm is future work.
 - Fixed-effect synthesis, known residual variance, correctly specified linear mean.
