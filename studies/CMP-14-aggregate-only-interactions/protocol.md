@@ -7,7 +7,7 @@ on IDN-06 *ML-NMR interactions can rest solely on aggregate-data variation*.
 [doi:10.1002/sim.8086](https://doi.org/10.1002/sim.8086)).
 
 **Change history is in [`CHANGES.md`](CHANGES.md), not here.** Ten rounds of critique returned
-**164** fatal and serious findings between **3** reviewers, counted as returned rather than
+**167** fatal and serious findings between **3** reviewers, counted as returned rather than
 deduplicated. GLM contributed only in round 8, having been unavailable before it. The recurring one was an internal inconsistency: a claim withdrawn in one section and
 still standing in another, which came from rewriting this document in layers. **Every position is
 intended to be stated once**, and what it replaced is in the history. That is a discipline rather
@@ -21,7 +21,7 @@ guarantee; emission is a convenience.** `R/05-export.R` writes every quantity th
 which round 9 found quoted here and read by nothing: the verifier had the route taxonomy's expected
 entries written into it as constants, so a change in `R/08-routes.R` would have left document and
 guard agreeing and both wrong. `review/verify-protocol.py` then checks the document against that
-file, currently **196** assertions, and that is the link that catches a stale or invented number.
+file, currently **198** assertions, and that is the link that catches a stale or invented number.
 `review/emit-tables.py` regenerates a handful of sentences from the same export so they need not be
 retyped; it covers **some** numbers, not all, and **it now fails when one of its patterns matches
 nothing** rather than reporting success. Round 6 found it targeting a sentence an earlier rebuild had
@@ -119,11 +119,14 @@ satisfied exactly at $\Gamma_W + \text{shift}$, and the size of the resulting er
 measures. **Section 8 establishes this for E2** (worst pointwise gap 2.22e-16 against a registered
 tolerance of 1e-12). **E1's version is established separately**, in `R/09-smoke.R`: E1's exact
 Gaussian bias, computed with no aliasing algebra in it at all, equals the same
-$\text{shift} - [(I+P_0)^{-1}P_0\theta^{*}]_{\Gamma_3}$ expression to **1.05e-15** over 40
-scenarios, and `mean_true` equals $X\theta^{*}$ pointwise to **1.78e-15** over **all 504** E1
-scenarios. The second of those was quoted here for a round while **no code computed it**: the smoke
-test checked only the scalar bias identity and the number came from a scratch script, which is the
-same defect as a typed truth table wearing the words "asserted by a guard". Saying "section 8 establishes it on both arms"
+$\text{shift} - [(I+P_0)^{-1}P_0\theta^{*}]_{\Gamma_3}$ expression to **1.67e-15**, and `mean_true` equals
+$X\theta^{*}$ pointwise to **1.78e-15**, **both over all 504 E1 scenarios**. The pointwise figure was
+quoted here for a round while **no code computed it**: the smoke test checked only the scalar bias
+identity and the number came from a scratch script, which is a typed truth table wearing the words
+"asserted by a guard". The bias identity then ran on a sample of **40** for a further round, with no
+statement of which 40 or whether they covered the shifted cells; a subset that might miss those
+cannot underwrite the arm, and there was no reason for the two checks to differ except that one had
+been written as a spot check. Saying "section 8 establishes it on both arms"
 pinned an E1 claim on an E2-only measurement. Calling
 the estimand $\Gamma_{W,3}$ elsewhere suggested the model contains $\Gamma_W$ and $\Gamma_B$
 separately; it does not.
@@ -372,9 +375,13 @@ excluded from the denominator as well.
 **The answer, which this section did not previously state: every statistic overlaps, on both arms.**
 On E1, over 251 failing and 169 nominal
 scenarios, and on E2 over 41 and 12.
-**No threshold on contraction, on either effective-rank reading, on the estimability screen or on the
-candidate separates failing coverage from nominal coverage.** That is the study's central negative
-result and section 7 had been reporting the secondary numbers and primary 3 without it.
+**No threshold on contraction, on either effective-rank reading, or on the estimability screen
+separates failing coverage from nominal coverage.** Those four are what primary 1 registers, and that
+is the study's central negative result; section 7 had been reporting the secondary numbers and
+primary 3 without it. **The candidate overlaps too and is not part of the claim**: it is this study's
+own post hoc statistic, it carries `post-hoc-candidate` on its row, and including it in the central
+result would give an exploratory rule the standing section 1 denies it. An earlier wording listed it
+alongside the four, so one sentence both asserted and denied its status.
 
 **Primary 1 covers the three CMP-14 rules and `rank_screen`. `source_survival` appears in the same
 table and is not a primary result.** It is this study's own post hoc candidate, and giving it the
@@ -677,7 +684,9 @@ does not reproduce.
   0.951, on a grid with 16 matched pairs against E1's
   216. Primary 3 **reverses sign**. **One of three reproduces**, and the other two
   differ in ways the E2 grid is too thin to adjudicate.
-- **The E1 finding does not reproduce on the nonlinear arm.** Primary 3's rank correlation between
+- **Primary 3 does not reproduce on the nonlinear arm.** Named by primary rather than as "the E1
+  finding", because primary 1 *does* reproduce and the loose phrase read as retracting the bridge
+  section 8 asserts. Primary 3's rank correlation between
   contraction and coverage is $+0.3295$ over E1's 144 confounded scenarios and $-0.5952$ over E2's 8.
   The signs are opposite, so the inversion E1 reports is not a property of the diagnostic that
   survives a change of link in this design. Section 7 promised this limitation would be carried here

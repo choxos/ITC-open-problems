@@ -154,9 +154,12 @@ ok("primary 1 compares against NOMINAL scenarios",
 ## occurred three times in this study.
 cat("\n=== the aliasing formula, checked across both arms ===\n")
 local({
-  set.seed(11)
+  ## ROUND 10: A SAMPLE OF 40 WITH NO STATEMENT OF WHICH 40. The bias identity is
+  ## what justifies coverage under a shift, so a subset that might miss the
+  ## shifted cells cannot underwrite the arm. It runs on the WHOLE grid now; the
+  ## pointwise check below already did, and there was no reason for the two to
+  ## differ except that one was written as a spot check.
   g <- build_grid()
-  g <- g[sample(nrow(g), 40), ]
   gaps <- vapply(seq_len(nrow(g)), function(i) {
     r <- g[i, ]
     b <- build_design(build_state(r$state, r$spread, r$n))

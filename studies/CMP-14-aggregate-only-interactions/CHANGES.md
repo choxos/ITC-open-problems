@@ -3,7 +3,7 @@
 **This file is the change history. `protocol.md` is what is registered now.**
 
 They were one document until the fifth round of critique, and separating them is a
-fix rather than tidying. Ten rounds of critique returned **164 fatal and serious findings** between three
+fix rather than tidying. Ten rounds of critique returned **167 fatal and serious findings** between three
 reviewers, counted as the table below counts them: findings **as returned**, so a defect
 found again in a later round is counted again, and the minor findings are not in that
 total. **It is not a count of distinct defects and no such count is claimed.** An earlier
@@ -48,6 +48,7 @@ review**, and it matters what it showed.
 | 9 | grok | needs-revision | 1 | 3 |
 | 9 | glm | needs-revision | 0 | 0 |
 | 10 | codex | needs-revision | 0 | 7 |
+| 10 | grok | needs-revision | 0 | 3 |
 
 **Seven topics were raised independently by both reviewers in round 5**: the
 equal-SD guard's hidden baseline restriction, the source statistic not being a
@@ -767,3 +768,31 @@ console.**
 Two smaller ones: the aliasing tolerance was verified against a literal rather
 than the exported `E2_ALIAS_TOL`, and primary 2's 0.951 was claimed as a lower
 bound when the unrounded maximum is 0.9505515516.
+
+## Round 10's second reviewer, and two findings that arrived already fixed
+
+Grok reviewed the same document hash as codex, `583ab31d`, and returned three
+serious findings of which **two were the same defects codex found**: the
+secondary false-alarm figures unlabeled in a dual-arm section, and primary 2 on E2
+described as untested when it returns a number. Both were repaired from codex's
+version before grok's reply arrived. **That is convergence, and it is the second
+time in this study two reviewers have independently found the same thing**; the
+first was the ten-arm curvature state in round 6.
+
+Its third finding is new and is a contradiction inside one paragraph. The
+sentence naming the study's **central negative result** listed the post hoc
+candidate alongside the three CMP-14 rules and the estimability screen, while the
+next paragraph says primary 1 covers the four and that the candidate "is not a
+primary result". **One sentence both asserted and denied the candidate's
+standing.** The central result is now the four registered statistics; the
+candidate overlaps as well, carries `post-hoc-candidate` on its row, and is
+outside the claim.
+
+Two minor ones, both about a residue the previous repair left. The bias identity
+had been checked on **a sample of 40 scenarios with no statement of which 40**, in
+a document that had just removed a number produced by a scratch script; a subset
+that might miss the shifted cells cannot underwrite the arm, so it runs on all 504
+now and reports **1.67e-15** rather than the sample's 1.05e-15. And "the E1
+finding" was used for primary 3 while "E1's conclusion" meant primary 1, so
+section 9 could be read as retracting the bridge section 8 asserts. Both claims
+are named by primary now.

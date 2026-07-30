@@ -411,8 +411,7 @@ check("the state-separation field is named for what it tests",
 # is worse than a guard that pins a phrase: the phrase-pinning ones at least
 # failed loudly when the document changed. Plain membership, no substitution.
 check("E1's aliasing gaps come from a guard, not from prose",
-      f"**{DESIGN['e1_alias_bias_gap']:.3g}** over {DESIGN['e1_alias_n_bias']}"
-      in PROTOCOL
+      f"**{DESIGN['e1_alias_bias_gap']:.3g}**" in PROTOCOL
       and DESIGN["e1_alias_n_pointwise"] == DESIGN["n_scenarios"],
       f"export says {DESIGN['e1_alias_bias_gap']:.3g} and "
       f"{DESIGN['e1_alias_pointwise_gap']:.3g}")
@@ -428,8 +427,8 @@ check("no assertion in this file rewrites its input before testing it",
       len(_subs) == 0,
       f"{len(_subs)} substitution(s): {_subs[:1]}")
 check("the pointwise check covers the whole E1 grid",
-      f"pointwise to **{DESIGN['e1_alias_pointwise_gap']:.3g}** over **all "
-      f"{DESIGN['e1_alias_n_pointwise']}** E1" in PROTOCOL,
+      f"pointwise to **{DESIGN['e1_alias_pointwise_gap']:.3g}**, **both over all "
+      f"{DESIGN['e1_alias_n_pointwise']} E1 scenarios**" in PROTOCOL,
       f"export says {DESIGN['e1_alias_pointwise_gap']:.3g} over "
       f"{DESIGN['e1_alias_n_pointwise']}")
 check("the route table is exported rather than hardcoded in this file",
@@ -470,6 +469,14 @@ check("the CMP-14 summaries are marked as such",
       "a CMP-14 summary carries the wrong standing")
 
 # --- round 8's second reviewer: the bridge between the arms -------------------
+check("the central negative result is scoped to the registered statistics",
+      "or on the estimability screen\nseparates failing coverage" in RAW
+      and "The candidate overlaps too and is not part of the claim" in PROTOCOL,
+      "the post hoc candidate is inside the central claim")
+check("the aliasing checks cover the same grid",
+      DESIGN["e1_alias_n_bias"] == DESIGN["e1_alias_n_pointwise"] == DESIGN["n_scenarios"],
+      f"bias over {DESIGN['e1_alias_n_bias']}, pointwise over "
+      f"{DESIGN['e1_alias_n_pointwise']}, grid {DESIGN['n_scenarios']}")
 check("primary 1 is answered, not only defined",
       "every statistic overlaps, on both arms" in PROTOCOL,
       "the outcomes section defines primary 1 without stating its answer")
