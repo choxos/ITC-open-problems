@@ -56,9 +56,13 @@ SPLIT_BUDGET = 14_000
 PREAMBLE = """You are reviewing a PRE-REGISTRATION for a simulation study. Nothing has been
 run yet. Your job is to find defects while they are still free to fix.
 
-This is the FIRST round of critique on this document. The previous study in this programme
-took six rounds and its sixth still returned thirteen fatal findings, so assume this one is
-wrong in several places. The categories that rounds of this programme have actually found, in
+This is the SEVENTH round of critique on this document. Six rounds have returned 107 fatal
+and serious findings and the sixth still returned fourteen fatal ones, including a restriction
+that had been suppressing 28 of 72 scenarios on a premise that never held. Assume this round
+is wrong in several places too, and note that a repair made in a previous round is one of the
+likelier places: this programme has repeatedly found a fix applied in one file and not its
+twin, and five verifier assertions that were pinning a withdrawn claim in place by requiring
+the document to contain a sentence rather than by checking a value. The categories that rounds of this programme have actually found, in
 descending order of frequency:
 
 1. A number printed in one section that contradicts the same quantity in another, or that was
@@ -168,8 +172,18 @@ def call_grok(prompt: str) -> tuple[str, str, int, float]:
                 "--effort", "high", "--output-format", "plain"])
 
 
+# GLM, added for round 7 as a third independent reviewer. It runs through the
+# same opencode backend as kimi, so it inherits that backend's payload ceiling:
+# above roughly 40 KB the call returns zero bytes with exit status 0, which looks
+# like "no findings" and is not. The split path already exists for grok and is
+# what this uses; the reviewer is never trimmed, only split.
+def call_glm(prompt: str) -> tuple[str, str, int, float]:
+    return run(["opencode", "run", "--pure", "-m", "opencode/glm-5.2",
+                GROK_NO_TOOLS + prompt])
+
+
 # kimi/opencode is out of quota for this study; see the module docstring.
-REVIEWERS = {"codex": call_codex, "grok": call_grok}
+REVIEWERS = {"codex": call_codex, "grok": call_grok, "glm": call_glm}
 
 
 def main() -> None:
@@ -213,8 +227,13 @@ load skills.
 """ + protocol
     jobs.append(("codex", "whole", whole))
 
-    # grok takes the whole document as text, no repository access.
+    # grok and glm take the whole document as text, no repository access. Two
+    # text-only reviewers against one with repository access is deliberate: the
+    # findings that only codex can make are the ones about code, and the findings
+    # only the text readers make are the ones about what the document fails to
+    # say. Round 6 produced both kinds and neither reviewer found the other's.
     jobs.append(("grok", "whole", PREAMBLE + "\n--- PROTOCOL ---\n" + protocol))
+    jobs.append(("glm", "whole", PREAMBLE + "\n--- PROTOCOL ---\n" + protocol))
 
     want_r = set(args.only.split(",")) if args.only else set(REVIEWERS)
     want_p = set(args.parts.split(",")) if args.parts else None
