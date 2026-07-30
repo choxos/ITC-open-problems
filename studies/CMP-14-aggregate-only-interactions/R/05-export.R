@@ -352,6 +352,14 @@ if (nrow(sp2)) {
   ## that is essentially zero". Those are different claims.
   out$e2_pairs_close_max_cover_gap <-
     if (nrow(cl2)) signif(max(abs(cl2$cover_gap)), 4) else NA_real_
+  ## ROUND 11: WHETHER THE RETAINED PAIRS CARRY THE MECHANISM. Primary 2 prices a
+  ## randomized route against a CONFOUNDED one, and a pair at discordance zero is
+  ## the unconfounded null control. E2's single close pair is one of those, so its
+  ## gap describes the control rather than the contrast, and the cross-arm
+  ## reproduction question cannot be answered from it.
+  out$e2_pairs_close_discord <- sort(unique(cl2$discord))
+  out$e2_pairs_close_n_confounded <- sum(cl2$discord > 0)
+  out$e1_pairs_close_n_confounded <- sum(close$discord > 0)
 } else {
   out$e2_pairs_total <- 0L; out$e2_pairs_close <- 0L
   out$e2_pairs_close_max_cover_gap <- NA_real_

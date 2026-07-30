@@ -381,9 +381,18 @@ if (!interactive() && Sys.getenv("E2_NOMAIN") == "") {
               = !any(is.na(res$coverage)),
             "a scenario's departure is not exact aliasing"
               = max(res$alias_gap) <= E2_ALIAS_TOL)
-  cat(sprintf("source SURVIVAL, curvature: %s | ecological: %s | separates them: %s\n",
+  ## ROUND 11: THIS LINE PRINTED ONE STATISTIC'S VALUES BESIDE THE OTHER'S
+  ## VERDICT. The two ranges came from `surv_between`, which is 0 in both
+  ## aggregate-only states by construction, while `separates them` came from
+  ## `surv_sd_separates`. So it showed two identical zeros next to TRUE, and no
+  ## reader could tell which form does the separating. Both forms print, each
+  ## beside its own verdict.
+  cat(sprintf("surv_between  curvature: %s | ecological: %s  (0 in both by construction)\n",
               paste(v$curvature_surv, collapse = ", "),
-              paste(v$ecological_surv, collapse = ", "),
+              paste(v$ecological_surv, collapse = ", ")))
+  cat(sprintf("surv_sd       curvature: %s | ecological: %s | separates them: %s\n",
+              paste(v$surv_sd_curvature, collapse = "-"),
+              paste(v$surv_sd_ecological, collapse = "-"),
               v$surv_sd_separates))
   ## --- PLACEBO PREVALENCE IS 0.3 AT x = 0, NOT IN THE ARM --------------------
   ##

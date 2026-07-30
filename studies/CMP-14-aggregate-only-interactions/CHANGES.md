@@ -3,7 +3,7 @@
 **This file is the change history. `protocol.md` is what is registered now.**
 
 They were one document until the fifth round of critique, and separating them is a
-fix rather than tidying. Ten rounds of critique returned **168 fatal and serious findings** between three
+fix rather than tidying. Eleven rounds of critique returned **173 fatal and serious findings** between three
 reviewers, counted as the table below counts them: findings **as returned**, so a defect
 found again in a later round is counted again, and the minor findings are not in that
 total. **It is not a count of distinct defects and no such count is claimed.** An earlier
@@ -50,6 +50,7 @@ review**, and it matters what it showed.
 | 10 | codex | needs-revision | 0 | 7 |
 | 10 | grok | needs-revision | 0 | 3 |
 | 10 | glm | needs-revision | 0 | 1 |
+| 11 | codex | needs-revision | 0 | 5 |
 
 **Seven topics were raised independently by both reviewers in round 5**: the
 equal-SD guard's hidden baseline restriction, the source statistic not being a
@@ -835,3 +836,45 @@ eight were wrong.** It has never once identified a real fatal defect, and it has
 twice produced clarifications worth making by misreading something a careful
 reader could also misread. That is the value it adds, and it is worth one CLI
 call, but it is not the value a third reviewer was added to provide.
+
+## Round 11: a distribution nobody registered, and a pair that proves nothing
+
+**Second consecutive round with no fatal finding.** Five serious ones, and two of
+them change what the study can claim.
+
+**E2 rests on a covariate distribution the protocol never registered.** The
+document said an aggregate arm's prevalence "depends on each study's covariate
+mean and SD". It does not: the arm probability is
+$\int \operatorname{expit}(\eta(x))\,\phi(x)\,dx$, and that integral depends on
+the whole law. Two covariates with the same mean and SD give different arm
+probabilities, different Fisher information, different contraction and different
+coverage. The implementation has always assumed **normality**, through 64-point
+Gauss-Hermite quadrature, and nothing said so. **Every E2 number is conditional on
+a distributional assumption that appeared in no section**, which section 9 now
+carries. On the identity link the shape genuinely does not matter, which is
+presumably why it went unnoticed for eleven rounds.
+
+**Primary 2's E2 pair carries no confounding, so it settles nothing.** E2's single
+close pair sits at **discordance zero**, which this document elsewhere calls the
+unconfounded null control. Primary 2 exists to price a randomized route against a
+confounded one, and E2 has **no close confounded pair at all**, against E1's 36.
+
+**Both of this study's earlier statements about it were wrong, in opposite
+directions.** Round 9 called primary 2 "untested" on E2, understating a defined
+outcome. Round 10 corrected that to "does not reproduce", overstating what a
+null-control pair can refute. **The accurate statement is narrower than either**:
+the statistic is defined on E2 and the comparison it stands for is unavailable
+there. Two rounds of confidently reversing a claim, and the truth was outside both
+positions.
+
+Three more, all in round-10 repairs. The runtime candidate line printed
+`surv_between`'s two zeros beside `surv_sd`'s separation verdict, so it showed
+identical values next to TRUE and no reader could tell which form separates; both
+forms now print beside their own verdicts. The E2 secondary was described as
+resting on "41 failing and 12 nominal cells" when the candidate row rests on
+**33 failing**, `surv_between` being undefined in 16 E2 scenarios. And the E2
+secondary table, added in round 10 to fix a labeling promise, **shipped without
+the standing column that promise is about**.
+
+One minor: the protocol still said GLM "contributed only in round 8" after it had
+reviewed in rounds 9 and 10.

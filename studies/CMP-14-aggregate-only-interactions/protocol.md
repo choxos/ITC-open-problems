@@ -6,9 +6,11 @@ on IDN-06 *ML-NMR interactions can rest solely on aggregate-data variation*.
 **Reporting standard.** ADEMP (Morris, White and Crowther 2019,
 [doi:10.1002/sim.8086](https://doi.org/10.1002/sim.8086)).
 
-**Change history is in [`CHANGES.md`](CHANGES.md), not here.** Ten rounds of critique returned
-**168** fatal and serious findings between **3** reviewers, counted as returned rather than
-deduplicated. GLM contributed only in round 8, having been unavailable before it. The recurring one was an internal inconsistency: a claim withdrawn in one section and
+**Change history is in [`CHANGES.md`](CHANGES.md), not here.** Eleven rounds of critique returned
+**173** fatal and serious findings between **3** reviewers, counted as returned rather than
+deduplicated. GLM was unavailable in rounds 5 to 7, reviewed in
+rounds 8, 9 and 10, and has contributed **one** accepted serious finding across those three: it has
+returned eight fatal findings and every one was wrong. `CHANGES.md` records the arithmetic. The recurring one was an internal inconsistency: a claim withdrawn in one section and
 still standing in another, which came from rewriting this document in layers. **Every position is
 intended to be stated once**, and what it replaced is in the history. That is a discipline rather
 than a guarantee: round 9 found the withdrawn state-separation criterion still asserted in two
@@ -21,7 +23,7 @@ guarantee; emission is a convenience.** `R/05-export.R` writes every quantity th
 which round 9 found quoted here and read by nothing: the verifier had the route taxonomy's expected
 entries written into it as constants, so a change in `R/08-routes.R` would have left document and
 guard agreeing and both wrong. `review/verify-protocol.py` then checks the document against that
-file, currently **198** assertions, and that is the link that catches a stale or invented number.
+file, currently **206** assertions, and that is the link that catches a stale or invented number.
 `review/emit-tables.py` regenerates a handful of sentences from the same export so they need not be
 retyped; it covers **some** numbers, not all, and **it now fails when one of its patterns matches
 nothing** rather than reporting success. Round 6 found it targeting a sentence an earlier rebuild had
@@ -81,6 +83,19 @@ which is the event that would make the sentence beside it read false. It does no
 value rounds to 0.2999, reads as different from 0.3, and is not the failure mode. An earlier draft
 offered 0.2999 as the motivating counterexample, which the tolerance does not and should not trip. The two models are different and the sections that use
 them say which.
+
+**The covariate is Normal within each study, and that is a registered assumption rather than a
+detail.** $x \sim \mathcal{N}(\mu_s, \sigma_s^2)$ with the study's own mean and SD. On the identity
+link only the first two moments enter, so the shape is immaterial there; **on the logit link it is
+not**, because every aggregate arm's probability is
+$\int \operatorname{expit}(\eta(x))\,\phi(x)\,dx$ and that integral depends on the whole law. Two
+covariate distributions with identical mean and SD give different arm probabilities, different Fisher
+information, different contraction and different coverage. Until round 11 this document said the arm
+value "depends on each study's covariate mean and SD", which is false as stated and true only once
+the family is fixed.
+
+**The integral is evaluated by 64-point Gauss-Hermite quadrature.** **Every E2 result is conditional
+on both choices**, and section 9 carries that.
 
 **$\sigma^2$ is fixed and known** at $\sigma = 1$. That is not incidental: the closed-form posterior
 covariance $(I + P_0)^{-1}$ used throughout E1 holds for a Gaussian model with known residual
@@ -231,11 +246,11 @@ version it replaced.
 
 | rule | what it is | status |
 |---|---|---|
-| `contraction` | marginal posterior SD over marginal prior SD, target coordinate | what CMP-14 asks for |
-| `target_ratio` | the likelihood's own marginal precision over the prior's, along the target coordinate | what CMP-14 asks for, per parameter |
-| `eff_rank` | count of directions where the data outweigh the prior, whole model | what CMP-14 asks for, model level |
-| `rank_screen` | is the coordinate identified by the likelihood at all, computed with no prior | the estimability screen `cpaic` ships |
-| `source_survival` | fraction of the target's marginal likelihood precision surviving deletion of a source | **this study's candidate, exploratory** |
+| `contraction` | CMP-14 | marginal posterior SD over marginal prior SD, target coordinate | what CMP-14 asks for |
+| `target_ratio` | CMP-14 | the likelihood's own marginal precision over the prior's, along the target coordinate | what CMP-14 asks for, per parameter |
+| `eff_rank` | CMP-14 | count of directions where the data outweigh the prior, whole model | what CMP-14 asks for, model level |
+| `rank_screen` | existing screen | is the coordinate identified by the likelihood at all, computed with no prior | the estimability screen `cpaic` ships |
+| `source_survival` | **post hoc** | fraction of the target's marginal likelihood precision surviving deletion of a source | **this study's candidate, exploratory** |
 
 **CMP-14 asks for two summaries and they produce three rules.** The two are prior-to-posterior
 contraction per interaction parameter, and an effective likelihood rank. The rank has a whole-model
@@ -402,17 +417,21 @@ remove the confounding the contrast exists to price. The rule is `key = (spread,
 report the **maximum absolute coverage gap** across them. **On E1 that is 0.951**, over
 54 close pairs drawn from 216.
 
-**On E2 the rule is satisfied and the answer is essentially zero**: 16 matched
-pairs, of which **1** is close, with a coverage gap of
-**0.0001286**. The registered rule asks for at least one close pair and sets
-no minimum count, so **that is a computed result, not a missing one**; an earlier draft called
-primary 2 "untested" on E2, which confused a sparse grid with an undefined outcome.
+**On E2 the rule is satisfied, and the pair it retains is the wrong one.** 16
+matched pairs, of which **1** is close, with a coverage gap of
+**0.0001286**. That is a computed number, not a missing one. **But its
+discordance is zero**, which this document elsewhere calls the unconfounded null control, so the
+number prices `additivity` against an `ecological` arm carrying no confounding at all. **Primary 2
+exists to price a randomized route against a confounded one**, and E2 contains **no close confounded
+pair**.
 
-**What it means is bounded by how thin it is.** One pair is one pair: E2 has two spreads where E1 has
-six and two budgets where E1 has three, so this rests on a single matched pair against E1's
-54. **E1's 0.951 does not reproduce on E2**, and the
-honest reading is that E2's grid was never built to test primary 2, not that primary 2 fails there.
-The arm is named on every number because a figure reported without one reads as the study's.
+**So the cross-arm question cannot be answered on E2, and two earlier drafts got it wrong in opposite
+directions.** One called primary 2 "untested" there, understating a defined outcome. The next said
+E1's 0.951 "does not reproduce on E2", overstating what a null-control pair
+can refute. The accurate statement is narrower than both: **the statistic is defined on E2 and the
+comparison it stands for is not available there**, because E2's grid produces no close pair that
+carries the mechanism. The arm is named on every number because a figure reported without one reads
+as the study's.
 The claim is that two evidence structures a reader would call identically well identified differ by
 **about that much** in whether the interval covers. The unrounded maximum is 0.9505515516, so
 0.951 is a rounded display and not a lower bound; "at least that much" was
@@ -486,17 +505,21 @@ value is exported alongside the new one so the size of the correction is visible
 **These are E1's figures. On E2 the same rules perform far better**, which is a result rather than a
 footnote:
 
-| rule | E1 Youden | E2 Youden | E2 sensitivity | E2 false alarm |
-|---|---:|---:|---:|---:|
-| `contraction` | 0.2195 | **0.8049** | 0.8049 | 0 |
-| `target_ratio` | 0.1793 | **0.7073** | 0.7073 | 0 |
-| `eff_rank` | 0.2371 | **0.8293** | 0.8293 | 0 |
-| `rank_screen` | 0.0717 | 0.1951 | 0.1951 | 0 |
-| `source_survival` | 0.2585 | 0.2424 | 0.5758 | 0.3333 |
+| rule | standing | E1 Youden | E2 Youden | E2 sensitivity | E2 false alarm |
+|---|---|---:|---:|---:|---:|
+| `contraction` | CMP-14 | 0.2195 | **0.8049** | 0.8049 | 0 |
+| `target_ratio` | CMP-14 | 0.1793 | **0.7073** | 0.7073 | 0 |
+| `eff_rank` | CMP-14 | 0.2371 | **0.8293** | 0.8293 | 0 |
+| `rank_screen` | existing screen | 0.0717 | 0.1951 | 0.1951 | 0 |
+| `source_survival` | **post hoc** | 0.2585 | 0.2424 | 0.5758 | 0.3333 |
 
 **Read those E2 columns against only 12 nominal scenarios.** A
-false-alarm rate of zero over twelve is a weakly determined zero, and the whole E2 secondary rests on
-41 failing and 12 nominal cells. **The
+false-alarm rate of zero over twelve is a weakly determined zero. The four registered rules rest on
+41 failing and 12 nominal cells; **the
+candidate rests on 33 failing**, because `surv_between` is undefined
+in 16 E2 scenarios, the eight `absent` cells and the eight
+`curvature` negative controls where the target is not identified at all. Its row is therefore
+computed on a different population from the rows beside it. **The
 registered secondary existed for E1 alone until round 10**, while this section presented its numbers
 under a heading covering both arms.
 
@@ -691,11 +714,10 @@ does not reproduce.
   offers the wrong reference quantity as a bound. **The 20.11% bounds the choice of Gaussian; it does
   not bound Gaussianity.**
 - **What reproduces on the nonlinear arm and what does not, primary by primary.** Primary 1
-  **reproduces**: every statistic overlaps on E2 as on E1. Primary 2 **does not**: its one
-  close E2 pair gives 0.0001286 against E1's
-  0.951, on a grid with 16 matched pairs against E1's
-  216. Primary 3 **reverses sign**. **One of three reproduces**, and the other two
-  differ in ways the E2 grid is too thin to adjudicate.
+  **reproduces**: every statistic overlaps on E2 as on E1. Primary 2 **cannot be asked**
+  there: its only close E2 pair sits at discordance zero, so E2 has no close pair carrying the
+  confounding primary 2 prices. Primary 3 **reverses sign**. **One of three reproduces, one is
+  unanswerable on E2's grid, and one goes the other way.**
 - **Primary 3 does not reproduce on the nonlinear arm.** Named by primary rather than as "the E1
   finding", because primary 1 *does* reproduce and the loose phrase read as retracting the bridge
   section 8 asserts. Primary 3's rank correlation between
@@ -720,6 +742,9 @@ does not reproduce.
   arms and the grid accordingly permits synergy only there. The synergy arm prices that
   conditionality rather than removing it. An earlier version said three of four states, which no part
   of the design or the code supports.
-- One continuous covariate, one binary component structure, one target component.
+- **One continuous covariate, Normal within study**, one binary component structure, one target
+  component. E2's aggregate arm probabilities integrate the covariate law through a curved link, so
+  every E2 number is conditional on normality and on the 64-point Gauss-Hermite rule that evaluates
+  the integral. Nothing here measures how far a skewed or bounded covariate would move them.
 - Conditional estimand only. Nothing is claimed about a target-population marginal contrast.
 - Numerical summaries only; a plot read by an analyst is a different instrument.

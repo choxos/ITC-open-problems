@@ -542,7 +542,7 @@ check("primary 2 on E2 is reported, not merely asserted to run",
       f"**{DESIGN['e2_pairs_close_max_cover_gap']}**" in PROTOCOL,
       f"export says {DESIGN['e2_pairs_close']} of {DESIGN['e2_pairs_total']}")
 check("the reproduction summary covers all three primaries",
-      "**One of three reproduces**" in PROTOCOL,
+      "**One of three reproduces, one is" in PROTOCOL,
       "section 9 does not say which primaries reproduce")
 check("no passage still says the six comparisons withdraw E1's conclusion",
       "withdraw E1's conclusion" not in PROTOCOL,
@@ -559,8 +559,8 @@ check("the secondary outcomes exist on E2, not only E1",
 check("the E2 secondary is reported with the sample it rests on",
       f"only {_w2['contraction']['n_nominal']} nominal scenarios" in PROTOCOL,
       "a false-alarm rate of zero is reported without its denominator")
-check("primary 2 on E2 is called a result, not a missing one",
-      f"a computed result, not a missing one" in PROTOCOL
+check("primary 2 on E2 is called a computed number with the wrong pair",
+      "That is a computed number, not a missing one" in PROTOCOL
       and f"**{DESIGN['e2_pairs_close_max_cover_gap']}**" in PROTOCOL,
       f"export says gap {DESIGN['e2_pairs_close_max_cover_gap']}")
 check("the aliasing tolerance is the registered constant",
@@ -578,6 +578,37 @@ check("primary 2's maximum is not presented as a lower bound",
       and PROTOCOL.count(_lb) == 1
       and f'"{_lb}" was\nfalse by' in RAW,
       "a rounded maximum is claimed as a bound outside the withdrawal")
+
+# --- round 11 -----------------------------------------------------------------
+check("the covariate law is registered, not assumed",
+      "The covariate is Normal within each study" in PROTOCOL
+      and "64-point Gauss-Hermite quadrature" in PROTOCOL,
+      "E2's aggregate integral rests on an unstated distribution")
+check("section 9 carries the distributional conditioning",
+      "conditional on normality" in PROTOCOL,
+      "the covariate assumption is registered but not limited")
+check("primary 2 on E2 says its close pair carries no confounding",
+      DESIGN["e2_pairs_close_n_confounded"] == 0
+      and "**But its\ndiscordance is zero**" in RAW
+      and "no close confounded\npair**" in RAW,
+      f"export says {DESIGN['e2_pairs_close_n_confounded']} confounded close pairs")
+check("E1 does have close confounded pairs, so the contrast is real there",
+      DESIGN["e1_pairs_close_n_confounded"] > 0,
+      "E1's primary 2 also rests on unconfounded pairs")
+check("the reproduction summary says primary 2 cannot be asked on E2",
+      "one is\n  unanswerable on E2's grid" in RAW,
+      "the summary still claims primary 2 fails to reproduce")
+_ss = [x for x in DESIGN["e2_warnings"] if x["rule"] == "source_survival"][0]
+check("the candidate's E2 denominator is distinguished from the others'",
+      f"**the\ncandidate rests on {_ss['n_failed']} failing**" in RAW,
+      f"export says {_ss['n_failed']} failing for the candidate")
+check("the E2 secondary table carries standing on every row",
+      "| `source_survival` | **post hoc** |" in PROTOCOL
+      and "| rule | standing | E1 Youden |" in PROTOCOL,
+      "the candidate row is packaged like a registered summary")
+check("the reviewer-provenance sentence is current",
+      "reviewed in\nrounds 8, 9 and 10" in RAW,
+      "the account of who reviewed when is stale")
 
 # --- the history is complete and elsewhere ------------------------------------
 check("the change history is a separate document",
