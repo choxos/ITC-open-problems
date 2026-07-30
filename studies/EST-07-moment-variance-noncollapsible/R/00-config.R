@@ -89,7 +89,7 @@ LEVELS <- list(
 ## The first four are fully crossed within each link; the last three are crossed
 ## with k and nT at the middle level of the others. The realized cell count is
 ## PROBE P2's output and is asserted, never typed.
-GRID_MIDDLE <- list(nT = 300L, k = 0.25, shape = "mvnorm",
+GRID_MIDDLE <- list(nT = 300L, nS = 2000L, k = 0.25, shape = "mvnorm",
                     corr_assumed = "true", modifier_span = "inside")
 
 ## --- held fixed, DESIGN.md section 4 ----------------------------------------

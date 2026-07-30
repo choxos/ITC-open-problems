@@ -33,15 +33,16 @@ MIN_OMITTED_SHARE <- 0.04
 ## four factors fully crossed within each link, the last three crossed with k and
 ## nT at the middle level of the others.
 build_grid <- function() {
-  core <- expand.grid(link = LEVELS$link, nT = LEVELS$nT, k = LEVELS$k,
-                      shape = GRID_MIDDLE$shape,
+  core <- expand.grid(link = LEVELS$link, nT = LEVELS$nT, nS = LEVELS$nS,
+                      k = LEVELS$k, shape = GRID_MIDDLE$shape,
                       corr_assumed = GRID_MIDDLE$corr_assumed,
                       modifier_span = GRID_MIDDLE$modifier_span,
                       KEEP.OUT.ATTRS = FALSE, stringsAsFactors = FALSE)
   extra <- do.call(rbind, lapply(
     c("shape", "corr_assumed", "modifier_span"), function(f) {
       lv <- setdiff(LEVELS[[f]], GRID_MIDDLE[[f]])
-      g <- expand.grid(link = LEVELS$link, nT = LEVELS$nT, k = LEVELS$k,
+      g <- expand.grid(link = LEVELS$link, nT = LEVELS$nT,
+                       nS = GRID_MIDDLE$nS, k = LEVELS$k,
                        shape = GRID_MIDDLE$shape,
                        corr_assumed = GRID_MIDDLE$corr_assumed,
                        modifier_span = GRID_MIDDLE$modifier_span,
@@ -86,7 +87,7 @@ main <- function() {
 
     ## The retained source variance, from the sandwich on a few replicates.
     vs <- vapply(seq_len(N_CAL_REP), function(q) {
-      d <- sample_replicate(LEVELS$nS, r$nT, r$k, r$link, r$shape, rho,
+      d <- sample_replicate(r$nS, r$nT, r$k, r$link, r$shape, rho,
                             modifier_span = r$modifier_span)
       eg <- estimator_gradient(d, r$link)
       if (!isTRUE(eg$ok)) return(NA_real_)
@@ -94,7 +95,7 @@ main <- function() {
       as.numeric(aI %*% eg$parts$B %*% aI) / eg$parts$n
     }, 0)
     v_src <- mean(vs, na.rm = TRUE)
-    data.frame(cell_id = r$cell_id, link = r$link, nT = r$nT, k = r$k,
+    data.frame(cell_id = r$cell_id, link = r$link, nT = r$nT, nS = r$nS, k = r$k,
                shape = r$shape, corr_assumed = r$corr_assumed,
                modifier_span = r$modifier_span,
                v_omit = v_omit, v_src = v_src,
@@ -107,7 +108,7 @@ main <- function() {
   if (n_bad) {
     cat(sprintf("\n%d cells produced no finite share; the first few:\n", n_bad))
     print(head(shares[!is.finite(shares$share),
-                      c("link", "nT", "k", "shape", "n_ok")], 6),
+                      c("link", "nT", "nS", "k", "shape", "n_ok")], 6),
           row.names = FALSE)
   }
   cat(sprintf("\nomitted-variance share: %.4f to %.4f\n",
@@ -121,7 +122,7 @@ main <- function() {
 
   if (any(!keep)) {
     cat("\ncells below the floor, which are dropped rather than run:\n")
-    print(head(shares[!keep, c("link", "nT", "k", "shape", "share")], 12),
+    print(head(shares[!keep, c("link", "nT", "nS", "k", "shape", "share")], 12),
           row.names = FALSE, digits = 3)
   }
 
