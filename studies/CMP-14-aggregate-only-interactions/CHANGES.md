@@ -3,9 +3,14 @@
 **This file is the change history. `protocol.md` is what is registered now.**
 
 They were one document until the fifth round of critique, and separating them is a
-fix rather than tidying. Two independent reviewers returned 45 findings between
-them and **60% turned on an internal inconsistency or a label that contradicted the
-value beside it**: a claim withdrawn in one section and still standing in another, a
+fix rather than tidying. Six rounds of critique returned **107 fatal and serious findings** between two
+reviewers, counted as the table below counts them: findings **as returned**, so a defect
+found again in a later round is counted again, and the minor findings are not in that
+total. **It is not a count of distinct defects and no such count is claimed.** An earlier
+version of this paragraph said "45 findings" and "60% turned on an internal
+inconsistency"; the first reconciled with nothing in the table and the second was never
+computed. What the table does support is that **the largest single category is a claim
+withdrawn in one section and still standing in another**: a claim withdrawn in one section and still standing in another, a
 threshold called registered where the registration block said otherwise, a control
 whose words promised more than its code tested. Those were not separate defects.
 They were one defect, which is that the protocol had been rewritten in five layers
@@ -32,6 +37,8 @@ review**, and it matters what it showed.
 | 4 | codex | unsound | 5 | 5 |
 | 5 | codex | unsound | 9 | 7 |
 | 5 | grok | needs-revision | 11 | 13 |
+| 6 | codex | unsound | 6 | 5 |
+| 6 | grok | needs-revision | 8 | 3 |
 
 **Seven topics were raised independently by both reviewers in round 5**: the
 equal-SD guard's hidden baseline restriction, the source statistic not being a
@@ -241,11 +248,11 @@ version of this list incomplete; it now covers changes made both before and afte
 |---|---|---|
 | Added `PRIOR_SD = 0.1` | The first grid had the absent state covering the truth 100% of the time: the likelihood contributes nothing, the posterior is the prior, and a wide prior still contains a truth 0.40 away. The diagnostics' positive control was never a failure | It scored a correct warning as a false alarm, making every diagnostic look worse than it is |
 | Null-control guard restricted to `prior_sd >= 0.5` | The first version required nominal coverage whenever discordance and synergy are zero, and it failed in 54 scenarios, all at the tight prior. That is the tight prior doing what it was added to do | It would have conflated a prior-induced failure with a confounding-induced one |
-| Prior-domination control restated at the smallest budget | The first version asserted collapse at the tight prior in every state; measured, coverage recovers to 0.938, 0.875 and 0.798 at the largest budget as the likelihood wins. **Round 2 found the figures previously printed here, "0.94, 0.84 and 0.80", stale from before the patient budget was equalized, and no scenario rounded to 0.84** | It would have asserted a false claim about the tight prior's reach |
+| Prior-domination control restated at the smallest budget | The first version asserted collapse at the tight prior in every state; measured, coverage recovers to 0.938 in `additivity`, 0.735 in `ecological` and 0.725 in `own_ipd` at the largest budget as the likelihood wins. **Round 6 found 0.875 and 0.798 printed here, stale from before the arm-geometry fix** **Round 2 found the figures previously printed here, "0.94, 0.84 and 0.80", stale from before the patient budget was equalized, and no scenario rounded to 0.84** | It would have asserted a false claim about the tight prior's reach |
 | **Round 1:** total patients equalized across states | Every arm had been given the same size, so `additivity` with twelve arms ran on 20% more data than the others' ten, while both the code and this document claimed the totals were equal | A difference of sample size reported as a difference of evidence structure |
 | **Round 1:** interaction prior separated from nuisance priors | One scale had been applied to every coordinate, including study intercepts and main effects whose true values are nonzero | A result attributed to the registered prior factor that was really nuisance shrinkage |
-| **Round 1:** null control restated as "no undercoverage" | Tested two-sided as its name promised, it failed: five scenarios overcover at 0.962 to 0.986. All five are `ecological` at the smallest spread where the posterior SD exceeds the sampling SD of its centre, which is ordinary shrinkage | A conservative interval counted as a violation, or the threshold widened until it passed |
-| **Round 1:** "alike" withdrawn from the prior-domination control | The tight prior's mean bias runs $-0.114$, $-0.177$ and $-0.278$ across states, a spread of 0.165 against a truth of 0.40 | A claim of uniformity the numbers do not support |
+| **Round 1:** null control restated as "no undercoverage" | Tested two-sided as its name promised, it failed: four scenarios overcover at 0.961 to 0.983, corrected in round 6 from a stale "five ... 0.962 to 0.986". All four are `ecological` at the smallest spread where the posterior SD exceeds the sampling SD of its centre, which is ordinary shrinkage | A conservative interval counted as a violation, or the threshold widened until it passed |
+| **Round 1:** "alike" withdrawn from the prior-domination control | The tight prior's mean bias runs $-0.114$ in `additivity`, $-0.204$ in `own_ipd` and $-0.306$ in `ecological`, a spread of 0.192 against a truth of 0.40; round 6 found $-0.177$, $-0.278$ and 0.165 printed here, stale | A claim of uniformity the numbers do not support |
 | **Round 1:** primary 1 compares failures with *nominal* scenarios | It had compared them with merely non-failing ones, so an overlap could rest on a scenario covering at 0.91 | An overlap claim resting on scenarios that are not good either |
 | **Round 1:** whole-model effective rank added to the outcomes | It was computed and never analyzed, so one of the two summaries CMP-14 asks for appeared in no reported outcome | The study answering only half the question it was written for |
 | **Pre-protocol:** IPD fraction dropped as a design factor | `DESIGN.md`, written after three numerical probes, listed it; the grid varies the target's information state instead, which subsumes it for one target component | A factor considered and dropped after probes had been read |
@@ -323,3 +330,64 @@ $(I + P_0)^{-1}$ by construction. That is five such guards in this study. The
 rule now applied: **an assertion should check a computed value or a named
 property, never that a sentence is present verbatim**, because the second kind
 survives the discovery that the sentence is wrong.
+
+## Everything the document did not say, and one number that did not add up
+
+The rest of round 6 was specification rather than error: eight findings where the
+document asserted something it never defined, and the fix in each case is to state
+it and assert it.
+
+**The study-by-study map.** A reviewer could not tell whether own-IPD
+identification for components 1, 2 and 4, an aggregate-only target, a fixed
+twelve-arm geometry and an identical shared background can hold at once, and
+guessed they could not, reasoning that three IPD components at three arms each
+already spend nine arms. They spend six: the background studies are two-arm.
+`R/06-nonlinear.R` now prints the whole map and asserts all four constraints,
+including that **no background arm carries the target** and that the
+aggregate-only states supply no individual data on it.
+
+**The ADEMP true values.** Coverage is a performance measure against a truth, and
+the grid registered the *departures* from the truth without stating the truth.
+All seven values are now in section 2 and exported.
+
+**E2's grid.** E1 registered a 504-scenario factorial with named factors; E2 said
+"a reduced factorial". Its seven factors, their levels and the four structural
+restrictions that cut it to 72 are now stated.
+
+**$\sigma$ known.** The closed-form posterior covariance $(I + P_0)^{-1}$ holds
+for a Gaussian model with known residual variance. The document wrote
+$\operatorname{Var}(y) = \sigma^2$ without saying whether $\sigma$ was estimated,
+which is the difference between E1 being exact and E1 being approximate.
+
+**Nuisance-prior inertness.** "Its inertness is measured rather than asserted"
+presented a post-data check as a settled property, with no estimand, tolerance or
+pass rule. The rule is now stated, the measured worst moves are given, and it
+carries the exploratory standing section 1 gives the rest of E1.
+
+**"Any" nuisance heterogeneity.** Three isolated contrasts on one geometry do not
+establish a universal claim. The sentence now says three, and section 4 says what
+is not ruled out.
+
+**The "randomized?" column** answered validity for `additivity`, mixing the
+assignment mechanism with an identification assumption. A combination trial is
+randomized whether or not additivity holds.
+
+**And the arithmetic did not reconcile.** The headline said 45 findings while the
+table summed to 85, with no deduplication rule stated, so the provenance claim
+failed against the document's own table. The total is now **computed from the
+table** by the verifier in both files, it is 107 across six rounds, and it is
+labeled as findings *as returned* rather than as distinct defects, which is the
+only thing the table supports.
+
+**Three control justifications in this file were stale**, describing the run from
+before the arm-geometry fix: tight-prior recovery, the overcoverage count and
+range, and the bias spread. The protocol's numbers were asserted against the
+export cell by cell and this file's were not, which is exactly how they survived.
+They are now asserted too.
+
+**The emitter had been a no-op.** `review/emit-tables.py` had one substitution and
+it targeted a sentence a rebuild had deleted, so it matched zero times, wrote
+nothing, printed "already current", and the protocol named it as one of three
+links in a provenance chain. It now **fails when a pattern matches nothing**, and
+the protocol says plainly that the assertion is the guarantee and emission is a
+convenience covering some numbers rather than all.

@@ -86,6 +86,28 @@ out$diagnostics <- DIAGNOSTICS
 out$e2_link <- E2_LINK; out$e2_states <- E2_STATES
 out$e2_sd_ratio <- E2_SD_RATIO; out$e2_base_p <- E2_BASE_P
 
+## THE ADEMP TRUE VALUES. Coverage is a performance measure against a truth, and
+## round 6 found the grid registering the DEPARTURES from the truth (discordance,
+## synergy) without ever stating the truth itself, so the failing and nominal sets
+## could not be reproduced from the document alone.
+out$true_values <- list(
+  gamma_w = GAMMA_W, delta_main = DELTA_MAIN, beta_prog = BETA_PROG,
+  sigma = SIGMA, sigma_known = TRUE,
+  gamma_other = 0,
+  e1_study_intercept = 0,
+  e2_study_intercept = round(log(E2_BASE_P / (1 - E2_BASE_P)), 4))
+
+## E2'S OWN GRID, which the document described only as "a reduced factorial".
+out$e2_grid <- list(
+  states = E2_STATES, spreads = E2_SPREADS, sd_ratio = E2_SD_RATIO,
+  discord = E2_DISCORD, total_n = E2_TOTAL_N, prior_sd = E2_PRIOR_SD,
+  synergy = E2_SYNERGY,
+  restrictions = c(
+    "synergy acts only on additivity",
+    "discordance acts only on ecological and curvature",
+    "the SD ratio acts only on curvature",
+    "curvature runs at the first spread only, since it holds means equal"))
+
 ## --- the grid, counted from the grid rather than from memory ----------------
 ns <- attr(d, "nuisance_sensitivity")
 out$nuisance_sensitivity <- if (is.null(ns)) NULL else as.list(round(ns, 4))
@@ -203,6 +225,16 @@ out$curvature_rank <- list(
   equal_sd_needs_equal_baseline = isTRUE(cr$equal_sd_needs_equal_baseline),
   unequal_baseline_equal_sd_estimable =
     isTRUE(cr$check_unequal_baseline[["1"]]$logit_estimable))
+
+## THE STUDY-BY-STUDY MAP, exported because a reviewer could not tell from the
+## document whether own-IPD background, aggregate-only target and a fixed
+## twelve-arm geometry are jointly satisfiable. They are, and this is how.
+am <- cr$arm_map
+out$arm_map <- lapply(seq_len(nrow(am)), function(i) as.list(am[i, ]))
+out$arm_map_background <- unique(am$arms[am$role == "background"])
+out$arm_map_n_background_arms <- sum(am$n_arms[am$role == "background"])
+out$arm_map_n_target_arms <-
+  sum(am$n_arms[am$role == "target"]) / length(unique(am$state))
 
 ## --- E2, run after its rules were committed ---------------------------------
 e2 <- readRDS("results/e2.rds"); ev <- readRDS("results/e2-verdict.rds")

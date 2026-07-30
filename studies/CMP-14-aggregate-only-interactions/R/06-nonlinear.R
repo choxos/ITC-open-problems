@@ -249,11 +249,55 @@ if (!interactive() && Sys.getenv("NL_NOMAIN") == "") {
       = all(geo$distinct_sizes == 1L))
   cat("geometry matches across states: TRUE\n")
 
+  ## THE STUDY-BY-STUDY MAP, because "twelve arms" does not say whether the four
+  ## constraints can hold at once. A reviewer asked how components 1, 2 and 4 can
+  ## each have own-IPD identification while component 3 is aggregate-only, inside
+  ## a fixed twelve-arm geometry with an identical shared background. The answer
+  ## is a table rather than a paragraph: three two-arm IPD background studies use
+  ## six arms, not nine, and the two target studies carry three arms each.
+  arm_map <- do.call(rbind, lapply(E2_STATES, function(s) {
+    net <- build_state_nl(s, spread = 0.6, sd_ratio = 2.0, total_n = 3000L)
+    C <- C_of(net)
+    do.call(rbind, lapply(sort(unique(net$study)), function(j) {
+      rows <- which(net$study == j)
+      labs <- vapply(rows, function(i) {
+        k <- which(C[i, ] == 1)
+        if (!length(k)) "PBO" else paste(k, collapse = "+")
+      }, "")
+      data.frame(state = s, study = j,
+                 ipd = as.logical(net$ipd[rows[1]]),
+                 role = if (j <= 3L) "background" else "target",
+                 arms = paste(labs, collapse = ", "),
+                 n_arms = length(rows),
+                 carries_target = any(C[rows, TARGET] == 1),
+                 stringsAsFactors = FALSE)
+    }))
+  }))
+  cat("\n=== the study-by-study map ===\n")
+  print(arm_map, row.names = FALSE)
+  ## The four constraints, each asserted rather than asserted-in-prose.
+  bg <- arm_map[arm_map$role == "background", ]
+  tg <- arm_map[arm_map$role == "target", ]
+  stopifnot(
+    "a background study does not supply IPD, so components 1, 2 and 4 are not
+     all in own_ipd" = all(bg$ipd),
+    "a background study carries the target, so the target's state is not what
+     the target studies alone determine" = !any(bg$carries_target),
+    "the background is not identical across states" =
+      length(unique(vapply(split(bg, bg$state), function(z)
+        paste(z$arms, collapse = " | "), ""))) == 1L,
+    "the aggregate-only states supply IPD on the target" =
+      all(!tg$ipd[tg$state %in% c("ecological", "curvature")]),
+    "every state does not have exactly two target studies" =
+      all(table(tg$state) == 2L))
+  cat("background identical across states, no background arm carries the",
+      "target, aggregate-only states supply no target IPD: TRUE\n")
+
   ## Placebo-arm prevalence is checked in R/07-run-e2.R, where `theta_true_nl`
   ## is defined; it is a fact about the E2 truth rather than about the geometry.
 
   saveRDS(list(check = ck, check_unequal_baseline = ck_b, holds = ok,
-               geometry = geo,
+               geometry = geo, arm_map = arm_map,
                equal_sd_needs_equal_baseline =
                  !ck[["1"]]$logit_estimable && ck_b[["1"]]$logit_estimable),
           "results/curvature-rank.rds")

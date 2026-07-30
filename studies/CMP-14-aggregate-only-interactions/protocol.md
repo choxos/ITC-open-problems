@@ -6,17 +6,26 @@ on IDN-06 *ML-NMR interactions can rest solely on aggregate-data variation*.
 **Reporting standard.** ADEMP (Morris, White and Crowther 2019,
 [doi:10.1002/sim.8086](https://doi.org/10.1002/sim.8086)).
 
-**Change history is in [`CHANGES.md`](CHANGES.md), not here.** Five rounds of critique returned 45
-findings between two reviewers and 60% of them turned on an internal inconsistency: a claim
-withdrawn in one section and still standing in another. That was one defect, not twenty-seven, and
-it came from rewriting this document in layers. **Every position is now stated once**, and what it
-replaced is in the history.
+**Change history is in [`CHANGES.md`](CHANGES.md), not here.** Six rounds of critique returned
+**107** fatal and serious findings between two reviewers, counted as returned rather than
+deduplicated. The recurring one was an internal inconsistency: a claim withdrawn in one section and
+still standing in another, which came from rewriting this document in layers. **Every position is
+now stated once**, and what it replaced is in the history.
 
-**Provenance.** Every number here is exported from the code that computes it by `R/05-export.R`,
-emitted into the document by `review/emit-tables.py`, and asserted back by
-`review/verify-protocol.py`, currently **107** assertions. The exporter
-refuses to run when an artifact is older than the code that produces it; the verifier refuses to run
-when the export is older than the code.
+**Provenance, stated for what it does rather than for what it sounds like.** **The assertion is the
+guarantee; emission is a convenience.** `R/05-export.R` writes every quantity this document quotes to
+`results/registered-design.json`. `review/verify-protocol.py` then checks the document against that
+file, currently **116** assertions, and that is the link that catches a stale or invented number.
+`review/emit-tables.py` regenerates a handful of sentences from the same export so they need not be
+retyped; it covers **some** numbers, not all, and **it now fails when one of its patterns matches
+nothing** rather than reporting success. Round 6 found it targeting a sentence an earlier rebuild had
+deleted, so it had been a no-op while the document named it as a link in a chain.
+
+Two staleness guards, both of which have fired in anger: the exporter refuses to run when an artifact
+is older than the code that produces it, and the verifier refuses to run when the export is older
+than the code. **The verifier is not a proof that the document is right.** It checks the values it
+was told to check; round 6 found five assertions that had been written as "the document contains this
+sentence" and were therefore pinning withdrawn claims in place.
 
 ---
 
@@ -58,6 +67,24 @@ placebo arms sit at prevalence 0.3, which is true nowhere. `R/07-run-e2.R` compu
 stops the run if any arm hits 0.3 exactly. The two models are different and the sections that use
 them say which.
 
+**$\sigma^2$ is fixed and known** at $\sigma = 1$. That is not incidental: the closed-form posterior
+covariance $(I + P_0)^{-1}$ used throughout E1 holds for a Gaussian model with known residual
+variance and a Gaussian prior on the coefficients. If $\sigma$ were estimated the coefficient block
+would not be that expression and E1 would not be exact.
+
+**The true values, in full, because coverage is a performance measure against a truth.** The grid
+registers the *departures* from the truth; these are the truth they depart from.
+
+| quantity | true value |
+|---|---|
+| $\Gamma_W$ for the target, component 3 | **0.4** |
+| $\Gamma_k$ for components 1, 2, 4 | 0 |
+| $\delta_k$, every component's main effect | $-0.5$ |
+| $\beta$, the prognostic slope | 0.3 |
+| $\sigma$, known | 1 |
+| $\alpha_s$, every study intercept, E1 | 0 |
+| $\alpha_s$, every study intercept, E2 | $\operatorname{logit}(0.3) = -0.8473$ |
+
 **The estimand is the within-study effect modification $\Gamma_W$ in the data-generating
 mechanism**, not a separate model parameter. The fitted model carries **one** $\Gamma$ per
 component. When the between-study association differs from the within-study one, that single
@@ -69,13 +96,20 @@ separately; it does not.
 
 ## 3. The information states
 
-| state | route to $\Gamma_k$ | randomized? | E1 | E2 |
+| state | route to $\Gamma_k$ | assignment of the route | E1 | E2 |
 |---|---|:--:|:--:|:--:|
-| `own_ipd` | its own individual-data trial | yes | yes | yes |
-| `additivity` | only inside the combination $1{+}k$, alongside an arm for 1 | yes, if additivity holds | yes | yes |
-| `ecological` | only in aggregate studies, via the between-study contrast in covariate means | **no** | yes | yes |
-| `curvature` | two aggregate studies, same covariate mean, different covariate SDs | **no** | — | yes |
+| `own_ipd` | its own individual-data trial | randomized | yes | yes |
+| `additivity` | only inside the combination $1{+}k$, alongside an arm for 1 | randomized, valid under additivity | yes | yes |
+| `ecological` | only in aggregate studies, via the between-study contrast in covariate means | **not randomized** | yes | yes |
+| `curvature` | two aggregate studies, same covariate mean, different covariate SDs | **not randomized** | — | yes |
 | `absent` | nothing | n/a | yes | yes |
+
+**The third column is about assignment, not validity.** It used to be headed "randomized?" with
+`additivity` answering "yes, if additivity holds", which mixes the assignment mechanism with an
+identification assumption: a combination trial is randomized whether or not additivity holds, and the
+assumption is what makes the *route* valid, not what makes the *trial* randomized. The two are now
+separated in the cell, which matters because the study's thesis is that the aggregate routes are
+non-randomized rather than merely assumption-laden.
 
 The target is component 3 throughout. Components 1, 2 and 4 stay in `own_ipd`. **Every state's
 target studies carry three arms**, so every state has twelve arms, an identical shared background
@@ -83,6 +117,21 @@ and the same per-arm size at a given budget. **`R/06-nonlinear.R` computes the a
 per-arm size for every state and stops the run if they differ**, because this sentence was true of
 the linear states and false of `curvature`, which ran at ten arms and 300 per arm through five
 rounds of critique until both round-6 reviewers found it independently.
+
+**The map, because "twelve arms" does not show that the constraints are jointly satisfiable.** Three
+background studies supply individual data on components 1, 2 and 4, **two arms each, six arms in
+total, not nine**; two target studies carry three arms each. Every state shares that background
+exactly.
+
+| study | supplies | arms | in `own_ipd` | in `additivity` | in `ecological` / `curvature` |
+|---|---|---|---|---|---|
+| 1–3 | IPD | 2 each | `PBO, 1` · `PBO, 2` · `PBO, 4` | same | same |
+| 4–5 | see right | 3 each | IPD, `PBO, 1, 3` | IPD, `PBO, 1, 1+3` | **aggregate**, `PBO, 1, 3` |
+
+`R/06-nonlinear.R` asserts all four constraints at once: every background study supplies IPD, **no
+background arm carries the target**, the background is identical across states, and the
+aggregate-only states supply no individual data on the target. So components 1, 2 and 4 are in
+`own_ipd` while component 3 is aggregate-only, inside a fixed twelve-arm geometry, with no leakage.
 
 **The per-arm size is an information weight and is not rounded to a patient count.** Nothing here
 simulates individuals: every quantity is an exact Fisher information computed with $n$ as a weight,
@@ -92,9 +141,9 @@ artifact into an exact computation and buy nothing.
 
 ## 4. The aggregate routes, and the restriction the curvature state needs
 
-On a curved link, **any** between-study heterogeneity in a nuisance parameter identifies the
-interaction. `R/08-routes.R` isolates each with the others held exactly equal, and asserts every
-cell:
+On a curved link, **each of the three nuisance quantities this design has** identifies the
+interaction on its own. `R/08-routes.R` isolates each with the others held exactly equal, and asserts
+every cell:
 
 | between-study difference | identity link | logit link |
 |---|:--:|:--:|
@@ -105,6 +154,13 @@ cell:
 
 So there are three aggregate routes. The mean route works on any link and is the classical
 ecological one; the other two are nonlinear-only.
+
+**"Any" would be a stronger claim than three examples support, and the document used to make it.**
+What is checked is one nonzero contrast in each of the three quantities a study in this design can
+differ in, on a fixed geometry, with no general rank argument and no sweep over contrast sizes.
+Nothing here rules out a fourth nuisance quantity in a richer design that identifies nothing, or a
+contrast size at which one of these three fails numerically. The table is an existence result for
+three routes, which is all the thesis needs and is less than the word "any" promised.
 
 **The `curvature` state therefore requires equal target-study baselines, and that restriction is
 registered rather than assumed.** With unequal baselines, equal SDs already identify the target, so
@@ -176,7 +232,16 @@ designs, because coverage and contraction are nonlinear in the design; every E1 
 a study realized exactly at the quadrature weights and is neither an average nor a bound otherwise.
 
 The interaction prior applies to the **interactions only**; nuisance coefficients carry a fixed
-`PRIOR_SD_NUISANCE = 10`, and its inertness is measured rather than asserted.
+`PRIOR_SD_NUISANCE = 10`.
+
+**Its inertness is an exploratory diagnostic with a stated rule, not a property of the design.** The
+rule: rerun the whole grid at nuisance scales 3 and 30, and take the worst absolute move in each
+reported quantity against the registered scale of 10. Measured, the worst moves are **0.0005 in
+coverage, 0.0001 in contraction and 0 in `surv_between`**, against a coverage failure threshold of
+0.05 below nominal, so the nuisance prior moves nothing this study decides on. **That is a
+post-data check, it ran with the rest of E1 before this document existed, and it carries exactly the
+standing section 1 gives everything in E1.** Saying "its inertness is measured rather than asserted"
+without the rule or the tolerance presented a measurement as a guarantee.
 
 **The grid**, a full factorial with two structural restrictions, **504 scenarios**:
 
@@ -236,6 +301,15 @@ value is exported alongside the new one so the size of the correction is visible
 
 Asymptotic, **not fitted**. No model is sampled and no sampler policy exists because none is needed
 for an information calculation.
+
+**E2's grid, which was previously described only as "a reduced factorial".** Five states $\times$ two
+spreads $\{0.6, 2.0\}$ $\times$ three SD ratios $\{1.0, 1.5, 3.0\}$ $\times$ two discordances
+$\{0, 0.4\}$ $\times$ two budgets $\{3000, 10000\}$ $\times$ two prior scales $\{0.1, 1.0\}$
+$\times$ two synergies $\{0, 0.2\}$, cut by four structural restrictions: synergy acts only on
+`additivity`, discordance only on `ecological` and `curvature`, the SD ratio only on `curvature`, and
+`curvature` runs at the first spread alone because it holds covariate means equal by construction.
+**That leaves 72 scenarios.** The levels are a subset of E1's, chosen where E1 found the conclusion
+turns, plus the SD ratio that `curvature` needs.
 
 **Neither departure is misspecification, so coverage is reported on all 72 scenarios.** Discordance
 adds its amount to the target modification in the *aggregate* rows carrying the target, and in

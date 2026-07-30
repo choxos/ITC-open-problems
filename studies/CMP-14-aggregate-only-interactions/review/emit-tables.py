@@ -50,23 +50,49 @@ def replace_body(path: Path, header: str, rows: list[str]) -> bool:
 
 changed: list[str] = []
 
-# The rebuilt protocol prints no control-justification table: those numbers were
-# the ones that kept going stale, and the rebuild removed them from the document
-# rather than regenerating them into it. What remains emitted is the one prose
-# number the document still carries.
-# --- the nuisance-prior sensitivity ------------------------------------------
+def emit(label: str, pattern: str, replacement: str) -> None:
+    """Substitute one emitted sentence, and FAIL when the pattern matches nothing.
+
+    ROUND 6 FOUND THIS SCRIPT SILENTLY DOING NOTHING. Its only substitution
+    targeted a sentence the protocol rebuild had already deleted, so it matched
+    zero times, wrote nothing, printed "already current", and the provenance
+    claim named it as one of three links in a chain. A no-op that reports success
+    is worse than a missing step, because the document says the step ran."""
+    global changed
+    text = PROT.read_text()
+    # A LAMBDA, not a string: the replacements contain LaTeX, and re treats
+    # a backslash in a replacement string as a group reference, so \\Gamma
+    # raises 'bad escape' rather than inserting the text asked for.
+    out, n = re.subn(pattern, lambda _m: replacement, text)
+    if n == 0:
+        raise SystemExit(
+            f"emit-tables: the {label!r} pattern matched nothing in protocol.md. "
+            "Either the sentence was renamed and this pattern must follow it, or "
+            "the number is no longer emitted and this block must be removed. "
+            "Silently emitting nothing is what this check exists to prevent.")
+    if n > 1:
+        raise SystemExit(f"emit-tables: {label!r} matched {n} times; ambiguous")
+    if out != text:
+        PROT.write_text(out)
+        changed.append(label)
+
+
+# --- the nuisance-prior inertness figures ------------------------------------
 ns = DESIGN["nuisance_sensitivity"]
-p = PROT.read_text()
-new = (f"largest movement in any\nregistered quantity across the whole grid is "
-       f"**{ns['coverage']:.4f} in coverage, {ns['contraction']:.4f} in "
-       f"contraction and\n{ns['surv_between']:.4f} in the source survival "
-       f"fraction**")
-p2 = re.sub(
-    r"largest movement in any\nregistered quantity across the whole grid is\s+"
-    r"\*\*[^*]+\*\*", new, p)
-if p2 != p:
-    PROT.write_text(p2)
-    changed.append("nuisance-prior sensitivity")
+emit("nuisance-prior inertness",
+     r"the worst moves are \*\*[^*]+\*\*",
+     f"the worst moves are **{ns['coverage']:.4f} in\ncoverage, "
+     f"{ns['contraction']:.4f} in contraction and {ns['surv_between']:.0f} in "
+     f"`surv_between`**")
+
+# --- the true values, which ADEMP requires and round 6 found unregistered ----
+tv = DESIGN["true_values"]
+emit("true values",
+     r"\| \$\\Gamma_W\$ for the target, component 3 \| \*\*[\d.]+\*\* \|",
+     f"| $\\Gamma_W$ for the target, component 3 | **{tv['gamma_w']}** |")
+emit("E2 study intercept",
+     r"\\operatorname\{logit\}\(0\.3\) = -?[\d.]+",
+     f"\\operatorname{{logit}}(0.3) = {tv['e2_study_intercept']}")
 
 print("rewritten:" if changed else "already current")
 for c in changed:

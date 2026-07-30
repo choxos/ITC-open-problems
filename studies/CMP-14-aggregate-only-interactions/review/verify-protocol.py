@@ -250,6 +250,52 @@ check("the history keeps the full disclosure list",
       "Every design choice changed after seeing a number" in CHANGES,
       "the disclosure list was lost in the split")
 
+# THE HEADLINE FINDING COUNT MUST BE THE TABLE'S OWN SUM. It said 45 while the
+# table summed to 85, with no stated deduplication, so the document's provenance
+# claim did not survive its own arithmetic. The total is now computed from the
+# table in both files rather than typed into either.
+_rows = re.findall(r"^\| (\d) \| (\w+) \| [\w-]+ \| (\d+) \| (\d+) \|$",
+                   (ROOT / "CHANGES.md").read_text(), re.M)
+check("the reviewer table parses", len(_rows) >= 6, f"{len(_rows)} rows")
+_total = sum(int(f) + int(s) for _, _, f, s in _rows)
+_rounds = len({r[0] for r in _rows})
+check("the history's finding total is the table's sum",
+      f"returned **{_total} fatal and serious findings**" in CHANGES,
+      f"the table sums to {_total}")
+check("the protocol's finding total is the same number",
+      f"**{_total}** fatal and serious findings" in PROTOCOL,
+      f"the table sums to {_total}")
+check("both documents agree on the round count",
+      f"{['','one','two','three','four','five','six','seven'][_rounds]} rounds "
+      f"of critique returned" in PROTOCOL.lower(),
+      f"the table covers {_rounds} rounds")
+check("the total is labeled as counted-as-returned, not deduplicated",
+      "counted as returned rather than" in PROTOCOL,
+      "a raw sum is presented as a count of distinct defects")
+
+# THE HISTORY'S NUMBERS WENT STALE BECAUSE NOTHING ASSERTED THEM. The protocol's
+# figures were checked cell by cell against the export and the history's were
+# not, so three control justifications in CHANGES.md still described the
+# pre-arm-geometry run. A justification nobody can reproduce is not one.
+_tr = DESIGN["control_tight_recovery"]
+check("the history's tight-prior recovery figures match the export",
+      all(f"{v:.3f} in `{k}`" in CHANGES for k, v in _tr.items()),
+      f"export says {_tr}")
+_tb = DESIGN["control_tight_bias"]
+_informed = {k: v for k, v in _tb.items() if k != "absent"}
+check("the history's tight-prior bias figures match the export",
+      all(f"$-{abs(v):.3f}$ in `{k}`" in CHANGES for k, v in _informed.items()),
+      f"export says {_informed}")
+check("the history's bias spread matches the export",
+      f"a spread of {max(_informed.values()) - min(_informed.values()):.3f}"
+      in CHANGES,
+      f"export spread {max(_informed.values()) - min(_informed.values()):.3f}")
+_no = DESIGN["control_null_over_range"]
+check("the history's overcoverage count and range match the export",
+      f"{DESIGN['control_null_n_over']} scenarios overcover at "
+      f"{_no[0]:.3f} to {_no[1]:.3f}" in CHANGES.replace("four", "4"),
+      f"export says {DESIGN['control_null_n_over']} at {_no}")
+
 # --- the contraction gap, which used to be an admission -----------------------
 # The protocol called E2's contraction a Laplace approximation and then said the
 # gap was bounded by nothing measured here. Both are now wrong to say, so both
