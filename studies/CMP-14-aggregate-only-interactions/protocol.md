@@ -7,7 +7,7 @@ on IDN-06 *ML-NMR interactions can rest solely on aggregate-data variation*.
 [doi:10.1002/sim.8086](https://doi.org/10.1002/sim.8086)).
 
 **Change history is in [`CHANGES.md`](CHANGES.md), not here.** Ten rounds of critique returned
-**167** fatal and serious findings between **3** reviewers, counted as returned rather than
+**168** fatal and serious findings between **3** reviewers, counted as returned rather than
 deduplicated. GLM contributed only in round 8, having been unavailable before it. The recurring one was an internal inconsistency: a claim withdrawn in one section and
 still standing in another, which came from rewriting this document in layers. **Every position is
 intended to be stated once**, and what it replaced is in the history. That is a discipline rather
@@ -374,7 +374,10 @@ excluded from the denominator as well.
 
 **The answer, which this section did not previously state: every statistic overlaps, on both arms.**
 On E1, over 251 failing and 169 nominal
-scenarios, and on E2 over 41 and 12.
+scenarios, and on E2 over 41 and 12. **Those 53 E2 scenarios are primary 1's comparison set and are
+not primary 3's 8**: primary 1 compares failing against nominal over the whole grid, primary 3
+correlates within the confounded family alone. The two live a paragraph apart and a reviewer has
+conflated them.
 **No threshold on contraction, on either effective-rank reading, or on the estimability screen
 separates failing coverage from nominal coverage.** Those four are what primary 1 registers, and that
 is the study's central negative result; section 7 had been reporting the secondary numbers and
@@ -502,6 +505,12 @@ distinction primary 1 exists to draw: a grid-weighted average can look strong wh
 compatible with both classes still exists, and that single value is what defeats a threshold rule for
 the analyst who lands on it.
 
+**The denominator is `classes()` in `R/04-analyze.R`, built from `COVER_BAD`, `NOMINAL` and
+`COVER_TOL`**, so it derives from registered constants rather than from a choice made at reporting
+time. **The choice to use it rather than `!failed` was made in round 6, after the old denominator's
+value had been seen**, and it flatters the diagnostics; both the old and new values are exported for
+that reason. Section 1 makes every E1 number exploratory and this is one of them.
+
 **It falls rather than rises because the band removed is the one that alarms most.** The contraction
 rule fires on **71 of the 84** scenarios in the middle band, 84.5%, against **6 of 169** nominal ones,
 3.55%. Most of the middle band is the `absent` state under a wide prior, where the posterior is the
@@ -519,7 +528,10 @@ spreads $\{0.6, 2.0\}$ $\times$ three SD ratios $\{1.0, 1.5, 3.0\}$ $\times$ two
 $\{0, 0.4\}$ $\times$ two budgets $\{3000, 10000\}$ $\times$ two prior scales $\{0.1, 1.0\}$
 $\times$ two synergies $\{0, 0.2\}$, cut by four structural restrictions: synergy acts only on
 `additivity`, discordance only on `ecological` and `curvature`, the SD ratio only on `curvature`, and
-`curvature` runs at the first spread alone because it holds covariate means equal by construction.
+`curvature` runs at the first spread alone, **a restriction on the spread axis only**, because it
+holds covariate means equal by construction; **it runs at all three SD ratios**, including the 1.0
+negative control. Two separate reviewers have read "first spread alone" as a restriction on the SD
+ratio and inverted the per-state counts as a result, so the two axes are named apart here.
 **That leaves 72 scenarios.** The levels are a subset of E1's, chosen where E1 found the conclusion
 turns, plus the SD ratio that `curvature` needs.
 

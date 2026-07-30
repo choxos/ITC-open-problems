@@ -3,7 +3,7 @@
 **This file is the change history. `protocol.md` is what is registered now.**
 
 They were one document until the fifth round of critique, and separating them is a
-fix rather than tidying. Ten rounds of critique returned **167 fatal and serious findings** between three
+fix rather than tidying. Ten rounds of critique returned **168 fatal and serious findings** between three
 reviewers, counted as the table below counts them: findings **as returned**, so a defect
 found again in a later round is counted again, and the minor findings are not in that
 total. **It is not a count of distinct defects and no such count is claimed.** An earlier
@@ -49,6 +49,7 @@ review**, and it matters what it showed.
 | 9 | glm | needs-revision | 0 | 0 |
 | 10 | codex | needs-revision | 0 | 7 |
 | 10 | grok | needs-revision | 0 | 3 |
+| 10 | glm | needs-revision | 0 | 1 |
 
 **Seven topics were raised independently by both reviewers in round 5**: the
 equal-SD guard's hidden baseline restriction, the source statistic not being a
@@ -796,3 +797,41 @@ now and reports **1.67e-15** rather than the sample's 1.05e-15. And "the E1
 finding" was used for primary 3 while "E1's conclusion" meant primary 1, so
 section 9 could be read as retracting the bridge section 8 asserts. Both claims
 are named by primary now.
+
+## GLM's third outing: eight fatal claims, eight wrong
+
+GLM returned one fatal finding and four serious ones in round 10. **The fatal is
+wrong and so are three of the four.** Recorded as 0 fatal and 1 serious, counting
+only what survived checking.
+
+- **"The 5e-5 placebo guard is inert because no registered cell trips it."** That
+  is what a passing guard looks like. Every `stopifnot` in this study fails to
+  fire on the current design; firing would mean the design is broken. The
+  question is discriminating power, and 5e-5 is strictly stronger than the exact
+  equality it replaced: it catches any future change that lands an arm within
+  5e-5 of 0.3, where bit-equality caught almost nothing.
+- **"The threshold table lists `CONTRACT_OK` for `target_ratio`."** The row reads
+  `` `target_ratio` | $<$ `EFF_RATIO_OK` | 1.00 ``. The reviewer read the
+  contraction row's values into the target-ratio row.
+- **"41 and 12 are unlabeled."** The sentence says "on E1, over 251 failing and
+  169 nominal scenarios, and on E2 over 41 and 12".
+
+Two earned changes, and both are about a reader's path rather than a fact.
+Primary 1's E2 comparison set (41 + 12) and primary 3's E2 confounded family (8)
+are different subsets a paragraph apart, and this reviewer conflated them, so the
+document now says they are different. And **"`curvature` runs at the first spread
+alone" has now been misread as a restriction on the SD ratio by two separate
+reviewers**, inverting the per-state counts both times; the two axes are named
+apart.
+
+The fifth finding, that the false-alarm denominator is registered only in prose,
+is half right: it is `classes()` built from `COVER_BAD`, `NOMINAL` and
+`COVER_TOL`, so it derives from registered constants, but the choice to use it
+rather than `!failed` was made after the old value had been seen. That is now
+said where the number is, along with where the denominator lives.
+
+**Cumulative across three rounds: GLM has returned eight fatal findings and all
+eight were wrong.** It has never once identified a real fatal defect, and it has
+twice produced clarifications worth making by misreading something a careful
+reader could also misread. That is the value it adds, and it is worth one CLI
+call, but it is not the value a third reviewer was added to provide.
