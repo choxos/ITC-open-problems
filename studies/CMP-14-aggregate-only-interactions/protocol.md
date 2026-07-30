@@ -8,7 +8,7 @@ part on IDN-06 *ML-NMR interactions can rest solely on aggregate-data variation*
 
 **Provenance.** Every number this document prints is exported from the code that computes it
 by `R/05-export.R`, and `review/verify-protocol.py` asserts the document against that export,
-currently **121** assertions. The four controls in section 5 are asserted against the values
+currently **123** assertions. The four controls in section 5 are asserted against the values
 that made them pass, not merely described, because section 8 concedes that two of them were
 weakened after they failed.
 
@@ -21,10 +21,14 @@ weakened after they failed.
   the analysis was run before this protocol existed. **E1 is therefore reported as exact and
   exploratory**, and section 8 records every design choice that was changed after seeing a
   number.
-- **E2 is partly confirmatory and partly not, and the split is stated in section 7.** Its four
-  separation rules were committed before it ran and are confirmatory with respect to it. Its
-  equal-SD condition was **observed first** and is exploratory, and section 7 says so rather than
-  presenting it as a registered test. E2 involves **no MCMC and fits no model**: it is an
+- **E2 has no confirmatory standing, and the earlier claim that it had some is withdrawn.** An
+  earlier version of this bullet said its separation rules "were committed before it ran and are
+  confirmatory with respect to it". That was true of the rules as first written and false of the ones
+  now in force: round 3 rebuilt them after E2's output had been read, to cover the whole-model rank
+  count and the complete per-state distributions. Round 4 pointed out that I had applied this reasoning
+  to the equal-SD condition and not to the rules I rebuilt around it. **Every part of E2 is
+  exploratory.** It is reported as a check on whether E1's conclusion survives a nonlinear link, not
+  as independent confirmation of it, and section 9 carries the consequence. E2 involves **no MCMC and fits no model**: it is an
   asymptotic calculation from the Fisher information of a logistic component model. An earlier
   version of this bullet said "fitted by MCMC rather than solved" while section 7 said the
   opposite; round 2 found the contradiction and it is resolved in favour of what the code does.
@@ -123,7 +127,7 @@ prior-driven.
 | `contraction` | marginal posterior SD over marginal prior SD, for the target's own coordinate | **what CMP-14 asks for** |
 | `eff_rank` | likelihood-to-prior information ratio along the target's coordinate, plus the whole-model count of directions where the data outweigh the prior | **what CMP-14 asks for** |
 | `rank_screen` | is the coordinate identified by the likelihood at all, computed with no prior | the estimability screen `cpaic` already ships |
-| `source_share` | share of the target's marginal likelihood precision contributed by **randomized within-study rows** rather than by the between-study gradient | **this study's candidate replacement** |
+| `source_survival` | the fraction of the target's marginal likelihood precision that **survives deleting** a source, computed prior-free. Called a *share* in earlier versions, which round 4 rejected: it is not a share of anything, because the sources are not additive and no single source identifies the target in every state | **this study's candidate replacement, exploratory** |
 
 The fourth is proposed because of an argument, not a hunch. Contraction and effective rank are
 functions of the information matrix, and an information matrix is a **sum over rows**. Summing
@@ -172,8 +176,8 @@ coefficients now carry a fixed weak `PRIOR_SD_NUISANCE = 10`.
 **That it is doing no work is measured, not asserted.** Round 2 pointed out that "must not be
 doing work" was a claim with nothing behind it. Every scenario is re-evaluated with the nuisance
 scale at 3 and at 30, an order of magnitude either side, and the largest movement in any
-registered quantity across the whole grid is **0.0007 in coverage, 0.0002 in contraction and
-0.0000 in the source share**. The interaction prior is the only prior doing work, within that
+registered quantity across the whole grid is **0.0005 in coverage, 0.0001 in contraction and
+0.0000 in the source survival fraction**. The interaction prior is the only prior doing work, within that
 tolerance. **What was tested is exactly that**: two alternative scales on E1's grid, on the
 identity link. Round 3 found the claim stated more broadly than the test, so it is narrowed here.
 E2's nuisance prior is not varied, and neither arm establishes invariance outside the range 3 to 30.
@@ -198,32 +202,43 @@ every count.
 as what it actually tests, after round 1 found two of them promising more than they checked.
 
 1. **Absent is prior-only.** Contraction $> 0.999$ in every absent scenario.
-2. **The null control does not undercover.** With no discordance, no synergy and a prior that
-   is not itself the problem, no scenario covers below nominal. It is *not* claimed to be
-   nominal: **5 scenarios overcover**, at 0.962 to 0.986, and all five are `ecological` at the
-   smallest between-study spread where the posterior SD exceeds the sampling SD of its own
-   centre (0.555 against 0.462 at worst). That is ordinary shrinkage producing a
-   conservative interval, which is the harmless end of prior domination, and the control requires
-   the overcoverage to be confined to that mechanism rather than widening its threshold until it
-   passes.
-3. **The tight prior pulls every state toward zero, and hurts the least-informed state most.**
-   The first version said it depresses every state *alike*; measured, the mean bias runs
-   $-0.114$ in `additivity`, $-0.177$ in `own_ipd`,
-   $-0.278$ in `ecological` and $-0.400$ in `absent`, a spread of
-   0.286 against a truth of 0.40. **"Alike" is withdrawn.**
-   What holds, and what the argument needs, is that the pull is in the same direction everywhere,
-   so the failure belongs to the prior and not to any one evidence structure. Two orderings are
-   asserted and both point the right way: `absent`, which has no likelihood information at all, is
-   pulled hardest of any state, and among the states that do have information `ecological` is
-   pulled hardest. Round 2 found the guard excluding `absent` while the claim said "every state",
-   so the state with the least information was the one not being checked.
+2. **The null control does not undercover**, and it is *not* claimed to be nominal: some scenarios
+   overcover, all of them `ecological` at the smallest between-study spread where the posterior SD
+   exceeds the sampling SD of its own centre. That is ordinary shrinkage producing a conservative
+   interval, the harmless end of prior domination, and the control requires the overcoverage to be
+   confined to that mechanism rather than widening its threshold until it passes.
+3. **The tight prior pulls every state toward zero**, and pulls hardest where there is least
+   information to resist with. The first version said it depresses every state *alike*; measured, the
+   magnitudes differ by more than a third of the truth, so **"alike" is withdrawn**. What holds, and
+   what the argument needs, is that the direction is the same everywhere, so the failure belongs to
+   the prior and not to any one evidence structure. Two orderings are asserted: `absent`, which has
+   no likelihood information at all, is pulled hardest of any state, and among the states that do
+   have information `ecological` is pulled hardest.
 4. **Both kinds of prior-driven parameter are present.** The absent state must cover the truth
-   essentially always under a wide prior and essentially never under a tight misplaced one.
-   Without both, the grid contains only the harmless kind and the comparison is rigged. Round 3
-   found the check testing only that a scenario of each kind **exists**, which is weaker than the
-   words "essentially always" and "essentially never"; it now requires the wide-prior absent
-   scenarios to cover above 0.99 **as a group** and the tight-prior ones to cover below 0.01 as a
-   group, so a single conforming scenario cannot carry the control.
+   essentially always under a wide prior and essentially never under a tight misplaced one. Without
+   both, the grid contains only the harmless kind and the comparison is rigged. Round 3 found the
+   check testing only that a scenario of each kind **exists**, weaker than the words "essentially
+   always"; both are group properties now, so a single conforming scenario cannot carry the control.
+
+**The numbers these controls actually produced**, emitted from the run rather than typed, because
+round 2 found two of them stale from before the patient budget was equalized and round 4 changed
+every one of them again by matching the arm counts:
+
+| control quantity | value |
+|---|---|
+| absent-state contraction, minimum | 1.0000 |
+| null control, minimum coverage | 0.9468 |
+| null control, scenarios overcovering | 4 |
+| null control, overcoverage range | 0.961 to 0.983 |
+| the shrinkage causing it: posterior SD against sampling SD | 0.536 against 0.453 |
+| tight prior, coverage recovered at the largest budget, `additivity` | 0.938 |
+| tight prior, coverage recovered at the largest budget, `ecological` | 0.735 |
+| tight prior, coverage recovered at the largest budget, `own_ipd` | 0.725 |
+| tight prior, mean bias, `absent` | -0.400 |
+| tight prior, mean bias, `additivity` | -0.114 |
+| tight prior, mean bias, `ecological` | -0.306 |
+| tight prior, mean bias, `own_ipd` | -0.204 |
+| absent state, coverage by prior SD | 0.1: 0.00, 0.5: 1.00, 1: 1.00, 2.5: 1.00 |
 
 ## 6. Outcomes
 
@@ -250,12 +265,20 @@ never used, so one of the two summaries CMP-14 actually asks for appeared in no 
 prior scale, with synergy off. This is the comparison CMU-02 could not make. Reported as the pairs
 whose contraction differs by less than 0.02 and what their coverage does.
 
-**The matching is on the budget and cannot also be on arm size.** The two states have twelve and
-ten arms, so an equal total means per-arm sizes of $n/12$ and $n/10$. That is unavoidable:
-the states differ in structure, structure determines how many arms a fixed budget is spread over,
-and matching per-arm size instead would hand `additivity` 20% more patients, which is precisely the
-defect round 1 found. The budget is what an investigator controls, so it is what is held fixed, and
-the per-arm consequence is stated rather than left for a reader to discover.
+**Round 4 found that this comparison changed the shared background network too, and it was right.**
+With two arms in `ecological` against three in `additivity`, the states had ten and twelve arms, so
+an equal patient budget gave the background studies for components 1, 2 and 4 different per-arm
+sizes. Matching per-arm size instead recreates the round-1 defect of handing `additivity` 20% more
+data, so neither of the two obvious fixes works. **The arm counts are matched instead**: every
+state's target studies now carry three arms, so every state has twelve arms, 250 patients per arm and
+an identical background. The added arm in `ecological` is component 1 alone, which is what
+`additivity`'s third arm is built from, so the two target designs are structurally identical except
+for the one thing the comparison is about: whether component 3 appears alone in an **aggregate** arm
+or only inside the combination inside an **individual-data** arm.
+
+With that fixed, **54 matched pairs differ in contraction by less than 0.02 while their coverage
+differs by up to 0.951**, and the gap is now attributable to the evidence route alone rather than
+partly to a bigger background network.
 
 **Primary 3.** Within the confounded family, the rank correlation between contraction and
 coverage. **Read the sign carefully: low contraction is the reassuring value, so a POSITIVE

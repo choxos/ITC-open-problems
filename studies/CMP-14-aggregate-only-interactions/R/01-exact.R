@@ -46,28 +46,42 @@ build_state <- function(state, spread, total_n) {
     list(ipd = TRUE, mu = 0.2, sd = 1, arms = list(PBO, e_vec(2))),
     list(ipd = TRUE, mu = 0.1, sd = 1, arms = list(PBO, e_vec(4))))
   target <- switch(state,
+    ## EVERY STATE'S TARGET STUDIES CARRY THREE ARMS, AND ROUND 4 IS WHY.
+    ##
+    ## With two arms here and three in `additivity`, the states had ten and twelve
+    ## arms, so an equal patient budget gave their SHARED BACKGROUND studies,
+    ## components 1, 2 and 4, different per-arm sizes. Primary 2 then changed the
+    ## background network as well as the target's evidence route, which is not the
+    ## comparison it is registered as. Matching per-arm size instead of budget
+    ## recreates the round-1 defect of handing `additivity` 20% more data, so
+    ## neither obvious fix works and the arm COUNTS have to match.
     own_ipd = list(
       list(ipd = TRUE, mu = 0.1 - spread / 2, sd = 1,
-           arms = list(PBO, e_vec(3))),
+           arms = list(PBO, e_vec(1), e_vec(3))),
       list(ipd = TRUE, mu = 0.1 + spread / 2, sd = 1,
-           arms = list(PBO, e_vec(3)))),
+           arms = list(PBO, e_vec(1), e_vec(3)))),
     additivity = list(
       list(ipd = TRUE, mu = 0.1 - spread / 2, sd = 1,
            arms = list(PBO, e_vec(1), e_vec(1, 3))),
       list(ipd = TRUE, mu = 0.1 + spread / 2, sd = 1,
            arms = list(PBO, e_vec(1), e_vec(1, 3)))),
+    ## The added arm is component 1 alone, which is what `additivity`'s third arm
+    ## is built from, so the two target designs are now structurally identical
+    ## except for the one thing the comparison is about: whether component 3
+    ## appears alone in an AGGREGATE arm or only inside the combination 1+3 in an
+    ## INDIVIDUAL-DATA arm.
     ecological = list(
       list(ipd = FALSE, mu = 0.1 - spread / 2, sd = 1,
-           arms = list(PBO, e_vec(3))),
+           arms = list(PBO, e_vec(1), e_vec(3))),
       list(ipd = FALSE, mu = 0.1 + spread / 2, sd = 1,
-           arms = list(PBO, e_vec(3)))),
+           arms = list(PBO, e_vec(1), e_vec(3)))),
     absent = list(
-      ## Two studies of the same total size that do not touch component 3, so
-      ## the absent state is not also a smaller study.
+      ## Three arms as well, so the absent state is neither a smaller study nor
+      ## one whose background arms are sized differently from the others'.
       list(ipd = TRUE, mu = 0.1 - spread / 2, sd = 1,
-           arms = list(PBO, e_vec(1))),
+           arms = list(PBO, e_vec(1), e_vec(2))),
       list(ipd = TRUE, mu = 0.1 + spread / 2, sd = 1,
-           arms = list(PBO, e_vec(2)))),
+           arms = list(PBO, e_vec(1), e_vec(2)))),
     stop("unregistered information state: ", state))
   studies <- c(base, target)
   ## Divide the budget by the number of ARMS this state contains, so every state

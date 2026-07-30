@@ -139,49 +139,52 @@ check("the grid holds both a harmless and a harmful prior-driven parameter",
       f"absent-state coverage by prior SD {byp}")
 check("the protocol lists all four controls",
       RAW.count("\n1. **Absent is prior-only.**") == 1
-      and "**The null control does not undercover.**" in PROTOCOL
-      and "**The tight prior pulls every state toward zero, and hurts the "
-          "least-informed state most.**" in PROTOCOL
+      and "**The null control does not undercover**" in PROTOCOL
+      and "**The tight prior pulls every state toward zero**" in PROTOCOL
       and "**Both kinds of prior-driven parameter are present.**" in PROTOCOL,
       "a control described in section 5 is missing")
 # The two controls round 1 found overpromising must state what they now test,
 # not merely that they pass.
 check("the null control no longer claims nominality",
-      "It is *not* claimed to be nominal" in PROTOCOL,
+      "it is *not* claimed to be nominal" in PROTOCOL,
       "the control still promises more than it checks")
 check("the prior-domination control withdraws the word alike",
-      '**"Alike" is withdrawn.**' in PROTOCOL,
+      '**"alike" is withdrawn**' in PROTOCOL,
       "the withdrawn claim is still standing")
 
-# --- the control JUSTIFICATIONS, which round 2 found unasserted and stale ----
-# The protocol quoted tight-prior recovery as "0.94, 0.84 and 0.80" from before
-# the patient budget was equalized; no scenario rounded to 0.84. Every number a
-# control's justification prints is now exported and matched here.
-for st, v in DESIGN["control_tight_recovery"].items():
-    check(f"the tight-prior recovery figure for {st} is the run's own",
-          f"{v:.3f}" in PROTOCOL, f"{v:.3f} does not appear")
-for st, v in DESIGN["control_tight_bias"].items():
-    check(f"the tight-prior bias figure for {st} is the run's own",
-          f"{v:.3f}" in PROTOCOL, f"{v:.3f} does not appear")
+# --- the control JUSTIFICATIONS, now an emitted table ------------------------
+# Round 2 found two of these stale, round 4 changed all of them again, and both
+# times the repair was retyping. They are emitted by review/emit-tables.py now,
+# and asserted here cell by cell against the same export, independently.
+CTL = table_after("| control quantity | value |")
+_ctl = {r.strip().strip("|").split("|")[0].strip():
+        r.strip().strip("|").split("|")[1].strip() for r in CTL}
+check("the control table is present", len(CTL) >= 12, f"{len(CTL)} rows")
+
+
+def ctl_has(label_part, want):
+    k = next((k for k in _ctl if label_part in k), None)
+    check(f"control table states {label_part}", k is not None and want in _ctl[k],
+          f"looked for {want!r} in {_ctl.get(k)!r}")
+
+
+ctl_has("absent-state contraction",
+        f"{DESIGN['control_absent_min_contraction']:.4f}")
+ctl_has("null control, minimum coverage",
+        f"{DESIGN['control_null_min_coverage']:.4f}")
+ctl_has("scenarios overcovering", str(DESIGN["control_null_n_over"]))
 _ov = DESIGN["control_null_over_range"]
-check("the null overcoverage range is the run's own",
-      f"{_ov[0]:.3f} to {_ov[1]:.3f}" in PROTOCOL,
-      f"{_ov} does not appear")
-check("the null overcoverage count is the run's own",
-      f"{DESIGN['control_null_n_over']} scenarios overcover" in PROTOCOL
-      or f"{DESIGN['control_null_n_over']} scenarios cover" in PROTOCOL,
-      f"{DESIGN['control_null_n_over']} not stated")
+ctl_has("overcoverage range", f"{_ov[0]:.3f} to {_ov[1]:.3f}")
 _sh = DESIGN["control_null_worst_shrinkage"]
-check("the shrinkage comparison is the run's own",
-      f"{_sh[0]:.3f} against {_sh[1]:.3f}" in PROTOCOL,
-      f"{_sh} does not appear")
-check("the stale recovery figures are recorded as stale, not deleted",
-      '"0.94, 0.84 and 0.80", stale from before the patient budget was equalized'
-      in PROTOCOL, "the withdrawn figures are not recorded")
-check("the absent state is inside the tight-prior ordering claim",
-      "is\npulled hardest of any state" in RAW
-      or "pulled hardest of any state" in PROTOCOL,
-      "the least-informed state is still outside the claim")
+ctl_has("shrinkage causing it", f"{_sh[0]:.3f} against {_sh[1]:.3f}")
+for st, v in DESIGN["control_tight_recovery"].items():
+    ctl_has(f"largest budget, `{st}`", f"{v:.3f}")
+for st, v in DESIGN["control_tight_bias"].items():
+    ctl_has(f"mean bias, `{st}`", f"{v:+.3f}")
+check("the tight prior pulls the least-informed state hardest",
+      min(DESIGN["control_tight_bias"],
+          key=lambda k: DESIGN["control_tight_bias"][k]) == "absent",
+      f"{DESIGN['control_tight_bias']}")
 
 NS = DESIGN["nuisance_sensitivity"]
 check("the nuisance prior's inertness is measured, not declared",
@@ -190,8 +193,7 @@ check("the nuisance prior's inertness is measured, not declared",
 check("the nuisance prior really is inert",
       max(NS.values()) < 0.01, f"largest movement {max(NS.values())}")
 check("the study's own threshold is not called conventional",
-      "`SOURCE_OK`\n  cannot be conventional" in RAW
-      or "cannot be conventional" in PROTOCOL,
+      "cannot be conventional" in PROTOCOL,
       "a novel threshold is still presented as convention")
 
 # --- the primary outcomes ----------------------------------------------------
@@ -213,9 +215,9 @@ check("primary 3's sign is explained the way it must be read",
 check("E1 is declared exploratory",
       "**E1 is therefore reported as exact and exploratory**" in PROTOCOL,
       "the exploratory concession is missing")
-check("E2's split registration status is stated",
-      "E2 is partly confirmatory and partly not" in PROTOCOL
-      and "no MCMC and fits no model" in PROTOCOL,
+check("E2 is declared to have no confirmatory standing",
+      "**E2 has no confirmatory standing" in PROTOCOL
+      and "Every part of E2 is exploratory." in PROTOCOL,
       "E2's status is not stated")
 DISC = table_after("| change | why | what it would have hidden |")
 check("the disclosure list covers all three phases of changes",

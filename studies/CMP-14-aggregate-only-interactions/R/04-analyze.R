@@ -60,13 +60,19 @@ overlap_table <- function(d) {
     contraction  = d$contraction,
     target_ratio = d$target_ratio,
     eff_rank     = d$eff_rank,
-    share_within = ifelse(is.na(d$share_within), 0, d$share_within))
+    share_within = ifelse(is.na(d$share_within), 0, d$share_within),
+    ## Round 4: the estimability screen was among the registered diagnostics and
+    ## appeared in no outcome, so the one rule `cpaic` already ships controlled
+    ## nothing. It is binary, so "overlaps" means both of its values occur among
+    ## failing scenarios and among nominal ones, which is the same existence claim
+    ## the continuous statistics are judged by.
+    rank_screen = as.numeric(d$estimable))
   ## For each statistic, the direction in which "looks safe" points.
   ## Finding 7 of round 1: the whole-model effective rank was computed and never
   ## analyzed, so one of the two summaries CMP-14 actually asks for was absent
   ## from every reported outcome. It is included here in both forms.
   safe_low <- c(contraction = TRUE, target_ratio = FALSE, eff_rank = FALSE,
-                share_within = FALSE)
+                share_within = FALSE, rank_screen = FALSE)
   do.call(rbind, lapply(names(stats), function(nm) {
     v <- stats[[nm]]; fail <- d$failed
     if (safe_low[[nm]]) {
