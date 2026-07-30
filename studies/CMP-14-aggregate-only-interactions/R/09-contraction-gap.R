@@ -170,11 +170,22 @@ gap_for <- function(row) {
   ## replaced.
   sd_fisher <- sqrt(solve(logit_info(b, m$theta)$total + P0)[gi, gi])
 
+  ## ROUND 8: "EFFECTIVE RANK IS UNAFFECTED" WAS ASSERTED AND NOT MEASURED.
+  ## It is a property of the information matrix, so it does move when the matrix
+  ## does, and the comparator this file defines replaces the Fisher information
+  ## with the observed Hessian at the mode. Both are computed and the document
+  ## reports how many scenarios change rather than claiming none do.
+  er_reg <- eff_rank(logit_info(b, th)$total, P0, thresh = EFF_RATIO_OK)
+  er_lap <- eff_rank(H_obs, P0, thresh = EFF_RATIO_OK)
+
   data.frame(state = row$state, prior_sd = row$prior_sd, n = row$n,
              spread = row$spread, sd_ratio = row$sd_ratio,
              contraction_registered = sd_reg / row$prior_sd,
              contraction_laplace = sd_lap / row$prior_sd,
              contraction_fisher_at_mode = sd_fisher / row$prior_sd,
+             eff_rank_registered = er_reg$eff_rank,
+             eff_rank_laplace = er_lap$eff_rank,
+             eff_rank_p = er_reg$n_par,
              mode_shift = abs(m$theta[gi] - th[gi]),
              converged = m$converged)
 }
@@ -207,9 +218,16 @@ main <- function() {
   agg <- aggregate(abs_gap ~ prior_sd, res, max)
   print(agg, row.names = FALSE)
 
+  n_er_changed <- sum(res$eff_rank_registered != res$eff_rank_laplace)
+  warn_reg <- res$eff_rank_registered < res$eff_rank_p
+  warn_lap <- res$eff_rank_laplace < res$eff_rank_p
+  n_er_flip <- sum(warn_reg != warn_lap)
+  cat(sprintf("\neffective rank under the two curvatures: %d of %d scenarios differ, %d flip the warning\n",
+              n_er_changed, nrow(res), n_er_flip))
   saveRDS(list(table = res,
                max_abs = max(res$abs_gap), median_abs = stats::median(res$abs_gap),
-               max_rel = max(res$rel_gap), n_scenarios = nrow(res)),
+               max_rel = max(res$rel_gap), n_scenarios = nrow(res),
+               eff_rank_changed = n_er_changed, eff_rank_warn_flips = n_er_flip),
           "results/contraction-gap.rds")
   cat("\nwritten: results/contraction-gap.rds\n")
 }

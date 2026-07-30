@@ -204,7 +204,7 @@ evaluate_e2 <- function(row) {
   th_flat <- theta_true_nl(b_flat)
   th_flat[gi_of(b_flat)] <- th_flat[gi_of(b_flat)] + shift
   inf_flat <- logit_info(b_flat, th_flat)
-  ss <- source_shares(I, inf$within, inf_flat$total, gi)
+  ss <- source_survivals(I, inf$within, inf_flat$total, gi)
   w_in <- lik_marginal_precision(inf$within, gi)
   w_bt <- lik_marginal_precision(inf$between, gi)
 
@@ -321,6 +321,7 @@ e2_verdict <- function(res) {
     against = c("ecological", "curvature"),
     stringsAsFactors = FALSE)
   rules <- do.call(rbind, lapply(seq_len(nrow(grid)), function(i) data.frame(
+    standing = STANDING[[grid$stat[i]]],
     rule = sprintf("%s separates additivity from %s", grid$stat[i],
                    grid$against[i]),
     separates = separates(grid$stat[i], "additivity", grid$against[i]),
@@ -330,11 +331,16 @@ e2_verdict <- function(res) {
   cs <- unique(rows_for("curvature")$surv_sd)
   es <- unique(rows_for("ecological")$surv_sd)
   cs <- cs[!is.na(cs)]; es <- es[!is.na(es)]
+  ## ROUND 8: THE CANDIDATE'S E2 OUTPUTS CARRIED NO STANDING. The protocol
+  ## promises that every outcome reporting the post hoc candidate says so on the
+  ## row, and round 7 added a standing field to E1's tables only. These four
+  ## fields are the candidate's E2 outputs and they were exported bare.
   list(rules = rules,
        withdraw_e1 = isTRUE(any(rules$separates)),
-       curvature_share = unique(rows_for("curvature")$surv_between[
+       candidate_standing = STANDING[["source_survival"]],
+       curvature_surv = unique(rows_for("curvature")$surv_between[
          !is.na(rows_for("curvature")$surv_between)]),
-       ecological_share = unique(rows_for("ecological")$surv_between[
+       ecological_surv = unique(rows_for("ecological")$surv_between[
          !is.na(rows_for("ecological")$surv_between)]),
        surv_between_is_constructional = FALSE,
        surv_sd_curvature = if (length(cs)) range(cs) else NA,
@@ -359,9 +365,9 @@ if (!interactive() && Sys.getenv("E2_NOMAIN") == "") {
             "a scenario's departure is not exact aliasing"
               = max(res$alias_gap) <= E2_ALIAS_TOL)
   cat(sprintf("source share, curvature: %s | ecological: %s | separates them: %s\n",
-              paste(v$curvature_share, collapse = ", "),
-              paste(v$ecological_share, collapse = ", "),
-              v$share_separates_curvature))
+              paste(v$curvature_surv, collapse = ", "),
+              paste(v$ecological_surv, collapse = ", "),
+              v$surv_separates_curvature))
   ## --- PLACEBO PREVALENCE IS 0.3 AT x = 0, NOT IN THE ARM --------------------
   ##
   ## The protocol said "placebo arms sit at prevalence 0.3". The code sets

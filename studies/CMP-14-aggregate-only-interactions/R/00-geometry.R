@@ -219,7 +219,7 @@ lik_marginal_precision <- function(I, gi, tol = 1e-6) {
 ## fraction LOST when the SD contrast is flattened, so a value of 1 meant zero
 ## survival where the registered definition says complete survival. Both are now
 ## survivals, both reassuring when high, and both named for the source deleted.
-source_shares <- function(I_full, I_within, I_noflat, gi) {
+source_survivals <- function(I_full, I_within, I_noflat, gi) {
   full <- lik_marginal_precision(I_full, gi)
   if (full <= 0) return(list(full = 0, surv_between = NA_real_,
                              surv_sd = NA_real_))

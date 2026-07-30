@@ -81,7 +81,7 @@ diag_rank_screen <- function(fit, tol = 1e-8) {
 ## for the same reason. Both computed each source's "precision" from a
 ## prior-regularized inverse, so a source that identifies nothing still scored
 ## positive, and both then took a ratio of such numbers. See
-## `lik_marginal_precision` and `source_shares` in R/00-geometry.R for the
+## `lik_marginal_precision` and `source_survivals` in R/00-geometry.R for the
 ## prior-free, well-posed replacement.
 diag_source_survival <- function(b, prior_sd, fit) {
   gi <- fit$gi
@@ -95,7 +95,7 @@ diag_source_survival <- function(b, prior_sd, fit) {
   ## nothing. That is not a limitation to work around, it is the fact that makes
   ## `curvature` a nonlinear-only state, and E1 reports it as such. Under the
   ## pre-round-6 loss orientation the same fact read as zero.
-  ss <- source_shares(info_of(rep(TRUE, nrow(b$X))), info_of(!b$agd),
+  ss <- source_survivals(info_of(rep(TRUE, nrow(b$X))), info_of(!b$agd),
                       info_of(rep(TRUE, nrow(b$X))), gi)
   list(within = lik_marginal_precision(info_of(!b$agd), gi),
        between = lik_marginal_precision(info_of(b$agd), gi),
@@ -145,5 +145,19 @@ warnings_from <- function(d) data.frame(
   rank_screen  = !d$estimable,
   ## The candidate: less than half the target's likelihood precision survives
   ## deleting the between-study source, so most of it is non-randomized.
-  source_survival = is.na(d$surv_between) | d$surv_between < SOURCE_OK,
+  ##
+  ## ROUND 8: UNDEFINED IS NOT THE SAME AS FAILING, AND THE TWO PATHS DISAGREED.
+  ## In `absent` the target's full likelihood precision is exactly zero, so the
+  ## survival RATIO does not exist and `source_survivals` returns NA. This rule read
+  ## NA as an alarm while `overlap_table` read it as zero, so the same undefined
+  ## value entered two outcomes as two different numbers, neither of them the
+  ## registered rule `surv_between < SOURCE_OK`.
+  ##
+  ## The registered treatment is now explicit and is the same in both places: a
+  ## coordinate the likelihood does not identify AT ALL is the most alarming case
+  ## the study contains, so it alarms, but it does so under `rank_screen`, which
+  ## is exactly the structural question, and the candidate reports NA rather than
+  ## inventing a ratio. `overlap_table` excludes those rows from the candidate's
+  ## range instead of substituting zero.
+  source_survival = ifelse(is.na(d$surv_between), NA, d$surv_between < SOURCE_OK),
   stringsAsFactors = FALSE)

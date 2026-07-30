@@ -161,6 +161,20 @@ close <- sp[sp$contract_gap < PAIRS_CLOSE_TOL, ]
 out$pairs_total <- nrow(sp)
 out$pairs_close <- nrow(close)
 out$pairs_close_max_cover_gap <- round(max(abs(close$cover_gap)), 3)
+## ROUND 8: how many "close" pairs actually display identically at two decimals,
+## which is what the protocol's justification claimed of all of them.
+same_disp <- round(sp$contraction_additivity, 2) ==
+             round(sp$contraction_ecological, 2)
+disp <- sp[same_disp & sp$contract_gap < PAIRS_CLOSE_TOL, ]
+out$pairs_close_same_display <- nrow(disp)
+out$pairs_close_same_display_max_cover_gap <-
+  if (nrow(disp)) round(max(abs(disp$cover_gap)), 3) else NA_real_
+worst <- close[which.max(abs(close$cover_gap)), ]
+out$pairs_worst_contractions <- c(round(worst$contraction_additivity, 6),
+                                  round(worst$contraction_ecological, 6))
+out$pairs_worst_displays_same <-
+  round(worst$contraction_additivity, 2) == round(worst$contraction_ecological, 2)
+
 out$pairs_close_surv_between <- list(
   additivity = unique(round(close$surv_between_additivity, 3)),
   ecological = unique(round(close$surv_between_ecological, 3)))
@@ -235,7 +249,10 @@ out$contraction_gap <- list(
   n_scenarios = cg$n_scenarios,
   max_abs = round(cg$max_abs, 4),
   median_abs = round(cg$median_abs, 5),
-  max_rel_pct = round(100 * cg$max_rel, 2))
+  max_rel_pct = round(100 * cg$max_rel, 2),
+  ## Round 8: "effective rank is unaffected" was asserted and is false.
+  eff_rank_changed = cg$eff_rank_changed,
+  eff_rank_warn_flips = cg$eff_rank_warn_flips)
 
 ## --- E2's curvature mechanism, checked rather than asserted -----------------
 cr <- readRDS("results/curvature-rank.rds")
@@ -265,13 +282,17 @@ out$arm_map_n_target_arms <-
 e2 <- readRDS("results/e2.rds"); ev <- readRDS("results/e2-verdict.rds")
 out$e2_n_scenarios <- nrow(e2)
 out$e2_rules <- lapply(seq_len(nrow(ev$rules)), function(i)
-  list(rule = ev$rules$rule[i], separates = ev$rules$separates[i]))
+  list(rule = ev$rules$rule[i], standing = ev$rules$standing[i],
+       separates = ev$rules$separates[i]))
 out$e2_withdraw_e1 <- ev$withdraw_e1
 out$e2_surv_sd_separates <- ev$surv_sd_separates
 out$e2_surv_sd_curvature <- ev$surv_sd_curvature
 out$e2_surv_sd_ecological <- ev$surv_sd_ecological
-out$e2_curvature_share <- ev$curvature_share
-out$e2_ecological_share <- ev$ecological_share
+## The candidate's E2 outputs, each carrying the standing the protocol promises
+## every occurrence would carry.
+out$e2_candidate_standing <- ev$candidate_standing
+out$e2_curvature_surv <- ev$curvature_surv
+out$e2_ecological_surv <- ev$ecological_surv
 out$e2_by_state <- lapply(split(e2, e2$state), function(z) list(
   state = z$state[1], n = nrow(z),
   cover_min = round(min(z$coverage), 3), cover_max = round(max(z$coverage), 3),

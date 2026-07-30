@@ -15,7 +15,7 @@ now stated once**, and what it replaced is in the history.
 **Provenance, stated for what it does rather than for what it sounds like.** **The assertion is the
 guarantee; emission is a convenience.** `R/05-export.R` writes every quantity this document quotes to
 `results/registered-design.json`. `review/verify-protocol.py` then checks the document against that
-file, currently **154** assertions, and that is the link that catches a stale or invented number.
+file, currently **163** assertions, and that is the link that catches a stale or invented number.
 `review/emit-tables.py` regenerates a handful of sentences from the same export so they need not be
 retyped; it covers **some** numbers, not all, and **it now fails when one of its patterns matches
 nothing** rather than reporting success. Round 6 found it targeting a sentence an earlier rebuild had
@@ -228,6 +228,16 @@ is what makes contraction the summary most exposed to CMP-14's own question.
 target in every state, so a parameter's precision cannot be apportioned among sources. Asking how
 much survives deleting a source needs no additivity and no prior.
 
+**Where the likelihood identifies nothing, the survival ratio does not exist and is reported as
+undefined.** In all `absent` scenarios the target's full likelihood precision is exactly zero, so the
+ratio has a zero denominator. Two code paths used to disagree about that: the overlap table
+substituted **zero**, putting an invented value at the alarming end of the candidate's range, while
+the warning rule read the missing value as an **alarm**. Neither is the registered rule
+`surv_between < SOURCE_OK`. **Both now report undefined and exclude the row**, so the candidate's
+comparison runs on 402 scenarios with **18** excluded and its warning
+on the same basis with **72** excluded. Nothing is lost by this: a coordinate the
+likelihood does not identify at all is exactly what `rank_screen` exists to flag, and it does.
+
 **It has exactly two forms, both survivals, both reassuring when high.** `surv_between` deletes the
 between-study source and reports what the within-study rows still identify; `surv_sd` flattens the
 aggregate covariate SDs and reports what the remaining routes still identify. An earlier version
@@ -247,8 +257,14 @@ Round 7 found the thresholds listed without saying which rule each governs or wh
 | `rank_screen` | not estimable | none | structural |
 | `source_survival` | $<$ `SOURCE_OK` | 0.50 | **a stipulation**, since the statistic is introduced here |
 
-**`EFF_RATIO_OK` governs `target_ratio` only.** The whole-model `eff_rank` rule carries no scale
-threshold, which is what keeps the two rank summaries separate after round 6 found them fused. The
+**`EFF_RATIO_OK` is the one "likelihood outweighs prior" cutoff and both rank summaries use it, at
+different levels.** `target_ratio` compares the likelihood's marginal precision to the prior's along
+the target's own coordinate and alarms below it. `eff_rank` counts the eigendirections of
+$P_0^{-1/2} I P_0^{-1/2}$ that exceed it, and its *warning* then compares that count to the parameter
+count $p$, which is why the warning rule carries no threshold of its own. An earlier version of this
+paragraph said `EFF_RATIO_OK` governs `target_ratio` only; `eff_rank()` takes it as `thresh` in both
+`diag_eff_rank()` and the E2 evaluator, so the denial was false. **What round 6 separated is the two
+rules and their outputs, not the constant**, and one cutoff for one concept is the right design. The
 first two thresholds are conventional; **`SOURCE_OK` cannot be**, and it is labeled a stipulation
 wherever it appears.
 
@@ -298,12 +314,17 @@ than asserted" without the rule or the tolerance presented a measurement as a gu
 
 ## 7. Outcomes
 
-**Every number in this section is an E1 number and E1 is exploratory.** Section 1 says so globally;
-round 7 pointed out that a reader arriving at an outcomes section and finding $\rho = 0.3295$ and a
+**Every number in this section is exploratory, on both arms.** Section 1 says so globally; round 7
+pointed out that a reader arriving at an outcomes section and finding $\rho = 0.3295$ and a
 false-alarm rate of 0.0355 reads them as the study's results, and a global disclaimer eight sections
-earlier does not travel with the sentence. **E1 ran before this document existed.** Nothing below is
-a confirmation of anything; each is a measurement whose grid and outcome definitions were chosen with
-earlier probes already read.
+earlier does not travel with the sentence. The repair then said "every number in this section is an
+**E1** number", which was false in the same paragraph that primary 3 reports an E2 correlation, and
+round 8 caught it.
+
+**E1 ran before this document existed. Every E2 rule was rebuilt after E2's output had been read.**
+Neither arm is confirmatory and the E2 row is not the safer of the two. Nothing below is a
+confirmation of anything; each is a measurement whose grid and outcome definitions were chosen with
+earlier numbers already seen.
 
 **Three classes, named once and used everywhere.** A scenario **fails** if coverage is below
 `COVER_BAD = 0.90`. It is **nominal** if coverage is within `COVER_TOL = 0.01` of 0.95. Everything
@@ -334,10 +355,24 @@ matched set, take the pairs whose **contraction differs by less than `PAIRS_CLOS
 report the **maximum absolute coverage gap** across them. The claim is that two evidence structures a
 reader would call identically well identified can differ arbitrarily in whether the interval covers.
 
-The tolerance is a reporting resolution, not a fitted quantity: two contractions within 0.02 are the
-same number to anyone reading a diagnostic to two decimals. **It was typed into the analysis and the
-exporter and registered in neither** until round 7, which made an unregistered filter part of a
-primary outcome; it now lives in `R/00-config.R` and both files read it from there.
+The tolerance is absolute closeness, and **that is not the same as displaying identically**. An
+earlier version justified 0.02 by saying two contractions within it are "the same number to anyone
+reading a diagnostic to two decimals"; only **15 of the
+54** pairs passing the filter actually round to the same two decimals, and the pair
+producing the largest coverage gap is not among them: its contractions are
+**0.067771 and 0.081321**, which display as 0.07
+and 0.08.
+
+**The claim survives the stricter reading almost unchanged**, which is why the filter stays as
+absolute closeness rather than being redefined after the fact. Over the
+15 display-identical pairs the maximum coverage gap is
+**0.95**, against
+**0.951** over all 54. Both are reported and both are
+exported.
+
+**The tolerance was typed into the analysis and the exporter and registered in neither** until round
+7, which made an unregistered filter part of a primary outcome; it now lives in `R/00-config.R` and
+both files read it from there.
 
 **Primary 3, one correlation over the confounded family, computed separately on each arm.** The rank
 correlation between contraction and coverage across every `ecological` scenario with nonzero
@@ -468,7 +503,13 @@ the worst cases.** It was 0.0351 and 4.73% over the 44 correctly-specified scena
 **0.1212 and 20.11%**. **A 20.11% relative gap is a
 real limitation of the registered quantity** and section 9 carries it.
 
-Effective rank is unaffected, being a property of the information matrix directly.
+**Effective rank is affected too, and by how much is measured rather than asserted.** It is a property
+of the information matrix, so replacing the Fisher information with the observed Hessian at the mode
+moves it: **6 of the 72 scenarios change their count and 2 flip the `eff_rank < p` warning**. An
+earlier version of this sentence said it was unaffected, which treated "a property of the information
+matrix" as if it meant "a property invariant to which matrix". `eff_rank` is one of the six
+comparisons that can withdraw E1's conclusion, so this is a limitation of that verdict and not a
+footnote.
 
 ### E2's separation rules, and what withdrawing E1's conclusion would take
 
@@ -502,6 +543,14 @@ averaging away a real one. **None of the six separates**, which is the E2 result
 - **E2's contraction figures describe a Gaussian approximation** to a non-Gaussian posterior, and
   section 8 measures how far it sits from its Laplace analogue: up to **20.11%** in relative terms.
   That is the largest single caveat on any E2 number.
+- **The E1 finding does not reproduce on the nonlinear arm.** Primary 3's rank correlation between
+  contraction and coverage is $+0.3295$ over E1's 144 confounded scenarios and $-0.5952$ over E2's 8.
+  The signs are opposite, so the inversion E1 reports is not a property of the diagnostic that
+  survives a change of link in this design. Section 7 promised this limitation would be carried here
+  and round 8 found it absent.
+- **Effective rank is not invariant to the curvature used.** 6 of 72 E2 scenarios change their count
+  and 2 flip the warning under the observed Hessian at the mode rather than the Fisher information,
+  and `eff_rank` is one of the six comparisons that can withdraw E1's conclusion.
 - **The aliasing result is a property of these five states, not a theorem.** It holds because each
   departure happens to touch exactly the target-bearing rows. A state where a departure reached some
   of them and not others would be genuinely misspecified, and E2's coverage calculation would not
@@ -509,8 +558,11 @@ averaging away a real one. **None of the six separates**, which is the E2 result
 - **E1's diagnostics are conditional on the expected covariate design.**
 - **The curvature state's conclusions hold only under equal target-study baselines**, and the route
   list is not claimed to be complete.
-- Additivity is assumed in three of four E1 states; the synergy arm prices that conditionality
-  rather than removing it.
+- Additivity is the identifying assumption of **one** E1 state, `additivity`, which is the only one
+  whose target route runs through the $1{+}3$ combination; the other three use singleton-component
+  arms and the grid accordingly permits synergy only there. The synergy arm prices that
+  conditionality rather than removing it. An earlier version said three of four states, which no part
+  of the design or the code supports.
 - One continuous covariate, one binary component structure, one target component.
 - Conditional estimand only. Nothing is claimed about a target-population marginal contrast.
 - Numerical summaries only; a plot read by an analyst is a different instrument.

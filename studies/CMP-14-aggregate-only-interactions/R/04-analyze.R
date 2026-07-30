@@ -60,7 +60,10 @@ overlap_table <- function(d) {
     contraction  = d$contraction,
     target_ratio = d$target_ratio,
     eff_rank     = d$eff_rank,
-    surv_between = ifelse(is.na(d$surv_between), 0, d$surv_between),
+    ## NA where the likelihood identifies nothing, not zero. Substituting zero
+    ## invented a value for the `absent` rows and put it at the alarming end of
+    ## the candidate's range, which is a claim about a ratio that does not exist.
+    surv_between = d$surv_between,
     ## Round 4: the estimability screen was among the registered diagnostics and
     ## appeared in no outcome, so the one rule `cpaic` already ships controlled
     ## nothing. It is binary, so "overlaps" means both of its values occur among
@@ -75,16 +78,23 @@ overlap_table <- function(d) {
                 surv_between = FALSE, rank_screen = FALSE)
   do.call(rbind, lapply(names(stats), function(nm) {
     v <- stats[[nm]]; fail <- d$failed
+    ## Rows where the statistic is undefined leave that statistic's comparison
+    ## rather than entering it as a number nobody computed.
+    keep <- !is.na(v); v <- v[keep]; fail <- fail[keep]
+    ## ROUND 8: THIS TESTED ONE INEQUALITY WHERE OVERLAP NEEDS TWO. Two intervals
+    ## [a1,b1] and [a2,b2] overlap iff a1 <= b2 AND a2 <= b1. The code checked
+    ## only the first, in the orientation matching `safe_low`, so two disjoint
+    ## ranges lying the "wrong" way round would have been reported as
+    ## overlapping. The current E1 values satisfy both inequalities, so no
+    ## reported result changes, but the implemented procedure was not the
+    ## registered one and a future grid could have separated them silently.
+    overlaps <- min(v[fail]) <= max(v[!fail]) && min(v[!fail]) <= max(v[fail])
     if (safe_low[[nm]]) {
-      ## Lower looks safer. The overlap exists if some FAILING scenario has a
-      ## value at or below some NOMINAL scenario's value.
       worst_ok  <- max(v[!fail])          # the least reassuring covered scenario
       best_fail <- min(v[fail])           # the most reassuring failing scenario
-      overlaps  <- best_fail <= worst_ok
     } else {
       worst_ok  <- min(v[!fail])
       best_fail <- max(v[fail])
-      overlaps  <- best_fail >= worst_ok
     }
     ## ROUND 7: A POST HOC ROW MUST CARRY ITS STANDING IN THE DATA, not only in
     ## the prose. The protocol says every outcome reporting the candidate says so
@@ -102,6 +112,7 @@ overlap_table <- function(d) {
                ## ones plus the nominal ones, with the intermediate band already
                ## removed. The two differ and the name now says which it is.
                n_compared = length(v),
+               n_undefined = sum(!keep),
                unclassifiable_of_compared = if (!overlaps) 0 else
                  mean(if (safe_low[[nm]]) v >= best_fail & v <= worst_ok
                       else v <= best_fail & v >= worst_ok),
@@ -224,7 +235,11 @@ warning_table <- function(d) {
   cols <- grep("^warn_", names(d), value = TRUE)
   do.call(rbind, lapply(cols, function(cn) {
     w <- d[[cn]]
+    ok <- !is.na(w)
+    cl <- list(failed = cl$failed & ok, nominal = cl$nominal & ok,
+               neither = cl$neither & ok)
     data.frame(rule = sub("^warn_", "", cn),
+               n_undefined = sum(!ok),
                standing = std(sub("^warn_", "", cn)),
                sensitivity = mean(w[cl$failed]),
                false_alarm = mean(w[cl$nominal]),
@@ -254,6 +269,15 @@ main <- function() {
   sp$contract_gap <- abs(sp$contraction_additivity - sp$contraction_ecological)
   sp$cover_gap <- sp$coverage_additivity - sp$coverage_ecological
   close <- sp[sp$contract_gap < PAIRS_CLOSE_TOL, ]
+  ## ROUND 8: THE JUSTIFICATION WAS "THE SAME NUMBER TO TWO DECIMALS" AND MOST
+  ## PAIRS ARE NOT. The filter is absolute closeness; whether two values round to
+  ## the same two-decimal display is a different and stricter condition. Both are
+  ## now reported, and the stricter subset is carried through so the strongest
+  ## pair can be judged under either reading.
+  same_disp <- round(sp$contraction_additivity, 2) ==
+               round(sp$contraction_ecological, 2)
+  cat(sprintf("of those, %d display identically at two decimals\n",
+              sum(same_disp & sp$contract_gap < PAIRS_CLOSE_TOL)))
   cat(sprintf("pairs whose contraction differs by less than %.2f: %d\n",
               PAIRS_CLOSE_TOL,
               nrow(close)))

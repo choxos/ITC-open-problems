@@ -144,9 +144,56 @@ for i, (rule, direction, value) in enumerate(_want_th):
     check(f"threshold row {rule} states its alarm direction",
           direction in row, f"{row!r}")
     check(f"threshold row {rule} states its value", value in row, f"{row!r}")
-check("EFF_RATIO_OK is bound to exactly one rule",
-      "**`EFF_RATIO_OK` governs `target_ratio` only.**" in PROTOCOL,
-      "the two rank summaries still share one unbound threshold")
+# ROUND 8: THIS GUARD, WRITTEN IN ROUND 7, PINNED A FALSE CLAIM. It required the
+# document to say EFF_RATIO_OK governs `target_ratio` only, and `eff_rank()`
+# takes that constant as its eigenvalue cutoff in both callers, so the sentence
+# the guard demanded was untrue. That is the EIGHTH assertion in this study to
+# hold a wrong statement in place by requiring a phrase, and the first written in
+# the same session that later had to withdraw it. The check now states the
+# relationship that holds.
+check("the shared cutoff is described as shared",
+      "is the one \"likelihood outweighs prior\" cutoff and both rank summaries use it"
+      in PROTOCOL,
+      "the document still denies that eff_rank uses EFF_RATIO_OK")
+check("the eff_rank warning is described as comparing to the parameter count",
+      "compares that count to the parameter\ncount $p$" in RAW,
+      "the eff_rank rule's own comparison is not stated")
+
+# --- round 8's own numbers, bound to the export ------------------------------
+_pc = DESIGN["pairs_close"]; _pd = DESIGN["pairs_close_same_display"]
+check("the display-agreement count matches the export",
+      f"**{_pd} of the\n{_pc}**" in RAW, f"export says {_pd} of {_pc}")
+check("the worst pair's contractions match the export",
+      f"**{DESIGN['pairs_worst_contractions'][0]} and "
+      f"{DESIGN['pairs_worst_contractions'][1]}**" in PROTOCOL,
+      f"export says {DESIGN['pairs_worst_contractions']}")
+check("the document admits the worst pair does not display identically",
+      DESIGN["pairs_worst_displays_same"] is False
+      and "is not among them" in PROTOCOL,
+      "the worst pair's display status is misstated")
+check("both maximum coverage gaps are stated",
+      f"**{DESIGN['pairs_close_same_display_max_cover_gap']}**" in PROTOCOL
+      and f"**{DESIGN['pairs_close_max_cover_gap']}**" in PROTOCOL,
+      "only one of the two readings is reported")
+check("the effective-rank change under the comparator is stated",
+      f"**{DESIGN['contraction_gap']['eff_rank_changed']} of the 72 scenarios change their count "
+      f"and {DESIGN['contraction_gap']['eff_rank_warn_flips']} flip" in PROTOCOL,
+      f"export says {DESIGN['contraction_gap'].get('eff_rank_changed')} changed, "
+      f"{DESIGN['contraction_gap'].get('eff_rank_warn_flips')} flipped")
+_ovs = [o for o in DESIGN["overlap"] if o["statistic"] == "surv_between"][0]
+_wrs = [w for w in DESIGN["warnings"] if w["rule"] == "source_survival"][0]
+check("the undefined-survival exclusions match the export",
+      f"on {_ovs['n_compared']} scenarios with **{_ovs['n_undefined']}** excluded" in PROTOCOL
+      and f"**{_wrs['n_undefined']}** excluded" in PROTOCOL,
+      f"export says {_ovs['n_undefined']} and {_wrs['n_undefined']}")
+check("no reported statistic silently substitutes a value for an undefined one",
+      all("n_undefined" in o for o in DESIGN["overlap"])
+      and all("n_undefined" in w for w in DESIGN["warnings"]),
+      "an outcome does not report how many rows it dropped")
+check("the E2 candidate outputs carry a standing",
+      DESIGN["e2_candidate_standing"] == "post-hoc-candidate"
+      and all("standing" in r for r in DESIGN["e2_rules"]),
+      "an E2 candidate output is exported without its standing")
 
 # --- the route table, asserted against the run -------------------------------
 RT = table_after("| between-study difference | identity link | logit link |")
