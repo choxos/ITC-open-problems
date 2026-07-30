@@ -1,8 +1,9 @@
 NOT OBTAINED
-rc=1
-bytes=0
+rc=0
+bytes=1
 
 --- stdout ---
+
 
 --- stderr ---
 

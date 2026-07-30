@@ -149,9 +149,23 @@ def call_kimi(prompt: str) -> tuple[str, str, int, float]:
     return run(["opencode", "run", "--pure", "-m", "opencode-go/kimi-k3", prompt])
 
 
+# ROUND 5: grok returned 200 to 300 bytes on every part at every size, and the
+# reason was not quota or length. Captured directly, its reply is a PLANNING
+# preamble: "I'll review the full pre-registration against the code and export it
+# claims to match..." and then nothing. `--permission-mode plan` puts it in a mode
+# where it announces intent and then wants to read files, which it cannot do here,
+# so it stops. The codex call has carried an explicit no-tools instruction since
+# the sibling study needed one; grok's had no equivalent.
+GROK_NO_TOOLS = """
+ANSWER ENTIRELY FROM THE TEXT BELOW. You have no file access and no tools, so do not
+plan to read anything, do not describe what you are about to do, and do not ask for the
+repository. Produce the VERDICT line and the findings directly as your first output.
+"""
+
+
 def call_grok(prompt: str) -> tuple[str, str, int, float]:
-    return run(["grok", "-p", prompt, "--model", "grok-4.5", "--effort", "high",
-                "--output-format", "plain", "--permission-mode", "plan"])
+    return run(["grok", "-p", GROK_NO_TOOLS + prompt, "--model", "grok-4.5",
+                "--effort", "high", "--output-format", "plain"])
 
 
 # kimi/opencode is out of quota for this study; see the module docstring.
