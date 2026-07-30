@@ -214,6 +214,16 @@ out$e2_by_state <- lapply(split(e2, e2$state), function(z) list(
   share_within = if (all(is.na(z$share_within))) NA_real_ else
     unique(round(z$share_within[!is.na(z$share_within)], 3))))
 
+## E2_BASE_P is the conditional placebo risk at x = 0, not the arm prevalence.
+## On the logit link the arm value integrates the covariate distribution, so it
+## varies by state and equals E2_BASE_P nowhere. The document states the range
+## and the curvature state's two target values, and both come from here rather
+## than being typed, because the finding that produced this block was a number
+## stated from memory that the code disagreed with.
+out$pbo_prev_min <- round(ev$pbo_prev_min, 4)
+out$pbo_prev_max <- round(ev$pbo_prev_max, 4)
+out$curv_pbo_prev <- round(ev$curv_pbo_prev, 4)
+
 writeLines(toJSON(out, auto_unbox = TRUE, digits = 8, null = "null"),
            "results/registered-design.json")
 cat("written: results/registered-design.json\n")

@@ -245,6 +245,46 @@ check("contraction-gap maximum relative difference matches the export",
       f"{_cg['max_rel_pct']:.2f}%" in PROTOCOL,
       f"export says {_cg['max_rel_pct']:.2f}%")
 
+# --- placebo prevalence, and the intercept-versus-prevalence distinction ------
+# The document said placebo arms sit at prevalence 0.3, which is true nowhere:
+# alpha is set so the CONDITIONAL risk at x = 0 is 0.3, and the arm-level value
+# integrates the covariate distribution through expit. The consequence is that
+# the curvature state's equal-baseline restriction holds on intercepts and fails
+# on prevalences, so the document has to say which.
+#
+# The withdrawn wording is quoted in the sentence that withdraws it, so a plain
+# "not in PROTOCOL" test fails on the correction itself; that shape of guard has
+# now enforced a wrong claim twice in this study. This one instead requires the
+# phrase to appear exactly once and only inside the withdrawal, which still
+# catches it being reinstated as a standing claim.
+_flat = " ".join(PROTOCOL.split())
+_withdrawn = "placebo arms sit at prevalence 0.3"
+check("the withdrawn placebo-prevalence claim survives only as a withdrawal",
+      _flat.count(_withdrawn) == 1
+      and f"An earlier version of this document said {_withdrawn}, which is "
+          "true nowhere" in _flat,
+      "the withdrawn claim appears outside the sentence that withdraws it")
+check("the document states the conditional risk at x = 0",
+      f"conditional placebo risk at $x = 0$ is {DESIGN['e2_base_p']}" in PROTOCOL,
+      "the conditional-risk definition is missing or does not match E2_BASE_P")
+check("the arm-prevalence range matches the export",
+      f"{DESIGN['pbo_prev_min']:.4f} to {DESIGN['pbo_prev_max']:.4f}" in PROTOCOL,
+      f"export says {DESIGN['pbo_prev_min']:.4f} to {DESIGN['pbo_prev_max']:.4f}")
+check("the curvature target prevalences match the export",
+      "{:.4f} against {:.4f}".format(*DESIGN["curv_pbo_prev"]) in PROTOCOL,
+      "export says {:.4f} against {:.4f}".format(*DESIGN["curv_pbo_prev"]))
+check("the exported arm prevalences bracket the curvature pair",
+      DESIGN["pbo_prev_min"] <= min(DESIGN["curv_pbo_prev"])
+      and max(DESIGN["curv_pbo_prev"]) <= DESIGN["pbo_prev_max"],
+      "the curvature values are outside the range the same run reported")
+check("no exported placebo arm prevalence equals the conditional risk",
+      DESIGN["pbo_prev_min"] != DESIGN["e2_base_p"]
+      and DESIGN["pbo_prev_max"] != DESIGN["e2_base_p"],
+      "an arm sits at E2_BASE_P, so the distinction the section draws is empty")
+check("the document says baseline means the intercept",
+      "means the study intercept" in PROTOCOL,
+      "the intercept-versus-prevalence distinction is not drawn")
+
 # --- the header's assertion count must be the count that ran ------------------
 _claimed = re.search(r"\*\*(\d+)\*\* assertions", PROTOCOL)
 check("stated assertion count matches the count that ran",

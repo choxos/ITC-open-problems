@@ -249,6 +249,9 @@ if (!interactive() && Sys.getenv("NL_NOMAIN") == "") {
       = all(geo$distinct_sizes == 1L))
   cat("geometry matches across states: TRUE\n")
 
+  ## Placebo-arm prevalence is checked in R/07-run-e2.R, where `theta_true_nl`
+  ## is defined; it is a fact about the E2 truth rather than about the geometry.
+
   saveRDS(list(check = ck, check_unequal_baseline = ck_b, holds = ok,
                geometry = geo,
                equal_sd_needs_equal_baseline =

@@ -14,7 +14,7 @@ replaced is in the history.
 
 **Provenance.** Every number here is exported from the code that computes it by `R/05-export.R`,
 emitted into the document by `review/emit-tables.py`, and asserted back by
-`review/verify-protocol.py`, currently **94** assertions. The exporter
+`review/verify-protocol.py`, currently **101** assertions. The exporter
 refuses to run when an artifact is older than the code that produces it; the verifier refuses to run
 when the export is older than the code.
 
@@ -47,9 +47,14 @@ effect $c'\delta$ and additive modification $c'\Gamma$.
 
 $$E[y] = \alpha_s + c'\delta + x\,(\beta + c'\Gamma), \qquad \operatorname{Var}(y) = \sigma^2 .$$
 
-**E2 uses a logistic link**, $P(y = 1) = \operatorname{expit}(\eta)$ with the same $\eta$, centred so
-placebo arms sit at prevalence 0.3. The two are different models and the sections that
-use them say which.
+**E2 uses a logistic link**, $P(y = 1) = \operatorname{expit}(\eta)$ with the same $\eta$, with
+$\alpha_s$ set so the **conditional placebo risk at $x = 0$ is 0.3**. **Placebo *arm* prevalence is
+not 0.3 and is not constant**: on a curved link the arm-level value integrates the covariate
+distribution through $\operatorname{expit}$, so it depends on each study's covariate mean and SD and
+runs from **0.2913 to 0.3291** across the registered states. An earlier version of this document said
+placebo arms sit at prevalence 0.3, which is true nowhere. `R/07-run-e2.R` computes the range and
+stops the run if any arm hits 0.3 exactly. The two models are different and the sections that use
+them say which.
 
 **The estimand is the within-study effect modification $\Gamma_W$ in the data-generating
 mechanism**, not a separate model parameter. The fitted model carries **one** $\Gamma$ per
@@ -101,6 +106,13 @@ ecological one; the other two are nonlinear-only.
 registered rather than assumed.** With unequal baselines, equal SDs already identify the target, so
 the variance contrast is one nonlinear route among several rather than the unique one.
 `R/06-nonlinear.R` asserts both halves: the claim holds under the restriction and fails without it.
+
+**"Baseline" here means the study intercept $\alpha_s$, not arm-level prevalence, and the two are
+not the same thing.** The curvature state's two target studies share an intercept and differ in
+covariate SD, so their placebo *arm* prevalences differ, **0.3099 against 0.3194**. The rank
+calculation that establishes the restriction uses the intercept, so the restriction holds; read as
+prevalence it would not. `R/07-run-e2.R` asserts that the intercepts are equal, that the prevalences
+differ, and therefore that the distinction is doing work rather than being a quibble.
 
 **None of the three routes is randomized.** Nobody assigns a study its case mix, its covariate
 spread or its baseline risk. That is the thesis, and it holds for more routes than the two-route

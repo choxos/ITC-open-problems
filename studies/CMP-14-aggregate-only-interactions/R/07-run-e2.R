@@ -299,6 +299,52 @@ if (!interactive() && Sys.getenv("E2_NOMAIN") == "") {
               paste(v$curvature_share, collapse = ", "),
               paste(v$ecological_share, collapse = ", "),
               v$share_separates_curvature))
+  ## --- PLACEBO PREVALENCE IS 0.3 AT x = 0, NOT IN THE ARM --------------------
+  ##
+  ## The protocol said "placebo arms sit at prevalence 0.3". The code sets
+  ## alpha = logit(0.3), the CONDITIONAL risk at x = 0. On a curved link the
+  ## arm-level prevalence is the covariate distribution integrated through expit,
+  ## so it depends on the study's covariate mean and SD and equals 0.3 nowhere.
+  ##
+  ## That is a labelling error with a consequence, and the consequence is why it
+  ## earns a guard rather than a word change. The curvature state's registered
+  ## restriction is EQUAL TARGET-STUDY BASELINES. Its two target studies share an
+  ## INTERCEPT and differ in covariate SD, so their arm-level PREVALENCES differ.
+  ## Read as prevalence the state fails its own restriction; read as the
+  ## intercept, which is what the rank calculation uses, it holds. The document
+  ## now says intercept, and this asserts that the intercept is what is equal and
+  ## that the two readings really do differ.
+  pbo_prev <- unlist(lapply(E2_STATES, function(s) {
+    net <- build_state_nl(s, spread = 0.6, sd_ratio = 2.0, total_n = 3000L)
+    b <- build_design(net); th <- theta_true_nl(b)
+    vapply(which(rowSums(abs(b$C)) == 0), function(i) agg_p(th, b, i), 0)
+  }))
+  cv <- build_state_nl("curvature", spread = 0.6, sd_ratio = 2.0, total_n = 3000L)
+  bcv <- build_design(cv); thcv <- theta_true_nl(bcv)
+  cv_alpha <- thcv[unique(bcv$net$study[!as.logical(bcv$net$ipd)])]
+  cv_prev <- vapply(which(rowSums(abs(bcv$C)) == 0 & !as.logical(bcv$net$ipd)),
+                    function(i) agg_p(thcv, bcv, i), 0)
+  cat(sprintf("\nplacebo conditional risk at x=0: %.4f\n", 0.3))
+  cat(sprintf("placebo ARM prevalence across states: %.4f to %.4f\n",
+              min(pbo_prev), max(pbo_prev)))
+  cat(sprintf("curvature target arm prevalences: %s\n",
+              paste(sprintf("%.4f", cv_prev), collapse = ", ")))
+  cat(sprintf("curvature target intercepts equal: %s\n",
+              length(unique(round(cv_alpha, 12))) == 1L))
+  stopifnot(
+    "placebo arm prevalence is exactly 0.3 somewhere, so the wording this guard
+     replaced was defensible and the guard tests the wrong thing"
+      = !any(abs(pbo_prev - 0.3) < 1e-9),
+    "curvature's target studies no longer share an intercept, which is the
+     restriction its equal-SD non-identifiability claim needs"
+      = length(unique(round(cv_alpha, 12))) == 1L,
+    "curvature's target arm prevalences are equal, so the intercept-versus-
+     prevalence distinction this guard exists to make has stopped existing"
+      = length(unique(round(cv_prev, 9))) > 1L)
+  v$pbo_prev_min <- min(pbo_prev)
+  v$pbo_prev_max <- max(pbo_prev)
+  v$curv_pbo_prev <- sort(cv_prev)
+
   saveRDS(v, "results/e2-verdict.rds")
   cat("written: results/e2-verdict.rds\n")
 }

@@ -132,6 +132,41 @@ certifying a mechanism under a restriction nobody had registered. The assertion 
 requires the approximation to be *named*, and separate assertions check that the
 name is the right one and that neither the mislabel nor the admission has returned.
 
+## A prevalence that is true nowhere, and why it was not just a word
+
+The protocol said E2's **placebo arms sit at prevalence 0.3**. The code sets
+$\alpha_s = \operatorname{logit}(0.3)$, which fixes the **conditional** risk at
+$x = 0$. On a curved link the arm-level value is the covariate distribution
+integrated through $\operatorname{expit}$, so it varies with each study's
+covariate mean and SD, runs from **0.2913 to 0.3291** across the registered
+states, and equals 0.3 in none of them.
+
+That much is a labelling error. **The consequence is not.** The `curvature`
+state's registered restriction is *equal target-study baselines*, and its two
+target studies share an intercept while differing in covariate SD, so their
+placebo arm prevalences are **0.3099 and 0.3194**. Read as prevalence, the state
+violates the restriction its own non-identifiability claim depends on; read as
+the intercept, which is what the rank calculation actually uses, it holds. The
+restriction was stated in the ambiguous word for four rounds. `R/07-run-e2.R`
+now computes both readings and stops the run if any arm hits 0.3 exactly, if the
+intercepts stop being equal, or if the two prevalences stop differing, which is
+the condition under which the distinction would no longer be worth drawing.
+
+**The verifier's first version of this guard was the wrong shape**, for the third
+time in this study. It asserted the withdrawn phrase was *absent*, which failed
+on the sentence that withdraws it. The guard now requires the phrase to appear
+exactly once and only inside that sentence, so reinstating the claim still fails
+while admitting it does not.
+
+**And every one of these numbers was typed.** They were correct, and they were
+still a violation of the rule that produced this document's provenance section:
+`R/05-export.R` now emits `pbo_prev_min`, `pbo_prev_max` and `curv_pbo_prev`, and
+the assertions compare the document against those rather than against literals.
+Two further assertions check the export against itself, that the curvature pair
+lies inside the reported range and that no arm sits at `E2_BASE_P`, because a
+guard reading numbers from the same file it is defending needs at least one claim
+that is not a string comparison.
+
 ## Three numbers that went stale, and what finally stopped it
 
 Rounds 2, 4 and 5 each found a printed number that no longer followed from the code.
