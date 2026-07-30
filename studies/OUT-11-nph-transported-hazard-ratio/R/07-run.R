@@ -294,8 +294,28 @@ run_cell <- function(cell, pass, fn, n_rep = N_REP) {
   for (r in seq_len(n_rep)) {
     p <- rep_path(pass, cell$cell_id, r)
     if (file.exists(p)) next                     # resume, do not repeat
+    ## COST IS MEASURED, NOT INFERRED FROM FILE TIMESTAMPS.
+    ##
+    ## R/19 used to read per-replicate wall clock off the gaps between checkpoint
+    ## modification times. That instrument cannot tell a slow replicate from a
+    ## starved one, and this machine starves them: with other work running, a
+    ## replicate that costs about two minutes of its own time took twenty-five.
+    ##
+    ## `proc.time()` accumulates the CPU of this process AND its forked children,
+    ## so the ratio of consumed CPU to elapsed wall clock says directly whether
+    ## the replicate got the N_CORES_BOOT cores it asked for. That ratio is the
+    ## honest exclusion criterion, and unlike a system load average it does not
+    ## depend on what else the machine happens to be doing.
+    t0 <- proc.time()
     z <- try(fn(cell, r), silent = TRUE)
-    if (!inherits(z, "try-error")) z$code <- code_stamp()
+    dt <- proc.time() - t0
+    if (!inherits(z, "try-error")) {
+      z$code <- code_stamp()
+      z$cost <- list(elapsed = unname(dt[["elapsed"]]),
+                     cpu = unname(dt[["user.self"]] + dt[["sys.self"]] +
+                                  dt[["user.child"]] + dt[["sys.child"]]),
+                     cores_requested = if (identical(pass, "freq")) N_CORES_BOOT else 1L)
+    }
     saveRDS(z, p)                                # checkpoint immediately
     cat(sprintf("%s cell %2d rep %3d/%d %s\n", pass, cell$cell_id, r, n_rep,
                 if (inherits(z, "try-error")) "ERR" else "ok"))
@@ -317,11 +337,40 @@ run_cell <- function(cell, pass, fn, n_rep = N_REP) {
 ## so a mixed-policy run is detectable afterwards rather than invisible, and the
 ## banner prints the loaded policy so a running job can be checked against the
 ## file on disk.
+## The one-minute load average, recorded with every replicate.
+##
+## WHY. R/19-realized-cost.R reads per-replicate wall clock off the gaps between
+## checkpoint modification times. That instrument is only valid if the machine was
+## running this job and nothing else, and twice now it has not been. The first
+## time, an arm's cost was projected at 1.93x from two replicates and corrected to
+## 1.13-1.15x once the contention from concurrent probes was excluded. The second
+## time, ten copies of this script were alive at once after a sequence of
+## relaunches and a foreground probe whose timeout orphaned its forks; load
+## average reached 37 on eight cores and a replicate that costs about two minutes
+## was taking twenty-five.
+##
+## Inferring that from the gaps themselves cannot work, because when most gaps are
+## contended the median is contended too and there is nothing to compare it with.
+## So the condition is recorded rather than reconstructed, and R/19 excludes gaps
+## whose replicate finished while the machine was oversubscribed.
+load_now <- function() {
+  z <- try(system("uptime", intern = TRUE), silent = TRUE)
+  if (inherits(z, "try-error") || !length(z)) return(NA_real_)
+  ## Both regexpr and regmatches must see the SAME string. A first version
+  ## matched against the substituted text and extracted from the original, so the
+  ## offsets pointed into the wrong characters and every stamp would have been
+  ## silently NA. The guard below is why that was caught rather than shipped.
+  s <- sub(".*averages?:", "", z[1])
+  m <- regmatches(s, regexpr("[0-9]+\\.[0-9]+", s))
+  if (!length(m)) NA_real_ else as.numeric(m)
+}
+
 code_stamp <- function() {
   fs <- list.files("R", pattern = "\\.R$", full.names = TRUE)
   list(newest = max(file.info(fs)$mtime),
        divergent_rate_max = DIVERGENT_RATE_MAX,
-       refit_assumed = REFIT_RATE_ASSUMED, n_int = N_INT, n_iter = N_ITER)
+       refit_assumed = REFIT_RATE_ASSUMED, n_int = N_INT, n_iter = N_ITER,
+       load1 = load_now(), n_cores = parallel::detectCores())
 }
 
 main <- function(pass = Sys.getenv("PASS", "both"),
