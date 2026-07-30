@@ -56,13 +56,15 @@ SPLIT_BUDGET = 14_000
 PREAMBLE = """You are reviewing a PRE-REGISTRATION for a simulation study. Nothing has been
 run yet. Your job is to find defects while they are still free to fix.
 
-This is the SEVENTH round of critique on this document. Six rounds have returned 107 fatal
-and serious findings and the sixth still returned fourteen fatal ones, including a restriction
-that had been suppressing 28 of 72 scenarios on a premise that never held. Assume this round
-is wrong in several places too, and note that a repair made in a previous round is one of the
-likelier places: this programme has repeatedly found a fix applied in one file and not its
-twin, and five verifier assertions that were pinning a withdrawn claim in place by requiring
-the document to contain a sentence rather than by checking a value. The categories that rounds of this programme have actually found, in
+This is the EIGHTH round of critique on this document. Seven rounds have returned 127 fatal
+and serious findings and the seventh still returned nine fatal ones. THE SINGLE MOST PRODUCTIVE
+PLACE TO LOOK IS THE PREVIOUS ROUND'S REPAIRS. Round 7's worst finding was a table added in
+round 6 whose values were typed rather than read from the code, and which stated a
+data-generating truth the simulation has never used. Round 7 also found a round-6 repair that
+was purely cosmetic, a guard added in round 6 that measured a slice outside the registered
+grid, and two more verifier assertions pinning withdrawn wording in place, bringing that count
+to seven. Assume the same is true of round 7's repairs: check every number against the code
+that computes it, and check that each newly added guard measures what it says it measures. The categories that rounds of this programme have actually found, in
 descending order of frequency:
 
 1. A number printed in one section that contradicts the same quantity in another, or that was
@@ -177,8 +179,13 @@ def call_grok(prompt: str) -> tuple[str, str, int, float]:
 # above roughly 40 KB the call returns zero bytes with exit status 0, which looks
 # like "no findings" and is not. The split path already exists for grok and is
 # what this uses; the reviewer is never trimmed, only split.
+# ROUND 7: `opencode/glm-5.2` answered "Insufficient balance" and returned zero
+# bytes, which the driver recorded as NOT OBTAINED. That is the right record and
+# the wrong provider: the model is reachable through nvidia, which was verified
+# with a one-line probe before this was changed. The opencode-go route is still
+# dead and `opencode/...` still has no balance, so neither is a fallback.
 def call_glm(prompt: str) -> tuple[str, str, int, float]:
-    return run(["opencode", "run", "--pure", "-m", "opencode/glm-5.2",
+    return run(["opencode", "run", "--pure", "-m", "nvidia/z-ai/glm-5.2",
                 GROK_NO_TOOLS + prompt])
 
 
