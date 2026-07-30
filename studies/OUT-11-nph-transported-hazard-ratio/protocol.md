@@ -1895,6 +1895,31 @@ was also undefined for an interval, which is what $M$ now fixes. The primary ana
 re-registered at 512 under any branch, because re-registering an order after seeing the results is how
 a sensitivity arm becomes a selection mechanism.
 
+### An interim look at a registered outcome, disclosed
+
+**At 10 of 21 complete conditions I ran the coverage table on real data, and this records it.**
+The purpose was to check that the analysis pipeline works on production output, which it had never
+been exercised on: doing so had already found that a partial run crashed the analysis outright. But
+coverage is a registered primary outcome, so looking at it mid-run is a look at results, and a
+protocol that claims its analysis was fixed before results were seen has to say when results were
+seen.
+
+**What was seen.** Cluster-robust standard errors 1.17 to 1.29 times the independence-based ones,
+coverage between 0.90 and 0.96 across the five frequentist rows, and four of five verdicts reading
+`inconclusive` at 400 replicates.
+
+**What was changed as a result: nothing.** No threshold, no outcome definition, no cell, no
+estimator and no verdict rule was touched after this look. The commit history is the evidence.
+
+**What it does confirm is a design decision, not a result.** Section 9 registers cluster-robust
+Monte Carlo error because the common-random-numbers fix made the 840 rows into 400 latent-network
+blocks, and that change was made on the argument alone with no data behind it. The measured ratio of
+1.17 to 1.29 is what that argument is worth: independence-based intervals would have been about a
+fifth too narrow, and the calibrated-versus-inconclusive verdicts would have been decided by a
+standard error that does not describe the design. That is a property of the uncertainty estimator
+rather than an outcome of the study, and it is reported here because it vindicates a fix that was
+otherwise resting on reasoning.
+
 ### Failure handling
 
 A fit failing the sampler policy is refit once at doubled iterations with `adapt_delta = 0.99`; a
