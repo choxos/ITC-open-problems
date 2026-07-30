@@ -369,6 +369,13 @@ out$e2_overlap <- lapply(seq_len(nrow(e2ov)), function(i)
   lapply(e2ov[i, ], function(z) if (is.numeric(z)) signif(z, 4) else z))
 out$e2_overlap_all <- all(e2ov$overlaps)
 
+## THE GRID'S SHAPE, PER STATE, so "72" and the 8/12/8 departure split are
+## answerable from the export rather than by hand. Round 9's third reviewer
+## disputed both and was wrong about both, having halved four of five states and
+## applied the SD-ratio factor to a state the restriction removes it from.
+out$e2_by_state_n <- as.list(table(e2$state))
+out$e2_departure_split <- as.list(table(e2$state[e2$aliased]))
+
 out$e2_n_aliased <- sum(e2$aliased)
 out$e2_alias_shifts <- sort(unique(e2$alias_shift[e2$aliased]))
 out$e2_alias_gap_max <- signif(max(e2$alias_gap), 3)

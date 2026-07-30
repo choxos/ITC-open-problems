@@ -488,9 +488,19 @@ check("synergy is described as interaction-shaped",
 # rate must be what makes the false-alarm direction possible. Both were claimed
 # in prose after round 8 and both are now computed.
 _e2g = DESIGN["e2_grid"]
+_sp = DESIGN["e2_departure_split"]
 check("the aliased-scenario count is the sum of its cells",
-      DESIGN["e2_n_aliased"] == 28 and "$8 + 12 + 8 = 28$" in PROTOCOL,
-      f"export says {DESIGN['e2_n_aliased']}")
+      DESIGN["e2_n_aliased"] == sum(_sp.values())
+      and f"${_sp['ecological']} + {_sp['curvature']} + {_sp['additivity']} = "
+          f"{DESIGN['e2_n_aliased']}$" in PROTOCOL,
+      f"export says {_sp}")
+check("the departure split names each state's own count",
+      f"It is {_sp['ecological']} `ecological` and {_sp['curvature']} `curvature`"
+      in PROTOCOL,
+      f"export says {_sp}")
+check("the E2 grid total is the sum of its per-state counts",
+      sum(DESIGN["e2_by_state_n"].values()) == DESIGN["e2_n_scenarios"],
+      f"{DESIGN['e2_by_state_n']} against {DESIGN['e2_n_scenarios']}")
 _wc = [w for w in DESIGN["warnings"] if w["rule"] == "contraction"][0]
 check("the middle band's alarm rate explains the false-alarm direction",
       _wc["false_alarm_vs_not_failed"] > _wc["false_alarm"]

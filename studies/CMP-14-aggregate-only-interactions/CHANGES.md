@@ -46,6 +46,7 @@ review**, and it matters what it showed.
 | 8 | glm | needs-revision | 4 | 1 |
 | 9 | codex | unsound | 1 | 4 |
 | 9 | grok | needs-revision | 1 | 3 |
+| 9 | glm | needs-revision | 0 | 0 |
 
 **Seven topics were raised independently by both reviewers in round 5**: the
 equal-SD guard's hidden baseline restriction, the source statistic not being a
@@ -671,3 +672,37 @@ places. It is an aim now, not a guarantee.
 Two smaller ones: the nuisance-prior denominator counted 3,528 slots when 72 hold
 no decision, and the header credited 148 findings to two reviewers when the table
 names three.
+
+## The third reviewer's second outing, and a decision about it
+
+GLM's round-9 output refuted four of its own six findings while writing them.
+Three end "Not a defect", one ends "Wait — ... This reproduces". That is the
+arithmetic discipline the round-9 preamble asked for, arriving one paragraph too
+late each time. **It is recorded in the table as 0 fatal and 0 serious**, because
+a finding its own author withdraws is not a finding.
+
+The two that survived are both wrong.
+
+- **"The 8 and 12 are swapped."** They are not. `ecological` runs at one SD ratio,
+  because that factor acts only on `curvature`, giving $2 \times 2 \times 2 = 8$
+  departure cells; `curvature` runs at one spread but all three SD ratios,
+  giving $3 \times 2 \times 2 = 12$. The reviewer applied the SD-ratio factor to
+  `ecological`, which is the error it corrected in its own next-but-one finding.
+- **"72 should be 48."** The by-state counts are `absent` 8, `additivity` 16,
+  `curvature` 24, `ecological` 16, `own_ipd` 8, summing to 72. The reviewer's
+  by-state arithmetic halved four of the five.
+
+**Cumulative: GLM has returned seven fatal findings across two rounds and all
+seven were wrong.** Round 8's cost two clarifications that were worth making;
+round 9's cost a cycle and produced one. **The decision is to keep it**, because
+the marginal cost is one CLI call and a wrong finding still occasionally lands on
+ambiguous wording, but its findings are now treated as claims to check first
+rather than defects to fix. That is how every finding should be treated; GLM
+merely makes the point unmissable.
+
+**The lasting change is that the disputed arithmetic is now exported.** The E2
+grid's per-state counts and the departure split are in
+`results/registered-design.json` and asserted against the document, so "is it 8 or
+12" and "is it 72 or 48" are answerable by reading a file rather than by
+recomputing a factorial by hand. That should have been true before a reviewer
+asked.

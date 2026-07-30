@@ -21,7 +21,7 @@ guarantee; emission is a convenience.** `R/05-export.R` writes every quantity th
 which round 9 found quoted here and read by nothing: the verifier had the route taxonomy's expected
 entries written into it as constants, so a change in `R/08-routes.R` would have left document and
 guard agreeing and both wrong. `review/verify-protocol.py` then checks the document against that
-file, currently **187** assertions, and that is the link that catches a stale or invented number.
+file, currently **189** assertions, and that is the link that catches a stale or invented number.
 `review/emit-tables.py` regenerates a handful of sentences from the same export so they need not be
 retyped; it covers **some** numbers, not all, and **it now fails when one of its patterns matches
 nothing** rather than reporting success. Round 6 found it targeting a sentence an earlier rebuild had
@@ -515,10 +515,22 @@ $\text{shift} - [(I^{*} + P_0)^{-1} P_0 \theta^{*}]_{\Gamma_3}$, the aliasing an
 in one expression. At shift $= 0$ this reduces term by term to the previous calculation, so the 44
 undisturbed scenarios keep their values and **28 scenarios gain a coverage figure they were denied**.
 
-**That 28 is a count of cells, not a subtraction.** It is 8 `ecological` and 12 `curvature` scenarios
-at discordance 0.40, plus 8 `additivity` scenarios at synergy 0.20; the states carrying a departure
-are disjoint because the grid's restrictions make them so. $8 + 12 + 8 = 28$, and $72 - 28 = 44$
+**That 28 is a count of cells, not a subtraction.** It is 8
+`ecological` and 12 `curvature` scenarios at discordance 0.40,
+plus 8 `additivity` scenarios at synergy 0.20; the states
+carrying a departure are disjoint because the grid's restrictions make them so.
+$8 + 12 + 8 = 28$,
+and $72 - 28 = 44$
 follows rather than defines it.
+
+**The two counts are not interchangeable and the restrictions are why.** `ecological` runs at one SD
+ratio, because that factor acts only on `curvature`, so its departure cells are
+$2\text{ spreads} \times 2\text{ budgets} \times 2\text{ priors} =
+8$. `curvature` runs at one spread, because it holds covariate
+means equal, but at all three SD ratios including the negative control, so its cells are
+$3 \times 2 \times 2 = 12$. A round-9 reviewer reported the two
+as swapped, having applied the SD-ratio factor to `ecological`. **The per-state grid counts are
+exported**, so this is checkable rather than arguable: absent 8, additivity 16, curvature 24, ecological 16, own_ipd 8.
 
 An earlier version reported coverage only where discordance and synergy were both zero, on the
 argument that the score variance is not the Fisher information under misspecification. **That algebra
