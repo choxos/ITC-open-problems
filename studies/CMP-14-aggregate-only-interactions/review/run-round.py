@@ -56,17 +56,18 @@ SPLIT_BUDGET = 14_000
 PREAMBLE = """You are reviewing a PRE-REGISTRATION for a simulation study. Nothing has been
 run yet. Your job is to find defects while they are still free to fix.
 
-This is the NINTH round of critique on this document. Eight rounds have returned 148 fatal
+This is the TENTH round of critique on this document. Nine rounds have returned 157 fatal
 and serious findings.
 
 TWO INSTRUCTIONS THAT MATTER MORE THAN THE REST.
 
-FIRST: THE MOST PRODUCTIVE PLACE TO LOOK IS THE PREVIOUS ROUND'S REPAIRS. Round 7's worst
-finding was a table added in round 6 whose values were typed rather than read from the code and
-which stated a data-generating truth the simulation has never used. Round 8 found a primary
-outcome whose implementation tested one of the two inequalities its definition requires, and a
-rule described as withdrawing a conclusion it does not test. Assume round 8's repairs contain
-the same class of defect.
+FIRST: THE MOST PRODUCTIVE PLACE TO LOOK IS THE PREVIOUS ROUND'S REPAIRS. This has now held
+three rounds running and every round-9 finding was one. The recurring shapes are: a claim
+revoked in prose while the code that implements it keeps running under its old name; a number
+quoted next to the name of the guard that supposedly established it, where the guard computes
+something else; a figure reported without saying which experiment produced it, in a section
+covering both; and a threshold or expectation written into the verifier as a constant instead
+of read from the computation. Assume round 9's repairs contain the same shapes.
 
 SECOND: VERIFY YOUR ARITHMETIC BEFORE REPORTING A CONTRADICTION. In round 8 one reviewer
 returned four fatal findings and all four were arithmetically wrong: it read one experiment's
