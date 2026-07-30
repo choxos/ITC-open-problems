@@ -302,12 +302,31 @@ does not need saving.
 |---|---|---|---|
 | **P1** integration order | Quadrature order at which the true $\Delta(F_T)$ is stable to $10^{-4}$, on the most skewed covariate law in the grid | The definition of truth; if no order is stable, the skew arm is dropped | minutes |
 | **P2** grid and cell count | The realized cell count and the analytic omitted-variance fraction in each, from section 2's expansion | The grid. Cells where the predicted omission is below Monte Carlo resolution are dropped rather than run | minutes |
-| **P3** closed-form agreement | Whether the two ported estimators reproduce MIS-03's $(1-2k)\mathrm{Var}_T(\tau)/n_T$ exactly under the identity link | Whether either is implemented correctly. **A port that does not reproduce the known case is not evidence about the unknown one** | hours |
+| **P3** closed-form agreement | Whether the two ported estimators reproduce MIS-03's $(1-2k)\mathrm{Var}_T(\tau)/n_T$ exactly under the identity link, **and whether the estimator gradient equals the estimand gradient there** | Whether either is implemented correctly. **A port that does not reproduce the known case is not evidence about the unknown one** | hours |
 | **P4** unit cost and budget | Wall clock per replicate per method at production settings, and the grand total | The grid size. Computed in `R/10-budget.R` and asserted against this document; never typed |
 
 **P3 is the load-bearing probe.** Two of this program's fatal findings were
 estimators that behaved plausibly and were implemented wrongly, and the identity
 link gives a case where the right answer is known in closed form.
+
+**P3 has a second half that makes prediction 2 an identity rather than a
+comparison.** MIS-03 obtains its gradient by the implicit function theorem on the
+stacked MAIC score, $J = -c'A^{-1}C$: that is the gradient of the **estimator**
+with respect to the reported moments, and it is what every published variance
+formula propagates. `R/02-gradient.R` obtains the gradient of the **estimand** by
+differentiating $\Delta(F_T)$ itself. Under the identity link the two must
+coincide, and both must equal $\beta_{EM}$; the estimand gradient already does,
+to 1.5e-12.
+
+**Under a curved link they cannot coincide, and their difference is exactly the
+error in the ported variance.** That reframes prediction 2 from "the ports use
+the wrong gradient" to a quantity computable per cell without running a single
+replicate: $\|J_{\text{estimator}} - J_{\text{estimand}}\|$, with the ported
+variance in error by $J_{\text{est}}'\Omega J_{\text{est}} -
+J_{\text{true}}'\Omega J_{\text{true}}$. **P3 therefore reports the size of the
+defect the study exists to demonstrate before the study runs**, and if that
+difference is negligible across the grid the expected headline is withdrawn on a
+probe rather than after 2000 replicates per cell.
 
 ## 11. Cost
 
