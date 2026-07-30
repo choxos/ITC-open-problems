@@ -56,16 +56,21 @@ SPLIT_BUDGET = 14_000
 PREAMBLE = """You are reviewing a PRE-REGISTRATION for a simulation study. Nothing has been
 run yet. Your job is to find defects while they are still free to fix.
 
-This is the TWELFTH round of critique on this document. Eleven rounds have returned 175 fatal
-and serious findings. ROUNDS 10 AND 11 BOTH RETURNED NO FATAL FINDING FROM ANY REVIEWER, and the
-serious count has fallen from 11 to 7. This round decides whether that is convergence.
+This is the THIRTEENTH and FINAL round of critique on this document. Twelve rounds have
+returned 180 fatal and serious findings. ROUNDS 10, 11 AND 12 ALL RETURNED NO FATAL FINDING FROM
+ANY REVIEWER, and the serious count fell 11, 7, 5. One reviewer returned a `sound` verdict in
+round 12.
 
-If you find nothing fatal, say so plainly; a clean verdict from a reviewer that looked hard is
-worth more here than a manufactured finding. If you do find something fatal, do not soften it
-because two rounds were clean. Round 11's sharpest finding was structural rather than an error:
-one leg of the study's central claim could not fail under the registered definitions, so the
-claim was true and a quarter of it was not evidence. That shape, a true claim that cannot be
-falsified, is worth looking for again.
+This round exists to check ONE THING: whether round 12's repairs introduced defects, which is
+what every previous round found of its predecessor. Round 12 rebuilt the E2 secondary table from
+the export after a typed cell reversed a conclusion twice, rewrote a structural claim about
+primary 1's estimability leg from "cannot fail" to "half structural", scoped a covariate
+dependence claim to the registered Normal family, and attached post-hoc standing to the E2
+candidate's printed and saved outputs. Those four are where to look.
+
+If you find nothing fatal and nothing serious, say so plainly and stop. After twelve rounds a
+clean verdict from a reviewer that looked hard is the useful output, and a manufactured finding
+costs a cycle.
 
 TWO INSTRUCTIONS THAT MATTER MORE THAN THE REST.
 
