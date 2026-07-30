@@ -337,7 +337,21 @@ probe rather than after 2000 replicates per cell.
 
 ## 11. Cost
 
-Unmeasured until P4. The shape: MAIC and STC arms are seconds per replicate;
+**Measured by P4, and the design's own warning was right.** 102.6 core-hours for
+the MAIC and STC arms across 176 cells at 2000 replicates, and **96% to 98% of it
+is the perturbation interval**. Per replicate: 0.25 s at $n_S = 500$ rising to
+2.6 s at 8000, against 0.010 to 0.057 s for everything else combined.
+
+**`N_PERTURB` is therefore the single budget lever in this study**, and 200 was
+typed rather than derived. Whether the perturbation variance has stabilized by
+100, or by 50, is a probe-able question and is the next one to answer; halving it
+halves the study. That question is open and the number is not registered until it
+is settled, which is the rule that produced this paragraph in the first place.
+
+**ML-NMR is not in that total** and no figure covering it is quoted until its
+per-fit cost is measured.
+
+The original text, kept because it predicted this: The shape: MAIC and STC arms are seconds per replicate;
 the ML-NMR arm dominates and is the only reason the grid is restricted rather
 than fully crossed. The perturbation interval multiplies its arm by the
 resampling count, which is the line item OUT-11 called cheap without measuring
