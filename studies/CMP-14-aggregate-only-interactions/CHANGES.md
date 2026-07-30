@@ -3,7 +3,7 @@
 **This file is the change history. `protocol.md` is what is registered now.**
 
 They were one document until the fifth round of critique, and separating them is a
-fix rather than tidying. Eleven rounds of critique returned **173 fatal and serious findings** between three
+fix rather than tidying. Eleven rounds of critique returned **175 fatal and serious findings** between three
 reviewers, counted as the table below counts them: findings **as returned**, so a defect
 found again in a later round is counted again, and the minor findings are not in that
 total. **It is not a count of distinct defects and no such count is claimed.** An earlier
@@ -51,6 +51,8 @@ review**, and it matters what it showed.
 | 10 | grok | needs-revision | 0 | 3 |
 | 10 | glm | needs-revision | 0 | 1 |
 | 11 | codex | needs-revision | 0 | 5 |
+| 11 | grok | needs-revision | 0 | 2 |
+| 11 | glm | needs-revision | 0 | 0 |
 
 **Seven topics were raised independently by both reviewers in round 5**: the
 equal-SD guard's hidden baseline restriction, the source statistic not being a
@@ -878,3 +880,52 @@ the standing column that promise is about**.
 
 One minor: the protocol still said GLM "contributed only in round 8" after it had
 reviewed in rounds 9 and 10.
+
+## One leg of the central result cannot fail, and now says so
+
+**No reviewer returned a fatal finding in round 11**, the second such round, and
+this time all three reviewers ran.
+
+The sharpest finding is structural. Primary 1 is described as a four-statistic
+existence claim and called the study's central negative result. **One of the four
+legs cannot fail.** A coordinate the likelihood does not identify has a posterior
+equal to its prior, so its coverage is deterministic, **0 or 1, never within 0.01
+of 0.95**. Every nominal scenario is therefore estimable; failing scenarios
+include both estimable and non-estimable cells; so `rank_screen`'s two ranges
+overlap **by construction** and no grid could falsify that leg. Checked: 0 of 169
+nominal E1 scenarios are non-estimable, non-estimable coverage takes only the
+values 0 and 1, and 233 of 251 failing scenarios are estimable.
+
+**The claim was true and one quarter of it was not evidence.** The informative
+content is the three CMP-14 summaries, each continuous, each of which could have
+separated and did not. `R/09-smoke.R` asserts the structural fact instead of
+leaving it an argument.
+
+**A blanket superiority claim the table beneath it contradicted.** "On E2 the same
+rules perform far better" quantified over all five rows while the candidate's
+Youden index is *worse* on E2, 0.2424 against 0.2585, and it is the only rule with
+a nonzero E2 false-alarm rate. Scoped to the three summaries now.
+
+**And a repair phrase that withdrew a measurement.** "The strata agree with the
+pooled reading, which is now asserted rather than observed" read as retracting
+three printed numbers. The agreement is measured; what round 6 changed is that the
+verifier checks it.
+
+### The third reviewer's fourth outing
+
+**GLM claimed no fatal finding for the first time**, and its two serious findings
+are both wrong. One argues primary 3's sign convention is self-contradictory, on
+the premise that "higher contraction = more shrinkage = looks better-identified".
+It is the reverse: contraction is posterior SD over prior SD, so **high**
+contraction means the posterior is nearly the prior and the parameter is
+prior-driven, which is the alarming case. The other says the document's printed
+`E2_ALIAS_TOL` may not be tied to the exported constant; assertion 174 ties it,
+and the reviewer reads no code, which it acknowledged in its refutation condition.
+
+**Its three minor findings are all fair and all were acted on**, which is a first:
+E2's three-class accounting was never printed where E1's was (41 failing, 12
+nominal, 19 neither), the $3{,}528 - 72 = 3{,}456$ slot arithmetic was asserted
+without showing the multiplication, and "the states carrying a departure are
+disjoint because the grid's restrictions make them so" names the wrong mechanism.
+They are disjoint because a scenario has exactly one state; what the restrictions
+do is stop a single scenario carrying two departures.

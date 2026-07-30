@@ -200,6 +200,26 @@ local({
           "results/e1-aliasing.rds")
 })
 
+## ROUND 11: ONE LEG OF PRIMARY 1 CANNOT FAIL, AND THAT IS ASSERTED RATHER THAN
+## ARGUED. A coordinate the likelihood does not identify has posterior = prior, so
+## its coverage is deterministic and cannot land within COVER_TOL of NOMINAL.
+## Every nominal scenario is therefore estimable, failing scenarios include both
+## kinds, and `rank_screen`'s ranges overlap by construction. The claim is true
+## and it is not evidence, so the informative legs are the three continuous ones.
+local({
+  cl <- classes(d)
+  ok("no nominal scenario is non-estimable, so rank_screen's leg is structural",
+     sum(cl$nominal & !d$estimable) == 0,
+     sprintf("%d nominal scenarios are non-estimable", sum(cl$nominal & !d$estimable)))
+  ok("non-estimable coverage is deterministic, which is why",
+     all(d$coverage[!d$estimable] %in% c(0, 1)),
+     sprintf("values: %s",
+             paste(sort(unique(d$coverage[!d$estimable])), collapse = ", ")))
+  ok("failing scenarios include estimable ones, so the overlap is forced",
+     sum(cl$failed & d$estimable) > 0,
+     "no estimable scenario fails")
+})
+
 ## --- E2: the negative control and the registered verdict --------------------
 cat("\n=== E2 ===\n")
 ok("every E2 state appears", setequal(unique(e2$state), E2_STATES),

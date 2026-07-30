@@ -7,7 +7,7 @@ on IDN-06 *ML-NMR interactions can rest solely on aggregate-data variation*.
 [doi:10.1002/sim.8086](https://doi.org/10.1002/sim.8086)).
 
 **Change history is in [`CHANGES.md`](CHANGES.md), not here.** Eleven rounds of critique returned
-**173** fatal and serious findings between **3** reviewers, counted as returned rather than
+**175** fatal and serious findings between **3** reviewers, counted as returned rather than
 deduplicated. GLM was unavailable in rounds 5 to 7, reviewed in
 rounds 8, 9 and 10, and has contributed **one** accepted serious finding across those three: it has
 returned eight fatal findings and every one was wrong. `CHANGES.md` records the arithmetic. The recurring one was an internal inconsistency: a claim withdrawn in one section and
@@ -23,7 +23,7 @@ guarantee; emission is a convenience.** `R/05-export.R` writes every quantity th
 which round 9 found quoted here and read by nothing: the verifier had the route taxonomy's expected
 entries written into it as constants, so a change in `R/08-routes.R` would have left document and
 guard agreeing and both wrong. `review/verify-protocol.py` then checks the document against that
-file, currently **206** assertions, and that is the link that catches a stale or invented number.
+file, currently **210** assertions, and that is the link that catches a stale or invented number.
 `review/emit-tables.py` regenerates a handful of sentences from the same export so they need not be
 retyped; it covers **some** numbers, not all, and **it now fails when one of its patterns matches
 nothing** rather than reporting success. Round 6 found it targeting a sentence an earlier rebuild had
@@ -331,7 +331,9 @@ The interaction prior applies to the **interactions only**; nuisance coefficient
 rule: rerun the whole grid at nuisance scales 3 and 30 and compare against the registered scale of 10,
 **on the registered DECISIONS, not on selected magnitudes**. The decisions are the failure label, the
 nominal label and all five warning rules. That is $504 \times 7 = 3{,}528$ **slots**, of which
-**3,456 hold a decision**: `source_survival` is undefined in the 72 `absent` scenarios, so those
+**3,456 hold a decision**. `source_survival` is undefined in every `absent` scenario, and `absent`
+has $6\text{ spreads} \times 3\text{ budgets} \times 4\text{ priors} = 72$ of them, carrying no
+discordance and no synergy; that is one undefined rule in each, so $3{,}528 - 72 = 3{,}456$. Those
 slots hold nothing to flip and are excluded rather than counted. **0 flip at scale 3 and 0 at scale 30.**
 
 Round 7 found the earlier version of this rule checking three quantities while claiming to check
@@ -396,7 +398,15 @@ conflated them.
 **No threshold on contraction, on either effective-rank reading, or on the estimability screen
 separates failing coverage from nominal coverage.** Those four are what primary 1 registers, and that
 is the study's central negative result; section 7 had been reporting the secondary numbers and
-primary 3 without it. **The candidate overlaps too and is not part of the claim**: it is this study's
+primary 3 without it. **One of those four legs cannot fail, and saying so narrows the claim.** A coordinate the likelihood
+does not identify has a posterior equal to its prior, so its coverage is deterministic: **0 or 1,
+never within 0.01 of 0.95**. Every nominal scenario is therefore estimable, while failing scenarios
+include both non-estimable cells and estimable-but-confounded ones. `rank_screen`'s two ranges
+consequently overlap **by construction**, and the grid cannot falsify that leg. **The informative
+content of primary 1 is the three CMP-14 summaries**, each continuous, each of which could have
+separated and did not. `R/09-smoke.R` asserts the structural fact rather than leaving it an argument.
+
+**The candidate overlaps too and is not part of the claim**: it is this study's
 own post hoc statistic, it carries `post-hoc-candidate` on its row, and including it in the central
 result would give an exploratory rule the standing section 1 denies it. An earlier wording listed it
 alongside the four, so one sentence both asserted and denied its status.
@@ -489,8 +499,10 @@ The pooled 0.3295 lies **between** its two strata, which is the ordinary case an
 document relies on: a pooled rank correlation need not lie inside the range of its strata, and the
 registered claim is only that all three share a sign. Stratified and pooled rank correlations can
 differ in sign, so this mattered whether or not it changed the answer. **Here it does not: all three
-are positive and the strata agree with the pooled reading**, which is now asserted rather than
-observed.
+are positive and the strata agree with the pooled reading.** That agreement is **measured**, from the
+three values printed above; what round 6 changed is that the verifier now *checks* it rather than the
+document merely stating it. An earlier wording called it "asserted rather than observed", which read
+as withdrawing the measurement.
 
 **Secondary, and grid-weighted.** Sensitivity, false-alarm rate and Youden index at the registered
 thresholds. These are averages over a chosen grid and are labeled as such.
@@ -502,8 +514,11 @@ successes. **This change flatters the diagnostics and is reported for that reaso
 rule's false-alarm rate falls from 0.3043 to 0.0355 under the corrected denominator, and the old
 value is exported alongside the new one so the size of the correction is visible.
 
-**These are E1's figures. On E2 the same rules perform far better**, which is a result rather than a
-footnote:
+**These are E1's figures. On E2 the three CMP-14 summaries perform far better**, which is a result
+rather than a footnote. **The candidate does not**: its Youden index is slightly *worse* on E2, 0.2424
+against 0.2585, and it is the only rule with a nonzero E2 false-alarm rate. An earlier wording said
+"the same rules perform far better" and quantified over all five, which the table beneath it
+contradicts.
 
 | rule | standing | E1 Youden | E2 Youden | E2 sensitivity | E2 false alarm |
 |---|---|---:|---:|---:|---:|
@@ -513,7 +528,9 @@ footnote:
 | `rank_screen` | existing screen | 0.0717 | 0.1951 | 0.1951 | 0 |
 | `source_survival` | **post hoc** | 0.2585 | 0.2424 | 0.5758 | 0.3333 |
 
-**Read those E2 columns against only 12 nominal scenarios.** A
+**E2's 72 scenarios split 41 failing, 12 nominal and 19 neither**, by the same three-class rule
+E1 uses; the E1 accounting was printed and E2's was not. **Read those E2 columns against only 12
+nominal scenarios.** A
 false-alarm rate of zero over twelve is a weakly determined zero. The four registered rules rest on
 41 failing and 12 nominal cells; **the
 candidate rests on 33 failing**, because `surv_between` is undefined
@@ -594,7 +611,9 @@ undisturbed scenarios keep their values and **28 scenarios gain a coverage figur
 **That 28 is a count of cells, not a subtraction.** It is 8
 `ecological` and 12 `curvature` scenarios at discordance 0.40,
 plus 8 `additivity` scenarios at synergy 0.20; the states
-carrying a departure are disjoint because the grid's restrictions make them so.
+carrying a departure are disjoint **because a scenario has exactly one state**, not because of the
+departure restrictions; what those restrictions do is ensure no single scenario carries two
+departures at once.
 $8 + 12 + 8 = 28$,
 and $72 - 28 = 44$
 follows rather than defines it.

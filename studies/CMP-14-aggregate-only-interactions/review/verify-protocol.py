@@ -394,10 +394,18 @@ _nf = DESIGN["nuisance_flips"]
 check("the decision count is the exported one",
       f"**{DESIGN['nuisance_n_decisions']:,} hold a decision**" in PROTOCOL,
       f"export says {DESIGN['nuisance_n_decisions']}")
+def _tex_int(n: int) -> str:
+    """LaTeX thousands separator, e.g. 3456 -> 3{,}456."""
+    return f"{n:,}".replace(",", "{,}")
+
+
+_slots = DESIGN["n_scenarios"] * 7
 check("the undefined slots are counted, not folded into the denominator",
-      f"the {DESIGN['nuisance_n_undefined']} `absent` scenarios" in PROTOCOL
-      and DESIGN["nuisance_n_decisions"] + DESIGN["nuisance_n_undefined"] == 3528,
-      f"{DESIGN['nuisance_n_decisions']} + {DESIGN['nuisance_n_undefined']}")
+      f"${_tex_int(_slots)} - {DESIGN['nuisance_n_undefined']} = "
+      f"{_tex_int(DESIGN['nuisance_n_decisions'])}$" in PROTOCOL
+      and DESIGN["nuisance_n_decisions"] + DESIGN["nuisance_n_undefined"] == _slots,
+      f"{DESIGN['nuisance_n_decisions']} + {DESIGN['nuisance_n_undefined']} "
+      f"against {_slots}")
 
 # --- round 9: what the round-8 repairs left undone ---------------------------
 check("the state-separation field is named for what it tests",
@@ -609,6 +617,25 @@ check("the E2 secondary table carries standing on every row",
 check("the reviewer-provenance sentence is current",
       "reviewed in\nrounds 8, 9 and 10" in RAW,
       "the account of who reviewed when is stale")
+
+check("primary 1's structural leg is named as such",
+      "cannot fail, and saying so narrows the claim" in PROTOCOL
+      and "overlap **by construction**" in PROTOCOL,
+      "rank_screen's leg is presented as evidence")
+check("the E2 secondary claim is scoped to the rules it holds for",
+      "the three CMP-14 summaries perform far better" in PROTOCOL
+      and "The candidate does not" in PROTOCOL,
+      "a blanket superiority claim the table contradicts")
+check("the strata agreement is called measured, not asserted",
+      "That agreement is **measured**" in PROTOCOL,
+      "a measurement is described as an assertion")
+_e2n = DESIGN["e2_n_scenarios"]
+_w0 = DESIGN["e2_warnings"][0]
+check("E2's three classes are accounted for and sum to its grid",
+      f"{_w0['n_failed']} failing, {_w0['n_nominal']} nominal and {_w0['n_neither']} neither"
+      in PROTOCOL
+      and _w0["n_failed"] + _w0["n_nominal"] + _w0["n_neither"] == _e2n,
+      f"{_w0['n_failed']}+{_w0['n_nominal']}+{_w0['n_neither']} against {_e2n}")
 
 # --- the history is complete and elsewhere ------------------------------------
 check("the change history is a separate document",
