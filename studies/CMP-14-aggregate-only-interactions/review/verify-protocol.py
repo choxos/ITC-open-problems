@@ -441,6 +441,22 @@ check("synergy is described as interaction-shaped",
       "interaction-shaped rather than a main-effect offset" in PROTOCOL,
       "synergy is described as an add-on that could not alias")
 
+# The 28 must be the cell count, not 72 minus 44, and the middle band's alarm
+# rate must be what makes the false-alarm direction possible. Both were claimed
+# in prose after round 8 and both are now computed.
+_e2g = DESIGN["e2_grid"]
+check("the aliased-scenario count is the sum of its cells",
+      DESIGN["e2_n_aliased"] == 28 and "$8 + 12 + 8 = 28$" in PROTOCOL,
+      f"export says {DESIGN['e2_n_aliased']}")
+_wc = [w for w in DESIGN["warnings"] if w["rule"] == "contraction"][0]
+check("the middle band's alarm rate explains the false-alarm direction",
+      _wc["false_alarm_vs_not_failed"] > _wc["false_alarm"]
+      and "71 of the 84" in PROTOCOL,
+      f"old {_wc['false_alarm_vs_not_failed']}, new {_wc['false_alarm']}")
+check("the strata are labeled with the arm they come from",
+      "**on E1**, 0.2232 at discordance 0.15" in PROTOCOL,
+      "the E1 strata could be read as an E2 registration")
+
 # --- the history is complete and elsewhere ------------------------------------
 check("the change history is a separate document",
       "Change history is in [`CHANGES.md`](CHANGES.md), not here" in PROTOCOL,
@@ -459,6 +475,8 @@ check("the history keeps the full disclosure list",
 # table summed to 85, with no stated deduplication, so the document's provenance
 # claim did not survive its own arithmetic. The total is now computed from the
 # table in both files rather than typed into either.
+_WORDS_R = ["", "one", "two", "three", "four", "five", "six", "seven",
+            "eight", "nine", "ten", "eleven", "twelve"]
 _rows = re.findall(r"^\| (\d) \| (\w+) \| [\w-]+ \| (\d+) \| (\d+) \|$",
                    (ROOT / "CHANGES.md").read_text(), re.M)
 check("the reviewer table parses", len(_rows) >= 6, f"{len(_rows)} rows")
@@ -471,8 +489,7 @@ check("the protocol's finding total is the same number",
       f"**{_total}** fatal and serious findings" in PROTOCOL,
       f"the table sums to {_total}")
 check("both documents agree on the round count",
-      f"{['','one','two','three','four','five','six','seven'][_rounds]} rounds "
-      f"of critique returned" in PROTOCOL.lower(),
+      f"{_WORDS_R[_rounds]} rounds of critique returned" in PROTOCOL.lower(),
       f"the table covers {_rounds} rounds")
 check("the total is labeled as counted-as-returned, not deduplicated",
       "counted as returned rather than" in PROTOCOL,

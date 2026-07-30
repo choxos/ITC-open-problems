@@ -7,7 +7,7 @@ on IDN-06 *ML-NMR interactions can rest solely on aggregate-data variation*.
 [doi:10.1002/sim.8086](https://doi.org/10.1002/sim.8086)).
 
 **Change history is in [`CHANGES.md`](CHANGES.md), not here.** Eight rounds of critique returned
-**143** fatal and serious findings between two reviewers, counted as returned rather than
+**148** fatal and serious findings between two reviewers, counted as returned rather than
 deduplicated. The recurring one was an internal inconsistency: a claim withdrawn in one section and
 still standing in another, which came from rewriting this document in layers. **Every position is
 now stated once**, and what it replaced is in the history.
@@ -15,7 +15,7 @@ now stated once**, and what it replaced is in the history.
 **Provenance, stated for what it does rather than for what it sounds like.** **The assertion is the
 guarantee; emission is a convenience.** `R/05-export.R` writes every quantity this document quotes to
 `results/registered-design.json`. `review/verify-protocol.py` then checks the document against that
-file, currently **172** assertions, and that is the link that catches a stale or invented number.
+file, currently **175** assertions, and that is the link that catches a stale or invented number.
 `review/emit-tables.py` regenerates a handful of sentences from the same export so they need not be
 retyped; it covers **some** numbers, not all, and **it now fails when one of its patterns matches
 nothing** rather than reporting success. Round 6 found it targeting a sentence an earlier rebuild had
@@ -416,8 +416,15 @@ eight deterministic points is a description of eight points; it has no sampling 
 no confidence statement attaches to it. What the split establishes is that **the E1 finding does not
 reproduce on the nonlinear arm**, which is a limitation of the finding and is carried in section 9.
 
-Until round 6 only the per-level correlations were computed, 0.2232 at discordance 0.15 and 0.5119 at
-0.40, and the registered pooled value existed nowhere. Stratified and pooled rank correlations can
+Until round 6 only the per-level correlations were computed, **on E1**, 0.2232 at discordance 0.15 and
+0.5119 at 0.40, and the registered pooled value existed nowhere. **Those levels are E1's**
+(`DISCORD` is 0, 0.15, 0.40); E2 registers only 0 and 0.40, so E2's confounded family has a single
+nonzero level and no strata to compare. A round-8 reviewer read that sentence as an E2 registration
+and reported a contradiction, which is a wording defect here rather than a mismatch in the code.
+
+The pooled 0.3295 lies **between** its two strata, which is the ordinary case and not something the
+document relies on: a pooled rank correlation need not lie inside the range of its strata, and the
+registered claim is only that all three share a sign. Stratified and pooled rank correlations can
 differ in sign, so this mattered whether or not it changed the answer. **Here it does not: all three
 are positive and the strata agree with the pooled reading**, which is now asserted rather than
 observed.
@@ -431,6 +438,13 @@ both sides; using `!failed` here counted 84 scenarios as successes that primary 
 successes. **This change flatters the diagnostics and is reported for that reason**: the contraction
 rule's false-alarm rate falls from 0.3043 to 0.0355 under the corrected denominator, and the old
 value is exported alongside the new one so the size of the correction is visible.
+
+**It falls rather than rises because the band removed is the one that alarms most.** The contraction
+rule fires on **71 of the 84** scenarios in the middle band, 84.5%, against **6 of 169** nominal ones,
+3.55%. Most of the middle band is the `absent` state under a wide prior, where the posterior is the
+prior, contraction is 1 and the rule alarms by construction while coverage is high. Dropping those
+from a success denominator therefore lowers the rate; a round-8 reviewer argued the direction was
+impossible, on the assumption that the removed scenarios alarm no more often than the retained ones.
 
 ## 8. E2: the nonlinear arm
 
@@ -476,6 +490,11 @@ against the registered estimand is
 $\text{shift} - [(I^{*} + P_0)^{-1} P_0 \theta^{*}]_{\Gamma_3}$, the aliasing and the prior shrinkage
 in one expression. At shift $= 0$ this reduces term by term to the previous calculation, so the 44
 undisturbed scenarios keep their values and **28 scenarios gain a coverage figure they were denied**.
+
+**That 28 is a count of cells, not a subtraction.** It is 8 `ecological` and 12 `curvature` scenarios
+at discordance 0.40, plus 8 `additivity` scenarios at synergy 0.20; the states carrying a departure
+are disjoint because the grid's restrictions make them so. $8 + 12 + 8 = 28$, and $72 - 28 = 44$
+follows rather than defines it.
 
 An earlier version reported coverage only where discordance and synergy were both zero, on the
 argument that the score variance is not the Fisher information under misspecification. **That algebra

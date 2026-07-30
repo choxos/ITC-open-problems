@@ -3,7 +3,7 @@
 **This file is the change history. `protocol.md` is what is registered now.**
 
 They were one document until the fifth round of critique, and separating them is a
-fix rather than tidying. Eight rounds of critique returned **143 fatal and serious findings** between two
+fix rather than tidying. Eight rounds of critique returned **148 fatal and serious findings** between two
 reviewers, counted as the table below counts them: findings **as returned**, so a defect
 found again in a later round is counted again, and the minor findings are not in that
 total. **It is not a count of distinct defects and no such count is claimed.** An earlier
@@ -43,6 +43,7 @@ review**, and it matters what it showed.
 | 7 | grok | unsound | 4 | 6 |
 | 8 | codex | unsound | 1 | 7 |
 | 8 | grok | unsound | 3 | 5 |
+| 8 | glm | needs-revision | 4 | 1 |
 
 **Seven topics were raised independently by both reviewers in round 5**: the
 equal-SD guard's hidden baseline restriction, the source statistic not being a
@@ -576,3 +577,41 @@ the document to state that `EFF_RATIO_OK` governs `target_ratio` only, which is
 false. That is the **eighth** assertion in this study to pin a wrong statement in
 place by demanding a phrase, and the first whose author had to reverse himself
 inside one sitting.
+
+## A third reviewer, four fatal findings, and all four wrong
+
+Round 8 was the first round in which GLM produced output; rounds 5 to 7 recorded
+it as **NOT OBTAINED** for quota and balance failures. It returned four fatal
+findings and one serious. **Every one of the four fatals is arithmetically
+wrong**, and checking them rather than acting on them is the point of this entry.
+
+- **"Two E2 discordance frequencies contradict each other."** The correlations at
+  0.15 and 0.40 are **E1's** strata; `DISCORD` is 0, 0.15, 0.40 and `E2_DISCORD`
+  is 0, 0.40. An E1 sentence was read as an E2 registration.
+- **"The false-alarm correction runs in the wrong direction."** The argument was
+  that removing 84 scenarios from a success denominator "can only raise the
+  rate". That holds only if the removed scenarios alarm no more often than the
+  retained ones, and here they alarm far more: the contraction rule fires on
+  **71 of the 84** middle-band scenarios, 84.5%, against 6 of 169 nominal ones.
+  Most of that band is `absent` under a wide prior, where the posterior is the
+  prior, contraction is 1 and the rule alarms by construction. The direction is
+  consistent.
+- **"28 is not printable from the listed factors."** It is: 8 `ecological` and 12
+  `curvature` at discordance 0.40, plus 8 `additivity` at synergy 0.20. The
+  reviewer's own reconstruction did not apply the grid's restrictions.
+- **"The pooled 0.3295 lies below both strata."** It lies between them, 0.2232 and
+  0.5119. The accompanying claim that a pooled rank correlation must lie inside
+  its strata's range is also false in general.
+
+**Two of the four still earned changes**, which is why a wrong finding is not a
+worthless one. The strata sentence did not say which arm it described, and the 28
+was stated without its breakdown. Both are now explicit and both are asserted, and
+the false-alarm paragraph now carries the middle band's 84.5% alarm rate, which is
+the fact that makes its direction obvious rather than surprising.
+
+The fifth finding, that the nuisance-inertness paragraph reads as a guarantee,
+quoted wording round 7 had already replaced.
+
+**The record for this study now reads: a reviewer that fails is not a reviewer
+that agrees, and a reviewer that speaks is not a reviewer that is right.** Both
+halves have cost real work to learn.
