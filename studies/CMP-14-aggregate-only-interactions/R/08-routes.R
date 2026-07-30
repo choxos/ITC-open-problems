@@ -47,7 +47,19 @@ route_net <- function(mean_differs, sd_differs, total_n = 3000L) {
   net <- build_state_nl("curvature", spread = 0.6,
                         sd_ratio = if (sd_differs) 3.0 else 1.0, total_n)
   agd <- !as.logical(net$ipd)
-  net$mu[agd] <- rep(c(0.1, if (mean_differs) 0.9 else 0.1), each = 2)
+  ## MEANS ARE ASSIGNED PER STUDY, NOT BY A HARDCODED ARM COUNT.
+  ##
+  ## This line read `rep(c(0.1, mu2), each = 2)`, which assumed the two aggregate
+  ## studies had exactly two arms each. When the curvature state gained its third
+  ## arm, four values were recycled into six slots: R warned, the assertions below
+  ## still passed, and the two studies no longer had cleanly different means. A
+  ## warning is not a failure and the guards would have kept certifying the route
+  ## table against a network that was not the one described.
+  mu2 <- if (mean_differs) 0.9 else 0.1
+  studies <- unique(net$study[agd])
+  stopifnot("the curvature state should have exactly two aggregate studies"
+              = length(studies) == 2L)
+  net$mu[agd] <- ifelse(net$study[agd] == studies[1], 0.1, mu2)
   net
 }
 

@@ -70,7 +70,16 @@ separately; it does not.
 
 The target is component 3 throughout. Components 1, 2 and 4 stay in `own_ipd`. **Every state's
 target studies carry three arms**, so every state has twelve arms, an identical shared background
-and the same per-arm size at a given budget.
+and the same per-arm size at a given budget. **`R/06-nonlinear.R` computes the arm count and the
+per-arm size for every state and stops the run if they differ**, because this sentence was true of
+the linear states and false of `curvature`, which ran at ten arms and 300 per arm through five
+rounds of critique until both round-6 reviewers found it independently.
+
+**The per-arm size is an information weight and is not rounded to a patient count.** Nothing here
+simulates individuals: every quantity is an exact Fisher information computed with $n$ as a weight,
+so at budgets of 1000 and 10000 the per-arm size is $83.\overline{3}$ and $833.\overline{3}$ and
+stays that way. "Total patients per network" is a label for that scale. Rounding would put an
+artifact into an exact computation and buy nothing.
 
 ## 4. The aggregate routes, and the restriction the curvature state needs
 

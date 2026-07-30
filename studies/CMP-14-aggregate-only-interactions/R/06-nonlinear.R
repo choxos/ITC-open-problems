@@ -108,9 +108,26 @@ build_state_nl <- function(state, spread, sd_ratio, total_n) {
     list(ipd = TRUE, mu = 0.0, sd = 1, arms = list(PBO, e_vec(1))),
     list(ipd = TRUE, mu = 0.2, sd = 1, arms = list(PBO, e_vec(2))),
     list(ipd = TRUE, mu = 0.1, sd = 1, arms = list(PBO, e_vec(4))))
+  ## THE THIRD ARM IS HERE FOR THE REASON `build_state` GIVES, AND IT WAS MISSING.
+  ##
+  ## Round 4 established that every state's arm COUNT must match: with ten arms
+  ## here and twelve elsewhere, an equal patient budget gives the shared
+  ## background studies different per-arm sizes, so a state comparison changes the
+  ## background network as well as the target's evidence route. That fix was made
+  ## in `build_state` and never reached this function, so `curvature` ran at ten
+  ## arms and 300 per arm while every other state ran at twelve and 250, and the
+  ## protocol asserted they matched.
+  ##
+  ## Round 6 found it, independently, in both reviewers. The arm added is
+  ## component 1 alone, the same arm `ecological` and `additivity` use, so the
+  ## target designs stay structurally comparable and the component-3 interaction
+  ## is still identified only through the between-study SD contrast at a common
+  ## covariate mean. `check_curvature_rank` and `R/08-routes.R` verify that.
   target <- list(
-    list(ipd = FALSE, mu = 0.1, sd = 1.0, arms = list(PBO, e_vec(3))),
-    list(ipd = FALSE, mu = 0.1, sd = sd_ratio, arms = list(PBO, e_vec(3))))
+    list(ipd = FALSE, mu = 0.1, sd = 1.0,
+         arms = list(PBO, e_vec(1), e_vec(3))),
+    list(ipd = FALSE, mu = 0.1, sd = sd_ratio,
+         arms = list(PBO, e_vec(1), e_vec(3))))
   studies <- c(base, target)
   n_arms <- sum(vapply(studies, function(z) length(z$arms), 0L))
   studies <- lapply(studies, function(z) { z$n <- total_n / n_arms; z })
@@ -203,7 +220,37 @@ if (!interactive() && Sys.getenv("NL_NOMAIN") == "") {
   ok <- !ck[["1"]]$logit_estimable && !ck[["1"]]$identity_estimable &&
         !ck[["2"]]$identity_estimable && ck[["2"]]$logit_estimable
   cat(sprintf("\nmechanism holds: %s\n", ok))
+
+  ## THE GEOMETRY CLAIM IS NOW ASSERTED, NOT WRITTEN.
+  ##
+  ## The protocol says every state has the same arm count and the same per-arm
+  ## size at a given budget. That sentence was true of `build_state` and false of
+  ## `build_state_nl`, and it stayed false through five rounds of critique because
+  ## nothing computed it. Both round-6 reviewers found it independently.
+  ##
+  ## The stated reason for matching counts is that the shared background studies
+  ## must carry equal per-arm size, so the check is on BOTH the count and the
+  ## size, and it stops the run rather than printing a warning.
+  geo <- do.call(rbind, lapply(E2_STATES[E2_STATES != "own_ipd" | TRUE],
+    function(s) {
+      net <- build_state_nl(s, spread = 0.6, sd_ratio = 2.0, total_n = 3000L)
+      data.frame(state = s, arms = length(net$n), per_arm = unique(net$n)[1],
+                 distinct_sizes = length(unique(net$n)))
+    }))
+  cat("\n=== arm geometry across E2 states, computed ===\n")
+  print(geo, row.names = FALSE)
+  stopifnot(
+    "states differ in arm count; the shared background would carry unequal
+     per-arm sizes and a state comparison would change the background network"
+      = length(unique(geo$arms)) == 1L,
+    "states differ in per-arm size at a common budget"
+      = length(unique(geo$per_arm)) == 1L,
+    "some state has unequal per-arm sizes within itself"
+      = all(geo$distinct_sizes == 1L))
+  cat("geometry matches across states: TRUE\n")
+
   saveRDS(list(check = ck, check_unequal_baseline = ck_b, holds = ok,
+               geometry = geo,
                equal_sd_needs_equal_baseline =
                  !ck[["1"]]$logit_estimable && ck_b[["1"]]$logit_estimable),
           "results/curvature-rank.rds")

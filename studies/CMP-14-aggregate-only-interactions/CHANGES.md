@@ -57,6 +57,46 @@ explicit no-tools instruction produced 28 findings. The driver records every
 unobtained part as **NOT OBTAINED** and never as agreement, which is what kept four
 rounds honest about resting on one reviewer.
 
+## A fix applied in one place and asserted everywhere
+
+Round 4 established that every information state must have the same arm count,
+and gave the reason: with ten arms in one state and twelve in another, an equal
+patient budget hands the SHARED BACKGROUND studies different per-arm sizes, so a
+state comparison changes the background network as well as the target's evidence
+route. That is not the comparison primary 2 is registered as.
+
+**The fix was made in `build_state` and never reached `build_state_nl`.** The
+`curvature` state kept two-arm target studies, so it ran at ten arms and 300
+patients per arm while every other state ran at twelve and 250, and the protocol
+said in plain words that they matched. It survived rounds 4 and 5 and was found in
+round 6 **by both reviewers independently**, which is what convergence is for.
+
+Three things follow and only one of them is the arm count.
+
+- **The geometry is now computed.** `R/06-nonlinear.R` builds every state, prints
+  the arm count and per-arm size, and **stops the run** if they differ. The claim
+  that made it through five rounds was prose; nothing had ever evaluated it.
+- **The repair broke something downstream and the warning nearly hid it.**
+  `R/08-routes.R` assigned aggregate covariate means with `rep(c(0.1, mu2), each =
+  2)`, which assumed two arms per aggregate study. With three, R recycled four
+  values into six slots, warned, and **the route table's four assertions still
+  passed** against a network whose two studies no longer had cleanly different
+  means. Means are now assigned by study identity, and the count is asserted. **A
+  warning is not a failure, and every guard in this study would have kept
+  certifying the wrong network.**
+- **The route table is unchanged**, recomputed on the corrected geometry: mean
+  identifies on both links, variance and baseline on the logit link only, none on
+  neither. So the arm-count defect did not reach the taxonomy, which is worth
+  recording because it easily could have.
+
+The second reviewer's version of the same finding was arithmetic rather than
+structural: twelve equal arms at budgets of 1000 and 10000 give $83.\overline{3}$
+and $833.\overline{3}$ per arm, which are not patient counts. **That one is
+answered by saying what the code does rather than by changing it.** Nothing here
+simulates individuals; every quantity is an exact Fisher information with $n$ as a
+weight, so a non-integer $n$ is a legitimate information scale and rounding would
+put an artifact into an exact computation for nothing. The protocol now says so.
+
 ## Three numbers that went stale, and what finally stopped it
 
 Rounds 2, 4 and 5 each found a printed number that no longer followed from the code.
