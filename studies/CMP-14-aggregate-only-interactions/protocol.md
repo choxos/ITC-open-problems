@@ -6,11 +6,11 @@ on IDN-06 *ML-NMR interactions can rest solely on aggregate-data variation*.
 **Reporting standard.** ADEMP (Morris, White and Crowther 2019,
 [doi:10.1002/sim.8086](https://doi.org/10.1002/sim.8086)).
 
-**Change history is in [`CHANGES.md`](CHANGES.md), not here.** Eleven rounds of critique returned
-**175** fatal and serious findings between **3** reviewers, counted as returned rather than
-deduplicated. GLM was unavailable in rounds 5 to 7, reviewed in
-rounds 8, 9 and 10, and has contributed **one** accepted serious finding across those three: it has
-returned eight fatal findings and every one was wrong. `CHANGES.md` records the arithmetic. The recurring one was an internal inconsistency: a claim withdrawn in one section and
+**Change history is in [`CHANGES.md`](CHANGES.md), not here.** Twelve rounds of critique returned
+**180** fatal and serious findings between **3** reviewers, counted as returned rather than
+deduplicated. GLM was unavailable in rounds 5 to 7 and reviewed in
+rounds 8 through 12. Across those five it has returned **eight fatal findings, every one wrong**, and
+**one** accepted serious finding; in round 12 it returned a `sound` verdict. `CHANGES.md` records the arithmetic. The recurring one was an internal inconsistency: a claim withdrawn in one section and
 still standing in another, which came from rewriting this document in layers. **Every position is
 intended to be stated once**, and what it replaced is in the history. That is a discipline rather
 than a guarantee: round 9 found the withdrawn state-separation criterion still asserted in two
@@ -23,7 +23,7 @@ guarantee; emission is a convenience.** `R/05-export.R` writes every quantity th
 which round 9 found quoted here and read by nothing: the verifier had the route taxonomy's expected
 entries written into it as constants, so a change in `R/08-routes.R` would have left document and
 guard agreeing and both wrong. `review/verify-protocol.py` then checks the document against that
-file, currently **210** assertions, and that is the link that catches a stale or invented number.
+file, currently **221** assertions, and that is the link that catches a stale or invented number.
 `review/emit-tables.py` regenerates a handful of sentences from the same export so they need not be
 retyped; it covers **some** numbers, not all, and **it now fails when one of its patterns matches
 nothing** rather than reporting success. Round 6 found it targeting a sentence an earlier rebuild had
@@ -71,8 +71,10 @@ $$E[y] = \alpha_s + c'\delta + x\,(\beta + c'\Gamma), \qquad \operatorname{Var}(
 **E2 uses a logistic link**, $P(y = 1) = \operatorname{expit}(\eta)$ with the same $\eta$, with
 $\alpha_s$ set so the **conditional placebo risk at $x = 0$ is 0.3**. **Placebo *arm* prevalence is
 not 0.3 and is not constant**: on a curved link the arm-level value integrates the covariate
-distribution through $\operatorname{expit}$, so it depends on each study's covariate mean and SD and
-runs from **0.2506 to 0.3760** across the registered grid. An earlier version gave
+distribution through $\operatorname{expit}$, so **given the Normal within-study law registered below**
+it depends on each study's covariate mean and SD, and it runs from **0.2506 to 0.3760** across the
+registered grid. Without that family the mean and SD do not determine it, and until round 12 this
+sentence asserted the unqualified version two paragraphs above its own correction. An earlier version gave
 0.2913 to 0.3291, measured on a slice at SD ratio 2.0, **which is not a registered level at all**;
 the guard now sweeps the distinct cells of `build_grid_e2()` itself. An earlier version of this document said
 placebo arms sit at prevalence 0.3, which is true nowhere. `R/07-run-e2.R` computes the range over the
@@ -398,13 +400,22 @@ conflated them.
 **No threshold on contraction, on either effective-rank reading, or on the estimability screen
 separates failing coverage from nominal coverage.** Those four are what primary 1 registers, and that
 is the study's central negative result; section 7 had been reporting the secondary numbers and
-primary 3 without it. **One of those four legs cannot fail, and saying so narrows the claim.** A coordinate the likelihood
-does not identify has a posterior equal to its prior, so its coverage is deterministic: **0 or 1,
-never within 0.01 of 0.95**. Every nominal scenario is therefore estimable, while failing scenarios
-include both non-estimable cells and estimable-but-confounded ones. `rank_screen`'s two ranges
-consequently overlap **by construction**, and the grid cannot falsify that leg. **The informative
-content of primary 1 is the three CMP-14 summaries**, each continuous, each of which could have
-separated and did not. `R/09-smoke.R` asserts the structural fact rather than leaving it an argument.
+primary 3 without it. **One of those four legs is half structural, and saying exactly how narrows the claim.** A
+non-estimable coordinate carries essentially no likelihood information about itself, and measured, its
+coverage is exactly **0 or 1 on both arms**, never within 0.01 of 0.95. **So no nominal scenario is
+ever non-estimable**, and `rank_screen` cannot separate by finding nominal cells the failing set
+lacks.
+
+**The overlap still needs one measured fact: that some estimable scenario fails.** 233 of E1's 251
+failures are estimable, and had none been, the binary screen *would* have separated. So the leg is
+not unfalsifiable, as an earlier wording claimed; it is a claim whose one-sided half is definitional
+and whose other half is evidence. On the logit link the mechanism is looser than "posterior equals
+prior" as well: E2's non-estimable contractions run 0.998888 to 1, not exactly 1, while their
+coverage is still exactly 0 or 1.
+
+**The informative content of primary 1 is still the three CMP-14 summaries**, each continuous and
+each free to separate in either direction. `R/09-smoke.R` asserts all three facts rather than leaving
+them an argument.
 
 **The candidate overlaps too and is not part of the claim**: it is this study's
 own post hoc statistic, it carries `post-hoc-candidate` on its row, and including it in the central
@@ -515,22 +526,31 @@ rule's false-alarm rate falls from 0.3043 to 0.0355 under the corrected denomina
 value is exported alongside the new one so the size of the correction is visible.
 
 **These are E1's figures. On E2 the three CMP-14 summaries perform far better**, which is a result
-rather than a footnote. **The candidate does not**: its Youden index is slightly *worse* on E2, 0.2424
-against 0.2585, and it is the only rule with a nonzero E2 false-alarm rate. An earlier wording said
-"the same rules perform far better" and quantified over all five, which the table beneath it
-contradicts.
+rather than a footnote. **The candidate improves far less**: 0.2287 to 0.2424, against the summaries' three- to fourfold
+gains, and it is the only rule with a nonzero E2 false-alarm rate. **This sentence has now been wrong
+in both directions.** It first said all five rules "perform far better", which the table contradicts;
+round 11 corrected that to the candidate being *worse* on E2, using an E1 Youden of 0.2585 that no
+current export contains. The real E1 value is 0.2287, so the candidate is marginally better on E2 and
+neither wording was right. **The E1 column was typed and unasserted**; both columns now come from the
+export and every cell is checked.
 
 | rule | standing | E1 Youden | E2 Youden | E2 sensitivity | E2 false alarm |
 |---|---|---:|---:|---:|---:|
-| `contraction` | CMP-14 | 0.2195 | **0.8049** | 0.8049 | 0 |
-| `target_ratio` | CMP-14 | 0.1793 | **0.7073** | 0.7073 | 0 |
-| `eff_rank` | CMP-14 | 0.2371 | **0.8293** | 0.8293 | 0 |
-| `rank_screen` | existing screen | 0.0717 | 0.1951 | 0.1951 | 0 |
-| `source_survival` | **post hoc** | 0.2585 | 0.2424 | 0.5758 | 0.3333 |
+| `contraction` | CMP-14 | 0.2195 | 0.8049 | 0.8049 | 0 |
+| `target_ratio` | CMP-14 | 0.1793 | 0.7073 | 0.7073 | 0 |
+| `eff_rank` | CMP-14 | 0.2371 | 0.8293 | 0.8293 | 0 |
+| `rank_screen` | existing screen | 0.0717 | 0.1951 | 0.1951 | 0 † |
+| `source_survival` | **post hoc** | 0.2287 | 0.2424 | 0.5758 | 0.3333 |
 
 **E2's 72 scenarios split 41 failing, 12 nominal and 19 neither**, by the same three-class rule
-E1 uses; the E1 accounting was printed and E2's was not. **Read those E2 columns against only 12
-nominal scenarios.** A
+E1 uses; the E1 accounting was printed and E2's was not.
+
+**† `rank_screen`'s false-alarm rate is structurally zero, not a measured specificity.** It alarms
+only when the coordinate is non-estimable, and no non-estimable scenario can be nominal, so its zero
+holds on any grid using these class definitions. The other four zeros are measurements: those rules
+can and do fire on estimable nominal cells.
+
+**Read those E2 columns against only 12 nominal scenarios.** A
 false-alarm rate of zero over twelve is a weakly determined zero. The four registered rules rest on
 41 failing and 12 nominal cells; **the
 candidate rests on 33 failing**, because `surv_between` is undefined

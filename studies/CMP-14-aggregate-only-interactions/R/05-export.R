@@ -306,14 +306,20 @@ out$e2_rules <- lapply(seq_len(nrow(ev$rules)), function(i)
   list(rule = ev$rules$rule[i], standing = ev$rules$standing[i],
        separates = ev$rules$separates[i]))
 out$e2_any_state_separation <- ev$any_state_separation
-out$e2_surv_sd_separates <- ev$surv_sd_separates
 out$e2_surv_sd_curvature <- ev$surv_sd_curvature
 out$e2_surv_sd_ecological <- ev$surv_sd_ecological
 ## The candidate's E2 outputs, each carrying the standing the protocol promises
 ## every occurrence would carry.
 out$e2_candidate_standing <- ev$candidate_standing
-out$e2_curvature_surv <- ev$curvature_surv
-out$e2_ecological_surv <- ev$ecological_surv
+## Each candidate measurement is exported as a labeled object rather than as a
+## bare number beside a detached standing field, so the standing travels with the
+## value wherever it is read.
+._cand <- function(x) list(standing = ev$candidate_standing, value = x)
+out$e2_curvature_surv <- ._cand(ev$curvature_surv)
+out$e2_ecological_surv <- ._cand(ev$ecological_surv)
+out$e2_surv_sd_curvature <- ._cand(ev$surv_sd_curvature)
+out$e2_surv_sd_ecological <- ._cand(ev$surv_sd_ecological)
+out$e2_surv_sd_separates <- ._cand(ev$surv_sd_separates)
 out$e2_by_state <- lapply(split(e2, e2$state), function(z) list(
   state = z$state[1], n = nrow(z),
   ## Every exported row carrying a candidate value carries its standing.

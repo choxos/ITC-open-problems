@@ -3,7 +3,7 @@
 **This file is the change history. `protocol.md` is what is registered now.**
 
 They were one document until the fifth round of critique, and separating them is a
-fix rather than tidying. Eleven rounds of critique returned **175 fatal and serious findings** between three
+fix rather than tidying. Twelve rounds of critique returned **180 fatal and serious findings** between three
 reviewers, counted as the table below counts them: findings **as returned**, so a defect
 found again in a later round is counted again, and the minor findings are not in that
 total. **It is not a count of distinct defects and no such count is claimed.** An earlier
@@ -53,6 +53,9 @@ review**, and it matters what it showed.
 | 11 | codex | needs-revision | 0 | 5 |
 | 11 | grok | needs-revision | 0 | 2 |
 | 11 | glm | needs-revision | 0 | 0 |
+| 12 | codex | needs-revision | 0 | 3 |
+| 12 | grok | needs-revision | 0 | 2 |
+| 12 | glm | **sound** | 0 | 0 |
 
 **Seven topics were raised independently by both reviewers in round 5**: the
 equal-SD guard's hidden baseline restriction, the source statistic not being a
@@ -929,3 +932,49 @@ without showing the multiplication, and "the states carrying a departure are
 disjoint because the grid's restrictions make them so" names the wrong mechanism.
 They are disjoint because a scenario has exactly one state; what the restrictions
 do is stop a single scenario carrying two departures.
+
+## Round 12: convergence, and a claim that reversed twice
+
+**No reviewer returned a fatal finding.** Codex and grok both said so in words;
+**GLM returned `VERDICT: sound`**, the first sound verdict in twelve rounds, and
+ended "Two clean rounds preceded this one; this one is clean. That is
+convergence."
+
+The serious count fell from 11 to 7 to 5. Three of those five were in round-11
+repairs and one reversed a claim made in the same round.
+
+**The candidate's cross-arm comparison has now been wrong in both directions.**
+The E2 secondary table's E1 column was **typed and unasserted** while only the E2
+column was checked, and it held a stale Youden of 0.2585 that no export contained.
+Round 11 used that stale number to correct "all five rules perform far better" to
+"the candidate is worse on E2". The real E1 value is **0.2287**, so the candidate
+is marginally *better* on E2 and neither wording was right. **Both columns now
+come from the export and every cell of the table is asserted**, which is the same
+one-side-only defect the route table had before round 9.
+
+**Round 11's structural finding was overstated and round 12 corrected it.** The
+claim was that `rank_screen`'s primary-1 leg "cannot fail". Half of it cannot: no
+nominal scenario is ever non-estimable, measured on both arms. But the overlap
+also needs an **estimable failing scenario**, and that is a measured fact, 233 of
+251 on E1, not a definitional one; had none failed, the binary screen would have
+separated. The smoke test's own separate check of that fact was the evidence.
+**The leg is half structural, not unfalsifiable.** On the logit link the mechanism
+is looser still: E2's non-estimable contractions run 0.998888 to 1 rather than
+exactly 1, while their coverage remains exactly 0 or 1.
+
+**And the same shape appeared once more in the secondary table.** `rank_screen`
+alarms only on non-estimable coordinates, which can never be nominal, so its
+false-alarm rate is **structurally zero on any grid using these class
+definitions**. It sat in the same column as four measured zeros. It is marked now.
+
+Two remaining: the round-11 covariate repair left the sentence it declared false
+standing as the operative one, two paragraphs above its own correction, and the
+E2 candidate's printed and saved results still lacked the per-row standing the
+protocol promises.
+
+**A third guard was found to have stopped growing with the data.** The reviewer
+table's verdict field was matched as `[\w-]+`, and round 12's `**sound**` does not
+match it, so that row would have dropped from the finding total silently. It
+contributed 0 + 0, so nothing moved, which is exactly how this survives. After the
+number-word list that stopped at seven and the round number that matched one
+digit, the parser now **counts its own rows against the table's line count**.

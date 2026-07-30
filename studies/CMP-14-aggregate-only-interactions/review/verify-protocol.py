@@ -446,7 +446,7 @@ check("every E2 state row carries the candidate's standing",
       all(z.get("candidate_standing") == "post-hoc-candidate"
           for z in DESIGN["e2_by_state"].values()),
       "an E2 row reports a candidate value without its standing")
-_reviewers = set(re.findall(r"^\| \d+ \| (\w+) \| [\w-]+ \| \d+ \| \d+ \|$",
+_reviewers = set(re.findall(r"^\| \d+ \| (\w+) \| [\w*-]+ \| \d+ \| \d+ \|$",
                            (ROOT / "CHANGES.md").read_text(), re.M))
 check("the reviewer count in the header matches the table",
       f"between **{len(_reviewers)}** reviewers" in PROTOCOL,
@@ -562,7 +562,7 @@ check("the stated-once claim is stated as an aim, not a guarantee",
 # --- round 10: what round 9 left, all of it in the round-9 repairs -----------
 _w2 = {x["rule"]: x for x in DESIGN["e2_warnings"]}
 check("the secondary outcomes exist on E2, not only E1",
-      len(_w2) == 5 and f"| **{_w2['contraction']['youden']}** |" in PROTOCOL,
+      len(_w2) == 5 and f"| {_w2['contraction']['youden']} |" in PROTOCOL,
       f"E2 warnings: {sorted(_w2)}")
 check("the E2 secondary is reported with the sample it rests on",
       f"only {_w2['contraction']['n_nominal']} nominal scenarios" in PROTOCOL,
@@ -614,17 +614,22 @@ check("the E2 secondary table carries standing on every row",
       "| `source_survival` | **post hoc** |" in PROTOCOL
       and "| rule | standing | E1 Youden |" in PROTOCOL,
       "the candidate row is packaged like a registered summary")
+# The table is parsed later in this file; the round count is needed here, so it
+# is read from CHANGES.md directly rather than reordering the checks.
+_max_round = max(int(m) for m in re.findall(
+    r"^\| (\d+) \| \w+ \| [\w*-]+ \| \d+ \| \d+ \|$",
+    (ROOT / "CHANGES.md").read_text(), re.M))
 check("the reviewer-provenance sentence is current",
-      "reviewed in\nrounds 8, 9 and 10" in RAW,
-      "the account of who reviewed when is stale")
+      f"reviewed in\nrounds 8 through {_max_round}" in RAW,
+      f"the account of who reviewed when is stale ({_max_round} rounds recorded)")
 
 check("primary 1's structural leg is named as such",
-      "cannot fail, and saying so narrows the claim" in PROTOCOL
-      and "overlap **by construction**" in PROTOCOL,
+      "half structural, and saying exactly how narrows the claim" in PROTOCOL
+      and "no nominal scenario is\never non-estimable**" in RAW,
       "rank_screen's leg is presented as evidence")
 check("the E2 secondary claim is scoped to the rules it holds for",
       "the three CMP-14 summaries perform far better" in PROTOCOL
-      and "The candidate does not" in PROTOCOL,
+      and "The candidate improves far less" in PROTOCOL,
       "a blanket superiority claim the table contradicts")
 check("the strata agreement is called measured, not asserted",
       "That agreement is **measured**" in PROTOCOL,
@@ -636,6 +641,47 @@ check("E2's three classes are accounted for and sum to its grid",
       in PROTOCOL
       and _w0["n_failed"] + _w0["n_nominal"] + _w0["n_neither"] == _e2n,
       f"{_w0['n_failed']}+{_w0['n_nominal']}+{_w0['n_neither']} against {_e2n}")
+
+# --- round 12: the secondary table, cell by cell -----------------------------
+# ROUND 12 FOUND A STALE E1 YOUDEN IN THIS TABLE, and it reversed the sentence
+# beside it. The E1 column had been typed while only the E2 column was asserted,
+# which is the same one-side-only shape as the route table's hardcoded rows.
+# Every cell of both columns is checked now.
+_E1W = {x["rule"]: x for x in DESIGN["warnings"]}
+_E2W = {x["rule"]: x for x in DESIGN["e2_warnings"]}
+_SEC = table_after("| rule | standing | E1 Youden | E2 Youden | E2 sensitivity | E2 false alarm |")
+check("the secondary table has one row per registered rule",
+      len(_SEC) == len(DESIGN["diagnostics"]), f"{len(_SEC)} rows")
+for _row in _SEC:
+    _c = [x.strip() for x in _row.split("|")]
+    _r = _c[1].strip("`")
+    check(f"secondary row {_r} matches the export",
+          _r in _E1W and _c[3] == str(_E1W[_r]["youden"])
+          and _c[4] == str(_E2W[_r]["youden"])
+          and _c[5] == str(_E2W[_r]["sensitivity"])
+          and _c[6].split()[0] == str(_E2W[_r]["false_alarm"]),
+          f"row {_c[1:7]} against E1 {_E1W.get(_r, {}).get('youden')} "
+          f"E2 {_E2W.get(_r, {}).get('youden')}")
+check("the candidate's cross-arm direction matches the export",
+      (_E2W["source_survival"]["youden"] > _E1W["source_survival"]["youden"])
+      == ("The candidate improves far less" in PROTOCOL),
+      f"E1 {_E1W['source_survival']['youden']}, E2 {_E2W['source_survival']['youden']}")
+check("rank_screen's structural zero is marked as such",
+      "structurally zero, not a measured specificity" in PROTOCOL
+      and _E2W["rank_screen"]["false_alarm"] == 0,
+      "a definitional zero sits beside measured ones unmarked")
+check("the rank_screen leg is called half structural, not unfalsifiable",
+      "half structural" in PROTOCOL
+      and "the grid cannot falsify that leg" not in PROTOCOL,
+      "the leg is still claimed to be unfalsifiable")
+check("the mean-and-SD claim is scoped to the registered family",
+      "given the Normal within-study law registered below" in PROTOCOL,
+      "the withdrawn wording is still the operative sentence")
+check("every exported E2 candidate measurement carries its standing",
+      all(DESIGN[k]["standing"] == "post-hoc-candidate" for k in
+          ("e2_curvature_surv", "e2_ecological_surv", "e2_surv_sd_curvature",
+           "e2_surv_sd_ecological", "e2_surv_sd_separates")),
+      "a candidate measurement is exported bare")
 
 # --- the history is complete and elsewhere ------------------------------------
 check("the change history is a separate document",
@@ -660,9 +706,21 @@ _WORDS_R = ["", "one", "two", "three", "four", "five", "six", "seven",
 # Round 10 is two digits; the original pattern matched one and silently
 # dropped the row, so the total went stale the moment the study reached ten
 # rounds. A guard that stops seeing new data is a guard that stops working.
-_rows = re.findall(r"^\| (\d+) \| (\w+) \| [\w-]+ \| (\d+) \| (\d+) \|$",
+_rows = re.findall(r"^\| (\d+) \| (\w+) \| [\w*-]+ \| (\d+) \| (\d+) \|$",
                    (ROOT / "CHANGES.md").read_text(), re.M)
-check("the reviewer table parses", len(_rows) >= 6, f"{len(_rows)} rows")
+# ROUND 12: A MARKDOWN VERDICT ALMOST DROPPED A ROW. The verdict field was
+# matched as [\w-]+, and round 12's "**sound**" does not match it, so the row
+# would have vanished from the total silently. It contributed 0 + 0 so nothing
+# moved, which is exactly how this class of defect survives. That is the third
+# guard in this study whose own pattern stopped growing with the data: the
+# number-word list stopped at seven, the round number matched one digit, and now
+# the verdict could not contain emphasis. The parser now counts its own rows
+# against the table's line count.
+_tbl_lines = [l for l in (ROOT / "CHANGES.md").read_text().splitlines()
+              if re.match(r"^\| \d+ \| \w+ \|", l)]
+check("the reviewer table parses every row it contains",
+      len(_rows) == len(_tbl_lines) and len(_rows) >= 6,
+      f"parsed {len(_rows)} of {len(_tbl_lines)} rows")
 _total = sum(int(f) + int(s) for _, _, f, s in _rows)
 _rounds = len({r[0] for r in _rows})
 check("the history's finding total is the table's sum",

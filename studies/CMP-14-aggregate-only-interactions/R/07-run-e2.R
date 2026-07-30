@@ -387,10 +387,16 @@ if (!interactive() && Sys.getenv("E2_NOMAIN") == "") {
   ## `surv_sd_separates`. So it showed two identical zeros next to TRUE, and no
   ## reader could tell which form does the separating. Both forms print, each
   ## beside its own verdict.
-  cat(sprintf("surv_between  curvature: %s | ecological: %s  (0 in both by construction)\n",
+  ## ROUND 12: THE STANDING GOES ON EACH LINE, not in a field beside them. Round
+  ## 11 split this into two lines and left both bare with one detached
+  ## `candidate_standing`; the promise is that every reported occurrence carries
+  ## it, and a printed result is a reported occurrence.
+  cat(sprintf("[%s] surv_between  curvature: %s | ecological: %s  (0 in both by construction)\n",
+              v$candidate_standing,
               paste(v$curvature_surv, collapse = ", "),
               paste(v$ecological_surv, collapse = ", ")))
-  cat(sprintf("surv_sd       curvature: %s | ecological: %s | separates them: %s\n",
+  cat(sprintf("[%s] surv_sd       curvature: %s | ecological: %s | separates them: %s\n",
+              v$candidate_standing,
               paste(v$surv_sd_curvature, collapse = "-"),
               paste(v$surv_sd_ecological, collapse = "-"),
               v$surv_sd_separates))
