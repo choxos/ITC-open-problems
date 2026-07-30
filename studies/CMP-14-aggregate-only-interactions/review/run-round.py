@@ -56,8 +56,10 @@ SPLIT_BUDGET = 14_000
 PREAMBLE = """You are reviewing a PRE-REGISTRATION for a simulation study. Nothing has been
 run yet. Your job is to find defects while they are still free to fix.
 
-This is the TENTH round of critique on this document. Nine rounds have returned 157 fatal
-and serious findings.
+This is the ELEVENTH round of critique on this document. Ten rounds have returned 168 fatal
+and serious findings. ROUND 10 WAS THE FIRST WITH NO FATAL FINDING FROM ANY REVIEWER, so the
+question this round answers is whether that was convergence or luck. Do not manufacture a fatal
+finding to fill the slot, and do not soften a real one because the previous round was clean.
 
 TWO INSTRUCTIONS THAT MATTER MORE THAN THE REST.
 
@@ -69,12 +71,15 @@ something else; a figure reported without saying which experiment produced it, i
 covering both; and a threshold or expectation written into the verifier as a constant instead
 of read from the computation. Assume round 9's repairs contain the same shapes.
 
-SECOND: VERIFY YOUR ARITHMETIC BEFORE REPORTING A CONTRADICTION. In round 8 one reviewer
-returned four fatal findings and all four were arithmetically wrong: it read one experiment's
-factor levels as another's, argued a rate could not fall when the removed subset had a higher
-rate than the retained one, miscounted a grid, and claimed a value lay outside an interval that
-contains it. A wrong fatal finding costs a full cycle of work to refute. If a claimed
-contradiction depends on a computation, do the computation. The categories that rounds of this programme have actually found, in
+SECOND: VERIFY YOUR ARITHMETIC AND RE-READ THE QUOTED LINE BEFORE REPORTING A CONTRADICTION.
+Across rounds 8 to 10 one reviewer returned eight fatal findings and every one was wrong. The
+failure modes were: reading one experiment's factor levels as another's; arguing a rate could
+not fall when the removed subset had a higher rate than the retained one; miscounting a
+restricted grid; claiming a value lay outside an interval containing it; reading one table
+row's values into an adjacent row; and arguing that a guard which does not fire on a correct
+design is inert. A wrong fatal costs a full cycle to refute. If a claimed contradiction depends
+on a computation, do the computation; if it depends on what a line says, quote that line
+exactly and check the quote against your claim. The categories that rounds of this programme have actually found, in
 descending order of frequency:
 
 1. A number printed in one section that contradicts the same quantity in another, or that was
