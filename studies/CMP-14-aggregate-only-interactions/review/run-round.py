@@ -46,7 +46,12 @@ KIMI_BUDGET = 32_000
 # parts are packed to this budget. Splitting beats trimming for the reason the
 # kimi path documented: a trimmed protocol produces confident findings about
 # sections that were cut away.
-SPLIT_BUDGET = 24_000
+## Measured, not guessed. Grok returns a usable reply at 20 KB of protocol with
+## high effort but returned 239 bytes on the 41 KB whole document and under 300
+## bytes on each half at roughly 24 KB including the preamble. The preamble is
+## about 4 KB, so a 14 KB part keeps the whole prompt near 18 KB, inside what was
+## verified to work rather than at the edge of it.
+SPLIT_BUDGET = 14_000
 
 PREAMBLE = """You are reviewing a PRE-REGISTRATION for a simulation study. Nothing has been
 run yet. Your job is to find defects while they are still free to fix.
@@ -160,6 +165,9 @@ def main() -> None:
     ap.add_argument("--parts", default=None, help="comma-separated part names to rerun")
     ap.add_argument("--no-split", action="store_true",
                     help="do not fall back to a split review on repeated failure")
+    ap.add_argument("--split", action="store_true",
+                    help="go straight to a split review, for a reviewer already "
+                         "known to fail on the whole document")
     args = ap.parse_args()
 
     outdir = ROOT / "review" / f"round{args.round}"
@@ -202,8 +210,11 @@ load skills.
             continue
         tag = f"{reviewer}-{part}"
         print(f"[{tag}] sending {len(prompt.encode()):,} bytes ...", flush=True)
-        out, err, rc, secs = REVIEWERS[reviewer](prompt)
-        if not usable(out):
+        if args.split and part == "whole":
+            out, err, rc, secs = "", "", 1, 0.0     # force the split path below
+        else:
+            out, err, rc, secs = REVIEWERS[reviewer](prompt)
+        if not usable(out) and not args.split:
             print(f"[{tag}] unusable ({len(out.encode())} bytes, rc {rc}); retrying once",
                   flush=True)
             out, err, rc, secs2 = REVIEWERS[reviewer](prompt)

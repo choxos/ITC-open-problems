@@ -31,6 +31,32 @@ if (length(missing))
        "would pass by checking fewer things:\n  ",
        paste(missing, collapse = "\n  "))
 
+## EVERY ARTIFACT MUST BE NEWER THAN THE CODE THAT PRODUCES IT.
+##
+## Round 5 found E2 reported from a run predating the round-4 arm-count change,
+## and the route table likewise. Both read `build_state` through
+## `build_state_nl`, both were stale, and nothing noticed: the verifier asserts
+## the DOCUMENT against the EXPORT and the smoke test asserts the shape of what
+## is there, so neither can see that a saved object was produced by code that has
+## since changed. That is a whole class of defect and patching the two instances
+## would leave it open.
+##
+## The check is deliberately blunt. Every artifact must be newer than the newest
+## file in R/, because everything here sources R/00-config.R and a finer
+## dependency graph would be one more thing to keep correct. Blunt means it
+## sometimes demands a rerun that was not strictly needed, which costs seconds in
+## this study and is the right trade.
+newest_code <- max(file.info(list.files("R", full.names = TRUE))$mtime)
+ages <- file.info(REQUIRED)$mtime
+stale <- REQUIRED[ages < newest_code]
+if (length(stale))
+  stop("these artifacts predate the code that produces them, so the export ",
+       "would certify results the current code does not produce:\n  ",
+       paste(sprintf("%s (%s, code changed %s)", stale,
+                     format(ages[ages < newest_code], "%H:%M:%S"),
+                     format(newest_code, "%H:%M:%S")), collapse = "\n  "),
+       "\nRerun R/03-run-e1.R, R/06-nonlinear.R, R/07-run-e2.R and R/08-routes.R.")
+
 d <- load_e1()
 out <- list()
 
