@@ -333,6 +333,23 @@ out$e2_by_state <- lapply(split(e2, e2$state), function(z) list(
 ## whole grid, measured pointwise in the covariate.
 stopifnot("an E2 scenario has no coverage after the aliasing result"
             = !any(is.na(e2$coverage)))
+## PRIMARY 2 ON E2. Round 9: section 8 affirms primary 2 runs on E2 and no result
+## line existed for it, while section 7's 0.951 is E1's and E2's grid cannot
+## produce E1's 54 pairs. The same rule is applied to E2's own grid.
+sp2 <- state_pairs(e2)
+if (nrow(sp2)) {
+  sp2$contract_gap <- abs(sp2$contraction_additivity - sp2$contraction_ecological)
+  sp2$cover_gap <- sp2$coverage_additivity - sp2$coverage_ecological
+  cl2 <- sp2[sp2$contract_gap < PAIRS_CLOSE_TOL, ]
+  out$e2_pairs_total <- nrow(sp2)
+  out$e2_pairs_close <- nrow(cl2)
+  out$e2_pairs_close_max_cover_gap <-
+    if (nrow(cl2)) round(max(abs(cl2$cover_gap)), 3) else NA_real_
+} else {
+  out$e2_pairs_total <- 0L; out$e2_pairs_close <- 0L
+  out$e2_pairs_close_max_cover_gap <- NA_real_
+}
+
 ## PRIMARY 3 ON E2, which the protocol implied was computable there without ever
 ## giving it an N or a value. E2's confounded family is 8 scenarios against E1's
 ## 144, so the two are different analyses and the document has to say which

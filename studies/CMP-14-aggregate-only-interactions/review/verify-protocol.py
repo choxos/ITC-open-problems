@@ -168,7 +168,7 @@ check("the eff_rank warning is described as comparing to the parameter count",
 # --- round 8's own numbers, bound to the export ------------------------------
 _pc = DESIGN["pairs_close"]; _pd = DESIGN["pairs_close_same_display"]
 check("the display-agreement count matches the export",
-      f"**{_pd} of the\n{_pc}**" in RAW, f"export says {_pd} of {_pc}")
+      f"**{_pd} of E1's\n{_pc}**" in RAW, f"export says {_pd} of {_pc}")
 check("the worst pair's contractions match the export",
       f"**{DESIGN['pairs_worst_contractions'][0]} and "
       f"{DESIGN['pairs_worst_contractions'][1]}**" in PROTOCOL,
@@ -468,8 +468,8 @@ check("state separation is not called a withdrawal criterion for E1",
       "state separation is not E1's conclusion" in PROTOCOL,
       "the six comparisons are still presented as withdrawing a primary")
 check("primary 2 states its measured gap rather than claiming arbitrariness",
-      f"**at least that much**" in PROTOCOL
-      and f"which is **{DESIGN['pairs_close_max_cover_gap']}**" in PROTOCOL,
+      "**at least that much**" in PROTOCOL
+      and f"**On E1 that is {DESIGN['pairs_close_max_cover_gap']}**" in PROTOCOL,
       "primary 2 claims more than a finite maximum can support")
 check("primary 2 says whether discordance is a matching key",
       "Discordance\nis deliberately NOT a matching key" in RAW,
@@ -499,6 +499,23 @@ check("the middle band's alarm rate explains the false-alarm direction",
 check("the strata are labeled with the arm they come from",
       "**on E1**, 0.2232 at discordance 0.15" in PROTOCOL,
       "the E1 strata could be read as an E2 registration")
+
+check("primary 2's E1 numbers are labeled with their arm",
+      f"**On E1 that is {DESIGN['pairs_close_max_cover_gap']}**" in PROTOCOL,
+      "a primary-2 number is reported without an arm")
+check("primary 2 on E2 is reported, not merely asserted to run",
+      f"**{DESIGN['e2_pairs_close']}** is close, with a coverage gap of "
+      f"**{DESIGN['e2_pairs_close_max_cover_gap']}**" in PROTOCOL,
+      f"export says {DESIGN['e2_pairs_close']} of {DESIGN['e2_pairs_total']}")
+check("the reproduction summary covers all three primaries",
+      "One of three reproduces, one is untestable" in PROTOCOL,
+      "section 9 does not say which primaries reproduce")
+check("no passage still says the six comparisons withdraw E1's conclusion",
+      "withdraw E1's conclusion" not in PROTOCOL,
+      "the revoked criterion is still asserted somewhere")
+check("the stated-once claim is stated as an aim, not a guarantee",
+      "intended to be stated once" in PROTOCOL,
+      "the document claims a property round 9 disproved")
 
 # --- the history is complete and elsewhere ------------------------------------
 check("the change history is a separate document",

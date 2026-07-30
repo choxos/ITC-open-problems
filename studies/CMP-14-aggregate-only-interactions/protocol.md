@@ -6,11 +6,14 @@ on IDN-06 *ML-NMR interactions can rest solely on aggregate-data variation*.
 **Reporting standard.** ADEMP (Morris, White and Crowther 2019,
 [doi:10.1002/sim.8086](https://doi.org/10.1002/sim.8086)).
 
-**Change history is in [`CHANGES.md`](CHANGES.md), not here.** Eight rounds of critique returned
-**148** fatal and serious findings between **3** reviewers, counted as returned rather than
+**Change history is in [`CHANGES.md`](CHANGES.md), not here.** Nine rounds of critique returned
+**157** fatal and serious findings between **3** reviewers, counted as returned rather than
 deduplicated. GLM contributed only in round 8, having been unavailable before it. The recurring one was an internal inconsistency: a claim withdrawn in one section and
 still standing in another, which came from rewriting this document in layers. **Every position is
-now stated once**, and what it replaced is in the history.
+intended to be stated once**, and what it replaced is in the history. That is a discipline rather
+than a guarantee: round 9 found the withdrawn state-separation criterion still asserted in two
+places after section 8 revoked it, so the claim has been false at least once in every recent draft
+and is stated as an aim.
 
 **Provenance, stated for what it does rather than for what it sounds like.** **The assertion is the
 guarantee; emission is a convenience.** `R/05-export.R` writes every quantity this document quotes to
@@ -18,7 +21,7 @@ guarantee; emission is a convenience.** `R/05-export.R` writes every quantity th
 which round 9 found quoted here and read by nothing: the verifier had the route taxonomy's expected
 entries written into it as constants, so a change in `R/08-routes.R` would have left document and
 guard agreeing and both wrong. `review/verify-protocol.py` then checks the document against that
-file, currently **182** assertions, and that is the link that catches a stale or invented number.
+file, currently **187** assertions, and that is the link that catches a stale or invented number.
 `review/emit-tables.py` regenerates a handful of sentences from the same export so they need not be
 retyped; it covers **some** numbers, not all, and **it now fails when one of its patterns matches
 nothing** rather than reporting success. Round 6 found it targeting a sentence an earlier rebuild had
@@ -73,7 +76,10 @@ the guard now sweeps the distinct cells of `build_grid_e2()` itself. An earlier 
 placebo arms sit at prevalence 0.3, which is true nowhere. `R/07-run-e2.R` computes the range over the
 registered grid and **stops the run if any arm comes within 5e-5 of 0.3**, which is the precision
 this document quotes it to. An earlier version stopped only on exact equality, which floating point
-makes almost inert: every arm could sit at 0.2999 with the guard silent and this sentence false. The two models are different and the sections that use
+makes almost inert. **5e-5 is exactly "rounds to 0.3000 at the four decimals this document quotes"**,
+which is the event that would make the sentence beside it read false. It does not catch 0.2999: that
+value rounds to 0.2999, reads as different from 0.3, and is not the failure mode. An earlier draft
+offered 0.2999 as the motivating counterexample, which the tolerance does not and should not trip. The two models are different and the sections that use
 them say which.
 
 **$\sigma^2$ is fixed and known** at $\sigma = 1$. That is not incidental: the closed-form posterior
@@ -248,9 +254,9 @@ undefined.** In all `absent` scenarios the target's full likelihood precision is
 ratio has a zero denominator. Two code paths used to disagree about that: the overlap table
 substituted **zero**, putting an invented value at the alarming end of the candidate's range, while
 the warning rule read the missing value as an **alarm**. Neither is the registered rule
-`surv_between < SOURCE_OK`. **Both now report undefined and exclude the row**, so the candidate's
-comparison runs on 402 scenarios with **18** excluded and its warning
-on the same basis with **72** excluded. Nothing is lost by this: a coordinate the
+`surv_between < SOURCE_OK`. **Both now report undefined and exclude the row.** On E1 the candidate's
+comparison runs on 402 scenarios with **18** excluded and its warning on the same basis with **72**
+excluded; those counts are E1's, and E2 excludes its own `absent` rows on the same rule. Nothing is lost by this: a coordinate the
 likelihood does not identify at all is exactly what `rank_screen` exists to flag, and it does.
 
 **It has exactly two forms, both survivals, both reassuring when high.** `surv_between` deletes the
@@ -379,14 +385,23 @@ scenario pairs with every `ecological` scenario sharing its three keys. That is 
 comparison is between a randomized route and a confounded one, and fixing discordance at zero would
 remove the confounding the contrast exists to price. The rule is `key = (spread, n, prior_sd)` in
 `state_pairs()` and it was unstated until round 8. Within that matched set, take the pairs whose **contraction differs by less than `PAIRS_CLOSE_TOL = 0.02`** and
-report the **maximum absolute coverage gap** across them, which is **0.951**.
+report the **maximum absolute coverage gap** across them. **On E1 that is 0.951**, over
+54 close pairs drawn from 216.
+
+**On E2 the same rule finds almost nothing to test**: 16 matched pairs, of which
+**1** is close, with a coverage gap of **0**.
+That is not a contradiction of the E1 result, it is an absence of evidence: E2's grid has two spreads
+where E1 has six and two budgets where E1 has three, so it produces too few matched pairs at
+comparable contraction for the comparison to bite. **Primary 2 is therefore an E1 result, and E2
+neither confirms nor refutes it.** The arm is named because a number reported without one reads as
+the study's, and until round 9 this one did.
 The claim is that two evidence structures a reader would call identically well identified differ by
 **at least that much** in whether the interval covers. An earlier wording said "arbitrarily", which a
 finite maximum over a finite grid cannot establish.
 
 The tolerance is absolute closeness, and **that is not the same as displaying identically**. An
 earlier version justified 0.02 by saying two contractions within it are "the same number to anyone
-reading a diagnostic to two decimals"; only **15 of the
+reading a diagnostic to two decimals"; only **15 of E1's
 54** pairs passing the filter actually round to the same two decimals, and the pair
 producing the largest coverage gap is not among them: its contractions are
 **0.067771 and 0.081321**, which display as 0.07
@@ -560,10 +575,10 @@ of the information matrix, so replacing the Fisher information with the observed
 moves it: **6 of the 72 scenarios change their count and 2 flip the `eff_rank < p` warning**. An
 earlier version of this sentence said it was unaffected, which treated "a property of the information
 matrix" as if it meant "a property invariant to which matrix". `eff_rank` is one of the six
-comparisons that can withdraw E1's conclusion, so this is a limitation of that verdict and not a
-footnote.
+state-separation comparisons, so this limits **that** verdict; it does not touch E1's conclusion,
+which the state-separation rule does not test.
 
-### E2's separation rules, and what withdrawing E1's conclusion would take
+### E2's separation rules, which test state separation and not E1's conclusion
 
 These were rebuilt in round 3 after E2's output had been read, which is why section 1 calls every
 part of E2 exploratory. They were also stated nowhere in this document until round 7, so the E2
@@ -610,6 +625,11 @@ does not reproduce.
   this bullet chained the non-Gaussian worry to that number and called it the largest caveat, which
   offers the wrong reference quantity as a bound. **The 20.11% bounds the choice of Gaussian; it does
   not bound Gaussianity.**
+- **What reproduces on the nonlinear arm and what does not, primary by primary.** Primary 1
+  **reproduces**: every statistic overlaps on E2 as on E1. Primary 2 is **untested** there:
+  16 matched pairs yield 1 close one, so the E1 gap of
+  0.951 is neither confirmed nor refuted. Primary 3 **reverses sign**.
+  One of three reproduces, one is untestable on the grid as registered, and one goes the other way.
 - **The E1 finding does not reproduce on the nonlinear arm.** Primary 3's rank correlation between
   contraction and coverage is $+0.3295$ over E1's 144 confounded scenarios and $-0.5952$ over E2's 8.
   The signs are opposite, so the inversion E1 reports is not a property of the diagnostic that

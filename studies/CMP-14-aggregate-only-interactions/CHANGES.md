@@ -3,7 +3,7 @@
 **This file is the change history. `protocol.md` is what is registered now.**
 
 They were one document until the fifth round of critique, and separating them is a
-fix rather than tidying. Eight rounds of critique returned **148 fatal and serious findings** between two
+fix rather than tidying. Nine rounds of critique returned **157 fatal and serious findings** between two
 reviewers, counted as the table below counts them: findings **as returned**, so a defect
 found again in a later round is counted again, and the minor findings are not in that
 total. **It is not a count of distinct defects and no such count is claimed.** An earlier
@@ -44,6 +44,8 @@ review**, and it matters what it showed.
 | 8 | codex | unsound | 1 | 7 |
 | 8 | grok | unsound | 3 | 5 |
 | 8 | glm | needs-revision | 4 | 1 |
+| 9 | codex | unsound | 1 | 4 |
+| 9 | grok | needs-revision | 1 | 3 |
 
 **Seven topics were raised independently by both reviewers in round 5**: the
 equal-SD guard's hidden baseline restriction, the source statistic not being a
@@ -615,3 +617,57 @@ quoted wording round 7 had already replaced.
 **The record for this study now reads: a reviewer that fails is not a reviewer
 that agrees, and a reviewer that speaks is not a reviewer that is right.** Both
 halves have cost real work to learn.
+
+## Round 9: every finding was a round-8 repair that stopped halfway
+
+Round 9 was asked to look hardest at round 8's repairs, and every finding it
+returned is one. That is the third consecutive round where the previous round's
+fixes were the richest seam, and it is the reason the instruction now stands in
+the preamble.
+
+**A criterion revoked in prose and left running in code.** Round 8 established
+that the six state-separation comparisons cannot withdraw E1's conclusion, and
+`e2_verdict()` went on computing `withdraw_e1` from them, exporting it, and
+printing "E1's conclusion is withdrawn". Two sentences and a section heading also
+survived the revocation. A future separation would have had the software withdraw
+E1 while the E2 overlap test said it reproduces.
+
+**A guard cited for a check that did not exist.** The protocol said `R/09-smoke.R`
+established E1's pointwise aliasing identity to 1.8e-15. The smoke test computed
+only the scalar bias identity; the number came from a scratch script and was typed
+into prose next to the words naming the guard. **That is round 7's typed truth
+table wearing a guard's clothes**, and it is worse, because a reader who checks
+the cited file finds a real check that is not the claimed one. The identity now
+runs over all 504 E1 scenarios and both gaps are exported.
+
+**A staleness guard whose premise had expired.** The verifier excluded
+`R/05-export.R` from its newest-code check, on the reasoning that the exporter
+only consumes artifacts. That was true when written and stopped being true when
+the exporter began computing values; editing it after a run left a stale export
+that all assertions passed against.
+
+**A taxonomy asserted against a constant.** The four-row route table is the
+thesis's foundation, and `review/verify-protocol.py` had its expected entries
+written in as literals. A change in `R/08-routes.R` would have left document and
+guard agreeing and both wrong. The table is exported and compared to the run.
+
+**Numbers reported without the arm they came from.** Primary 2's 0.951 over 54
+close pairs, and the candidate's 402/18/72 exclusion counts, sit in sections that
+cover both arms and are E1's alone; E2's grid cannot produce them. Worse, section
+8 asserted primary 2 runs on E2 and **no result line for it existed**. It does
+now, and it is a negative one: **16 matched pairs, 1 close, coverage gap 0.** E2's
+grid has two spreads where E1 has six, so it produces too few comparable pairs for
+the test to bite. **Primary 2 is an E1 result and E2 neither confirms nor refutes
+it.**
+
+That completes the reproduction picture, which section 9 now states in one place:
+**primary 1 reproduces on the nonlinear arm, primary 2 is untestable there, and
+primary 3 reverses sign.** One of three.
+
+**And the document's own meta-claim was false.** "Every position is now stated
+once" could not survive a round that found one revoked criterion asserted in three
+places. It is an aim now, not a guarantee.
+
+Two smaller ones: the nuisance-prior denominator counted 3,528 slots when 72 hold
+no decision, and the header credited 148 findings to two reviewers when the table
+names three.
