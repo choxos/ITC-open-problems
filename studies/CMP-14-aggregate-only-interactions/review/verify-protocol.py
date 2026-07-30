@@ -30,7 +30,22 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 RAW = (ROOT / "protocol.md").read_text()
 PROTOCOL = re.sub(r"\s+", " ", RAW)
-DESIGN = json.loads((ROOT / "results" / "registered-design.json").read_text())
+DESIGN_PATH = ROOT / "results" / "registered-design.json"
+DESIGN = json.loads(DESIGN_PATH.read_text())
+
+# THE EXPORT MUST BE NEWER THAN THE CODE, OR THIS SCRIPT CERTIFIES NOTHING.
+#
+# R/05-export.R refuses to write when an artifact predates the code that produces
+# it. That guard is bypassed trivially: if the exporter stops with an error, the
+# PREVIOUS export is still on disk and this script happily passes against it. That
+# happened immediately after the guard was added, and the run printed a clean
+# 125/125 against an export the exporter had just declined to refresh.
+_newest_code = max(f.stat().st_mtime for f in (ROOT / "R").iterdir() if f.is_file())
+if DESIGN_PATH.stat().st_mtime < _newest_code:
+    raise SystemExit(
+        "registered-design.json predates the code in R/, so every assertion below "
+        "would be checked against a stale export. Run Rscript R/05-export.R first; "
+        "if it refuses, rerun the experiments it names.")
 
 fails: list[str] = []
 checks = 0

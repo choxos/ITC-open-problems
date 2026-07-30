@@ -127,13 +127,28 @@ build_state_nl <- function(state, spread, sd_ratio, total_n) {
 ## leave the target unidentified whatever their SDs. On a logit link they must
 ## identify it as soon as the SDs differ. Both halves are checked, because the
 ## first version of this design asserted the mechanism and got it wrong.
-check_curvature_rank <- function(total_n = 3000L) {
+## ROUND 5: THIS GUARD STILL PASSED FOR THE WRONG REASON.
+##
+## Round 4 found that equal-SD non-identifiability holds only when the two target
+## studies share a baseline, and R/08-routes.R documented it. The guard itself was
+## left reading `theta_true`, which sets every intercept equal, so it kept
+## certifying a mechanism whose stated restriction it did not test. Documenting a
+## defect is not fixing it, and a guard that passes under an unregistered
+## restriction is worse than no guard because it looks like evidence.
+##
+## The guard now checks BOTH baseline configurations and requires the equal-SD
+## claim to hold only where the restriction holds, which is what makes the
+## restriction visible instead of silent.
+check_curvature_rank <- function(total_n = 3000L, baseline_offset = 0) {
   out <- list()
   for (r in c(1.0, 2.0)) {
     net <- build_state_nl("curvature", spread = 0, sd_ratio = r, total_n)
     b <- build_design(net)
     gi <- gi_of(b)
     th <- theta_true(b)
+    ## The second target study's baseline. Zero is the registered restriction that
+    ## isolates the variance route; nonzero is the configuration round 4 found.
+    if (baseline_offset != 0) th[5] <- th[5] + baseline_offset
     ## Identity link: the exact information already used by E1.
     I_id <- crossprod(b$X * sqrt(b$prec))
     ## Logit link, same network.
@@ -155,21 +170,42 @@ check_curvature_rank <- function(total_n = 3000L) {
 if (!interactive() && Sys.getenv("NL_NOMAIN") == "") {
   suppressPackageStartupMessages(library(MASS))
   cat("=== is the curvature state identified, and by what? ===\n")
-  ck <- check_curvature_rank()
+  ck <- check_curvature_rank(baseline_offset = 0)
+  ck_b <- check_curvature_rank(baseline_offset = 0.8)
+  cat("  with EQUAL target-study baselines, the registered restriction:\n")
   for (nm in names(ck)) {
     z <- ck[[nm]]
-    cat(sprintf("  SD ratio %.1f : identity link estimable %-5s | logit estimable %-5s\n",
+    cat(sprintf("    SD ratio %.1f : identity %-5s | logit %-5s\n",
                 z$sd_ratio, z$identity_estimable, z$logit_estimable))
   }
-  cat("\nExpected, and the reason curvature is a nonlinear-only state:\n")
-  cat("  equal SDs   -> NOT estimable on either link (two identical equations)\n")
-  cat("  unequal SDs -> NOT estimable on the identity link, estimable on logit\n")
+  cat("  with UNEQUAL baselines, which round 4 found the guard was hiding:\n")
+  for (nm in names(ck_b)) {
+    z <- ck_b[[nm]]
+    cat(sprintf("    SD ratio %.1f : identity %-5s | logit %-5s\n",
+                z$sd_ratio, z$identity_estimable, z$logit_estimable))
+  }
+  stopifnot(
+    "the equal-SD claim does not hold even under its own restriction"
+      = !ck[["1"]]$logit_estimable && !ck[["1"]]$identity_estimable,
+    "unequal baselines do NOT identify the target, so round 4's finding is wrong"
+      = ck_b[["1"]]$logit_estimable)
+  cat("\nWhat this shows, stated with the restriction it needs:\n")
+  cat("  UNDER EQUAL TARGET-STUDY BASELINES, equal SDs identify nothing on either\n")
+  cat("  link, and unequal SDs identify the target on the logit link only. That is\n")
+  cat("  what makes the variance contrast a nonlinear-only route.\n")
+  cat("  WITHOUT that restriction the claim is false: unequal baselines identify\n")
+  cat("  the target on the logit link with equal SDs, so the variance contrast is\n")
+  cat("  one nonlinear route among several rather than the unique one. See\n")
+  cat("  R/08-routes.R for the three routes this design can exhibit.\n")
   ## Round 2: the first version omitted the equal-SD IDENTITY half, so the state
   ## could have stopped being nonlinear-only while this still printed TRUE. All
   ## four cells of the two-by-two are required.
   ok <- !ck[["1"]]$logit_estimable && !ck[["1"]]$identity_estimable &&
         !ck[["2"]]$identity_estimable && ck[["2"]]$logit_estimable
   cat(sprintf("\nmechanism holds: %s\n", ok))
-  saveRDS(list(check = ck, holds = ok), "results/curvature-rank.rds")
+  saveRDS(list(check = ck, check_unequal_baseline = ck_b, holds = ok,
+               equal_sd_needs_equal_baseline =
+                 !ck[["1"]]$logit_estimable && ck_b[["1"]]$logit_estimable),
+          "results/curvature-rank.rds")
   cat("written: results/curvature-rank.rds\n")
 }

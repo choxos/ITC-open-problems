@@ -239,8 +239,9 @@ load skills.
             # a section it was not shown, and that limitation is recorded in the
             # manifest rather than left for a reader to infer.
             chunks = split_protocol(protocol, SPLIT_BUDGET)
-            print(f"[{tag}] whole-document review failed twice; splitting into "
-                  f"{len(chunks)} parts", flush=True)
+            why = ("forced by --split" if args.split
+                   else "whole-document review failed twice")
+            print(f"[{tag}] {why}; splitting into {len(chunks)} parts", flush=True)
             pieces = []
             for i, (name, chunk) in enumerate(chunks, 1):
                 sub = PREAMBLE + f"""
