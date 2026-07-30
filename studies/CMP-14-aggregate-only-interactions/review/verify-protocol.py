@@ -677,11 +677,22 @@ check("the rank_screen leg is called half structural, not unfalsifiable",
 check("the mean-and-SD claim is scoped to the registered family",
       "given the Normal within-study law registered below" in PROTOCOL,
       "the withdrawn wording is still the operative sentence")
+_CAND_FIELDS = ("e2_curvature_surv", "e2_ecological_surv", "e2_surv_sd_curvature",
+                "e2_surv_sd_ecological", "e2_surv_sd_separates")
 check("every exported E2 candidate measurement carries its standing",
-      all(DESIGN[k]["standing"] == "post-hoc-candidate" for k in
-          ("e2_curvature_surv", "e2_ecological_surv", "e2_surv_sd_curvature",
-           "e2_surv_sd_ecological", "e2_surv_sd_separates")),
+      all(DESIGN[k]["standing"] == "post-hoc-candidate" for k in _CAND_FIELDS),
       "a candidate measurement is exported bare")
+# ROUND 13: THE GUARANTEE MUST HOLD IN THE SOURCE ARTIFACT, NOT ONLY THE EXPORT.
+# Round 12 wrapped these values on their way into the JSON while
+# results/e2-verdict.rds kept bare fields beside one detached standing, and this
+# file read only the wrapped copy, so 221 assertions passed over it. The standing
+# now travels with the value from the artifact that computes it, and this checks
+# that the export did not add it.
+check("the standing comes from the verdict artifact, not from the exporter",
+      "._cand" not in (ROOT / "R" / "05-export.R").read_text()
+      and 'cand <- function(x) list(standing = STANDING[["source_survival"]]'
+          in (ROOT / "R" / "07-run-e2.R").read_text(),
+      "the exporter is still labeling values the verdict left bare")
 
 # --- the history is complete and elsewhere ------------------------------------
 check("the change history is a separate document",
@@ -701,8 +712,20 @@ check("the history keeps the full disclosure list",
 # table summed to 85, with no stated deduplication, so the document's provenance
 # claim did not survive its own arithmetic. The total is now computed from the
 # table in both files rather than typed into either.
-_WORDS_R = ["", "one", "two", "three", "four", "five", "six", "seven",
-            "eight", "nine", "ten", "eleven", "twelve"]
+# ROUND 13: THIS LIST STOPPED AT TWELVE, having already once stopped at seven.
+# The same guard has now failed to grow with the study twice, so it derives its
+# word list instead of enumerating one.
+def _word(n: int) -> str:
+    _ones = ["", "one", "two", "three", "four", "five", "six", "seven", "eight",
+             "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen",
+             "sixteen", "seventeen", "eighteen", "nineteen"]
+    _tens = ["", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy",
+             "eighty", "ninety"]
+    if n < len(_ones):
+        return _ones[n]
+    if n < 100:
+        return _tens[n // 10] + ("-" + _ones[n % 10] if n % 10 else "")
+    raise ValueError(f"no word form registered for {n} rounds")
 # Round 10 is two digits; the original pattern matched one and silently
 # dropped the row, so the total went stale the moment the study reached ten
 # rounds. A guard that stops seeing new data is a guard that stops working.
@@ -730,7 +753,7 @@ check("the protocol's finding total is the same number",
       f"**{_total}** fatal and serious findings" in PROTOCOL,
       f"the table sums to {_total}")
 check("both documents agree on the round count",
-      f"{_WORDS_R[_rounds]} rounds of critique returned" in PROTOCOL.lower(),
+      f"{_word(_rounds)} rounds of critique returned" in PROTOCOL.lower(),
       f"the table covers {_rounds} rounds")
 check("the total is labeled as counted-as-returned, not deduplicated",
       "counted as returned rather than" in PROTOCOL,

@@ -237,20 +237,20 @@ ok("no registered separation rule fires", !isTRUE(v$any_state_separation),
 ## construction, so it is checked as a CONSTRUCTIONAL fact rather than as
 ## evidence, and the statistic that can actually fire is checked separately.
 ok("surv_between is zero in both aggregate-only states, by construction",
-   identical(v$curvature_surv, 0) && identical(v$ecological_surv, 0),
+   identical(v$curvature_surv$value, 0) && identical(v$ecological_surv$value, 0),
    sprintf("curvature %s, ecological %s",
-           paste(v$curvature_surv, collapse = ","),
-           paste(v$ecological_surv, collapse = ",")))
+           paste(v$curvature_surv$value, collapse = ","),
+           paste(v$ecological_surv$value, collapse = ",")))
 ok("the three-way split separates the two aggregate routes",
-   isTRUE(v$surv_sd_separates),
+   isTRUE(v$surv_sd_separates$value),
    sprintf("curvature %s, ecological %s",
-           paste(v$surv_sd_curvature, collapse = "-"),
-           paste(v$surv_sd_ecological, collapse = "-")))
+           paste(v$surv_sd_curvature$value, collapse = "-"),
+           paste(v$surv_sd_ecological$value, collapse = "-")))
 ## ROUND 6 FLIPPED THIS. `surv_sd` was the fraction LOST when the SD contrast
 ## is flattened; it is now the fraction SURVIVING, so "the curvature route
 ## carries nothing here" reads as 1 rather than 0.
 ok("the curvature route is absent from the mean-gradient state",
-   all(v$surv_sd_ecological == 1))
+   all(v$surv_sd_ecological$value == 1))
 
 cat(sprintf("\n%s\n", strrep("-", 70)))
 if (length(fails)) {

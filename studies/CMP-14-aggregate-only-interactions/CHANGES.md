@@ -3,7 +3,7 @@
 **This file is the change history. `protocol.md` is what is registered now.**
 
 They were one document until the fifth round of critique, and separating them is a
-fix rather than tidying. Twelve rounds of critique returned **180 fatal and serious findings** between three
+fix rather than tidying. Thirteen rounds of critique returned **181 fatal and serious findings** between three
 reviewers, counted as the table below counts them: findings **as returned**, so a defect
 found again in a later round is counted again, and the minor findings are not in that
 total. **It is not a count of distinct defects and no such count is claimed.** An earlier
@@ -56,6 +56,9 @@ review**, and it matters what it showed.
 | 12 | codex | needs-revision | 0 | 3 |
 | 12 | grok | needs-revision | 0 | 2 |
 | 12 | glm | **sound** | 0 | 0 |
+| 13 | codex | needs-revision | 0 | 1 |
+| 13 | grok | **sound** | 0 | 0 |
+| 13 | glm | **sound** | 0 | 0 |
 
 **Seven topics were raised independently by both reviewers in round 5**: the
 equal-SD guard's hidden baseline restriction, the source statistic not being a
@@ -978,3 +981,42 @@ match it, so that row would have dropped from the finding total silently. It
 contributed 0 + 0, so nothing moved, which is exactly how this survives. After the
 number-word list that stopped at seven and the round number that matched one
 digit, the parser now **counts its own rows against the table's line count**.
+
+## Round 13: two sound verdicts, one last detached guarantee, and a stop
+
+**Grok and GLM both returned `VERDICT: sound`.** Grok listed what it rechecked,
+rate by rate, and closed "No manufactured findings." GLM closed "After twelve
+rounds a clean verdict is the useful output." Codex returned **one** serious
+finding and it was exactly right.
+
+**The standing guarantee held in the derived artifact and not in the source
+one.** Round 12 attached `post-hoc-candidate` to the E2 candidate's printed lines
+and wrapped its values on the way into the JSON, and left `results/e2-verdict.rds`
+with bare fields beside a single detached `candidate_standing`. **The verifier read
+only the wrapped copy, so all 221 assertions passed over it.** The standing now
+travels with each value from the artifact that computes it, the exporter passes
+them through instead of labeling them a second time, and an assertion checks that
+the exporter is not the one doing the labeling.
+
+That is the study's recurring shape in its final instance: **a guarantee stated
+once and implemented at one of the two places it has to hold**, with the guard
+positioned where it could not see the gap.
+
+**And the number-word guard failed to grow with the study for the second time.**
+It stopped at "seven" in round 8 and at "twelve" here. It derives its word form
+now rather than enumerating one, which is the fix that should have been made the
+first time.
+
+### Where this stops
+
+Thirteen rounds, **181 fatal and serious findings**, three reviewers. The last
+three rounds returned no fatal finding from anyone; the serious count ran 11, 7,
+5, 1; and rounds 12 and 13 produced three `sound` verdicts between them. **The
+critique has converged and this is where it stops.**
+
+Nothing about that makes the study confirmatory. Section 1 still governs: E1 ran
+before the document existed, every E2 rule was rebuilt after its output had been
+read, and the candidate is post hoc in both its forms. **What thirteen rounds
+bought is not confidence in the result but a document whose every number is
+derived from the code that computes it and asserted back**, 222 times, with the
+history of every withdrawn claim kept beside it.

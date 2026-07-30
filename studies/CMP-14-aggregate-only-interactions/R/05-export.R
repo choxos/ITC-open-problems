@@ -314,12 +314,13 @@ out$e2_candidate_standing <- ev$candidate_standing
 ## Each candidate measurement is exported as a labeled object rather than as a
 ## bare number beside a detached standing field, so the standing travels with the
 ## value wherever it is read.
-._cand <- function(x) list(standing = ev$candidate_standing, value = x)
-out$e2_curvature_surv <- ._cand(ev$curvature_surv)
-out$e2_ecological_surv <- ._cand(ev$ecological_surv)
-out$e2_surv_sd_curvature <- ._cand(ev$surv_sd_curvature)
-out$e2_surv_sd_ecological <- ._cand(ev$surv_sd_ecological)
-out$e2_surv_sd_separates <- ._cand(ev$surv_sd_separates)
+## Round 13: the verdict artifact now carries the standing on each value, so the
+## export passes them through rather than wrapping bare numbers a second time.
+out$e2_curvature_surv <- ev$curvature_surv
+out$e2_ecological_surv <- ev$ecological_surv
+out$e2_surv_sd_curvature <- ev$surv_sd_curvature
+out$e2_surv_sd_ecological <- ev$surv_sd_ecological
+out$e2_surv_sd_separates <- ev$surv_sd_separates
 out$e2_by_state <- lapply(split(e2, e2$state), function(z) list(
   state = z$state[1], n = nrow(z),
   ## Every exported row carrying a candidate value carries its standing.

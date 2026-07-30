@@ -347,18 +347,26 @@ e2_verdict <- function(res) {
   ## field kept the old name and the old print, so the software could still
   ## announce that E1 was withdrawn on a criterion the protocol says cannot
   ## withdraw it. It is named for its proposition now.
+  ## ROUND 13: THE STANDING TRAVELS WITH EACH VALUE IN THE SAVED ARTIFACT TOO.
+  ## Round 12 labeled the printed lines and wrapped the values in the JSON export
+  ## and left `results/e2-verdict.rds` with bare fields beside one detached
+  ## `candidate_standing`. The verifier read only the wrapped export, so every
+  ## assertion passed while the saved outcome still packaged a post hoc result
+  ## like a registered one. A guarantee that holds in the derived artifact and
+  ## not in the source artifact is not the guarantee this document states.
+  cand <- function(x) list(standing = STANDING[["source_survival"]], value = x)
   list(rules = rules,
        any_state_separation = isTRUE(any(rules$separates)),
        candidate_standing = STANDING[["source_survival"]],
-       curvature_surv = unique(rows_for("curvature")$surv_between[
-         !is.na(rows_for("curvature")$surv_between)]),
-       ecological_surv = unique(rows_for("ecological")$surv_between[
-         !is.na(rows_for("ecological")$surv_between)]),
+       curvature_surv = cand(unique(rows_for("curvature")$surv_between[
+         !is.na(rows_for("curvature")$surv_between)])),
+       ecological_surv = cand(unique(rows_for("ecological")$surv_between[
+         !is.na(rows_for("ecological")$surv_between)])),
        surv_between_is_constructional = FALSE,
-       surv_sd_curvature = if (length(cs)) range(cs) else NA,
-       surv_sd_ecological = if (length(es)) range(es) else NA,
-       surv_sd_separates = length(cs) > 0 && length(es) > 0 &&
-         (min(cs) > max(es) || min(es) > max(cs)))
+       surv_sd_curvature = cand(if (length(cs)) range(cs) else NA),
+       surv_sd_ecological = cand(if (length(es)) range(es) else NA),
+       surv_sd_separates = cand(length(cs) > 0 && length(es) > 0 &&
+         (min(cs) > max(es) || min(es) > max(cs))))
 }
 
 if (!interactive() && Sys.getenv("E2_NOMAIN") == "") {
@@ -393,13 +401,13 @@ if (!interactive() && Sys.getenv("E2_NOMAIN") == "") {
   ## it, and a printed result is a reported occurrence.
   cat(sprintf("[%s] surv_between  curvature: %s | ecological: %s  (0 in both by construction)\n",
               v$candidate_standing,
-              paste(v$curvature_surv, collapse = ", "),
-              paste(v$ecological_surv, collapse = ", ")))
+              paste(v$curvature_surv$value, collapse = ", "),
+              paste(v$ecological_surv$value, collapse = ", ")))
   cat(sprintf("[%s] surv_sd       curvature: %s | ecological: %s | separates them: %s\n",
               v$candidate_standing,
-              paste(v$surv_sd_curvature, collapse = "-"),
-              paste(v$surv_sd_ecological, collapse = "-"),
-              v$surv_sd_separates))
+              paste(v$surv_sd_curvature$value, collapse = "-"),
+              paste(v$surv_sd_ecological$value, collapse = "-"),
+              v$surv_sd_separates$value))
   ## --- PLACEBO PREVALENCE IS 0.3 AT x = 0, NOT IN THE ARM --------------------
   ##
   ## The protocol said "placebo arms sit at prevalence 0.3". The code sets

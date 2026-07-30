@@ -6,11 +6,11 @@ on IDN-06 *ML-NMR interactions can rest solely on aggregate-data variation*.
 **Reporting standard.** ADEMP (Morris, White and Crowther 2019,
 [doi:10.1002/sim.8086](https://doi.org/10.1002/sim.8086)).
 
-**Change history is in [`CHANGES.md`](CHANGES.md), not here.** Twelve rounds of critique returned
-**180** fatal and serious findings between **3** reviewers, counted as returned rather than
+**Change history is in [`CHANGES.md`](CHANGES.md), not here.** Thirteen rounds of critique returned
+**181** fatal and serious findings between **3** reviewers, counted as returned rather than
 deduplicated. GLM was unavailable in rounds 5 to 7 and reviewed in
-rounds 8 through 12. Across those five it has returned **eight fatal findings, every one wrong**, and
-**one** accepted serious finding; in round 12 it returned a `sound` verdict. `CHANGES.md` records the arithmetic. The recurring one was an internal inconsistency: a claim withdrawn in one section and
+rounds 8 through 13. Across those five it has returned **eight fatal findings, every one wrong**, and
+**one** accepted serious finding; it returned `sound` verdicts in rounds 12 and 13. `CHANGES.md` records the arithmetic. The recurring one was an internal inconsistency: a claim withdrawn in one section and
 still standing in another, which came from rewriting this document in layers. **Every position is
 intended to be stated once**, and what it replaced is in the history. That is a discipline rather
 than a guarantee: round 9 found the withdrawn state-separation criterion still asserted in two
@@ -23,7 +23,7 @@ guarantee; emission is a convenience.** `R/05-export.R` writes every quantity th
 which round 9 found quoted here and read by nothing: the verifier had the route taxonomy's expected
 entries written into it as constants, so a change in `R/08-routes.R` would have left document and
 guard agreeing and both wrong. `review/verify-protocol.py` then checks the document against that
-file, currently **221** assertions, and that is the link that catches a stale or invented number.
+file, currently **222** assertions, and that is the link that catches a stale or invented number.
 `review/emit-tables.py` regenerates a handful of sentences from the same export so they need not be
 retyped; it covers **some** numbers, not all, and **it now fails when one of its patterns matches
 nothing** rather than reporting success. Round 6 found it targeting a sentence an earlier rebuild had
