@@ -266,10 +266,23 @@ separating "curvature breaks it" from "we ported it wrong".**
 | Non-collapsibility and non-proportional hazards confounded in the survival arm | Weibull PH throughout | removed by construction; the interaction with NPH is out of scope and named |
 | Curvature and overlap both grow with the linear predictor's spread | Overlap held fixed; spread varied only through the covariate-shape arm | disclosed, not removed |
 
-**Design choices made after seeing a number:** none yet. This design precedes all
-probes. Anything that changes after P1 to P4 is added here with the number that
-changed it, following CMP-14, whose eleven-row version of this table is what made
-an exploratory precursor interpretable.
+**Design choices made after seeing a number**, each with the number that caused
+it. This table is the reason an exploratory precursor is interpretable; CMP-14's
+eleven-row version is the model.
+
+| after | what changed | the number |
+|---|---|---|
+| **P1** | Quadrature order registered at **48**, not the 16 or 32 an eye would have picked | The `mixed` covariate arm needs 48 on `cloglog` and 32 on `logit` to reach $10^{-4}$, against 8 to 16 for every continuous law. A thresholded binary covariate is a step function and Gauss-Hermite converges on it slowly. At order 16 the `mixed`/`cloglog` cell is still 4.8e-4 from its own reference, five times the tolerance |
+| **P1** | No arm dropped | Every link and shape reached the tolerance at some order, so the lognormal arm survives. Had it not, section 10 required dropping it |
+| **P1** | Cost of truth confirmed affordable | $48^3 = 110{,}592$ nodes evaluates in **0.24 s**, and truth is computed once per cell rather than once per replicate, so the order that the hardest cell needs is used everywhere. One order for the study means no between-cell difference can come from the integration rule |
+
+**A cheaper exact route exists for the `mixed` arm and is deliberately not taken.**
+The binary covariate could be enumerated over its two states with the continuous
+pair integrated conditionally, which would be exact in that dimension instead of
+slowly convergent. It is not done because the conditional law of the remaining
+covariates given a *truncated* latent is not Gaussian when they are correlated,
+so the exact route needs a second approximation to justify, and a measured 0.24 s
+does not need saving.
 
 ## 10. Probes required before this becomes a protocol
 
