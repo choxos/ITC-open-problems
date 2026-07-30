@@ -210,7 +210,7 @@ evaluate_e2 <- function(row) {
 
   cbind(row, data.frame(
     contraction = contraction, target_ratio = target_ratio,
-    eff_rank = er$eff_rank, estimable = estimable,
+    eff_rank = er$eff_rank, eff_rank_of = er$n_par, estimable = estimable,
     prec_within = w_in, prec_between = w_bt, prec_full = ss$full,
     surv_between = ss$surv_between, surv_sd = ss$surv_sd,
     bias = bias, post_sd = sd_post, samp_sd = sqrt(v_samp),
@@ -364,7 +364,9 @@ e2_verdict <- function(res) {
 if (!interactive() && Sys.getenv("E2_NOMAIN") == "") {
   res <- readRDS("results/e2.rds")
   v <- e2_verdict(res)
-  cat("\n=== the registered withdrawal rules ===\n")
+  cat("\n=== the six state-separation comparisons ===\n")
+  cat("  (a registered proposition in their own right; NOT a withdrawal\n",
+      "   criterion for E1, whose conclusion is primary 1)\n", sep = "")
   print(v$rules, row.names = FALSE)
   cat(sprintf("\nany diagnostic separates the states: %s\n", v$any_state_separation))
   cat("  (this is NOT a withdrawal criterion for E1's conclusion; E1's\n",
@@ -382,7 +384,7 @@ if (!interactive() && Sys.getenv("E2_NOMAIN") == "") {
   cat(sprintf("source SURVIVAL, curvature: %s | ecological: %s | separates them: %s\n",
               paste(v$curvature_surv, collapse = ", "),
               paste(v$ecological_surv, collapse = ", "),
-              v$surv_separates_curvature))
+              v$surv_sd_separates))
   ## --- PLACEBO PREVALENCE IS 0.3 AT x = 0, NOT IN THE ARM --------------------
   ##
   ## The protocol said "placebo arms sit at prevalence 0.3". The code sets

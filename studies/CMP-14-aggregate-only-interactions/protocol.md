@@ -6,8 +6,8 @@ on IDN-06 *ML-NMR interactions can rest solely on aggregate-data variation*.
 **Reporting standard.** ADEMP (Morris, White and Crowther 2019,
 [doi:10.1002/sim.8086](https://doi.org/10.1002/sim.8086)).
 
-**Change history is in [`CHANGES.md`](CHANGES.md), not here.** Nine rounds of critique returned
-**157** fatal and serious findings between **3** reviewers, counted as returned rather than
+**Change history is in [`CHANGES.md`](CHANGES.md), not here.** Ten rounds of critique returned
+**164** fatal and serious findings between **3** reviewers, counted as returned rather than
 deduplicated. GLM contributed only in round 8, having been unavailable before it. The recurring one was an internal inconsistency: a claim withdrawn in one section and
 still standing in another, which came from rewriting this document in layers. **Every position is
 intended to be stated once**, and what it replaced is in the history. That is a discipline rather
@@ -21,7 +21,7 @@ guarantee; emission is a convenience.** `R/05-export.R` writes every quantity th
 which round 9 found quoted here and read by nothing: the verifier had the route taxonomy's expected
 entries written into it as constants, so a change in `R/08-routes.R` would have left document and
 guard agreeing and both wrong. `review/verify-protocol.py` then checks the document against that
-file, currently **189** assertions, and that is the link that catches a stale or invented number.
+file, currently **196** assertions, and that is the link that catches a stale or invented number.
 `review/emit-tables.py` regenerates a handful of sentences from the same export so they need not be
 retyped; it covers **some** numbers, not all, and **it now fails when one of its patterns matches
 nothing** rather than reporting success. Round 6 found it targeting a sentence an earlier rebuild had
@@ -103,7 +103,11 @@ registers the *departures* from the truth; these are the truth they depart from.
 components 1, 2 and 4 had zero modification, which `theta_true()` has never done. That was typed here
 rather than read from the code, and the exporter repeated the same typed zero, so the verifier
 certified a truth the simulation does not use; recomputing under the declared zeros moves E1 coverage
-by up to 0.44 and reclassifies 11 scenarios. **The whole vector is now read off `theta_true()` on a
+by up to **0.4399** and reclassifies **11 of
+504** scenarios. **Those two numbers were quoted from a reviewer for three
+rounds** while the provenance paragraph claimed every quoted quantity is exported;
+`R/10-truth-counterfactual.R` computes them by rerunning the whole grid under the truth this table
+wrongly declared. **The whole vector is now read off `theta_true()` on a
 built design.** Components 1, 2 and 4 are background because their *information state* is held at
 `own_ipd`, not because their effect modification is zero, and the two are different things.
 
@@ -115,7 +119,7 @@ satisfied exactly at $\Gamma_W + \text{shift}$, and the size of the resulting er
 measures. **Section 8 establishes this for E2** (worst pointwise gap 2.22e-16 against a registered
 tolerance of 1e-12). **E1's version is established separately**, in `R/09-smoke.R`: E1's exact
 Gaussian bias, computed with no aliasing algebra in it at all, equals the same
-$\text{shift} - [(I+P_0)^{-1}P_0\theta^{*}]_{\Gamma_3}$ expression to **1.06e-15** over 40
+$\text{shift} - [(I+P_0)^{-1}P_0\theta^{*}]_{\Gamma_3}$ expression to **1.05e-15** over 40
 scenarios, and `mean_true` equals $X\theta^{*}$ pointwise to **1.78e-15** over **all 504** E1
 scenarios. The second of those was quoted here for a round while **no code computed it**: the smoke
 test checked only the scalar bias identity and the number came from a scratch script, which is the
@@ -388,15 +392,21 @@ remove the confounding the contrast exists to price. The rule is `key = (spread,
 report the **maximum absolute coverage gap** across them. **On E1 that is 0.951**, over
 54 close pairs drawn from 216.
 
-**On E2 the same rule finds almost nothing to test**: 16 matched pairs, of which
-**1** is close, with a coverage gap of **0**.
-That is not a contradiction of the E1 result, it is an absence of evidence: E2's grid has two spreads
-where E1 has six and two budgets where E1 has three, so it produces too few matched pairs at
-comparable contraction for the comparison to bite. **Primary 2 is therefore an E1 result, and E2
-neither confirms nor refutes it.** The arm is named because a number reported without one reads as
-the study's, and until round 9 this one did.
+**On E2 the rule is satisfied and the answer is essentially zero**: 16 matched
+pairs, of which **1** is close, with a coverage gap of
+**0.0001286**. The registered rule asks for at least one close pair and sets
+no minimum count, so **that is a computed result, not a missing one**; an earlier draft called
+primary 2 "untested" on E2, which confused a sparse grid with an undefined outcome.
+
+**What it means is bounded by how thin it is.** One pair is one pair: E2 has two spreads where E1 has
+six and two budgets where E1 has three, so this rests on a single matched pair against E1's
+54. **E1's 0.951 does not reproduce on E2**, and the
+honest reading is that E2's grid was never built to test primary 2, not that primary 2 fails there.
+The arm is named on every number because a figure reported without one reads as the study's.
 The claim is that two evidence structures a reader would call identically well identified differ by
-**at least that much** in whether the interval covers. An earlier wording said "arbitrarily", which a
+**about that much** in whether the interval covers. The unrounded maximum is 0.9505515516, so
+0.951 is a rounded display and not a lower bound; "at least that much" was
+false by 4.5e-4. An earlier wording said "arbitrarily", which a
 finite maximum over a finite grid cannot establish.
 
 The tolerance is absolute closeness, and **that is not the same as displaying identically**. An
@@ -463,6 +473,28 @@ successes. **This change flatters the diagnostics and is reported for that reaso
 rule's false-alarm rate falls from 0.3043 to 0.0355 under the corrected denominator, and the old
 value is exported alongside the new one so the size of the correction is visible.
 
+**These are E1's figures. On E2 the same rules perform far better**, which is a result rather than a
+footnote:
+
+| rule | E1 Youden | E2 Youden | E2 sensitivity | E2 false alarm |
+|---|---:|---:|---:|---:|
+| `contraction` | 0.2195 | **0.8049** | 0.8049 | 0 |
+| `target_ratio` | 0.1793 | **0.7073** | 0.7073 | 0 |
+| `eff_rank` | 0.2371 | **0.8293** | 0.8293 | 0 |
+| `rank_screen` | 0.0717 | 0.1951 | 0.1951 | 0 |
+| `source_survival` | 0.2585 | 0.2424 | 0.5758 | 0.3333 |
+
+**Read those E2 columns against only 12 nominal scenarios.** A
+false-alarm rate of zero over twelve is a weakly determined zero, and the whole E2 secondary rests on
+41 failing and 12 nominal cells. **The
+registered secondary existed for E1 alone until round 10**, while this section presented its numbers
+under a heading covering both arms.
+
+**Primary 1 still overlaps on E2 while these thresholds separate well on average**, which is the
+distinction primary 1 exists to draw: a grid-weighted average can look strong while a single value
+compatible with both classes still exists, and that single value is what defeats a threshold rule for
+the analyst who lands on it.
+
 **It falls rather than rises because the band removed is the one that alarms most.** The contraction
 rule fires on **71 of the 84** scenarios in the middle band, 84.5%, against **6 of 169** nominal ones,
 3.55%. Most of the middle band is the `absent` state under a wide prior, where the posterior is the
@@ -500,8 +532,10 @@ $$p^{\text{true}}(x;\,\theta_{\text{true}},\text{departure}) \;=\; p^{\text{mode
 
 `R/07-run-e2.R` asserts this **per scenario and pointwise in the covariate**, not on the arm mean,
 because an individual-data arm contributes a per-individual likelihood and two different probability
-functions can share a mean. The worst gap over the grid is **2.22e-16**, against a registered
-tolerance `E2_ALIAS_TOL` of 1e-12. A future state whose departure touched only some target-bearing
+functions can share a mean. The worst gap over the grid is **2.22e-16**, against the registered
+tolerance `E2_ALIAS_TOL` of 1e-12, **exported and compared rather than retyped**:
+until round 10 the verifier checked the measured gap against its own literal and never against the
+constant the code enforces. A future state whose departure touched only some target-bearing
 rows would stop the run rather than quietly reintroduce the misspecification this paragraph says is
 absent.
 
@@ -638,10 +672,11 @@ does not reproduce.
   offers the wrong reference quantity as a bound. **The 20.11% bounds the choice of Gaussian; it does
   not bound Gaussianity.**
 - **What reproduces on the nonlinear arm and what does not, primary by primary.** Primary 1
-  **reproduces**: every statistic overlaps on E2 as on E1. Primary 2 is **untested** there:
-  16 matched pairs yield 1 close one, so the E1 gap of
-  0.951 is neither confirmed nor refuted. Primary 3 **reverses sign**.
-  One of three reproduces, one is untestable on the grid as registered, and one goes the other way.
+  **reproduces**: every statistic overlaps on E2 as on E1. Primary 2 **does not**: its one
+  close E2 pair gives 0.0001286 against E1's
+  0.951, on a grid with 16 matched pairs against E1's
+  216. Primary 3 **reverses sign**. **One of three reproduces**, and the other two
+  differ in ways the E2 grid is too thin to adjudicate.
 - **The E1 finding does not reproduce on the nonlinear arm.** Primary 3's rank correlation between
   contraction and coverage is $+0.3295$ over E1's 144 confounded scenarios and $-0.5952$ over E2's 8.
   The signs are opposite, so the inversion E1 reports is not a property of the diagnostic that

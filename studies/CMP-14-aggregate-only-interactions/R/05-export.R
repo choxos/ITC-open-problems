@@ -33,7 +33,8 @@ REQUIRED <- c("results/e1.rds", "results/e1-analysis.rds",
               "results/collision-probe.rds", "results/anticorrelation-probe.rds",
               "results/curvature-rank.rds", "results/e2.rds",
               "results/e2-verdict.rds", "results/contraction-gap.rds",
-              "results/routes.rds", "results/e1-aliasing.rds")
+              "results/routes.rds", "results/e1-aliasing.rds",
+              "results/truth-counterfactual.rds")
 missing <- REQUIRED[!file.exists(REQUIRED)]
 if (length(missing))
   stop("the export is missing artifacts the protocol quotes, so the verifier ",
@@ -96,6 +97,9 @@ out$nominal <- NOMINAL
 out$diagnostics <- DIAGNOSTICS
 out$e2_link <- E2_LINK; out$e2_states <- E2_STATES
 out$e2_sd_ratio <- E2_SD_RATIO; out$e2_base_p <- E2_BASE_P
+## The tolerance the aliasing guard enforces, so the document and the verifier
+## compare against the registered constant instead of against a typed literal.
+out$e2_alias_tol <- E2_ALIAS_TOL
 
 ## THE ADEMP TRUE VALUES. Coverage is a performance measure against a truth, and
 ## round 6 found the grid registering the DEPARTURES from the truth (discordance,
@@ -343,8 +347,11 @@ if (nrow(sp2)) {
   cl2 <- sp2[sp2$contract_gap < PAIRS_CLOSE_TOL, ]
   out$e2_pairs_total <- nrow(sp2)
   out$e2_pairs_close <- nrow(cl2)
+  ## Signif, not round: the E2 gap is 1.3e-4 and rounding to three decimals
+  ## printed it as 0, which round 10 read as "no result" rather than "a result
+  ## that is essentially zero". Those are different claims.
   out$e2_pairs_close_max_cover_gap <-
-    if (nrow(cl2)) round(max(abs(cl2$cover_gap)), 3) else NA_real_
+    if (nrow(cl2)) signif(max(abs(cl2$cover_gap)), 4) else NA_real_
 } else {
   out$e2_pairs_total <- 0L; out$e2_pairs_close <- 0L
   out$e2_pairs_close_max_cover_gap <- NA_real_
@@ -373,6 +380,22 @@ out$e2_overlap_all <- all(e2ov$overlaps)
 ## answerable from the export rather than by hand. Round 9's third reviewer
 ## disputed both and was wrong about both, having halved four of five states and
 ## applied the SD-ratio factor to a state the restriction removes it from.
+## THE SECONDARY OUTCOMES ON E2, which round 10 found were computed for E1 only
+## while section 7 presents them in a section covering both arms. The same five
+## registered rules, the same three-class denominators.
+e2w <- cbind(e2, setNames(warnings_from(e2),
+                          paste0("warn_", names(warnings_from(e2)))))
+e2wt <- warning_table(e2w)
+out$e2_warnings <- lapply(seq_len(nrow(e2wt)), function(i)
+  lapply(e2wt[i, ], function(z) if (is.numeric(z)) round(z, 4) else z))
+
+## THE COUNTERFACTUAL that justifies the round-7 truth-table repair, computed by
+## R/10-truth-counterfactual.R rather than quoted from a reviewer.
+tc <- readRDS("results/truth-counterfactual.rds")
+out$truth_cf_max_coverage_change <- round(tc$max_coverage_change, 4)
+out$truth_cf_n_reclassified <- tc$n_reclassified
+out$truth_cf_n_scenarios <- tc$n_scenarios
+
 out$e2_by_state_n <- as.list(table(e2$state))
 out$e2_departure_split <- as.list(table(e2$state[e2$aliased]))
 

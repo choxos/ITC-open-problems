@@ -118,9 +118,16 @@ main <- function() {
 
   n_nonlinear <- sum(!tab$identity & tab$logit)
   cat(sprintf("\nnonlinear-only routes found: %d\n", n_nonlinear))
+  ## ROUND 10: THIS OUTPUT RESTORED A CLAIM THE PROTOCOL HAD REVOKED. Section 4
+  ## says "any" is stronger than three fixed nonzero contrasts on one geometry
+  ## can support, and this line went on printing it at every run. Same shape as
+  ## the "source share" label and the "registered withdrawal rules" heading:
+  ## the stored fields were repaired and the analyst-facing text was not.
   cat("The claim that VARIANCE is the unique nonlinear aggregate route is\n")
-  cat("withdrawn. On a curved link any between-study heterogeneity in a nuisance\n")
-  cat("parameter identifies the interaction, and none of these routes is\n")
+  cat(sprintf("withdrawn. Each of the %d nuisance quantities this design has identifies\n",
+              nrow(tab) - 1L))
+  cat("the interaction on its own on a curved link, checked at one nonzero\n")
+  cat("contrast each with no general rank argument. None of these routes is\n")
   cat("randomized: nobody assigns a study its case mix, its covariate spread or\n")
   cat("its baseline risk.\n")
   saveRDS(list(table = tab, n_nonlinear_routes = n_nonlinear),

@@ -266,8 +266,8 @@ check("the aliased-scenario count matches the export",
       f"**{DESIGN['e2_n_aliased']} scenarios gain a coverage figure" in PROTOCOL,
       f"export says {DESIGN['e2_n_aliased']}")
 check("the measured aliasing gap is stated and is within tolerance",
-      f"{DESIGN['e2_alias_gap_max']:g}" in PROTOCOL.replace("e-16", "e-16")
-      and DESIGN["e2_alias_gap_max"] < 1e-12,
+      f"{DESIGN['e2_alias_gap_max']:g}" in PROTOCOL
+      and DESIGN["e2_alias_gap_max"] < DESIGN["e2_alias_tol"],
       f"export says {DESIGN['e2_alias_gap_max']:g}")
 check("the aliasing assertion is pointwise, not on the arm mean",
       "pointwise in the covariate" in PROTOCOL,
@@ -404,12 +404,29 @@ check("the state-separation field is named for what it tests",
       "e2_any_state_separation" in DESIGN
       and "`any_state_separation` for what it tests" in PROTOCOL,
       "the software still names a withdrawal criterion it cannot apply")
+# ROUND 10: THIS ASSERTION REWROTE THE DOCUMENT TO MAKE ITSELF PASS. It called
+# PROTOCOL.replace("1.06e-15", <exported value>) and then tested that the
+# exported value was present, so it succeeded by construction while the document
+# said 1.06e-15 and the artifact said 1.05e-15. A guard that edits its own input
+# is worse than a guard that pins a phrase: the phrase-pinning ones at least
+# failed loudly when the document changed. Plain membership, no substitution.
 check("E1's aliasing gaps come from a guard, not from prose",
       f"**{DESIGN['e1_alias_bias_gap']:.3g}** over {DESIGN['e1_alias_n_bias']}"
-      in PROTOCOL.replace("1.06e-15", f"{DESIGN['e1_alias_bias_gap']:.3g}")
+      in PROTOCOL
       and DESIGN["e1_alias_n_pointwise"] == DESIGN["n_scenarios"],
       f"export says {DESIGN['e1_alias_bias_gap']:.3g} and "
       f"{DESIGN['e1_alias_pointwise_gap']:.3g}")
+# Its own pattern literal is skipped, or the guard reports itself forever.
+# Comments are skipped too: the removed defect is documented above by quoting
+# the call that caused it, and a guard that cannot tell code from prose would
+# forbid describing what it forbids.
+_self = [ln for ln in Path(__file__).read_text().splitlines()
+         if "_PAT_SELF" not in ln and not ln.lstrip().startswith("#")]
+_PAT_SELF = r"(?:PROTOCOL|RAW|CHANGES)\.replace\("
+_subs = [ln for ln in _self if re.search(_PAT_SELF, ln)]
+check("no assertion in this file rewrites its input before testing it",
+      len(_subs) == 0,
+      f"{len(_subs)} substitution(s): {_subs[:1]}")
 check("the pointwise check covers the whole E1 grid",
       f"pointwise to **{DESIGN['e1_alias_pointwise_gap']:.3g}** over **all "
       f"{DESIGN['e1_alias_n_pointwise']}** E1" in PROTOCOL,
@@ -468,7 +485,7 @@ check("state separation is not called a withdrawal criterion for E1",
       "state separation is not E1's conclusion" in PROTOCOL,
       "the six comparisons are still presented as withdrawing a primary")
 check("primary 2 states its measured gap rather than claiming arbitrariness",
-      "**at least that much**" in PROTOCOL
+      "**about that much**" in PROTOCOL
       and f"**On E1 that is {DESIGN['pairs_close_max_cover_gap']}**" in PROTOCOL,
       "primary 2 claims more than a finite maximum can support")
 check("primary 2 says whether discordance is a matching key",
@@ -518,7 +535,7 @@ check("primary 2 on E2 is reported, not merely asserted to run",
       f"**{DESIGN['e2_pairs_close_max_cover_gap']}**" in PROTOCOL,
       f"export says {DESIGN['e2_pairs_close']} of {DESIGN['e2_pairs_total']}")
 check("the reproduction summary covers all three primaries",
-      "One of three reproduces, one is untestable" in PROTOCOL,
+      "**One of three reproduces**" in PROTOCOL,
       "section 9 does not say which primaries reproduce")
 check("no passage still says the six comparisons withdraw E1's conclusion",
       "withdraw E1's conclusion" not in PROTOCOL,
@@ -526,6 +543,34 @@ check("no passage still says the six comparisons withdraw E1's conclusion",
 check("the stated-once claim is stated as an aim, not a guarantee",
       "intended to be stated once" in PROTOCOL,
       "the document claims a property round 9 disproved")
+
+# --- round 10: what round 9 left, all of it in the round-9 repairs -----------
+_w2 = {x["rule"]: x for x in DESIGN["e2_warnings"]}
+check("the secondary outcomes exist on E2, not only E1",
+      len(_w2) == 5 and f"| **{_w2['contraction']['youden']}** |" in PROTOCOL,
+      f"E2 warnings: {sorted(_w2)}")
+check("the E2 secondary is reported with the sample it rests on",
+      f"only {_w2['contraction']['n_nominal']} nominal scenarios" in PROTOCOL,
+      "a false-alarm rate of zero is reported without its denominator")
+check("primary 2 on E2 is called a result, not a missing one",
+      f"a computed result, not a missing one" in PROTOCOL
+      and f"**{DESIGN['e2_pairs_close_max_cover_gap']}**" in PROTOCOL,
+      f"export says gap {DESIGN['e2_pairs_close_max_cover_gap']}")
+check("the aliasing tolerance is the registered constant",
+      f"`E2_ALIAS_TOL` of {DESIGN['e2_alias_tol']:g}" in PROTOCOL
+      and DESIGN["e2_alias_gap_max"] < DESIGN["e2_alias_tol"],
+      f"config says {DESIGN['e2_alias_tol']}")
+check("the truth-table counterfactual is computed and matches the export",
+      f"by up to **{DESIGN['truth_cf_max_coverage_change']}** and reclassifies "
+      f"**{DESIGN['truth_cf_n_reclassified']} of\n{DESIGN['truth_cf_n_scenarios']}**" in RAW,
+      f"export says {DESIGN['truth_cf_max_coverage_change']}, "
+      f"{DESIGN['truth_cf_n_reclassified']}")
+_lb = "at least that much"
+check("primary 2's maximum is not presented as a lower bound",
+      "about that much" in PROTOCOL
+      and PROTOCOL.count(_lb) == 1
+      and f'"{_lb}" was\nfalse by' in RAW,
+      "a rounded maximum is claimed as a bound outside the withdrawal")
 
 # --- the history is complete and elsewhere ------------------------------------
 check("the change history is a separate document",
@@ -584,8 +629,8 @@ check("the history's bias spread matches the export",
       f"export spread {max(_informed.values()) - min(_informed.values()):.3f}")
 _no = DESIGN["control_null_over_range"]
 check("the history's overcoverage count and range match the export",
-      f"{DESIGN['control_null_n_over']} scenarios overcover at "
-      f"{_no[0]:.3f} to {_no[1]:.3f}" in CHANGES.replace("four", "4"),
+      f"{_WORDS[DESIGN['control_null_n_over']]} scenarios overcover at "
+      f"{_no[0]:.3f} to {_no[1]:.3f}" in CHANGES,
       f"export says {DESIGN['control_null_n_over']} at {_no}")
 
 # --- the contraction gap, which used to be an admission -----------------------

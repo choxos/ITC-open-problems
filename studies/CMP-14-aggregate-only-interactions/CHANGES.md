@@ -3,7 +3,7 @@
 **This file is the change history. `protocol.md` is what is registered now.**
 
 They were one document until the fifth round of critique, and separating them is a
-fix rather than tidying. Nine rounds of critique returned **157 fatal and serious findings** between two
+fix rather than tidying. Ten rounds of critique returned **164 fatal and serious findings** between three
 reviewers, counted as the table below counts them: findings **as returned**, so a defect
 found again in a later round is counted again, and the minor findings are not in that
 total. **It is not a count of distinct defects and no such count is claimed.** An earlier
@@ -47,6 +47,7 @@ review**, and it matters what it showed.
 | 9 | codex | unsound | 1 | 4 |
 | 9 | grok | needs-revision | 1 | 3 |
 | 9 | glm | needs-revision | 0 | 0 |
+| 10 | codex | needs-revision | 0 | 7 |
 
 **Seven topics were raised independently by both reviewers in round 5**: the
 equal-SD guard's hidden baseline restriction, the source statistic not being a
@@ -706,3 +707,63 @@ grid's per-state counts and the departure split are in
 12" and "is it 72 or 48" are answerable by reading a file rather than by
 recomputing a factorial by hand. That should have been true before a reviewer
 asked.
+
+## Round 10: a guard that rewrote the document to make itself pass
+
+**Codex returned no fatal findings for the first time in ten rounds**, and seven
+serious ones, every one of them in a round-9 repair. The worst is the smallest to
+describe.
+
+**An assertion added in round 9 edited its own input.** It read
+
+    f"**{gap:.3g}** over {n}" in PROTOCOL.replace("1.06e-15", f"{gap:.3g}")
+
+so it substituted the exported value into the document text and then checked that
+the exported value was present. **It passed by construction.** The document said
+1.06e-15, the artifact said 1.0547e-15 which exports as 1.05e-15, and the guard
+existed precisely to catch that disagreement. The number came from rounding
+"1.055e-15" up by hand instead of taking `signif(x, 3)` from the export, which is
+the rule this study has broken and re-learned in five separate rounds.
+
+**A guard that rewrites its input is worse than one that pins a phrase.** The
+phrase-pinning guards, eight of them so far, at least failed loudly when the
+document changed; this one could never fail. `review/verify-protocol.py` now
+carries a meta-assertion that no check may substitute into `PROTOCOL`, `RAW` or
+`CHANGES` before a membership test, and **it caught a second instance on its first
+run**, in the overcoverage check, which was rewriting "four" to "4".
+
+**Two numbers had been quoted from a reviewer for three rounds.** The claim that
+the wrong truth table would have moved E1 coverage by 0.44 and reclassified 11
+scenarios appeared in prose and in code comments and was computed nowhere, while
+the provenance paragraph claimed every quoted quantity is exported.
+`R/10-truth-counterfactual.R` reruns the whole grid under the truth the table
+wrongly declared: **0.4399 and 11 of 504**, reproducing the reviewer's figures
+exactly.
+
+**The registered secondary analysis existed for E1 only**, while section 7
+presented its numbers under a heading covering both arms. Applying the same five
+rules to E2 changes the picture materially: contraction's Youden index is
+**0.8049 on E2 against 0.2195 on E1**, with a false-alarm rate of zero. **On
+twelve nominal scenarios**, which is stated beside it, because a zero over twelve
+is a weakly determined zero. And primary 1 still overlaps on E2 while those
+thresholds separate well on average, which is the distinction primary 1 exists to
+draw.
+
+**Primary 2 on E2 was called untested and is not.** The registered rule asks for
+at least one close pair and sets no minimum; E2 has one, with a gap of
+**1.286e-4**. Reporting it as 0 was an artifact of rounding to three decimals, and
+calling the outcome "untested" confused a sparse grid with an undefined result.
+The reproduction summary now reads: **one of three primaries reproduces**, and the
+other two differ in ways E2's grid is too thin to adjudicate.
+
+Three more repairs that reached the stored fields and not the analyst-facing
+output: `R/08-routes.R` still printed the "any between-study heterogeneity" claim
+section 4 had revoked, `R/07-run-e2.R` still headed its state-separation table
+"the registered withdrawal rules", and its candidate line read a field name that
+does not exist, so the second form's result could never have printed. **That is
+the third round running in which a repair reached the data and stopped before the
+console.**
+
+Two smaller ones: the aliasing tolerance was verified against a literal rather
+than the exported `E2_ALIAS_TOL`, and primary 2's 0.951 was claimed as a lower
+bound when the unrounded maximum is 0.9505515516.
