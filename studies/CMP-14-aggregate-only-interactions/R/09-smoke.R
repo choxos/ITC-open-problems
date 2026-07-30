@@ -172,6 +172,29 @@ local({
      max(gaps) < 1e-10,
      sprintf("worst gap %.3e over %d scenarios, %d of them aliased",
              max(gaps), nrow(g), sum(g$discord != 0 | g$synergy != 0)))
+
+  ## ROUND 9: THE PROTOCOL CITED A POINTWISE CHECK THAT DID NOT EXIST. It said
+  ## `mean_true` equals X theta* to 1.8e-15 and named this file as the evidence;
+  ## only the scalar bias identity above was ever computed here, and the 1.8e-15
+  ## came from a scratch script and was typed into the prose. That is the same
+  ## defect as round 7's typed truth table, in the sentence claiming a guard.
+  ## The identity is now asserted over the WHOLE E1 grid rather than a sample,
+  ## because it is cheap: no fit, just a design matrix product.
+  full <- build_grid()
+  pw <- vapply(seq_len(nrow(full)), function(i) {
+    r <- full[i, ]
+    b <- build_design(build_state(r$state, r$spread, r$n))
+    gi <- gi_of(b)
+    th_star <- theta_true(b)
+    th_star[gi] <- th_star[gi] + r$discord + r$synergy
+    max(abs(mean_true(b, r$discord, r$synergy) - as.vector(b$X %*% th_star)))
+  }, 0)
+  ok("E1's true mean is exactly the shifted model's mean, pointwise",
+     max(pw) < 1e-10,
+     sprintf("worst gap %.3e over all %d E1 scenarios", max(pw), nrow(full)))
+  saveRDS(list(bias_gap = max(gaps), pointwise_gap = max(pw),
+               n_bias = nrow(g), n_pointwise = nrow(full)),
+          "results/e1-aliasing.rds")
 })
 
 ## --- E2: the negative control and the registered verdict --------------------
@@ -185,7 +208,7 @@ ok("curvature identifies nothing with equal aggregate SDs",
 ok("curvature is identified with unequal aggregate SDs",
    nrow(ne) > 0 && all(ne$estimable))
 v <- e2_verdict(e2)
-ok("no registered separation rule fires", !isTRUE(v$withdraw_e1),
+ok("no registered separation rule fires", !isTRUE(v$any_state_separation),
    paste(v$rules$rule[isTRUE(v$rules$separates)], collapse = "; "))
 ## Round 2 found the two-way share unable to separate these states by
 ## construction, so it is checked as a CONSTRUCTIONAL fact rather than as

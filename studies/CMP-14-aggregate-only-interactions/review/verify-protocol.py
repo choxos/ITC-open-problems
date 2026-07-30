@@ -35,10 +35,16 @@ CHANGES = re.sub(r"\s+", " ", (ROOT / "CHANGES.md").read_text())
 DESIGN_PATH = ROOT / "results" / "registered-design.json"
 DESIGN = json.loads(DESIGN_PATH.read_text())
 
-# The exporter is excluded for the same reason R/05-export.R excludes itself: it
-# consumes artifacts rather than producing them.
+# ROUND 9: THE EXPORTER IS NO LONGER EXCLUDED. It was, on the reasoning that it
+# consumes artifacts rather than producing them; that stopped being true when it
+# began COMPUTING values, the E2 overlap result and the true-values vector among
+# them. Editing it after the JSON was written would have left a stale export that
+# all assertions still ran against. R/05-export.R excludes ITSELF from the
+# artifact check for the original reason, which is unaffected: rerunning it is
+# what refreshes the JSON, so the JSON is always newer than the file that wrote
+# it and this check costs one cheap rerun rather than a full experiment chain.
 _newest_code = max(f.stat().st_mtime for f in (ROOT / "R").iterdir()
-                   if f.is_file() and f.name != "05-export.R")
+                   if f.is_file())
 if DESIGN_PATH.stat().st_mtime < _newest_code:
     raise SystemExit(
         "registered-design.json predates the code in R/, so every assertion below "
@@ -76,7 +82,7 @@ def table_after(header: str) -> list[str]:
 # --- the export must carry everything any block below reads ------------------
 REQUIRED = [
     "n_scenarios", "n_failed", "overlap", "pairs_close",
-    "pairs_close_max_cover_gap", "e2_rules", "e2_withdraw_e1", "curvature_rank",
+    "pairs_close_max_cover_gap", "e2_rules", "e2_any_state_separation", "curvature_rank",
     "control_tight_bias", "control_tight_recovery", "control_null_over_range",
     "control_null_worst_shrinkage", "control_absent_cover_by_prior",
     "nuisance_sensitivity", "states", "e2_states", "spreads", "discord",
@@ -198,8 +204,12 @@ check("the E2 candidate outputs carry a standing",
 # --- the route table, asserted against the run -------------------------------
 RT = table_after("| between-study difference | identity link | logit link |")
 check("the route table has four rows", len(RT) == 4, f"{len(RT)} rows")
-_want = [("none", False, False), ("means", True, True),
-         ("SDs", False, True), ("risks", False, True)]
+# ROUND 9: THESE EXPECTATIONS WERE HARDCODED. The route taxonomy is the thesis's
+# foundation and the verifier asserted the document against a constant written
+# beside it, so a change in `R/08-routes.R` would have left both agreeing and
+# both wrong. They now come from the run.
+_want = [(lab, r["identity"], r["logit"])
+         for lab, r in zip(("none", "means", "SDs", "risks"), DESIGN["routes"])]
 for i, (lab, ident, logit) in enumerate(_want):
     if i >= len(RT):
         break
@@ -274,7 +284,7 @@ check("E2's contraction names the approximation it uses",
       "the approximation is not stated")
 check("no E2 separation rule fires",
       all(r["separates"] is False for r in DESIGN["e2_rules"])
-      and DESIGN["e2_withdraw_e1"] is False,
+      and DESIGN["e2_any_state_separation"] is False,
       f"{DESIGN['e2_rules']}")
 
 # --- the candidate statistic --------------------------------------------------
@@ -382,8 +392,41 @@ check("the document says the two arms disagree, since they do",
 # The nuisance-prior rule, which round 7 rewrote to compare decisions.
 _nf = DESIGN["nuisance_flips"]
 check("the decision count is the exported one",
-      f"**{DESIGN['nuisance_n_decisions']:,}** binary" in PROTOCOL,
+      f"**{DESIGN['nuisance_n_decisions']:,} hold a decision**" in PROTOCOL,
       f"export says {DESIGN['nuisance_n_decisions']}")
+check("the undefined slots are counted, not folded into the denominator",
+      f"the {DESIGN['nuisance_n_undefined']} `absent` scenarios" in PROTOCOL
+      and DESIGN["nuisance_n_decisions"] + DESIGN["nuisance_n_undefined"] == 3528,
+      f"{DESIGN['nuisance_n_decisions']} + {DESIGN['nuisance_n_undefined']}")
+
+# --- round 9: what the round-8 repairs left undone ---------------------------
+check("the state-separation field is named for what it tests",
+      "e2_any_state_separation" in DESIGN
+      and "`any_state_separation` for what it tests" in PROTOCOL,
+      "the software still names a withdrawal criterion it cannot apply")
+check("E1's aliasing gaps come from a guard, not from prose",
+      f"**{DESIGN['e1_alias_bias_gap']:.3g}** over {DESIGN['e1_alias_n_bias']}"
+      in PROTOCOL.replace("1.06e-15", f"{DESIGN['e1_alias_bias_gap']:.3g}")
+      and DESIGN["e1_alias_n_pointwise"] == DESIGN["n_scenarios"],
+      f"export says {DESIGN['e1_alias_bias_gap']:.3g} and "
+      f"{DESIGN['e1_alias_pointwise_gap']:.3g}")
+check("the pointwise check covers the whole E1 grid",
+      f"pointwise to **{DESIGN['e1_alias_pointwise_gap']:.3g}** over **all "
+      f"{DESIGN['e1_alias_n_pointwise']}** E1" in PROTOCOL,
+      f"export says {DESIGN['e1_alias_pointwise_gap']:.3g} over "
+      f"{DESIGN['e1_alias_n_pointwise']}")
+check("the route table is exported rather than hardcoded in this file",
+      "routes" in DESIGN and len(DESIGN["routes"]) == 4,
+      "the taxonomy is still asserted against a constant")
+check("every E2 state row carries the candidate's standing",
+      all(z.get("candidate_standing") == "post-hoc-candidate"
+          for z in DESIGN["e2_by_state"].values()),
+      "an E2 row reports a candidate value without its standing")
+_reviewers = set(re.findall(r"^\| \d \| (\w+) \| [\w-]+ \| \d+ \| \d+ \|$",
+                           (ROOT / "CHANGES.md").read_text(), re.M))
+check("the reviewer count in the header matches the table",
+      f"between **{len(_reviewers)}** reviewers" in PROTOCOL,
+      f"the table names {sorted(_reviewers)}")
 check("the flip counts are the exported ones",
       f"**{_nf['lo']} flip at scale 3 and {_nf['hi']} at scale 30.**" in PROTOCOL,
       f"export says {_nf}")

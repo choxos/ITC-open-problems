@@ -216,16 +216,22 @@ main <- function() {
                               abs(z$coverage - NOMINAL) <= COVER_TOL,
                               warnings_from(z))
   d0 <- decide(res); dlo <- decide(r_lo); dhi <- decide(r_hi)
-  nuis_flips <- c(lo = sum(d0 != dlo, na.rm = TRUE),
-                  hi = sum(d0 != dhi, na.rm = TRUE))
+  ## ROUND 9: 504 x 7 IS THE SLOT COUNT, NOT THE DECISION COUNT. `source_survival`
+  ## is NA wherever the target's likelihood precision is zero, which is every
+  ## `absent` scenario, so 72 of the slots hold no decision to flip. The
+  ## denominator is now the defined ones and the undefined are reported.
+  defined <- !is.na(d0) & !is.na(dlo) & !is.na(dhi)
+  nuis_flips <- c(lo = sum(d0 != dlo & defined, na.rm = TRUE),
+                  hi = sum(d0 != dhi & defined, na.rm = TRUE))
   attr(res, "nuisance_flips") <- nuis_flips
-  attr(res, "nuisance_n_decisions") <- prod(dim(d0))
-  cat(sprintf("nuisance-prior decision flips: %d at scale 3, %d at scale 30, out of %d\n",
-              nuis_flips[["lo"]], nuis_flips[["hi"]], prod(dim(d0))))
+  attr(res, "nuisance_n_decisions") <- sum(defined)
+  attr(res, "nuisance_n_undefined") <- sum(!defined)
+  cat(sprintf("nuisance-prior decision flips: %d at scale 3, %d at scale 30, out of %d defined (%d undefined)\n",
+              nuis_flips[["lo"]], nuis_flips[["hi"]], sum(defined), sum(!defined)))
   attr(res, "nuisance_sensitivity") <- nuis_move
   cat(sprintf("\nnuisance-prior sensitivity (scale 3 and 30 against %g):\n",
               PRIOR_SD_NUISANCE))
-  cat(sprintf("  worst move in coverage %.4f, contraction %.4f, source share %.4f\n",
+  cat(sprintf("  worst move in coverage %.4f, contraction %.4f, source survival %.4f\n",
               nuis_move[["coverage"]], nuis_move[["contraction"]],
               nuis_move[["surv_between"]]))
 

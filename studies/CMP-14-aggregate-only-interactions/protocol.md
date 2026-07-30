@@ -7,15 +7,18 @@ on IDN-06 *ML-NMR interactions can rest solely on aggregate-data variation*.
 [doi:10.1002/sim.8086](https://doi.org/10.1002/sim.8086)).
 
 **Change history is in [`CHANGES.md`](CHANGES.md), not here.** Eight rounds of critique returned
-**148** fatal and serious findings between two reviewers, counted as returned rather than
-deduplicated. The recurring one was an internal inconsistency: a claim withdrawn in one section and
+**148** fatal and serious findings between **3** reviewers, counted as returned rather than
+deduplicated. GLM contributed only in round 8, having been unavailable before it. The recurring one was an internal inconsistency: a claim withdrawn in one section and
 still standing in another, which came from rewriting this document in layers. **Every position is
 now stated once**, and what it replaced is in the history.
 
 **Provenance, stated for what it does rather than for what it sounds like.** **The assertion is the
 guarantee; emission is a convenience.** `R/05-export.R` writes every quantity this document quotes to
-`results/registered-design.json`. `review/verify-protocol.py` then checks the document against that
-file, currently **175** assertions, and that is the link that catches a stale or invented number.
+`results/registered-design.json`, **including the route table and both arms' aliasing measurements**,
+which round 9 found quoted here and read by nothing: the verifier had the route taxonomy's expected
+entries written into it as constants, so a change in `R/08-routes.R` would have left document and
+guard agreeing and both wrong. `review/verify-protocol.py` then checks the document against that
+file, currently **182** assertions, and that is the link that catches a stale or invented number.
 `review/emit-tables.py` regenerates a handful of sentences from the same export so they need not be
 retyped; it covers **some** numbers, not all, and **it now fails when one of its patterns matches
 nothing** rather than reporting success. Round 6 found it targeting a sentence an earlier rebuild had
@@ -23,7 +26,9 @@ deleted, so it had been a no-op while the document named it as a link in a chain
 
 Two staleness guards, both of which have fired in anger: the exporter refuses to run when an artifact
 is older than the code that produces it, and the verifier refuses to run when the export is older
-than the code. **The verifier is not a proof that the document is right.** It checks the values it
+than the code, **`R/05-export.R` included**. That file used to be exempt on the grounds that it only
+consumes artifacts; it stopped being true when the exporter began *computing* values, and until round
+9 editing it after a run left a stale export that every assertion still passed against. **The verifier is not a proof that the document is right.** It checks the values it
 was told to check; round 6 found five assertions that had been written as "the document contains this
 sentence" and were therefore pinning withdrawn claims in place.
 
@@ -104,8 +109,11 @@ satisfied exactly at $\Gamma_W + \text{shift}$, and the size of the resulting er
 measures. **Section 8 establishes this for E2** (worst pointwise gap 2.22e-16 against a registered
 tolerance of 1e-12). **E1's version is established separately**, in `R/09-smoke.R`: E1's exact
 Gaussian bias, computed with no aliasing algebra in it at all, equals the same
-$\text{shift} - [(I+P_0)^{-1}P_0\theta^{*}]_{\Gamma_3}$ expression to **1.6e-15** over 40 scenarios,
-and `mean_true` equals $X\theta^{*}$ to **1.8e-15**. Saying "section 8 establishes it on both arms"
+$\text{shift} - [(I+P_0)^{-1}P_0\theta^{*}]_{\Gamma_3}$ expression to **1.06e-15** over 40
+scenarios, and `mean_true` equals $X\theta^{*}$ pointwise to **1.78e-15** over **all 504** E1
+scenarios. The second of those was quoted here for a round while **no code computed it**: the smoke
+test checked only the scalar bias identity and the number came from a scratch script, which is the
+same defect as a typed truth table wearing the words "asserted by a guard". Saying "section 8 establishes it on both arms"
 pinned an E1 claim on an E2-only measurement. Calling
 the estimand $\Gamma_{W,3}$ elsewhere suggested the model contains $\Gamma_W$ and $\Gamma_B$
 separately; it does not.
@@ -294,8 +302,9 @@ The interaction prior applies to the **interactions only**; nuisance coefficient
 **Its inertness is an exploratory diagnostic with a stated rule, not a property of the design.** The
 rule: rerun the whole grid at nuisance scales 3 and 30 and compare against the registered scale of 10,
 **on the registered DECISIONS, not on selected magnitudes**. The decisions are the failure label, the
-nominal label and all five warning rules, which is **3,528** binary
-classifications across the grid. **0 flip at scale 3 and 0 at scale 30.**
+nominal label and all five warning rules. That is $504 \times 7 = 3{,}528$ **slots**, of which
+**3,456 hold a decision**: `source_survival` is undefined in the 72 `absent` scenarios, so those
+slots hold nothing to flip and are excluded rather than counted. **0 flip at scale 3 and 0 at scale 30.**
 
 Round 7 found the earlier version of this rule checking three quantities while claiming to check
 every reported one, and judging a contraction movement against the 0.05 *coverage* scale, which is a
@@ -607,8 +616,10 @@ does not reproduce.
   survives a change of link in this design. Section 7 promised this limitation would be carried here
   and round 8 found it absent.
 - **Effective rank is not invariant to the curvature used.** 6 of 72 E2 scenarios change their count
-  and 2 flip the warning under the observed Hessian at the mode rather than the Fisher information,
-  and `eff_rank` is one of the six comparisons that can withdraw E1's conclusion.
+  and 2 flip the warning under the observed Hessian at the mode rather than the Fisher information.
+  `eff_rank` is one of the six state-separation comparisons, which are a registered proposition in
+  their own right and are **not** a withdrawal criterion for E1; the software field is named
+  `any_state_separation` for what it tests.
 - **The aliasing result is a property of these five states, not a theorem.** It holds because each
   departure happens to touch exactly the target-bearing rows. A state where a departure reached some
   of them and not others would be genuinely misspecified, and E2's coverage calculation would not

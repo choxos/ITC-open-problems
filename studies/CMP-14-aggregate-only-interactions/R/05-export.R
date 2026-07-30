@@ -24,11 +24,16 @@ source("R/03-run-e1.R")
 ## ROUND 7: results/e1-analysis.rds WAS OUTSIDE THIS LIST. It is the designated
 ## E1 analysis output, so it could sit unregenerated while every other artifact
 ## was fresh, which is exactly the staleness this list exists to stop.
+## ROUND 9: routes.rds and the E1 aliasing measurement were quoted by the
+## document and read by nothing. The verifier HARDCODED the route table's
+## expected entries, so the taxonomy the thesis rests on was asserted against a
+## constant rather than against the computation that produces it.
 REQUIRED <- c("results/e1.rds", "results/e1-analysis.rds",
               "results/state-probe.rds",
               "results/collision-probe.rds", "results/anticorrelation-probe.rds",
               "results/curvature-rank.rds", "results/e2.rds",
-              "results/e2-verdict.rds", "results/contraction-gap.rds")
+              "results/e2-verdict.rds", "results/contraction-gap.rds",
+              "results/routes.rds", "results/e1-aliasing.rds")
 missing <- REQUIRED[!file.exists(REQUIRED)]
 if (length(missing))
   stop("the export is missing artifacts the protocol quotes, so the verifier ",
@@ -118,6 +123,17 @@ out$true_values <- list(
 stopifnot("the registered GAMMA_W is not the target's true value"
             = isTRUE(all.equal(out$true_values$gamma_target, GAMMA_W)))
 
+## THE ALIASING MEASUREMENTS, both arms, from the guards that make them.
+al <- readRDS("results/e1-aliasing.rds")
+out$e1_alias_bias_gap <- signif(al$bias_gap, 3)
+out$e1_alias_pointwise_gap <- signif(al$pointwise_gap, 3)
+out$e1_alias_n_bias <- al$n_bias
+out$e1_alias_n_pointwise <- al$n_pointwise
+
+## THE ROUTE TABLE, read from the run rather than hardcoded in the verifier.
+rt <- readRDS("results/routes.rds")$table
+out$routes <- lapply(seq_len(nrow(rt)), function(i) as.list(rt[i, ]))
+
 ## E2'S OWN GRID, which the document described only as "a reduced factorial".
 out$e2_grid <- list(
   states = E2_STATES, spreads = E2_SPREADS, sd_ratio = E2_SD_RATIO,
@@ -136,6 +152,7 @@ out$nuisance_sensitivity <- if (is.null(ns)) NULL else as.list(round(ns, 4))
 ## moves above are supporting detail.
 out$nuisance_flips <- as.list(attr(d, "nuisance_flips"))
 out$nuisance_n_decisions <- attr(d, "nuisance_n_decisions")
+out$nuisance_n_undefined <- attr(d, "nuisance_n_undefined")
 out$n_scenarios <- nrow(d)
 out$n_failed <- sum(d$failed)
 out$n_ok <- sum(!d$failed)
@@ -284,7 +301,7 @@ out$e2_n_scenarios <- nrow(e2)
 out$e2_rules <- lapply(seq_len(nrow(ev$rules)), function(i)
   list(rule = ev$rules$rule[i], standing = ev$rules$standing[i],
        separates = ev$rules$separates[i]))
-out$e2_withdraw_e1 <- ev$withdraw_e1
+out$e2_any_state_separation <- ev$any_state_separation
 out$e2_surv_sd_separates <- ev$surv_sd_separates
 out$e2_surv_sd_curvature <- ev$surv_sd_curvature
 out$e2_surv_sd_ecological <- ev$surv_sd_ecological
@@ -295,6 +312,8 @@ out$e2_curvature_surv <- ev$curvature_surv
 out$e2_ecological_surv <- ev$ecological_surv
 out$e2_by_state <- lapply(split(e2, e2$state), function(z) list(
   state = z$state[1], n = nrow(z),
+  ## Every exported row carrying a candidate value carries its standing.
+  candidate_standing = z$candidate_standing[1],
   cover_min = round(min(z$coverage), 3), cover_max = round(max(z$coverage), 3),
   contract_min = round(min(z$contraction), 4),
   contract_max = round(max(z$contraction), 4),

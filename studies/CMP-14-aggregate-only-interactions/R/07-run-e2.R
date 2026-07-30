@@ -216,6 +216,10 @@ evaluate_e2 <- function(row) {
     bias = bias, post_sd = sd_post, samp_sd = sqrt(v_samp),
     coverage = cov, aliased = shift != 0, alias_shift = shift,
     alias_gap = alias_gap,
+    ## ROUND 9: EVERY ROW CARRYING A CANDIDATE VALUE CARRIES ITS STANDING. Round
+    ## 8 added one detached global field instead, which is not what "every
+    ## outcome that reports it says so on the row" promises.
+    candidate_standing = STANDING[["source_survival"]],
     stringsAsFactors = FALSE)) |>
     transform(failed = coverage < COVER_BAD)
 }
@@ -275,7 +279,8 @@ main <- function() {
     ## row and min/max over an empty vector would print Inf and -Inf as though
     ## they were measurements.
     surv_between_min = rng_or_na(z$surv_between, min),
-    surv_between_max = rng_or_na(z$surv_between, max)))),
+    surv_between_max = rng_or_na(z$surv_between, max),
+    candidate_standing = z$candidate_standing[1]))),
     row.names = FALSE)
 }
 
@@ -335,8 +340,15 @@ e2_verdict <- function(res) {
   ## promises that every outcome reporting the post hoc candidate says so on the
   ## row, and round 7 added a standing field to E1's tables only. These four
   ## fields are the candidate's E2 outputs and they were exported bare.
+  ## ROUND 9: THIS FIELD WAS NAMED FOR A CONCLUSION IT DOES NOT TEST. Round 8
+  ## established that the six comparisons test whether the diagnostics separate
+  ## the information STATES, which is not E1's conclusion; E1's conclusion is
+  ## primary 1, and its E2 analogue is the overlap test in `R/05-export.R`. The
+  ## field kept the old name and the old print, so the software could still
+  ## announce that E1 was withdrawn on a criterion the protocol says cannot
+  ## withdraw it. It is named for its proposition now.
   list(rules = rules,
-       withdraw_e1 = isTRUE(any(rules$separates)),
+       any_state_separation = isTRUE(any(rules$separates)),
        candidate_standing = STANDING[["source_survival"]],
        curvature_surv = unique(rows_for("curvature")$surv_between[
          !is.na(rows_for("curvature")$surv_between)]),
@@ -354,7 +366,10 @@ if (!interactive() && Sys.getenv("E2_NOMAIN") == "") {
   v <- e2_verdict(res)
   cat("\n=== the registered withdrawal rules ===\n")
   print(v$rules, row.names = FALSE)
-  cat(sprintf("\nE1's conclusion is withdrawn: %s\n", v$withdraw_e1))
+  cat(sprintf("\nany diagnostic separates the states: %s\n", v$any_state_separation))
+  cat("  (this is NOT a withdrawal criterion for E1's conclusion; E1's\n",
+      "  conclusion is primary 1 and its E2 analogue is the overlap test)\n",
+      sep = "")
   cat(sprintf(paste("coverage reported for %d of %d scenarios; %d carry an",
                     "aliased estimand, worst reproduction gap %.2e\n"),
               sum(!is.na(res$coverage)), nrow(res), sum(res$aliased),
@@ -364,7 +379,7 @@ if (!interactive() && Sys.getenv("E2_NOMAIN") == "") {
               = !any(is.na(res$coverage)),
             "a scenario's departure is not exact aliasing"
               = max(res$alias_gap) <= E2_ALIAS_TOL)
-  cat(sprintf("source share, curvature: %s | ecological: %s | separates them: %s\n",
+  cat(sprintf("source SURVIVAL, curvature: %s | ecological: %s | separates them: %s\n",
               paste(v$curvature_surv, collapse = ", "),
               paste(v$ecological_surv, collapse = ", "),
               v$surv_separates_curvature))
