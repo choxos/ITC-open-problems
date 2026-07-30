@@ -322,6 +322,17 @@ ap2 <- anticorrelation_pooled(e2)
 out$e2_anticorrelation_pooled <- lapply(ap2[1, ], function(z)
   if (is.numeric(z)) round(z, 4) else z)
 
+## ROUND 8: E1'S ACTUAL CONCLUSION, TESTED ON E2. The registered withdrawal rule
+## asks whether the diagnostics separate the information STATES, which is a real
+## proposition but is not one of E1's three primaries. E1's conclusion is
+## primary 1: no threshold on any summary separates failing coverage from
+## nominal. That is now computable on E2, because coverage exists on all 72
+## scenarios, so the same overlap test runs on the same statistics.
+e2ov <- overlap_table(e2)
+out$e2_overlap <- lapply(seq_len(nrow(e2ov)), function(i)
+  lapply(e2ov[i, ], function(z) if (is.numeric(z)) signif(z, 4) else z))
+out$e2_overlap_all <- all(e2ov$overlaps)
+
 out$e2_n_aliased <- sum(e2$aliased)
 out$e2_alias_shifts <- sort(unique(e2$alias_shift[e2$aliased]))
 out$e2_alias_gap_max <- signif(max(e2$alias_gap), 3)

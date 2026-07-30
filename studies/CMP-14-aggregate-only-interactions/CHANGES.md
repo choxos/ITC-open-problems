@@ -3,7 +3,7 @@
 **This file is the change history. `protocol.md` is what is registered now.**
 
 They were one document until the fifth round of critique, and separating them is a
-fix rather than tidying. Seven rounds of critique returned **127 fatal and serious findings** between two
+fix rather than tidying. Eight rounds of critique returned **143 fatal and serious findings** between two
 reviewers, counted as the table below counts them: findings **as returned**, so a defect
 found again in a later round is counted again, and the minor findings are not in that
 total. **It is not a count of distinct defects and no such count is claimed.** An earlier
@@ -41,6 +41,8 @@ review**, and it matters what it showed.
 | 6 | grok | needs-revision | 8 | 3 |
 | 7 | codex | unsound | 5 | 5 |
 | 7 | grok | unsound | 4 | 6 |
+| 8 | codex | unsound | 1 | 7 |
+| 8 | grok | unsound | 3 | 5 |
 
 **Seven topics were raised independently by both reviewers in round 5**: the
 equal-SD guard's hidden baseline restriction, the source statistic not being a
@@ -512,3 +514,65 @@ which is the shape this study has been moving toward: **the document may claim t
 two arms disagree only if the exported signs disagree**, may claim the nuisance
 prior decides nothing only if the flip count is zero, and must mark the candidate
 post hoc in the exported rows and not only in prose.
+
+## Round 8: the bridge between the arms was testing the wrong proposition
+
+Round 8's most useful finding was structural rather than numerical. **E2's
+registered rule was called a criterion for withdrawing E1's conclusion, and it
+tested a proposition E1 never states.** The six comparisons ask whether the three
+CMP-14 rules separate the information states; E1's conclusion is primary 1, that
+no threshold on any summary separates failing coverage from nominal. Those are
+different claims, and a rule that does not test a primary cannot withdraw it.
+
+**E1's actual conclusion is now tested on E2, which the aliasing result made
+possible.** Coverage exists on all 72 scenarios, so primary 1's overlap test runs
+on E2 unchanged, over 41 failing and 12 nominal scenarios. **Every statistic
+overlaps there too**, so the central negative result reproduces on the nonlinear
+link. That points the opposite way from primary 3, which reverses sign, and the
+two are now both stated: **primary 1 reproduces, primary 3 does not.**
+
+**And the outcomes section had never stated primary 1's answer at all.** It
+defined the existence claim, printed primary 3's correlation and the secondary
+false-alarm rates, and omitted the answer to the study's central question. That
+answer is now the first thing the section reports.
+
+**Primary 1's implementation was not the registered test.** Two ranges overlap
+when each starts below the other ends, and `overlap_table()` checked one of those
+two inequalities. Two disjoint ranges lying the wrong way round would have been
+reported as overlapping. The current values satisfy both, so no reported result
+changes; the procedure was still not the one registered.
+
+**Three claims were disproved by measurement rather than argument.** "Effective
+rank is unaffected" by the comparator: 6 of 72 scenarios change their count and 2
+flip the warning. "`EFF_RATIO_OK` governs `target_ratio` only": `eff_rank()`
+takes it as its eigenvalue cutoff in both callers. "Two contractions within 0.02
+are the same number to two decimals": only 15 of 54 pairs display identically,
+and **the pair carrying the largest coverage gap is not one of them**, at 0.067771
+against 0.081321. That last one matters less than it looks, which is also worth
+recording: over the display-identical subset the maximum gap is 0.95 against
+0.951 over all 54, so primary 2 survives the stricter reading.
+
+**Undefined is not zero and is not an alarm.** Where the target's likelihood
+precision is exactly zero the survival ratio has a zero denominator. The overlap
+table substituted zero, putting an invented value at the alarming end of the
+candidate's range; the warning rule read the missing value as an alarm. Neither
+is the registered rule. Both now report undefined and drop the row, 18 rows and
+72 rows respectively, and every outcome reports how many it dropped.
+
+**The 20.11% gap does not bound what it was offered as bounding.** Section 9 tied
+it to "a Gaussian approximation to a non-Gaussian posterior". Both quantities in
+that gap are Gaussian approximations. It bounds the choice of Gaussian; the
+distance to the true posterior is measured nowhere, and the limitation now says so.
+
+**Two claims rested on the wrong arm's measurement.** "Section 8 establishes that
+this holds to machine precision on both arms" cited an E2-only check for an E1
+claim; E1's own numbers, 1.6e-15 and 1.8e-15, come from the smoke test and are now
+quoted. And section 7's round-7 repair said "every number in this section is an
+**E1** number" in the same section that reports an E2 correlation, which both
+reviewers caught independently.
+
+**A guard written earlier in this same session had to be withdrawn.** It required
+the document to state that `EFF_RATIO_OK` governs `target_ratio` only, which is
+false. That is the **eighth** assertion in this study to pin a wrong statement in
+place by demanding a phrase, and the first whose author had to reverse himself
+inside one sitting.

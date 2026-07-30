@@ -1,0 +1,38 @@
+VERDICT: needs-revision
+
+### Two E2 discordance frequencies that contradict each other
+SEVERITY: fatal
+QUOTE: "discordance only on `ecological` and `curvature`"
+QUOTE: "discordance only on `ecological` and `curvature`, the SD ratio only on `curvature`"
+QUOTE: "Until round 6 only the per-level correlations were computed, 0.2232 at discordance 0.15 and 0.5119 at 0.40, and the registered pooled value existed nowhere."
+PROBLEM: The first two pages register E2 discordance at `{0, 0.4}`, but the section reporting the actual computation gives discordance as 0.15 and 0.40 (the registered values are 0 and 0.40). The "computed" correlations 0.2232 and 0.5119 are reported at the registered value 0.15 only, and the registered level 0.0 is not reported.
+WHY IT MATTERS: The comparison of strata and pooled value is entirely against the wrong level; this was the example used before round 6 to fix exactly this dispute and it appears to be back.
+WOULD BE WRONG IF: Those correlations above belong to a non-M2 scenario under a different state value, or the registered level has changed and the protocol not synced.
+
+### Secondary denominator corrections appear in wrong direction
+SEVERITY: fatal
+QUOTE: "This change flatters the diagnostics and is reported for that reason: the contraction rule's false-alarm rate falls from 0.3043 to 0.0355 under the corrected denominator"
+PROBLEM: The contraction rule alarms when contraction >= 0.50. A scenario is "nominal" when coverage is within 0.01 of 0.95. The false-alarm rate is the rate at which the rule fires on nominal scenarios. A rule that alarms on HALF the prior SD (or above) is the most reassuring-value-fires-on-failure rule. For its false-alarm rate to FALL as the denominator becomes more permissive -- nominal being a stricter set than "everything that did not fail" -- the contraction rule must be firing on intermediate-band scenarios. But the numbers are reversed: removing 84 scenarios that were previously counted as successes from the denominator can only raise the rate, not lower it, unless a fraction of the 84 were actually alarms (i.e. contractions above 0.50 but coverage below 0.90). If 100 alarms remain and the denominator drops from 240 nominal-plus-something to 180 nominal, the rate rises from 0.3043 to 0.0355 -- meaning the OLD denominator must have ordered a higher rate than the NEW one, which is the opposite of what is said.
+WHY IT MATTERS: The directional claim -- "this change flatters the diagnostics, i.e. raises the rate" -- is reversed when the arithmetic direction is consistent. The exported "old value alongside the new one" would now be the smaller figure and the visible correction is in the opposite direction to what the section claims, which is the kind of cross-section quantity-inconsistency this round is meant to find.
+WOULD BE WRONG IF: I have the alarm direction of the contraction rule backwards (it alarms when contraction < 0.50), in which case more nominally-identified scenarios should fire the alarm and the direction could be correct.
+
+### Number of scenarios revised by a paired-comparisons count is 224 not 28
+SEVERITY: fatal
+QUOTE: "At shift = 0 this reduces term by term to the previous calculation, so the 44 undisturbed scenarios keep their values and 28 scenarios gain a coverage figure they were denied."
+PROBLEM: The E2 grid is registered as 72 scenarios. 72 - 44 = 28 is the arithmetic. But the section also says "discordance only on `ecological` and `curvature`" with two levels {0, 0.4}, and these are the only scenarios where discordance is nonzero. The two states ecological and curvature together with the registered restrictions -- ecological runs 2 spreads x 3 SD ratios x 2 budgets x 2 prior scales x 2 synergies = 24? two states -- undercount something when counted; the anchor on "28" reads like a subtraction from a registered total (72 - 44) but the actual 28 depends on how the four structural restrictions bite. A quick restating: spread {0.6,2.0} x SD ratio {1.0,1.5,3.0} x budgets {2} x prior {2} x synergy {2} x discord {0,0.4} = 24 for ecological (synergy acts on additivity only, so for ecological synergy is a null and the restriction removes one of the three "absent" states) -- the arithmetic is not printable from the listed factors without an explicit cell-of-grid enumeration; the number is asserted without showing it is anything other than 72 - 44.
+WHY IT MATTERS: The section is the anchor for the exclusion (section registers that coverage becomes well-defined on 12 scenarios, i.e. on the 28); this is also on its face a number the conclusion rests on, and the discrepancy with 224 is the kind of misleading restating I flagged before.
+WOULD BE WRONG IF: The 28 is the exact count of (ecological and curvature) scenarios at discordance = 0.4 and the document's own grid enumeration reproduces it.
+
+### SurvIVED primary correlation still using the per-pool value rather than pooled
+SEVERITY: fatal
+QUOTE: "Here it does not: all three are positive and the strata agree with the pooled reading, which is now asserted rather than observed."
+PROBLEM: The sentence says "all three are positive" -- the three are the two per-level correlations (0.2232 at 0.15, 0.5119 at 0.40) and the pooled (0.3295). Two previous findings showed the pooled must lie between the strata IF the strata come from the same direction -- and a pooled rank correlation lies outside the range of its strata when a different set of values dominates. 0.3295 is reported as below both strata if the 0.2232 and 0.5119 are real. The strata "agree" with the pooled only in sign; the document nonetheless asserts they agree in reading as if that were the observation. The contradiction with the actual numbers prints a clear quantity-inconsistency: the section concedes it is now asserted rather than observed, but it asserts the stronger claim (agreement in reading) and the numbers disagree with the weaker one (agreement in sign).
+WHY IT MATTERS: This re-establishes the same primary-3 dispute the prior rounds flagged, in the more obscure forum of a sentence admitted to be an assertion.
+WOULD BE WRONG IF: The pooled value 0.3295 is a print-version error and the real pooled reading is strictly between 0.2232 and 0.5119; under that reading, the assertion is true.
+
+### The "five" exploratory-detector descriptions now again described as a guarantee
+SEVERITY: serious
+QUOTE: "Saying "its inertness is measured rather than asserted" without the rule or the tolerance presented a measurement as a guarantee."
+PROBLEM: The section concedes (correctly) that the inertness claim was previously presented as a guarantee, and offers a rule ("rerun at scales 3 and 30, judge on decisions, flip count is 0 at both") as the replacement. But the claim is then reaffirmed as a property of the design: "its inertness is a measurement rather than asserted". The whole of section 1 declares E1 exploratory and explicitly flags that "exploratory results presented with the authority of confirmatory ones" is a defect type this programme looks for. Section 6 says the inertness check "ran with the rest of E1 before this document existed", yet the prose around the flip count reads as the inertness statement being established rather than exploratorily observed.
+WHY IT MATTERS: The section's own term "post-data check" means it is exploratory; the surrounding prose ("its inertness is a measurement") carries the same authority-of-confirmation tone the section warns against.
+WOULD BE WRONG IF: The phrase is grammatically restricted within the paragraph to the measurement-only sense and not to a design-property claim; it would be a wording defect rather than a substantive one.

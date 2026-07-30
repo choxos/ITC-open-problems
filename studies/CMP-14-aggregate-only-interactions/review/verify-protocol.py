@@ -409,6 +409,38 @@ check("the CMP-14 summaries are marked as such",
       == {"cmp14-summary"},
       "a CMP-14 summary carries the wrong standing")
 
+# --- round 8's second reviewer: the bridge between the arms -------------------
+check("primary 1 is answered, not only defined",
+      "every statistic overlaps, on both arms" in PROTOCOL,
+      "the outcomes section defines primary 1 without stating its answer")
+check("the E2 overlap claim matches the export",
+      DESIGN["e2_overlap_all"] is True
+      and "**Every statistic overlaps on E2 as well**" in PROTOCOL,
+      f"export says all-overlap is {DESIGN['e2_overlap_all']}")
+_e2o = DESIGN["e2_overlap"][0]
+check("the E2 comparison-set sizes match the export",
+      f"**{_e2o['n_failed']} failing and {_e2o['n_nominal']} nominal**" in PROTOCOL,
+      f"export says {_e2o['n_failed']} and {_e2o['n_nominal']}")
+check("state separation is not called a withdrawal criterion for E1",
+      "state separation is not E1's conclusion" in PROTOCOL,
+      "the six comparisons are still presented as withdrawing a primary")
+check("primary 2 states its measured gap rather than claiming arbitrariness",
+      f"**at least that much**" in PROTOCOL
+      and f"which is **{DESIGN['pairs_close_max_cover_gap']}**" in PROTOCOL,
+      "primary 2 claims more than a finite maximum can support")
+check("primary 2 says whether discordance is a matching key",
+      "Discordance\nis deliberately NOT a matching key" in RAW,
+      "the pairing rule leaves discordance unspecified")
+check("the Laplace gap is not offered as a bound on non-Gaussianity",
+      "bounds the choice of Gaussian; it does\n  not bound Gaussianity" in RAW,
+      "the wrong reference quantity is offered as the caveat")
+check("E1's own aliasing measurement is cited, not E2's",
+      "E1's version is established separately" in PROTOCOL,
+      "an E1 claim rests on an E2-only measurement")
+check("synergy is described as interaction-shaped",
+      "interaction-shaped rather than a main-effect offset" in PROTOCOL,
+      "synergy is described as an add-on that could not alias")
+
 # --- the history is complete and elsewhere ------------------------------------
 check("the change history is a separate document",
       "Change history is in [`CHANGES.md`](CHANGES.md), not here" in PROTOCOL,

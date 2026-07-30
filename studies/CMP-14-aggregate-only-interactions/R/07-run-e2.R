@@ -423,9 +423,17 @@ if (!interactive() && Sys.getenv("E2_NOMAIN") == "") {
   cat(sprintf("curvature target intercepts equal: %s\n",
               length(unique(round(cv_alpha, 12))) == 1L))
   stopifnot(
-    "placebo arm prevalence is exactly 0.3 somewhere, so the wording this guard
-     replaced was defensible and the guard tests the wrong thing"
-      = !any(abs(pbo_prev - 0.3) < 1e-9),
+    ## ROUND 8: EXACT EQUALITY IS ALMOST INERT IN FLOATING POINT, and the claim
+    ## beside it is about a RANGE. A stop that fires only on p == 0.3 to 1e-9 can
+    ## pass while every arm sits at 0.2999, which would make the prose false and
+    ## the guard silent. The registered claim is that no arm is 0.3 to the
+    ## precision the document quotes, four decimals, and that the reported range
+    ## is the range the run produced.
+    "some placebo arm prevalence rounds to 0.3 at the precision the protocol
+     quotes, so the claim that it is 0.3 nowhere is not supported"
+      = !any(abs(pbo_prev - E2_BASE_P) < 5e-5),
+    "the reported prevalence range does not bracket every arm the run produced"
+      = min(pbo_prev) >= 0.2 && max(pbo_prev) <= 0.5,
     "curvature's target studies no longer share an intercept, which is the
      restriction its equal-SD non-identifiability claim needs"
       = length(unique(round(cv_alpha, 12))) == 1L,

@@ -6,8 +6,8 @@ on IDN-06 *ML-NMR interactions can rest solely on aggregate-data variation*.
 **Reporting standard.** ADEMP (Morris, White and Crowther 2019,
 [doi:10.1002/sim.8086](https://doi.org/10.1002/sim.8086)).
 
-**Change history is in [`CHANGES.md`](CHANGES.md), not here.** Seven rounds of critique returned
-**127** fatal and serious findings between two reviewers, counted as returned rather than
+**Change history is in [`CHANGES.md`](CHANGES.md), not here.** Eight rounds of critique returned
+**143** fatal and serious findings between two reviewers, counted as returned rather than
 deduplicated. The recurring one was an internal inconsistency: a claim withdrawn in one section and
 still standing in another, which came from rewriting this document in layers. **Every position is
 now stated once**, and what it replaced is in the history.
@@ -15,7 +15,7 @@ now stated once**, and what it replaced is in the history.
 **Provenance, stated for what it does rather than for what it sounds like.** **The assertion is the
 guarantee; emission is a convenience.** `R/05-export.R` writes every quantity this document quotes to
 `results/registered-design.json`. `review/verify-protocol.py` then checks the document against that
-file, currently **163** assertions, and that is the link that catches a stale or invented number.
+file, currently **172** assertions, and that is the link that catches a stale or invented number.
 `review/emit-tables.py` regenerates a handful of sentences from the same export so they need not be
 retyped; it covers **some** numbers, not all, and **it now fails when one of its patterns matches
 nothing** rather than reporting success. Round 6 found it targeting a sentence an earlier rebuild had
@@ -65,8 +65,10 @@ distribution through $\operatorname{expit}$, so it depends on each study's covar
 runs from **0.2506 to 0.3760** across the registered grid. An earlier version gave
 0.2913 to 0.3291, measured on a slice at SD ratio 2.0, **which is not a registered level at all**;
 the guard now sweeps the distinct cells of `build_grid_e2()` itself. An earlier version of this document said
-placebo arms sit at prevalence 0.3, which is true nowhere. `R/07-run-e2.R` computes the range and
-stops the run if any arm hits 0.3 exactly. The two models are different and the sections that use
+placebo arms sit at prevalence 0.3, which is true nowhere. `R/07-run-e2.R` computes the range over the
+registered grid and **stops the run if any arm comes within 5e-5 of 0.3**, which is the precision
+this document quotes it to. An earlier version stopped only on exact equality, which floating point
+makes almost inert: every arm could sit at 0.2999 with the guard silent and this sentence false. The two models are different and the sections that use
 them say which.
 
 **$\sigma^2$ is fixed and known** at $\sigma = 1$. That is not incidental: the closed-form posterior
@@ -99,7 +101,12 @@ mechanism**, not a separate model parameter. The fitted model carries **one** $\
 component. When the between-study association differs from the within-study one, that single
 coefficient **estimates a different quantity rather than becoming wrong**: the likelihood is
 satisfied exactly at $\Gamma_W + \text{shift}$, and the size of the resulting error is what the study
-measures. Section 8 establishes that this holds to machine precision on both arms. Calling
+measures. **Section 8 establishes this for E2** (worst pointwise gap 2.22e-16 against a registered
+tolerance of 1e-12). **E1's version is established separately**, in `R/09-smoke.R`: E1's exact
+Gaussian bias, computed with no aliasing algebra in it at all, equals the same
+$\text{shift} - [(I+P_0)^{-1}P_0\theta^{*}]_{\Gamma_3}$ expression to **1.6e-15** over 40 scenarios,
+and `mean_true` equals $X\theta^{*}$ to **1.8e-15**. Saying "section 8 establishes it on both arms"
+pinned an E1 claim on an E2-only measurement. Calling
 the estimand $\Gamma_{W,3}$ elsewhere suggested the model contains $\Gamma_W$ and $\Gamma_B$
 separately; it does not.
 
@@ -343,6 +350,13 @@ establishes that no threshold separates them. Reported over the **comparison set
 the nominal scenarios; the intermediate and over-covering bands belong to neither side and are
 excluded from the denominator as well.
 
+**The answer, which this section did not previously state: every statistic overlaps, on both arms.**
+On E1, over 251 failing and 169 nominal
+scenarios, and on E2 over 41 and 12.
+**No threshold on contraction, on either effective-rank reading, on the estimability screen or on the
+candidate separates failing coverage from nominal coverage.** That is the study's central negative
+result and section 7 had been reporting the secondary numbers and primary 3 without it.
+
 **Primary 1 covers the three CMP-14 rules and `rank_screen`. `source_survival` appears in the same
 table and is not a primary result.** It is this study's own post hoc candidate, and giving it the
 same standing as the summaries the catalog asks about would be confirmatory packaging of a quantity
@@ -350,10 +364,16 @@ section 1 concedes was never registered. Its row is marked exploratory in the ex
 claim resting on it is labeled as such.
 
 **Primary 2, with its decision rule registered rather than left to the code.** `additivity` against
-`ecological`, matched on spread, total patient budget and prior scale, with synergy off. Within that
-matched set, take the pairs whose **contraction differs by less than `PAIRS_CLOSE_TOL = 0.02`** and
-report the **maximum absolute coverage gap** across them. The claim is that two evidence structures a
-reader would call identically well identified can differ arbitrarily in whether the interval covers.
+`ecological`, matched on spread, total patient budget and prior scale, with synergy off. **Discordance
+is deliberately NOT a matching key and is free on the `ecological` side**, so one `additivity`
+scenario pairs with every `ecological` scenario sharing its three keys. That is the point: the
+comparison is between a randomized route and a confounded one, and fixing discordance at zero would
+remove the confounding the contrast exists to price. The rule is `key = (spread, n, prior_sd)` in
+`state_pairs()` and it was unstated until round 8. Within that matched set, take the pairs whose **contraction differs by less than `PAIRS_CLOSE_TOL = 0.02`** and
+report the **maximum absolute coverage gap** across them, which is **0.951**.
+The claim is that two evidence structures a reader would call identically well identified differ by
+**at least that much** in whether the interval covers. An earlier wording said "arbitrarily", which a
+finite maximum over a finite grid cannot establish.
 
 The tolerance is absolute closeness, and **that is not the same as displaying identically**. An
 earlier version justified 0.02 by saying two contractions within it are "the same number to anyone
@@ -428,8 +448,12 @@ turns, plus the SD ratio that `curvature` needs.
 
 **Neither departure is misspecification, so coverage is reported on all 72 scenarios.** Discordance
 adds its amount to the target modification in the *aggregate* rows carrying the target, and in
-`ecological` and `curvature` the target appears in no other row. Synergy adds its amount to arms
-holding components 1 and 3 together, and in `additivity` the target appears in no other arm. In both
+`ecological` and `curvature` the target appears in no other row. Synergy adds its amount **to the covariate slope** of arms
+holding components 1 and 3 together, $\eta \mathrel{+}= \text{synergy}\cdot x$, so it is
+interaction-shaped rather than a main-effect offset; in `additivity` the target appears in no other
+arm. **That shape is what makes the aliasing work**: a constant add-on would be collinear with an
+intercept and could not be absorbed into $\Gamma_3$, and an earlier wording said only "adds its
+amount to arms", which describes the wrong departure. In both
 cases every row the departure touches carries the target and every target-bearing row is touched, so
 a **single shifted coefficient reproduces the truth exactly**:
 
@@ -533,16 +557,31 @@ against.
 negative control: with equal aggregate SDs the target is not identified at all, so including those
 rows would let a state that identifies nothing masquerade as a separated one.
 
-**E1's conclusion is withdrawn if any of the six separates.** That is deliberately the weakest
-possible bar for withdrawal: one separation anywhere is enough, so the rule cannot be satisfied by
-averaging away a real one. **None of the six separates**, which is the E2 result.
+**None of the six separates**, which is the E2 result. One separation anywhere would have been enough,
+so the rule cannot be satisfied by averaging a real one away.
+
+**But state separation is not E1's conclusion, and calling this rule a withdrawal criterion for E1
+was wrong.** E1's conclusion is primary 1: no threshold on any summary separates failing coverage
+from nominal coverage. Whether the summaries separate the *information states* is a different
+proposition, worth registering on its own, and it cannot withdraw a primary it does not test.
+
+**E1's actual conclusion is now tested on E2, because it can be.** Coverage exists on all 72
+scenarios after the aliasing result, so primary 1's overlap test runs on E2 unchanged, over
+**41 failing and 12 nominal** scenarios.
+**Every statistic overlaps on E2 as well**, so E1's conclusion **reproduces on the nonlinear link**.
+That is the registered bridge between the arms, and it points the other way from primary 3, which
+does not reproduce.
 
 ## 9. What this cannot settle
 
 - **Nothing here is confirmatory**, per section 1.
-- **E2's contraction figures describe a Gaussian approximation** to a non-Gaussian posterior, and
-  section 8 measures how far it sits from its Laplace analogue: up to **20.11%** in relative terms.
-  That is the largest single caveat on any E2 number.
+- **E2's contraction figures describe a Gaussian approximation to a non-Gaussian posterior, and the
+  distance to that true posterior is not measured anywhere.** What section 8 measures is the gap
+  between two *Gaussian* approximations, the registered Fisher-at-$\theta^{*}$ one and a Laplace one
+  from the observed Hessian at the mode: up to **20.11%** in relative terms. An earlier version of
+  this bullet chained the non-Gaussian worry to that number and called it the largest caveat, which
+  offers the wrong reference quantity as a bound. **The 20.11% bounds the choice of Gaussian; it does
+  not bound Gaussianity.**
 - **The E1 finding does not reproduce on the nonlinear arm.** Primary 3's rank correlation between
   contraction and coverage is $+0.3295$ over E1's 144 confounded scenarios and $-0.5952$ over E2's 8.
   The signs are opposite, so the inversion E1 reports is not a property of the diagnostic that
