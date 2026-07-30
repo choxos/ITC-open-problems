@@ -8,7 +8,7 @@ part on IDN-06 *ML-NMR interactions can rest solely on aggregate-data variation*
 
 **Provenance.** Every number this document prints is exported from the code that computes it
 by `R/05-export.R`, and `review/verify-protocol.py` asserts the document against that export,
-currently **125** assertions. The four controls in section 5 are asserted against the values
+currently **126** assertions. The four controls in section 5 are asserted against the values
 that made them pass, not merely described, because section 8 concedes that two of them were
 weakened after they failed.
 
@@ -209,7 +209,8 @@ as what it actually tests, after round 1 found two of them promising more than t
    confined to that mechanism rather than widening its threshold until it passes.
 3. **The tight prior pulls every state toward zero**, and pulls hardest where there is least
    information to resist with. The first version said it depresses every state *alike*; measured, the
-   magnitudes differ by more than a third of the truth, so **"alike" is withdrawn**. What holds, and
+   magnitudes differ by 0.192 across the states that have information, against a truth of
+   0.40, so **"alike" is withdrawn**. What holds, and
    what the argument needs, is that the direction is the same everywhere, so the failure belongs to
    the prior and not to any one evidence structure. Two orderings are asserted: `absent`, which has
    no likelihood information at all, is pulled hardest of any state, and among the states that do

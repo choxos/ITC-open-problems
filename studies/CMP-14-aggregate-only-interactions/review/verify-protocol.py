@@ -196,6 +196,11 @@ for st, v in DESIGN["control_tight_recovery"].items():
     ctl_has(f"largest budget, `{st}`", f"{v:.3f}")
 for st, v in DESIGN["control_tight_bias"].items():
     ctl_has(f"mean bias, `{st}`", f"{v:+.3f}")
+_inf = {k: v for k, v in DESIGN["control_tight_bias"].items() if k != "absent"}
+check("the printed bias spread reproduces from the printed biases",
+      f"differ by {max(_inf.values()) - min(_inf.values()):.3f} across the states"
+      in PROTOCOL,
+      f"spread is {max(_inf.values()) - min(_inf.values()):.3f}")
 check("the tight prior pulls the least-informed state hardest",
       min(DESIGN["control_tight_bias"],
           key=lambda k: DESIGN["control_tight_bias"][k]) == "absent",

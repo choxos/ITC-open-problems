@@ -91,6 +91,24 @@ if p2 != p:
     PROT.write_text(p2)
     changed.append("nuisance-prior sensitivity")
 
+# --- the bias-spread sentence, third prose number to go stale ----------------
+# Grok found "a spread of 0.165" not reproducing from the printed biases; it was
+# left over from before the arm counts were matched. Rounds 2, 4 and 5 have each
+# found a stale prose number, so this one stops being prose too.
+_inf = {k: v for k, v in tb.items() if k != "absent"}
+_spread = max(_inf.values()) - min(_inf.values())
+p_txt = PROT.read_text()
+_new = (f"the\n   magnitudes differ by {_spread:.3f} across the states that have "
+        f"information, against a truth of\n   {DESIGN['gamma_w']:.2f}")
+p2 = re.sub(r"the\n   magnitudes differ by [^,]+, against a truth of\n   [0-9.]+",
+            _new, p_txt)
+if p2 == p_txt:
+    p2 = re.sub(r"the\n   magnitudes differ by more than a third of the truth",
+                _new, p_txt)
+if p2 != p_txt:
+    PROT.write_text(p2)
+    changed.append("bias-spread sentence")
+
 print("rewritten:" if changed else "already current")
 for c in changed:
     print(" ", c)
