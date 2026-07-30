@@ -46,7 +46,13 @@ if (length(missing))
 ## dependency graph would be one more thing to keep correct. Blunt means it
 ## sometimes demands a rerun that was not strictly needed, which costs seconds in
 ## this study and is the right trade.
-newest_code <- max(file.info(list.files("R", full.names = TRUE))$mtime)
+## THIS FILE IS EXCLUDED FROM ITS OWN CHECK. Editing the exporter cannot
+## invalidate an artifact, because the exporter consumes artifacts rather than
+## producing them; including it meant every edit here demanded a full rerun of
+## every experiment, which is not a cost worth paying for a check that would
+## never catch anything.
+code_files <- setdiff(list.files("R", full.names = TRUE), "R/05-export.R")
+newest_code <- max(file.info(code_files)$mtime)
 ages <- file.info(REQUIRED)$mtime
 stale <- REQUIRED[ages < newest_code]
 if (length(stale))
@@ -171,7 +177,12 @@ out$curvature_rank <- list(
   equal_sd_logit_estimable = cr$check[["1"]]$logit_estimable,
   equal_sd_identity_estimable = cr$check[["1"]]$identity_estimable,
   unequal_sd_logit_estimable = cr$check[["2"]]$logit_estimable,
-  unequal_sd_identity_estimable = cr$check[["2"]]$identity_estimable)
+  unequal_sd_identity_estimable = cr$check[["2"]]$identity_estimable,
+  ## Round 5: the guard was documented as needing equal baselines and left
+  ## testing only the equal-baseline case, so this records both halves.
+  equal_sd_needs_equal_baseline = isTRUE(cr$equal_sd_needs_equal_baseline),
+  unequal_baseline_equal_sd_estimable =
+    isTRUE(cr$check_unequal_baseline[["1"]]$logit_estimable))
 
 ## --- E2, run after its rules were committed ---------------------------------
 e2 <- readRDS("results/e2.rds"); ev <- readRDS("results/e2-verdict.rds")
