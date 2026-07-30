@@ -220,6 +220,18 @@ out$e2_by_state <- lapply(split(e2, e2$state), function(z) list(
 ## and the curvature state's two target values, and both come from here rather
 ## than being typed, because the finding that produced this block was a number
 ## stated from memory that the code disagreed with.
+## NO E2 SCENARIO IS MISSPECIFIED. Both departures are exactly a shift of the
+## target coefficient, so the fitted model reproduces the truth at theta* and
+## coverage is defined everywhere. These are the numbers that claim carries: the
+## count of aliased scenarios, the shift, and the worst reproduction gap over the
+## whole grid, measured pointwise in the covariate.
+stopifnot("an E2 scenario has no coverage after the aliasing result"
+            = !any(is.na(e2$coverage)))
+out$e2_n_aliased <- sum(e2$aliased)
+out$e2_alias_shifts <- sort(unique(e2$alias_shift[e2$aliased]))
+out$e2_alias_gap_max <- signif(max(e2$alias_gap), 3)
+out$e2_n_covered <- sum(!is.na(e2$coverage))
+
 out$pbo_prev_min <- round(ev$pbo_prev_min, 4)
 out$pbo_prev_max <- round(ev$pbo_prev_max, 4)
 out$curv_pbo_prev <- round(ev$curv_pbo_prev, 4)

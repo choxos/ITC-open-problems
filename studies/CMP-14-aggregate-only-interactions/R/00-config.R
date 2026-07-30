@@ -181,4 +181,16 @@ E2_SYNERGY  <- c(0.00, 0.20)
 ## second-order term that carries the curvature route is smallest.
 E2_BASE_P <- 0.30
 
+## NEITHER DEPARTURE IS LIKELIHOOD MISSPECIFICATION. Round 6 established that
+## discordance and synergy are each exactly a shift of the target coefficient:
+## every row the departure touches is a row carrying the target, and every row
+## carrying the target is touched, so the fitted model reproduces the true arm
+## probabilities exactly at theta* = theta_true + shift on that one coordinate.
+## The model is correct and the ESTIMAND is aliased. `evaluate_e2` asserts the
+## reproduction per scenario rather than relying on the argument, and this is the
+## tolerance it asserts against; the measured worst case is of order 1e-16, so the
+## threshold is loose by four orders of magnitude and still cannot pass a real
+## departure from aliasing.
+E2_ALIAS_TOL <- 1e-12
+
 SEED <- 20260729L

@@ -7,46 +7,55 @@
 ## first-order expansion of the posterior mode's sampling distribution. Every
 ## coverage number below is a normal approximation and is labeled as one.
 ##
-## WHAT E2 REPORTS, AND WHAT IT NO LONGER TRIES TO.
+## WHAT E2 REPORTS, AND THE RESTRICTION THAT TURNED OUT TO BE UNNECESSARY.
 ##
 ## Round 3 found the coverage calculation invalid wherever the model is
-## misspecified, and it was right. Under discordance or synergy the true Bernoulli
-## probability differs from the fitted one, so the score variance is no longer the
-## model Fisher information, and for an aggregate arm mean the expected Hessian is
-## not that information either: its second-derivative term vanishes only when the
-## fitted mean equals the true one. The code nevertheless used
-## (I + P0)^{-1} I (I + P0)^{-1}. Codex recomputed one registered curvature
-## scenario under the correct Hessian and score variance and got 0.6898 against
-## the 0.9400 reported, crossing both the nominal and the failure boundary.
+## misspecified, and round 3's algebra was right: under genuine misspecification
+## the score variance is not the model Fisher information, and for an aggregate
+## arm mean the expected Hessian is not either, since its second-derivative term
+## vanishes only when the fitted mean equals the true one. Coverage was therefore
+## suppressed wherever discordance or synergy acted, which is 28 of 72 scenarios.
 ##
-## Two things could be done about that. A sandwich could be implemented, which for
-## the aggregate rows needs the second derivative of a quadrature integral and is
-## real work; or E2 could be scoped to the question it exists to answer. The
-## second is chosen, because it is what the evidence supports rather than a
-## partial sandwich presented as a whole one.
+## ROUND 6 FOUND THE PREMISE FALSE. Neither departure is misspecification.
+## Discordance adds `discord` to the target modification in the AGGREGATE rows
+## carrying the target, and in `ecological` and `curvature` the target appears in
+## no other row. Synergy adds `synergy` to arms holding components 1 and 3
+## together, and in `additivity` the target appears in no other arm. In both cases
+## every touched row carries the target and every target-bearing row is touched,
+## so a SINGLE shifted coefficient reproduces every true arm probability:
 ##
-##   THE SEPARATION QUESTION NEEDS NO COVERAGE AT ALL. Whether contraction or
-##   effective rank distinguishes the information states is a property of the
-##   information matrix and the prior. It is computed exactly, on every scenario,
-##   and E2's registered rules now operate on the full per-state distribution of
-##   each diagnostic rather than on a coverage-filtered subset.
+##   true_p(theta_true; departure)  ==  model_p(theta_true + shift * e_target)
 ##
-##   COVERAGE IS REPORTED ONLY WHERE THE MODEL IS CORRECT, that is at zero
-##   discordance and zero synergy. There A equals B equals the Fisher information,
-##   the expansion below is the ordinary one, and the number means what it says.
-##   Those scenarios still contain failure, because a tight misplaced prior breaks
-##   coverage without any misspecification at all.
+## exactly, to 5.6e-17 over the grid. The model is correctly specified everywhere
+## and it is the ESTIMAND that is aliased: the likelihood identifies
+## Gamma_W + shift while the study asks about Gamma_W. That is not a technical
+## correction, it is the thesis. An aggregate-only route recovers a different
+## quantity with a correctly sized interval around it, which is worse than a wide
+## interval and is exactly what CMP-14 asks whether the summaries can detect.
 ##
-##   MISSPECIFIED COVERAGE ON A NONLINEAR LINK IS OUT OF SCOPE and section 9 says
-##   so. E1 answers the misspecified-coverage question exactly, on a linear link.
+## So COVERAGE IS NOW REPORTED ON EVERY SCENARIO, computed the ordinary way at the
+## pseudo-true parameter theta* rather than suppressed. Nothing about round 3's
+## algebra is retracted; it simply never applied. `evaluate_e2` ASSERTS the exact
+## reproduction per scenario against E2_ALIAS_TOL rather than relying on the
+## argument above, so a future state whose departure touched only some
+## target-bearing rows would stop the run instead of silently reinstating the
+## misspecification this section says is absent.
 ##
-## The expansion used where it is valid: with p_i(theta) the model's mean for row
-## i, the MAP solves score(theta) = -P0 theta, and about theta_true
+## The expansion, now used everywhere: with p_i(theta) the model's mean for row i,
+## the MAP solves score(theta) = -P0 theta, and about theta*
 ##
-##   theta_hat - theta_true  ~=  (I + P0)^{-1} [ U - P0 theta_true ],
+##   theta_hat - theta*  ~=  (I* + P0)^{-1} [ U* - P0 theta* ],
 ##
-## with U the score at theta_true. Var(theta_hat) = (I + P0)^{-1} I (I + P0)^{-1}
-## holds when the model is correct, which is the only place it is now used.
+## with U* the score at theta*, whose mean is EXACTLY zero because the model is
+## correct there. So E[theta_hat] = theta* - (I* + P0)^{-1} P0 theta*, the bias
+## against the registered estimand Gamma_W = theta*_g - shift is
+##
+##   bias = shift - [ (I* + P0)^{-1} P0 theta* ]_g,
+##
+## the aliasing and the prior shrinkage in one expression, and
+## Var(theta_hat) = (I* + P0)^{-1} I* (I* + P0)^{-1}. At shift = 0 this reduces
+## term by term to what the well-specified branch computed before, so the 44
+## scenarios that already had coverage keep their values.
 ##
 ##   Rscript R/07-run-e2.R
 ## ---------------------------------------------------------------------------
@@ -86,6 +95,29 @@ true_p <- function(b, theta, discord, synergy) {
   }, 0)
 }
 
+## HOW FAR THE SHIFTED MODEL IS FROM THE TRUTH, measured POINTWISE IN THE
+## COVARIATE rather than on the arm mean. The distinction is not pedantry: an IPD
+## arm contributes a per-individual likelihood, so aliasing there requires the two
+## probability FUNCTIONS to agree at every x, and two different functions can
+## share a mean. Checking the integrand rather than the integral makes the
+## assertion cover the IPD rows the synergy departure acts on.
+alias_gap_max <- function(b, theta, discord, synergy, shift) {
+  gh <- gh_rule(64)
+  th_star <- theta; th_star[gi_of(b)] <- th_star[gi_of(b)] + shift
+  gaps <- vapply(seq_len(nrow(b$net)), function(i) {
+    th_i <- theta
+    if (!as.logical(b$net$ipd[i]) && b$C[i, TARGET] == 1)
+      th_i[gi_of(b)] <- th_i[gi_of(b)] + discord
+    extra <- if (b$C[i, 1] == 1 && b$C[i, TARGET] == 1) synergy else 0
+    xs <- b$net$mu[i] + sqrt(2) * b$net$sd[i] * gh$x
+    max(vapply(xs, function(x) {
+      r <- design_row(b$net, i, x, b$S, b$K)
+      abs(expit(sum(r * th_i) + extra * x) - expit(sum(r * th_star)))
+    }, 0))
+  }, 0)
+  max(gaps)
+}
+
 ## For an IPD arm the model's contribution is per-individual, so its "row" is the
 ## quadrature expansion; for an aggregate arm it is the single arm proportion.
 ## The displacement U is assembled over the same rows the information is.
@@ -121,18 +153,31 @@ evaluate_e2 <- function(row) {
   th <- theta_true_nl(b)
   gi <- gi_of(b)
   P0 <- prior_precision(b, row$prior_sd)
-  inf <- logit_info(b, th)
+
+  ## THE PSEUDO-TRUE PARAMETER, and the assertion that it is exact. The two
+  ## departures never co-occur in the grid, so their sum is the shift.
+  shift <- row$discord + row$synergy
+  th_star <- th; th_star[gi] <- th_star[gi] + shift
+  alias_gap <- alias_gap_max(b, th, row$discord, row$synergy, shift)
+  if (alias_gap > E2_ALIAS_TOL)
+    stop(sprintf(paste("scenario %d (%s, discord %.2f, synergy %.2f) is not",
+                       "estimand aliasing: the shifted model misses the true arm",
+                       "probabilities by %.3e, so the likelihood IS misspecified",
+                       "here and the coverage calculation below does not apply"),
+                 row$scenario, row$state, row$discord, row$synergy, alias_gap))
+
+  ## Everything is evaluated at theta*, because that is where the data come from.
+  ## On a logit link the information depends on the parameter, so the diagnostics
+  ## move with the shift too; that is a property of the design under the truth,
+  ## not a choice.
+  inf <- logit_info(b, th_star)
   I <- inf$total
   A <- solve(I + P0)
-  U <- displacement(b, th, row$discord, row$synergy)
-  bias <- as.vector(A %*% (U - P0 %*% th))[gi]
+  bias <- shift - as.vector(A %*% (P0 %*% th_star))[gi]
   v_samp <- (A %*% I %*% A)[gi, gi]
   sd_post <- sqrt(A[gi, gi])
-  ## Correctly specified only; NA elsewhere, so a misspecified coverage figure
-  ## cannot be read off this table by accident.
-  well_specified <- row$discord == 0 && row$synergy == 0
   z <- stats::qnorm(1 - (1 - NOMINAL) / 2)
-  cov <- if (!well_specified) NA_real_ else {
+  cov <- {
     lo <- (-bias - z * sd_post) / sqrt(v_samp)
     hi <- (-bias + z * sd_post) / sqrt(v_samp)
     stats::pnorm(hi) - stats::pnorm(lo)
@@ -156,7 +201,9 @@ evaluate_e2 <- function(row) {
   net_flat$sd[!as.logical(net_flat$ipd)] <-
     mean(net_flat$sd[!as.logical(net_flat$ipd)])
   b_flat <- build_design(net_flat)
-  inf_flat <- logit_info(b_flat, theta_true_nl(b_flat))
+  th_flat <- theta_true_nl(b_flat)
+  th_flat[gi_of(b_flat)] <- th_flat[gi_of(b_flat)] + shift
+  inf_flat <- logit_info(b_flat, th_flat)
   ss <- source_shares(I, inf$within, inf_flat$total, gi)
   w_in <- lik_marginal_precision(inf$within, gi)
   w_bt <- lik_marginal_precision(inf$between, gi)
@@ -167,9 +214,15 @@ evaluate_e2 <- function(row) {
     prec_within = w_in, prec_between = w_bt, prec_full = ss$full,
     share_within = ss$share_within, share_curv = ss$share_curv,
     bias = bias, post_sd = sd_post, samp_sd = sqrt(v_samp),
-    coverage = cov, well_specified = well_specified,
+    coverage = cov, aliased = shift != 0, alias_shift = shift,
+    alias_gap = alias_gap,
     stringsAsFactors = FALSE)) |>
-    transform(failed = !is.na(coverage) & coverage < COVER_BAD)
+    transform(failed = coverage < COVER_BAD)
+}
+
+rng_or_na <- function(x, f) {
+  x <- x[!is.na(x)]
+  if (!length(x)) NA_real_ else round(f(x), 3)
 }
 
 build_grid_e2 <- function() {
@@ -218,8 +271,11 @@ main <- function() {
     cover_max = round(max(z$coverage), 3),
     contract_min = round(min(z$contraction), 4),
     contract_max = round(max(z$contraction), 4),
-    share_within_min = round(min(z$share_within, na.rm = TRUE), 3),
-    share_within_max = round(max(z$share_within, na.rm = TRUE), 3)))),
+    ## `absent` identifies the target from nothing, so its share is NA in every
+    ## row and min/max over an empty vector would print Inf and -Inf as though
+    ## they were measurements.
+    share_within_min = rng_or_na(z$share_within, min),
+    share_within_max = rng_or_na(z$share_within, max)))),
     row.names = FALSE)
 }
 
@@ -293,8 +349,15 @@ if (!interactive() && Sys.getenv("E2_NOMAIN") == "") {
   cat("\n=== the registered withdrawal rules ===\n")
   print(v$rules, row.names = FALSE)
   cat(sprintf("\nE1's conclusion is withdrawn: %s\n", v$withdraw_e1))
-  cat(sprintf("coverage reported for %d of %d scenarios (correctly specified only)\n",
-              sum(res$well_specified), nrow(res)))
+  cat(sprintf(paste("coverage reported for %d of %d scenarios; %d carry an",
+                    "aliased estimand, worst reproduction gap %.2e\n"),
+              sum(!is.na(res$coverage)), nrow(res), sum(res$aliased),
+              max(res$alias_gap)))
+  stopifnot("a scenario has no coverage, which the aliasing result says cannot
+             happen since the model is correctly specified everywhere"
+              = !any(is.na(res$coverage)),
+            "a scenario's departure is not exact aliasing"
+              = max(res$alias_gap) <= E2_ALIAS_TOL)
   cat(sprintf("source share, curvature: %s | ecological: %s | separates them: %s\n",
               paste(v$curvature_share, collapse = ", "),
               paste(v$ecological_share, collapse = ", "),

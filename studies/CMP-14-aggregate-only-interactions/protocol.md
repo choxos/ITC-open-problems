@@ -14,7 +14,7 @@ replaced is in the history.
 
 **Provenance.** Every number here is exported from the code that computes it by `R/05-export.R`,
 emitted into the document by `review/emit-tables.py`, and asserted back by
-`review/verify-protocol.py`, currently **101** assertions. The exporter
+`review/verify-protocol.py`, currently **105** assertions. The exporter
 refuses to run when an artifact is older than the code that produces it; the verifier refuses to run
 when the export is older than the code.
 
@@ -59,7 +59,9 @@ them say which.
 **The estimand is the within-study effect modification $\Gamma_W$ in the data-generating
 mechanism**, not a separate model parameter. The fitted model carries **one** $\Gamma$ per
 component. When the between-study association differs from the within-study one, that single
-coefficient is misspecified, and the size of the resulting error is what the study measures. Calling
+coefficient **estimates a different quantity rather than becoming wrong**: the likelihood is
+satisfied exactly at $\Gamma_W + \text{shift}$, and the size of the resulting error is what the study
+measures. Section 8 establishes that this holds to machine precision on both arms. Calling
 the estimand $\Gamma_{W,3}$ elsewhere suggested the model contains $\Gamma_W$ and $\Gamma_B$
 separately; it does not.
 
@@ -192,9 +194,40 @@ thresholds. These are averages over a chosen grid and are labeled as such.
 ## 8. E2: the nonlinear arm
 
 Asymptotic, **not fitted**. No model is sampled and no sampler policy exists because none is needed
-for an information calculation. Coverage is reported **only where the model is correctly specified**,
-since under misspecification the score variance is not the Fisher information and the aggregate
-arm's expected Hessian is not either.
+for an information calculation.
+
+**Neither departure is misspecification, so coverage is reported on all 72 scenarios.** Discordance
+adds its amount to the target modification in the *aggregate* rows carrying the target, and in
+`ecological` and `curvature` the target appears in no other row. Synergy adds its amount to arms
+holding components 1 and 3 together, and in `additivity` the target appears in no other arm. In both
+cases every row the departure touches carries the target and every target-bearing row is touched, so
+a **single shifted coefficient reproduces the truth exactly**:
+
+$$p^{\text{true}}(x;\,\theta_{\text{true}},\text{departure}) \;=\; p^{\text{model}}(x;\,\theta^{*}),
+\qquad \theta^{*} = \theta_{\text{true}} + \text{shift}\cdot e_{\Gamma_3}.$$
+
+`R/07-run-e2.R` asserts this **per scenario and pointwise in the covariate**, not on the arm mean,
+because an individual-data arm contributes a per-individual likelihood and two different probability
+functions can share a mean. The worst gap over the grid is **2.22e-16**, against a registered
+tolerance `E2_ALIAS_TOL` of 1e-12. A future state whose departure touched only some target-bearing
+rows would stop the run rather than quietly reintroduce the misspecification this paragraph says is
+absent.
+
+**So the model is correct and the *estimand* is aliased**, which is a stronger result than the one it
+replaced. The likelihood identifies $\Gamma_W + \text{shift}$ while the study asks about $\Gamma_W$,
+and the interval is correctly sized around the wrong quantity. That is worse than a wide interval and
+it is precisely what CMP-14 asks whether the summaries can detect. Everything is evaluated at
+$\theta^{*}$, including the information, which on a curved link depends on the parameter; the bias
+against the registered estimand is
+$\text{shift} - [(I^{*} + P_0)^{-1} P_0 \theta^{*}]_{\Gamma_3}$, the aliasing and the prior shrinkage
+in one expression. At shift $= 0$ this reduces term by term to the previous calculation, so the 44
+undisturbed scenarios keep their values and **28 scenarios gain a coverage figure they were denied**.
+
+An earlier version reported coverage only where discordance and synergy were both zero, on the
+argument that the score variance is not the Fisher information under misspecification. **That algebra
+is correct and simply never applied here**; it is not retracted, it is out of scope. The restriction
+had removed exactly the scenarios the study exists to examine, and it left primaries 2 and 3
+uncomputable on E2.
 
 **Contraction in E2 is contraction of a normal approximation whose covariance is
 $(I(\theta_{\text{true}}) + P_0)^{-1}$**, the expected Fisher information at the true parameter plus
@@ -212,17 +245,30 @@ the design's.
 
 **The gap is measured rather than admitted.** `R/09-contraction-gap.R` solves for the mode under data
 at their expectation, $U(\theta;\,\mathbb{E}[y \mid \theta_{\text{true}}]) = P_0\theta$, by Newton
-iteration and recomputes the contraction there. Across the 44 correctly specified E2 scenarios the
-**maximum absolute difference is 0.0351 and the median is 0.00093, a maximum of 4.73% in relative
-terms**. Misspecified scenarios are excluded because their mode is displaced for a second reason and
-the two causes would be confounded.
+iteration and recomputes the contraction there, at $\theta^{*}$ where a departure acts. It runs on
+**all 72 scenarios**; the earlier restriction to 44 was justified by a second displacement of the mode
+that the aliasing result shows does not exist. The **maximum absolute difference is 0.0882, the
+median is 0.00413, and the maximum relative difference is 14.64%**.
+
+**Those figures are larger than the ones this paragraph used to carry**, which were 0.0351, 0.00093
+and 4.73% over the 44-scenario subset. The aliased scenarios are where the two approximations differ
+most, because the shift moves $\theta^{*}$ further from the prior center and the mode is pulled
+further back. Reporting the smaller number would have meant keeping a restriction that was excluding
+the worst cases. **A 14.64% relative gap is a real limitation of the registered quantity** and
+section 9 carries it.
 
 Effective rank is unaffected, being a property of the information matrix directly.
 
 ## 9. What this cannot settle
 
 - **Nothing here is confirmatory**, per section 1.
-- **E2's contraction figures describe a Gaussian approximation** to a non-Gaussian posterior.
+- **E2's contraction figures describe a Gaussian approximation** to a non-Gaussian posterior, and
+  section 8 measures how far it sits from its Laplace analogue: up to **14.64%** in relative terms.
+  That is the largest single caveat on any E2 number.
+- **The aliasing result is a property of these five states, not a theorem.** It holds because each
+  departure happens to touch exactly the target-bearing rows. A state where a departure reached some
+  of them and not others would be genuinely misspecified, and E2's coverage calculation would not
+  apply; `R/07-run-e2.R` stops rather than reporting one.
 - **E1's diagnostics are conditional on the expected covariate design.**
 - **The curvature state's conclusions hold only under equal target-study baselines**, and the route
   list is not claimed to be complete.

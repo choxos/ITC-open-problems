@@ -84,8 +84,13 @@ find_map <- function(b, th_true, P0, tol = 1e-10, maxit = 50L) {
 gap_for <- function(row) {
   net <- build_state_nl(row$state, row$spread, row$sd_ratio, row$n)
   b <- build_design(net)
-  th <- theta_true_nl(b)
   gi <- gi_of(b)
+  ## The parameter the data come from, which under a departure is the aliased
+  ## theta* rather than theta_true. Round 6 established that the two departures
+  ## are exactly a shift of this coordinate, so the expected-data mode is a
+  ## well-posed object on every scenario rather than only on the undisturbed ones.
+  th <- theta_true_nl(b)
+  th[gi] <- th[gi] + row$discord + row$synergy
   P0 <- prior_precision(b, row$prior_sd)
 
   ## Registered: information at the truth.
@@ -104,11 +109,11 @@ gap_for <- function(row) {
 }
 
 main <- function() {
+  ## EVERY scenario, not just the undisturbed ones. The earlier restriction was
+  ## justified by the claim that a departure displaces the mode "for a second
+  ## reason"; round 6 showed there is no second reason, because the departure is
+  ## exactly a relabelling of one coordinate and the model is correct at theta*.
   grid <- build_grid_e2()
-  ## The gap is a property of the approximation, not of misspecification, so it
-  ## is measured where the model is correctly specified. Misspecified rows carry
-  ## a displaced mode for a second reason and would confound the two.
-  grid <- grid[grid$discord == 0 & grid$synergy == 0, ]
   res <- do.call(rbind, lapply(seq_len(nrow(grid)),
                                function(i) gap_for(grid[i, ])))
   res$abs_gap <- abs(res$contraction_registered - res$contraction_laplace)
@@ -117,7 +122,7 @@ main <- function() {
   stopifnot("some expected-data mode did not converge" = all(res$converged))
 
   cat("=== registered contraction against its Laplace analogue ===\n")
-  cat(sprintf("scenarios: %d (correctly specified only)\n", nrow(res)))
+  cat(sprintf("scenarios: %d (the whole E2 grid)\n", nrow(res)))
   cat(sprintf("absolute gap: max %.6f, median %.6f\n",
               max(res$abs_gap), stats::median(res$abs_gap)))
   cat(sprintf("relative gap: max %.4f%%, median %.4f%%\n",

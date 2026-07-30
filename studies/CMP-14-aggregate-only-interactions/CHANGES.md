@@ -132,6 +132,49 @@ certifying a mechanism under a restriction nobody had registered. The assertion 
 requires the approximation to be *named*, and separate assertions check that the
 name is the right one and that neither the mislabel nor the admission has returned.
 
+## The misspecification that was never there
+
+Round 3 found E2's coverage calculation invalid wherever discordance or synergy
+acted, and its algebra was right: under misspecification the score variance is not
+the model Fisher information, and for an aggregate arm the expected Hessian is not
+either. Coverage was suppressed in 28 of 72 scenarios. **Round 6 found the premise
+false.** Neither departure is misspecification.
+
+Discordance adds its amount to the target modification in the *aggregate* rows
+carrying the target, and in `ecological` and `curvature` the target appears in no
+other row. Synergy adds its amount to arms holding components 1 and 3 together,
+and in `additivity` the target appears in no other arm. Every row a departure
+touches carries the target, and every target-bearing row is touched, so one
+shifted coefficient reproduces the truth exactly. Measured pointwise in the
+covariate across the grid, the worst gap is **2.22e-16** on E2 and **1.78e-15** on
+E1. The model is correct; the **estimand** is aliased.
+
+**That is a stronger result than the one it replaced, and it is the thesis.** An
+aggregate-only route does not produce a wrong-looking answer. It produces a
+correctly sized interval around a different quantity, which is worse, and which is
+exactly what CMP-14 asks whether the summaries can detect. The restriction had
+removed precisely the scenarios the study exists to examine, and it left primaries
+2 and 3 uncomputable on E2, which is the second reviewer's finding by a different
+route.
+
+Three things follow that were not free. **The 28 restored scenarios are where the
+two contraction approximations differ most**, because the shift moves $\theta^{*}$
+further from the prior center, so the measured Laplace gap rose from 0.0351 to
+**0.0882** absolute and from 4.73% to **14.64%** relative. Keeping the restriction
+would have meant reporting the smaller number by excluding the worst cases.
+**Everything is now evaluated at $\theta^{*}$**, including the information, which
+on a curved link depends on the parameter, so the diagnostics move with the shift.
+And **the aliasing is asserted per scenario rather than argued**: a state whose
+departure touched only some target-bearing rows would stop the run.
+
+**A third guard was enforcing the withdrawn claim.** `verify-protocol.py` required
+the protocol to contain "only where the model is correctly specified", so
+correcting the document failed the check. That is the same failure as the Laplace
+label and the equal-SD restriction before it, and the pattern is now explicit:
+**an assertion written as "the document says X" survives the discovery that X is
+wrong, and reports the correction as a regression.** Assertions here now check a
+computed value or a named property wherever one exists.
+
 ## A prevalence that is true nowhere, and why it was not just a word
 
 The protocol said E2's **placebo arms sit at prevalence 0.3**. The code sets

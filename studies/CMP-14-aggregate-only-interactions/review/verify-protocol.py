@@ -169,9 +169,26 @@ check("E2 is not claimed to be fitted",
       "Asymptotic, **not fitted**" in PROTOCOL
       and "no sampler policy exists" in PROTOCOL,
       "E2 overstates what it runs")
-check("E2 coverage is scoped to correct specification",
-      "only where the model is correctly specified" in PROTOCOL,
-      "misspecified coverage is not scoped out")
+# THIS ASSERTION USED TO REQUIRE THE RESTRICTION IT NOW FORBIDS. It demanded the
+# phrase "only where the model is correctly specified", which round 6 showed was
+# a restriction resting on a premise that never held: both departures are exactly
+# a shift of the target coefficient, so nothing in E2 is misspecified. That makes
+# three guards in this study that pinned a wrong claim in place. The check now
+# asserts the aliasing result and its measured evidence instead.
+check("E2 reports coverage on every scenario",
+      f"coverage is reported on all {DESIGN['e2_n_scenarios']} scenarios"
+      in PROTOCOL and DESIGN["e2_n_covered"] == DESIGN["e2_n_scenarios"],
+      f"{DESIGN['e2_n_covered']} of {DESIGN['e2_n_scenarios']} carry coverage")
+check("the aliased-scenario count matches the export",
+      f"**{DESIGN['e2_n_aliased']} scenarios gain a coverage figure" in PROTOCOL,
+      f"export says {DESIGN['e2_n_aliased']}")
+check("the measured aliasing gap is stated and is within tolerance",
+      f"{DESIGN['e2_alias_gap_max']:g}" in PROTOCOL.replace("e-16", "e-16")
+      and DESIGN["e2_alias_gap_max"] < 1e-12,
+      f"export says {DESIGN['e2_alias_gap_max']:g}")
+check("the aliasing assertion is pointwise, not on the arm mean",
+      "pointwise in the covariate" in PROTOCOL,
+      "an arm-mean check would not cover the individual-data rows")
 # This assertion used to require the protocol to SAY "contraction of a Laplace
 # approximation", so the verifier was enforcing the mislabel: correcting the
 # document would have failed the check and the failure would have looked like a
@@ -234,8 +251,11 @@ check("the unmeasured-gap admission is gone",
       "bounded by nothing measured here" not in PROTOCOL,
       "the admission survived the measurement that replaced it")
 check("contraction-gap scenario count matches the export",
-      f"{_cg['n_scenarios']} correctly specified E2 scenarios" in PROTOCOL,
+      f"all {_cg['n_scenarios']} scenarios" in PROTOCOL,
       f"export says {_cg['n_scenarios']}")
+check("the contraction gap covers the whole E2 grid",
+      _cg["n_scenarios"] == DESIGN["e2_n_scenarios"],
+      f"gap ran on {_cg['n_scenarios']} of {DESIGN['e2_n_scenarios']} scenarios")
 check("contraction-gap maximum absolute difference matches the export",
       f"{_cg['max_abs']:.4f}" in PROTOCOL, f"export says {_cg['max_abs']:.4f}")
 check("contraction-gap median matches the export",
