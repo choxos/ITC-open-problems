@@ -94,6 +94,17 @@ rather than a variance and which grows with the curvature of the link, the
 dispersion of the linear predictor, and the discrepancy between the assumed and
 true target correlation.
 
+**Prediction 2 is now measured rather than argued**, before any replicate has run,
+because the gradient is computed from the estimand functional by central
+differences instead of from a per-link derivation. `R/02-gradient.R` returns both
+the gradient and its distance from $\beta_{EM}$, so a collapsible derivation's
+error is a number: **0.189 on logit and 0.337 on cloglog**, against a $\beta_{EM}$
+of 0.6, with a dispersion gradient of **0.101 and 0.201** that a collapsible
+derivation omits entirely. The step size is checked by halving, which moves the
+gradient by 8.6e-09; a central difference that has not converged looks exactly
+like one that has, and that is the failure this study cannot afford in the
+quantity its second prediction is about.
+
 If prediction 3 fails, the catalog's claim that correlations are "the genuinely
 unaddressed component" is what is wrong, and that is a reportable result.
 
@@ -274,6 +285,7 @@ eleven-row version is the model.
 |---|---|---|
 | **P1** | Quadrature order registered at **48**, not the 16 or 32 an eye would have picked | The `mixed` covariate arm needs 48 on `cloglog` and 32 on `logit` to reach $10^{-4}$, against 8 to 16 for every continuous law. A thresholded binary covariate is a step function and Gauss-Hermite converges on it slowly. At order 16 the `mixed`/`cloglog` cell is still 4.8e-4 from its own reference, five times the tolerance |
 | **P1** | No arm dropped | Every link and shape reached the tolerance at some order, so the lognormal arm survives. Had it not, section 10 required dropping it |
+| **gradient check** | Prediction 2 confirmed, and strengthened: **non-modifier covariates acquire a nonzero gradient** on a curved link | Under the identity link $\partial\Delta/\partial\bar x_T$ is $\beta_{EM}$ to 1.5e-12 and $\partial\Delta/\partial s_T$ is exactly 0. Under logit the mean-gradient is $(0.411, -0.041, -0.027)$ against $\beta_{EM} = (0.6, 0, 0)$, a gap of **0.189**, and the SD-gradient is **0.101** where a collapsible derivation says it is zero. Under cloglog the gap is **0.337** and the SD-gradient **0.201**. So covariates that modify nothing still carry target-moment variance once the link is curved, which the design predicted only for the matched moments |
 | **P1** | Cost of truth confirmed affordable | $48^3 = 110{,}592$ nodes evaluates in **0.24 s**, and truth is computed once per cell rather than once per replicate, so the order that the hardest cell needs is used everywhere. One order for the study means no between-cell difference can come from the integration rule |
 
 **A cheaper exact route exists for the `mixed` arm and is deliberately not taken.**
