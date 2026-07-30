@@ -56,10 +56,16 @@ SPLIT_BUDGET = 14_000
 PREAMBLE = """You are reviewing a PRE-REGISTRATION for a simulation study. Nothing has been
 run yet. Your job is to find defects while they are still free to fix.
 
-This is the ELEVENTH round of critique on this document. Ten rounds have returned 168 fatal
-and serious findings. ROUND 10 WAS THE FIRST WITH NO FATAL FINDING FROM ANY REVIEWER, so the
-question this round answers is whether that was convergence or luck. Do not manufacture a fatal
-finding to fill the slot, and do not soften a real one because the previous round was clean.
+This is the TWELFTH round of critique on this document. Eleven rounds have returned 175 fatal
+and serious findings. ROUNDS 10 AND 11 BOTH RETURNED NO FATAL FINDING FROM ANY REVIEWER, and the
+serious count has fallen from 11 to 7. This round decides whether that is convergence.
+
+If you find nothing fatal, say so plainly; a clean verdict from a reviewer that looked hard is
+worth more here than a manufactured finding. If you do find something fatal, do not soften it
+because two rounds were clean. Round 11's sharpest finding was structural rather than an error:
+one leg of the study's central claim could not fail under the registered definitions, so the
+claim was true and a quarter of it was not evidence. That shape, a true claim that cannot be
+falsified, is worth looking for again.
 
 TWO INSTRUCTIONS THAT MATTER MORE THAN THE REST.
 
