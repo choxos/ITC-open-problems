@@ -75,8 +75,14 @@ main <- function() {
     max(res$stable_order, na.rm = TRUE)
   cat(sprintf("\nregistered quadrature order: %s\n",
               ifelse(is.na(order_needed), "NONE", order_needed)))
-  cat(sprintf("node count at that order, 3 covariates: %s\n",
-              ifelse(is.na(order_needed), "n/a", format(order_needed^3))))
+  ## The node count differs by shape now that the normal case reduces to one
+  ## dimension exactly. Reporting only the product-rule figure would overstate
+  ## the cost of every cell that uses the reduction, which is most of them.
+  cat(sprintf("nodes at that order: %s for the mvnorm reduction, %s for the
+  product rule the non-normal shapes still use\n",
+              ifelse(is.na(order_needed), "n/a", format(order_needed)),
+              ifelse(is.na(order_needed), "n/a", format(order_needed^3,
+                                                        big.mark = ","))))
 
   dir.create("results", showWarnings = FALSE)
   p <- load_probes(); if (is.null(p)) p <- list()

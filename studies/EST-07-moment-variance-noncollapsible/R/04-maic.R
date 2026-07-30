@@ -100,7 +100,11 @@ estimator_gradient <- function(rep_data, link) {
 ## from MIS-03 unchanged: the reconstruction an analyst performs does not become
 ## more sophisticated because the link is curved, and changing it here would
 ## confound the correlation arm with a modeling improvement.
-Omega_normal <- function(mu, sd, R) {
+## `binary` marks covariates whose square was dropped from h, so the returned
+## covariance matches the moment vector the estimator actually uses. Building the
+## full 2p by 2p matrix and subsetting is valid because the reconstruction is
+## pairwise.
+Omega_normal <- function(mu, sd, R, binary = rep(FALSE, length(mu))) {
   S <- diag(sd) %*% R %*% diag(sd)
   p <- length(mu)
   O <- matrix(0, 2 * p, 2 * p)
@@ -110,5 +114,6 @@ Omega_normal <- function(mu, sd, R) {
     O[p + j, k] <- 2 * mu[j] * S[j, k]
     O[p + j, p + k] <- 2 * S[j, k]^2 + 4 * mu[j] * mu[k] * S[j, k]
   }
-  O
+  keep <- c(rep(TRUE, p), !binary)
+  O[keep, keep, drop = FALSE]
 }

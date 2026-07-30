@@ -42,9 +42,30 @@ LEVELS <- list(
   ## Sampling error in the reported moments scales as 1/nT.
   nT = c(100L, 300L, 1000L),
 
-  ## MIS-03 found the magnitude tracks the source-to-target RATIO, so the ratio
-  ## varies through nT and the source size is pinned.
-  nS = 500L,
+  ## THE SOURCE SIZE IS A FACTOR, and pinning it was a design error that PROBE P2
+  ## caught before any replicate ran.
+  ##
+  ## The design reasoned that MIS-03 found the magnitude tracks the source-to-
+  ## target RATIO, so varying nT alone would span it. It does not: the omitted
+  ## variance is fixed by nT while the RETAINED source variance is fixed by nS,
+  ## so with nS pinned at 500 the source term dominates everywhere. Measured on
+  ## the study's own primary arm, logit at nT = 100 with k = 0:
+  ##
+  ##     nS =   500  ->  2.6% of total variance   (below P2's 4% floor)
+  ##     nS =  2000  ->  9.5%
+  ##     nS =  8000  -> 29.8%
+  ##     nS = 20000  -> 50.9%
+  ##
+  ## At the registered nS the primary arm could not have detected its own
+  ## headline: a 44% error in a term worth 2.6% of the variance moves coverage by
+  ## far less than the 0.005 Monte Carlo SE the design budgets for.
+  ##
+  ## THIS IS THE PILOT MISTAKE MIS-03 DOCUMENTED AND THIS DESIGN REPEATED.
+  ## MIS-03's own configuration says: "A pilot holding nS = 500 found the omission
+  ## was 1% to 7% of total variance and concluded nothing was wrong; raising nS to
+  ## 2000 took the same quantity to 23%." Reading that as a statement about the
+  ## ratio rather than about the source size is what pinned it here.
+  nS = c(500L, 2000L, 8000L),
 
   ## MIS-03's alignment parameter. 0.25 is its registered cancellation point.
   ## MIS-03 had NO interior k, which is exactly what left its recommendation

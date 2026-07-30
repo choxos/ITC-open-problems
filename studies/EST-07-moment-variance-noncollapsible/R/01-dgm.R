@@ -109,11 +109,54 @@ delta_sample <- function(x, pars, link) {
   delta_from_arm_means(mean(cm$mu0), mean(cm$mu1), link)
 }
 
+## THE INTEGRAL IS ONE-DIMENSIONAL UNDER NORMALITY, EXACTLY.
+##
+## Each arm mean is int ginv(eta_a(x)) dF_T(x), and eta_a is LINEAR in x. So the
+## integrand depends on x only through the scalar eta_a, and when x is
+## multivariate normal so is eta_a. The p-dimensional integral therefore reduces
+## to a one-dimensional one over N(a_0 + mu'b, b'S b), with no approximation:
+## checked against the product rule at 4.1e-15.
+##
+## This matters for feasibility, not elegance. The product rule costs order^p,
+## which is 110,592 nodes at p = 3 and **5,308,416 at p = 4**, 17.8 s per
+## evaluation. The `modifier_span = outside` arm adds a covariate, so a gradient
+## there needs 16 evaluations and would cost 285 s per cell. The reduction makes
+## it 48 nodes at any p.
+##
+## It applies only where eta_a is normal, which is the `mvnorm` shape. The
+## non-normal shapes keep the product rule, and they are p = 3 by construction
+## because the design crosses `modifier_span` with the MIDDLE level of `shape`.
+delta_superpopulation_normal <- function(pars, link, mu, sigma, rho, order) {
+  lf <- link_fns(link)
+  gh <- gh_rule(order)
+  w <- gh$w / sqrt(pi)
+  p <- length(mu)
+  R <- matrix(rho, p, p); diag(R) <- 1
+  S <- diag(sigma, p) %*% R %*% diag(sigma, p)
+  arm <- function(b, a0) {
+    m <- a0 + sum(mu * b)
+    s <- sqrt(as.numeric(t(b) %*% S %*% b))
+    sum(w * lf$ginv(m + sqrt(2) * s * gh$x))
+  }
+  m0 <- arm(pars$beta_prog, pars$alpha)
+  m1 <- arm(pars$beta_prog + pars$beta_em, pars$alpha + pars$tau0)
+  delta_from_arm_means(m0, m1, link)
+}
+
 ## The superpopulation estimand by Gauss-Hermite quadrature over the TRUE law.
 ## The order is PROBE P1's output and is never defaulted: OUT-11's integration
 ## order moved a primary contrast and was caught only because it was measured.
 delta_superpopulation <- function(pars, link, shape, mu, sigma, rho, order) {
   stopifnot("the quadrature order must come from probe P1" = is.finite(order))
+  ## The exact reduction where it applies. P1's order was chosen on the product
+  ## rule and is reused here, which is conservative: a one-dimensional integral
+  ## needs no more nodes than the same rule needed in three dimensions.
+  if (shape == "mvnorm")
+    return(delta_superpopulation_normal(pars, link, mu, sigma, rho, order))
+  stopifnot("the product rule is only affordable to three covariates; the
+             non-normal shapes are crossed with the middle level of the other
+             factors precisely so this cannot be reached at four"
+              = length(mu) <= 3L)
   gh <- gh_rule(order)
   p <- length(mu)
   ## A product rule over p dimensions. p is 3 and the order is small, so the

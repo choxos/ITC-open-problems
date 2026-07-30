@@ -22,7 +22,28 @@ source("R/02-gradient.R")
 ## baseline table reports. `h(x)` is the balancing function MAIC matches on, so
 ## it is x and x^2; matching the second raw moment is matching the SD given the
 ## mean, and the two parameterizations differ only in bookkeeping.
-h_of <- function(x) cbind(x, x^2)
+##
+## EXCEPT FOR A BINARY COVARIATE, WHERE x^2 = x IDENTICALLY. A naive `cbind(x,
+## x^2)` then contains a duplicate column, the balancing problem is rank
+## deficient, and the sandwich's Jacobian is singular: measured, rank 5 of 6, and
+## every replicate in the `mixed` shape arm failed with `singular-jacobian`.
+##
+## This is a fact about MAIC and not only about this code. A binary covariate's
+## mean determines its whole distribution, so there is no second moment to match,
+## and an implementation that always forms two columns per covariate cannot fit
+## the mixed-type case that most applied baseline tables contain. `binary_cols`
+## is returned so the moment reconstruction uses the same index rather than
+## rediscovering it.
+binary_cols <- function(x)
+  apply(x, 2, function(z) all(z %in% c(0, 1)))
+
+h_of <- function(x) {
+  b <- binary_cols(x)
+  h <- cbind(x, x[, !b, drop = FALSE]^2)
+  attr(h, "binary") <- b
+  attr(h, "n_mean") <- ncol(x)
+  h
+}
 
 ## The source and target populations differ by `OVERLAP_SMD` on every covariate,
 ## which is how the design fixes overlap at the moderate level of the Phillippo
@@ -90,7 +111,11 @@ sample_replicate <- function(nS, nT, k, link, shape, rho_true,
     ## Exactly what a baseline table gives: means, SDs, the effect, and n.
     target_reported = list(
       mean = colMeans(xt), sd = apply(xt, 2, stats::sd),
-      m = c(colMeans(xt), colMeans(xt^2)),
+      ## The reported moment vector matches h's structure exactly, including the
+      ## dropped squares for binary covariates.
+      m = { b <- binary_cols(xt)
+            c(colMeans(xt), colMeans(xt[, !b, drop = FALSE]^2)) },
+      binary = binary_cols(xt),
       theta_BC = theta_BC, nT = nT),
     ## Never passed to an estimator. Used only to compute truth.
     hidden = list(x = xt, pars = pars, pars_T = pars_T, rho_true = rho_true,
