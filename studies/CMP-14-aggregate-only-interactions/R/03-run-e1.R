@@ -203,13 +203,13 @@ main <- function() {
                    abs(r_hi$coverage - res$coverage)),
     contraction = max(abs(r_lo$contraction - res$contraction),
                       abs(r_hi$contraction - res$contraction)),
-    share_within = max(abs(r_lo$share_within - res$share_within), na.rm = TRUE))
+    surv_between = max(abs(r_lo$surv_between - res$surv_between), na.rm = TRUE))
   attr(res, "nuisance_sensitivity") <- nuis_move
   cat(sprintf("\nnuisance-prior sensitivity (scale 3 and 30 against %g):\n",
               PRIOR_SD_NUISANCE))
   cat(sprintf("  worst move in coverage %.4f, contraction %.4f, source share %.4f\n",
               nuis_move[["coverage"]], nuis_move[["contraction"]],
-              nuis_move[["share_within"]]))
+              nuis_move[["surv_between"]]))
 
   saveRDS(res, "results/e1.rds")
   cat(sprintf("written: results/e1.rds  (%d rows)\n", nrow(res)))

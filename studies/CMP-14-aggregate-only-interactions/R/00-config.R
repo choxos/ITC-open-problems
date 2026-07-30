@@ -114,7 +114,14 @@ SYNERGY <- c(0.00, 0.20)
 ## ships it and a new summary has to beat what exists. The fourth is this
 ## study's proposed replacement, which costs nothing extra because it comes from
 ## the same information matrix.
-DIAGNOSTICS <- c("contraction", "eff_rank", "rank_screen", "source_share")
+##
+## CMP-14 ASKS FOR TWO SUMMARIES AND THEY PRODUCE THREE RULES. The effective
+## likelihood rank has a whole-model reading and a per-parameter one, and round 6
+## found the exported table carrying the per-parameter numbers under the
+## whole-model name while the whole-model count controlled no decision at all.
+## Both are listed, under the names they are computed from.
+DIAGNOSTICS <- c("contraction", "target_ratio", "eff_rank", "rank_screen",
+                 "source_survival")
 
 ## Registered thresholds. Contraction below CONTRACT_OK means "the likelihood
 ## moved this parameter", which is how such a summary would be read; the value

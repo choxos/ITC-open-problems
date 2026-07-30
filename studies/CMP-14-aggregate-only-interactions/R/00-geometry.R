@@ -203,19 +203,32 @@ lik_marginal_precision <- function(I, gi, tol = 1e-6) {
 ## additivity, and it is exactly zero or one in the clean cases rather than an
 ## artifact near them.
 ##
-##   share_within : the fraction of the target's marginal likelihood precision
+##   surv_between : the fraction of the target's marginal likelihood precision
 ##                  that survives when every aggregate row is deleted. One when
 ##                  randomized within-study evidence identifies it alone.
-##   share_curv   : the fraction LOST when the between-study contrast in
+##   surv_sd   : the fraction LOST when the between-study contrast in
 ##                  covariate variances is removed, by flattening the aggregate
 ##                  SDs to their mean. One when the parameter is identified by
 ##                  the curvature route and nothing else; exactly zero on a
 ##                  linear link, where that route does not exist.
+## ROUND 6: THE TWO FORMS POINTED IN OPPOSITE DIRECTIONS UNDER ONE NAME. The
+## registered candidate is `source_survival`, "the fraction of the target's
+## marginal likelihood precision surviving deletion of a source". `surv_between`
+## had that orientation: delete the between-study source and the within-study
+## precision is what survives. `surv_sd` was 1 minus its analogue, the
+## fraction LOST when the SD contrast is flattened, so a value of 1 meant zero
+## survival where the registered definition says complete survival. Both are now
+## survivals, both reassuring when high, and both named for the source deleted.
 source_shares <- function(I_full, I_within, I_noflat, gi) {
   full <- lik_marginal_precision(I_full, gi)
-  if (full <= 0) return(list(full = 0, share_within = NA_real_,
-                             share_curv = NA_real_))
+  if (full <= 0) return(list(full = 0, surv_between = NA_real_,
+                             surv_sd = NA_real_))
   list(full = full,
-       share_within = lik_marginal_precision(I_within, gi) / full,
-       share_curv = max(1 - lik_marginal_precision(I_noflat, gi) / full, 0))
+       ## Delete the between-study source: the within-study rows survive.
+       surv_between = lik_marginal_precision(I_within, gi) / full,
+       ## Delete the covariate-SD contrast by flattening the aggregate SDs: what
+       ## the remaining routes still identify is what survives. Clamped at 1,
+       ## since a flattened design cannot identify more than the full one and a
+       ## value above 1 would be numerical noise rather than a measurement.
+       surv_sd = min(lik_marginal_precision(I_noflat, gi) / full, 1))
 }

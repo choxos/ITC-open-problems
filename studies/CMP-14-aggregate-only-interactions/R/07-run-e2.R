@@ -212,7 +212,7 @@ evaluate_e2 <- function(row) {
     contraction = contraction, target_ratio = target_ratio,
     eff_rank = er$eff_rank, estimable = estimable,
     prec_within = w_in, prec_between = w_bt, prec_full = ss$full,
-    share_within = ss$share_within, share_curv = ss$share_curv,
+    surv_between = ss$surv_between, surv_sd = ss$surv_sd,
     bias = bias, post_sd = sd_post, samp_sd = sqrt(v_samp),
     coverage = cov, aliased = shift != 0, alias_shift = shift,
     alias_gap = alias_gap,
@@ -274,8 +274,8 @@ main <- function() {
     ## `absent` identifies the target from nothing, so its share is NA in every
     ## row and min/max over an empty vector would print Inf and -Inf as though
     ## they were measurements.
-    share_within_min = rng_or_na(z$share_within, min),
-    share_within_max = rng_or_na(z$share_within, max)))),
+    surv_between_min = rng_or_na(z$surv_between, min),
+    surv_between_max = rng_or_na(z$surv_between, max)))),
     row.names = FALSE)
 }
 
@@ -327,19 +327,19 @@ e2_verdict <- function(res) {
     stringsAsFactors = FALSE)))
 
   ## The source-share condition, on the prior-free leave-one-source-out statistic.
-  cs <- unique(rows_for("curvature")$share_curv)
-  es <- unique(rows_for("ecological")$share_curv)
+  cs <- unique(rows_for("curvature")$surv_sd)
+  es <- unique(rows_for("ecological")$surv_sd)
   cs <- cs[!is.na(cs)]; es <- es[!is.na(es)]
   list(rules = rules,
        withdraw_e1 = isTRUE(any(rules$separates)),
-       curvature_share = unique(rows_for("curvature")$share_within[
-         !is.na(rows_for("curvature")$share_within)]),
-       ecological_share = unique(rows_for("ecological")$share_within[
-         !is.na(rows_for("ecological")$share_within)]),
-       share_within_is_constructional = FALSE,
-       share_curv_curvature = if (length(cs)) range(cs) else NA,
-       share_curv_ecological = if (length(es)) range(es) else NA,
-       share_curv_separates = length(cs) > 0 && length(es) > 0 &&
+       curvature_share = unique(rows_for("curvature")$surv_between[
+         !is.na(rows_for("curvature")$surv_between)]),
+       ecological_share = unique(rows_for("ecological")$surv_between[
+         !is.na(rows_for("ecological")$surv_between)]),
+       surv_between_is_constructional = FALSE,
+       surv_sd_curvature = if (length(cs)) range(cs) else NA,
+       surv_sd_ecological = if (length(es)) range(es) else NA,
+       surv_sd_separates = length(cs) > 0 && length(es) > 0 &&
          (min(cs) > max(es) || min(es) > max(cs)))
 }
 

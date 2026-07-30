@@ -60,7 +60,7 @@ overlap_table <- function(d) {
     contraction  = d$contraction,
     target_ratio = d$target_ratio,
     eff_rank     = d$eff_rank,
-    share_within = ifelse(is.na(d$share_within), 0, d$share_within),
+    surv_between = ifelse(is.na(d$surv_between), 0, d$surv_between),
     ## Round 4: the estimability screen was among the registered diagnostics and
     ## appeared in no outcome, so the one rule `cpaic` already ships controlled
     ## nothing. It is binary, so "overlaps" means both of its values occur among
@@ -72,7 +72,7 @@ overlap_table <- function(d) {
   ## analyzed, so one of the two summaries CMP-14 actually asks for was absent
   ## from every reported outcome. It is included here in both forms.
   safe_low <- c(contraction = TRUE, target_ratio = FALSE, eff_rank = FALSE,
-                share_within = FALSE, rank_screen = FALSE)
+                surv_between = FALSE, rank_screen = FALSE)
   do.call(rbind, lapply(names(stats), function(nm) {
     v <- stats[[nm]]; fail <- d$failed
     if (safe_low[[nm]]) {
@@ -132,9 +132,9 @@ state_pairs <- function(d) {
       discord = g$discord[i],
       contraction_additivity = m$contraction[1],
       contraction_ecological = g$contraction[i],
-      share_within_additivity = m$share_within[1],
-      share_within_ecological = ifelse(is.na(g$share_within[i]), 0,
-                                       g$share_within[i]),
+      surv_between_additivity = m$surv_between[1],
+      surv_between_ecological = ifelse(is.na(g$surv_between[i]), 0,
+                                       g$surv_between[i]),
       coverage_additivity = m$coverage[1],
       coverage_ecological = g$coverage[i],
       stringsAsFactors = FALSE)))
@@ -154,6 +154,22 @@ state_pairs <- function(d) {
 ## This is the exact shape of error that has cost this program three fatal
 ## findings: a real measurement compared against the wrong reference, or its sign
 ## misread. The column is named for what it means rather than for what it is.
+## ROUND 6: THE REGISTERED CORRELATION WAS NEVER COMPUTED. The protocol registers
+## ONE rank correlation "within the confounded family"; this function only ever
+## reported it separately at each discordance level. Stratified and pooled rank
+## correlations can differ in magnitude and in sign, so the registered primary
+## output was absent while three stratified ones stood in for it. The pooled
+## value is now the primary and the stratified ones are reported beside it, which
+## also shows whether the two readings agree.
+anticorrelation_pooled <- function(d) {
+  g <- d[d$state == "ecological" & d$discord > 0, ]
+  rho <- suppressWarnings(cor(g$contraction, g$coverage, method = "spearman"))
+  data.frame(n_scenarios = nrow(g), n_discord_levels = length(unique(g$discord)),
+             rho_contraction_vs_coverage = rho,
+             contraction_inverted = isTRUE(rho > 0),
+             stringsAsFactors = FALSE)
+}
+
 anticorrelation <- function(d) {
   do.call(rbind, lapply(split(d[d$state == "ecological" & d$discord > 0, ],
                               d$discord[d$state == "ecological" & d$discord > 0]),
@@ -172,23 +188,43 @@ anticorrelation <- function(d) {
       ## is not: a statistic that takes the same alarming value on every member
       ## of a family that is uniformly wrong has classified the family correctly,
       ## and has no variation left to correlate.
-      share_within_is_constant =
-        length(unique(ifelse(is.na(g$share_within), 0, g$share_within))) == 1,
-      share_within_value = mean(ifelse(is.na(g$share_within), 0, g$share_within)),
+      surv_between_is_constant =
+        length(unique(ifelse(is.na(g$surv_between), 0, g$surv_between))) == 1,
+      surv_between_value = mean(ifelse(is.na(g$surv_between), 0, g$surv_between)),
       stringsAsFactors = FALSE)))
 }
 
 ## --- SECONDARY: the registered thresholds, as warning rules -----------------
 ## Grid-weighted and labeled as such.
+## ROUND 6: THE DENOMINATOR WAS `!failed`, WHICH IS NOT THE SUCCESS CLASS.
+## `failed` is one-sided, coverage < COVER_BAD, while the document calls gross
+## overcoverage "a different failure" and primary 1 excludes it from both sides.
+## So an over-covering scenario was excluded from primary 1 and simultaneously
+## counted as a SUCCESS in the false-alarm denominator here, which made the two
+## outcomes use incompatible classes. The three classes are now named once and
+## used everywhere: `failed`, `nominal`, and a middle band belonging to neither.
+## The false-alarm rate is now conditioned on `nominal`, the same success class
+## primary 1 compares against.
+classes <- function(d) {
+  nominal <- abs(d$coverage - NOMINAL) <= COVER_TOL
+  list(failed = d$failed, nominal = nominal,
+       neither = !d$failed & !nominal)
+}
+
 warning_table <- function(d) {
+  cl <- classes(d)
   cols <- grep("^warn_", names(d), value = TRUE)
   do.call(rbind, lapply(cols, function(cn) {
     w <- d[[cn]]
     data.frame(rule = sub("^warn_", "", cn),
-               sensitivity = mean(w[d$failed]),
-               false_alarm = mean(w[!d$failed]),
-               youden = mean(w[d$failed]) - mean(w[!d$failed]),
-               n_failed = sum(d$failed), n_ok = sum(!d$failed),
+               sensitivity = mean(w[cl$failed]),
+               false_alarm = mean(w[cl$nominal]),
+               youden = mean(w[cl$failed]) - mean(w[cl$nominal]),
+               n_failed = sum(cl$failed), n_nominal = sum(cl$nominal),
+               n_neither = sum(cl$neither),
+               ## What the old denominator would have given, kept so the change
+               ## is visible rather than silent.
+               false_alarm_vs_not_failed = mean(w[!cl$failed]),
                stringsAsFactors = FALSE)
   }))
 }
@@ -216,7 +252,7 @@ main <- function() {
     print(head(close[order(-abs(close$cover_gap)),
                      c("spread", "n", "prior_sd", "discord",
                        "contraction_additivity", "contraction_ecological",
-                       "share_within_additivity", "share_within_ecological",
+                       "surv_between_additivity", "surv_between_ecological",
                        "coverage_additivity", "coverage_ecological")], 8),
           row.names = FALSE, digits = 4)
   }

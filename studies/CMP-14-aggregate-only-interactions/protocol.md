@@ -14,7 +14,7 @@ replaced is in the history.
 
 **Provenance.** Every number here is exported from the code that computes it by `R/05-export.R`,
 emitted into the document by `review/emit-tables.py`, and asserted back by
-`review/verify-protocol.py`, currently **105** assertions. The exporter
+`review/verify-protocol.py`, currently **107** assertions. The exporter
 refuses to run when an artifact is older than the code that produces it; the verifier refuses to run
 when the export is older than the code.
 
@@ -30,7 +30,9 @@ qualified later.
   ran before the protocol. **E1 is exact and exploratory.**
 - **E2 has no confirmatory standing either.** Its separation rules were rebuilt in round 3 after its
   output had been read. **Every part of E2 is exploratory.**
-- **The candidate statistic is post hoc in all three of its forms.** None was registered in advance.
+- **The candidate statistic is post hoc in both of its forms**, `surv_between` and `surv_sd`, defined
+  in section 5. Neither was registered in advance, and neither carries the standing of the two
+  summaries CMP-14 asks for. Every outcome that reports it says so on the row.
 
 Pre-registration exists to stop data-dependent choices from manufacturing a result. For a
 deterministic computation the corresponding risk is choosing the grid or the outcome definition
@@ -130,13 +132,31 @@ version it replaced.
 | `rank_screen` | is the coordinate identified by the likelihood at all, computed with no prior | the estimability screen `cpaic` ships |
 | `source_survival` | fraction of the target's marginal likelihood precision surviving deletion of a source | **this study's candidate, exploratory** |
 
-**Every precision here is prior-free**, meaning $1/[I^{-1}]_{gg}$ from the likelihood alone and
-exactly zero where the likelihood does not identify the coordinate. Computing it from a
-prior-regularized inverse credits the likelihood with identification the prior supplied.
+**CMP-14 asks for two summaries and they produce three rules.** The two are prior-to-posterior
+contraction per interaction parameter, and an effective likelihood rank. The rank has a whole-model
+reading and a per-parameter one, and both are reported because a model-level count can be high while
+the single coordinate an analyst cares about is prior-driven. **The title's "two" is the catalog's
+two; the table's three are their implementations.** Until round 6 the exported warning table carried
+the per-parameter numbers under the whole-model name and the whole-model count controlled no
+decision at all.
+
+**Every precision *entering the ratios* is prior-free**, meaning $1/[I^{-1}]_{gg}$ from the
+likelihood alone and exactly zero where the likelihood does not identify the coordinate. Computing it
+from a prior-regularized inverse credits the likelihood with identification the prior supplied.
+**`contraction` is the exception and is not a prior-free quantity**: it is a posterior SD over a
+prior SD, so it uses $(I + P_0)^{-1}$ by construction. That is not an oversight in the diagnostic; it
+is what makes contraction the summary most exposed to CMP-14's own question.
 
 **`source_survival` is not a share and asking for one is ill-posed.** No single source identifies the
 target in every state, so a parameter's precision cannot be apportioned among sources. Asking how
 much survives deleting a source needs no additivity and no prior.
+
+**It has exactly two forms, both survivals, both reassuring when high.** `surv_between` deletes the
+between-study source and reports what the within-study rows still identify; `surv_sd` flattens the
+aggregate covariate SDs and reports what the remaining routes still identify. An earlier version
+computed the second as the fraction *lost*, so a value of 1 meant zero survival where this definition
+says complete survival, and the document referred to "three forms" without ever defining a third.
+The registered warning rule uses `surv_between`.
 
 **Registered thresholds:** `CONTRACT_OK = 0.50`, `EFF_RATIO_OK = 1.00`,
 `SOURCE_OK = 0.50`. The first two are conventional. **`SOURCE_OK` cannot be**, because
@@ -181,15 +201,36 @@ establishes that no threshold separates them. Reported over the **comparison set
 the nominal scenarios; the intermediate and over-covering bands belong to neither side and are
 excluded from the denominator as well.
 
+**Primary 1 covers the three CMP-14 rules and `rank_screen`. `source_survival` appears in the same
+table and is not a primary result.** It is this study's own post hoc candidate, and giving it the
+same standing as the summaries the catalog asks about would be confirmatory packaging of a quantity
+section 1 concedes was never registered. Its row is marked exploratory in the exported table and any
+claim resting on it is labeled as such.
+
 **Primary 2.** `additivity` against `ecological`, matched on spread, total patient budget and prior
 scale, with synergy off.
 
-**Primary 3.** Within the confounded family, the rank correlation between contraction and coverage.
-**Low contraction is the reassuring value, so a POSITIVE correlation means the diagnostic becomes
-more reassuring as the answer gets worse.**
+**Primary 3, one correlation over the confounded family.** The rank correlation between contraction
+and coverage across every `ecological` scenario with nonzero discordance, **pooled, not stratified by
+discordance level**. It is $\rho = 0.3295$ over 144 scenarios. **Low contraction is the reassuring
+value, so a POSITIVE correlation means the diagnostic becomes more reassuring as the answer gets
+worse.**
+
+Until round 6 only the per-level correlations were computed, 0.2232 at discordance 0.15 and 0.5119 at
+0.40, and the registered pooled value existed nowhere. Stratified and pooled rank correlations can
+differ in sign, so this mattered whether or not it changed the answer. **Here it does not: all three
+are positive and the strata agree with the pooled reading**, which is now asserted rather than
+observed.
 
 **Secondary, and grid-weighted.** Sensitivity, false-alarm rate and Youden index at the registered
 thresholds. These are averages over a chosen grid and are labeled as such.
+
+**The false-alarm denominator is the nominal scenarios, not "everything that did not fail".** Failure
+is one-sided at `COVER_BAD`, while primary 1 excludes the intermediate and over-covering bands from
+both sides; using `!failed` here counted 84 scenarios as successes that primary 1 refuses to call
+successes. **This change flatters the diagnostics and is reported for that reason**: the contraction
+rule's false-alarm rate falls from 0.3043 to 0.0355 under the corrected denominator, and the old
+value is exported alongside the new one so the size of the correction is visible.
 
 ## 8. E2: the nonlinear arm
 

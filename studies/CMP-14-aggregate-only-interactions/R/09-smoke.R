@@ -160,18 +160,21 @@ ok("no registered separation rule fires", !isTRUE(v$withdraw_e1),
 ## Round 2 found the two-way share unable to separate these states by
 ## construction, so it is checked as a CONSTRUCTIONAL fact rather than as
 ## evidence, and the statistic that can actually fire is checked separately.
-ok("share_within is zero in both aggregate-only states, by construction",
+ok("surv_between is zero in both aggregate-only states, by construction",
    identical(v$curvature_share, 0) && identical(v$ecological_share, 0),
    sprintf("curvature %s, ecological %s",
            paste(v$curvature_share, collapse = ","),
            paste(v$ecological_share, collapse = ",")))
 ok("the three-way split separates the two aggregate routes",
-   isTRUE(v$share_curv_separates),
+   isTRUE(v$surv_sd_separates),
    sprintf("curvature %s, ecological %s",
-           paste(v$share_curv_curvature, collapse = "-"),
-           paste(v$share_curv_ecological, collapse = "-")))
+           paste(v$surv_sd_curvature, collapse = "-"),
+           paste(v$surv_sd_ecological, collapse = "-")))
+## ROUND 6 FLIPPED THIS. `surv_sd` was the fraction LOST when the SD contrast
+## is flattened; it is now the fraction SURVIVING, so "the curvature route
+## carries nothing here" reads as 1 rather than 0.
 ok("the curvature route is absent from the mean-gradient state",
-   all(v$share_curv_ecological == 0))
+   all(v$surv_sd_ecological == 1))
 
 cat(sprintf("\n%s\n", strrep("-", 70)))
 if (length(fails)) {

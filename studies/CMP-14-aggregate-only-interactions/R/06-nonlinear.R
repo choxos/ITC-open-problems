@@ -76,7 +76,7 @@ agg_grad <- function(theta, b, i) {
 }
 
 ## The information matrix on the logit scale, split by source exactly as the
-## identity-link version is, so `source_share` reads the same object.
+## identity-link version is, so `source_survival` reads the same object.
 logit_info <- function(b, theta) {
   I_within <- matrix(0, b$p, b$p); I_between <- matrix(0, b$p, b$p)
   gh <- gh_rule(64)

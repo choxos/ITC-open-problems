@@ -274,3 +274,52 @@ and Grok returned HTTP 402, usage balance exhausted. Both are recorded as **not 
 neither is counted as agreement. A second round with a second reviewer is required before this
 protocol is treated as having cleared critique.
 
+
+## Four outcomes that were not the outcomes they were named after
+
+Round 6's two reviewers found four separate places where a registered output and
+the thing computed under its name were different objects. They are grouped here
+because the failure is one failure.
+
+**The `eff_rank` warning was built from `target_ratio`.** `warnings_from()` named
+a column for the whole-model effective rank and populated it from the
+per-parameter ratio; `d$eff_rank` appeared in no warning at all. So the exported
+sensitivity, false-alarm and Youden figures for the model-level summary CMP-14
+asks for were the per-parameter summary's figures, and the model-level count
+controlled no decision. Both now exist under their own names, the whole-model
+rule firing when the data fail to dominate the prior in every direction, which
+makes its threshold the parameter count rather than a tuning choice.
+
+**The candidate's two forms pointed in opposite directions.** `source_survival`
+is registered as "the fraction surviving deletion of a source". `share_within`
+had that orientation. `share_curv` was one minus its analogue, the fraction
+*lost* when the covariate-SD contrast is flattened, so a value of 1 meant zero
+survival where the registered definition says complete survival. Both are now
+survivals and are named for the source deleted, `surv_between` and `surv_sd`.
+The document also referred to "three forms" of the candidate; there were two, and
+the verifier had an assertion requiring the word "three".
+
+**Primary 3 was registered as one correlation and computed as several.**
+`anticorrelation()` split the confounded family by discordance level and reported
+a correlation for each; the single pooled correlation the protocol registers
+existed nowhere. Stratified and pooled rank correlations can differ in sign, so
+this mattered independently of the answer. The pooled value is **0.3295** over
+144 scenarios, the strata are 0.2232 and 0.5119, all three are positive, and the
+agreement is now asserted rather than noticed.
+
+**The false-alarm denominator was not the success class.** Failure is one-sided,
+coverage below `COVER_BAD`, while primary 1 excludes the intermediate and
+over-covering bands from both sides. The secondary used `!failed`, so 84
+scenarios primary 1 refuses to call successes were counted as successes here.
+**The correction flatters the diagnostics and is reported for that reason**: the
+contraction rule's false-alarm rate falls from 0.3043 to 0.0355. The old
+denominator's value is exported beside the new one so the size of the change is
+visible rather than absorbed.
+
+**Two more verifier assertions were pinning withdrawn wording**, one requiring
+"in all three of its forms" and one requiring a blanket prior-free claim that was
+false of `contraction`, which is a posterior SD over a prior SD and uses
+$(I + P_0)^{-1}$ by construction. That is five such guards in this study. The
+rule now applied: **an assertion should check a computed value or a named
+property, never that a sentence is present verbatim**, because the second kind
+survives the discovery that the sentence is wrong.

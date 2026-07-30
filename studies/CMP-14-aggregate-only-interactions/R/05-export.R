@@ -114,13 +114,22 @@ close <- sp[sp$contract_gap < 0.02, ]
 out$pairs_total <- nrow(sp)
 out$pairs_close <- nrow(close)
 out$pairs_close_max_cover_gap <- round(max(abs(close$cover_gap)), 3)
-out$pairs_close_share_within <- list(
-  additivity = unique(round(close$share_within_additivity, 3)),
-  ecological = unique(round(close$share_within_ecological, 3)))
+out$pairs_close_surv_between <- list(
+  additivity = unique(round(close$surv_between_additivity, 3)),
+  ecological = unique(round(close$surv_between_ecological, 3)))
+
+## PRIMARY 3 IS THE POOLED CORRELATION, which round 6 found was registered and
+## never computed; only the stratified ones existed. Both are exported so the
+## document can say whether the two readings agree rather than assert it.
+ap <- anticorrelation_pooled(d)
+out$anticorrelation_pooled <- lapply(ap[1, ], function(z)
+  if (is.numeric(z)) round(z, 4) else z)
 
 an <- anticorrelation(d)
 out$anticorrelation <- lapply(seq_len(nrow(an)), function(i)
   lapply(an[i, ], function(z) if (is.numeric(z)) round(z, 4) else z))
+out$anticorrelation_strata_agree <-
+  all(an$contraction_inverted == ap$contraction_inverted)
 
 wt <- warning_table(d)
 out$warnings <- lapply(seq_len(nrow(wt)), function(i)
@@ -201,9 +210,9 @@ out$e2_n_scenarios <- nrow(e2)
 out$e2_rules <- lapply(seq_len(nrow(ev$rules)), function(i)
   list(rule = ev$rules$rule[i], separates = ev$rules$separates[i]))
 out$e2_withdraw_e1 <- ev$withdraw_e1
-out$e2_share_curv_separates <- ev$share_curv_separates
-out$e2_share_curv_curvature <- ev$share_curv_curvature
-out$e2_share_curv_ecological <- ev$share_curv_ecological
+out$e2_surv_sd_separates <- ev$surv_sd_separates
+out$e2_surv_sd_curvature <- ev$surv_sd_curvature
+out$e2_surv_sd_ecological <- ev$surv_sd_ecological
 out$e2_curvature_share <- ev$curvature_share
 out$e2_ecological_share <- ev$ecological_share
 out$e2_by_state <- lapply(split(e2, e2$state), function(z) list(
@@ -211,8 +220,8 @@ out$e2_by_state <- lapply(split(e2, e2$state), function(z) list(
   cover_min = round(min(z$coverage), 3), cover_max = round(max(z$coverage), 3),
   contract_min = round(min(z$contraction), 4),
   contract_max = round(max(z$contraction), 4),
-  share_within = if (all(is.na(z$share_within))) NA_real_ else
-    unique(round(z$share_within[!is.na(z$share_within)], 3))))
+  surv_between = if (all(is.na(z$surv_between))) NA_real_ else
+    unique(round(z$surv_between[!is.na(z$surv_between)], 3))))
 
 ## E2_BASE_P is the conditional placebo risk at x = 0, not the arm prevalence.
 ## On the logit link the arm value integrates the covariate distribution, so it

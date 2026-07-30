@@ -59,7 +59,7 @@ ns = DESIGN["nuisance_sensitivity"]
 p = PROT.read_text()
 new = (f"largest movement in any\nregistered quantity across the whole grid is "
        f"**{ns['coverage']:.4f} in coverage, {ns['contraction']:.4f} in "
-       f"contraction and\n{ns['share_within']:.4f} in the source survival "
+       f"contraction and\n{ns['surv_between']:.4f} in the source survival "
        f"fraction**")
 p2 = re.sub(
     r"largest movement in any\nregistered quantity across the whole grid is\s+"

@@ -83,21 +83,23 @@ diag_rank_screen <- function(fit, tol = 1e-8) {
 ## positive, and both then took a ratio of such numbers. See
 ## `lik_marginal_precision` and `source_shares` in R/00-geometry.R for the
 ## prior-free, well-posed replacement.
-diag_source_share <- function(b, prior_sd, fit) {
+diag_source_survival <- function(b, prior_sd, fit) {
   gi <- fit$gi
   info_of <- function(keep) {
     if (!any(keep)) return(matrix(0, b$p, b$p))
     crossprod(b$X[keep, , drop = FALSE] * sqrt(b$prec[keep]))
   }
   ## On an identity link the aggregate arm mean does not depend on the covariate
-  ## SD at all, so flattening the SDs changes nothing and `share_curv` is
-  ## identically zero. That is not a limitation to work around: it is the fact
-  ## that makes `curvature` a nonlinear-only state, and E1 reports it as such.
+  ## SD at all, so flattening the SDs changes nothing and `surv_sd` is
+  ## identically ONE: everything survives, because the SD contrast was carrying
+  ## nothing. That is not a limitation to work around, it is the fact that makes
+  ## `curvature` a nonlinear-only state, and E1 reports it as such. Under the
+  ## pre-round-6 loss orientation the same fact read as zero.
   ss <- source_shares(info_of(rep(TRUE, nrow(b$X))), info_of(!b$agd),
                       info_of(rep(TRUE, nrow(b$X))), gi)
   list(within = lik_marginal_precision(info_of(!b$agd), gi),
        between = lik_marginal_precision(info_of(b$agd), gi),
-       share_within = ss$share_within, share_curv = ss$share_curv,
+       surv_between = ss$surv_between, surv_sd = ss$surv_sd,
        full = ss$full)
 }
 
@@ -108,30 +110,40 @@ diag_source_share <- function(b, prior_sd, fit) {
 all_diagnostics <- function(b, prior_sd, fit) {
   er <- diag_eff_rank(fit)
   rs <- diag_rank_screen(fit)
-  ss <- diag_source_share(b, prior_sd, fit)
+  ss <- diag_source_survival(b, prior_sd, fit)
   data.frame(
     contraction = diag_contraction(fit, prior_sd),
     eff_rank = er$eff_rank, eff_rank_of = er$n_par,
     target_ratio = er$target_ratio,
     estimable = rs$estimable, lik_rank = rs$rank,
     prec_within = ss$within, prec_between = ss$between, prec_full = ss$full,
-    share_within = ss$share_within, share_curv = ss$share_curv,
+    surv_between = ss$surv_between, surv_sd = ss$surv_sd,
     stringsAsFactors = FALSE)
 }
 
 ## --- turning each diagnostic into a warning ---------------------------------
 ## The registered rules, so "the diagnostic fires" is arithmetic rather than
 ## interpretation. Each returns TRUE when the analyst is being warned.
+## ROUND 6: THE ROW LABELED `eff_rank` WAS BUILT FROM `target_ratio`, and
+## `d$eff_rank` appeared in no warning at all. So the exported table carried
+## target-ratio performance under the effective-rank name and the whole-model
+## count, which is the model-level summary CMP-14 asks for, controlled no
+## decision. Both now exist under their own names.
 warnings_from <- function(d) data.frame(
   ## The summary CMP-14 asks for, read the way such a summary is read: a
   ## parameter whose posterior is barely narrower than its prior is prior-driven.
   contraction  = d$contraction >= CONTRACT_OK,
-  ## Per-parameter effective rank: the likelihood is worth less than the prior
-  ## along this coordinate.
-  eff_rank     = d$target_ratio < EFF_RATIO_OK,
+  ## Per-parameter: the likelihood is worth less than the prior along the
+  ## target's own coordinate. Named for what it is computed from.
+  target_ratio = d$target_ratio < EFF_RATIO_OK,
+  ## Whole-model: the data dominate the prior in fewer than every direction, so
+  ## the fit is carrying at least one prior-driven coordinate somewhere. The
+  ## threshold is the parameter count itself and is therefore not a tuning
+  ## choice; `eff_rank_of` is that count as computed by `eff_rank()`.
+  eff_rank     = d$eff_rank < d$eff_rank_of,
   ## The structural screen: the coordinate is not identified by the likelihood.
   rank_screen  = !d$estimable,
-  ## The candidate: less than half the target's likelihood precision comes from
-  ## randomized within-study rows.
-  source_share = is.na(d$share_within) | d$share_within < SOURCE_OK,
+  ## The candidate: less than half the target's likelihood precision survives
+  ## deleting the between-study source, so most of it is non-randomized.
+  source_survival = is.na(d$surv_between) | d$surv_between < SOURCE_OK,
   stringsAsFactors = FALSE)

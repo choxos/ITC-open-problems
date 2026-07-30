@@ -96,7 +96,14 @@ has("nothing is confirmatory",
     "Nothing in this study is confirmatory",
     "**E1 is exact and exploratory.**",
     "**Every part of E2 is exploratory.**",
-    "The candidate statistic is post hoc in all three of its forms")
+    "The candidate statistic is post hoc in both of its forms")
+# The candidate's forms must be NAMED, not counted. The previous version of this
+# assertion required the phrase "in all three of its forms" while no third form
+# was ever defined anywhere, so the guard was certifying a count the document
+# could not support.
+check("both forms of the candidate are named where the count is claimed",
+      "`surv_between` and `surv_sd`, defined" in PROTOCOL,
+      "the forms are counted but not named")
 
 # --- the grid, factor by factor ----------------------------------------------
 check("the scenario count is the grid's own",
@@ -211,9 +218,17 @@ check("the candidate is not called a share",
 check("the candidate's threshold is not called conventional",
       "**`SOURCE_OK` cannot be**" in PROTOCOL,
       "a novel threshold is presented as convention")
-check("every precision is prior-free",
-      "Every precision here is prior-free" in PROTOCOL,
+# ROUND 6: THE BLANKET CLAIM WAS FALSE OF ONE DIAGNOSTIC. "Every precision here
+# is prior-free" scoped all of section 5, but `contraction` is a posterior SD
+# over a prior SD and uses (I + P0)^{-1} by construction. The claim now scopes
+# the ratios and states the exception, and this checks both halves.
+check("the prior-free claim is scoped to the ratios",
+      "Every precision *entering the ratios* is prior-free" in PROTOCOL,
       "the prior contamination fix is not stated")
+check("contraction is excepted from the prior-free claim",
+      "**`contraction` is the exception and is not a prior-free quantity**"
+      in PROTOCOL,
+      "contraction is still covered by a claim that is false of it")
 
 # --- the estimand -------------------------------------------------------------
 check("the estimand is not presented as a model parameter",
