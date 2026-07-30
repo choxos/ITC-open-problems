@@ -295,12 +295,33 @@ run_cell <- function(cell, pass, fn, n_rep = N_REP) {
     p <- rep_path(pass, cell$cell_id, r)
     if (file.exists(p)) next                     # resume, do not repeat
     z <- try(fn(cell, r), silent = TRUE)
+    if (!inherits(z, "try-error")) z$code <- code_stamp()
     saveRDS(z, p)                                # checkpoint immediately
     cat(sprintf("%s cell %2d rep %3d/%d %s\n", pass, cell$cell_id, r, n_rep,
                 if (inherits(z, "try-error")) "ERR" else "ok"))
     flush.console()
   }
   invisible(NULL)
+}
+
+## THE RUN RECORDS THE CODE IT IS RUNNING, because a long run does not reload it.
+##
+## R loads source at `source()` time. The frequentist pass ran for eleven hours in
+## a process started BEFORE the divergence criterion was changed from a count to a
+## rate, so that process still held `divergent == 0` and would have applied it to
+## the Stan pass: every fit marked failed, every fit refit, and the fix that was
+## made specifically to prevent that never in effect. Per-replicate checkpointing
+## meant restarting cost nothing, but noticing was luck.
+##
+## Every checkpoint now carries the modification time of the code that produced it,
+## so a mixed-policy run is detectable afterwards rather than invisible, and the
+## banner prints the loaded policy so a running job can be checked against the
+## file on disk.
+code_stamp <- function() {
+  fs <- list.files("R", pattern = "\\.R$", full.names = TRUE)
+  list(newest = max(file.info(fs)$mtime),
+       divergent_rate_max = DIVERGENT_RATE_MAX,
+       refit_assumed = REFIT_RATE_ASSUMED, n_int = N_INT, n_iter = N_ITER)
 }
 
 main <- function(pass = Sys.getenv("PASS", "both"),
@@ -318,7 +339,11 @@ main <- function(pass = Sys.getenv("PASS", "both"),
                                    n_rep = n_rep,
                                    mc.cores = w, mc.preschedule = FALSE))
   }
+  cs <- code_stamp()
   cat(sprintf("N_INT = %d, N_REP = %d, N_BOOT = %d\n", N_INT, N_REP, N_BOOT))
+  cat(sprintf("policy loaded: divergent rate <= %.3f, refit assumed %.2f\n",
+              cs$divergent_rate_max, cs$refit_assumed))
+  cat(sprintf("newest file in R/ at load time: %s\n", format(cs$newest)))
   ## The frequentist pass parallelizes INSIDE a replicate over N_CORES_BOOT, so
   ## it runs one replicate at a time; the Stan pass parallelizes ACROSS them.
   if (pass %in% c("both", "freq"))  run_pass("freq",  freq_replicate, 1L)
