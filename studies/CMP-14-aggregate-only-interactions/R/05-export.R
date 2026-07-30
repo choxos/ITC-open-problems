@@ -21,7 +21,11 @@ source("R/04-analyze.R")
 Sys.setenv(E1_NOMAIN = "1")
 source("R/03-run-e1.R")
 
-REQUIRED <- c("results/e1.rds", "results/state-probe.rds",
+## ROUND 7: results/e1-analysis.rds WAS OUTSIDE THIS LIST. It is the designated
+## E1 analysis output, so it could sit unregenerated while every other artifact
+## was fresh, which is exactly the staleness this list exists to stop.
+REQUIRED <- c("results/e1.rds", "results/e1-analysis.rds",
+              "results/state-probe.rds",
               "results/collision-probe.rds", "results/anticorrelation-probe.rds",
               "results/curvature-rank.rds", "results/e2.rds",
               "results/e2-verdict.rds", "results/contraction-gap.rds")
@@ -90,12 +94,27 @@ out$e2_sd_ratio <- E2_SD_RATIO; out$e2_base_p <- E2_BASE_P
 ## round 6 found the grid registering the DEPARTURES from the truth (discordance,
 ## synergy) without ever stating the truth itself, so the failing and nominal sets
 ## could not be reproduced from the document alone.
+##
+## ROUND 7: THIS BLOCK WAS TYPED AND ONE ENTRY WAS FALSE. It declared
+## `gamma_other = 0` for components 1, 2 and 4, while `theta_true()` assigns
+## GAMMA_W to ALL FOUR interaction coordinates. So the verifier certified a truth
+## the simulation does not use, and recomputing under the declared zeros moves E1
+## coverage by up to 0.44 and reclassifies 11 scenarios. The whole vector is now
+## READ OFF `theta_true()` on a built design rather than restated here, which is
+## the rule this file exists to enforce and which this block had broken.
+._b <- build_design(build_state("ecological", SPREADS[1], TOTAL_N[1]))
+._th <- theta_true(._b)
 out$true_values <- list(
-  gamma_w = GAMMA_W, delta_main = DELTA_MAIN, beta_prog = BETA_PROG,
+  study_intercept_e1 = unique(._th[seq_len(._b$S)]),
+  delta_main = unique(._th[._b$S + seq_len(._b$K)]),
+  beta_prog = ._th[._b$S + ._b$K + 1],
+  gamma = ._th[._b$S + ._b$K + 1 + seq_len(._b$K)],
+  gamma_target = ._th[gi_of(._b)],
+  gamma_all_equal = length(unique(._th[._b$S + ._b$K + 1 + seq_len(._b$K)])) == 1L,
   sigma = SIGMA, sigma_known = TRUE,
-  gamma_other = 0,
-  e1_study_intercept = 0,
   e2_study_intercept = round(log(E2_BASE_P / (1 - E2_BASE_P)), 4))
+stopifnot("the registered GAMMA_W is not the target's true value"
+            = isTRUE(all.equal(out$true_values$gamma_target, GAMMA_W)))
 
 ## E2'S OWN GRID, which the document described only as "a reduced factorial".
 out$e2_grid <- list(
@@ -111,6 +130,10 @@ out$e2_grid <- list(
 ## --- the grid, counted from the grid rather than from memory ----------------
 ns <- attr(d, "nuisance_sensitivity")
 out$nuisance_sensitivity <- if (is.null(ns)) NULL else as.list(round(ns, 4))
+## The decision flips are what the inertness claim actually needs; the magnitude
+## moves above are supporting detail.
+out$nuisance_flips <- as.list(attr(d, "nuisance_flips"))
+out$nuisance_n_decisions <- attr(d, "nuisance_n_decisions")
 out$n_scenarios <- nrow(d)
 out$n_failed <- sum(d$failed)
 out$n_ok <- sum(!d$failed)
@@ -132,7 +155,7 @@ out$overlap <- lapply(seq_len(nrow(ov)), function(i) lapply(ov[i, ], function(z)
 sp <- state_pairs(d)
 sp$contract_gap <- abs(sp$contraction_additivity - sp$contraction_ecological)
 sp$cover_gap <- sp$coverage_additivity - sp$coverage_ecological
-close <- sp[sp$contract_gap < 0.02, ]
+close <- sp[sp$contract_gap < PAIRS_CLOSE_TOL, ]
 out$pairs_total <- nrow(sp)
 out$pairs_close <- nrow(close)
 out$pairs_close_max_cover_gap <- round(max(abs(close$cover_gap)), 3)
@@ -268,6 +291,14 @@ out$e2_by_state <- lapply(split(e2, e2$state), function(z) list(
 ## whole grid, measured pointwise in the covariate.
 stopifnot("an E2 scenario has no coverage after the aliasing result"
             = !any(is.na(e2$coverage)))
+## PRIMARY 3 ON E2, which the protocol implied was computable there without ever
+## giving it an N or a value. E2's confounded family is 8 scenarios against E1's
+## 144, so the two are different analyses and the document has to say which
+## number belongs to which arm.
+ap2 <- anticorrelation_pooled(e2)
+out$e2_anticorrelation_pooled <- lapply(ap2[1, ], function(z)
+  if (is.numeric(z)) round(z, 4) else z)
+
 out$e2_n_aliased <- sum(e2$aliased)
 out$e2_alias_shifts <- sort(unique(e2$alias_shift[e2$aliased]))
 out$e2_alias_gap_max <- signif(max(e2$alias_gap), 3)

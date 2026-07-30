@@ -198,12 +198,30 @@ main <- function() {
     do.call(rbind, lapply(seq_len(nrow(g)), function(i) evaluate_one(g[i, ])))
   }
   r_lo <- probe_nuis(3); r_hi <- probe_nuis(30)
+  ## ROUND 7: THE RULE SAID "EVERY REPORTED QUANTITY" AND THE CODE CHECKED THREE.
+  ## Effective rank, the target ratio, the estimability screen and, decisively,
+  ## the WARNING CLASSIFICATIONS and the FAILURE CLASSIFICATION were untouched,
+  ## and a movement in contraction was judged against the 0.05 coverage scale,
+  ## which is a different quantity's threshold. What "the nuisance prior moves
+  ## nothing this study decides on" needs is that no registered DECISION changes,
+  ## so the decisions are now what is compared.
+  mv <- function(nm) max(abs(r_lo[[nm]] - res[[nm]]),
+                         abs(r_hi[[nm]] - res[[nm]]), na.rm = TRUE)
   nuis_move <- c(
-    coverage = max(abs(r_lo$coverage - res$coverage),
-                   abs(r_hi$coverage - res$coverage)),
-    contraction = max(abs(r_lo$contraction - res$contraction),
-                      abs(r_hi$contraction - res$contraction)),
-    surv_between = max(abs(r_lo$surv_between - res$surv_between), na.rm = TRUE))
+    coverage = mv("coverage"), contraction = mv("contraction"),
+    surv_between = mv("surv_between"), target_ratio = mv("target_ratio"),
+    eff_rank = mv("eff_rank"))
+  ## The decisions: the failure label, and each registered warning rule.
+  decide <- function(z) cbind(failed = z$coverage < COVER_BAD,
+                              abs(z$coverage - NOMINAL) <= COVER_TOL,
+                              warnings_from(z))
+  d0 <- decide(res); dlo <- decide(r_lo); dhi <- decide(r_hi)
+  nuis_flips <- c(lo = sum(d0 != dlo, na.rm = TRUE),
+                  hi = sum(d0 != dhi, na.rm = TRUE))
+  attr(res, "nuisance_flips") <- nuis_flips
+  attr(res, "nuisance_n_decisions") <- prod(dim(d0))
+  cat(sprintf("nuisance-prior decision flips: %d at scale 3, %d at scale 30, out of %d\n",
+              nuis_flips[["lo"]], nuis_flips[["hi"]], prod(dim(d0))))
   attr(res, "nuisance_sensitivity") <- nuis_move
   cat(sprintf("\nnuisance-prior sensitivity (scale 3 and 30 against %g):\n",
               PRIOR_SD_NUISANCE))

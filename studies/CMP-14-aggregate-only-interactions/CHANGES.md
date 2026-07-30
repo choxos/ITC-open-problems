@@ -3,7 +3,7 @@
 **This file is the change history. `protocol.md` is what is registered now.**
 
 They were one document until the fifth round of critique, and separating them is a
-fix rather than tidying. Six rounds of critique returned **107 fatal and serious findings** between two
+fix rather than tidying. Seven rounds of critique returned **127 fatal and serious findings** between two
 reviewers, counted as the table below counts them: findings **as returned**, so a defect
 found again in a later round is counted again, and the minor findings are not in that
 total. **It is not a count of distinct defects and no such count is claimed.** An earlier
@@ -39,6 +39,8 @@ review**, and it matters what it showed.
 | 5 | grok | needs-revision | 11 | 13 |
 | 6 | codex | unsound | 6 | 5 |
 | 6 | grok | needs-revision | 8 | 3 |
+| 7 | codex | unsound | 5 | 5 |
+| 7 | grok | unsound | 4 | 6 |
 
 **Seven topics were raised independently by both reviewers in round 5**: the
 equal-SD guard's hidden baseline restriction, the source statistic not being a
@@ -391,3 +393,96 @@ nothing, printed "already current", and the protocol named it as one of three
 links in a provenance chain. It now **fails when a pattern matches nothing**, and
 the protocol says plainly that the assertion is the guarantee and emission is a
 convenience covering some numbers rather than all.
+
+## Round 7: a truth I typed, a Hessian that was not one, and two arms that disagree
+
+Round 7 ran three reviewers. **GLM returned nothing**: the opencode backend
+answered "Insufficient balance", recorded as **NOT OBTAINED** and never as
+agreement, which is the rule this programme has followed since round 5. So this
+was still two reviewers, and they returned nine fatal findings between them.
+
+**The worst one was mine, introduced by the round-6 repair.** Round 6 added an
+ADEMP true-values table because the grid registered the departures from a truth
+it never stated. I typed that table, including `gamma_other = 0` for components
+1, 2 and 4, and typed the same zero into the exporter. **`theta_true()` has never
+done that**: it assigns `GAMMA_W` to all four interaction coordinates.
+Recomputing under the declared zeros moves E1 coverage by up to 0.44 and
+reclassifies 11 scenarios, so the verifier was certifying a truth the simulation
+does not use. The fix is the rule this file already had and that block had
+broken: **the vector is read off `theta_true()` on a built design.** Components
+1, 2 and 4 are background because their *information state* is `own_ipd`, not
+because their modification is zero.
+
+**The Laplace comparator was Fisher-at-mode.** `R/09-contraction-gap.R` inverted
+`logit_info()` at the expected-data mode and called it a Laplace covariance. For
+an aggregate arm the observed Hessian carries a residual term,
+
+  -d2l/dt2 = n{ [v + (q-p)(1-2p)]/v^2 · g g' - (q-p)/v · H_p },  v = p(1-p),
+
+which vanishes only at the data-generating parameter. A proper prior moves the
+mode, so it does not vanish there. Newton on the Fisher information is Fisher
+scoring: right root, wrong curvature. The observed Hessian is now implemented and
+**checked against a central finite difference of the score at points deliberately
+off the DGP**, agreeing to 2e-10 relative. Individual-data arms need no
+correction, since for a canonical link the observed and expected Hessians
+coincide, which is the same aggregate-versus-individual asymmetry the rest of the
+study turns on.
+
+**The measured gap has now grown twice, each time because a correction removed
+something that was hiding the worst cases**: 0.0351 and 4.73% over the
+44 correctly-specified scenarios, 0.0882 and 14.64% once the 28 aliased ones were
+restored, **0.1212 and 20.11%** with the real Hessian.
+
+**The two arms disagree on primary 3, and the old presentation hid it.** The
+protocol quoted one $\rho = 0.3295$ over 144 scenarios under a heading that
+section 8 also claimed was computable on E2. E2's confounded family is **eight**
+scenarios and its correlation is **-0.5952**, the opposite sign. E1's contraction
+becomes more reassuring as coverage worsens; E2's does not. **The E1 finding does
+not reproduce on the nonlinear arm**, and that is now stated where the numbers
+are rather than discovered by a reader.
+
+**The placebo guard measured a slice that is not in the grid.** Round 6's guard
+swept the states at spread 0.6 and SD ratio 2.0, and 2.0 is not a registered SD
+ratio: `E2_SD_RATIO` is 1.0, 1.5, 3.0. A guard whose whole purpose was to
+describe the registered arms reported a range from arms the study never runs. Over
+the real grid the range is **0.2506 to 0.3760**, not 0.2913 to 0.3291, and the
+curvature pair is 0.3099 against 0.3141 at ratio 1.5 and 0.3099 against 0.3321 at
+ratio 3.0. The guard now takes its cells from `build_grid_e2()`.
+
+**Primary 2's decision rule was typed in two files and registered in neither.**
+The protocol registered a matched set and never said what is compared; the code
+selected pairs whose contraction differs by less than 0.02 and reported their
+maximum coverage gap. That is a filter on a primary outcome, so it is now
+`PAIRS_CLOSE_TOL` in `R/00-config.R` and both files read it from there.
+
+**Primary 3 existed only in the exporter**, so the designated E1 analysis output
+did not contain the registered primary and rerunning the normal analysis path
+would still have produced only the strata. `results/e1-analysis.rds` was also
+outside the exporter's staleness list, so it could sit unregenerated while every
+other artifact was fresh.
+
+**The nuisance-prior rule checked three quantities while claiming to check every
+reported one**, and judged a contraction movement against the 0.05 *coverage*
+threshold. The claim needed is that no registered DECISION changes, so the
+comparison is now over the failure label, the nominal label and all five warning
+rules: **3,528 binary classifications, zero flips at either scale.**
+
+**A repair from round 6 turned out to be cosmetic.** The "randomized?" column
+that fused assignment with validity was fixed by moving the qualifier inside the
+cell, which left validity in the column. Assignment and the extra assumption are
+now separate columns.
+
+**Two more phrase-pinning assertions**, bringing the total to seven: one required
+the $I(\theta_{\text{true}})$ covariance formula the code had stopped using, and
+one required a blanket prior-free claim. Both were holding a stale statement in
+place, and correcting the document failed the check.
+
+**And the round-6 emitter fix caught its first real case**, on my own edit:
+renaming the inertness sentence made its pattern match nothing and
+`review/emit-tables.py` stopped with an error instead of reporting "already
+current". That is exactly the failure it was built for, one round later.
+
+**The one thing that got better rather than worse**: `absent` now appears in the
+arm map, the thresholds each carry a rule and an inequality, and the E1/E2 cross
+-arm check added in round 7 confirms both arms compute the aliasing bias
+identically, to 1.6e-15 over 40 scenarios.

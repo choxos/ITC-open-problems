@@ -130,6 +130,31 @@ DIAGNOSTICS <- c("contraction", "target_ratio", "eff_rank", "rank_screen",
 ## is 1 and the parameter-level version asks whether the target's own direction
 ## clears it. SOURCE_OK is the share of the target's marginal likelihood
 ## precision that must come from randomized within-study rows.
+## PRIMARY 2'S DECISION RULE, WHICH WAS TYPED IN TWO FILES AND REGISTERED IN
+## NEITHER. Round 7: the protocol registered a matched SET for primary 2 and
+## never said what is compared or what counts as a result, while the code
+## selected pairs whose contraction differs by less than 0.02 and reported their
+## maximum coverage gap. An unregistered filter on a primary outcome is a
+## post-hoc choice however innocent it looks, so it is registered here and read
+## from here by both the analysis and the exporter.
+##
+## The value is a resolution rather than a fitted quantity: two contractions
+## within 0.02 are the same number to any reader of a diagnostic reported to two
+## decimals, which is what "matched on the diagnostic" has to mean.
+PAIRS_CLOSE_TOL <- 0.02
+
+## WHAT EACH RULE'S RESULT IS ENTITLED TO CLAIM, carried in the exported rows
+## rather than only in prose. Round 7: the protocol said every outcome reporting
+## the post hoc candidate says so on the row, and no exported row had a standing
+## field, so `surv_between` and `source_survival` were packaged in the same
+## schema as the summaries CMP-14 asks for.
+STANDING <- c(contraction     = "cmp14-summary",
+              target_ratio    = "cmp14-summary",
+              eff_rank        = "cmp14-summary",
+              rank_screen     = "existing-screen",
+              surv_between    = "post-hoc-candidate",
+              source_survival = "post-hoc-candidate")
+
 CONTRACT_OK  <- 0.50
 EFF_RATIO_OK <- 1.00
 SOURCE_OK    <- 0.50

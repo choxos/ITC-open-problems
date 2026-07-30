@@ -377,21 +377,43 @@ if (!interactive() && Sys.getenv("E2_NOMAIN") == "") {
   ## intercept, which is what the rank calculation uses, it holds. The document
   ## now says intercept, and this asserts that the intercept is what is equal and
   ## that the two readings really do differ.
-  pbo_prev <- unlist(lapply(E2_STATES, function(s) {
-    net <- build_state_nl(s, spread = 0.6, sd_ratio = 2.0, total_n = 3000L)
+  ##
+  ## ROUND 7: THIS GUARD RAN ON A SLICE THAT IS NOT IN THE GRID. It swept the
+  ## states at spread 0.6 and sd_ratio 2.0, and 2.0 is not a registered SD ratio
+  ## at all: E2_SD_RATIO is 1.0, 1.5, 3.0. So a guard whose whole purpose was to
+  ## measure the registered arms reported a range from arms the study never runs.
+  ## It now sweeps the DISTINCT (state, spread, sd_ratio) cells of the registered
+  ## grid itself, taken from `build_grid_e2()` rather than typed.
+  cells <- unique(build_grid_e2()[, c("state", "spread", "sd_ratio")])
+  pbo_prev <- unlist(lapply(seq_len(nrow(cells)), function(k) {
+    net <- build_state_nl(cells$state[k], cells$spread[k], cells$sd_ratio[k],
+                          total_n = E2_TOTAL_N[1])
     b <- build_design(net); th <- theta_true_nl(b)
     vapply(which(rowSums(abs(b$C)) == 0), function(i) agg_p(th, b, i), 0)
   }))
-  cv <- build_state_nl("curvature", spread = 0.6, sd_ratio = 2.0, total_n = 3000L)
-  bcv <- build_design(cv); thcv <- theta_true_nl(bcv)
-  cv_alpha <- thcv[unique(bcv$net$study[!as.logical(bcv$net$ipd)])]
-  cv_prev <- vapply(which(rowSums(abs(bcv$C)) == 0 & !as.logical(bcv$net$ipd)),
-                    function(i) agg_p(thcv, bcv, i), 0)
+  ## The curvature pair, over every registered SD ratio the state actually runs
+  ## at. Ratio 1.0 is its negative control and has equal SDs, so the two target
+  ## prevalences coincide there; the claim that the two readings differ has to be
+  ## about the ratios where the mechanism operates, and is asserted as such.
+  cv_cells <- cells[cells$state == "curvature" & cells$sd_ratio > 1, ]
+  cv_pairs <- lapply(seq_len(nrow(cv_cells)), function(k) {
+    cv <- build_state_nl("curvature", cv_cells$spread[k], cv_cells$sd_ratio[k],
+                         total_n = E2_TOTAL_N[1])
+    bcv <- build_design(cv); thcv <- theta_true_nl(bcv)
+    list(sd_ratio = cv_cells$sd_ratio[k],
+         alpha = thcv[unique(bcv$net$study[!as.logical(bcv$net$ipd)])],
+         prev = vapply(which(rowSums(abs(bcv$C)) == 0 &
+                             !as.logical(bcv$net$ipd)),
+                       function(i) agg_p(thcv, bcv, i), 0))
+  })
+  cv_alpha <- unlist(lapply(cv_pairs, `[[`, "alpha"))
+  cv_prev <- unlist(lapply(cv_pairs, `[[`, "prev"))
   cat(sprintf("\nplacebo conditional risk at x=0: %.4f\n", 0.3))
   cat(sprintf("placebo ARM prevalence across states: %.4f to %.4f\n",
               min(pbo_prev), max(pbo_prev)))
-  cat(sprintf("curvature target arm prevalences: %s\n",
-              paste(sprintf("%.4f", cv_prev), collapse = ", ")))
+  for (z in cv_pairs)
+    cat(sprintf("curvature target arm prevalences at sd_ratio %.1f: %s\n",
+                z$sd_ratio, paste(sprintf("%.4f", z$prev), collapse = ", ")))
   cat(sprintf("curvature target intercepts equal: %s\n",
               length(unique(round(cv_alpha, 12))) == 1L))
   stopifnot(
@@ -401,12 +423,16 @@ if (!interactive() && Sys.getenv("E2_NOMAIN") == "") {
     "curvature's target studies no longer share an intercept, which is the
      restriction its equal-SD non-identifiability claim needs"
       = length(unique(round(cv_alpha, 12))) == 1L,
-    "curvature's target arm prevalences are equal, so the intercept-versus-
-     prevalence distinction this guard exists to make has stopped existing"
-      = length(unique(round(cv_prev, 9))) > 1L)
+    "curvature's target arm prevalences are equal at some operating SD ratio, so
+     the intercept-versus-prevalence distinction this guard exists to make has
+     stopped existing there"
+      = all(vapply(cv_pairs, function(z)
+              length(unique(round(z$prev, 9))) > 1L, TRUE)))
   v$pbo_prev_min <- min(pbo_prev)
   v$pbo_prev_max <- max(pbo_prev)
-  v$curv_pbo_prev <- sort(cv_prev)
+  v$curv_pbo_prev <- sort(unique(round(cv_prev, 6)))
+  v$curv_pbo_sd_ratios <- vapply(cv_pairs, `[[`, 0, "sd_ratio")
+  v$pbo_prev_n_cells <- nrow(cells)
 
   saveRDS(v, "results/e2-verdict.rds")
   cat("written: results/e2-verdict.rds\n")

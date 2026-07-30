@@ -67,15 +67,78 @@ expected_score <- function(b, theta_eval, theta_dgp) {
   U
 }
 
+## THE OBSERVED HESSIAN, WHICH IS NOT THE FISHER INFORMATION AWAY FROM THE DGP.
+##
+## Round 7: this file reported `logit_info()` at the mode and called the result a
+## Laplace covariance. It is not. For an AGGREGATE arm the log-likelihood is
+##
+##   l = n [ q log p(theta) + (1 - q) log(1 - p(theta)) ],
+##
+## with q the arm proportion the data sit at and p(theta) the model's integrated
+## arm probability. Differentiating twice,
+##
+##   -d2l/dtheta2 = n { [p(1-p) + (q-p)(1-2p)] / [p(1-p)]^2 * g g'
+##                      - (q-p)/[p(1-p)] * H_p },
+##
+## where g = dp/dtheta and H_p = d2p/dtheta2. At q = p both correction terms
+## vanish and this collapses to the Fisher term n g g'/[p(1-p)], which is what
+## `logit_info` supplies. A proper prior MOVES THE MODE, so q - p is nonzero
+## there and the omitted terms are exactly what distinguishes a Laplace
+## covariance from Fisher-at-mode. Reporting the second while claiming the first
+## measured the wrong thing.
+##
+## INDIVIDUAL-DATA ARMS NEED NO CORRECTION. For a canonical link with
+## per-individual Bernoulli data the observed and expected Hessians coincide,
+## -d2l/dtheta2 = n w p(1-p) r r', with no residual term. So the correction is an
+## aggregate-arm phenomenon, which is the same asymmetry the rest of the study
+## turns on.
+agg_hess_p <- function(theta, b, i) {
+  gh <- gh_rule(64)
+  xs <- b$net$mu[i] + sqrt(2) * b$net$sd[i] * gh$x
+  w  <- gh$w / sqrt(pi)
+  rows <- t(vapply(xs, function(x) design_row(b$net, i, x, b$S, b$K),
+                   numeric(b$p)))
+  p <- expit(as.vector(rows %*% theta))
+  ## d2/deta2 expit(eta) = p(1-p)(1-2p).
+  crossprod(rows, rows * (w * p * (1 - p) * (1 - 2 * p)))
+}
+
+observed_hessian <- function(b, theta_eval, theta_dgp) {
+  H <- matrix(0, b$p, b$p)
+  gh <- gh_rule(64)
+  for (i in seq_len(nrow(b$net))) {
+    if (as.logical(b$net$ipd[i])) {
+      xs <- b$net$mu[i] + sqrt(2) * b$net$sd[i] * gh$x
+      w  <- gh$w / sqrt(pi)
+      rows <- t(vapply(xs, function(x) design_row(b$net, i, x, b$S, b$K),
+                       numeric(b$p)))
+      p <- expit(as.vector(rows %*% theta_eval))
+      H <- H + b$net$n[i] * crossprod(rows, rows * (w * p * (1 - p)))
+    } else {
+      p  <- agg_p(theta_eval, b, i)
+      g  <- agg_grad(theta_eval, b, i)
+      Hp <- agg_hess_p(theta_eval, b, i)
+      q  <- agg_p(theta_dgp, b, i)
+      v  <- p * (1 - p)
+      H <- H + b$net$n[i] * (((v + (q - p) * (1 - 2 * p)) / v^2) * tcrossprod(g)
+                             - ((q - p) / v) * Hp)
+    }
+  }
+  H
+}
+
 ## Newton on F(theta) = U_expected(theta) - P0 theta, whose Jacobian is
-## -(I(theta) + P0). Started at the truth, which is where the registered
-## calculation stops.
+## -(H(theta) + P0) with H the OBSERVED Hessian above. Using the Fisher
+## information instead is Fisher scoring: it converges to the same root, because
+## the SCORE is exact either way, but it is not the curvature a Laplace
+## approximation inverts. Started at the data-generating parameter, which is
+## where the registered calculation stops.
 find_map <- function(b, th_true, P0, tol = 1e-10, maxit = 50L) {
   th <- th_true
   for (it in seq_len(maxit)) {
     Fv <- expected_score(b, th, th_true) - as.vector(P0 %*% th)
     if (max(abs(Fv)) < tol) return(list(theta = th, iter = it, converged = TRUE))
-    J <- logit_info(b, th)$total + P0
+    J <- observed_hessian(b, th, th_true) + P0
     th <- th + as.vector(solve(J, Fv))
   }
   list(theta = th, iter = maxit, converged = FALSE)
@@ -96,14 +159,22 @@ gap_for <- function(row) {
   ## Registered: information at the truth.
   sd_reg <- sqrt(solve(logit_info(b, th)$total + P0)[gi, gi])
 
-  ## Laplace analogue: information at the expected-data mode.
+  ## Laplace analogue: the OBSERVED Hessian of the log posterior at the
+  ## expected-data mode, which is what a Laplace approximation inverts. Using
+  ## logit_info() here gave Fisher-at-mode and was reported as Laplace.
   m <- find_map(b, th, P0)
-  sd_lap <- sqrt(solve(logit_info(b, m$theta)$total + P0)[gi, gi])
+  H_obs <- observed_hessian(b, m$theta, th)
+  sd_lap <- sqrt(solve(H_obs + P0)[gi, gi])
+  ## How much the correction terms mattered, so the change is measured rather
+  ## than asserted: the same quantity under the Fisher approximation this
+  ## replaced.
+  sd_fisher <- sqrt(solve(logit_info(b, m$theta)$total + P0)[gi, gi])
 
   data.frame(state = row$state, prior_sd = row$prior_sd, n = row$n,
              spread = row$spread, sd_ratio = row$sd_ratio,
              contraction_registered = sd_reg / row$prior_sd,
              contraction_laplace = sd_lap / row$prior_sd,
+             contraction_fisher_at_mode = sd_fisher / row$prior_sd,
              mode_shift = abs(m$theta[gi] - th[gi]),
              converged = m$converged)
 }

@@ -122,12 +122,31 @@ for label, want in [("covariate spread", DESIGN["spreads"]),
               f"document {got}, code {list(want)}")
 
 has("the registered thresholds",
-    f"`CONTRACT_OK = {DESIGN['contract_ok']:.2f}`",
-    f"`EFF_RATIO_OK = {DESIGN['eff_ratio_ok']:.2f}`",
-    f"`SOURCE_OK = {DESIGN['source_ok']:.2f}`",
     f"`COVER_BAD = {DESIGN['cover_bad']:.2f}`",
     f"`COVER_TOL = {DESIGN['cover_tol']:.2f}`",
     f"`PRIOR_SD_NUISANCE = {DESIGN['prior_sd_nuisance']:.0f}`")
+# ROUND 7: A THRESHOLD LIST IS NOT A DECISION RULE. The document named three
+# cutoffs without saying which rule each governs or which side alarms, and with
+# two rank summaries sharing one named threshold. Each is now a table row
+# carrying its rule, its inequality and its value, and this checks all three.
+_TH = table_after("| rule | alarms when | threshold | why that value |")
+check("the threshold table is present", len(_TH) == 5, f"{len(_TH)} rows")
+_want_th = [("contraction", "$\\ge$ `CONTRACT_OK`", f"{DESIGN['contract_ok']:.2f}"),
+            ("target_ratio", "$<$ `EFF_RATIO_OK`", f"{DESIGN['eff_ratio_ok']:.2f}"),
+            ("eff_rank", "$<$ the parameter count", "none"),
+            ("rank_screen", "not estimable", "none"),
+            ("source_survival", "$<$ `SOURCE_OK`", f"{DESIGN['source_ok']:.2f}")]
+for i, (rule, direction, value) in enumerate(_want_th):
+    if i >= len(_TH):
+        break
+    row = _TH[i]
+    check(f"threshold row {rule} names its rule", f"`{rule}`" in row, f"{row!r}")
+    check(f"threshold row {rule} states its alarm direction",
+          direction in row, f"{row!r}")
+    check(f"threshold row {rule} states its value", value in row, f"{row!r}")
+check("EFF_RATIO_OK is bound to exactly one rule",
+      "**`EFF_RATIO_OK` governs `target_ratio` only.**" in PROTOCOL,
+      "the two rank summaries still share one unbound threshold")
 
 # --- the route table, asserted against the run -------------------------------
 RT = table_after("| between-study difference | identity link | logit link |")
@@ -305,9 +324,16 @@ _cg = DESIGN["contraction_gap"]
 check("the Laplace mislabel has not returned",
       "contraction of a Laplace approximation" not in PROTOCOL,
       "the protocol calls the quantity a Laplace approximation again")
+# ROUND 7: THIS GUARD REQUIRED THE FORMULA THE CODE HAD STOPPED USING. It asked
+# for I(theta_true) + P0 while `evaluate_e2` evaluates at theta*, so the sixth
+# phrase-pinning assertion in this study was holding a stale formula in place.
 check("the protocol names the quantity actually computed",
-      "I(\\theta_{\\text{true}}) + P_0" in PROTOCOL,
-      "the normal-approximation covariance is not stated")
+      "I(\\theta^{*}) + P_0" in PROTOCOL
+      and "at the parameter the data come\nfrom" in RAW,
+      "the normal-approximation covariance is not stated at theta*")
+check("the stale theta_true covariance formula is gone as a standing claim",
+      "$(I(\\theta_{\\text{true}}) + P_0)^{-1}$**" not in PROTOCOL,
+      "the withdrawn formula is still asserted")
 check("the unmeasured-gap admission is gone",
       "bounded by nothing measured here" not in PROTOCOL,
       "the admission survived the measurement that replaced it")

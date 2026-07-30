@@ -80,16 +80,26 @@ def emit(label: str, pattern: str, replacement: str) -> None:
 # --- the nuisance-prior inertness figures ------------------------------------
 ns = DESIGN["nuisance_sensitivity"]
 emit("nuisance-prior inertness",
-     r"the worst moves are \*\*[^*]+\*\*",
-     f"the worst moves are **{ns['coverage']:.4f} in\ncoverage, "
-     f"{ns['contraction']:.4f} in contraction and {ns['surv_between']:.0f} in "
-     f"`surv_between`**")
+     r"worst moves\n\*\*[^*]+\*\*",
+     f"worst moves\n**{ns['coverage']:.4f} in coverage, "
+     f"{ns['contraction']:.4f} in contraction and\n{ns['surv_between']:.0f} in "
+     f"`surv_between`, `target_ratio` and `eff_rank`**")
+
+# The flip counts, which are what the inertness claim now rests on.
+nf = DESIGN["nuisance_flips"]
+emit("nuisance-prior decision flips",
+     r"\*\*\d+ flip at scale 3 and \d+ at scale 30\.\*\*",
+     f"**{nf['lo']} flip at scale 3 and {nf['hi']} at scale 30.**")
 
 # --- the true values, which ADEMP requires and round 6 found unregistered ----
+# Round 7: this emitted `gamma_w` from a hand-written export key that claimed
+# components 1, 2 and 4 were zero. The export now carries the whole vector read
+# off theta_true(), so the emitted row states the value ALL FOUR share.
 tv = DESIGN["true_values"]
+assert tv["gamma_all_equal"], "the interactions are no longer a single value"
 emit("true values",
-     r"\| \$\\Gamma_W\$ for the target, component 3 \| \*\*[\d.]+\*\* \|",
-     f"| $\\Gamma_W$ for the target, component 3 | **{tv['gamma_w']}** |")
+     r"target and background alike \| \*\*[\d.]+\*\* \|",
+     f"target and background alike | **{tv['gamma_target']}** |")
 emit("E2 study intercept",
      r"\\operatorname\{logit\}\(0\.3\) = -?[\d.]+",
      f"\\operatorname{{logit}}(0.3) = {tv['e2_study_intercept']}")

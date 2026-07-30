@@ -86,7 +86,12 @@ overlap_table <- function(d) {
       best_fail <- max(v[fail])
       overlaps  <- best_fail >= worst_ok
     }
-    data.frame(statistic = nm, safe_is_low = safe_low[[nm]],
+    ## ROUND 7: A POST HOC ROW MUST CARRY ITS STANDING IN THE DATA, not only in
+    ## the prose. The protocol says every outcome reporting the candidate says so
+    ## on the row; the exported schema had no such field, so `surv_between` was
+    ## packaged identically to the summaries CMP-14 asks for.
+    data.frame(statistic = nm, standing = STANDING[[nm]],
+               safe_is_low = safe_low[[nm]],
                n_failed = sum(fail), n_nominal = sum(!fail),
                most_reassuring_failure = best_fail,
                least_reassuring_success = worst_ok,
@@ -213,10 +218,14 @@ classes <- function(d) {
 
 warning_table <- function(d) {
   cl <- classes(d)
+  ## Same standing field as the overlap table, for the same reason.
+  std <- function(nm) if (nm %in% names(STANDING)) STANDING[[nm]] else
+    STANDING[["source_survival"]]
   cols <- grep("^warn_", names(d), value = TRUE)
   do.call(rbind, lapply(cols, function(cn) {
     w <- d[[cn]]
     data.frame(rule = sub("^warn_", "", cn),
+               standing = std(sub("^warn_", "", cn)),
                sensitivity = mean(w[cl$failed]),
                false_alarm = mean(w[cl$nominal]),
                youden = mean(w[cl$failed]) - mean(w[cl$nominal]),
@@ -244,8 +253,9 @@ main <- function() {
   ## contraction and different coverage.
   sp$contract_gap <- abs(sp$contraction_additivity - sp$contraction_ecological)
   sp$cover_gap <- sp$coverage_additivity - sp$coverage_ecological
-  close <- sp[sp$contract_gap < 0.02, ]
-  cat(sprintf("pairs whose contraction differs by less than 0.02: %d\n",
+  close <- sp[sp$contract_gap < PAIRS_CLOSE_TOL, ]
+  cat(sprintf("pairs whose contraction differs by less than %.2f: %d\n",
+              PAIRS_CLOSE_TOL,
               nrow(close)))
   if (nrow(close)) {
     cat(sprintf("  their coverage differs by up to %.3f\n", max(abs(close$cover_gap))))
@@ -258,13 +268,24 @@ main <- function() {
   }
 
   cat("\n=== PRIMARY 3: does contraction move against coverage? ===\n")
+  ## ROUND 7: THE POOLED VALUE IS THE REGISTERED ONE AND ONLY THE EXPORTER HAD
+  ## IT. This path printed and saved the stratified correlations alone, so the
+  ## designated E1 analysis output did not contain primary 3 and rerunning the
+  ## normal analysis would still have produced only the strata. The pooled value
+  ## is printed first because it is the registered one.
+  cat("pooled over the confounded family, which is the registered primary:\n")
+  print(anticorrelation_pooled(d), row.names = FALSE, digits = 4)
+  cat("by discordance level, reported beside it so the two readings can be\n",
+      "compared rather than assumed to agree:\n", sep = "")
   print(anticorrelation(d), row.names = FALSE, digits = 4)
 
   cat("\n=== SECONDARY: registered thresholds as warning rules (grid-weighted) ===\n")
   print(warning_table(d), row.names = FALSE, digits = 4)
 
   saveRDS(list(overlap = overlap_table(d), pairs = sp,
-               anti = anticorrelation(d), warn = warning_table(d)),
+               anti_pooled = anticorrelation_pooled(d),
+               anti = anticorrelation(d), warn = warning_table(d),
+               pairs_close_tol = PAIRS_CLOSE_TOL),
           "results/e1-analysis.rds")
   cat("\nwritten: results/e1-analysis.rds\n")
 }

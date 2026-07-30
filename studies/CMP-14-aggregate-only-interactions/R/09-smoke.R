@@ -144,6 +144,36 @@ ok("primary 1 compares against NOMINAL scenarios",
    sprintf("%s against %d", paste(unique(ov$n_nominal), collapse = ","),
            sum(abs(d$coverage - NOMINAL) <= COVER_TOL)))
 
+## --- THE TWO ARMS MUST AGREE ON THE ALIASING FORMULA -------------------------
+## Round 6 established that both departures are exactly a shift of the target
+## coefficient, and E2 was rewritten to use bias = shift - [(I+P0)^{-1} P0 th*].
+## E1 reaches the same quantity by a completely different route: an exact
+## Gaussian posterior mean, A %*% mean_true, with no aliasing algebra in it at
+## all. If the result is right the two must coincide, and if a future repair
+## reaches one arm and not the other this is what notices. That failure mode has
+## occurred three times in this study.
+cat("\n=== the aliasing formula, checked across both arms ===\n")
+local({
+  set.seed(11)
+  g <- build_grid()
+  g <- g[sample(nrow(g), 40), ]
+  gaps <- vapply(seq_len(nrow(g)), function(i) {
+    r <- g[i, ]
+    b <- build_design(build_state(r$state, r$spread, r$n))
+    gi <- gi_of(b)
+    fit <- exact_fit(b, r$prior_sd, r$discord, r$synergy)
+    shift <- r$discord + r$synergy
+    th_star <- theta_true(b); th_star[gi] <- th_star[gi] + shift
+    A <- solve(fit$I + prior_precision(b, r$prior_sd))
+    abs(fit$bias -
+        (shift - as.vector(A %*% (prior_precision(b, r$prior_sd) %*% th_star))[gi]))
+  }, 0)
+  ok("E1's exact bias equals E2's aliasing formula on E1's design",
+     max(gaps) < 1e-10,
+     sprintf("worst gap %.3e over %d scenarios, %d of them aliased",
+             max(gaps), nrow(g), sum(g$discord != 0 | g$synergy != 0)))
+})
+
 ## --- E2: the negative control and the registered verdict --------------------
 cat("\n=== E2 ===\n")
 ok("every E2 state appears", setequal(unique(e2$state), E2_STATES),
