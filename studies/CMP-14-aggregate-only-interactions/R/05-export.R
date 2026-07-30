@@ -81,6 +81,8 @@ out$prior_sd_nuisance <- PRIOR_SD_NUISANCE
 out$prior_sd <- PRIOR_SD
 out$synergy <- SYNERGY
 out$contract_ok <- CONTRACT_OK
+out$pairs_close_tol <- PAIRS_CLOSE_TOL
+out$standing <- as.list(STANDING)
 out$eff_ratio_ok <- EFF_RATIO_OK
 out$source_ok <- SOURCE_OK
 out$cover_bad <- COVER_BAD

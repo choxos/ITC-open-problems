@@ -15,7 +15,7 @@ now stated once**, and what it replaced is in the history.
 **Provenance, stated for what it does rather than for what it sounds like.** **The assertion is the
 guarantee; emission is a convenience.** `R/05-export.R` writes every quantity this document quotes to
 `results/registered-design.json`. `review/verify-protocol.py` then checks the document against that
-file, currently **131** assertions, and that is the link that catches a stale or invented number.
+file, currently **154** assertions, and that is the link that catches a stale or invented number.
 `review/emit-tables.py` regenerates a handful of sentences from the same export so they need not be
 retyped; it covers **some** numbers, not all, and **it now fails when one of its patterns matches
 nothing** rather than reporting success. Round 6 found it targeting a sentence an earlier rebuild had

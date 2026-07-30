@@ -486,3 +486,29 @@ current". That is exactly the failure it was built for, one round later.
 arm map, the thresholds each carry a rule and an inequality, and the E1/E2 cross
 -arm check added in round 7 confirms both arms compute the aliasing bias
 identically, to 1.6e-15 over 40 scenarios.
+
+## Auditing round 7's repairs before round 8 did
+
+Round 7's worst finding was a table added in round 6 whose values were **typed
+rather than read from the code**, and which stated a data-generating truth the
+simulation had never used. That is a repeating disease, so round 7's own repairs
+were audited the same way before round 8 reported on them.
+
+**Six of them had the disease.** `PAIRS_CLOSE_TOL` was moved into the config and
+then quoted in the protocol as a typed literal, and was not exported at all. The
+standing field, E2's primary-3 correlation, the nuisance decision flips, the arm
+map and the true-values table were all exported and asserted by nothing, so each
+number in the document could drift from the code that produced it without any
+guard noticing. The arm map was the clearest case: **the whole table was
+hand-written**, including the `absent` row added in round 7 precisely because a
+reviewer could not check that state's geometry. The typed row happened to be
+correct, which is not the same as being checked.
+
+**Twenty-three assertions now bind them**, cell by cell: every true value against
+`theta_true()` as the exporter read it, every arm-map cell against what
+`R/06-nonlinear.R` built, both primary-3 rows against their own arms, and the
+flip counts against the run. Three of them are conditional rather than positional,
+which is the shape this study has been moving toward: **the document may claim the
+two arms disagree only if the exported signs disagree**, may claim the nuisance
+prior decides nothing only if the flip count is zero, and must mark the candidate
+post hoc in the exported rows and not only in prose.

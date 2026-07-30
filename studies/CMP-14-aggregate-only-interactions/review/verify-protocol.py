@@ -255,6 +255,113 @@ check("the estimand is not presented as a model parameter",
       and "carries **one** $\\Gamma$ per" in PROTOCOL,
       "the estimand still implies the model splits within from between")
 
+# --- ROUND 8 SELF-AUDIT: ROUND 7'S OWN REPAIRS -------------------------------
+# Round 7's worst finding was a table added in round 6 whose values were TYPED
+# rather than read from the code, and which stated a data-generating truth the
+# simulation had never used. Six of round 7's own additions were exported and
+# asserted by nothing, and one was not exported at all, which is the same disease
+# one round later. Each is now bound to the export.
+
+check("primary 2's tolerance is the registered one",
+      f"`PAIRS_CLOSE_TOL = {DESIGN['pairs_close_tol']:.2f}`" in PROTOCOL,
+      f"config says {DESIGN['pairs_close_tol']}")
+
+# The true values, every entry, against theta_true() as the exporter read it.
+_tv = DESIGN["true_values"]
+check("the interactions are all one value, as the table claims",
+      _tv["gamma_all_equal"] is True, f"gamma = {_tv['gamma']}")
+check("the stated interaction value is the exported one",
+      f"target and background alike | **{_tv['gamma_target']}** |" in PROTOCOL,
+      f"export says {_tv['gamma_target']}")
+check("the stated main effect is the exported one",
+      f"| $-{abs(_tv['delta_main'])}$ |" in PROTOCOL,
+      f"export says {_tv['delta_main']}")
+check("the stated prognostic slope is the exported one",
+      f"the prognostic slope | {_tv['beta_prog']} |" in PROTOCOL,
+      f"export says {_tv['beta_prog']}")
+check("the stated E2 intercept is the exported one",
+      f"= {_tv['e2_study_intercept']}$ |" in PROTOCOL,
+      f"export says {_tv['e2_study_intercept']}")
+check("sigma is registered as known",
+      _tv["sigma_known"] is True and "$\\sigma^2$ is fixed and known" in PROTOCOL,
+      "the document does not register sigma as known")
+
+# The arm map. The document's table was hand-written; these bind every cell of it
+# to what R/06-nonlinear.R actually built, including `absent`, which was missing
+# from the table until round 7 and is the state whose geometry is least obvious.
+_am = DESIGN["arm_map"]
+_bg = sorted({r["arms"] for r in _am if r["role"] == "background"})
+check("the background arms in the document are the ones built",
+      all(f"`{a}`" in PROTOCOL for a in _bg), f"built {_bg}")
+check("every background study supplies IPD and carries no target",
+      all(r["ipd"] and not r["carries_target"]
+          for r in _am if r["role"] == "background"),
+      "a background study leaks the target or is aggregate")
+for _st, _cell in [("own_ipd", "IPD, `PBO, 1, 3`"),
+                   ("additivity", "IPD, `PBO, 1, 1+3`"),
+                   ("absent", "IPD, `PBO, 1, 2`")]:
+    _rows = [r for r in _am if r["state"] == _st and r["role"] == "target"]
+    check(f"the {_st} target arms in the document match the build",
+          _cell in PROTOCOL and all(r["arms"] == _cell.split("`")[1]
+                                    for r in _rows) and len(_rows) == 2,
+          f"built {[r['arms'] for r in _rows]}")
+check("the aggregate-only states are aggregate on the target in the build",
+      all(not r["ipd"] for r in _am
+          if r["state"] in ("ecological", "curvature") and r["role"] == "target"),
+      "an aggregate-only state supplies target IPD")
+_WORDS = ["zero", "one", "two", "three", "four", "five", "six", "seven",
+          "eight", "nine", "ten", "eleven", "twelve"]
+_nbg = DESIGN["arm_map_n_background_arms"] // len(DESIGN["e2_states"])
+check("the document states the background arm count the build produced",
+      f"two arms each, {_WORDS[_nbg]} arms in" in PROTOCOL,
+      f"build gives {_nbg}")
+
+# E2's primary 3, which round 7 added because the single pooled rho was E1's.
+_a2 = DESIGN["e2_anticorrelation_pooled"]
+_a1 = DESIGN["anticorrelation_pooled"]
+check("the E2 primary-3 row matches the export",
+      f"| **E2** | {_a2['n_scenarios']} | "
+      f"**{_a2['rho_contraction_vs_coverage']:.4f}** |" in PROTOCOL,
+      f"export says n={_a2['n_scenarios']}, rho={_a2['rho_contraction_vs_coverage']}")
+check("the E1 primary-3 row matches the export",
+      f"| {_a1['n_scenarios']} | **{_a1['rho_contraction_vs_coverage']:.4f}** |"
+      in PROTOCOL,
+      f"export says n={_a1['n_scenarios']}, rho={_a1['rho_contraction_vs_coverage']}")
+check("the document says the two arms disagree, since they do",
+      (_a1["contraction_inverted"] != _a2["contraction_inverted"])
+      == ("**The two arms disagree" in PROTOCOL),
+      "the disagreement claim does not match the exported signs")
+
+# The nuisance-prior rule, which round 7 rewrote to compare decisions.
+_nf = DESIGN["nuisance_flips"]
+check("the decision count is the exported one",
+      f"**{DESIGN['nuisance_n_decisions']:,}** binary" in PROTOCOL,
+      f"export says {DESIGN['nuisance_n_decisions']}")
+check("the flip counts are the exported ones",
+      f"**{_nf['lo']} flip at scale 3 and {_nf['hi']} at scale 30.**" in PROTOCOL,
+      f"export says {_nf}")
+check("the inertness claim is only made because nothing flipped",
+      (_nf["lo"] == 0 and _nf["hi"] == 0)
+      == ("moves nothing this study decides on" in PROTOCOL),
+      "the claim survives a nonzero flip count")
+
+# The standing field, which round 7 added so a post hoc row carries its status.
+check("every reported statistic carries a standing",
+      all("standing" in o for o in DESIGN["overlap"])
+      and all("standing" in w for w in DESIGN["warnings"]),
+      "a row is exported without its standing")
+check("the candidate is marked post hoc in the exported rows",
+      all(o["standing"] == "post-hoc-candidate"
+          for o in DESIGN["overlap"] if o["statistic"] == "surv_between")
+      and all(w["standing"] == "post-hoc-candidate"
+              for w in DESIGN["warnings"] if w["rule"] == "source_survival"),
+      "the candidate is packaged as a registered summary")
+check("the CMP-14 summaries are marked as such",
+      {o["standing"] for o in DESIGN["overlap"]
+       if o["statistic"] in ("contraction", "target_ratio", "eff_rank")}
+      == {"cmp14-summary"},
+      "a CMP-14 summary carries the wrong standing")
+
 # --- the history is complete and elsewhere ------------------------------------
 check("the change history is a separate document",
       "Change history is in [`CHANGES.md`](CHANGES.md), not here" in PROTOCOL,
