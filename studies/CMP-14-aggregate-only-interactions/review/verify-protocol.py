@@ -439,7 +439,7 @@ check("every E2 state row carries the candidate's standing",
       all(z.get("candidate_standing") == "post-hoc-candidate"
           for z in DESIGN["e2_by_state"].values()),
       "an E2 row reports a candidate value without its standing")
-_reviewers = set(re.findall(r"^\| \d \| (\w+) \| [\w-]+ \| \d+ \| \d+ \|$",
+_reviewers = set(re.findall(r"^\| \d+ \| (\w+) \| [\w-]+ \| \d+ \| \d+ \|$",
                            (ROOT / "CHANGES.md").read_text(), re.M))
 check("the reviewer count in the header matches the table",
       f"between **{len(_reviewers)}** reviewers" in PROTOCOL,
@@ -592,7 +592,10 @@ check("the history keeps the full disclosure list",
 # table in both files rather than typed into either.
 _WORDS_R = ["", "one", "two", "three", "four", "five", "six", "seven",
             "eight", "nine", "ten", "eleven", "twelve"]
-_rows = re.findall(r"^\| (\d) \| (\w+) \| [\w-]+ \| (\d+) \| (\d+) \|$",
+# Round 10 is two digits; the original pattern matched one and silently
+# dropped the row, so the total went stale the moment the study reached ten
+# rounds. A guard that stops seeing new data is a guard that stops working.
+_rows = re.findall(r"^\| (\d+) \| (\w+) \| [\w-]+ \| (\d+) \| (\d+) \|$",
                    (ROOT / "CHANGES.md").read_text(), re.M)
 check("the reviewer table parses", len(_rows) >= 6, f"{len(_rows)} rows")
 _total = sum(int(f) + int(s) for _, _, f, s in _rows)
