@@ -43,6 +43,40 @@ The study is powered to detect the refutation. That is the point of it: MIS-03
 already established the affirmative case under the conditions where the linear
 theory holds, so a study that could only confirm would add nothing.
 
+## 2a. WHAT ROUND 1 ESTABLISHED ABOUT THIS SECTION'S SECOND PREDICTION
+
+**Prediction 2 is withdrawn as stated, and P3 does not test what it was said to
+test.** This is a conceptual error, not an arithmetic one, and it survived a
+coordinate-mismatch correction that changed every number without touching the
+framing.
+
+The superpopulation estimand $\Delta(F_T)$ is **fixed across replicates**: $F_T$ is
+the true target law and does not vary. The MAIC estimator's sampling variance
+therefore comes from its own dependence on the *estimated* moments, propagated
+through $\partial\hat\theta/\partial\hat m$, which is the **estimator** gradient.
+That is precisely what the published variance estimators propagate, and they
+propagate it correctly.
+
+What `R/02-gradient.R` computes is $\partial\Delta/\partial m$: how the estimand
+would move if the target *population's* moments moved along a chosen parametric
+family. **That is a different question, and its answer does not enter the variance
+of $\hat\theta$ for a fixed $F_T$ at all.**
+
+**So the gap between the two gradients is evidence about IDENTIFICATION, not about
+variance.** It says that moment-matching does not pin $\Delta(F_T)$ on a curved
+link, so $\hat\theta$ converges to something other than the estimand. That is this
+section's **prediction 1**, the residual bias term, which the design already
+states and which no variance estimator can address. Prediction 2, that the ports
+"plug in the wrong gradient", does not follow and is not established.
+
+**Consequences for what has been reported.** The numbers P3 produced, in both the
+mismatched and the corrected versions, do not carry the interpretation attached to
+them. Neither "the ported variance is off by 24 to 44%" nor its correction "the
+ported variance is essentially right on logit" is supported, because neither
+quantity is the ported variance's error. **The study's centre of gravity moves to
+prediction 1**, which is a bias claim, measurable against the anchored truths now
+implemented, and which the run was always going to measure.
+
 ## 2. The mechanism, algebraically
 
 Write the target marginal estimand as a functional of the target covariate law
