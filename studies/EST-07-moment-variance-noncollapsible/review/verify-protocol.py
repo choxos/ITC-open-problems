@@ -222,6 +222,33 @@ check("the run grid is a subset of the realized grid",
       f"{D['n_cells']} of {D['n_cells_realized']}")
 
 # --- the registration status must not have been quietly upgraded -------------
+# PREDICTION 1 must state what would falsify it, and must not slide from
+# identification to variance the way the withdrawn second prediction did.
+check("prediction 1 names its falsification condition",
+      "It is falsified if" in PROTOCOL,
+      "a prediction with no stated refutation is not a prediction")
+# The old wording is QUOTED in the disclosure that withdraws it, so a plain
+# "not in" test fails on the document's own honesty. It must appear exactly once,
+# and inside the sentence that disowns it. This is the third time a guard in this
+# programme has been tripped by the text explaining what it guards against.
+_slide = "no variance indexed by the reported moments can be correct"
+_n_slide = PROTOCOL.count(_slide)
+check("prediction 1 is stated as bias, not as an incorrect variance",
+      "centered on a different QUANTITY" in PROTOCOL and _n_slide == 1
+      and "Earlier drafts went straight from there to" in PROTOCOL
+      and PROTOCOL.index("Earlier drafts went straight from there to")
+          < PROTOCOL.index(_slide),
+      f"the old wording appears {_n_slide} times, not once inside its withdrawal")
+# The ladder is retained BELOW the floor on purpose; the scope section must not
+# then say the study is silent everywhere below it.
+check("the scope limit does not revoke the ladder it registers",
+      "with one deliberate exception" in PROTOCOL,
+      "section 7 contradicts the ladder registered in section 2")
+# P7 reports gradients; the document must not call them variances.
+check("P7's gradients are not presented as variances",
+      "gradient magnitudes, not variances" in PROTOCOL,
+      "a gradient is being read as the quantity it bounds")
+
 check("the document still says it is not registered",
       "NOT YET REGISTERED" in PROTOCOL,
       "a draft has been described as a registration")

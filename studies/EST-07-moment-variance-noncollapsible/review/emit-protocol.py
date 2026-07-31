@@ -102,11 +102,26 @@ treats those reported moments as **known constants**.
 
 They are estimates from {lv(L["nT"])} people. The question is what that costs.
 
-**Prediction 1.** Under a non-collapsible link the estimand
+**Prediction 1, stated so that it is about the right thing.** Under a
+non-collapsible link the estimand
 Delta(F_T) = g(int mu_1 dF_T) - g(int mu_0 dF_T) is a functional of the whole
-target covariate law, not of its first two moments. So no variance indexed by the
-reported moments can be correct for it, and the deficit does not close as the
-target grows.
+target covariate law, not of its first two moments: two laws agreeing on every
+reported moment can have different Delta.
+
+Earlier drafts went straight from there to "so no variance indexed by the reported
+moments can be correct". That is the same slide from identification to variance
+that got the second prediction withdrawn, and a reviewer raised it twice. A method
+that matches reported moments is not merely reporting the wrong WIDTH; it is
+centered on a different QUANTITY, the moment-matched contrast rather than
+Delta(F_T). The consequence is a bias, and the coverage deficit a bias produces
+does not shrink as the target grows, because the gap between the two quantities is
+not a sampling error.
+
+So the prediction is: **reported-moment methods target the moment-matched
+contrast, and their coverage of Delta(F_T) fails by an amount that persists as nT
+grows.** That is what the two registered estimands separate and what the growth
+ladder measures. It is falsified if coverage of the superpopulation estimand
+approaches nominal along the ladder.
 
 **A second prediction was registered and has been withdrawn.** It said the
 sampling variance induced by estimated target moments is governed by the gradient
@@ -289,6 +304,13 @@ prognostic term. That is non-collapsibility itself.
 |---|---|---|
 {p7_rows}
 
+**These are gradient magnitudes, not variances**, and the distinction matters
+after the second prediction was withdrawn for exactly that kind of slide. What the
+table shows is that d Delta / d m does not vanish on the curved links. The omitted
+variance is J' Omega J / nT, which is a positive definite form in that gradient, so
+a gradient bounded away from zero implies an omitted variance bounded away from
+zero; the table establishes the premise and not the quantity itself.
+
 The control now reads: the gradient vanishes on the **collapsible** link and on no
 other. A nonzero identity gradient is an implementation defect; nonzero curved
 gradients are the subject of the study. This is also a finding rather than a
@@ -462,8 +484,12 @@ An earlier draft reported this as a saving.
   would buy. No analyst can compute it from a published baseline table, so it is
   a decomposition, not a recommendation.
 - **The dropped cells.** {d["n_cells_realized"] - d["n_cells"]} of
-  {d["n_cells_realized"]} cells fall below the floor and are not run, so the study
-  says nothing about conditions where the omitted variance is small.
+  {d["n_cells_realized"]} cells fall below the floor and are not run. The study
+  therefore says nothing about most conditions where the omitted variance is
+  small, **with one deliberate exception**: the growth ladder is retained below
+  the floor precisely so that the persistence claim can be tested where the effect
+  is small by construction. An earlier draft of this section revoked the ladder's
+  purpose two sections after registering it.
 """
 
 
