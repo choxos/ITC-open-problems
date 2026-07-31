@@ -35,6 +35,9 @@
 source("R/05-estimators.R")
 
 RUN_DIR <- "results/run"
+
+## Per-cell truths, keyed on every factor they depend on.
+.truth_cache <- new.env(parent = emptyenv())
 CHUNK   <- 250L
 
 ## The registered grid, straight from the probe store. Never re-derived here: if
@@ -95,15 +98,32 @@ run_replicate <- function(cell, r) {
   ## every replicate the wrong target: the two differ by the whole target-trial
   ## control contrast, and under a nonzero baseline shift they differ by a great
   ## deal more.
+  ##
+  ## CACHED PER CELL, because it is a per-cell constant and the integration is no
+  ## longer cheap: the order rose to 24 when the outside arm was finally included
+  ## in the probe that sizes it, and 24^3 nodes recomputed on every one of 2000
+  ## replicates took the budget from 663 to 1247 core-hours.
+  ##
+  ## The cache key is every factor the truth depends on, and nothing else. That is
+  ## what makes this safe: a stale entry would require two different truths to
+  ## share a key, and the key IS the truth's argument list. The alternative,
+  ## recomputing to be sure, was paying about half the study's cost for a
+  ## guarantee the key already gives.
   anch <- isTRUE(cell$anchored)
-  truth <- if (anch)
-    truth_anchored_superpop(pars, pars_T, cell$link, cell$shape,
-                            mu = pm$target, sigma = rep(1, N_COVARIATE),
-                            rho = 0.3, order = QUAD_ORDER)
-  else
-    truth_unanchored_superpop(pars, pars_T, cell$link, cell$shape,
-                              mu = pm$target, sigma = rep(1, N_COVARIATE),
+  tkey <- paste(cell$link, cell$shape, cell$k, cell$modifier_span,
+                cell$baseline_shift, anch, QUAD_ORDER, sep = "|")
+  truth <- .truth_cache[[tkey]]
+  if (is.null(truth)) {
+    truth <- if (anch)
+      truth_anchored_superpop(pars, pars_T, cell$link, cell$shape,
+                              mu = pm$target, sigma = rep(1, length(pars$beta_em)),
                               rho = 0.3, order = QUAD_ORDER)
+    else
+      truth_unanchored_superpop(pars, pars_T, cell$link, cell$shape,
+                                mu = pm$target, sigma = rep(1, length(pars$beta_em)),
+                                rho = 0.3, order = QUAD_ORDER)
+    .truth_cache[[tkey]] <- truth
+  }
 
   z <- try(estimate_all(d, cell$link, cell$corr_assumed), silent = TRUE)
   if (inherits(z, "try-error") || !nrow(z)) return(NULL)

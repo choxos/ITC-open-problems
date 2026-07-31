@@ -18,6 +18,18 @@ source("R/05-estimators.R")
 
 N_TIME_REP <- 12L   # timed replicates per configuration
 
+## CPU TIME, NOT WALL CLOCK, and the machine taught this the same way it taught
+## the sibling study. The budget measured elapsed time while E3 was running and
+## the load average sat near 40, so the same unchanged code measured 663, then
+## 1247, then 1178 core-hours on three runs. A registered cost that moves by a
+## factor of two with whatever else the machine is doing is not a measurement.
+##
+## `proc.time()` accumulates this process's own CPU and that of its forked
+## children, so it is what the study will consume on an idle machine, which is
+## the only figure a budget can mean.
+cpu_of <- function(d)
+  unname(d[["user.self"]] + d[["sys.self"]] + d[["user.child"]] + d[["sys.child"]])
+
 main <- function() {
   p <- load_probes()
   stopifnot("probes P1 and P2 must run first" =
@@ -51,14 +63,14 @@ main <- function() {
                             baseline_shift = cf$baseline_shift,
                             anchored = cf$anchored)
       t0 <- proc.time(); invisible(estimate_all(d, cf$link, "borrowed"))
-      t_all[r] <- (proc.time() - t0)[["elapsed"]]
+      t_all[r] <- cpu_of(proc.time() - t0)
       ## The same replicate without the resampling arm, so the perturbation
       ## interval's share is measured rather than inferred by subtraction from a
       ## different draw.
       t0 <- proc.time()
       invisible(maic_all_no_perturb(d, cf$link, "borrowed"))
       invisible(stc_estimate(d, cf$link))
-      t_nopert[r] <- (proc.time() - t0)[["elapsed"]]
+      t_nopert[r] <- cpu_of(proc.time() - t0)
     }
     data.frame(nS = cf$nS, link = cf$link,
                sec_per_rep = mean(t_all),

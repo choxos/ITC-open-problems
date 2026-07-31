@@ -67,9 +67,9 @@ retained below as an **identification** probe, which is what it measures.
 
 ### P1: the integration order, and a rule that was wrong rather than coarse
 
-Registered order **16**, forced by the `cloglog` /
+Registered order **24**, forced by the `cloglog` /
 `mvnorm` cell. Continuous shapes need orders
-8 to 16.
+8 to 24.
 
 The order was 48 for two rounds because the probe took its reference from the
 highest order it ran, so "48 is stable" reduced to "48 agrees with 64". Two coarse
@@ -84,17 +84,17 @@ integrands. The binary covariate is integrated exactly rather than approximated.
 The rule is validated against **independent Monte Carlo**, not against itself,
 and the check RUNS inside P1 rather than being remembered from a console session:
 on the cloglog/mixed cell at order
-16 the quadrature gives 0.73049199 against
+24 the quadrature gives 0.73046714 against
 a Monte Carlo estimate of 0.73038878 with standard error
-7.08e-05, **1.46 standard errors apart**. P1
+7.08e-05, **1.11 standard errors apart**. P1
 stops and registers no order if they ever disagree by more than three.
 
 The `mvnorm` law reduces to one dimension exactly, agreeing with the product rule
-to 2.13e-07. The product rule is used only for the non-normal
-shapes, at 4,096 nodes for the 3 covariates
+to 2.3e-09. The product rule is used only for the non-normal
+shapes, at 13,824 nodes for the 3 covariates
 the design fixes. The `outside` arm carries a fourth covariate and is crossed with
 `mvnorm` only, so it uses the exact reduction and never the product rule; the
-65,536-node figure is what the reduction avoids there, not a
+331,776-node figure is what the reduction avoids there, not a
 count this study pays.
 
 ### P2: which cells are worth running
@@ -234,7 +234,7 @@ prognostic term. That is non-collapsibility itself.
 
 | link | max abs gradient at beta_EM = 0 | |
 |---|---|---|
-| `identity` | 5.55e-14 | vanishes |
+| `identity` | 9.57e-14 | vanishes |
 | `logit` | 0.019 | does not vanish |
 | `cloglog` | 0.0307 | does not vanish |
 
@@ -427,11 +427,11 @@ the assumed correlation see identical data. Monte Carlo error for every method
 contrast is therefore computed from the **per-replicate difference**, not from an
 independence formula, which would overstate the error of a paired contrast.
 
-Measured cost: **663.1 core-hours** for the MAIC and STC arms, at
+Measured cost: **728.7 core-hours** for the MAIC and STC arms, at
 B = 800, which is the registered value rather than a
 different one scaled. The perturbation arm is 96% to 99% of it.
 
-**The cost rose by 546%** against the 102.6
+**The cost rose by 610%** against the 102.6
 core-hours measured when B was typed at 200 and the grid was smaller. Sizing B
 honestly took it to 800, and the corrected `mixed` arm added cells.
 An earlier draft reported this as a saving.
