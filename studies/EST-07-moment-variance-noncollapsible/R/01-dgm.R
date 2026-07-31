@@ -157,17 +157,26 @@ delta_superpopulation <- function(pars, link, shape, mu, sigma, rho, order) {
              non-normal shapes are crossed with the middle level of the other
              factors precisely so this cannot be reached at four"
               = length(mu) <= 3L)
-  gh <- gh_rule(order)
   p <- length(mu)
   ## A product rule over p dimensions. p is 3 and the order is small, so the
   ## node count is order^3 and is affordable; a sparse rule would be a second
   ## approximation to justify.
-  idx <- as.matrix(expand.grid(rep(list(seq_len(order)), p)))
+  ##
+  ## PER-COORDINATE RULES. Every coordinate gets Gauss-Hermite except one that
+  ## the shape map makes discontinuous, which gets the split rule above. Under
+  ## `mixed` that is the first coordinate and only the first; under `lognormal`
+  ## the map is smooth and monotone, so nothing changes.
+  gh <- gh_rule(order)
+  gh_n <- list(x = sqrt(2) * gh$x, w = gh$w / sqrt(pi))   # standard-normal form
+  sp <- if (shape == "mixed") split_normal_rule(order) else NULL
+  rules <- lapply(seq_len(p), function(j)
+    if (!is.null(sp) && j == 1L) sp else gh_n)
+
+  idx <- as.matrix(expand.grid(lapply(rules, function(r) seq_along(r$x))))
   R <- matrix(rho, p, p); diag(R) <- 1
   L <- chol(diag(sigma, p) %*% R %*% diag(sigma, p))
-  z <- sqrt(2) * gh$x[idx]
-  dim(z) <- dim(idx)
-  w <- apply(matrix(gh$w[idx], nrow(idx), p), 1, prod) / (pi^(p / 2))
+  z <- vapply(seq_len(p), function(j) rules[[j]]$x[idx[, j]], numeric(nrow(idx)))
+  w <- Reduce(`*`, lapply(seq_len(p), function(j) rules[[j]]$w[idx[, j]]))
   xs <- sweep(z %*% L, 2, mu, "+")
   if (shape != "mvnorm") {
     ## For a non-normal law the same nodes are pushed through the shape map, so
@@ -230,6 +239,50 @@ truth_anchored_finite <- function(pars, pars_T, x, link) {
 ## Gauss-Hermite nodes and weights, by the Golub-Welsch eigenvalue method. The
 ## same routine CMP-14 uses, kept here rather than sourced so this study's
 ## integration is not silently coupled to another study's edits.
+## --- the rule for a coordinate the shape map makes DISCONTINUOUS -------------
+##
+## ROUND 1 OF CRITIQUE, and it started as "order 48 is not stable at the
+## registered tolerance". It was not, and the reason was structural rather than a
+## matter of buying more nodes.
+##
+## The `mixed` shape turns the first covariate into a binary one by
+## `as.numeric(x[, 1] > mu[1])`, a STEP FUNCTION. Gauss-Hermite is built on
+## polynomial exactness, so on a discontinuous integrand it loses its exponential
+## convergence and falls back to roughly 1/n: measured deviations of 5.078e-04,
+## 3.034e-04, 2.019e-04, 1.007e-04 and 5.031e-05 at orders 32, 48, 64, 96 and 128.
+## Chasing a 1e-04 tolerance down that curve needs an order whose cube the product
+## rule cannot afford, and the reference used to certify it would need to be
+## higher still.
+##
+## The jump is at a KNOWN place. `L` is upper triangular from `chol`, so the first
+## coordinate of `z %*% L` is `z[, 1] * L[1, 1]` and the covariate crosses its
+## threshold exactly at z1 = 0. So the integral can be split there and each half
+## integrated with a rule that is exact for smooth integrands, which restores
+## exponential convergence and makes the binary covariate exact rather than
+## approximated.
+##
+## The substitution is u = Phi(z), which turns the normal integral into a plain
+## integral over (0, 1) with the jump at u = 1/2, and Gauss-Legendre runs on
+## (0, 1/2) and (1/2, 1) separately.
+gl_rule <- function(n) {
+  i <- seq_len(n - 1); b <- i / sqrt(4 * i^2 - 1)
+  J <- matrix(0, n, n)
+  J[cbind(i, i + 1)] <- b; J[cbind(i + 1, i)] <- b
+  e <- eigen(J, symmetric = TRUE); o <- order(e$values)
+  list(x = e$values[o], w = 2 * (e$vectors[1, o])^2)
+}
+
+## Nodes and weights that integrate a function against the STANDARD NORMAL
+## measure, exactly as `gh_rule` does after its sqrt(2) and sqrt(pi) scaling, but
+## split at zero so a jump there costs nothing.
+split_normal_rule <- function(n) {
+  gl <- gl_rule(n)
+  ## Each half of (0, 1) mapped from (-1, 1): width 1/4 either side of 1/2.
+  u <- c(0.25 + 0.25 * gl$x, 0.75 + 0.25 * gl$x)
+  w <- c(0.25 * gl$w, 0.25 * gl$w)
+  list(x = stats::qnorm(u), w = w)
+}
+
 gh_rule <- function(n) {
   i <- seq_len(n - 1); J <- matrix(0, n, n)
   J[cbind(i, i + 1)] <- sqrt(i / 2); J[cbind(i + 1, i)] <- sqrt(i / 2)

@@ -32,6 +32,31 @@ SIGMA <- c(1.0, 1.0, 1.0)
 RHO   <- 0.3
 ORDERS <- c(8L, 12L, 16L, 24L, 32L, 48L, 64L)
 
+## THE REFERENCE IS OUTSIDE THE GRID, and round 1 of critique is why.
+##
+## This probe used to take its reference from the highest order it ran, which
+## makes that order's deviation zero by construction and reduces "48 is stable"
+## to "48 agrees with 64". Two coarse rules can agree with each other and both be
+## wrong, which the header even said, and the code then did it anyway.
+##
+## Measured against an independent order 192, the registered order 48 deviates by
+## 3.034e-04 on the cloglog mixed cell, THREE TIMES the registered 1e-04
+## tolerance, and order 64 deviates by 2.019e-04. The self-referential reference
+## hid a failure of the study's own criterion.
+##
+## Those deviations fell like 1/n rather than exponentially, which is what
+## Gauss-Hermite does on an integrand that is not smooth: the `mixed` shape makes
+## the first covariate a step function. That is now fixed at the source. R/01-dgm
+## splits the integral at the jump, which is at a known point, and integrates each
+## side with a rule that is exact for smooth integrands. `split_normal_rule()`
+## returns 2n nodes for that one coordinate, so a `mixed` cell costs twice a
+## `lognormal` cell at the same order.
+##
+## The split rule is validated against independent Monte Carlo rather than against
+## itself: at order 48 it sits 0.80 Monte Carlo standard errors from a 4e7-draw
+## estimate, so it converges to the right answer and not merely to a stable one.
+REF_ORDER <- 128L
+
 main <- function() {
   pars <- hard_pars()
   grid <- expand.grid(link = LINKS, shape = LEVELS$shape,
@@ -40,11 +65,10 @@ main <- function() {
     lk <- grid$link[i]; sh <- grid$shape[i]
     vals <- vapply(ORDERS, function(o)
       delta_superpopulation(pars, lk, sh, MU, SIGMA, RHO, o), 0)
-    ## The reference is the highest order run. "Stable" means every order at or
-    ## above the reported one differs from it by less than QUAD_TOL, not merely
-    ## that consecutive orders agree: two coarse rules can agree with each other
-    ## and both be wrong.
-    ref <- vals[length(vals)]
+    ## "Stable" means every order at or above the reported one differs from an
+    ## INDEPENDENT reference by less than QUAD_TOL. Independent is the whole
+    ## point: no order in the grid can be its own yardstick.
+    ref <- delta_superpopulation(pars, lk, sh, MU, SIGMA, RHO, REF_ORDER)
     dev <- abs(vals - ref)
     ok <- which(vapply(seq_along(ORDERS), function(j)
       all(dev[j:length(dev)] < QUAD_TOL), TRUE))
@@ -52,6 +76,7 @@ main <- function() {
                stable_order = if (length(ok)) ORDERS[min(ok)] else NA_integer_,
                dev_at_16 = dev[ORDERS == 16L],
                dev_at_32 = dev[ORDERS == 32L],
+               dev_at_48 = dev[ORDERS == 48L],
                ref = ref, stringsAsFactors = FALSE)
   }))
 
