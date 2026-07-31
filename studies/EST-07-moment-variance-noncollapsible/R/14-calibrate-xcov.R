@@ -50,7 +50,8 @@ xcov_combos <- function() {
   if (is.null(p$P2_grid))
     stop("P2 has not run, so the registered grid does not exist yet")
   g <- p$P2_grid[[1]]
-  keys <- c("link", "nT", "k", "shape", "modifier_span")
+  keys <- c("link", "nT", "k", "shape", "modifier_span", "anchored",
+            "baseline_shift")
   miss <- setdiff(keys, names(g))
   if (length(miss))
     stop("the registered grid has no column(s): ", paste(miss, collapse = ", "))
@@ -62,7 +63,8 @@ xcov_combos <- function() {
 ## Returns the covariance VECTOR Cov(m_hat, theta_BC), not a contracted scalar,
 ## because the contraction needs a gradient this function does not have and must
 ## not guess at.
-xcov_one <- function(link, nT, k, shape, modifier_span, n_rep = N_XCOV_REP) {
+xcov_one <- function(link, nT, k, shape, modifier_span, anchored,
+                     baseline_shift, n_rep = N_XCOV_REP) {
   ms <- NULL
   tb <- rep(NA_real_, n_rep)
   for (r in seq_len(n_rep)) {
@@ -74,13 +76,16 @@ xcov_one <- function(link, nT, k, shape, modifier_span, n_rep = N_XCOV_REP) {
     ## level so the source draw is as cheap as it can be. The source is drawn at
     ## all only because `sample_replicate()` produces both arms together.
     rd <- try(sample_replicate(min(LEVELS$nS), nT, k, link, shape,
-                              rho_true = 0.3, modifier_span = modifier_span),
+                              rho_true = 0.3, modifier_span = modifier_span,
+                              baseline_shift = baseline_shift,
+                              anchored = anchored),
               silent = TRUE)
     if (inherits(rd, "try-error")) next
     tr <- rd$target_reported
     if (is.null(ms)) ms <- matrix(NA_real_, n_rep, length(tr$m))
     ms[r, ] <- tr$m
-    tb[r] <- tr$theta_BC
+    ## The target quantity this arm differences against.
+    tb[r] <- if (isTRUE(anchored)) tr$theta_BC else tr$g_mu_B
   }
   if (is.null(ms)) return(NULL)
   keep <- is.finite(tb) & apply(is.finite(ms), 1, all)
@@ -103,8 +108,10 @@ main <- function() {
   store <- list()
   for (i in seq_len(nrow(combos))) {
     z <- combos[i, ]
-    r <- xcov_one(z$link, z$nT, z$k, z$shape, z$modifier_span)
-    key <- xcov_key(z$link, z$nT, z$k, z$shape, z$modifier_span)
+    r <- xcov_one(z$link, z$nT, z$k, z$shape, z$modifier_span,
+                  z$anchored, z$baseline_shift)
+    key <- xcov_key(z$link, z$nT, z$k, z$shape, z$modifier_span,
+                    z$anchored, z$baseline_shift)
     if (is.null(r)) {
       cat(sprintf("  [%3d/%3d] %-40s FAILED\n", i, nrow(combos), key))
       next

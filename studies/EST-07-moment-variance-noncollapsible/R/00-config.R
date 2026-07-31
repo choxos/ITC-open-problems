@@ -33,6 +33,22 @@ LINKS <- c("identity", "logit", "cloglog")   # design: identity is the falsifier
 ESTIMANDS <- c("superpopulation", "finite_target")
 
 ## --- design factors, DESIGN.md section 4 ------------------------------------
+## THE TARGET TRIAL'S BASELINE RISK, on the linear-predictor scale.
+##
+## Added when the unanchored arm was built. The DGM gave the source and target
+## trials the SAME intercept and the same prognostic coefficients, so their
+## control arms were identical and the anchored contrast differenced away a
+## quantity that was already equal. Under that DGM the anchored and unanchored
+## estimands coincide exactly, which makes the unanchored arm a variance exercise
+## with none of its real risk.
+##
+## Anchoring exists precisely because trials differ in baseline risk. With a
+## nonzero shift the anchored contrast still cancels it, by construction, and the
+## unanchored contrast does not: it inherits the shift as bias unless the analyst
+## can predict absolute outcomes. Registering 0 alongside a nonzero level keeps
+## the old behavior available as the case where anchoring is unnecessary.
+BASELINE_SHIFT <- c(0, 0.5)
+
 LEVELS <- list(
   ## The two non-collapsible scales MAIC is actually used for, plus the
   ## collapsible one that serves as the headline's falsifier. `cloglog` is the
@@ -83,13 +99,19 @@ LEVELS <- list(
   ## MIS-03 has effect modification exactly in the span of the matched moments,
   ## so it is a variance result under correct identification and says nothing
   ## about bias. `outside` puts one modifier out of that span.
-  modifier_span = c("inside", "outside")
+  modifier_span = c("inside", "outside"),
+  ## THE TWO ARMS OF THE STUDY. Anchored is the setting the catalog entry
+  ## names; unanchored is where the probe phase showed the effect is visible,
+  ## because there is no two-arm target contrast to swamp it.
+  anchored = c(TRUE, FALSE),
+  baseline_shift = BASELINE_SHIFT
 )
 
 ## The first four are fully crossed within each link; the last three are crossed
 ## with k and nT at the middle level of the others. The realized cell count is
 ## PROBE P2's output and is asserted, never typed.
 GRID_MIDDLE <- list(nT = 300L, nS = 2000L, k = 0.25, shape = "mvnorm",
+                    anchored = TRUE, baseline_shift = 0,
                     corr_assumed = "true", modifier_span = "inside")
 
 ## --- held fixed, DESIGN.md section 4 ----------------------------------------
@@ -139,21 +161,6 @@ CRN_BLOCKS <- c("corr_assumed", "variance_method")
 ## departure is arithmetic.
 NULL_TOL <- 1e-8
 
-## THE TARGET TRIAL'S BASELINE RISK, on the linear-predictor scale.
-##
-## Added when the unanchored arm was built. The DGM gave the source and target
-## trials the SAME intercept and the same prognostic coefficients, so their
-## control arms were identical and the anchored contrast differenced away a
-## quantity that was already equal. Under that DGM the anchored and unanchored
-## estimands coincide exactly, which makes the unanchored arm a variance exercise
-## with none of its real risk.
-##
-## Anchoring exists precisely because trials differ in baseline risk. With a
-## nonzero shift the anchored contrast still cancels it, by construction, and the
-## unanchored contrast does not: it inherits the shift as bias unless the analyst
-## can predict absolute outcomes. Registering 0 alongside a nonzero level keeps
-## the old behavior available as the case where anchoring is unnecessary.
-BASELINE_SHIFT <- c(0, 0.5)
 
 ## --- decision rule, DESIGN.md section 7 -------------------------------------
 NOMINAL     <- 0.95

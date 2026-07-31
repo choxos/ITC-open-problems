@@ -75,9 +75,16 @@ sandwich_parts <- function(h, A, Y, w, m_T, link) {
     cloglog  = c(1 / (muA * log(muA)),  1 / (muC * log(muC))),
     stop("unregistered link: ", link))
 
+  ## THE UNANCHORED CONTRAST USES THE SAME SANDWICH with a contrast vector that
+  ## picks ONE arm instead of a difference of two. Everything upstream, the weight
+  ## fit and the estimating equations, is shared; only the row that maps the arm
+  ## means to the reported scale changes. Keeping them in one function is what
+  ## guarantees the two arms of the study see identical weights.
   list(A = Amat, B = crossprod(u) / n, C = Cmat, n = n,
        cvec = c(rep(0, p), dg[1], -dg[2]),
-       theta_AC = lf$g(muA) - lf$g(muC), muA = muA, muC = muC)
+       cvec_un = c(rep(0, p), dg[1], 0),
+       theta_AC = lf$g(muA) - lf$g(muC), theta_A = lf$g(muA),
+       muA = muA, muC = muC)
 }
 
 ## THE ESTIMATOR GRADIENT. This is what the ports propagate.
@@ -91,8 +98,12 @@ estimator_gradient <- function(rep_data, link) {
   Ainv <- tryCatch(solve(sp$A), error = function(e) NULL)
   if (is.null(Ainv)) return(list(ok = FALSE, why = "singular-jacobian"))
   aI <- as.vector(crossprod(sp$cvec, Ainv))
-  list(ok = TRUE, J = as.vector(-aI %*% sp$C), ess = fw$ess,
-       theta_AC = sp$theta_AC, parts = sp, Ainv = Ainv, w = fw$w)
+  aI_un <- as.vector(crossprod(sp$cvec_un, Ainv))
+  list(ok = TRUE, J = as.vector(-aI %*% sp$C),
+       ## The unanchored gradient, from the same fit.
+       J_un = as.vector(-aI_un %*% sp$C), aI = aI, aI_un = aI_un,
+       ess = fw$ess, theta_AC = sp$theta_AC, theta_A = sp$theta_A,
+       parts = sp, Ainv = Ainv, w = fw$w)
 }
 
 ## Reconstruct the covariance of h(X) in the target from the reported means and

@@ -126,14 +126,20 @@ xcov_store <- function() {
 
 ## The key a replicate uses to find its own calibrated covariance. Kept in one
 ## function so the writer and the reader cannot disagree about it.
-xcov_key <- function(link, nT, k, shape, modifier_span)
-  paste(link, nT, k, shape, modifier_span, sep = "|")
+## THE KEY CARRIES THE ARM AND THE BASELINE SHIFT. Both change the target
+## quantity the moments covary with: anchored differences a two-arm effect,
+## unanchored a single arm, and the shift moves the outcome distribution. A key
+## missing either would hand one setting the other's covariance.
+xcov_key <- function(link, nT, k, shape, modifier_span, anchored, baseline_shift)
+  paste(link, nT, k, shape, modifier_span, isTRUE(anchored), baseline_shift,
+        sep = "|")
 
 ## The lookup the estimators use. It STOPS rather than returning zero when a
 ## combination is missing: a silently absent correction is exactly the omission
 ## this file exists to fix, and it would look like a passing run.
-xcov_lookup <- function(store, link, nT, k, shape, modifier_span) {
-  key <- xcov_key(link, nT, k, shape, modifier_span)
+xcov_lookup <- function(store, link, nT, k, shape, modifier_span, anchored,
+                        baseline_shift) {
+  key <- xcov_key(link, nT, k, shape, modifier_span, anchored, baseline_shift)
   z <- store[[key]]
   if (is.null(z))
     stop("no calibrated cross-covariance for ", key,
@@ -226,10 +232,27 @@ maic_all <- function(rep_data, link, corr_setting, level = 0.95) {
                       lower = numeric(), upper = numeric(),
                       stringsAsFactors = FALSE))
 
-  ## The anchored indirect estimate is the same for every variant.
-  theta <- eg$theta_AC - tr$theta_BC
+  ## ANCHORED OR NOT. Both contrasts come off the SAME weight fit and the same
+  ## sandwich; they differ in which arms they combine and in what the target
+  ## contributes. Anchored differences the target's two-arm B-versus-C effect;
+  ## unanchored differences its treated arm alone, which carries far less
+  ## variance and is why the moment term is a larger share of a smaller total
+  ## without an anchor. It is also where the target's baseline risk stops
+  ## cancelling, so the unanchored arm buys visibility at the cost of a bias the
+  ## anchored one does not have.
+  anchored <- !isFALSE(rep_data$hidden$anchored)
   sp <- eg$parts
-  aI <- as.vector(crossprod(sp$cvec, eg$Ainv))
+  if (anchored) {
+    theta   <- eg$theta_AC - tr$theta_BC
+    aI      <- eg$aI
+    Jm      <- eg$J
+    V_targ  <- tr$var_theta_BC
+  } else {
+    theta   <- eg$theta_A - tr$g_mu_B
+    aI      <- eg$aI_un
+    Jm      <- eg$J_un
+    V_targ  <- tr$var_g_mu_B
+  }
 
   ## The retained source variance: weight estimation plus outcome variance,
   ## conditional on the reported moments. Every variant carries this term.
@@ -238,12 +261,15 @@ maic_all <- function(rep_data, link, corr_setting, level = 0.95) {
   ## The target-moment term the ports add, under each correlation assumption.
   R_use <- assumed_R(corr_setting, rep_data, p_cov)
   Om <- Omega_normal(tr$mean, tr$sd, R_use, binary = tr$binary)
-  V_T <- as.numeric(eg$J %*% Om %*% eg$J) / tr$nT
+  V_T <- as.numeric(Jm %*% Om %*% Jm) / tr$nT
 
-  ## The target trial's own B-versus-C effect carries sampling error too, and it
-  ## is independent of the source, so it adds. Omitting it would make every
-  ## interval too narrow for a reason that has nothing to do with this study.
-  V_BC <- var_theta_BC(rep_data, link)
+  ## The target trial's own contribution carries sampling error too, and it is
+  ## independent of the source, so it adds. Omitting it would make every interval
+  ## too narrow for a reason that has nothing to do with this study.
+  V_BC <- V_targ
+  if (is.null(V_BC) || !is.finite(V_BC))
+    stop("the replicate carries no target-trial variance for the ",
+         if (anchored) "anchored" else "unanchored", " contrast")
 
   mk <- function(name, v) {
     se <- if (is.finite(v) && v > 0) sqrt(v) else NA_real_
@@ -260,9 +286,9 @@ maic_all <- function(rep_data, link, corr_setting, level = 0.95) {
     ## THE ORACLE: the same correction with the TRUE correlation, which isolates
     ## the correlation component from the moment component.
     mk("maic_oracle",  V_S + V_BC +
-         as.numeric(eg$J %*% Omega_normal(
+         as.numeric(Jm %*% Omega_normal(
            tr$mean, tr$sd, assumed_R("true", rep_data, p_cov),
-           binary = tr$binary) %*% eg$J) / tr$nT))
+           binary = tr$binary) %*% Jm) / tr$nT))
 
   ## THE CROSS-COVARIANCE ARM. Probe P6 found that -2 Cov(theta_AC, theta_BC) is
   ## about 7.7% of the true variance on the identity link at k = 1, against a
@@ -277,8 +303,9 @@ maic_all <- function(rep_data, link, corr_setting, level = 0.95) {
   ## the cross term, and whatever `maic_xcov` still fails to cover is what
   ## identification has to explain.
   h <- rep_data$hidden
-  cv <- xcov_lookup(xcov_store(), link, tr$nT, h$k, h$shape, h$modifier_span)
-  V_X <- -2 * as.numeric(crossprod(eg$J, cv))
+  cv <- xcov_lookup(xcov_store(), link, tr$nT, h$k, h$shape,
+                    h$modifier_span, h$anchored, h$baseline_shift)
+  V_X <- -2 * as.numeric(crossprod(Jm, cv))
   ## The cross term can be negative, and a negative one large enough to drive the
   ## total non-positive would mean the calibration or the gradient is wrong rather
   ## than that the variance is. `mk()` already returns NA for a non-positive
@@ -294,7 +321,8 @@ maic_all <- function(rep_data, link, corr_setting, level = 0.95) {
   ## The construction lives in `draw_anchored()`/`limits_from_draws()` so that P5,
   ## which sizes `N_PERTURB`, builds its intervals with THIS code rather than a
   ## copy of it.
-  lu <- limits_from_draws(draw_anchored(dr, tr$theta_BC, V_BC), level)
+  lu <- limits_from_draws(
+    draw_anchored(dr, if (anchored) tr$theta_BC else tr$g_mu_B, V_BC), level)
   if (all(is.finite(lu))) {
     out <- rbind(out, data.frame(
       method = "maic_perturb", est = theta,
@@ -349,7 +377,8 @@ var_theta_BC <- function(rep_data, link) {
 ## EMPIRICAL PERCENTILE limits rather than a normal approximation. Resampling the
 ## source is what makes the source contribution enter the interval, so no
 ## separate sandwich term is added and none is missing.
-perturbation_draws <- function(rep_data, link, R_use, n_perturb) {
+perturbation_draws <- function(rep_data, link, R_use, n_perturb,
+                              anchored = !isFALSE(rep_data$hidden$anchored)) {
   tr <- rep_data$target_reported
   s <- rep_data$source
   n <- nrow(s$h)
@@ -366,8 +395,11 @@ perturbation_draws <- function(rep_data, link, R_use, n_perturb) {
     sp <- tryCatch(sandwich_parts(s$h[idx, , drop = FALSE], s$A[idx], s$Y[idx],
                                   fw$w, m_b, link),
                    error = function(e) NULL)
-    if (is.null(sp) || !is.finite(sp$theta_AC)) return(NA_real_)
-    sp$theta_AC
+    ## The same draw serves both contrasts; which one is read off depends on the
+    ## arm, exactly as in `maic_all()`.
+    val <- if (anchored) sp$theta_AC else sp$theta_A
+    if (is.null(sp) || !is.finite(val)) return(NA_real_)
+    val
   }, 0)
 }
 
@@ -444,11 +476,16 @@ stc_estimate <- function(rep_data, link, level = 0.95, n_sim = 2000L) {
   nd <- data.frame(xs); names(nd) <- names(df)[-(1:2)]
   m1 <- mean(stats::predict(fit, cbind(A = 1, nd), type = "response"))
   m0 <- mean(stats::predict(fit, cbind(A = 0, nd), type = "response"))
-  est <- delta_from_arm_means(m0, m1, link) - tr$theta_BC
+  ## STC differences the same target quantity its MAIC counterpart does.
+  lf <- link_fns(link)
+  anchored <- !isFALSE(rep_data$hidden$anchored)
+  est <- if (anchored) delta_from_arm_means(m0, m1, link) - tr$theta_BC
+         else lf$g(m1) - tr$g_mu_B
   ## A sandwich on the marginalized contrast is not available in closed form, so
   ## the reported SE is the model-based delta method plus the target arm term,
   ## which is what an applied STC reports and therefore what is under test.
-  se <- sqrt(stats::vcov(fit)["A", "A"] + var_theta_BC(rep_data, link))
+  se <- sqrt(stats::vcov(fit)["A", "A"] +
+             if (anchored) tr$var_theta_BC else tr$var_g_mu_B)
   data.frame(method = "stc", est = est, se = se,
              lower = est - z * se, upper = est + z * se,
              ess = NA_real_, stringsAsFactors = FALSE)

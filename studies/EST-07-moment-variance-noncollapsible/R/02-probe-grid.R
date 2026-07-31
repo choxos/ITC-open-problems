@@ -53,10 +53,16 @@ MIN_OMITTED_SHARE <- omitted_share_for_shift(MIN_COVERAGE_SHIFT)
 ## four factors fully crossed within each link, the last three crossed with k and
 ## nT at the middle level of the others.
 build_grid <- function() {
+  ## THE CORE IS CROSSED WITH BOTH ARMS. `anchored` is not a one-at-a-time
+  ## variation around a middle: the probe phase showed the anchored and unanchored
+  ## settings differ by an order of magnitude in what the moment term is a share
+  ## of, so every core cell is run both ways and the two are compared directly.
   core <- expand.grid(link = LEVELS$link, nT = LEVELS$nT, nS = LEVELS$nS,
                       k = LEVELS$k, shape = GRID_MIDDLE$shape,
                       corr_assumed = GRID_MIDDLE$corr_assumed,
                       modifier_span = GRID_MIDDLE$modifier_span,
+                      anchored = LEVELS$anchored,
+                      baseline_shift = LEVELS$baseline_shift,
                       KEEP.OUT.ATTRS = FALSE, stringsAsFactors = FALSE)
   extra <- do.call(rbind, lapply(
     c("shape", "corr_assumed", "modifier_span"), function(f) {
@@ -66,6 +72,8 @@ build_grid <- function() {
                        shape = GRID_MIDDLE$shape,
                        corr_assumed = GRID_MIDDLE$corr_assumed,
                        modifier_span = GRID_MIDDLE$modifier_span,
+                       anchored = LEVELS$anchored,
+                       baseline_shift = GRID_MIDDLE$baseline_shift,
                        lvl = lv, KEEP.OUT.ATTRS = FALSE,
                        stringsAsFactors = FALSE)
       g[[f]] <- g$lvl; g$lvl <- NULL
@@ -119,15 +127,23 @@ main <- function() {
     ## calibration replicates.
     parts <- lapply(seq_len(N_CAL_REP), function(q) {
       d <- sample_replicate(r$nS, r$nT, r$k, r$link, r$shape, rho,
-                            modifier_span = r$modifier_span)
+                            modifier_span = r$modifier_span,
+                            baseline_shift = r$baseline_shift,
+                            anchored = r$anchored)
       eg <- estimator_gradient(d, r$link)
       if (!isTRUE(eg$ok)) return(NULL)
-      aI <- as.vector(crossprod(eg$parts$cvec, eg$Ainv))
+      ## Every term is the ARM'S OWN: the unanchored contrast has a different
+      ## gradient, a different target quantity and a much smaller target
+      ## variance, and mixing them would measure neither setting.
+      an <- isTRUE(r$anchored)
+      aI <- if (an) eg$aI else eg$aI_un
       list(v_src = as.numeric(aI %*% eg$parts$B %*% aI) / eg$parts$n,
-           v_bc  = d$target_reported$var_theta_BC,
+           v_bc  = if (an) d$target_reported$var_theta_BC
+                   else d$target_reported$var_g_mu_B,
            m     = d$target_reported$m,
-           tb    = d$target_reported$theta_BC,
-           J     = eg$J)
+           tb    = if (an) d$target_reported$theta_BC
+                   else d$target_reported$g_mu_B,
+           J     = if (an) eg$J else eg$J_un)
     })
     parts <- parts[!vapply(parts, is.null, TRUE)]
     n_ok <- length(parts)
@@ -135,7 +151,8 @@ main <- function() {
       return(data.frame(cell_id = r$cell_id, link = r$link, nT = r$nT,
                         nS = r$nS, k = r$k, shape = r$shape,
                         corr_assumed = r$corr_assumed,
-                        modifier_span = r$modifier_span,
+                        modifier_span = r$modifier_span, anchored = r$anchored,
+                        baseline_shift = r$baseline_shift,
                         v_omit = v_omit, v_src = NA_real_, v_bc = NA_real_,
                         v_cross = NA_real_, share = NA_real_, n_ok = n_ok,
                         stringsAsFactors = FALSE))
@@ -152,7 +169,8 @@ main <- function() {
     total <- v_omit + v_src + v_bc + v_cross
     data.frame(cell_id = r$cell_id, link = r$link, nT = r$nT, nS = r$nS, k = r$k,
                shape = r$shape, corr_assumed = r$corr_assumed,
-               modifier_span = r$modifier_span,
+               modifier_span = r$modifier_span, anchored = r$anchored,
+               baseline_shift = r$baseline_shift,
                v_omit = v_omit, v_src = v_src, v_bc = v_bc, v_cross = v_cross,
                share = if (is.finite(total) && total > 0) v_omit / total
                        else NA_real_,

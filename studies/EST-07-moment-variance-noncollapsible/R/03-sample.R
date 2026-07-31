@@ -169,7 +169,16 @@ sample_replicate <- function(nS, nT, k, link, shape, rho_true,
            ## the dropped squares for binary covariates.
            m = c(colMeans(xr), colMeans(xr[, !b, drop = FALSE]^2)),
            binary = b, n_reported = length(cols),
-           theta_BC = theta_BC, var_theta_BC = var_BC, nT = nT)
+           theta_BC = theta_BC, var_theta_BC = var_BC,
+           ## WHAT AN UNANCHORED COMPARISON GETS: the target's treated arm alone,
+           ## on the reported scale, with its own delta-method variance. There is
+           ## no common comparator to difference against, so this single arm
+           ## replaces `theta_BC` and carries far less variance than a two-arm
+           ## contrast, which is why the moment term is a larger share of the
+           ## total without an anchor.
+           g_mu_B = lf$g(mean(Yt[Bt == 1])),
+           var_g_mu_B = arm_mean_var(Yt[Bt == 1], link),
+           nT = nT)
     }),
     ## Never passed to an estimator. Used only to compute truth.
     ## `k` and `modifier_span` join the oracle fields because the calibrated
@@ -180,6 +189,20 @@ sample_replicate <- function(nS, nT, k, link, shape, rho_true,
                   baseline_shift = baseline_shift, anchored = anchored,
                   shape = shape, link = link, sigma = sigma, k = k,
                   modifier_span = modifier_span, pop_mean_T = pm$target))
+}
+
+## The delta-method variance of g(mean) for ONE arm, which is what an unanchored
+## comparison differences against.
+arm_mean_var <- function(y, link) {
+  n <- length(y)
+  if (n < 2L) return(NA_real_)
+  m <- mean(y)
+  v <- if (identical(link, "identity")) stats::var(y) / n else m * (1 - m) / n
+  d <- switch(link, identity = 1,
+              logit = 1 / (m * (1 - m)),
+              cloglog = 1 / (m * log(m)),
+              stop("unregistered link: ", link))
+  d^2 * v
 }
 
 ## The delta-method variance of an anchored two-arm contrast on the reported
