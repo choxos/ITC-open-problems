@@ -60,6 +60,17 @@ if DESIGN_PATH.stat().st_mtime < _newest:
         "R/12-export.R first.")
 
 # --- 3. the files the document names must exist ------------------------------
+# DESIGN.md is no longer the authority, but the protocol still names it, so it
+# must exist and must say so itself. A superseded file that does not announce it
+# is worse than one that is simply absent.
+_design = (ROOT / "DESIGN.md").read_text() if (ROOT / "DESIGN.md").exists() else ""
+check("DESIGN.md announces that it is superseded",
+      "SUPERSEDED IN PART" in _design,
+      "the protocol demotes it but the file does not say so")
+check("the protocol claims to be the design of record",
+      "design of record" in PROTOCOL,
+      "neither document claims authority")
+
 for named in ("review/emit-protocol.py", "results/registered-design.json",
               "DESIGN.md"):
     check(f"the document's reference to {named} resolves",

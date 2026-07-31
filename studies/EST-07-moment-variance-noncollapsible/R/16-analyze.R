@@ -52,12 +52,22 @@ read_run <- function() {
 performance <- function(d) {
   do.call(rbind, lapply(split(d, list(d$cell_id, d$method), drop = TRUE),
                         function(z) {
-    n <- nrow(z)
+    ## CONVERGENCE IS AGAINST THE REGISTERED REPLICATE COUNT, not against the rows
+    ## that happen to be present. A replicate whose method failed produces NO ROW
+    ## at all, so counting `nrow(z)` as the denominator makes a method that failed
+    ## half the time look like one that converged always. Round 3 of critique
+    ## found exactly that.
+    n <- N_REP
     ok <- is.finite(z$width)
     nc <- sum(ok)
     cov <- mean(z$covered[ok])
     bias <- mean(z$error[ok])
     data.frame(cell_id = z$cell_id[1], method = z$method[1],
+               ## Carried through so the decision can separate the powered grid
+               ## from the ladder, which was retained below the floor and would
+               ## dilute any pooled statement about detectable cells.
+               ladder = isTRUE(z$ladder[1]), nT = z$nT[1],
+               anchored = isTRUE(z$anchored[1]), link = z$link[1],
                n_rep = n, n_conv = nc, convergence = nc / n,
                bias = bias, bias_mcse = stats::sd(z$error[ok]) / sqrt(nc),
                coverage = cov,
@@ -126,11 +136,25 @@ main <- function() {
   print(by_m, row.names = FALSE, digits = 4)
 
   ## The three registered contrasts, in the order their mechanisms stack.
+  ## THE PAIRED TEST CONTAINS ONLY THE ARMS THAT SHARE A POINT ESTIMATE.
+  ## `maic_fixed`, `maic_entropy`, `maic_oracle` and `maic_xcov` come off one fit,
+  ## so a difference between them is a difference of intervals and nothing else.
+  ## Round 3 of critique found `maic_perturb` in this list while the protocol said
+  ## it was excluded from it: it reports percentile limits from its own
+  ## resampling, is not centered on the shared estimate, and has no standard
+  ## error, so a paired coverage difference against it confounds the interval with
+  ## the procedure. It is reported separately, and so is STC, which fits a
+  ## different model entirely.
   contrasts <- list(c("maic_entropy", "maic_fixed"),
                     c("maic_xcov",    "maic_entropy"),
-                    c("maic_perturb", "maic_entropy"),
-                    c("stc",          "maic_entropy"))
+                    c("maic_oracle",  "maic_entropy"))
   cs <- do.call(rbind, lapply(contrasts, function(p) paired_contrast(d, p[1], p[2])))
+
+  ## Reported, not tested against the shared-fit arms.
+  aside <- do.call(rbind, lapply(list(c("maic_perturb", "maic_entropy"),
+                                      c("stc", "maic_entropy")),
+                                 function(p) paired_contrast(d, p[1], p[2])))
+  if (!is.null(aside)) aside$paired_test <- FALSE
 
   cat("\n=== paired contrasts, pooled over cells ===\n")
   pooled <- do.call(rbind, lapply(split(cs, list(cs$a, cs$b), drop = TRUE),
@@ -145,9 +169,43 @@ main <- function() {
                stringsAsFactors = FALSE)))
   print(pooled, row.names = FALSE, digits = 4)
 
+  ## --- THE REGISTERED DECISION, evaluated rather than described ------------
+  ##
+  ## Round 3: the protocol stated a conclusion the software could not reach. The
+  ## rule is applied here, on the powered grid only, with the growth ladder
+  ## reported separately because it was retained BELOW the detectability floor and
+  ## would dilute any pooled statement.
+  pow <- perf[!perf$ladder, ]
+  lad <- perf[perf$ladder, ]
+  ent <- pow[pow$method == "maic_entropy", ]
+  decision <- list(
+    n_cells_powered = length(unique(pow$cell_id)),
+    entropy_in_band = sum(ent$in_band),
+    entropy_cells   = nrow(ent),
+    ## The registered branch: does adding the moment term restore nominal
+    ## coverage across the powered grid?
+    verdict = if (nrow(ent) && all(ent$in_band))
+                "moment term suffices in these conditions"
+              else if (nrow(ent) && any(ent$in_band))
+                "moment term closes part of the deficit and not all"
+              else "moment term does not restore nominal coverage",
+    ## Prediction 1, on the ladder: does the deficit close as the target grows?
+    ladder_by_nT = if (nrow(lad))
+      tapply(lad$coverage[lad$method == "maic_entropy"],
+             lad$nT[lad$method == "maic_entropy"], mean) else NULL)
+  cat("\n=== registered decision ===\n")
+  cat(sprintf("entropy arm inside the band in %d of %d powered cells: %s\n",
+              decision$entropy_in_band, decision$entropy_cells,
+              decision$verdict))
+  if (!is.null(decision$ladder_by_nT)) {
+    cat("prediction 1, entropy coverage along the growth ladder:\n")
+    print(round(decision$ladder_by_nT, 4))
+  }
+
   dir.create("results", showWarnings = FALSE)
-  saveRDS(list(performance = perf, contrasts = cs, by_method = by_m,
-               pooled = pooled), "results/analysis.rds")
+  saveRDS(list(performance = perf, contrasts = cs, aside = aside,
+               by_method = by_m, pooled = pooled, decision = decision),
+          "results/analysis.rds")
   cat("\nwritten: results/analysis.rds\n")
 }
 

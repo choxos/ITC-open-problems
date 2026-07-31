@@ -1,6 +1,28 @@
 # EST-07 design: target-moment uncertainty where the linear theory stops working
 
-**Status: design. Not registered.** The probes in section 10 have not been run.
+**Status: SUPERSEDED IN PART. This file is the original design rationale, not the
+current registered design.** `protocol.md` is the authority: it is generated from
+the code by `review/emit-protocol.py`, every number in it is interpolated from
+`results/registered-design.json`, and `review/verify-protocol.py` asserts its
+claims against that export. This file is hand-written and cannot be checked that
+way, which is why it is no longer cited as the design of record.
+
+Round 3 of critique found it describing a different study from the one the code
+runs. Rather than maintain two authorities that will drift apart again, it is kept
+for the reasoning that produced the study and the reader is sent to `protocol.md`
+for what is actually registered.
+
+**What has changed since this was written, and where to read the current version:**
+
+| this file says | now | protocol section |
+|---|---|---|
+| anchored comparisons only | anchored AND unanchored, crossed with the whole core; every cell that clears the detectability floor is unanchored | 4 |
+| source and target share an intercept | the target has its own baseline risk, because otherwise the anchored contrast differences away a quantity already equal and the two estimands coincide exactly | 4 |
+| two predictions | prediction 2 is withdrawn; it asked whether an estimand gradient matches an estimator gradient, which measures identification, not variance | 1 |
+| five methods | six, including `maic_xcov`, which carries a covariance no published method carries | 5 |
+| a probe suite of five | seven, adding P6 (the omitted cross-covariance) and P7 (the null control, which was false as originally registered) | 2 |
+| the grid is the cells that clear the floor | plus a growth ladder retained BELOW the floor, because the floor screens out exactly the cells prediction 1 is about | 2 |
+
 Written against `studies/DESIGN-STANDARD.md`.
 
 **This study starts where MIS-03 stopped.** MIS-03 asked what conditioning on

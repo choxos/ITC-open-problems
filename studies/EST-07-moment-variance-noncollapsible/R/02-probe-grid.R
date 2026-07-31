@@ -239,7 +239,12 @@ main <- function() {
   dir.create("results", showWarnings = FALSE)
   p$N_CELLS <- list(sum(keep))
   p$P2_table <- list(shares)
-  p$P2_grid <- list(g[keep, ])
+  ## The ladder flag travels WITH THE GRID, so the runner writes it onto every
+  ## row and the analysis can separate the powered cells from the ones retained
+  ## below the floor without re-deriving which is which.
+  gk <- g[keep, ]
+  gk$ladder <- ladder[keep]
+  p$P2_grid <- list(gk)
   p$P2_min_share <- list(MIN_OMITTED_SHARE)
   p$P2_min_shift <- list(MIN_COVERAGE_SHIFT)
   saveRDS(p, PROBE_FILE)

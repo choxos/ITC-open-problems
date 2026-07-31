@@ -77,9 +77,12 @@ Successor to MIS-03, which answered the same question under an identity link.
 **Reporting standard.** ADEMP (Morris, White and Crowther 2019,
 [doi:10.1002/sim.8086](https://doi.org/10.1002/sim.8086)).
 
-**Registration status: NOT YET REGISTERED.** The design is in `DESIGN.md`. Every
-number below is interpolated from `results/registered-design.json` by
-`review/emit-protocol.py` and checked by `review/verify-protocol.py`.
+**Registration status: NOT YET REGISTERED.** **This document is the design of
+record.** Every number below is interpolated from
+`results/registered-design.json` by `review/emit-protocol.py` and checked by
+`review/verify-protocol.py`. `DESIGN.md` holds the original rationale and is
+superseded on the points its own header lists; it is hand-written and cannot be
+checked against the code, which is why it is not the authority.
 
 **What exists.** The data-generating mechanism, both truths, the gradient
 machinery, all six of the methods in the table below, seven probes, the runner
