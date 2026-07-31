@@ -68,6 +68,10 @@ main <- function() {
 
   ## --- P1: the integration order, and what forced it ------------------------
   out$quad_order <- p$QUAD_ORDER[[1]]
+  ## The headroom at that order, so the protocol shows how close the registered
+  ## order sits to its own tolerance rather than only that it passed.
+  if (!is.null(p$P1_worst_at_order))
+    out$quad_worst_dev <- signif(p$P1_worst_at_order[[1]], 3)
   p1 <- p$P1_table[[1]]
   out$p1_by_cell <- lapply(seq_len(nrow(p1)), function(i) as.list(p1[i, ]))
   ## Figures the protocol quotes about the reduction, DERIVED rather than typed.

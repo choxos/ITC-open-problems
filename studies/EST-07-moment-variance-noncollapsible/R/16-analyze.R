@@ -232,7 +232,12 @@ main <- function() {
   ## whatever had been written, so a run covering a tenth of the grid, or one
   ## where a method failed on most replicates, would still receive a substantive
   ## answer. Completeness is a precondition, checked and reported, not a caveat.
-  n_expected <- length(unique(d$cell_id))
+  ## THE DENOMINATOR IS THE POWERED GRID, not the whole grid. Comparing the count
+  ## of powered cells against every registered cell, ladder included, made the
+  ## test unsatisfiable: 338 powered cells against 0.95 * 356 = 338.2, so a
+  ## COMPLETE run was guaranteed "NO VERDICT". A completeness gate that no
+  ## complete run can pass is worse than none, because it looks like caution.
+  n_expected <- sum(!duplicated(d$cell_id[!d$ladder]))
   cells_full <- sum(tapply(ent$convergence, ent$cell_id, min) >= MIN_CONVERGENCE)
   complete <- nrow(ent) > 0 &&
               length(unique(pow$cell_id)) >= n_expected * MIN_CELLS_FRACTION &&

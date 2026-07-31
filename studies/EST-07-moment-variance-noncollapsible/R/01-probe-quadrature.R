@@ -18,7 +18,10 @@
 ## ---------------------------------------------------------------------------
 
 suppressPackageStartupMessages(library(MASS))
-source("R/01-dgm.R")
+## R/03 rather than R/01: the outside arm needs `make_pars()` and
+## `population_means()` to build its four-covariate configuration, and R/03
+## sources the DGM.
+source("R/03-sample.R")
 
 ## The hardest case the grid contains: the most curved link, the most skewed
 ## covariate law, and effect modification at full strength so the integrand
@@ -61,22 +64,51 @@ main <- function() {
   pars <- hard_pars()
   grid <- expand.grid(link = LINKS, shape = LEVELS$shape,
                       stringsAsFactors = FALSE)
+  ## THE OUTSIDE ARM IS TESTED TOO, and round 6 of critique is why. The order was
+  ## chosen on three-covariate configurations while 36 registered cells carry a
+  ## FOURTH covariate, whose modifier widens the linear predictor and needs more
+  ## nodes. Measured at order 16 against order 128, three cloglog outside
+  ## configurations deviated by up to 1.136e-03, more than ten times the
+  ## registered tolerance, so the truth was wrong in every one of those cells.
+  ## An arm exempt from the probe that sizes the integration is an arm integrated
+  ## on faith.
+  ## AND ACROSS THE ALIGNMENTS THE GRID ACTUALLY RUNS. Testing the outside span at
+  ## the middle k alone left the worst registered configuration untested: at
+  ## order 24 the worst outside cell sits at 9.98e-05 against a 1e-4 tolerance,
+  ## a margin of two parts in a thousand, and it is not the middle k. A probe that
+  ## sizes integration must see the configuration that stresses it.
+  grid$span <- "inside"; grid$k <- 0.25
+  grid <- rbind(grid, do.call(rbind, lapply(LEVELS$k, function(kk)
+    transform(grid[grid$shape == "mvnorm", ], span = "outside", k = kk))))
+
+  res_dev <- vector('list', nrow(grid))
   res <- do.call(rbind, lapply(seq_len(nrow(grid)), function(i) {
-    lk <- grid$link[i]; sh <- grid$shape[i]
+    lk <- grid$link[i]; sh <- grid$shape[i]; sp <- grid$span[i]
+    ## The parameters, means and dispersions all follow the span, since the
+    ## outside arm is a different-dimensional problem and not a relabelling.
+    pr <- if (identical(sp, "outside"))
+            make_pars(grid$k[i], modifier_span = "outside") else pars
+    pp <- length(pr$beta_em)
+    mu <- if (pp == length(MU)) MU else
+            population_means(OVERLAP_SMD, pp, sh)$target
+    sg <- rep(1, pp)
     vals <- vapply(ORDERS, function(o)
-      delta_superpopulation(pars, lk, sh, MU, SIGMA, RHO, o), 0)
+      delta_superpopulation(pr, lk, sh, mu, sg, RHO, o), 0)
     ## "Stable" means every order at or above the reported one differs from an
     ## INDEPENDENT reference by less than QUAD_TOL. Independent is the whole
     ## point: no order in the grid can be its own yardstick.
-    ref <- delta_superpopulation(pars, lk, sh, MU, SIGMA, RHO, REF_ORDER)
-    dev <- abs(vals - ref)
+    ref <- delta_superpopulation(pr, lk, sh, mu, sg, RHO, REF_ORDER)
+    dev <- abs(vals - ref); res_dev[[i]] <<- dev
     ok <- which(vapply(seq_along(ORDERS), function(j)
       all(dev[j:length(dev)] < QUAD_TOL), TRUE))
-    data.frame(link = lk, shape = sh,
+    data.frame(link = lk, shape = sh, span = sp, k = grid$k[i],
                stable_order = if (length(ok)) ORDERS[min(ok)] else NA_integer_,
                dev_at_16 = dev[ORDERS == 16L],
                dev_at_32 = dev[ORDERS == 32L],
                dev_at_48 = dev[ORDERS == 48L],
+               ## The deviation at whatever order ends up registered, filled in
+               ## after the maximum is known.
+               dev_at_registered = NA_real_,
                ref = ref, stringsAsFactors = FALSE)
   }))
 
@@ -135,6 +167,15 @@ main <- function() {
            "no order can be registered until it does")
   }
 
+  ## Fill the per-configuration deviation at the order that will be registered.
+  .ord <- if (all(is.na(res$stable_order))) NA_integer_ else
+            max(res$stable_order, na.rm = TRUE)
+  if (!is.na(.ord) && .ord %in% ORDERS)
+    res$dev_at_registered <- vapply(seq_len(nrow(res)), function(i) {
+      dv <- res_dev[[i]]
+      if (is.null(dv)) NA_real_ else dv[ORDERS == .ord]
+    }, 0)
+
   order_needed <- if (all(is.na(res$stable_order))) NA_integer_ else
     max(res$stable_order, na.rm = TRUE)
   cat(sprintf("\nregistered quadrature order: %s\n",
@@ -151,6 +192,16 @@ main <- function() {
   dir.create("results", showWarnings = FALSE)
   p <- load_probes(); if (is.null(p)) p <- list()
   p$QUAD_ORDER <- list(order_needed)
+  ## HOW MUCH HEADROOM THE REGISTERED ORDER HAS. Passing a tolerance by two parts
+  ## in a thousand is passing, but a reader deciding whether to trust the truths
+  ## should see the margin rather than only the verdict.
+  p$P1_worst_at_order <- list({
+    ok <- !is.na(res$stable_order)
+    z <- res[ok, ]
+    max(vapply(seq_len(nrow(z)), function(i) {
+      if (is.null(z$dev_at_registered[i])) NA_real_ else z$dev_at_registered[i]
+    }, 0), na.rm = TRUE)
+  })
   p$P1_table <- list(res)
   if (!is.null(mc)) p$P1_mc_check <- list(mc)
   saveRDS(p, PROBE_FILE)
