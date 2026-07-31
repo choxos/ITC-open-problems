@@ -99,12 +99,31 @@ ANCHORED    <- TRUE        # design: anchored throughout
 
 ## --- replicates and Monte Carlo error ---------------------------------------
 ##
-## Coverage MCSE at c = 0.95 is sqrt(0.95 * 0.05 / n_sim). The design's target is
+## Coverage MCSE at c = 0.95 is sqrt(0.95 * 0.05 / n_sim). The design's TARGET is
 ## 0.005, because the effects MIS-03 measured span 92.1% to 96.2% and a 0.005
-## MCSE resolves that range into distinguishable levels. That gives 1900, and the
-## registered value is the round number above it.
-N_REP <- 2000L
+## MCSE resolves that range into distinguishable levels.
+##
+## ROUND 1 OF CRITIQUE: both numbers were typed, and one of them was then quoted
+## as if it were achieved. The target is a design input; the replicate count
+## follows from it; and the MCSE the study ACTUALLY HAS is what 2000 replicates
+## deliver, which is 0.00487 rather than 0.005. Quoting the target as the achieved
+## error is small here and is the same defect as the cell floor, where a number
+## was derived wrongly and its sentence went on asserting the derivation.
+##
+## So the chain runs in code: target -> count -> achieved.
 COVERAGE_MCSE_TARGET <- 0.005
+
+## The count the target implies, rounded UP to a round number so the achieved
+## error is at least as good as the target rather than nearly as good.
+N_REP <- local({
+  need <- NOMINAL_FOR_MCSE <- 0.95
+  n <- need * (1 - need) / COVERAGE_MCSE_TARGET^2       # 1900
+  as.integer(ceiling(n / 500) * 500)                    # 2000
+})
+
+## What that count actually delivers. This, not the target, is the number any
+## claim about resolving a coverage difference must be judged against.
+COVERAGE_MCSE_AT_N <- sqrt(0.95 * 0.05 / N_REP)
 
 ## Common random numbers across the assumed-correlation arm and the
 ## fixed-versus-corrected variance arms, since those differ only in an analysis

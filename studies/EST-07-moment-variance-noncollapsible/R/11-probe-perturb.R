@@ -46,6 +46,7 @@ source("R/05-estimators.R")
 B_GRID   <- c(25L, 50L, 100L, 200L, 400L)
 REF_B    <- 3200L   # the reference, and the draw set every smaller B reads from
 N_REP_P5 <- 300L    # replicates; the criterion is on a PAIRED difference
+WIDTH_TOL <- 0.01   # tolerated systematic width bias from too few draws
 P5_CELL  <- list(nS = 2000L, nT = 300L, k = 0.25, link = "logit",
                  shape = "mvnorm", rho = 0.3)
 
@@ -92,12 +93,12 @@ main <- function() {
     if (inherits(dr, "try-error")) next
     tr <- d$target_reported
     for (j in seq_along(B_GRID)) {
-      lu <- limits_from_draws(dr[seq_len(B_GRID[j])], tr$theta_BC,
-                              tr$var_theta_BC)
+      lu <- limits_from_draws(
+        draw_anchored(dr[seq_len(B_GRID[j])], tr$theta_BC, tr$var_theta_BC))
       cov_mat[r, j] <- truth >= lu[1] && truth <= lu[2]
       wid_mat[r, j] <- lu[2] - lu[1]
     }
-    lu <- limits_from_draws(dr, tr$theta_BC, tr$var_theta_BC)
+    lu <- limits_from_draws(draw_anchored(dr, tr$theta_BC, tr$var_theta_BC))
     cov_mat[r, length(B_GRID) + 1L] <- truth >= lu[1] && truth <= lu[2]
     wid_mat[r, length(B_GRID) + 1L] <- lu[2] - lu[1]
     if (r %% 25 == 0) { cat(sprintf("  replicate %d/%d\n", r, N_REP_P5))
@@ -127,15 +128,34 @@ main <- function() {
               n_ok, REF_B, mean(cm[, ref_col])))
   print(tab, row.names = FALSE, digits = 4)
 
-  ## A B is sufficient when its coverage difference from the reference, PLUS the
-  ## Monte Carlo error of that difference, is inside the smallest shift the study
-  ## is willing to interpret. Adding the error is what stops a noisy zero from
-  ## passing as a real one.
-  ok <- abs(tab$cov_diff) + tab$diff_mcse < shift_tol
-  cat(sprintf("\njudged against a %.3f coverage shift:\n", shift_tol))
+  ## TWO CRITERIA, AND THE SECOND IS THERE BECAUSE THE FIRST SATURATED.
+  ##
+  ## Coverage alone is not enough. On the first run of this probe the
+  ## perturbation interval covered 0.9933, so far above nominal that changing B
+  ## could not move coverage at all, and B = 25 "passed" because the quantity
+  ## being tested was pinned. (That run also exposed why it was pinned: the
+  ## interval was adding the target trial's standard deviation to each limit
+  ## instead of convolving its variance, making every interval too wide. That is
+  ## fixed in R/05, but the lesson about the criterion stands.)
+  ##
+  ## So a B must ALSO have converged in WIDTH. Width is a reported performance
+  ## measure, and an empirical quantile from few draws is biased inward, which
+  ## makes a small B narrow the interval systematically rather than noisily. The
+  ## tolerance is 1% of the reference width, well below any width difference
+  ## between methods the study would claim.
+  ref_w <- mean(wm[, ref_col])
+  tab$width_bias <- (tab$mean_width - ref_w) / ref_w
+  ok_cov <- abs(tab$cov_diff) + tab$diff_mcse < shift_tol
+  ok_wid <- abs(tab$width_bias) < WIDTH_TOL
+  ok <- ok_cov & ok_wid
+  cat(sprintf("\njudged against a %.3f coverage shift and a %.0f%% width bias:\n",
+              shift_tol, 100 * WIDTH_TOL))
   for (i in seq_along(B_GRID))
-    cat(sprintf("  B = %4d : %-3s  |diff| + mcse = %.4f\n", B_GRID[i],
-                ifelse(ok[i], "yes", "no"), abs(tab$cov_diff[i]) + tab$diff_mcse[i]))
+    cat(sprintf("  B = %4d : %-3s  coverage %.4f (%s)  width bias %+.4f (%s)\n",
+                B_GRID[i], ifelse(ok[i], "yes", "no"),
+                abs(tab$cov_diff[i]) + tab$diff_mcse[i],
+                ifelse(ok_cov[i], "ok", "no"),
+                tab$width_bias[i], ifelse(ok_wid[i], "ok", "no")))
 
   smallest <- if (any(ok)) min(B_GRID[ok]) else NA_integer_
   cat(sprintf("\nsmallest sufficient B: %s\n",
@@ -144,6 +164,8 @@ main <- function() {
   p$N_PERTURB_NEEDED <- list(smallest)
   p$P5_table <- list(tab)
   p$P5_ref_coverage <- list(mean(cm[, ref_col]))
+  p$P5_ref_width <- list(ref_w)
+  p$P5_width_tol <- list(WIDTH_TOL)
   p$P5_n_ok <- list(n_ok)
   ## Retained under its old name so the exporter and the protocol keep a single
   ## spread figure to quote; it is now the spread of the WIDTH, which is the

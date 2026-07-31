@@ -56,6 +56,10 @@ main <- function() {
   out$overlap_smd <- OVERLAP_SMD
   out$n_rep <- N_REP
   out$coverage_mcse_target <- COVERAGE_MCSE_TARGET
+  ## The error the registered replicate count DELIVERS, which is what any claim
+  ## about resolving a coverage difference is judged against. The target above is
+  ## a design input and is not the same number.
+  out$coverage_mcse_at_n <- signif(COVERAGE_MCSE_AT_N, 4)
   out$nominal <- NOMINAL
   out$cover_band <- COVER_BAND
   out$quad_tol <- QUAD_TOL
@@ -110,6 +114,15 @@ main <- function() {
   ## --- P2: the grid, and the cells it dropped -------------------------------
   out$n_cells <- p$N_CELLS[[1]]
   out$min_omitted_share <- p$P2_min_share[[1]]
+  ## The criterion the floor was solved from, so the protocol can state the
+  ## derivation rather than assert it.
+  out$min_coverage_shift <- p$P2_min_shift[[1]]
+  ## P6: the cross-covariance no published method carries.
+  out$p6_ok <- p$P6_ok[[1]]
+  out$p6_worst_share <- signif(p$P6_worst_share[[1]], 3)
+  p6 <- p$P6_table[[1]]
+  out$p6_by_cell <- lapply(seq_len(nrow(p6)), function(i)
+    lapply(p6[i, ], function(z) if (is.numeric(z)) signif(z, 4) else z))
   p2 <- p$P2_table[[1]]
   out$n_cells_realized <- nrow(p2)
   out$omitted_share_by_link <- lapply(split(p2$share, p2$link), function(z)

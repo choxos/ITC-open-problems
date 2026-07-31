@@ -202,9 +202,10 @@ maic_all <- function(rep_data, link, corr_setting, level = 0.95) {
   ## anchored contrast. It does not use the estimator gradient at all, which is
   ## what makes it an independent route rather than a restatement of the first.
   dr <- perturbation_draws(rep_data, link, R_use, N_PERTURB)
-  ## The construction lives in `limits_from_draws()` so that P5, which sizes
-  ## `N_PERTURB`, builds its intervals with THIS code rather than a copy of it.
-  lu <- limits_from_draws(dr, tr$theta_BC, V_BC, level)
+  ## The construction lives in `draw_anchored()`/`limits_from_draws()` so that P5,
+  ## which sizes `N_PERTURB`, builds its intervals with THIS code rather than a
+  ## copy of it.
+  lu <- limits_from_draws(draw_anchored(dr, tr$theta_BC, V_BC), level)
   if (all(is.finite(lu))) {
     out <- rbind(out, data.frame(
       method = "maic_perturb", est = theta,
@@ -286,17 +287,35 @@ perturbation_var <- function(rep_data, link, R_use, n_perturb) {
   stats::var(perturbation_draws(rep_data, link, R_use, n_perturb), na.rm = TRUE)
 }
 
-## The interval a given number of draws produces, from an already-drawn set. This
-## is `maic_all()`'s percentile construction, factored out so the probe cannot
-## drift from the estimator it is sizing. If the estimator's construction changes
-## and this does not, the smoke test below fails.
-limits_from_draws <- function(dr, theta_BC, V_BC, level = 0.95) {
-  z <- stats::qnorm(1 - (1 - level) / 2)
-  d <- dr[is.finite(dr)] - theta_BC
-  if (length(d) < 20L) return(c(NA_real_, NA_real_))
-  half <- z * sqrt(V_BC)
-  qs <- stats::quantile(d, c((1 - level) / 2, 1 - (1 - level) / 2), names = FALSE)
-  c(qs[1] - half, qs[2] + half)
+## The interval a given set of draws produces. Defined once and used BOTH by
+## `maic_all()` to build the reported interval and by P5 to size the number of
+## draws, so the probe cannot drift from the estimator it sizes.
+##
+## ROUND 1, SECOND ERROR IN THIS CONSTRUCTION. The first repair moved the arm to
+## empirical percentile limits, correctly, and then added the target trial's own
+## uncertainty by widening each limit by z * sqrt(V_BC). That adds STANDARD
+## DEVIATIONS where variances have to combine: the resulting half-width behaves
+## like sqrt(V_AC) + sqrt(V_BC) instead of sqrt(V_AC + V_BC), and the triangle
+## inequality makes it strictly too wide whenever both terms are positive. P5
+## measured the damage: coverage 0.9933 against a nominal 0.95, and a mean width
+## of 1.33 where the entropy arm reports 1.02.
+##
+## The fix puts the target trial's noise INSIDE the resampling, which is where an
+## independent external estimate belongs: each draw subtracts its own
+## theta_BC draw, so the percentile limits are taken on the anchored contrast and
+## the two variances combine by convolution rather than by addition of widths.
+## `draw_anchored()` does that, and this function then does nothing but take
+## quantiles, which is why it can no longer get the combination wrong.
+draw_anchored <- function(dr, theta_BC, V_BC) {
+  d <- dr[is.finite(dr)]
+  if (!length(d)) return(numeric(0))
+  se_BC <- if (is.finite(V_BC) && V_BC > 0) sqrt(V_BC) else 0
+  d - (theta_BC + stats::rnorm(length(d), 0, se_BC))
+}
+
+limits_from_draws <- function(anch, level = 0.95) {
+  if (length(anch) < 20L) return(c(NA_real_, NA_real_))
+  stats::quantile(anch, c((1 - level) / 2, 1 - (1 - level) / 2), names = FALSE)
 }
 
 ## --- STC --------------------------------------------------------------------
