@@ -136,8 +136,13 @@ step function, and Gauss-Hermite rests on polynomial exactness, so it degraded t
 roughly 1/n. The integral is now **split at the discontinuity**, whose location is
 known exactly, and each side integrated with a rule that is exact for smooth
 integrands. The binary covariate is integrated exactly rather than approximated.
-The rule is validated against **independent Monte Carlo**, not against itself: it
-sits within one Monte Carlo standard error of a 4e7-draw estimate.
+The rule is validated against **independent Monte Carlo**, not against itself,
+and the check RUNS inside P1 rather than being remembered from a console session:
+on the {d["p1_mc_check"]["link"]}/{d["p1_mc_check"]["shape"]} cell at order
+{d["p1_mc_check"]["order"]} the quadrature gives {d["p1_mc_check"]["quad"]} against
+a Monte Carlo estimate of {d["p1_mc_check"]["mc"]} with standard error
+{d["p1_mc_check"]["mc_se"]}, **{d["p1_mc_check"]["z"]} standard errors apart**. P1
+stops and registers no order if they ever disagree by more than three.
 
 The `mvnorm` law reduces to one dimension exactly, agreeing with the product rule
 to {d["reduction_agreement"]}. The product rule is used only for the non-normal

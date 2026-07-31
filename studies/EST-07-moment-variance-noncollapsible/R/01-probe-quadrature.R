@@ -96,6 +96,45 @@ main <- function() {
   ## The registered order is the largest requirement over the whole grid: one
   ## order for the study, so no cell integrates more coarsely than another and a
   ## between-cell difference cannot come from the rule.
+  ## --- THE INDEPENDENT VALIDATION, RUN RATHER THAN REMEMBERED ---------------
+  ##
+  ## Round 4 of critique: the protocol claimed the split rule was validated
+  ## against independent Monte Carlo, and no code performed it. The validation had
+  ## been done interactively, which is exactly CMP-14 round 9's defect in another
+  ## form: a guard cited for a check that does not run.
+  ##
+  ## A quadrature rule can converge cleanly to the wrong answer, and the split
+  ## rule is the one piece of this integration that was written for this study
+  ## rather than taken from a textbook, so it is the piece that most needs an
+  ## external check. Monte Carlo shares none of its machinery.
+  mc <- local({
+    lk <- "cloglog"; sh <- "mixed"
+    ord <- if (all(is.na(res$stable_order))) NA_integer_ else
+             max(res$stable_order, na.rm = TRUE)
+    if (is.na(ord)) return(NULL)
+    q <- delta_superpopulation(pars, lk, sh, MU, SIGMA, RHO, ord)
+    set.seed(MASTER_SEED + 909L)
+    B <- 16L; n <- 1e6L
+    est <- vapply(seq_len(B), function(b) {
+      x <- covariate_law(sh, n, MU, SIGMA, RHO)
+      cm <- conditional_means(x, pars, lk)
+      delta_from_arm_means(mean(cm$mu0), mean(cm$mu1), lk)
+    }, 0)
+    m <- mean(est); se <- stats::sd(est) / sqrt(B)
+    list(link = lk, shape = sh, order = ord, quad = q, mc = m, mc_se = se,
+         z = (q - m) / se, ok = abs(q - m) < 3 * se)
+  })
+  if (!is.null(mc)) {
+    cat(sprintf("\nindependent Monte Carlo check on %s/%s at order %d:\n",
+                mc$link, mc$shape, mc$order))
+    cat(sprintf("  quadrature %.8f, Monte Carlo %.8f (SE %.2e), %.2f SE apart -> %s\n",
+                mc$quad, mc$mc, mc$mc_se, mc$z,
+                if (mc$ok) "agree" else "DISAGREE"))
+    if (!mc$ok)
+      stop("the quadrature rule does not agree with independent Monte Carlo; ",
+           "no order can be registered until it does")
+  }
+
   order_needed <- if (all(is.na(res$stable_order))) NA_integer_ else
     max(res$stable_order, na.rm = TRUE)
   cat(sprintf("\nregistered quadrature order: %s\n",
@@ -113,6 +152,7 @@ main <- function() {
   p <- load_probes(); if (is.null(p)) p <- list()
   p$QUAD_ORDER <- list(order_needed)
   p$P1_table <- list(res)
+  if (!is.null(mc)) p$P1_mc_check <- list(mc)
   saveRDS(p, PROBE_FILE)
   cat("written: ", PROBE_FILE, "\n", sep = "")
 }

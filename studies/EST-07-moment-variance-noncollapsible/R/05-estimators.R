@@ -427,11 +427,25 @@ perturbation_var <- function(rep_data, link, R_use, n_perturb) {
 ## the two variances combine by convolution rather than by addition of widths.
 ## `draw_anchored()` does that, and this function then does nothing but take
 ## quantiles, which is why it can no longer get the combination wrong.
-draw_anchored <- function(dr, theta_BC, V_BC) {
-  d <- dr[is.finite(dr)]
+## `noise` MAY BE SUPPLIED, and P5 must supply it.
+##
+## Round 4 of critique: P5 sizes B by reading nested prefixes of ONE reference
+## draw set, so that every B sees the same resamples and the coverage comparison
+## is paired. This function drew the target trial's noise fresh on each call, so
+## the prefixes did not in fact share it and each B re-randomized part of its own
+## interval. The pairing the design rests on was not happening.
+##
+## Passing the noise in makes the nesting real: P5 draws it once at the reference
+## size and hands prefixes of it alongside prefixes of the resamples. Production
+## leaves it NULL and gets a fresh draw per replicate, which is correct there.
+draw_anchored <- function(dr, theta_BC, V_BC, noise = NULL) {
+  keep <- is.finite(dr)
+  d <- dr[keep]
   if (!length(d)) return(numeric(0))
   se_BC <- if (is.finite(V_BC) && V_BC > 0) sqrt(V_BC) else 0
-  d - (theta_BC + stats::rnorm(length(d), 0, se_BC))
+  z <- if (is.null(noise)) stats::rnorm(length(d), 0, se_BC)
+       else noise[keep][seq_along(d)] * se_BC
+  d - (theta_BC + z)
 }
 
 limits_from_draws <- function(anch, level = 0.95) {

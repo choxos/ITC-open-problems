@@ -107,13 +107,19 @@ main <- function() {
     dr <- try(perturbation_draws(d, cl$link, R_use, REF_B), silent = TRUE)
     if (inherits(dr, "try-error")) next
     tr <- d$target_reported
+    ## ONE standard-normal stream for the target trial's noise, drawn at the
+    ## reference size. Every B reads a prefix of it, so the nesting covers the
+    ## whole interval and not merely the resampled half.
+    zt <- stats::rnorm(REF_B)
     for (j in seq_along(B_GRID)) {
       lu <- limits_from_draws(
-        draw_anchored(dr[seq_len(B_GRID[j])], tr$theta_BC, tr$var_theta_BC))
+        draw_anchored(dr[seq_len(B_GRID[j])], tr$theta_BC, tr$var_theta_BC,
+                      noise = zt[seq_len(B_GRID[j])]))
       cov_mat[r, j] <- truth >= lu[1] && truth <= lu[2]
       wid_mat[r, j] <- lu[2] - lu[1]
     }
-    lu <- limits_from_draws(draw_anchored(dr, tr$theta_BC, tr$var_theta_BC))
+    lu <- limits_from_draws(draw_anchored(dr, tr$theta_BC, tr$var_theta_BC,
+                                          noise = zt))
     cov_mat[r, length(B_GRID) + 1L] <- truth >= lu[1] && truth <= lu[2]
     wid_mat[r, length(B_GRID) + 1L] <- lu[2] - lu[1]
     if (r %% 25 == 0) { cat(sprintf("  replicate %d/%d\n", r, N_REP_P5))

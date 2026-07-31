@@ -106,6 +106,15 @@ main <- function() {
     signif(abs(a - b), 3)
   }
 
+  ## The independent Monte Carlo check, so the protocol quotes a measurement.
+  if (!is.null(p$P1_mc_check)) {
+    mc <- p$P1_mc_check[[1]]
+    out$p1_mc_check <- list(link = mc$link, shape = mc$shape, order = mc$order,
+                            quad = signif(mc$quad, 8), mc = signif(mc$mc, 8),
+                            mc_se = signif(mc$mc_se, 3), z = signif(mc$z, 3),
+                            ok = mc$ok)
+  }
+
   out$p1_forced_by <- {
     w <- p1[which.max(p1$stable_order), ]
     list(link = w$link, shape = w$shape, order = w$stable_order)

@@ -173,6 +173,15 @@ check("the gate's denominator includes the target-trial and cross terms",
 
 # THE QUADRATURE ORDER must be the largest any cell needed, and the document must
 # not claim the product rule is paid at four covariates.
+# The Monte Carlo validation must have RUN, and must have agreed.
+if "p1_mc_check" in D:
+    check("the quadrature rule agreed with independent Monte Carlo",
+          D["p1_mc_check"]["ok"] is True and abs(D["p1_mc_check"]["z"]) < 3,
+          f"{D['p1_mc_check']['z']} SE apart")
+    check("the protocol quotes that check rather than asserting it",
+          str(D["p1_mc_check"]["z"]) in PROTOCOL,
+          "the validation is claimed but its number is not shown")
+
 check("the quadrature order is the largest any cell needed",
       D["quad_order"] == max(c["stable_order"] for c in D["p1_by_cell"]
                              if c["stable_order"] is not None),
