@@ -110,15 +110,20 @@ maic_all <- function(rep_data, link, corr_setting, level = 0.95) {
 ## scale. Binomial arms give the closed form; the identity link uses the sample
 ## variance. This is a property of the target trial and is shared by every
 ## method, so it is computed once.
+## ROUND 1: THIS ASSUMED EQUAL ARMS AT p = 0.5 AND WAS FOURFOLD TOO SMALL.
+## Measured against simulation it understated the variance by 1.6 times on the
+## identity link, 3.7 on logit and 4.25 on cloglog. Every method shares the term,
+## so every interval was too narrow for a reason unrelated to target-moment
+## uncertainty, which would have made all of them undercover and invalidated both
+## the primary comparison and the identity falsifier.
+##
+## It is now computed from the realized target arms by `arm_contrast_var()` and
+## carried on the replicate, which is what a published trial reports.
 var_theta_BC <- function(rep_data, link) {
-  tr <- rep_data$target_reported
-  n_arm <- tr$nT / 2
-  switch(link,
-    identity = 2 * 1 / n_arm,
-    ## delta method on g(p) with p estimated from n_arm observations
-    logit    = { p <- 0.5; 2 * (1 / (n_arm * p * (1 - p))) * 0.25 },
-    cloglog  = { p <- 0.5; 2 * (1 / (n_arm * p * (1 - p))) * (p * log(p))^2 },
-    stop("unregistered link: ", link))
+  v <- rep_data$target_reported$var_theta_BC
+  if (is.null(v)) stop("the replicate carries no target-trial variance; ",
+                       "R/03-sample.R must supply it")
+  v
 }
 
 ## --- the perturbation interval ----------------------------------------------

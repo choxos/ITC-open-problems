@@ -105,6 +105,13 @@ sample_replicate <- function(nS, nT, k, link, shape, rho_true,
 
   lf <- link_fns(link)
   theta_BC <- lf$g(mean(Yt[Bt == 1])) - lf$g(mean(Yt[Bt == 0]))
+  ## THE TARGET TRIAL REPORTS ITS OWN STANDARD ERROR, and it is computed from the
+  ## realized arm data rather than assumed. Round 1 of critique found the earlier
+  ## version hard-coding p = 0.5 and equal arms, which understated the variance by
+  ## 3.7 times on logit and 4.25 times on cloglog, measured against simulation.
+  ## Every method shares this term, so every interval was too narrow for a reason
+  ## having nothing to do with target-moment uncertainty.
+  var_BC <- arm_contrast_var(Yt, Bt, link)
 
   list(
     source = list(x = xs, h = h_of(xs), A = As, Y = Ys),
@@ -116,11 +123,33 @@ sample_replicate <- function(nS, nT, k, link, shape, rho_true,
       m = { b <- binary_cols(xt)
             c(colMeans(xt), colMeans(xt[, !b, drop = FALSE]^2)) },
       binary = binary_cols(xt),
-      theta_BC = theta_BC, nT = nT),
+      theta_BC = theta_BC, var_theta_BC = var_BC, nT = nT),
     ## Never passed to an estimator. Used only to compute truth.
     hidden = list(x = xt, pars = pars, pars_T = pars_T, rho_true = rho_true,
                   shape = shape, link = link, sigma = sigma,
                   pop_mean_T = pm$target))
+}
+
+## The delta-method variance of an anchored two-arm contrast on the reported
+## scale, from the arms as realized. A published trial reports an effect and an
+## interval; this is that interval's variance, and computing it from the data is
+## both what a trial does and the only way it can be right when the arm
+## probabilities are whatever the DGM makes them.
+arm_contrast_var <- function(Y, A, link) {
+  n1 <- sum(A == 1); n0 <- sum(A == 0)
+  if (n1 < 2 || n0 < 2) return(NA_real_)
+  if (link == "identity")
+    return(stats::var(Y[A == 1]) / n1 + stats::var(Y[A == 0]) / n0)
+  p1 <- mean(Y[A == 1]); p0 <- mean(Y[A == 0])
+  ## Guard the boundary: a zero or one arm proportion has no finite delta-method
+  ## variance on either curved scale, and returning NA drops the replicate rather
+  ## than reporting an interval of infinite or zero width.
+  if (min(p1, p0) <= 0 || max(p1, p0) >= 1) return(NA_real_)
+  dg <- switch(link,
+    logit   = c(1 / (p1 * (1 - p1)), 1 / (p0 * (1 - p0))),
+    cloglog = c(1 / (p1 * log(p1)),  1 / (p0 * log(p0))),
+    stop("unregistered link: ", link))
+  dg[1]^2 * p1 * (1 - p1) / n1 + dg[2]^2 * p0 * (1 - p0) / n0
 }
 
 ## Outcome draws per link. The Weibull PH arm is generated on the survival scale
