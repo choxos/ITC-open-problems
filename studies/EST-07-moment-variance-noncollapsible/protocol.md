@@ -14,7 +14,8 @@ superseded on the points its own header lists; it is hand-written and cannot be
 checked against the code, which is why it is not the authority.
 
 **What exists.** The data-generating mechanism, both truths, the gradient
-machinery, all six of the methods in the table below, seven probes, the runner
+machinery, all six of the methods in the table below, the six probes set out in
+section 2 plus the cost measurement in section 6, the runner
 (`R/15-run.R`), the analysis with clustered Monte Carlo error (`R/16-analyze.R`),
 and the export and verification harness. **What does not exist is the ML-NMR
 arm.** No replicate of the registered grid has been run.
@@ -272,8 +273,12 @@ equal, and the two estimands coincided exactly. Anchoring exists precisely becau
 trials differ in baseline risk, and without a shift the unanchored arm would carry
 none of its real risk.
 
-**Every cell that clears the floor is unanchored.** Median share of the interval's
-variance carried by the moment term, by link:
+**Every cell that clears the floor is unanchored**, and that is a count rather
+than an inference from an average: of the cells clearing it,
+340 are unanchored.
+The largest share reached by ANY anchored cell is
+0.0777, against a floor of 0.0791.
+Median share of the interval's variance carried by the moment term, by link:
 
 | link | unanchored | anchored |
 |---|---|---|
@@ -284,8 +289,12 @@ variance carried by the moment term, by link:
 So the effect the catalog entry names is material without an anchor and immaterial
 with one, on the curved links as well as the collapsible one. In an anchored
 comparison the target trial's own effect carries about 83% of the interval's
-variance and the moment term about 1%. That is the study's first result and it
-came out of the probe phase, before any replicate was run.
+variance, and the moment term's median share ranges from
+0.0224 to
+0.0928 across links. An earlier
+draft rounded that to "about 1%", which understates the identity arm. That is the
+study's first result and it came out of the probe phase, before any replicate was
+run.
 
 **The overlap is realized, not merely registered.** The `mixed` arm ran at a
 standardized difference of 0.001 on its binary covariate against the registered

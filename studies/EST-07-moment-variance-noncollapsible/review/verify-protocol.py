@@ -50,7 +50,14 @@ def check(label: str, ok: bool, detail: str = "") -> None:
 # The exporter excludes itself for the reason CMP-14 settled on: it consumes
 # artifacts rather than producing them. The generator is excluded too, since it
 # reads the export and writes the document.
-_excluded = {"12-export.R"}
+# R/12-export.R IS NOT EXCLUDED, and an incident is why.
+#
+# It was excluded on the reasoning that it consumes artifacts rather than
+# producing them. That is false: it produces `registered-design.json`. Editing it
+# and having the run fail therefore left a stale export that this verifier
+# happily checked a freshly generated protocol against, and everything passed.
+# The exporter is the one file whose edits most directly invalidate the export.
+_excluded: set[str] = set()
 _newest = max(f.stat().st_mtime for f in (ROOT / "R").iterdir()
               if f.is_file() and f.name not in _excluded)
 if DESIGN_PATH.stat().st_mtime < _newest:

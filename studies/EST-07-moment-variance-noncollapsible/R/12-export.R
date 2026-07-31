@@ -139,6 +139,21 @@ main <- function() {
   if (!is.null(p2$ladder))
     out$n_ladder <- sum(p2$ladder &
                         p2$cell_id %in% p$P2_grid[[1]]$cell_id, na.rm = TRUE)
+  ## THE SURVIVOR COUNTS, not just medians. Two reviewers found the document
+  ## asserting "every cell that clears the floor is unanchored" while showing only
+  ## median shares, which cannot establish a per-cell claim. The counts are
+  ## exported so the sentence quotes its own evidence.
+  if (!is.null(p2$anchored)) {
+    ## The floor comes from the probe store, not from R/02's global, which this
+    ## file does not source.
+    .fl <- p$P2_min_share[[1]]
+    .k <- is.finite(p2$share) & p2$share >= .fl
+    out$survivors_by_arm <- as.list(table(ifelse(p2$anchored[.k], "anchored",
+                                                 "unanchored")))
+    out$survivors_by_link <- as.list(table(p2$link[.k]))
+    out$anchored_share_max <- signif(max(p2$share[p2$anchored], na.rm = TRUE), 3)
+  }
+
   out$omitted_share_by_link <- lapply(split(p2$share, p2$link), function(z)
     list(min = signif(min(z, na.rm = TRUE), 3),
          median = signif(stats::median(z, na.rm = TRUE), 3),
