@@ -32,11 +32,35 @@ source("R/01-dgm.R")
 
 ## --- the estimand as a function of the reported moment vector ---------------
 ##
-## The moments an analyst actually receives are the means and SDs of each
-## covariate. `delta_at_moments` rebuilds the target law from those, holding the
-## assumed correlation fixed, and returns the estimand. That is the function a
-## delta-method variance differentiates, so it is the function differentiated.
-delta_at_moments <- function(m, s, pars, link, shape, rho, order) {
+## THE COORDINATES MUST BE THE ONES THE ESTIMATOR AND THE COVARIANCE USE, and in
+## the first version of this file they were not. Round 1 of critique found it and
+## it invalidated the study's headline.
+##
+## What an analyst receives is a baseline table of means and SDs, so the obvious
+## parameterization is (mean, SD). But MAIC's balancing function is
+## `h = cbind(x, x^2)`, the reported moment vector the estimator matches is
+## `c(colMeans(x), colMeans(x^2))`, and `Omega_normal` is the covariance of THAT
+## vector. So the estimator gradient and the moment covariance both live in
+## (mean, RAW SECOND MOMENT) coordinates while this file differentiated in
+## (mean, SD), and P3 compared the two and multiplied one by the other with no
+## Jacobian. Measured: the reported vector is (1.1936, 1.1685, 1.0508) where the
+## SDs are (1.0184, 1.0068, 0.9558), and the resulting reference variance was
+## wrong by a factor that DIFFERS BY LINK, which is what manufactured the
+## headline's link-specific direction.
+##
+## The fix is to differentiate in the estimator's coordinates directly rather
+## than to transform afterwards: given a mean m and a raw second moment q, the SD
+## is sqrt(q - m^2), so the reparameterization is exact and no chain rule is
+## applied to a numerical derivative.
+sd_from_moments <- function(m, q) {
+  v <- q - m^2
+  if (any(v <= 0)) return(rep(NA_real_, length(m)))
+  sqrt(v)
+}
+
+delta_at_moments <- function(m, q, pars, link, shape, rho, order) {
+  s <- sd_from_moments(m, q)
+  if (anyNA(s)) return(NA_real_)
   delta_superpopulation(pars, link, shape, mu = m, sigma = s, rho = rho,
                         order = order)
 }
@@ -51,24 +75,29 @@ delta_at_moments <- function(m, s, pars, link, shape, rho, order) {
 GRAD_STEP <- 1e-3
 GRAD_TOL  <- 1e-4
 
+## `s` is the SD, which is what the caller naturally has; it is converted to the
+## raw second moment immediately and every derivative below is taken in THAT
+## coordinate, so the returned gradient is directly comparable to the estimator's
+## and directly multipliable by `Omega_normal`.
 delta_gradient <- function(m, s, pars, link, shape, rho, order,
                            step = GRAD_STEP) {
   p <- length(m)
+  q <- m^2 + s^2
   h_m <- pmax(abs(m), 1) * step
-  h_s <- pmax(abs(s), 1) * step
+  h_q <- pmax(abs(q), 1) * step
   gm <- vapply(seq_len(p), function(j) {
     mp <- m; mp[j] <- mp[j] + h_m[j]
     mn <- m; mn[j] <- mn[j] - h_m[j]
-    (delta_at_moments(mp, s, pars, link, shape, rho, order) -
-     delta_at_moments(mn, s, pars, link, shape, rho, order)) / (2 * h_m[j])
+    (delta_at_moments(mp, q, pars, link, shape, rho, order) -
+     delta_at_moments(mn, q, pars, link, shape, rho, order)) / (2 * h_m[j])
   }, 0)
-  gs <- vapply(seq_len(p), function(j) {
-    sp <- s; sp[j] <- sp[j] + h_s[j]
-    sn <- s; sn[j] <- sn[j] - h_s[j]
-    (delta_at_moments(m, sp, pars, link, shape, rho, order) -
-     delta_at_moments(m, sn, pars, link, shape, rho, order)) / (2 * h_s[j])
+  gq <- vapply(seq_len(p), function(j) {
+    qp <- q; qp[j] <- qp[j] + h_q[j]
+    qn <- q; qn[j] <- qn[j] - h_q[j]
+    (delta_at_moments(m, qp, pars, link, shape, rho, order) -
+     delta_at_moments(m, qn, pars, link, shape, rho, order)) / (2 * h_q[j])
   }, 0)
-  c(gm, gs)
+  c(gm, gq)
 }
 
 ## The step-size check. A central difference that has not converged looks exactly
@@ -93,14 +122,15 @@ gradient_gap <- function(m, s, pars, link, shape, rho, order) {
   p <- length(m)
   list(link = link,
        grad_mean = g[seq_len(p)],
-       grad_sd = g[p + seq_len(p)],
+       ## Named for the coordinate it is actually taken in.
+       grad_q = g[p + seq_len(p)],
        beta_em = pars$beta_em,
        ## How far the mean-gradient is from the coefficient a collapsible
        ## derivation would plug in.
        mean_gap = max(abs(g[seq_len(p)] - pars$beta_em)),
        ## How much of the gradient a collapsible derivation omits entirely,
        ## because under it the estimand is free of the target's dispersion.
-       sd_norm = max(abs(g[p + seq_len(p)])))
+       q_norm = max(abs(g[p + seq_len(p)])))
 }
 
 ## --- the omitted variance, both ways ----------------------------------------

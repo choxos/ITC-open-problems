@@ -48,8 +48,8 @@ $\beta_{EM}$; under a curved link they cannot.
 
 | link | worst relative gradient gap | variance ratio | direction of the error |
 |---|---:|---|---|
-| `logit` | 0.143 | 1.324 to 1.438 | **anti-conservative** |
-| `cloglog` | 0.379 | 0.7641 to 0.8321 | **conservative** |
+| `logit` | 0.043 | 0.9886 to 1.074 | **mixed** |
+| `cloglog` | 0.0569 | 1.078 to 1.174 | **anti-conservative** |
 
 **No part of the design predicted that the direction differs by link**, and it is the
 finding with the clearest practical consequence: the same porting claim covers both
