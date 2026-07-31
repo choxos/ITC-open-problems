@@ -266,37 +266,51 @@ truth_unanchored_finite <- function(pars, pars_T, x, link) {
   lf$g(mean(conditional_means(x, pars_T, link)$mu1))
 }
 
-## --- THE MOMENT-MATCHED CONTRAST -------------------------------------------
+## --- WHAT MAIC ACTUALLY CONVERGES TO ---------------------------------------
 ##
-## The quantity prediction 1 says the methods actually target, added because a
-## reviewer pointed out that neither registered estimand is it.
+## Prediction 1 says moment-matching methods target a different quantity from the
+## estimand. To test that, the study must compute the quantity they target.
 ##
-## MAIC reweights the source until the weighted covariate moments equal the
-## reported ones. What it converges to is therefore the contrast under a law
-## carrying the TARGET'S REPORTED MOMENTS and the analyst's assumed shape, a
-## Gaussian copula, rather than under the target's actual law. Prediction 1 is
-## that those two differ and that the gap is a bias rather than a variance.
+## A first version defined it as the contrast under a MULTIVARIATE NORMAL law
+## carrying the target's reported moments and the analyst's assumed correlation.
+## Round 6 of critique: that is not MAIC's limit. MAIC reweights the SOURCE by
+## exp(h(x)'lambda) until the weighted moments match the reported ones, so its
+## limit is the contrast under the ENTROPY-TILTED SOURCE LAW. Tilting a Gaussian
+## by a linear-and-quadratic exponent returns a Gaussian, so the two agree when
+## the source is normal and part company when it is not, which is exactly the
+## `lognormal` and `mixed` arms. The assumed correlation was wrong to involve at
+## all: it enters the variance through Omega and never the weight fit.
 ##
-## Reporting coverage against all three separates the mechanism completely:
-##   superpopulation   the estimand anyone actually wants
-##   moment_matched    what a moment-matching method converges to
-##   finite_target     the realized target sample, which is neither
-## A method covering the moment-matched contrast well and the superpopulation one
-## badly is not reporting the wrong width; it is answering a different question,
-## which is the claim stated rather than a claim about variance.
-truth_moment_matched <- function(pars, pars_T, link, mean_T, sd_T, R, order,
-                                 anchored = TRUE) {
-  p <- length(mean_T)
-  ## The reconstruction is a Gaussian copula on the reported moments, so `rho` is
-  ## read off the assumed correlation matrix; a single off-diagonal suffices
-  ## because `delta_superpopulation` builds an exchangeable matrix from it.
-  rho <- if (p > 1) mean(R[lower.tri(R)]) else 0
+## So the target quantity is computed the way MAIC computes it, on a source large
+## enough that the weight fit is at its limit rather than at a sample of it.
+MM_SOURCE_N <- 40000L
+
+truth_moment_matched <- function(pars, pars_T, link, m_reported, shape, mu_S,
+                                 sigma, rho, anchored = TRUE,
+                                 n = MM_SOURCE_N) {
+  lf <- link_fns(link)
+  ## A large draw from the SOURCE law, tilted to the reported moments. The seed is
+  ## fixed and restored so this never consumes the replicate's stream.
+  old <- if (exists(".Random.seed", .GlobalEnv))
+           get(".Random.seed", .GlobalEnv) else NULL
+  set.seed(515151L)
+  xs <- covariate_law(shape, n, mu_S, sigma, rho)
+  if (!is.null(old)) assign(".Random.seed", old, .GlobalEnv)
+
+  h <- h_of(xs)
+  fw <- tryCatch(fit_weights(h, m_reported), error = function(e) NULL)
+  if (is.null(fw) || fw$conv != CONVERGENCE$optim_code) return(NA_real_)
+  w <- fw$w / sum(fw$w)
+
+  ## The arm means the tilted law implies, under the SOURCE parameters for the
+  ## transported arm and the TARGET parameters for the comparator.
+  cm_s <- conditional_means(xs, pars,   link)
+  cm_t <- conditional_means(xs, pars_T, link)
   if (anchored)
-    truth_anchored_superpop(pars, pars_T, link, "mvnorm", mean_T, sd_T, rho,
-                            order)
+    (lf$g(sum(w * cm_s$mu1)) - lf$g(sum(w * cm_s$mu0))) -
+    (lf$g(sum(w * cm_t$mu1)) - lf$g(sum(w * cm_t$mu0)))
   else
-    truth_unanchored_superpop(pars, pars_T, link, "mvnorm", mean_T, sd_T, rho,
-                              order)
+    lf$g(sum(w * cm_s$mu1)) - lf$g(sum(w * cm_t$mu1))
 }
 
 truth_anchored_superpop <- function(pars, pars_T, link, shape, mu, sigma, rho,

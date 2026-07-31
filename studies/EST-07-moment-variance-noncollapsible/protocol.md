@@ -259,9 +259,8 @@ target-moment uncertainty does not need effect modification to bite.
 
 - **superpopulation**: Delta(F_T) in the target superpopulation, the quantity
   anyone actually wants;
-- **moment_matched**: the contrast under a law carrying the target's REPORTED
-  moments and the analyst's assumed Gaussian copula, which is what a
-  moment-matching method converges to;
+- **moment_matched**: the contrast under the ENTROPY-TILTED SOURCE LAW, which is
+  what MAIC actually converges to;
 - **finite_target**: the same contrast in the target sample actually drawn.
 
 The middle one was added after a reviewer pointed out that the first two do not
@@ -270,11 +269,22 @@ moment-matched contrast rather than the estimand, so the study has to compute it
 to test that. Covering it well while missing the superpopulation contrast is the
 prediction's signature, and the analysis reports exactly that comparison.
 
-On the **identity** link the moment-matched and finite-target contrasts coincide,
-because a collapsible estimand depends on the covariate law only through its mean
-and the reported mean IS the realized one. On both curved links all three separate.
-That is not a coincidence to be explained away; it is the mechanism, visible in the
-truths before any method is run.
+**The middle quantity was defined wrongly at first**, and the correction matters.
+It was the contrast under a multivariate normal law carrying the reported moments
+and the analyst's assumed correlation. That is not MAIC's limit. MAIC reweights
+the SOURCE by exp(h(x)'lambda) until the weighted moments match the reported ones,
+so its limit is the contrast under the tilted source law. Tilting a Gaussian by a
+linear-and-quadratic exponent returns a Gaussian, so the two agree when the source
+is normal and part company when it is not, which is precisely the `lognormal` and
+`mixed` arms; and the assumed correlation was wrong to involve at all, since it
+enters the variance through Omega and never the weight fit. The quantity is now
+computed the way MAIC computes it, on a source large enough that the weight fit
+sits at its limit rather than at a sample of it.
+
+The three separate as the theory requires before any method is run. Under normal
+covariates MAIC's limit tracks the finite-target contrast, as a Gaussian tilt of a
+Gaussian must; under lognormal covariates it does not, because matching two
+moments no longer pins the law.
 
 The contrast is anchored: theta_AC(m_hat) - theta_BC_hat, on the link's own scale.
 
@@ -427,11 +437,11 @@ the assumed correlation see identical data. Monte Carlo error for every method
 contrast is therefore computed from the **per-replicate difference**, not from an
 independence formula, which would overstate the error of a paired contrast.
 
-Measured cost: **728.7 core-hours** for the MAIC and STC arms, at
+Measured cost: **668.4 core-hours** for the MAIC and STC arms, at
 B = 800, which is the registered value rather than a
 different one scaled. The perturbation arm is 96% to 99% of it.
 
-**The cost rose by 610%** against the 102.6
+**The cost rose by 551%** against the 102.6
 core-hours measured when B was typed at 200 and the grid was smaller. Sizing B
 honestly took it to 800, and the corrected `mixed` arm added cells.
 An earlier draft reported this as a saving.

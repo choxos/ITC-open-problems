@@ -142,9 +142,10 @@ run_replicate <- function(cell, r) {
   ## so it is a property of the replicate and the cell together, not of the cell
   ## alone.
   tr <- d$target_reported
-  R_use <- assumed_R(cell$corr_assumed, d, tr$n_reported)
-  truth_mm <- try(truth_moment_matched(pars, pars_T, cell$link, tr$mean, tr$sd,
-                                       R_use, QUAD_ORDER, anchored = anch),
+  truth_mm <- try(truth_moment_matched(pars, pars_T, cell$link, tr$m, cell$shape,
+                                       mu_S = pm$source,
+                                       sigma = rep(1, length(pars$beta_em)),
+                                       rho = 0.3, anchored = anch),
                   silent = TRUE)
   if (inherits(truth_mm, "try-error")) truth_mm <- NA_real_
 
