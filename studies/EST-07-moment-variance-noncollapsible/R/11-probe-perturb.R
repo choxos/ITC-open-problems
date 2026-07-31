@@ -36,6 +36,21 @@
 ## far better resolved than either coverage separately, which is what lets a few
 ## hundred replicates answer a question about a 0.01 shift.
 ##
+## THE THIRD RUN, AND WHY THE GRID MOVED UP. With the interval fixed, the
+## reference at B = 3200 covers 0.9500 exactly, so the arm is correct when it is
+## given enough resamples. The REGISTERED B = 50 covers 0.9200, with intervals
+## 7.7% too narrow, and the convergence is monotone in both coverage and width:
+## 0.883, 0.920, 0.917, 0.930, 0.947 at B = 25 to 400. So a study registered at
+## B = 50 would have reported a three-point coverage failure for the perturbation
+## method that was an artifact of its own resampling budget and nothing to do
+## with the method.
+##
+## Nothing in that grid passed both criteria. B = 400 met the width tolerance and
+## missed the coverage one only by the probe's own resolution: the paired
+## difference was -0.0033 with a Monte Carlo error of 0.0075. That is the probe
+## being too small, not B being too small, so the replicate count went from 300 to
+## 800 and the grid was extended to 800.
+##
 ## WHAT COULD CHANGE: `N_PERTURB`, and therefore the whole budget.
 ##
 ##   Rscript R/11-probe-perturb.R
@@ -43,9 +58,9 @@
 
 source("R/05-estimators.R")
 
-B_GRID   <- c(25L, 50L, 100L, 200L, 400L)
+B_GRID   <- c(50L, 100L, 200L, 400L, 800L)
 REF_B    <- 3200L   # the reference, and the draw set every smaller B reads from
-N_REP_P5 <- 300L    # replicates; the criterion is on a PAIRED difference
+N_REP_P5 <- 800L    # replicates; the criterion is on a PAIRED difference
 WIDTH_TOL <- 0.01   # tolerated systematic width bias from too few draws
 P5_CELL  <- list(nS = 2000L, nT = 300L, k = 0.25, link = "logit",
                  shape = "mvnorm", rho = 0.3)
