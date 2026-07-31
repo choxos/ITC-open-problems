@@ -7,9 +7,12 @@ the document rather than read from the code. Its fix was to type the number and
 then assert it back, which catches drift but leaves a window in which a wrong
 number is typed and asserted against a stale export.
 
-Here the document has no typed numbers at all. Every figure is interpolated from
-the export at generation time, so the failure mode is not "the document drifted"
-but "the document was regenerated", which is visible in git rather than silent.
+Every MEASUREMENT is interpolated from the export at generation time, so the
+failure mode is not "the document drifted" but "the document was regenerated",
+which is visible in git. An earlier docstring here said the document had no typed
+numbers at all, which was false of this file: it contained the node count, the
+order range and the reduction tolerance as literals. Those are derived now and
+the one remaining typed figure is named in the document.
 
     Rscript R/12-export.R
     python3 review/emit-protocol.py
@@ -53,13 +56,19 @@ Successor to MIS-03, which answered the same question under an identity link.
 and all five probes are complete, and this document is the draft that critique acts
 on. It becomes the registration when critique converges, not before.
 
-**Provenance, and why it is stronger here than in the sibling study.** CMP-14 spent
-thirteen rounds of critique and roughly a third of its findings were one defect: a
-number typed into the document rather than read from the code. **Every number below
-is generated from `results/registered-design.json` by `review/emit-protocol.py`.**
-None is typed, so the class of defect that dominated CMP-14 cannot occur; what
-remains possible is a number that is generated correctly and *means* something other
-than the sentence around it claims, which is what critique is for.
+**Provenance, stated for what it does rather than for what it sounded like.** CMP-14
+spent thirteen rounds of critique and roughly a third of its findings were one
+defect: a number typed into the document rather than read from the code. **Every
+*measurement* below is interpolated from `results/registered-design.json` by
+`review/emit-protocol.py`**, and a verifier asserts the document is byte-identical
+to what that generator currently produces.
+
+**An earlier draft claimed no number here was typed, and that was false.** The
+generator itself contained 5,308,416, the order range and the reduction tolerance as
+literals, and the exporter hard-codes one historical cost. Those three are derived
+now; **the one that remains typed is named where it appears**. Byte-identity proves
+the current generator produced this document, not that every figure in it came from
+JSON, and the difference is exactly what the earlier claim elided.
 
 ---
 
@@ -83,21 +92,31 @@ variance.*
 Five probes ran before this document existed. Three of their results bear directly
 on the proposition.
 
-**The ported gradient is wrong on a curved link, and its direction differs by link.**
-Every published target-summary variance propagates the gradient of the *estimator*
-with respect to the reported moments. What the variance of the *estimand* requires is
-the gradient of the estimand. Under the identity link these coincide and both equal
-$\\beta_{{EM}}$; under a curved link they cannot.
+**The ported gradient differs from the one the estimand needs on a curved link, and
+the size of that difference is small.** Every published target-summary variance
+propagates the gradient of the *estimator* with respect to the reported moments. What
+the variance of the *estimand* requires is the gradient of the estimand. Under the
+identity link these coincide and both equal $\\beta_{{EM}}$; under a curved link they
+do not, but the consequence for the variance is modest.
 
 | link | worst relative gradient gap | variance ratio | direction of the error |
 |---|---:|---|---|
 | `logit` | {p3['logit']['max_rel_gap']} | {p3['logit']['v_ratio_min']} to {p3['logit']['v_ratio_max']} | **{p3['logit']['direction']}** |
 | `cloglog` | {p3['cloglog']['max_rel_gap']} | {p3['cloglog']['v_ratio_min']} to {p3['cloglog']['v_ratio_max']} | **{p3['cloglog']['direction']}** |
 
-**No part of the design predicted that the direction differs by link**, and it is the
-finding with the clearest practical consequence: the same porting claim covers both
-scales, but an analyst reading a logit MAIC would see intervals too narrow while one
-reading a Weibull MAIC would see them too wide.
+**An earlier draft reported these ratios as 1.32 to 1.44 on `logit` and 0.76 to 0.83
+on `cloglog`, and called the opposite directions the study's most consequential
+finding. That was an artifact.** The estimand gradient was taken with respect to means
+and SDs while the estimator gradient and the moment covariance are in means and raw
+second moments, and the missing Jacobian was a factor that differs by link. Corrected,
+**nothing is conservative on either scale**: `logit` spans 1 and `cloglog` sits
+modestly above it. The reviewer who found it predicted the corrected reference
+variances to three significant figures and both reproduced exactly.
+
+**What that leaves is a weaker claim than the study set out to make.** On the primary
+`logit` arm the ported variance is within about {abs(1 - p3['logit']['v_ratio_min'])*100:.0f}%
+to {abs(p3['logit']['v_ratio_max'] - 1)*100:.0f}% of correct, which is unlikely to
+break coverage. Section 5 registers that outcome as the one supporting the catalog.
 
 **The identity-link case behaves as it must**, which is what makes the above evidence
 about curvature rather than about the implementation. The gap between estimator and
@@ -115,12 +134,14 @@ covariate **law** rather than of its moments.
 probe P1's output and is not defaulted. The order is forced by the
 `{d['p1_forced_by']['shape']}` covariate shape on the `{d['p1_forced_by']['link']}`
 link; a thresholded binary covariate is a step function and Gauss-Hermite converges
-on it slowly, while every continuous law is stable by order 8 to 16.
+on it slowly, while every continuous law is stable by order
+{d['continuous_order_range']['min']} to {d['continuous_order_range']['max']}.
 
 **The integral reduces to one dimension exactly where the covariate law is normal.**
 Each arm mean integrates a function of a single linear combination of $x$, which is
 normal when $x$ is, so the product rule's $\\text{{order}}^p$ collapses to
-$\\text{{order}}$: 5,308,416 nodes to 48 at four covariates, agreeing to 4.1e-15.
+$\\text{{order}}$: {d['nodes_product_4d']:,} nodes to {d['quad_order']} at four
+covariates, agreeing with the product rule to {d['reduction_agreement']}.
 
 **The finite-target contrast is the second estimand and the pair is the point.** Both
 are computed on every replicate. A design carrying only one cannot distinguish "the
@@ -186,10 +207,17 @@ at most {d['coverage_mcse_target']}. Common random numbers across
 {lv(d['crn_blocks'])}, so **Monte Carlo error is clustered on the replicate block**.
 
 **Cost: {d['core_hours']} core-hours** for the MAIC and STC arms at
-`N_PERTURB = {d['n_perturb']}`, against **{d['core_hours_at_typed_200']}** at the
-typed 200, a **{d['budget_saving_pct']}%** saving. The perturbation interval is
-{pmin}% to {pmax}% of the total, which is the line item the design named as the one a
-sibling study called cheap without measuring.
+`N_PERTURB = {d['n_perturb']}`, with the perturbation interval {pmin}% to {pmax}% of
+it. That is the line item the design named as the one a sibling study called cheap
+without measuring.
+
+**An earlier draft attributed a {d['budget_saving_pct']}% saving to the reduction in
+`N_PERTURB` alone, and that attribution does not hold.** The comparison figure,
+{d['core_hours_at_typed_200']} core-hours, is a **typed historical measurement**, the
+one number in this document not read from the export. It was taken before several
+other changes, so the difference between the two is not the causal effect of the
+resample count: quartering $B$ can save at most 75% even if every second scaled with
+it, and other work did not.
 
 **`N_PERTURB` is derived, not chosen.** At $B = {d['n_perturb_needed']}$ the
 90th-percentile resampling error is inside the across-replicate spread of the standard

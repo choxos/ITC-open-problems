@@ -85,10 +85,20 @@ check("the protocol is exactly what the generator produces from this export",
 # leaves open, so it is where the assertions go.
 
 _p3 = D["p3_by_link"]
-check("the document claims the direction differs by link only if it does",
-      (_p3["logit"]["direction"] != _p3["cloglog"]["direction"])
-      == ("direction differs by link" in PROTOCOL),
-      f"logit {_p3['logit']['direction']}, cloglog {_p3['cloglog']['direction']}")
+# ROUND 1 EXPOSED THIS ASSERTION AS TOO WEAK. It required only that the two
+# directions DIFFER, and "mixed" differs from "anti-conservative" without being
+# opposite to it, so the check passed while the document still claimed one link
+# gives intervals too narrow and the other too wide. A claim of OPPOSITE
+# directions needs one ratio band strictly below 1 and the other strictly above.
+_opposite = ((_p3["logit"]["v_ratio_max"] < 1) and (_p3["cloglog"]["v_ratio_min"] > 1)) \
+    or ((_p3["cloglog"]["v_ratio_max"] < 1) and (_p3["logit"]["v_ratio_min"] > 1))
+check("opposite directions are claimed only if the ratio bands are opposite",
+      _opposite == ("too narrow while one" in PROTOCOL),
+      f"logit {_p3['logit']['v_ratio_min']}-{_p3['logit']['v_ratio_max']}, "
+      f"cloglog {_p3['cloglog']['v_ratio_min']}-{_p3['cloglog']['v_ratio_max']}")
+check("the withdrawn artifact is disclosed where the numbers are",
+      "That was an artifact" in PROTOCOL,
+      "the corrected numbers appear without the correction")
 check("anti-conservative is claimed only where the ratio exceeds one",
       all((v["v_ratio_min"] > 1) == (v["direction"] == "anti-conservative")
           for v in _p3.values()),

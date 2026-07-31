@@ -66,6 +66,42 @@ main <- function() {
   out$quad_order <- p$QUAD_ORDER[[1]]
   p1 <- p$P1_table[[1]]
   out$p1_by_cell <- lapply(seq_len(nrow(p1)), function(i) as.list(p1[i, ]))
+  ## Figures the protocol quotes about the reduction, DERIVED rather than typed.
+  ## Round 1 found the generator typing 5,308,416, the order range and the
+  ## agreement tolerance, while the document claimed no number was typed.
+  out$nodes_product_3d <- p$QUAD_ORDER[[1]]^3
+  out$nodes_product_4d <- p$QUAD_ORDER[[1]]^4
+  out$continuous_order_range <- {
+    z <- p$P1_table[[1]]
+    o <- z$stable_order[z$shape != "mixed"]
+    list(min = min(o, na.rm = TRUE), max = max(o, na.rm = TRUE))
+  }
+  ## The reduction's agreement with the product rule, measured here rather than
+  ## remembered from a console session.
+  out$reduction_agreement <- {
+    pars <- list(alpha = -0.8, beta_prog = c(0.4, 0.3, 0.2),
+                 tau0 = 0.5, beta_em = c(0.6, 0, 0))
+    mu <- rep(OVERLAP_SMD, 3); sg <- rep(1, 3); rho <- 0.3
+    ord <- p$QUAD_ORDER[[1]]
+    a <- delta_superpopulation_normal(pars, "logit", mu, sg, rho, ord)
+    b <- local({
+      f <- get("delta_superpopulation")
+      ## Force the product path by calling it on a shape that does not reduce,
+      ## with an identical law: `lognormal` differs, so the product rule is
+      ## exercised through the internal branch instead.
+      gh <- gh_rule(ord); pnum <- 3
+      idx <- as.matrix(expand.grid(rep(list(seq_len(ord)), pnum)))
+      R <- matrix(rho, pnum, pnum); diag(R) <- 1
+      L <- chol(diag(sg, pnum) %*% R %*% diag(sg, pnum))
+      z <- sqrt(2) * gh$x[idx]; dim(z) <- dim(idx)
+      w <- apply(matrix(gh$w[idx], nrow(idx), pnum), 1, prod) / (pi^(pnum / 2))
+      xs <- sweep(z %*% L, 2, mu, "+")
+      cm <- conditional_means(xs, pars, "logit")
+      delta_from_arm_means(sum(w * cm$mu0), sum(w * cm$mu1), "logit")
+    })
+    signif(abs(a - b), 3)
+  }
+
   out$p1_forced_by <- {
     w <- p1[which.max(p1$stable_order), ]
     list(link = w$link, shape = w$shape, order = w$stable_order)
