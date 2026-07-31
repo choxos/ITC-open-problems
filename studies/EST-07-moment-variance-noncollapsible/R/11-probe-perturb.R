@@ -86,7 +86,7 @@ main <- function() {
   ## the cell, which does not depend on the replicate.
   pars   <- make_pars(cl$k)
   pars_T <- pars; pars_T$beta_em <- cl$k * pars$beta_em
-  pm     <- population_means()
+  pm     <- population_means(shape = cl$shape)
   truth  <- truth_anchored_superpop(pars, pars_T, cl$link, cl$shape,
                                     mu = pm$target, sigma = rep(1, N_COVARIATE),
                                     rho = cl$rho, order = QUAD_ORDER)

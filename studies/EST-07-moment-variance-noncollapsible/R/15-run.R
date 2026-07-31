@@ -82,7 +82,7 @@ run_replicate <- function(cell, r) {
   ## estimand of the cell. It does not depend on the replicate, but it is
   ## computed per replicate rather than cached because caching it per cell was
   ## how a sibling study came to score replicates against a stale truth.
-  pm <- population_means()
+  pm <- population_means(shape = cell$shape)
   pars <- d$hidden$pars; pars_T <- d$hidden$pars_T
   truth <- truth_anchored_superpop(pars, pars_T, cell$link, cell$shape,
                                    mu = pm$target,

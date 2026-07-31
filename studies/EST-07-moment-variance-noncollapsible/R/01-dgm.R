@@ -41,40 +41,25 @@ link_fns <- function(link) switch(link,
 ## overlap, which is what makes the shape arm a test of SHAPE rather than of
 ## location or scale. Without that, a difference between `mvnorm` and
 ## `lognormal` would be confounded with a difference in mean.
+## ONE DEFINITION OF THE LAW, used by the sampler and by the quadrature.
+##
+## ROUND 1 OF CRITIQUE, and this is what was underneath the `mixed` arm's lost
+## overlap. There were TWO implementations. `shape_map()` carried a comment saying
+## it was "used by both the sampler and the quadrature so the two integrate the
+## same law", and this function did not call it: its mixed branch thresholded the
+## CENTERED draw, `as.numeric(Z[, 1] > 0)`, which ignores mu and therefore gives
+## P(X = 1) = 0.5 in the source and the target alike.
+##
+## So the realized overlap on that covariate was 0.001 against a registered 0.40,
+## and, worse, the truth was being computed by integrating a law the sampler never
+## drew. Two implementations of one object is how that happens, so there is now
+## one: this function draws the correlated Gaussian and hands it to `shape_map()`.
 covariate_law <- function(shape, n, mu, sigma, rho) {
   p <- length(mu)
   R <- matrix(rho, p, p); diag(R) <- 1
   S <- diag(sigma, p) %*% R %*% diag(sigma, p)
   Z <- MASS::mvrnorm(n, rep(0, p), S)
-  switch(shape,
-    mvnorm = sweep(Z, 2, mu, "+"),
-    ## Lognormal matched to the SAME first two moments: if Y = exp(W) with
-    ## W ~ N(m, s^2), then E Y = exp(m + s^2/2) and Var Y = (exp(s^2)-1) E[Y]^2.
-    ## Solving for (m, s) at the target (mu, sigma) keeps the arm a shape
-    ## contrast; the skewness is then whatever that solution implies, which is
-    ## the quantity the arm exists to vary.
-    lognormal = {
-      out <- matrix(0, n, p)
-      for (j in seq_len(p)) {
-        m_j <- mu[j]; s_j <- sigma[j]
-        ## Shift so the marginal is positive before taking logs.
-        shift <- m_j - 4 * s_j
-        mm <- m_j - shift
-        s2 <- log1p((s_j / mm)^2)
-        out[, j] <- exp(log(mm) - s2 / 2 + sqrt(s2) * Z[, j] / s_j) + shift
-      }
-      out
-    },
-    ## One binary covariate and two normal, the common applied case. The binary
-    ## column is thresholded from the correlated Gaussian, so the correlation
-    ## structure survives dichotomization in rank if not in Pearson terms; the
-    ## realized Pearson correlation is measured in P2 rather than assumed.
-    mixed = {
-      out <- sweep(Z, 2, mu, "+")
-      out[, 1] <- as.numeric(Z[, 1] > 0)
-      out
-    },
-    stop("unregistered covariate shape: ", shape))
+  shape_map(sweep(Z, 2, mu, "+"), shape, mu, sigma)
 }
 
 ## --- conditional means, and the two arms ------------------------------------
@@ -168,7 +153,15 @@ delta_superpopulation <- function(pars, link, shape, mu, sigma, rho, order) {
   ## the map is smooth and monotone, so nothing changes.
   gh <- gh_rule(order)
   gh_n <- list(x = sqrt(2) * gh$x, w = gh$w / sqrt(pi))   # standard-normal form
-  sp <- if (shape == "mixed") split_normal_rule(order) else NULL
+  ## The jump is where the covariate crosses BINARY_CUT. `L` is upper triangular
+  ## from `chol`, so the first coordinate of `z %*% L` is `z1 * L[1, 1]` and the
+  ## crossing is at z1 = (BINARY_CUT - mu[1]) / L[1, 1]. The cut is a constant but
+  ## mu differs between source and target, so the split point is NOT always zero
+  ## and computing it is not optional.
+  Rc <- matrix(rho, p, p); diag(Rc) <- 1
+  Lc <- chol(diag(sigma, p) %*% Rc %*% diag(sigma, p))
+  sp <- if (shape == "mixed")
+          split_normal_rule(order, (BINARY_CUT - mu[1]) / Lc[1, 1]) else NULL
   rules <- lapply(seq_len(p), function(j)
     if (!is.null(sp) && j == 1L) sp else gh_n)
 
@@ -203,7 +196,10 @@ shape_map <- function(x, shape, mu, sigma) {
       s2 <- log1p((s_j / mm)^2)
       out[, j] <- exp(log(mm) - s2 / 2 + sqrt(s2) * (x[, j] - m_j) / s_j) + shift
     } else if (shape == "mixed" && j == 1L) {
-      out[, j] <- as.numeric(x[, j] > m_j)
+      ## A FIXED cut, not the covariate's own mean. Thresholding at the mean gave
+      ## P(X = 1) = 0.5 in both populations and destroyed the overlap this arm is
+      ## supposed to have.
+      out[, j] <- as.numeric(x[, j] > BINARY_CUT)
     }
   }
   out
@@ -239,6 +235,44 @@ truth_anchored_finite <- function(pars, pars_T, x, link) {
 ## Gauss-Hermite nodes and weights, by the Golub-Welsch eigenvalue method. The
 ## same routine CMP-14 uses, kept here rather than sourced so this study's
 ## integration is not silently coupled to another study's edits.
+## --- the binary covariate's threshold and its overlap -----------------------
+##
+## ROUND 1 OF CRITIQUE: the `mixed` arm did not preserve the registered overlap,
+## and the way it failed switched the arm off.
+##
+## `shape_map` used to threshold at the covariate's OWN population mean, so the
+## source cut at 0 and the target cut at OVERLAP_SMD, and both gave
+## P(X = 1) = 0.5. Measured realized SMD on that covariate: +0.001 against a
+## registered 0.40. Since `beta_em[1]` carries the effect modification, the
+## modifier was perfectly balanced between source and target throughout the mixed
+## shape, MAIC had nothing to correct, and a third of the shape factor tested
+## nothing.
+##
+## THE CUT MUST BE THE SAME CONSTANT IN BOTH POPULATIONS, or there is no
+## imbalance to create. Fixing the cut is necessary but not sufficient: a binary
+## variable's SMD is bounded given the latent shift, and at a shift of 0.40 the
+## best any cut achieves is about 0.321, reached at c = 0.20. So the binary
+## covariate also needs its own latent shift, solved so that its REALIZED
+## standardized difference is the registered one.
+##
+## `binary_latent_shift()` solves it with the cut at half the shift, which is the
+## symmetric choice and the one that maximizes the achievable difference.
+binary_smd <- function(d, cut) {
+  p_s <- 1 - stats::pnorm(cut)
+  p_t <- 1 - stats::pnorm(cut - d)
+  (p_t - p_s) / sqrt((p_s * (1 - p_s) + p_t * (1 - p_t)) / 2)
+}
+
+binary_latent_shift <- function(smd = OVERLAP_SMD) {
+  f <- function(d) binary_smd(d, d / 2) - smd
+  stats::uniroot(f, c(1e-6, 6))$root
+}
+
+## Registered once, from the registered overlap, so the sampler and the
+## quadrature cannot cut at different places.
+BINARY_SHIFT <- binary_latent_shift()
+BINARY_CUT   <- BINARY_SHIFT / 2
+
 ## --- the rule for a coordinate the shape map makes DISCONTINUOUS -------------
 ##
 ## ROUND 1 OF CRITIQUE, and it started as "order 48 is not stable at the
@@ -275,12 +309,18 @@ gl_rule <- function(n) {
 ## Nodes and weights that integrate a function against the STANDARD NORMAL
 ## measure, exactly as `gh_rule` does after its sqrt(2) and sqrt(pi) scaling, but
 ## split at zero so a jump there costs nothing.
-split_normal_rule <- function(n) {
+split_normal_rule <- function(n, at = 0) {
   gl <- gl_rule(n)
-  ## Each half of (0, 1) mapped from (-1, 1): width 1/4 either side of 1/2.
-  u <- c(0.25 + 0.25 * gl$x, 0.75 + 0.25 * gl$x)
-  w <- c(0.25 * gl$w, 0.25 * gl$w)
-  list(x = stats::qnorm(u), w = w)
+  ## The jump is at `at` on the standard-normal scale, which is u0 = Phi(at) after
+  ## the substitution. Gauss-Legendre runs on (0, u0) and (u0, 1), so the split
+  ## follows the jump wherever the population puts it rather than assuming it sits
+  ## at the median.
+  u0 <- stats::pnorm(at)
+  u0 <- min(max(u0, 1e-12), 1 - 1e-12)
+  lo <- u0 / 2 + (u0 / 2) * gl$x
+  hi <- (1 + u0) / 2 + ((1 - u0) / 2) * gl$x
+  list(x = stats::qnorm(c(lo, hi)),
+       w = c((u0 / 2) * gl$w, ((1 - u0) / 2) * gl$w))
 }
 
 gh_rule <- function(n) {

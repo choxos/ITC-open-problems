@@ -71,8 +71,21 @@ h_of <- function(x, modifier_span = "inside") {
 ## The source and target populations differ by `OVERLAP_SMD` on every covariate,
 ## which is how the design fixes overlap at the moderate level of the Phillippo
 ## et al. 2020 grid rather than letting it drift with the other factors.
-population_means <- function(smd = OVERLAP_SMD, p = N_COVARIATE) {
-  list(source = rep(0, p), target = rep(smd, p))
+## `shape` HAS NO DEFAULT ON PURPOSE. The binary covariate under `mixed` needs a
+## different latent shift from the continuous ones to realize the same overlap,
+## so a caller that does not say which shape it means would silently get the
+## wrong target population. Round 1 of critique found the mixed arm running at a
+## realized SMD of 0.001 instead of 0.40; a default here is how that would come
+## back.
+population_means <- function(smd = OVERLAP_SMD, p = N_COVARIATE, shape) {
+  if (missing(shape)) stop("population_means() needs the shape: the binary ",
+                           "covariate's target mean depends on it")
+  target <- rep(smd, p)
+  ## Solved in R/01-dgm so the realized binary SMD equals the registered one.
+  ## The continuous covariates keep the registered latent shift because for them
+  ## the latent and realized scales coincide.
+  if (identical(shape, "mixed")) target[1] <- BINARY_SHIFT
+  list(source = rep(0, p), target = target)
 }
 
 ## --- the parameter vector, with k doing MIS-03's job ------------------------
@@ -105,7 +118,7 @@ sample_replicate <- function(nS, nT, k, link, shape, rho_true,
                              smd = OVERLAP_SMD) {
   pars <- make_pars(k, em_strength, modifier_span)
   p <- length(pars$beta_em)
-  pm <- population_means(smd, p)
+  pm <- population_means(smd, p, shape)
   sigma <- rep(1, p)
 
   ## SOURCE: individual data, randomized A versus C.

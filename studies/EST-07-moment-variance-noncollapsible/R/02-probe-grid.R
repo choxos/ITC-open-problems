@@ -85,15 +85,19 @@ main <- function() {
 
   set.seed(MASTER_SEED)
   sigma <- rep(1, N_COVARIATE); rho <- 0.3
-  pm <- population_means()
-
   shares <- do.call(rbind, lapply(seq_len(nrow(g)), function(i) {
     r <- g[i, ]
     pars <- make_pars(r$k, modifier_span = r$modifier_span)
     ## The omitted variance, from the estimand gradient. `modifier_span` can
     ## lengthen the covariate vector, so the moments are rebuilt per cell.
     pp <- length(pars$beta_em)
-    mu_T <- rep(OVERLAP_SMD, pp); sg <- rep(1, pp)
+    ## THE TARGET MEANS COME FROM `population_means()`, not from repeating the
+    ## registered SMD. Under `mixed` the binary covariate needs a different latent
+    ## shift to realize the same overlap, and building the vector by hand here is
+    ## exactly how this probe would go on measuring a cell the sampler does not
+    ## produce.
+    mu_T <- population_means(OVERLAP_SMD, pp, r$shape)$target
+    sg <- rep(1, pp)
     Jt <- delta_gradient(mu_T, sg, pars, r$link, r$shape, rho, ord)
     ## The binary index must come from the same law the moments do, or the
     ## reconstruction and the gradient are built on different moment vectors.

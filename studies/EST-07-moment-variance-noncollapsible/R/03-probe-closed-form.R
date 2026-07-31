@@ -74,7 +74,8 @@ main <- function() {
   res <- do.call(rbind, lapply(seq_len(nrow(grid)), function(i) {
     lk <- grid$link[i]; k <- grid$k[i]
     pars <- make_pars(k)
-    pm <- population_means()
+    ## This probe is mvnorm throughout; the shape is stated rather than defaulted.
+    pm <- population_means(shape = "mvnorm")
     sigma <- rep(1, N_COVARIATE); rho <- 0.3
 
     ## The estimand gradient, at the target population's own moments. It has no
@@ -121,7 +122,7 @@ main <- function() {
   curved <- res[res$link != "identity", ]
 
   cat("\n--- the half where the answer is known: does the gap converge? ---\n")
-  pars0 <- make_pars(0.25); pm0 <- population_means()
+  pars0 <- make_pars(0.25); pm0 <- population_means(shape = "mvnorm")
   sig0 <- rep(1, N_COVARIATE); rho0 <- 0.3
   Jt0 <- delta_gradient(pm0$target, sig0, pars0, "identity", "mvnorm", rho0, ord)
   conv <- vapply(IDENTITY_NS, function(nS) {
