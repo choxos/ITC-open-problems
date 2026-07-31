@@ -266,6 +266,39 @@ truth_unanchored_finite <- function(pars, pars_T, x, link) {
   lf$g(mean(conditional_means(x, pars_T, link)$mu1))
 }
 
+## --- THE MOMENT-MATCHED CONTRAST -------------------------------------------
+##
+## The quantity prediction 1 says the methods actually target, added because a
+## reviewer pointed out that neither registered estimand is it.
+##
+## MAIC reweights the source until the weighted covariate moments equal the
+## reported ones. What it converges to is therefore the contrast under a law
+## carrying the TARGET'S REPORTED MOMENTS and the analyst's assumed shape, a
+## Gaussian copula, rather than under the target's actual law. Prediction 1 is
+## that those two differ and that the gap is a bias rather than a variance.
+##
+## Reporting coverage against all three separates the mechanism completely:
+##   superpopulation   the estimand anyone actually wants
+##   moment_matched    what a moment-matching method converges to
+##   finite_target     the realized target sample, which is neither
+## A method covering the moment-matched contrast well and the superpopulation one
+## badly is not reporting the wrong width; it is answering a different question,
+## which is the claim stated rather than a claim about variance.
+truth_moment_matched <- function(pars, pars_T, link, mean_T, sd_T, R, order,
+                                 anchored = TRUE) {
+  p <- length(mean_T)
+  ## The reconstruction is a Gaussian copula on the reported moments, so `rho` is
+  ## read off the assumed correlation matrix; a single off-diagonal suffices
+  ## because `delta_superpopulation` builds an exchangeable matrix from it.
+  rho <- if (p > 1) mean(R[lower.tri(R)]) else 0
+  if (anchored)
+    truth_anchored_superpop(pars, pars_T, link, "mvnorm", mean_T, sd_T, rho,
+                            order)
+  else
+    truth_unanchored_superpop(pars, pars_T, link, "mvnorm", mean_T, sd_T, rho,
+                              order)
+}
+
 truth_anchored_superpop <- function(pars, pars_T, link, shape, mu, sigma, rho,
                                     order) {
   delta_superpopulation(pars,   link, shape, mu, sigma, rho, order) -

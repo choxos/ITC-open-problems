@@ -82,6 +82,13 @@ performance <- function(d) {
                ## interval, and only the pair distinguishes those.
                coverage_finite = mean(z$covered_finite[ok]),
                bias_finite = mean(z$error_finite[ok]),
+               ## AGAINST THE MOMENT-MATCHED CONTRAST, which is what prediction 1
+               ## says a moment-matching method converges to. Covering this well
+               ## while covering the superpopulation estimand badly is the
+               ## prediction's signature: the method is answering a different
+               ## question, not reporting the wrong width.
+               coverage_mm = mean(z$covered_mm[ok], na.rm = TRUE),
+               bias_mm = mean(z$error_mm[ok], na.rm = TRUE),
                stringsAsFactors = FALSE)
   }))
 }
@@ -172,6 +179,7 @@ main <- function() {
                min = min(z$coverage), median = stats::median(z$coverage),
                max = max(z$coverage), in_band = sum(z$in_band),
                cov_finite = stats::median(z$coverage_finite),
+               cov_mm = stats::median(z$coverage_mm, na.rm = TRUE),
                mean_width = mean(z$width), stringsAsFactors = FALSE)))
   print(by_m, row.names = FALSE, digits = 4)
 
@@ -260,6 +268,22 @@ main <- function() {
     ## approach nominal as the target grows. Reporting coverage by target size is
     ## not that test; the test is whether the trend is toward nominal by more than
     ## Monte Carlo error can explain.
+    ## PREDICTION 1'S SIGNATURE, as a single comparison: does the entropy arm
+    ## cover the moment-matched contrast while missing the superpopulation one?
+    signature = local({
+      e <- ent
+      if (!nrow(e)) return(NULL)
+      list(cov_superpop = stats::median(e$coverage),
+           cov_moment_matched = stats::median(e$coverage_mm, na.rm = TRUE),
+           gap = stats::median(e$coverage_mm, na.rm = TRUE) -
+                 stats::median(e$coverage),
+           reading = if (!is.finite(stats::median(e$coverage_mm, na.rm = TRUE)))
+                       "moment-matched coverage not available"
+                     else if (stats::median(e$coverage_mm, na.rm = TRUE) -
+                              stats::median(e$coverage) > 2 * COVERAGE_MCSE_AT_N)
+                       "covers the moment-matched contrast but not the estimand: prediction 1's signature"
+                     else "no separation between the two targets")
+    }),
     ladder = if (nrow(lad)) local({
       z <- lad[lad$method == "maic_entropy", ]
       cov_by <- tapply(z$coverage, z$nT, mean)
@@ -288,6 +312,11 @@ main <- function() {
     cat(sprintf("closure of the fixed-arm deficit: %.1f%%\n",
                 100 * decision$closure_fraction))
   cat(sprintf("VERDICT: %s\n", decision$verdict))
+  if (!is.null(decision$signature))
+    cat(sprintf("prediction 1 signature: superpopulation %.4f, moment-matched %.4f\n  -> %s\n",
+                decision$signature$cov_superpop,
+                decision$signature$cov_moment_matched,
+                decision$signature$reading))
   if (!is.null(decision$ladder) && !is.null(decision$ladder$reading)) {
     cat("\nprediction 1, along the growth ladder:\n")
     print(round(decision$ladder$coverage_by_nT, 4))

@@ -201,9 +201,14 @@ check("the four-covariate node count is named as avoided, not paid",
       "the document implies it pays the four-dimensional product rule")
 
 # BOTH ESTIMANDS must be declared and both must actually be computed.
-check("both estimands are declared",
-      set(D["estimands"]) == {"superpopulation", "finite_target"},
+check("all three estimands are declared",
+      set(D["estimands"]) == {"superpopulation", "moment_matched",
+                              "finite_target"},
       f"{D['estimands']}")
+_run_src = (ROOT / "R" / "15-run.R").read_text()
+check("the moment-matched contrast has a caller in the runner",
+      "truth_moment_matched" in _run_src and "covered_mm" in _run_src,
+      "prediction 1's target quantity is declared but never computed")
 _run = (ROOT / "R" / "15-run.R").read_text()
 check("the finite-target estimand has a caller in the runner",
       "truth_anchored_finite" in _run and "covered_finite" in _run,

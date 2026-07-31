@@ -321,13 +321,26 @@ target-moment uncertainty does not need effect modification to bite.
 
 ## 3. Estimand
 
-Two, and **both are computed on every replicate** by `R/15-run.R`:
+**Three**, and all are computed on every replicate by `R/15-run.R`:
 
-- **superpopulation**: Delta(F_T) in the target superpopulation;
+- **superpopulation**: Delta(F_T) in the target superpopulation, the quantity
+  anyone actually wants;
+- **moment_matched**: the contrast under a law carrying the target's REPORTED
+  moments and the analyst's assumed Gaussian copula, which is what a
+  moment-matching method converges to;
 - **finite_target**: the same contrast in the target sample actually drawn.
 
-Reporting both is what separates an interval that is too narrow from an interval
-aimed at a different quantity. Reporting one cannot distinguish them.
+The middle one was added after a reviewer pointed out that the first two do not
+isolate what prediction 1 is about. Prediction 1 says the methods target the
+moment-matched contrast rather than the estimand, so the study has to compute it
+to test that. Covering it well while missing the superpopulation contrast is the
+prediction's signature, and the analysis reports exactly that comparison.
+
+On the **identity** link the moment-matched and finite-target contrasts coincide,
+because a collapsible estimand depends on the covariate law only through its mean
+and the reported mean IS the realized one. On both curved links all three separate.
+That is not a coincidence to be explained away; it is the mechanism, visible in the
+truths before any method is run.
 
 The contrast is anchored: theta_AC(m_hat) - theta_BC_hat, on the link's own scale.
 

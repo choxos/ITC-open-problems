@@ -30,7 +30,9 @@ LINKS <- c("identity", "logit", "cloglog")   # design: identity is the falsifier
 ## The two estimands, computed on EVERY replicate. A design carrying only one
 ## cannot separate "the interval is too narrow" from "the interval is for a
 ## different estimand", which is the distinction the catalog entry itself draws.
-ESTIMANDS <- c("superpopulation", "finite_target")
+## Three, since round 5: the moment-matched contrast was added because the
+## other two do not isolate what prediction 1 is about.
+ESTIMANDS <- c("superpopulation", "moment_matched", "finite_target")
 
 ## --- design factors, DESIGN.md section 4 ------------------------------------
 ## THE TARGET TRIAL'S BASELINE RISK, on the linear-predictor scale.

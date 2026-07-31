@@ -117,6 +117,17 @@ run_replicate <- function(cell, r) {
   truth_fin <- if (anch) truth_anchored_finite(pars, pars_T, d$hidden$x, cell$link)
                else truth_unanchored_finite(pars, pars_T, d$hidden$x, cell$link)
 
+  ## THE THIRD TRUTH: what a moment-matching method converges to. It depends on
+  ## this replicate's REPORTED moments and on the correlation the analyst assumes,
+  ## so it is a property of the replicate and the cell together, not of the cell
+  ## alone.
+  tr <- d$target_reported
+  R_use <- assumed_R(cell$corr_assumed, d, tr$n_reported)
+  truth_mm <- try(truth_moment_matched(pars, pars_T, cell$link, tr$mean, tr$sd,
+                                       R_use, QUAD_ORDER, anchored = anch),
+                  silent = TRUE)
+  if (inherits(truth_mm, "try-error")) truth_mm <- NA_real_
+
   z$rep <- r
   ## The cell's factors travel with every row, so the analysis reads one flat
   ## table and never joins back to the grid. A join is where a mislabeled cell
@@ -130,6 +141,9 @@ run_replicate <- function(cell, r) {
   z$truth_finite <- truth_fin
   z$covered_finite <- z$lower <= truth_fin & truth_fin <= z$upper
   z$error_finite <- z$est - truth_fin
+  z$truth_mm <- truth_mm
+  z$covered_mm <- z$lower <= truth_mm & truth_mm <= z$upper
+  z$error_mm <- z$est - truth_mm
   z
 }
 
