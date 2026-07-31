@@ -29,15 +29,27 @@ main <- function() {
   ## Cost varies most with the source size, because the weight fit and every
   ## resample scale with it. Timing the cheapest and dearest source bounds the
   ## total rather than pretending one figure covers the grid.
-  cfgs <- expand.grid(nS = LEVELS$nS, link = c("logit", "cloglog"),
-                      stringsAsFactors = FALSE)
+  ## THE TIMING CELLS COME FROM THE RUN GRID, not from a hard-coded middle.
+  ## The middle cell was anchored, and once the gate selected an all-unanchored
+  ## grid that configuration was no longer calibrated, so the budget failed on a
+  ## cell the study never runs. Timing what will actually be run is also the only
+  ## way the total means anything: the two arms differ in cost.
+  cfgs <- do.call(rbind, lapply(sort(unique(grid$nS)), function(ns) {
+    sub <- grid[grid$nS == ns, ]
+    sub <- sub[sub$link %in% c("logit", "cloglog"), ]
+    if (!nrow(sub)) sub <- grid[grid$nS == ns, ]
+    sub[!duplicated(sub$link), , drop = FALSE]
+  }))
   set.seed(MASTER_SEED)
 
   res <- do.call(rbind, lapply(seq_len(nrow(cfgs)), function(i) {
     cf <- cfgs[i, ]
     t_all <- t_nopert <- numeric(N_TIME_REP)
     for (r in seq_len(N_TIME_REP)) {
-      d <- sample_replicate(cf$nS, 300L, 0.25, cf$link, "mvnorm", 0.3)
+      d <- sample_replicate(cf$nS, cf$nT, cf$k, cf$link, cf$shape, 0.3,
+                            modifier_span = cf$modifier_span,
+                            baseline_shift = cf$baseline_shift,
+                            anchored = cf$anchored)
       t0 <- proc.time(); invisible(estimate_all(d, cf$link, "borrowed"))
       t_all[r] <- (proc.time() - t0)[["elapsed"]]
       ## The same replicate without the resampling arm, so the perturbation

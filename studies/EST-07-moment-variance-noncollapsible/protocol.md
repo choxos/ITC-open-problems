@@ -292,11 +292,11 @@ the assumed correlation see identical data. Monte Carlo error for every method
 contrast is therefore computed from the **per-replicate difference**, not from an
 independence formula, which would overstate the error of a paired contrast.
 
-Measured cost: **229.9 core-hours** for the MAIC and STC arms, at
+Measured cost: **598.8 core-hours** for the MAIC and STC arms, at
 B = 800, which is the registered value rather than a
 different one scaled. The perturbation arm is 99% to 100% of it.
 
-**The cost rose by 124%** against the 102.6
+**The cost rose by 484%** against the 102.6
 core-hours measured when B was typed at 200 and the grid was smaller. Sizing B
 honestly took it to 800, and the corrected `mixed` arm added cells.
 An earlier draft reported this as a saving.
