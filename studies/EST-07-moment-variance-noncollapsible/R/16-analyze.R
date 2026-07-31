@@ -114,6 +114,40 @@ paired_contrast <- function(d, a, b) {
   }))
 }
 
+## --- paired contrasts ACROSS the correlation setting --------------------------
+##
+## `CRN_BLOCKS` names `corr_assumed`, so cells differing only in it were drawn
+## from identical data and their contrast is paired at the replicate level, in
+## exactly the way two methods within a cell are. Round 3 of critique found this
+## comparison neither paired nor pooled: the study blocked the factor and then
+## analyzed it as though the two arms were independent samples, which throws away
+## the precision the blocking bought and overstates the error of the contrast.
+##
+## Cells are matched on every factor EXCEPT the correlation setting, then on the
+## replicate index within the matched pair.
+corr_contrast <- function(d, method, a = "borrowed", b = "true") {
+  keys <- c("link", "nT", "nS", "k", "shape", "modifier_span", "anchored",
+            "baseline_shift")
+  keys <- intersect(keys, names(d))
+  d <- d[d$method == method, ]
+  grp <- interaction(d[, keys], drop = TRUE)
+  do.call(rbind, lapply(split(d, grp), function(z) {
+    za <- z[z$corr_assumed == a, ]; zb <- z[z$corr_assumed == b, ]
+    if (!nrow(za) || !nrow(zb)) return(NULL)
+    m <- merge(za[, c("rep", "covered", "width")],
+               zb[, c("rep", "covered", "width")], by = "rep",
+               suffixes = c("_a", "_b"))
+    m <- m[is.finite(m$width_a) & is.finite(m$width_b), ]
+    if (!nrow(m)) return(NULL)
+    dc <- as.numeric(m$covered_a) - as.numeric(m$covered_b)
+    data.frame(method = method, a = a, b = b, cell_id = za$cell_id[1],
+               n_pair = nrow(m), cov_diff = mean(dc),
+               cov_diff_mcse = stats::sd(dc) / sqrt(nrow(m)),
+               width_diff = mean(m$width_a - m$width_b),
+               stringsAsFactors = FALSE)
+  }))
+}
+
 main <- function() {
   probes_done()
   d <- read_run()
@@ -202,8 +236,27 @@ main <- function() {
     print(round(decision$ladder_by_nT, 4))
   }
 
+  ## The correlation-setting contrast, paired and pooled the same way.
+  cc <- do.call(rbind, lapply(c("maic_entropy", "maic_xcov"), function(mth)
+    corr_contrast(d, mth)))
+  if (!is.null(cc) && nrow(cc)) {
+    cat("\n=== assumed correlation: borrowed against true, paired ===\n")
+    ccp <- do.call(rbind, lapply(split(cc, cc$method), function(z)
+      data.frame(method = z$method[1], cells = nrow(z),
+                 mean_cov_diff = mean(z$cov_diff),
+                 pooled_mcse = sqrt(sum(z$cov_diff_mcse^2)) / nrow(z),
+                 mean_width_diff = mean(z$width_diff),
+                 stringsAsFactors = FALSE)))
+    print(ccp, row.names = FALSE, digits = 4)
+  } else {
+    cat("\nno cell pair differs only in the assumed correlation; the",
+        "contrast is not estimable on this grid\n")
+    ccp <- NULL
+  }
+
   dir.create("results", showWarnings = FALSE)
   saveRDS(list(performance = perf, contrasts = cs, aside = aside,
+               corr_contrast = cc, corr_pooled = ccp,
                by_method = by_m, pooled = pooled, decision = decision),
           "results/analysis.rds")
   cat("\nwritten: results/analysis.rds\n")
