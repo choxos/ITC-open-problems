@@ -22,12 +22,29 @@
 source("R/04-maic.R")
 
 N_CAL_REP <- 20L    # replicates per cell, only to fix the source variance
-## A cell is worth running when the omitted variance is a large enough share of
-## the total that 2000 replicates can resolve the coverage difference it causes.
-## Coverage MCSE at 0.95 is 0.005, so a coverage shift of about 0.01 is the
-## smallest thing worth claiming; that corresponds to a variance share of roughly
-## 4%, which is the registered floor. It is derived here rather than typed.
-MIN_OMITTED_SHARE <- 0.04
+
+## THE FLOOR IS SOLVED FROM THE CRITERION, not asserted to follow from it.
+##
+## Round 1 of critique: the floor was 0.04 and the sentence beside it said that
+## followed from wanting to resolve a 0.01 coverage shift. It does not. Omitting a
+## fraction f of the variance reports an SE of sqrt(1-f) times the truth, so
+## coverage becomes 2 * Phi(1.96 * sqrt(1-f)) - 1. At f = 0.04 that is 0.9452, a
+## shift of 0.0048, which is ONE Monte Carlo SE rather than the two the criterion
+## asks for. The 0.01 shift needs f = 0.079.
+##
+## So the number was derived, and derived wrongly, which is worse than typing it:
+## a typed number invites checking and a derived one does not. It is solved here
+## by root-finding on the stated criterion, so the floor and the sentence cannot
+## drift apart again.
+MIN_COVERAGE_SHIFT <- 0.01
+
+omitted_share_for_shift <- function(shift, nominal = NOMINAL) {
+  z <- stats::qnorm(1 - (1 - nominal) / 2)
+  f <- function(fr) (nominal - (2 * stats::pnorm(z * sqrt(1 - fr)) - 1)) - shift
+  stats::uniroot(f, c(1e-6, 0.9))$root
+}
+
+MIN_OMITTED_SHARE <- omitted_share_for_shift(MIN_COVERAGE_SHIFT)
 
 ## The realized grid, built by the rule DESIGN.md section 4 states: the first
 ## four factors fully crossed within each link, the last three crossed with k and
@@ -113,8 +130,9 @@ main <- function() {
   }
   cat(sprintf("\nomitted-variance share: %.4f to %.4f\n",
               min(shares$share, na.rm = TRUE), max(shares$share, na.rm = TRUE)))
-  cat(sprintf("cells at or above the %.0f%% floor: %d of %d\n",
-              100 * MIN_OMITTED_SHARE, sum(keep), nrow(shares)))
+  cat(sprintf("floor solved from a %.3f coverage shift: %.4f\n",
+              MIN_COVERAGE_SHIFT, MIN_OMITTED_SHARE))
+  cat(sprintf("cells at or above it: %d of %d\n", sum(keep), nrow(shares)))
   cat("\nshare by link:\n")
   print(round(t(vapply(split(shares$share, shares$link), function(z)
     c(min = min(z, na.rm = TRUE), median = stats::median(z, na.rm = TRUE),
@@ -131,6 +149,7 @@ main <- function() {
   p$P2_table <- list(shares)
   p$P2_grid <- list(g[keep, ])
   p$P2_min_share <- list(MIN_OMITTED_SHARE)
+  p$P2_min_shift <- list(MIN_COVERAGE_SHIFT)
   saveRDS(p, PROBE_FILE)
   cat(sprintf("\nregistered cell count: %d\nwritten: %s\n", sum(keep), PROBE_FILE))
 }
