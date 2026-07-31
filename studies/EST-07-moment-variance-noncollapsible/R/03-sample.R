@@ -125,9 +125,13 @@ sample_replicate <- function(nS, nT, k, link, shape, rho_true,
       binary = binary_cols(xt),
       theta_BC = theta_BC, var_theta_BC = var_BC, nT = nT),
     ## Never passed to an estimator. Used only to compute truth.
+    ## `k` and `modifier_span` join the oracle fields because the calibrated
+    ## cross-covariance in R/14 is keyed on them. They identify the CELL, not the
+    ## replicate, so carrying them leaks nothing a run configuration does not
+    ## already know; the estimators that may read them are the oracle arms only.
     hidden = list(x = xt, pars = pars, pars_T = pars_T, rho_true = rho_true,
-                  shape = shape, link = link, sigma = sigma,
-                  pop_mean_T = pm$target))
+                  shape = shape, link = link, sigma = sigma, k = k,
+                  modifier_span = modifier_span, pop_mean_T = pm$target))
 }
 
 ## The delta-method variance of an anchored two-arm contrast on the reported

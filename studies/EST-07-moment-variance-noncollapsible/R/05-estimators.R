@@ -11,15 +11,57 @@
 ##   maic_oracle       fixed moments with the TRUE target correlation supplied
 ##   stc               conditional outcome model, marginalized by simulation
 ##
-## THE COMPARATOR THAT CAN WIN IS `maic_entropy`. If it restores nominal coverage
-## on the logit scale across the grid, the catalog is right that this is a
-## porting exercise, the study's prediction 2 is wrong, and the study says so.
-## That outcome is registered here rather than discovered later.
+## THE COMPARATOR THAT CAN WIN IS `maic_entropy`, and round 1 of critique made
+## the win condition say something the study can actually learn.
 ##
-## All four MAIC variants share one weight fit and one sandwich, so they differ
-## in the variance they report and in nothing else. A difference between them
-## cannot come from a different point estimate, which is what makes the paired
-## comparison in DESIGN.md section 6 a comparison of intervals.
+## It used to read: if the entropy port restores nominal coverage on the logit
+## scale across the grid, the catalog is right, "the study's prediction 2 is
+## wrong", and the study says so. Three things were wrong with that. Prediction 2
+## has since been withdrawn outright, so no result can refute it. The catalog's
+## claim is two-part, that porting works AND that what is left over is
+## reconstructed-correlation uncertainty, and coverage on a filtered subset speaks
+## to neither part separately. And a single filtered arm cannot vindicate a whole
+## method family.
+##
+## WHAT THE ENTROPY ARM CAN SETTLE is narrower and is worth registering because it
+## is decidable. Prediction 1 says the reported moments do not identify
+## Delta(F_T), because the estimand depends on the whole target covariate law and
+## the moments do not pin that law down. If that is right, then NO variance
+## indexed by the reported moments can be correct, and adding the moment term must
+## leave a coverage deficit that does not close. So:
+##
+##   `maic_entropy` reaches the registered coverage band across the grid
+##     -> the moment term is sufficient IN THESE CONDITIONS, prediction 1's
+##        practical bite is bounded by the conditions the grid covers, and the
+##        study reports that as a negative result about its own prediction.
+##   it closes part of the gap left by `maic_fixed` but not all of it
+##     -> the split between the closed and the residual part is the study's
+##        actual contribution, and `maic_oracle` says how much of the residual is
+##        correlation rather than identification.
+##
+## Neither branch settles the catalog's porting claim in general, and the analysis
+## must not report it as if it did.
+##
+## WHICH VARIANTS ARE COMPARABLE, AND WHICH IS NOT. An earlier version of this
+## header said all four share one weight fit and one sandwich and so differ "in
+## the variance they report and in nothing else", and round 1 of critique pointed
+## at `maic_perturb` defined forty lines below, which is none of those things.
+##
+## Three of them do share everything but the variance. `maic_fixed`,
+## `maic_entropy` and `maic_oracle` come off ONE call to `estimator_gradient`,
+## carry the SAME point estimate, and differ only in which terms enter V. The
+## correlation matrix an analyst assumes enters `Omega_normal` alone and never
+## `fit_weights`, whose targets are means and raw second moments, so even the
+## oracle arm leaves the weight fit untouched. For these three the paired contrast
+## is a clean comparison of intervals: coverage differences cannot come from the
+## point estimate because there is only one.
+##
+## `maic_perturb` IS DIFFERENT AND MUST NOT BE READ THAT WAY. It resamples the
+## source, refits per draw, and reports empirical percentile limits, so its
+## interval is not centered on `theta` and has no standard error at all. Against
+## the other three it is a comparison of PROCEDURES, not of variance formulas, and
+## its interval width and coverage are confounded with the resampling. The
+## analysis reports it in the same table but not in the same paired test.
 ##
 ##   source("R/05-estimators.R")
 ## ---------------------------------------------------------------------------
@@ -34,6 +76,41 @@ source("R/04-maic.R")
 ## SE has anyway, so buying more resamples buys nothing a coverage number can
 ## see. Registered at the smallest sufficient value, which cuts the study by 75%.
 N_PERTURB <- 50L
+
+## THE CALIBRATED CROSS-COVARIANCE, loaded once. R/14 writes it; probe P6 is why
+## it exists. It is an ORACLE input in the same sense as the true correlation: no
+## analyst could compute it from a published baseline table, and the arm that uses
+## it exists to attribute a coverage deficit, not to be recommended.
+##
+## Loaded lazily and cached, so a run that never asks for the arm never needs the
+## file, and a run that does asks the filesystem once rather than once per
+## replicate.
+.xcov_cache <- new.env(parent = emptyenv())
+xcov_store <- function() {
+  if (is.null(.xcov_cache$store)) {
+    if (!file.exists("results/xcov.rds"))
+      stop("results/xcov.rds is missing; run Rscript R/14-calibrate-xcov.R")
+    .xcov_cache$store <- readRDS("results/xcov.rds")
+  }
+  .xcov_cache$store
+}
+
+## The key a replicate uses to find its own calibrated covariance. Kept in one
+## function so the writer and the reader cannot disagree about it.
+xcov_key <- function(link, nT, k, shape, modifier_span)
+  paste(link, nT, k, shape, modifier_span, sep = "|")
+
+## The lookup the estimators use. It STOPS rather than returning zero when a
+## combination is missing: a silently absent correction is exactly the omission
+## this file exists to fix, and it would look like a passing run.
+xcov_lookup <- function(store, link, nT, k, shape, modifier_span) {
+  key <- xcov_key(link, nT, k, shape, modifier_span)
+  z <- store[[key]]
+  if (is.null(z))
+    stop("no calibrated cross-covariance for ", key,
+         "; run Rscript R/14-calibrate-xcov.R")
+  z$cov
+}
 
 ## The correlation matrix the analyst plugs in. `borrowed` is what `cpaic` does
 ## and what an applied analyst has available; `true` is the oracle arm that
@@ -98,19 +175,37 @@ maic_all <- function(rep_data, link, corr_setting, level = 0.95) {
            tr$mean, tr$sd, assumed_R("true", rep_data, p_cov),
            binary = tr$binary) %*% eg$J) / tr$nT))
 
+  ## THE CROSS-COVARIANCE ARM. Probe P6 found that -2 Cov(theta_AC, theta_BC) is
+  ## about 7.7% of the true variance on the identity link at k = 1, against a
+  ## registered floor of 7.9%, and that it does not shrink with nT. Every
+  ## published method omits it, so without this arm a coverage deficit cannot be
+  ## attributed: it could be the moments failing to identify Delta(F_T), which is
+  ## what the study is about, or it could be this, which is not.
+  ##
+  ## The arm carries the same terms as `maic_entropy` PLUS the cross term, with
+  ## the covariance supplied from calibration and the gradient from this
+  ## replicate's own fit. The difference between the two arms is therefore exactly
+  ## the cross term, and whatever `maic_xcov` still fails to cover is what
+  ## identification has to explain.
+  h <- rep_data$hidden
+  cv <- xcov_lookup(xcov_store(), link, tr$nT, h$k, h$shape, h$modifier_span)
+  V_X <- -2 * as.numeric(crossprod(eg$J, cv))
+  ## The cross term can be negative, and a negative one large enough to drive the
+  ## total non-positive would mean the calibration or the gradient is wrong rather
+  ## than that the variance is. `mk()` already returns NA for a non-positive
+  ## variance, so such a cell reports no interval instead of an imaginary one, and
+  ## the analysis must count those rather than drop them.
+  out <- rbind(out, mk("maic_xcov", V_S + V_BC + V_T + V_X))
+
   ## THE SECOND PORT, by resampling rather than by a formula, and reported as the
   ## cited algorithm reports it: EMPIRICAL PERCENTILE limits on the resampled
   ## anchored contrast. It does not use the estimator gradient at all, which is
   ## what makes it an independent route rather than a restatement of the first.
   dr <- perturbation_draws(rep_data, link, R_use, N_PERTURB)
-  dr <- dr[is.finite(dr)] - tr$theta_BC
-  if (length(dr) >= 20L) {
-    ## The target trial's own sampling error is not in the resampling, so it is
-    ## added on the interval scale; the source contribution already is, because
-    ## the source is resampled.
-    half <- z * sqrt(V_BC)
-    qs <- stats::quantile(dr, c((1 - level) / 2, 1 - (1 - level) / 2),
-                          names = FALSE)
+  ## The construction lives in `limits_from_draws()` so that P5, which sizes
+  ## `N_PERTURB`, builds its intervals with THIS code rather than a copy of it.
+  lu <- limits_from_draws(dr, tr$theta_BC, V_BC, level)
+  if (all(is.finite(lu))) {
     out <- rbind(out, data.frame(
       method = "maic_perturb", est = theta,
       ## A PERCENTILE INTERVAL HAS NO SINGLE STANDARD ERROR, and reporting the
@@ -118,7 +213,7 @@ maic_all <- function(rep_data, link, corr_setting, level = 0.95) {
       ## the interval beside it. The analysis compares interval WIDTH across
       ## methods, which is defined for all of them; `se` is NA for this row and
       ## any summary that averages it must say so.
-      se = NA_real_, lower = qs[1] - half, upper = qs[2] + half,
+      se = NA_real_, lower = lu[1], upper = lu[2],
       ess = eg$ess, stringsAsFactors = FALSE))
   }
   out
@@ -189,6 +284,19 @@ perturbation_draws <- function(rep_data, link, R_use, n_perturb) {
 ## Kept for the probes, which report a variance rather than an interval.
 perturbation_var <- function(rep_data, link, R_use, n_perturb) {
   stats::var(perturbation_draws(rep_data, link, R_use, n_perturb), na.rm = TRUE)
+}
+
+## The interval a given number of draws produces, from an already-drawn set. This
+## is `maic_all()`'s percentile construction, factored out so the probe cannot
+## drift from the estimator it is sizing. If the estimator's construction changes
+## and this does not, the smoke test below fails.
+limits_from_draws <- function(dr, theta_BC, V_BC, level = 0.95) {
+  z <- stats::qnorm(1 - (1 - level) / 2)
+  d <- dr[is.finite(dr)] - theta_BC
+  if (length(d) < 20L) return(c(NA_real_, NA_real_))
+  half <- z * sqrt(V_BC)
+  qs <- stats::quantile(d, c((1 - level) / 2, 1 - (1 - level) / 2), names = FALSE)
+  c(qs[1] - half, qs[2] + half)
 }
 
 ## --- STC --------------------------------------------------------------------
