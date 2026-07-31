@@ -107,15 +107,6 @@ main <- function() {
     ## shift to realize the same overlap, and building the vector by hand here is
     ## exactly how this probe would go on measuring a cell the sampler does not
     ## produce.
-    mu_T <- population_means(OVERLAP_SMD, pp, r$shape)$target
-    sg <- rep(1, pp)
-    Jt <- delta_gradient(mu_T, sg, pars, r$link, r$shape, rho, ord)
-    ## The binary index must come from the same law the moments do, or the
-    ## reconstruction and the gradient are built on different moment vectors.
-    bx <- binary_cols(covariate_law(r$shape, 64L, mu_T, sg, rho))
-    Om <- Omega_normal(mu_T, sg, diag(pp) * (1 - rho) + rho, binary = bx)
-    Jt <- Jt[c(rep(TRUE, pp), !bx)]
-    v_omit <- as.numeric(t(Jt) %*% Om %*% Jt) / r$nT
 
     ## THE DENOMINATOR IS THE WHOLE VARIANCE OF THE ANCHORED CONTRAST, and round 2
     ## of critique is why. The gate used v_omit / (v_omit + v_src), which leaves
@@ -143,7 +134,13 @@ main <- function() {
            m     = d$target_reported$m,
            tb    = if (an) d$target_reported$theta_BC
                    else d$target_reported$g_mu_B,
-           J     = if (an) eg$J else eg$J_un)
+           J     = if (an) eg$J else eg$J_un,
+           ## The reported summaries, carried so Omega is built over exactly the
+           ## covariates the estimator's gradient is indexed by. Building it from
+           ## the full covariate vector made it non-conformable under the
+           ## `outside` arm, where one covariate is never reported.
+           mean  = d$target_reported$mean, sd = d$target_reported$sd,
+           bin   = d$target_reported$binary)
     })
     parts <- parts[!vapply(parts, is.null, TRUE)]
     n_ok <- length(parts)
@@ -153,7 +150,7 @@ main <- function() {
                         corr_assumed = r$corr_assumed,
                         modifier_span = r$modifier_span, anchored = r$anchored,
                         baseline_shift = r$baseline_shift,
-                        v_omit = v_omit, v_src = NA_real_, v_bc = NA_real_,
+                        v_omit = NA_real_, v_src = NA_real_, v_bc = NA_real_,
                         v_cross = NA_real_, share = NA_real_, n_ok = n_ok,
                         stringsAsFactors = FALSE))
     v_src <- mean(vapply(parts, function(z) z$v_src, 0))
@@ -165,6 +162,25 @@ main <- function() {
     M <- do.call(rbind, lapply(parts, function(z) z$m))
     tb <- vapply(parts, function(z) z$tb, 0)
     Jbar <- colMeans(do.call(rbind, lapply(parts, function(z) z$J)))
+    ## THE OMITTED VARIANCE USES THE ESTIMATOR GRADIENT, not the estimand's.
+    ##
+    ## Round 2 of critique named both halves of this and the first repair fixed
+    ## only the denominator. The numerator went on using `delta_gradient()`, the
+    ## gradient of the estimand along a parametric family of covariate laws, which
+    ## belonged to the second prediction and was withdrawn with it. What the
+    ## published methods actually omit is J' Omega J / nT with J the gradient of
+    ## THE ESTIMATOR, which is what `maic_entropy` adds and what an interval
+    ## therefore misses when it is left out.
+    ##
+    ## The difference is not cosmetic. On the estimand gradient no curved-link
+    ## cell in 528 cleared the floor and the whole registered grid collapsed onto
+    ## the collapsible link, which would have been read as the study's premise
+    ## being inverted. On the estimator gradient the curved links clear it.
+    p1 <- parts[[1]]
+    pr <- length(p1$mean)
+    Om <- Omega_normal(p1$mean, p1$sd, diag(pr) * (1 - rho) + rho,
+                       binary = p1$bin)
+    v_omit <- as.numeric(t(Jbar) %*% Om %*% Jbar) / r$nT
     v_cross <- -2 * as.numeric(crossprod(Jbar, as.vector(stats::cov(M, tb))))
     total <- v_omit + v_src + v_bc + v_cross
     data.frame(cell_id = r$cell_id, link = r$link, nT = r$nT, nS = r$nS, k = r$k,

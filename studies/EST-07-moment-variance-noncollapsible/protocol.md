@@ -75,7 +75,7 @@ count this study pays.
 
 ### P2: which cells are worth running
 
-**3 of 288 realized cells** clear a floor of
+**340 of 792 realized cells** clear a floor of
 0.0791 and are run.
 
 The floor is **solved from the criterion, not asserted to follow from it**.
@@ -91,16 +91,16 @@ previously screened on the omitted variance over omitted-plus-source, leaving ou
 the target trial's own variance and its covariance with the reported moments, both
 of which are in the interval. A floor solved from a coverage shift has to be
 applied to a fraction of the total, or it screens on a different quantity than the
-criterion names. Median terms across the realized grid: omitted 0.0005417,
-source 0.0056, target-trial 0.02553, cross -0.0003203.
+criterion names. Median terms across the realized grid: omitted 0.001276,
+source 0.00463, target-trial 0.02373, cross -0.001483.
 
 Shares by link (min, median, max):
 
 | link | min | median | max |
 |---|---|---|---|
-| `identity` | 0.00721 | 0.0431 | 0.0983 |
-| `logit` | 0.00226 | 0.00815 | 0.0128 |
-| `cloglog` | 0.00318 | 0.00882 | 0.0129 |
+| `identity` | 0.00953 | 0.0928 | 0.786 |
+| `logit` | 0.00248 | 0.0224 | 0.153 |
+| `cloglog` | 0.00302 | 0.0392 | 0.266 |
 
 ### P3: an identification probe, not a variance probe
 
@@ -238,7 +238,7 @@ The reported set is now the single place that defines what a baseline table
 contains, and the balancing function, moment vector, borrowed correlation and STC
 model all follow it.
 
-Cells by source size: 2000: 3.
+Cells by source size: 500: 48, 2000: 221, 8000: 71.
 
 ---
 
@@ -315,6 +315,6 @@ An earlier draft reported this as a saving.
 - **The cross term is supplied by an oracle.** `maic_xcov` shows what carrying it
   would buy. No analyst can compute it from a published baseline table, so it is
   a decomposition, not a recommendation.
-- **The dropped cells.** 285 of
-  288 cells fall below the floor and are not run, so the study
+- **The dropped cells.** 452 of
+  792 cells fall below the floor and are not run, so the study
   says nothing about conditions where the omitted variance is small.
