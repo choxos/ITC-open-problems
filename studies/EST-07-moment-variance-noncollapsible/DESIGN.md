@@ -337,10 +337,15 @@ probe rather than after 2000 replicates per cell.
 
 ## 11. Cost
 
-**Measured by P4, and the design's own warning was right.** 102.6 core-hours for
-the MAIC and STC arms across 176 cells at 2000 replicates, and **96% to 98% of it
-is the perturbation interval**. Per replicate: 0.25 s at $n_S = 500$ rising to
-2.6 s at 8000, against 0.010 to 0.057 s for everything else combined.
+**Measured by P4, and the design's own warning was right.** At the typed
+`N_PERTURB = 200` the MAIC and STC arms cost 102.6 core-hours across 176 cells at
+2000 replicates, and **96% to 98% of it was the perturbation interval**.
+
+**At the derived `N_PERTURB = 50` the same arms cost 18.6 core-hours**, an
+**81.9% saving**, and the perturbation share falls to 88% to 94%. Both figures are
+measurements rather than one scaled from the other: an early version of the
+exporter named the 18.6 as if it were the 200 figure and discounted it again,
+reporting 4.65 for a study that costs 18.6.
 
 **`N_PERTURB` was the single budget lever and 200 was typed. Probe P5 settled it
 at 50**, which cuts the study by **75%, from 102.6 to roughly 26 core-hours**.
