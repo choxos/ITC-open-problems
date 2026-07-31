@@ -383,7 +383,7 @@ general, and the analysis will not report it as if it did.
 
 ## 6. Replicates, error and cost
 
-**The registered coverage band is 0.941 to 0.959**,
+**The registered coverage band is 0.932 to 0.968**,
 **derived rather than typed**: its half-width is the multiple of the delivered
 Monte Carlo error, 0.004873, at which the expected number of
 spurious band failures across all 349 cells stays inside a registered

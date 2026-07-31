@@ -61,9 +61,6 @@ main <- function() {
   ## a design input and is not the same number.
   out$coverage_mcse_at_n <- signif(COVERAGE_MCSE_AT_N, 4)
   out$nominal <- NOMINAL
-  ## Derived from the realized grid size, not typed: the band widens as the grid
-  ## grows so the expected number of spurious failures stays inside its budget.
-  out$cover_band <- cover_band(out$n_cells)
   out$false_failure_budget <- FALSE_FAILURE_BUDGET
   out$quad_tol <- QUAD_TOL
   out$n_perturb <- N_PERTURB
@@ -125,6 +122,11 @@ main <- function() {
 
   ## --- P2: the grid, and the cells it dropped -------------------------------
   out$n_cells <- p$N_CELLS[[1]]
+  ## THE BAND IS COMPUTED HERE, after the cell count exists. Set earlier it saw a
+  ## NULL count, `max(NULL, 1)` returned 1, and the export carried the one-cell
+  ## band [0.941, 0.959] while the study runs several hundred. A derived constant
+  ## placed before its input is a typed constant with extra steps.
+  out$cover_band <- cover_band(out$n_cells)
   out$min_omitted_share <- p$P2_min_share[[1]]
   ## The criterion the floor was solved from, so the protocol can state the
   ## derivation rather than assert it.
