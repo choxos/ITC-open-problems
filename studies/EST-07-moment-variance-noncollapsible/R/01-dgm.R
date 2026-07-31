@@ -200,6 +200,33 @@ shape_map <- function(x, shape, mu, sigma) {
   out
 }
 
+## --- THE ANCHORED TRUTH, which is the estimand the methods actually return ---
+##
+## Round 1 of critique: `delta_superpopulation` returns the transported A-versus-C
+## contrast, while every MAIC and STC point estimate returns A-versus-C MINUS the
+## target trial's own B-versus-C effect. Nothing in the study constructed the
+## matching truth, so bias against the stated estimand could not be computed and
+## comparing an indirect estimate with a direct truth would have counted the
+## entire B-versus-C effect as bias.
+##
+## Both estimands the design registers are built here from the same pieces, so
+## the pair differs only in which measure the arms are integrated against.
+##
+##   superpopulation : both contrasts over the TRUE target law
+##   finite_target   : both contrasts over the REALIZED target sample
+##
+## `pars` carries the source trial's modification and `pars_T` the target
+## trial's, which is where `k` acts.
+truth_anchored_superpop <- function(pars, pars_T, link, shape, mu, sigma, rho,
+                                    order) {
+  delta_superpopulation(pars,   link, shape, mu, sigma, rho, order) -
+  delta_superpopulation(pars_T, link, shape, mu, sigma, rho, order)
+}
+
+truth_anchored_finite <- function(pars, pars_T, x, link) {
+  delta_sample(x, pars, link) - delta_sample(x, pars_T, link)
+}
+
 ## Gauss-Hermite nodes and weights, by the Golub-Welsch eigenvalue method. The
 ## same routine CMP-14 uses, kept here rather than sourced so this study's
 ## integration is not silently coupled to another study's edits.

@@ -6,9 +6,16 @@ Successor to MIS-03, which answered the same question under an identity link.
 **Reporting standard.** ADEMP (Morris, White and Crowther 2019,
 [doi:10.1002/sim.8086](https://doi.org/10.1002/sim.8086)).
 
-**Registration status: NOT YET REGISTERED.** The design is in `DESIGN.md`, the code
-and all five probes are complete, and this document is the draft that critique acts
-on. It becomes the registration when critique converges, not before.
+**Registration status: NOT YET REGISTERED, AND THE SOFTWARE IS NOT COMPLETE.** The
+design is in `DESIGN.md`. What exists is the data-generating mechanism, both truths,
+the gradient machinery, five of six methods, all five probes, and the export and
+verification harness. **What does not yet exist is the replicate runner, the result
+writer, the analysis program, the clustered Monte Carlo error calculation, the three
+controls and the ML-NMR arm.** An earlier draft called the code complete, which was
+true of the probes and false of the study.
+
+This document is the draft that critique acts on. It becomes the registration when
+critique converges and the missing components exist, not before.
 
 **Provenance, stated for what it does rather than for what it sounded like.** CMP-14
 spent thirteen rounds of critique and roughly a third of its findings were one
@@ -96,6 +103,12 @@ Each arm mean integrates a function of a single linear combination of $x$, which
 normal when $x$ is, so the product rule's $\text{order}^p$ collapses to
 $\text{order}$: 5,308,416 nodes to 48 at four
 covariates, agreeing with the product rule to 4.11e-15.
+
+**Both estimands are ANCHORED contrasts**, A versus B, matching what the methods
+return. An earlier version computed only the transported A-versus-C effect while
+every estimator returned A-versus-C minus the target's own B-versus-C, so bias
+against the stated estimand could not have been computed and the whole B-versus-C
+effect would have appeared as bias.
 
 **The finite-target contrast is the second estimand and the pair is the point.** Both
 are computed on every replicate. A design carrying only one cannot distinguish "the
