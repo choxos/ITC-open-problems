@@ -120,7 +120,12 @@ assumed_R <- function(setting, rep_data, p) {
   switch(setting,
     true         = { r <- rep_data$hidden$rho_true
                      m <- matrix(r, p, p); diag(m) <- 1; m },
-    borrowed     = stats::cor(rep_data$source$x),
+    ## Over the REPORTED covariates only. An analyst borrows the correlation of
+    ## the covariates the target published, because those are the ones whose
+    ## moments are being matched; a correlation involving an unreported covariate
+    ## has nothing to multiply.
+    borrowed     = stats::cor(rep_data$source$x[, rep_data$source$reported,
+                                                drop = FALSE]),
     independence = diag(p),
     stop("unregistered correlation setting: ", setting))
 }
@@ -129,7 +134,10 @@ assumed_R <- function(setting, rep_data, p) {
 maic_all <- function(rep_data, link, corr_setting, level = 0.95) {
   s <- rep_data$source; tr <- rep_data$target_reported
   z <- stats::qnorm(1 - (1 - level) / 2)
-  p_cov <- ncol(s$x)
+  ## The moment dimension is the number of REPORTED covariates, not the number
+  ## the source happens to hold. Under the `outside` arm they differ by one, and
+  ## using the wrong one silently builds a correlation matrix of the wrong size.
+  p_cov <- tr$n_reported
 
   eg <- estimator_gradient(rep_data, link)
   if (!isTRUE(eg$ok))
@@ -332,7 +340,14 @@ stc_estimate <- function(rep_data, link, level = 0.95, n_sim = 2000L) {
                 logit = stats::binomial(),
                 cloglog = stats::binomial(link = "cloglog"),
                 stop("unregistered link: ", link))
-  df <- data.frame(Y = s$Y, A = s$A, s$x)
+  ## STC FITS ON THE REPORTED COVARIATES ONLY. The model has to be marginalized
+  ## over a target law reconstructed from published summaries, so a term the
+  ## analyst cannot integrate out cannot be in the model. Under the `outside` arm
+  ## that leaves one modifier unmodeled, which is exactly the exposure the arm
+  ## exists to create; fitting on all four and then marginalizing over three
+  ## would be a mismatch no analyst could commit.
+  xr <- s$x[, s$reported, drop = FALSE]
+  df <- data.frame(Y = s$Y, A = s$A, xr)
   fit <- tryCatch(stats::glm(Y ~ A * ., data = df, family = fam),
                   error = function(e) NULL)
   if (is.null(fit) || !fit$converged)
@@ -341,7 +356,7 @@ stc_estimate <- function(rep_data, link, level = 0.95, n_sim = 2000L) {
                       stringsAsFactors = FALSE))
   ## Marginalize over a target law reconstructed from the reported moments,
   ## which is the same input MAIC uses and the same reconstruction.
-  p_cov <- ncol(s$x)
+  p_cov <- tr$n_reported
   R_use <- assumed_R("borrowed", rep_data, p_cov)
   S <- diag(tr$sd) %*% R_use %*% diag(tr$sd)
   xs <- MASS::mvrnorm(n_sim, tr$mean, S)

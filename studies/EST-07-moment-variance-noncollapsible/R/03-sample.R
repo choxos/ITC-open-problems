@@ -37,11 +37,34 @@ source("R/02-gradient.R")
 binary_cols <- function(x)
   apply(x, 2, function(z) all(z %in% c(0, 1)))
 
-h_of <- function(x) {
-  b <- binary_cols(x)
-  h <- cbind(x, x[, !b, drop = FALSE]^2)
+## WHICH COVARIATES THE TARGET REPORTS.
+##
+## ROUND 1 OF CRITIQUE: the `outside` arm was supposed to put one effect modifier
+## OUTSIDE the matched moment set, acting through a covariate the target does not
+## report, so that no amount of moment matching can balance it. It did add a
+## fourth covariate, and then `h_of()` matched all four and the target reported
+## all four. The arm was identical to `inside` with one more matched modifier,
+## which is the opposite of what it was registered to test.
+##
+## `reported_cols()` is the single place that says what a baseline table contains.
+## The source keeps every covariate, because they all drive its outcomes and it
+## has individual data; the target reports the first `n_rep` of them, and the
+## unreported one is what makes the arm unbalanceable.
+n_reported <- function(p, modifier_span)
+  if (identical(modifier_span, "outside")) p - 1L else p
+
+reported_cols <- function(x, modifier_span)
+  seq_len(n_reported(ncol(x), modifier_span))
+
+## The balancing function, over the REPORTED covariates only. MAIC cannot match a
+## moment nobody published, so `h` must not contain one.
+h_of <- function(x, modifier_span = "inside") {
+  cols <- reported_cols(x, modifier_span)
+  xr <- x[, cols, drop = FALSE]
+  b <- binary_cols(xr)
+  h <- cbind(xr, xr[, !b, drop = FALSE]^2)
   attr(h, "binary") <- b
-  attr(h, "n_mean") <- ncol(x)
+  attr(h, "n_mean") <- ncol(xr)
   h
 }
 
@@ -114,16 +137,23 @@ sample_replicate <- function(nS, nT, k, link, shape, rho_true,
   var_BC <- arm_contrast_var(Yt, Bt, link)
 
   list(
-    source = list(x = xs, h = h_of(xs), A = As, Y = Ys),
-    ## Exactly what a baseline table gives: means, SDs, the effect, and n.
-    target_reported = list(
-      mean = colMeans(xt), sd = apply(xt, 2, stats::sd),
-      ## The reported moment vector matches h's structure exactly, including the
-      ## dropped squares for binary covariates.
-      m = { b <- binary_cols(xt)
-            c(colMeans(xt), colMeans(xt[, !b, drop = FALSE]^2)) },
-      binary = binary_cols(xt),
-      theta_BC = theta_BC, var_theta_BC = var_BC, nT = nT),
+    ## The source keeps every covariate; `h` is built over the reported ones only.
+    source = list(x = xs, h = h_of(xs, modifier_span), A = As, Y = Ys,
+                  reported = reported_cols(xs, modifier_span)),
+    ## Exactly what a baseline table gives: means, SDs, the effect, and n, for
+    ## the covariates the target actually publishes. Under `outside` the last
+    ## covariate appears nowhere here, which is the whole point of that arm.
+    target_reported = local({
+      cols <- reported_cols(xt, modifier_span)
+      xr <- xt[, cols, drop = FALSE]
+      b <- binary_cols(xr)
+      list(mean = colMeans(xr), sd = apply(xr, 2, stats::sd),
+           ## The reported moment vector matches h's structure exactly, including
+           ## the dropped squares for binary covariates.
+           m = c(colMeans(xr), colMeans(xr[, !b, drop = FALSE]^2)),
+           binary = b, n_reported = length(cols),
+           theta_BC = theta_BC, var_theta_BC = var_BC, nT = nT)
+    }),
     ## Never passed to an estimator. Used only to compute truth.
     ## `k` and `modifier_span` join the oracle fields because the calibrated
     ## cross-covariance in R/14 is keyed on them. They identify the CELL, not the
