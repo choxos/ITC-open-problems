@@ -26,7 +26,14 @@
 
 source("R/04-maic.R")
 
-N_PERTURB <- 200L   # resamples for the perturbation interval; costed by P4
+## PROBE P5 SET THIS, and P4 is why it had to. The perturbation arm is 96% to
+## 98% of the study's cost, so this constant is the entire budget lever, and 200
+## was typed. Measured against an independent B = 3200 reference, the 90th
+## percentile resampling error is 0.1414 at B = 50 against an across-replicate
+## SE spread of 0.1774: the resampling noise is already inside the variation the
+## SE has anyway, so buying more resamples buys nothing a coverage number can
+## see. Registered at the smallest sufficient value, which cuts the study by 75%.
+N_PERTURB <- 50L
 
 ## The correlation matrix the analyst plugs in. `borrowed` is what `cpaic` does
 ## and what an applied analyst has available; `true` is the oracle arm that

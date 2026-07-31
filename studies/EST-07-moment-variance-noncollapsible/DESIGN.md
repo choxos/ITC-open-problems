@@ -342,11 +342,19 @@ the MAIC and STC arms across 176 cells at 2000 replicates, and **96% to 98% of i
 is the perturbation interval**. Per replicate: 0.25 s at $n_S = 500$ rising to
 2.6 s at 8000, against 0.010 to 0.057 s for everything else combined.
 
-**`N_PERTURB` is therefore the single budget lever in this study**, and 200 was
-typed rather than derived. Whether the perturbation variance has stabilized by
-100, or by 50, is a probe-able question and is the next one to answer; halving it
-halves the study. That question is open and the number is not registered until it
-is settled, which is the rule that produced this paragraph in the first place.
+**`N_PERTURB` was the single budget lever and 200 was typed. Probe P5 settled it
+at 50**, which cuts the study by **75%, from 102.6 to roughly 26 core-hours**.
+Measured against an independent $B = 3200$ reference, the 90th-percentile
+resampling error is 0.1414 at $B = 50$ against an across-replicate spread of the
+SE of 0.1774: the resampling noise is already inside the variation the SE has
+anyway, so more resamples buy nothing a coverage number can see.
+
+**P5's first version answered 200 and was wrong**, because it used its own
+largest grid point as the reference. That makes the reference's error zero by
+construction and folds its resampling noise into every smaller point, which
+pushed $B = 100$ from 0.1278 to 0.1581 and over the line. A self-referential
+comparison returning a borderline answer to a question worth a factor of four in
+budget is not an answer, and the fix was an independent reference.
 
 **ML-NMR is not in that total** and no figure covering it is quoted until its
 per-fit cost is measured.
