@@ -180,6 +180,12 @@ NOMINAL     <- 0.95
 ## The band is a tolerance for Monte Carlo noise ONLY. It is not a substantive
 ## claim that a coverage of 0.936 is acceptable in practice; it is a statement
 ## that this study cannot distinguish 0.936 from 0.95 with the replicates it has.
+## Completeness preconditions for a verdict. A run that has not covered the grid,
+## or where a method failed on a large share of replicates, gets no substantive
+## answer at all rather than a caveated one.
+MIN_CELLS_FRACTION <- 0.95   # of registered cells analyzed, and of cells converged
+MIN_CONVERGENCE    <- 0.90   # per-cell replicate convergence for a cell to count
+
 FALSE_FAILURE_BUDGET <- 0.1   # expected spurious band failures across the grid
 
 cover_band <- function(n_cells, mcse = COVERAGE_MCSE_AT_N,

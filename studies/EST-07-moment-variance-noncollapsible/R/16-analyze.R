@@ -218,28 +218,83 @@ main <- function() {
   pow <- perf[!perf$ladder, ]
   lad <- perf[perf$ladder, ]
   ent <- pow[pow$method == "maic_entropy", ]
+  fix <- pow[pow$method == "maic_fixed", ]
+
+  ## NO VERDICT ON AN INCOMPLETE RUN. Round 5: the decision was evaluated on
+  ## whatever had been written, so a run covering a tenth of the grid, or one
+  ## where a method failed on most replicates, would still receive a substantive
+  ## answer. Completeness is a precondition, checked and reported, not a caveat.
+  n_expected <- length(unique(d$cell_id))
+  cells_full <- sum(tapply(ent$convergence, ent$cell_id, min) >= MIN_CONVERGENCE)
+  complete <- nrow(ent) > 0 &&
+              length(unique(pow$cell_id)) >= n_expected * MIN_CELLS_FRACTION &&
+              cells_full >= nrow(ent) * MIN_CELLS_FRACTION
+
+  ## CLOSURE IS MEASURED, not inferred from how many cells landed in the band.
+  ## The deficit is what `maic_fixed` leaves below nominal; the closure is the
+  ## fraction of it that adding the moment term recovers. A verdict of "part of
+  ## it" without that fraction says nothing a reader can use.
+  m <- merge(fix[, c("cell_id", "coverage")], ent[, c("cell_id", "coverage")],
+             by = "cell_id", suffixes = c("_fixed", "_entropy"))
+  deficit <- NOMINAL - m$coverage_fixed
+  closed  <- m$coverage_entropy - m$coverage_fixed
+  usable  <- is.finite(deficit) & deficit > 0
+  closure <- if (any(usable)) sum(closed[usable]) / sum(deficit[usable]) else NA_real_
+
   decision <- list(
-    n_cells_powered = length(unique(pow$cell_id)),
-    entropy_in_band = sum(ent$in_band),
-    entropy_cells   = nrow(ent),
-    ## The registered branch: does adding the moment term restore nominal
-    ## coverage across the powered grid?
-    verdict = if (nrow(ent) && all(ent$in_band))
+    complete = complete, cells_analyzed = length(unique(pow$cell_id)),
+    cells_expected = n_expected, cells_converged = cells_full,
+    entropy_in_band = sum(ent$in_band), entropy_cells = nrow(ent),
+    closure_fraction = closure,
+    verdict = if (!complete) "NO VERDICT: the run is incomplete"
+              else if (nrow(ent) && all(ent$in_band))
                 "moment term suffices in these conditions"
-              else if (nrow(ent) && any(ent$in_band))
-                "moment term closes part of the deficit and not all"
-              else "moment term does not restore nominal coverage",
-    ## Prediction 1, on the ladder: does the deficit close as the target grows?
-    ladder_by_nT = if (nrow(lad))
-      tapply(lad$coverage[lad$method == "maic_entropy"],
-             lad$nT[lad$method == "maic_entropy"], mean) else NULL)
+              else if (is.finite(closure) && closure >= 0.9)
+                sprintf("moment term closes %.0f%% of the deficit but coverage stays outside the band",
+                        100 * closure)
+              else if (is.finite(closure) && closure > 0)
+                sprintf("moment term closes %.0f%% of the deficit", 100 * closure)
+              else "moment term does not close the deficit",
+    ## PREDICTION 1'S FALSIFICATION TEST, run rather than displayed. The
+    ## prediction is that coverage of the superpopulation estimand does NOT
+    ## approach nominal as the target grows. Reporting coverage by target size is
+    ## not that test; the test is whether the trend is toward nominal by more than
+    ## Monte Carlo error can explain.
+    ladder = if (nrow(lad)) local({
+      z <- lad[lad$method == "maic_entropy", ]
+      cov_by <- tapply(z$coverage, z$nT, mean)
+      nTs <- as.numeric(names(cov_by))
+      if (length(cov_by) < 2) return(list(note = "ladder too short to test"))
+      ## Deficit at the smallest and largest target, with the paired Monte Carlo
+      ## error of their difference.
+      d_small <- NOMINAL - cov_by[[1]]
+      d_large <- NOMINAL - cov_by[[length(cov_by)]]
+      se <- sqrt(2) * COVERAGE_MCSE_AT_N
+      list(coverage_by_nT = cov_by,
+           deficit_small = d_small, deficit_large = d_large,
+           change = d_large - d_small, se = se,
+           closes = (d_small - d_large) > 2 * se,
+           reading = if ((d_small - d_large) > 2 * se)
+                       "the deficit closes as the target grows: prediction 1 is refuted"
+                     else "the deficit does not close: prediction 1 survives")
+    }) else NULL)
   cat("\n=== registered decision ===\n")
-  cat(sprintf("entropy arm inside the band in %d of %d powered cells: %s\n",
-              decision$entropy_in_band, decision$entropy_cells,
-              decision$verdict))
-  if (!is.null(decision$ladder_by_nT)) {
-    cat("prediction 1, entropy coverage along the growth ladder:\n")
-    print(round(decision$ladder_by_nT, 4))
+  cat(sprintf("run complete: %s (%d of %d cells, %d at full convergence)\n",
+              decision$complete, decision$cells_analyzed,
+              decision$cells_expected, decision$cells_converged))
+  cat(sprintf("entropy arm inside the band in %d of %d powered cells\n",
+              decision$entropy_in_band, decision$entropy_cells))
+  if (is.finite(decision$closure_fraction))
+    cat(sprintf("closure of the fixed-arm deficit: %.1f%%\n",
+                100 * decision$closure_fraction))
+  cat(sprintf("VERDICT: %s\n", decision$verdict))
+  if (!is.null(decision$ladder) && !is.null(decision$ladder$reading)) {
+    cat("\nprediction 1, along the growth ladder:\n")
+    print(round(decision$ladder$coverage_by_nT, 4))
+    cat(sprintf("deficit %.4f at the smallest target, %.4f at the largest ",
+                decision$ladder$deficit_small, decision$ladder$deficit_large))
+    cat(sprintf("(paired MC error %.4f)\n  -> %s\n",
+                decision$ladder$se, decision$ladder$reading))
   }
 
   ## The correlation-setting contrast, paired and pooled the same way.
