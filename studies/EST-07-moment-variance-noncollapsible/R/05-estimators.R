@@ -112,14 +112,66 @@ xcov_lookup <- function(store, link, nT, k, shape, modifier_span) {
   z$cov
 }
 
+## The target population's correlation among the REPORTED covariates, computed
+## once per distinct population and cached for the life of the process.
+##
+## It cannot be read off `rho_true`, which is the correlation of the latent
+## Gaussian: dichotomization attenuates it and the lognormal map bends it. It is
+## therefore measured from a large draw of the same law the sampler uses, which
+## is the only way to be sure the number describes the population the replicates
+## actually come from.
+.cor_cache <- new.env(parent = emptyenv())
+COR_CAL_N <- 400000L
+
+target_pop_cor <- function(rep_data) {
+  h <- rep_data$hidden
+  cols <- rep_data$source$reported
+  key <- paste(h$shape, h$modifier_span, h$rho_true, length(cols), sep = "|")
+  z <- .cor_cache[[key]]
+  if (is.null(z)) {
+    ## A FIXED SEED, restored afterwards, so this calibration never consumes the
+    ## replicate's random stream. Consuming it would break the common random
+    ## numbers the whole design rests on.
+    old_seed <- if (exists(".Random.seed", .GlobalEnv))
+                  get(".Random.seed", .GlobalEnv) else NULL
+    set.seed(414141L)
+    p_all <- length(h$pars$beta_em)
+    pm <- population_means(OVERLAP_SMD, p_all, h$shape)
+    x <- covariate_law(h$shape, COR_CAL_N, pm$target,
+                       rep(1, p_all), h$rho_true)
+    z <- stats::cor(x[, cols, drop = FALSE])
+    if (!is.null(old_seed)) assign(".Random.seed", old_seed, .GlobalEnv)
+    .cor_cache[[key]] <- z
+  }
+  z
+}
+
 ## The correlation matrix the analyst plugs in. `borrowed` is what `cpaic` does
 ## and what an applied analyst has available; `true` is the oracle arm that
 ## isolates the correlation component from the moment component; `independence`
 ## is the other thing people do when no correlation is available at all.
 assumed_R <- function(setting, rep_data, p) {
   switch(setting,
-    true         = { r <- rep_data$hidden$rho_true
-                     m <- matrix(r, p, p); diag(m) <- 1; m },
+    ## THE TARGET'S ACTUAL CORRELATION, not the latent parameter that generated
+    ## it. Round 1 of critique: this used to build a compound-symmetric matrix
+    ## from `rho_true`, which is the correlation of the GAUSSIAN the covariates
+    ## are drawn from and survives to the covariates themselves only under
+    ## `mvnorm`. Dichotomization attenuates it: measured realized correlations
+    ## under `mixed` are 0.238 and 0.236 on the pairs involving the binary
+    ## covariate against a supplied 0.30, and the lognormal map moves it too.
+    ##
+    ## So the arm that exists to ISOLATE the correlation component was injecting
+    ## a correlation the target population does not have, which is the opposite
+    ## of an oracle.
+    ##
+    ## It now supplies the target POPULATION correlation of the reported
+    ## covariates. The realized correlation of this replicate's own target sample
+    ## would also be "true" in a sense, but it carries sampling noise of order
+    ## (1 - r^2)/sqrt(nT), which at nT = 300 is about 0.055, and feeding a noisy
+    ## correlation into `Omega_normal` would make the oracle's own correction
+    ## noisy. The oracle exists to show what the correction achieves when the
+    ## correlation is known exactly, so it gets the exact value.
+    true         = target_pop_cor(rep_data),
     ## Over the REPORTED covariates only. An analyst borrows the correlation of
     ## the covariates the target published, because those are the ones whose
     ## moments are being matched; a correlation involving an unreported covariate
