@@ -164,7 +164,23 @@ NULL_TOL <- 1e-8
 
 ## --- decision rule, DESIGN.md section 7 -------------------------------------
 NOMINAL     <- 0.95
-COVER_BAND  <- c(0.935, 0.965)   # design: two-sided, both ends are failures
+## THE BAND IS DERIVED FROM THE MONTE CARLO ERROR THE DESIGN ACTUALLY HAS, not
+## typed. A band exists to stop a correct method being rejected for Monte Carlo
+## noise, so its half-width is a multiple of the coverage error at the registered
+## replicate count: at 2000 replicates that error is 0.00487, and three of them is
+## 0.0146. Rounding outward to the nearest half-percent gives the band this study
+## has always used, which is why the change is a derivation rather than a
+## revision.
+##
+## Three is the registered multiple: a correct method sits outside a three-error
+## band about once in 370 cells by chance, which across a few hundred cells is
+## well under one expected false failure.
+COVER_BAND_MULT <- 3
+COVER_BAND <- local({
+  half <- COVER_BAND_MULT * COVERAGE_MCSE_AT_N
+  c(floor((NOMINAL_LEVEL <- 0.95 - half) * 200) / 200,
+    ceiling((0.95 + half) * 200) / 200)
+})
 ## CMP-14 registered its band one-sided and counted 76 over-covering scenarios as
 ## successes for two rounds before a reviewer found it.
 

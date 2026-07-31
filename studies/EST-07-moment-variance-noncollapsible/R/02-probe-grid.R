@@ -19,7 +19,9 @@
 ##   Rscript R/02-probe-grid.R
 ## ---------------------------------------------------------------------------
 
-source("R/04-maic.R")
+## R/05 rather than R/04: the gate needs `target_pop_cor()`, which lives with
+## the estimators because they are its main consumer. R/05 sources R/04.
+source("R/05-estimators.R")
 
 ## Replicates per cell. Raised from 20 when the gate's denominator grew to the
 ## whole variance: the cross term is a covariance across replicates and 20 draws
@@ -140,7 +142,15 @@ main <- function() {
            ## the full covariate vector made it non-conformable under the
            ## `outside` arm, where one covariate is never reported.
            mean  = d$target_reported$mean, sd = d$target_reported$sd,
-           bin   = d$target_reported$binary)
+           bin   = d$target_reported$binary,
+           ## THE COVARIATES' OWN CORRELATION, not the latent Gaussian's. The
+           ## gate built Omega from a compound-symmetric matrix at `rho`, which
+           ## is the correlation of the Gaussian the covariates are drawn from
+           ## and survives to the covariates only under `mvnorm`: dichotomization
+           ## attenuates it to about 0.238 against 0.30. That is the same defect
+           ## the oracle arm was carrying, and a gate is exactly where it matters,
+           ## since the wrong Omega decides which cells the study runs at all.
+           Rp    = target_pop_cor(d))
     })
     parts <- parts[!vapply(parts, is.null, TRUE)]
     n_ok <- length(parts)
@@ -178,8 +188,7 @@ main <- function() {
     ## being inverted. On the estimator gradient the curved links clear it.
     p1 <- parts[[1]]
     pr <- length(p1$mean)
-    Om <- Omega_normal(p1$mean, p1$sd, diag(pr) * (1 - rho) + rho,
-                       binary = p1$bin)
+    Om <- Omega_normal(p1$mean, p1$sd, p1$Rp, binary = p1$bin)
     v_omit <- as.numeric(t(Jbar) %*% Om %*% Jbar) / r$nT
     v_cross <- -2 * as.numeric(crossprod(Jbar, as.vector(stats::cov(M, tb))))
     total <- v_omit + v_src + v_bc + v_cross

@@ -99,7 +99,7 @@ count this study pays.
 
 ### P2: which cells are worth running
 
-**350 of 792 realized cells** are run: those whose
+**349 of 792 realized cells** are run: those whose
 omitted-variance share reaches 0.0791, plus a growth ladder
 retained regardless of share.
 
@@ -125,16 +125,16 @@ previously screened on the omitted variance over omitted-plus-source, leaving ou
 the target trial's own variance and its covariance with the reported moments, both
 of which are in the interval. A floor solved from a coverage shift has to be
 applied to a fraction of the total, or it screens on a different quantity than the
-criterion names. Median terms across the realized grid: omitted 0.001276,
+criterion names. Median terms across the realized grid: omitted 0.001263,
 source 0.00463, target-trial 0.02373, cross -0.001483.
 
 Shares by link (min, median, max):
 
 | link | min | median | max |
 |---|---|---|---|
-| `identity` | 0.00953 | 0.0928 | 0.786 |
+| `identity` | 0.00958 | 0.0928 | 0.786 |
 | `logit` | 0.00248 | 0.0224 | 0.153 |
-| `cloglog` | 0.00302 | 0.0392 | 0.266 |
+| `cloglog` | 0.00302 | 0.0391 | 0.266 |
 
 ### P3: an identification probe, not a variance probe
 
@@ -156,7 +156,7 @@ deviations against means and raw second moments, with no Jacobian between them.
 ### P5: how many resamples the perturbation interval needs
 
 Registered **B = 800**, and this is the study's whole budget lever:
-the perturbation arm is 99% to 100% of the cost.
+the perturbation arm is 96% to 99% of the cost.
 
 Sizing it produced three answers and the first two were wrong. **50** came from a
 probe watching the variance of the draws converge, a quantity that generates no
@@ -297,7 +297,7 @@ none of its real risk.
 
 **Every cell that clears the floor is unanchored**, and that is a count rather
 than an inference from an average: of the cells clearing it,
-340 are unanchored.
+339 are unanchored.
 The largest share reached by ANY anchored cell is
 0.0777, against a floor of 0.0791.
 Median share of the interval's variance carried by the moment term, by link:
@@ -335,7 +335,7 @@ The reported set is now the single place that defines what a baseline table
 contains, and the balancing function, moment vector, borrowed correlation and STC
 model all follow it.
 
-Cells by source size: 500: 48, 2000: 231, 8000: 71.
+Cells by source size: 500: 48, 2000: 230, 8000: 71.
 
 ---
 
@@ -394,11 +394,11 @@ the assumed correlation see identical data. Monte Carlo error for every method
 contrast is therefore computed from the **per-replicate difference**, not from an
 independence formula, which would overstate the error of a paired contrast.
 
-Measured cost: **647.7 core-hours** for the MAIC and STC arms, at
+Measured cost: **626.5 core-hours** for the MAIC and STC arms, at
 B = 800, which is the registered value rather than a
-different one scaled. The perturbation arm is 99% to 100% of it.
+different one scaled. The perturbation arm is 96% to 99% of it.
 
-**The cost rose by 531%** against the 102.6
+**The cost rose by 511%** against the 102.6
 core-hours measured when B was typed at 200 and the grid was smaller. Sizing B
 honestly took it to 800, and the corrected `mixed` arm added cells.
 An earlier draft reported this as a saving.
@@ -417,7 +417,7 @@ An earlier draft reported this as a saving.
 - **The cross term is supplied by an oracle.** `maic_xcov` shows what carrying it
   would buy. No analyst can compute it from a published baseline table, so it is
   a decomposition, not a recommendation.
-- **The dropped cells.** 442 of
+- **The dropped cells.** 443 of
   792 cells fall below the floor and are not run. The study
   therefore says nothing about most conditions where the omitted variance is
   small, **with one deliberate exception**: the growth ladder is retained below
