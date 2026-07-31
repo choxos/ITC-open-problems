@@ -249,6 +249,17 @@ check("P7's gradients are not presented as variances",
       "gradient magnitudes, not variances" in PROTOCOL,
       "a gradient is being read as the quantity it bounds")
 
+# The headline must rest on the classification, not on a margin the share's own
+# error cannot resolve.
+if "clear_cells_by_arm" in D:
+    check("no anchored cell is placed clearly above the floor",
+          "anchored" not in D["clear_cells_by_arm"],
+          f"{D['clear_cells_by_arm']}")
+    check("the document reports the borderline class rather than a clean split",
+          "borderline" in PROTOCOL and "cell_classes" and
+          str(D.get("cell_classes", {}).get("borderline", "")) in PROTOCOL,
+          "the classification is not shown")
+
 check("the document still says it is not registered",
       "NOT YET REGISTERED" in PROTOCOL,
       "a draft has been described as a registration")

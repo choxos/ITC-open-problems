@@ -161,7 +161,8 @@ main <- function() {
                         modifier_span = r$modifier_span, anchored = r$anchored,
                         baseline_shift = r$baseline_shift,
                         v_omit = NA_real_, v_src = NA_real_, v_bc = NA_real_,
-                        v_cross = NA_real_, share = NA_real_, n_ok = n_ok,
+                        v_cross = NA_real_, share = NA_real_,
+                        share_se = NA_real_, n_ok = n_ok,
                         stringsAsFactors = FALSE))
     v_src <- mean(vapply(parts, function(z) z$v_src, 0))
     ## The target trial's own variance, shared by every method.
@@ -191,6 +192,31 @@ main <- function() {
     Om <- Omega_normal(p1$mean, p1$sd, p1$Rp, binary = p1$bin)
     v_omit <- as.numeric(t(Jbar) %*% Om %*% Jbar) / r$nT
     v_cross <- -2 * as.numeric(crossprod(Jbar, as.vector(stats::cov(M, tb))))
+
+    ## THE SHARE HAS ITS OWN MONTE CARLO ERROR, and until round 5 the gate used
+    ## it as though it were exact. Re-measuring one borderline cell six times
+    ## independently gave shares from 0.0368 to 0.0675 with a standard deviation
+    ## of 0.0118, while the margin separating the best anchored cell from the
+    ## floor was 0.0014. Cells near the floor were being included or excluded by
+    ## chance, and a headline resting on which side of it they fell was resting on
+    ## noise.
+    ##
+    ## The error is estimated by resampling the calibration replicates, which is
+    ## nearly free because the per-replicate pieces are already in hand, and it is
+    ## the same resampling the share itself is a function of.
+    n_bs <- 200L
+    bs <- vapply(seq_len(n_bs), function(b) {
+      ix <- sample.int(n_ok, n_ok, replace = TRUE)
+      Jb <- colMeans(do.call(rbind, lapply(parts[ix], function(z) z$J)))
+      vo <- as.numeric(t(Jb) %*% Om %*% Jb) / r$nT
+      vs <- mean(vapply(parts[ix], function(z) z$v_src, 0))
+      vb <- mean(vapply(parts[ix], function(z) z$v_bc, 0))
+      vx <- -2 * as.numeric(crossprod(Jb, as.vector(
+              stats::cov(M[ix, , drop = FALSE], tb[ix]))))
+      tt <- vo + vs + vb + vx
+      if (!is.finite(tt) || tt <= 0) NA_real_ else vo / tt
+    }, 0)
+    share_se <- stats::sd(bs, na.rm = TRUE)
     total <- v_omit + v_src + v_bc + v_cross
     data.frame(cell_id = r$cell_id, link = r$link, nT = r$nT, nS = r$nS, k = r$k,
                shape = r$shape, corr_assumed = r$corr_assumed,
@@ -199,6 +225,7 @@ main <- function() {
                v_omit = v_omit, v_src = v_src, v_bc = v_bc, v_cross = v_cross,
                share = if (is.finite(total) && total > 0) v_omit / total
                        else NA_real_,
+               share_se = share_se,
                n_ok = n_ok, stringsAsFactors = FALSE)
   }))
 
@@ -216,12 +243,23 @@ main <- function() {
   ## full nT sequence at the middle of everything else. These cells are marked so
   ## the analysis can report them as the prediction-1 test rather than pooling
   ## them with the powered grid, where they would dilute it.
+  ## THREE CLASSES, NOT TWO. A cell whose interval spans the floor cannot be
+  ## assigned to either side by this calibration, and pretending otherwise is what
+  ## produced a headline resting on a 0.0014 margin against a 0.0118 error.
+  ## Borderline cells are RUN, because running a cell that turns out to be weak
+  ## costs compute while dropping one that was strong costs the finding, and they
+  ## are flagged so no claim about the boundary rests on them.
+  shares$class <- with(shares, ifelse(
+    !is.finite(share) | !is.finite(share_se), "unmeasured",
+    ifelse(share - share_se >= MIN_OMITTED_SHARE, "clear",
+    ifelse(share + share_se >= MIN_OMITTED_SHARE, "borderline", "below"))))
+
   ladder <- with(shares,
     shape == GRID_MIDDLE$shape & corr_assumed == GRID_MIDDLE$corr_assumed &
     modifier_span == GRID_MIDDLE$modifier_span & nS == GRID_MIDDLE$nS &
     k == GRID_MIDDLE$k & baseline_shift == GRID_MIDDLE$baseline_shift)
   shares$ladder <- ladder
-  keep <- (is.finite(shares$share) & shares$share >= MIN_OMITTED_SHARE) | ladder
+  keep <- shares$class %in% c("clear", "borderline") | ladder
   n_bad <- sum(!is.finite(shares$share))
   if (n_bad) {
     cat(sprintf("\n%d cells produced no finite share; the first few:\n", n_bad))
@@ -253,12 +291,16 @@ main <- function() {
   ## below the floor without re-deriving which is which.
   gk <- g[keep, ]
   gk$ladder <- ladder[keep]
+  gk$class <- shares$class[keep]
   p$P2_grid <- list(gk)
   p$P2_min_share <- list(MIN_OMITTED_SHARE)
   p$P2_min_shift <- list(MIN_COVERAGE_SHIFT)
   saveRDS(p, PROBE_FILE)
-  cat(sprintf("\nregistered cell count: %d, of which %d are growth-ladder\n",
+  cat("\ncell classification, using each share's own Monte Carlo error:\n")
+  print(table(shares$class))
+  cat(sprintf("\nregistered cell count: %d, of which %d are growth-ladder and ",
               sum(keep), sum(ladder & keep)))
+  cat(sprintf("%d borderline\n", sum(shares$class == "borderline" & keep)))
   cat(sprintf("cells retained below the floor to test prediction 1\n"))
   cat(sprintf("written: %s\n", PROBE_FILE))
 }

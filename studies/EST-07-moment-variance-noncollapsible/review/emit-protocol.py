@@ -361,11 +361,21 @@ equal, and the two estimands coincided exactly. Anchoring exists precisely becau
 trials differ in baseline risk, and without a shift the unanchored arm would carry
 none of its real risk.
 
-**Every cell that clears the floor is unanchored**, and that is a count rather
-than an inference from an average: of the cells clearing it,
-{" and ".join(f"{v} are {k}" for k, v in d.get("survivors_by_arm", {}).items())}.
-The largest share reached by ANY anchored cell is
-{d.get("anchored_share_max")}, against a floor of {d["min_omitted_share"]:.4f}.
+**Every cell the gate can place above the floor is unanchored**, and the
+classification accounts for the fact that each share is itself measured with
+error. Re-measuring one borderline cell six times independently gave shares from
+0.0368 to 0.0675, a standard deviation of 0.0118, so a gate treating shares as
+exact was assigning cells near the floor by chance. Each cell's share now carries
+a bootstrap standard error and cells fall into three classes:
+{", ".join(f"{v} {k}" for k, v in d.get("cell_classes", {}).items())}.
+
+The split is not a close call. Of the
+{sum(d.get("clear_cells_by_arm", {}).values())} cells placed clearly above the
+floor, {" and ".join(f"{v} are {k}" for k, v in d.get("clear_cells_by_arm", {}).items())};
+**every anchored cell in the realized grid falls clearly below it, and not one is
+even borderline.** Borderline cells are run rather than dropped, because running a
+weak cell costs compute while dropping a strong one costs the finding, and they
+are flagged so no claim about the boundary rests on them.
 Median share of the interval's variance carried by the moment term, by link:
 
 | link | unanchored | anchored |

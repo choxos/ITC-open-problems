@@ -139,6 +139,17 @@ main <- function() {
     lapply(p6[i, ], function(z) if (is.numeric(z)) signif(z, 4) else z))
   p2 <- p$P2_table[[1]]
   out$n_cells_realized <- nrow(p2)
+  ## The classification counts, so the protocol can say how many cells the gate
+  ## could not assign rather than presenting a clean split it does not have. This
+  ## sits AFTER `p2` exists; placed before it, it referenced a name that is not
+  ## yet bound, which is the second time a block here has been written above its
+  ## own input.
+  if (!is.null(p2$class)) {
+    out$cell_classes <- as.list(table(p2$class))
+    if (!is.null(p2$anchored))
+      out$clear_cells_by_arm <- as.list(table(
+        ifelse(p2$anchored[p2$class == "clear"], "anchored", "unanchored")))
+  }
   ## The growth-ladder cells, retained below the floor so prediction 1 can be
   ## tested at target sizes where the effect is small by construction.
   if (!is.null(p2$ladder))

@@ -99,7 +99,7 @@ count this study pays.
 
 ### P2: which cells are worth running
 
-**349 of 792 realized cells** are run: those whose
+**356 of 792 realized cells** are run: those whose
 omitted-variance share reaches 0.0791, plus a growth ladder
 retained regardless of share.
 
@@ -125,16 +125,16 @@ previously screened on the omitted variance over omitted-plus-source, leaving ou
 the target trial's own variance and its covariance with the reported moments, both
 of which are in the interval. A floor solved from a coverage shift has to be
 applied to a fraction of the total, or it screens on a different quantity than the
-criterion names. Median terms across the realized grid: omitted 0.001263,
-source 0.00463, target-trial 0.02373, cross -0.001483.
+criterion names. Median terms across the realized grid: omitted 0.001237,
+source 0.004638, target-trial 0.02394, cross -0.001462.
 
 Shares by link (min, median, max):
 
 | link | min | median | max |
 |---|---|---|---|
-| `identity` | 0.00958 | 0.0928 | 0.786 |
-| `logit` | 0.00248 | 0.0224 | 0.153 |
-| `cloglog` | 0.00302 | 0.0391 | 0.266 |
+| `identity` | 0.00942 | 0.0852 | 0.757 |
+| `logit` | 0.00236 | 0.0233 | 0.16 |
+| `cloglog` | 0.00335 | 0.0406 | 0.252 |
 
 ### P3: an identification probe, not a variance probe
 
@@ -295,11 +295,21 @@ equal, and the two estimands coincided exactly. Anchoring exists precisely becau
 trials differ in baseline risk, and without a shift the unanchored arm would carry
 none of its real risk.
 
-**Every cell that clears the floor is unanchored**, and that is a count rather
-than an inference from an average: of the cells clearing it,
-339 are unanchored.
-The largest share reached by ANY anchored cell is
-0.0777, against a floor of 0.0791.
+**Every cell the gate can place above the floor is unanchored**, and the
+classification accounts for the fact that each share is itself measured with
+error. Re-measuring one borderline cell six times independently gave shares from
+0.0368 to 0.0675, a standard deviation of 0.0118, so a gate treating shares as
+exact was assigning cells near the floor by chance. Each cell's share now carries
+a bootstrap standard error and cells fall into three classes:
+446 below, 14 borderline, 332 clear.
+
+The split is not a close call. Of the
+332 cells placed clearly above the
+floor, 332 are unanchored;
+**every anchored cell in the realized grid falls clearly below it, and not one is
+even borderline.** Borderline cells are run rather than dropped, because running a
+weak cell costs compute while dropping a strong one costs the finding, and they
+are flagged so no claim about the boundary rests on them.
 Median share of the interval's variance carried by the moment term, by link:
 
 | link | unanchored | anchored |
@@ -311,13 +321,13 @@ Median share of the interval's variance carried by the moment term, by link:
 So the effect the catalog entry names is material without an anchor and immaterial
 with one, on the curved links as well as the collapsible one. In an anchored
 comparison the target trial's own effect carries a median
-0.827 of the interval's
+0.824 of the interval's
 variance, taken as the median of WITHIN-CELL shares across the
 396 anchored cells rather than as
 a ratio of medians over the whole grid, which is what an earlier draft reported.
 The moment term's median share ranges from
-0.0224 to
-0.0928 across links. An earlier
+0.0233 to
+0.0852 across links. An earlier
 draft rounded that to "about 1%", which understates the identity arm. That is the
 study's first result and it came out of the probe phase, before any replicate was
 run.
@@ -339,7 +349,7 @@ The reported set is now the single place that defines what a baseline table
 contains, and the balancing function, moment vector, borrowed correlation and STC
 model all follow it.
 
-Cells by source size: 500: 48, 2000: 230, 8000: 71.
+Cells by source size: 500: 48, 2000: 236, 8000: 72.
 
 ---
 
@@ -386,7 +396,7 @@ general, and the analysis will not report it as if it did.
 **The registered coverage band is 0.932 to 0.968**,
 **derived rather than typed**: its half-width is the multiple of the delivered
 Monte Carlo error, 0.004873, at which the expected number of
-spurious band failures across all 349 cells stays inside a registered
+spurious band failures across all 356 cells stays inside a registered
 budget of 0.1. A larger grid therefore earns a wider
 band instead of quietly admitting more false rejections. It is a tolerance for
 Monte Carlo noise and not a claim that 0.936 coverage is acceptable in practice.
@@ -404,11 +414,11 @@ the assumed correlation see identical data. Monte Carlo error for every method
 contrast is therefore computed from the **per-replicate difference**, not from an
 independence formula, which would overstate the error of a paired contrast.
 
-Measured cost: **626.5 core-hours** for the MAIC and STC arms, at
+Measured cost: **663.1 core-hours** for the MAIC and STC arms, at
 B = 800, which is the registered value rather than a
 different one scaled. The perturbation arm is 96% to 99% of it.
 
-**The cost rose by 511%** against the 102.6
+**The cost rose by 546%** against the 102.6
 core-hours measured when B was typed at 200 and the grid was smaller. Sizing B
 honestly took it to 800, and the corrected `mixed` arm added cells.
 An earlier draft reported this as a saving.
@@ -427,7 +437,7 @@ An earlier draft reported this as a saving.
 - **The cross term is supplied by an oracle.** `maic_xcov` shows what carrying it
   would buy. No analyst can compute it from a published baseline table, so it is
   a decomposition, not a recommendation.
-- **The dropped cells.** 443 of
+- **The dropped cells.** 436 of
   792 cells fall below the floor and are not run. The study
   therefore says nothing about most conditions where the omitted variance is
   small, **with one deliberate exception**: the growth ladder is retained below
