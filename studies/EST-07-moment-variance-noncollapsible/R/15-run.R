@@ -75,7 +75,9 @@ run_replicate <- function(cell, r) {
   set.seed(crn_seed(cell, r))
   d <- try(sample_replicate(cell$nS, cell$nT, cell$k, cell$link, cell$shape,
                             rho_true = 0.3,
-                            modifier_span = cell$modifier_span), silent = TRUE)
+                            modifier_span = cell$modifier_span,
+                            baseline_shift = cell$baseline_shift,
+                            anchored = cell$anchored), silent = TRUE)
   if (inherits(d, "try-error")) return(NULL)
 
   ## THE TRUTH THIS REPLICATE IS SCORED AGAINST is the anchored superpopulation
@@ -84,10 +86,20 @@ run_replicate <- function(cell, r) {
   ## how a sibling study came to score replicates against a stale truth.
   pm <- population_means(shape = cell$shape)
   pars <- d$hidden$pars; pars_T <- d$hidden$pars_T
-  truth <- truth_anchored_superpop(pars, pars_T, cell$link, cell$shape,
-                                   mu = pm$target,
-                                   sigma = rep(1, N_COVARIATE), rho = 0.3,
-                                   order = QUAD_ORDER)
+  ## THE TRUTH IS THE ARM'S OWN. The registered grid is now dominated by
+  ## unanchored cells, and scoring those against the anchored estimand would give
+  ## every replicate the wrong target: the two differ by the whole target-trial
+  ## control contrast, and under a nonzero baseline shift they differ by a great
+  ## deal more.
+  anch <- isTRUE(cell$anchored)
+  truth <- if (anch)
+    truth_anchored_superpop(pars, pars_T, cell$link, cell$shape,
+                            mu = pm$target, sigma = rep(1, N_COVARIATE),
+                            rho = 0.3, order = QUAD_ORDER)
+  else
+    truth_unanchored_superpop(pars, pars_T, cell$link, cell$shape,
+                              mu = pm$target, sigma = rep(1, N_COVARIATE),
+                              rho = 0.3, order = QUAD_ORDER)
 
   z <- try(estimate_all(d, cell$link, cell$corr_assumed), silent = TRUE)
   if (inherits(z, "try-error") || !nrow(z)) return(NULL)
@@ -98,7 +110,8 @@ run_replicate <- function(cell, r) {
   ## that was actually drawn. An interval can miss the first because it is too
   ## narrow, or because it is centered on the second. Reporting only one cannot
   ## tell those apart, which is the distinction the study says it makes.
-  truth_fin <- truth_anchored_finite(pars, pars_T, d$hidden$x, cell$link)
+  truth_fin <- if (anch) truth_anchored_finite(pars, pars_T, d$hidden$x, cell$link)
+               else truth_unanchored_finite(pars, pars_T, d$hidden$x, cell$link)
 
   z$rep <- r
   ## The cell's factors travel with every row, so the analysis reads one flat
