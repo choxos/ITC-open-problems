@@ -63,7 +63,7 @@ do not, but the consequence for the variance is modest.
 | link | worst relative gradient gap | variance ratio | direction of the error |
 |---|---:|---|---|
 | `logit` | 0.043 | 0.9886 to 1.074 | **mixed** |
-| `cloglog` | 0.0569 | 1.078 to 1.174 | **anti-conservative** |
+| `cloglog` | 0.0562 | 1.077 to 1.172 | **anti-conservative** |
 
 **An earlier draft reported these ratios as 1.32 to 1.44 on `logit` and 0.76 to 0.83
 on `cloglog`, and called the opposite directions the study's most consequential
@@ -91,9 +91,9 @@ implementation produces a gap that does not move.
 $\Delta(F_T) = g(\int \mu_1 dF_T) - g(\int \mu_0 dF_T)$, a functional of the target
 covariate **law** rather than of its moments.
 
-**True value.** By Gauss-Hermite quadrature at order **48**, which is
+**True value.** By Gauss-Hermite quadrature at order **16**, which is
 probe P1's output and is not defaulted. The order is forced by the
-`mixed` covariate shape on the `cloglog`
+`mvnorm` covariate shape on the `cloglog`
 link; a thresholded binary covariate is a step function and Gauss-Hermite converges
 on it slowly, while every continuous law is stable by order
 8 to 16.
@@ -101,8 +101,8 @@ on it slowly, while every continuous law is stable by order
 **The integral reduces to one dimension exactly where the covariate law is normal.**
 Each arm mean integrates a function of a single linear combination of $x$, which is
 normal when $x$ is, so the product rule's $\text{order}^p$ collapses to
-$\text{order}$: 5,308,416 nodes to 48 at four
-covariates, agreeing with the product rule to 4.11e-15.
+$\text{order}$: 65,536 nodes to 16 at four
+covariates, agreeing with the product rule to 2.13e-07.
 
 **Both estimands are ANCHORED contrasts**, A versus B, matching what the methods
 return. An earlier version computed only the transported A-versus-C effect while
@@ -136,16 +136,16 @@ link, over the realized grid:
 
 | link | min | median | max |
 |---|---:|---:|---:|
-| `identity` | 4.97e-24 | 0.176 | 0.714 |
-| `logit` | 0.000143 | 0.0457 | 0.362 |
-| `cloglog` | 0.00194 | 0.0547 | 0.409 |
+| `identity` | 0.0159 | 0.176 | 0.714 |
+| `logit` | 0.00366 | 0.0465 | 0.362 |
+| `cloglog` | 0.00438 | 0.0559 | 0.409 |
 
-**188 of 288 realized cells clear a
-0.04 floor** and are run; the rest are dropped rather than run,
+**124 of 288 realized cells clear a
+0.07913633 floor** and are run; the rest are dropped rather than run,
 because a cell whose effect cannot be distinguished from zero at 2000
 replicates consumes budget and returns nothing. The floor is derived: a coverage
 Monte Carlo SE of 0.005 makes 0.01 the smallest coverage shift
-worth claiming, which needs roughly a 0.04 variance share.
+worth claiming, which needs roughly a 0.07913633 variance share.
 
 **MAIC matches one moment for a binary covariate, not two.** With $x$ binary
 $x^2 = x$ identically, so a balancing function that always forms two columns per
@@ -173,12 +173,12 @@ study's second prediction is wrong, and the study says so.
 at most 0.005. Common random numbers across
 corr_assumed, variance_method, so **Monte Carlo error is clustered on the replicate block**.
 
-**Cost: 27.25 core-hours** for the MAIC and STC arms at
-`N_PERTURB = 50`, with the perturbation interval 87% to 94% of
+**Cost: 229.9 core-hours** for the MAIC and STC arms at
+`N_PERTURB = 800`, with the perturbation interval 99% to 100% of
 it. That is the line item the design named as the one a sibling study called cheap
 without measuring.
 
-**An earlier draft attributed a 73.4% saving to the reduction in
+**An earlier draft attributed a -124% saving to the reduction in
 `N_PERTURB` alone, and that attribution does not hold.** The comparison figure,
 102.6 core-hours, is a **typed historical measurement**, the
 one number in this document not read from the export. It was taken before several
@@ -186,9 +186,9 @@ other changes, so the difference between the two is not the causal effect of the
 resample count: quartering $B$ can save at most 75% even if every second scaled with
 it, and other work did not.
 
-**`N_PERTURB` is derived, not chosen.** At $B = 50$ the
+**`N_PERTURB` is derived, not chosen.** At $B = 800$ the
 90th-percentile resampling error is inside the across-replicate spread of the standard
-error itself (0.1774), so more resamples buy nothing a coverage number can
+error itself (0.01891), so more resamples buy nothing a coverage number can
 see.
 
 **ML-NMR is not in that total** and no figure covering it is quoted until its per-fit

@@ -70,12 +70,41 @@ source("R/04-maic.R")
 
 ## PROBE P5 SET THIS, and P4 is why it had to. The perturbation arm is 96% to
 ## 98% of the study's cost, so this constant is the entire budget lever, and 200
-## was typed. Measured against an independent B = 3200 reference, the 90th
-## percentile resampling error is 0.1414 at B = 50 against an across-replicate
-## SE spread of 0.1774: the resampling noise is already inside the variation the
-## SE has anyway, so buying more resamples buys nothing a coverage number can
-## see. Registered at the smallest sufficient value, which cuts the study by 75%.
-N_PERTURB <- 50L
+## was typed.
+##
+## THREE ANSWERS CAME OUT OF SIZING IT, AND THE FIRST TWO WERE WRONG.
+##
+## 50, from a probe that watched the VARIANCE of the draws converge. After the
+## arm was rewritten to report percentile limits, that variance generated no
+## interval anywhere in the study, so the constant was chosen by watching an
+## unused quantity settle.
+##
+## 25, from a probe that watched COVERAGE converge while the interval was so
+## badly over-wide that coverage could not move: 0.9933 against a nominal 0.95.
+## A criterion evaluated on a saturated quantity passes everything.
+##
+## 800, once the interval was correct and the criterion had signal. Measured over
+## 800 replicates against an independent B = 3200 reference, with the limits at
+## every B read from nested subsamples of one draw set so the comparison is
+## paired:
+##
+##     B     coverage   width bias
+##    50       0.9225      -8.31%
+##   100       0.9363      -4.46%
+##   200       0.9463      -1.81%
+##   400       0.9500      -1.15%
+##   800       0.9537      -0.56%      reference 0.9550
+##
+## An empirical quantile from few draws is biased INWARD, so a small B does not
+## merely add noise, it narrows every interval systematically. At the previously
+## registered 50 the arm would have undercovered by more than three points purely
+## from its own resampling budget, and the study would have reported that as a
+## property of the method.
+##
+## This is sixteen times the old value on the arm that dominates the cost, and it
+## is what the registered tolerances require. The budget in R/10 is measured at
+## this value rather than extrapolated from the old one.
+N_PERTURB <- 800L
 
 ## THE CALIBRATED CROSS-COVARIANCE, loaded once. R/14 writes it; probe P6 is why
 ## it exists. It is an ORACLE input in the same sense as the true correlation: no
