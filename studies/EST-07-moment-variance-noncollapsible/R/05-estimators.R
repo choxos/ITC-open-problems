@@ -98,11 +98,29 @@ maic_all <- function(rep_data, link, corr_setting, level = 0.95) {
            tr$mean, tr$sd, assumed_R("true", rep_data, p_cov),
            binary = tr$binary) %*% eg$J) / tr$nT))
 
-  ## THE SECOND PORT, by resampling rather than by a formula. It is a different
-  ## route to the same target, so agreeing with the first is evidence about both
-  ## and disagreeing is evidence that at least one is wrong.
-  pv <- perturbation_var(rep_data, link, R_use, N_PERTURB)
-  out <- rbind(out, mk("maic_perturb", pv + V_BC))
+  ## THE SECOND PORT, by resampling rather than by a formula, and reported as the
+  ## cited algorithm reports it: EMPIRICAL PERCENTILE limits on the resampled
+  ## anchored contrast. It does not use the estimator gradient at all, which is
+  ## what makes it an independent route rather than a restatement of the first.
+  dr <- perturbation_draws(rep_data, link, R_use, N_PERTURB)
+  dr <- dr[is.finite(dr)] - tr$theta_BC
+  if (length(dr) >= 20L) {
+    ## The target trial's own sampling error is not in the resampling, so it is
+    ## added on the interval scale; the source contribution already is, because
+    ## the source is resampled.
+    half <- z * sqrt(V_BC)
+    qs <- stats::quantile(dr, c((1 - level) / 2, 1 - (1 - level) / 2),
+                          names = FALSE)
+    out <- rbind(out, data.frame(
+      method = "maic_perturb", est = theta,
+      ## A PERCENTILE INTERVAL HAS NO SINGLE STANDARD ERROR, and reporting the
+      ## draw SD here would put a number in the column that does not generate
+      ## the interval beside it. The analysis compares interval WIDTH across
+      ## methods, which is defined for all of them; `se` is NA for this row and
+      ## any summary that averages it must say so.
+      se = NA_real_, lower = qs[1] - half, upper = qs[2] + half,
+      ess = eg$ess, stringsAsFactors = FALSE))
+  }
   out
 }
 
@@ -133,21 +151,44 @@ var_theta_BC <- function(rep_data, link) {
 ## refit rather than through a gradient. That is the point of including it: it
 ## does NOT use the estimator gradient, so if prediction 2 is right about the
 ## gradient this method should behave differently from the entropy port.
-perturbation_var <- function(rep_data, link, R_use, n_perturb) {
+## ROUND 1: THE FIRST VERSION WAS NOT THE CITED ALGORITHM. It held the source
+## data fixed, perturbed only the target moments, took the variance of the
+## resulting estimates and formed a normal interval, then reported that variance
+## plus the target-trial term while OMITTING the source sandwich variance that
+## every other method carries. So it was neither the published procedure nor a
+## coherent variance for the estimator, and P4 and P5 measured the cost and the
+## resampling error of something the study does not use.
+##
+## The cited algorithm does three things this now does: it RESAMPLES THE SOURCE
+## OBSERVATIONS, perturbs the target summaries, and refits; and it takes
+## EMPIRICAL PERCENTILE limits rather than a normal approximation. Resampling the
+## source is what makes the source contribution enter the interval, so no
+## separate sandwich term is added and none is missing.
+perturbation_draws <- function(rep_data, link, R_use, n_perturb) {
   tr <- rep_data$target_reported
-  p_cov <- ncol(rep_data$source$x)
+  s <- rep_data$source
+  n <- nrow(s$h)
   Om <- Omega_normal(tr$mean, tr$sd, R_use, binary = tr$binary) / tr$nT
   L <- tryCatch(chol(Om + diag(1e-10, nrow(Om))), error = function(e) NULL)
-  if (is.null(L)) return(NA_real_)
-  th <- vapply(seq_len(n_perturb), function(b) {
+  if (is.null(L)) return(rep(NA_real_, n_perturb))
+  vapply(seq_len(n_perturb), function(b) {
+    ## Both sources of variability, in the same draw.
+    idx <- sample.int(n, n, replace = TRUE)
     m_b <- as.vector(tr$m + crossprod(L, rnorm(nrow(Om))))
-    fw <- fit_weights(rep_data$source$h, m_b)
-    if (fw$conv != CONVERGENCE$optim_code) return(NA_real_)
-    sp <- sandwich_parts(rep_data$source$h, rep_data$source$A,
-                         rep_data$source$Y, fw$w, m_b, link)
+    fw <- tryCatch(fit_weights(s$h[idx, , drop = FALSE], m_b),
+                   error = function(e) NULL)
+    if (is.null(fw) || fw$conv != CONVERGENCE$optim_code) return(NA_real_)
+    sp <- tryCatch(sandwich_parts(s$h[idx, , drop = FALSE], s$A[idx], s$Y[idx],
+                                  fw$w, m_b, link),
+                   error = function(e) NULL)
+    if (is.null(sp) || !is.finite(sp$theta_AC)) return(NA_real_)
     sp$theta_AC
   }, 0)
-  stats::var(th, na.rm = TRUE)
+}
+
+## Kept for the probes, which report a variance rather than an interval.
+perturbation_var <- function(rep_data, link, R_use, n_perturb) {
+  stats::var(perturbation_draws(rep_data, link, R_use, n_perturb), na.rm = TRUE)
 }
 
 ## --- STC --------------------------------------------------------------------

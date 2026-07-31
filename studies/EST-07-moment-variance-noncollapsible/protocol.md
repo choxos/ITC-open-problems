@@ -173,12 +173,12 @@ study's second prediction is wrong, and the study says so.
 at most 0.005. Common random numbers across
 corr_assumed, variance_method, so **Monte Carlo error is clustered on the replicate block**.
 
-**Cost: 27.17 core-hours** for the MAIC and STC arms at
-`N_PERTURB = 50`, with the perturbation interval 86% to 94% of
+**Cost: 27.25 core-hours** for the MAIC and STC arms at
+`N_PERTURB = 50`, with the perturbation interval 87% to 94% of
 it. That is the line item the design named as the one a sibling study called cheap
 without measuring.
 
-**An earlier draft attributed a 73.5% saving to the reduction in
+**An earlier draft attributed a 73.4% saving to the reduction in
 `N_PERTURB` alone, and that attribution does not hold.** The comparison figure,
 102.6 core-hours, is a **typed historical measurement**, the
 one number in this document not read from the export. It was taken before several
