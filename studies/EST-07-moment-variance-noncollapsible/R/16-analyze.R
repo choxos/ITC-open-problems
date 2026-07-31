@@ -65,6 +65,13 @@ performance <- function(d) {
                cov_mcse = sqrt(cov * (1 - cov) / nc),
                width = mean(z$width[ok]),
                width_mcse = stats::sd(z$width[ok]) / sqrt(nc),
+               ## AGAINST THE FINITE-TARGET ESTIMAND. Reported beside the
+               ## superpopulation figures rather than instead of them: a method
+               ## that covers the finite target but not the superpopulation is
+               ## aiming at a different quantity, not merely reporting a narrow
+               ## interval, and only the pair distinguishes those.
+               coverage_finite = mean(z$covered_finite[ok]),
+               bias_finite = mean(z$error_finite[ok]),
                stringsAsFactors = FALSE)
   }))
 }
@@ -114,6 +121,7 @@ main <- function() {
     data.frame(method = z$method[1], cells = nrow(z),
                min = min(z$coverage), median = stats::median(z$coverage),
                max = max(z$coverage), in_band = sum(z$in_band),
+               cov_finite = stats::median(z$coverage_finite),
                mean_width = mean(z$width), stringsAsFactors = FALSE)))
   print(by_m, row.names = FALSE, digits = 4)
 

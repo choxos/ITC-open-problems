@@ -21,7 +21,10 @@
 
 source("R/04-maic.R")
 
-N_CAL_REP <- 20L    # replicates per cell, only to fix the source variance
+## Replicates per cell. Raised from 20 when the gate's denominator grew to the
+## whole variance: the cross term is a covariance across replicates and 20 draws
+## cannot estimate one.
+N_CAL_REP <- 120L
 
 ## THE FLOOR IS SOLVED FROM THE CRITERION, not asserted to follow from it.
 ##
@@ -106,22 +109,54 @@ main <- function() {
     Jt <- Jt[c(rep(TRUE, pp), !bx)]
     v_omit <- as.numeric(t(Jt) %*% Om %*% Jt) / r$nT
 
-    ## The retained source variance, from the sandwich on a few replicates.
-    vs <- vapply(seq_len(N_CAL_REP), function(q) {
+    ## THE DENOMINATOR IS THE WHOLE VARIANCE OF THE ANCHORED CONTRAST, and round 2
+    ## of critique is why. The gate used v_omit / (v_omit + v_src), which leaves
+    ## out the target trial's own variance and its covariance with the reported
+    ## moments, both of which are in the interval. The floor is solved from a
+    ## COVERAGE shift, and coverage responds to a fraction of the TOTAL variance,
+    ## so screening on a partial denominator screens on a different quantity than
+    ## the one the criterion is about. Every term is now collected from the same
+    ## calibration replicates.
+    parts <- lapply(seq_len(N_CAL_REP), function(q) {
       d <- sample_replicate(r$nS, r$nT, r$k, r$link, r$shape, rho,
                             modifier_span = r$modifier_span)
       eg <- estimator_gradient(d, r$link)
-      if (!isTRUE(eg$ok)) return(NA_real_)
+      if (!isTRUE(eg$ok)) return(NULL)
       aI <- as.vector(crossprod(eg$parts$cvec, eg$Ainv))
-      as.numeric(aI %*% eg$parts$B %*% aI) / eg$parts$n
-    }, 0)
-    v_src <- mean(vs, na.rm = TRUE)
+      list(v_src = as.numeric(aI %*% eg$parts$B %*% aI) / eg$parts$n,
+           v_bc  = d$target_reported$var_theta_BC,
+           m     = d$target_reported$m,
+           tb    = d$target_reported$theta_BC,
+           J     = eg$J)
+    })
+    parts <- parts[!vapply(parts, is.null, TRUE)]
+    n_ok <- length(parts)
+    if (n_ok < 10L)
+      return(data.frame(cell_id = r$cell_id, link = r$link, nT = r$nT,
+                        nS = r$nS, k = r$k, shape = r$shape,
+                        corr_assumed = r$corr_assumed,
+                        modifier_span = r$modifier_span,
+                        v_omit = v_omit, v_src = NA_real_, v_bc = NA_real_,
+                        v_cross = NA_real_, share = NA_real_, n_ok = n_ok,
+                        stringsAsFactors = FALSE))
+    v_src <- mean(vapply(parts, function(z) z$v_src, 0))
+    ## The target trial's own variance, shared by every method.
+    v_bc <- mean(vapply(parts, function(z) z$v_bc, 0))
+    ## The cross term probe P6 found no published method carries. Estimated from
+    ## these same replicates rather than from the R/14 calibration, because that
+    ## calibration is keyed on the grid this probe is still deciding.
+    M <- do.call(rbind, lapply(parts, function(z) z$m))
+    tb <- vapply(parts, function(z) z$tb, 0)
+    Jbar <- colMeans(do.call(rbind, lapply(parts, function(z) z$J)))
+    v_cross <- -2 * as.numeric(crossprod(Jbar, as.vector(stats::cov(M, tb))))
+    total <- v_omit + v_src + v_bc + v_cross
     data.frame(cell_id = r$cell_id, link = r$link, nT = r$nT, nS = r$nS, k = r$k,
                shape = r$shape, corr_assumed = r$corr_assumed,
                modifier_span = r$modifier_span,
-               v_omit = v_omit, v_src = v_src,
-               share = v_omit / (v_omit + v_src),
-               n_ok = sum(is.finite(vs)), stringsAsFactors = FALSE)
+               v_omit = v_omit, v_src = v_src, v_bc = v_bc, v_cross = v_cross,
+               share = if (is.finite(total) && total > 0) v_omit / total
+                       else NA_real_,
+               n_ok = n_ok, stringsAsFactors = FALSE)
   }))
 
   keep <- is.finite(shares$share) & shares$share >= MIN_OMITTED_SHARE

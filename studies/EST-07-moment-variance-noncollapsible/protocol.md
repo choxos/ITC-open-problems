@@ -6,203 +6,315 @@ Successor to MIS-03, which answered the same question under an identity link.
 **Reporting standard.** ADEMP (Morris, White and Crowther 2019,
 [doi:10.1002/sim.8086](https://doi.org/10.1002/sim.8086)).
 
-**Registration status: NOT YET REGISTERED, AND THE SOFTWARE IS NOT COMPLETE.** The
-design is in `DESIGN.md`. What exists is the data-generating mechanism, both truths,
-the gradient machinery, five of six methods, all five probes, and the export and
-verification harness. **What does not yet exist is the replicate runner, the result
-writer, the analysis program, the clustered Monte Carlo error calculation, the three
-controls and the ML-NMR arm.** An earlier draft called the code complete, which was
-true of the probes and false of the study.
+**Registration status: NOT YET REGISTERED.** The design is in `DESIGN.md`. Every
+number below is interpolated from `results/registered-design.json` by
+`review/emit-protocol.py` and checked by `review/verify-protocol.py`.
 
-This document is the draft that critique acts on. It becomes the registration when
-critique converges and the missing components exist, not before.
-
-**Provenance, stated for what it does rather than for what it sounded like.** CMP-14
-spent thirteen rounds of critique and roughly a third of its findings were one
-defect: a number typed into the document rather than read from the code. **Every
-*measurement* below is interpolated from `results/registered-design.json` by
-`review/emit-protocol.py`**, and a verifier asserts the document is byte-identical
-to what that generator currently produces.
-
-**An earlier draft claimed no number here was typed, and that was false.** The
-generator itself contained 5,308,416, the order range and the reduction tolerance as
-literals, and the exporter hard-codes one historical cost. Those three are derived
-now; **the one that remains typed is named where it appears**. Byte-identity proves
-the current generator produced this document, not that every figure in it came from
-JSON, and the difference is exactly what the earlier claim elided.
+**What exists.** The data-generating mechanism, both truths, the gradient
+machinery, five of six methods, seven probes, the replicate runner
+(`R/15-run.R`), the analysis with clustered Monte Carlo error (`R/16-analyze.R`),
+and the export and verification harness. **What does not exist is the ML-NMR
+arm.** No replicate of the registered grid has been run.
 
 ---
 
 ## 1. The claim, restated so it can be false
 
-The catalog asserts that the sampling-error component of target-moment uncertainty
-is **solved outside ITC** and needs only porting, citing an entropy-balancing
-variance estimator and a perturbation interval.
+An analyst receives a published baseline table for a target trial: means, standard
+deviations, an effect, a sample size. MAIC reweights the source until the weighted
+covariate moments equal the reported ones. Every published variance estimator then
+treats those reported moments as **known constants**.
 
-**Proposition under test:** those published results transfer to PAIC as a porting
-exercise, and the residual unaddressed component is reconstructed-correlation
-uncertainty.
+They are estimates from 100, 300, 1000 people. The question is what that costs.
 
-**Refuting sentence:** *on a non-collapsible scale the target marginal effect is not
-a function of the reported moments at all, so no variance estimator indexed by those
-moments can be correct, and the failure is one of identification rather than of
-variance.*
+**Prediction 1.** Under a non-collapsible link the estimand
+Delta(F_T) = g(int mu_1 dF_T) - g(int mu_0 dF_T) is a functional of the whole
+target covariate law, not of its first two moments. So no variance indexed by the
+reported moments can be correct for it, and the deficit does not close as the
+target grows.
 
-## 2. What the probes already establish, before any replicate
+**A second prediction was registered and has been withdrawn.** It said the
+sampling variance induced by estimated target moments is governed by the gradient
+of the estimand along a parametric family of covariate laws, and that a mismatch
+between that gradient and the estimator's gradient measures an error in the
+reported variance. It does not. The superpopulation estimand is fixed across
+replicates; a mismatch between those two gradients indicates identification bias,
+not an incorrect variance. Probe P3 was built to test it and never could. P3 is
+retained below as an **identification** probe, which is what it measures.
 
-Five probes ran before this document existed. Three of their results bear directly
-on the proposition.
+---
 
-**The ported gradient differs from the one the estimand needs on a curved link, and
-the size of that difference is small.** Every published target-summary variance
-propagates the gradient of the *estimator* with respect to the reported moments. What
-the variance of the *estimand* requires is the gradient of the estimand. Under the
-identity link these coincide and both equal $\beta_{EM}$; under a curved link they
-do not, but the consequence for the variance is modest.
+## 2. What the probes establish, before any replicate
 
-| link | worst relative gradient gap | variance ratio | direction of the error |
-|---|---:|---|---|
-| `logit` | 0.043 | 0.9886 to 1.074 | **mixed** |
-| `cloglog` | 0.0562 | 1.077 to 1.172 | **anti-conservative** |
+### P1: the integration order, and a rule that was wrong rather than coarse
 
-**An earlier draft reported these ratios as 1.32 to 1.44 on `logit` and 0.76 to 0.83
-on `cloglog`, and called the opposite directions the study's most consequential
-finding. That was an artifact.** The estimand gradient was taken with respect to means
-and SDs while the estimator gradient and the moment covariance are in means and raw
-second moments, and the missing Jacobian was a factor that differs by link. Corrected,
-**nothing is conservative on either scale**: `logit` spans 1 and `cloglog` sits
-modestly above it. The reviewer who found it predicted the corrected reference
-variances to three significant figures and both reproduced exactly.
+Registered order **16**, forced by the `cloglog` /
+`mvnorm` cell. Continuous shapes need orders
+8 to 16.
 
-**What that leaves is a weaker claim than the study set out to make.** On the primary
-`logit` arm the ported variance is within about 1%
-to 7% of correct, which is unlikely to
-break coverage. Section 5 registers that outcome as the one supporting the catalog.
+The order was 48 for two rounds because the probe took its reference from the
+highest order it ran, so "48 is stable" reduced to "48 agrees with 64". Two coarse
+rules can agree and both be wrong. Against an independent reference, order 48
+deviated by 3.03e-04, three times the registered tolerance of 0.0001.
 
-**The identity-link case behaves as it must**, which is what makes the above evidence
-about curvature rather than about the implementation. The gap between estimator and
-estimand gradient falls by a factor of 6.7 across $n_S$ = 500 to
-8000, reaching within one Monte Carlo standard error of zero. A wrong
-implementation produces a gap that does not move.
+The cause was not node count. The `mixed` shape makes one covariate binary with a
+step function, and Gauss-Hermite rests on polynomial exactness, so it degraded to
+roughly 1/n. The integral is now **split at the discontinuity**, whose location is
+known exactly, and each side integrated with a rule that is exact for smooth
+integrands. The binary covariate is integrated exactly rather than approximated.
+The rule is validated against **independent Monte Carlo**, not against itself: it
+sits within one Monte Carlo standard error of a 4e7-draw estimate.
+
+The `mvnorm` law reduces to one dimension exactly, agreeing with the product rule
+to 2.13e-07. The product rule is used only for the non-normal
+shapes, at 4,096 nodes for the 3 covariates
+the design fixes. The `outside` arm carries a fourth covariate and is crossed with
+`mvnorm` only, so it uses the exact reduction and never the product rule; the
+65,536-node figure is what the reduction avoids there, not a
+count this study pays.
+
+### P2: which cells are worth running
+
+**3 of 288 realized cells** clear a floor of
+0.0791 and are run.
+
+The floor is **solved from the criterion, not asserted to follow from it**.
+Omitting a fraction f of the variance reports a standard error of sqrt(1-f) times
+the truth, so coverage becomes 2*Phi(1.96*sqrt(1-f))-1. The smallest coverage
+shift worth claiming is 0.01, which needs
+f = 0.0791. An earlier floor of 0.04 was asserted to follow
+from the same sentence and does not: it corresponds to a shift of 0.0048, one
+Monte Carlo error rather than the two the criterion asks for.
+
+**The denominator is the whole variance of the anchored contrast.** The gate
+previously screened on the omitted variance over omitted-plus-source, leaving out
+the target trial's own variance and its covariance with the reported moments, both
+of which are in the interval. A floor solved from a coverage shift has to be
+applied to a fraction of the total, or it screens on a different quantity than the
+criterion names. Median terms across the realized grid: omitted 0.0005417,
+source 0.0056, target-trial 0.02553, cross -0.0003203.
+
+Shares by link (min, median, max):
+
+| link | min | median | max |
+|---|---|---|---|
+| `identity` | 0.00721 | 0.0431 | 0.0983 |
+| `logit` | 0.00226 | 0.00815 | 0.0128 |
+| `cloglog` | 0.00318 | 0.00882 | 0.0129 |
+
+### P3: an identification probe, not a variance probe
+
+P3 compares the estimand gradient with the estimator gradient in the estimator's
+own coordinates, means and raw second moments. It was registered as a test of the
+withdrawn second prediction and is retained only for what it does measure: whether
+the two gradients agree, which is a statement about identification.
+
+The identity link is the case where the answer is known. The gap shrinks
+monotonically with source size, from 0.02872
+to 0.004265, which is what a correct
+implementation does and a wrong one does not.
+
+**No claim about interval direction is made from P3.** An earlier draft read a
+link-specific direction off these ratios and reported it as a finding. It was an
+artifact of comparing gradients taken in different coordinates, means and standard
+deviations against means and raw second moments, with no Jacobian between them.
+
+### P5: how many resamples the perturbation interval needs
+
+Registered **B = 800**, and this is the study's whole budget lever:
+the perturbation arm is 99% to 100% of the cost.
+
+Sizing it produced three answers and the first two were wrong. **50** came from a
+probe watching the variance of the draws converge, a quantity that generates no
+interval anywhere in the study once the arm reports percentile limits. **25** came
+from a probe watching coverage converge while the interval was so over-wide that
+coverage could not move, at 0.9933 against a nominal 0.95; a criterion
+evaluated on a saturated quantity passes everything.
+
+**800** comes from measuring the corrected interval against an
+independent B = 3200 reference, with the limits at every B read from nested
+subsamples of one draw set so the comparison is paired:
+
+| B | coverage | mean width | paired coverage difference |
+|---|---|---|---|
+| 50 | 0.9225 | 0.9329 | -0.0325 |
+| 100 | 0.9362 | 0.9721 | -0.01875 |
+| 200 | 0.9462 | 0.9991 | -0.00875 |
+| 400 | 0.95 | 1.006 | -0.005 |
+| 800 | 0.9538 | 1.012 | -0.00125 |
+
+An empirical quantile from few draws is biased **inward**, so a small B does not
+merely add noise, it narrows every interval systematically. At B = 50 the arm
+undercovers by more than three points from its own resampling budget alone, and
+the study would have reported that as a property of the method.
+
+### P6: a covariance no published method carries, and it does not clear the floor
+
+The reported target moments and the target trial's own effect are computed from
+**the same participants**, so the anchored contrast carries a cross term
+-2 Cov(theta_AC, theta_BC) that every published estimator drops.
+
+Measured against the same floor: **the worst cell reaches
+0.0962 including Monte Carlo error, against a floor of
+0.0791. It does not clear it.**
+The term is largest on the identity link when the target shares the source's
+modification in full, and it does **not** shrink as the target grows, because both
+sides of the ratio scale with 1/nT.
+
+So it is carried rather than argued away. `R/14-calibrate-xcov.R` calibrates it per
+target cell and the `maic_xcov` arm supplies it, which is what lets a coverage
+deficit be attributed: the difference from `maic_entropy` is the cross term, and
+what remains is what identification has to explain.
+
+### P7: the null control, in the only form that is true
+
+A control was registered saying that with no effect modification the omitted
+variance is exactly zero at every target size **and on every scale**, so that a
+violation would indicate a defect in the source variance.
+
+**That is false on both curved links**, and a correct implementation would have
+failed it. With beta_EM = 0 the conditional contrast is constant in the
+covariates, but the marginal contrast still depends on the target law through the
+prognostic term. That is non-collapsibility itself.
+
+| link | max abs gradient at beta_EM = 0 | |
+|---|---|---|
+| `identity` | 5.55e-14 | vanishes |
+| `logit` | 0.019 | does not vanish |
+| `cloglog` | 0.0307 | does not vanish |
+
+The control now reads: the gradient vanishes on the **collapsible** link and on no
+other. A nonzero identity gradient is an implementation defect; nonzero curved
+gradients are the subject of the study. This is also a finding rather than a
+repair, and it is not what the catalog entry expects: on a curved link,
+target-moment uncertainty does not need effect modification to bite.
+
+---
 
 ## 3. Estimand
 
-**Primary.** The target-superpopulation marginal effect,
-$\Delta(F_T) = g(\int \mu_1 dF_T) - g(\int \mu_0 dF_T)$, a functional of the target
-covariate **law** rather than of its moments.
+Two, and **both are computed on every replicate** by `R/15-run.R`:
 
-**True value.** By Gauss-Hermite quadrature at order **16**, which is
-probe P1's output and is not defaulted. The order is forced by the
-`mvnorm` covariate shape on the `cloglog`
-link; a thresholded binary covariate is a step function and Gauss-Hermite converges
-on it slowly, while every continuous law is stable by order
-8 to 16.
+- **superpopulation**: Delta(F_T) in the target superpopulation;
+- **finite_target**: the same contrast in the target sample actually drawn.
 
-**The integral reduces to one dimension exactly where the covariate law is normal.**
-Each arm mean integrates a function of a single linear combination of $x$, which is
-normal when $x$ is, so the product rule's $\text{order}^p$ collapses to
-$\text{order}$: 65,536 nodes to 16 at four
-covariates, agreeing with the product rule to 2.13e-07.
+Reporting both is what separates an interval that is too narrow from an interval
+aimed at a different quantity. Reporting one cannot distinguish them.
 
-**Both estimands are ANCHORED contrasts**, A versus B, matching what the methods
-return. An earlier version computed only the transported A-versus-C effect while
-every estimator returned A-versus-C minus the target's own B-versus-C, so bias
-against the stated estimand could not have been computed and the whole B-versus-C
-effect would have appeared as bias.
+The contrast is anchored: theta_AC(m_hat) - theta_BC_hat, on the link's own scale.
 
-**The finite-target contrast is the second estimand and the pair is the point.** Both
-are computed on every replicate. A design carrying only one cannot distinguish "the
-interval is too narrow" from "the interval is for a different estimand".
+---
 
 ## 4. Design
+
+Held fixed: 3 covariates (4 in the `outside`
+arm, which is crossed with `mvnorm` only), overlap at a standardized difference of
+0.4 on **every** covariate, and a true covariate correlation of 0.3.
 
 | factor | levels |
 |---|---|
 | link | identity, logit, cloglog |
-| target size $n_T$ | 100, 300, 1000 |
-| source size $n_S$ | 500, 2000, 8000 |
-| alignment $k$ | 0, 0.25, 0.5, 1 |
+| target size nT | 100, 300, 1000 |
+| source size nS | 500, 2000, 8000 |
+| alignment k | 0, 0.25, 0.5, 1 |
 | covariate shape | mvnorm, lognormal, mixed |
 | assumed correlation | true, borrowed, independence |
 | modifier span | inside, outside |
 
-Held fixed: 3 covariates, overlap at a standardized mean difference
-of 0.4, anchored throughout.
+**The overlap is realized, not merely registered.** The `mixed` arm ran at a
+standardized difference of 0.001 on its binary covariate against the registered
+0.4, because the sampler thresholded the centered draw and gave the
+same prevalence in both populations, and because a second implementation of the
+same law meant the truth was integrated over a law the sampler never drew. Since
+that covariate carries the effect modification, the arm tested nothing. There is
+now one definition of the law, a cut that is the same constant in both
+populations, and a latent shift solved so the realized difference is the
+registered one.
 
-**The source size is a factor because probe P2 found that pinning it made the primary
-arm undetectable.** The omitted variance is set by $n_T$ and the retained variance by
-$n_S$, so with $n_S$ fixed the source term dominates. The omitted-variance share by
-link, over the realized grid:
+**The `outside` arm is outside.** It was registered to place one modifier beyond
+the matched moment set, and the balancing function matched it and the target
+reported it, making the arm identical to `inside` with one more matched modifier.
+The reported set is now the single place that defines what a baseline table
+contains, and the balancing function, moment vector, borrowed correlation and STC
+model all follow it.
 
-| link | min | median | max |
-|---|---:|---:|---:|
-| `identity` | 0.0159 | 0.176 | 0.714 |
-| `logit` | 0.00366 | 0.0465 | 0.362 |
-| `cloglog` | 0.00438 | 0.0559 | 0.409 |
+Cells by source size: 2000: 3.
 
-**124 of 288 realized cells clear a
-0.07913633 floor** and are run; the rest are dropped rather than run,
-because a cell whose effect cannot be distinguished from zero at 2000
-replicates consumes budget and returns nothing. The floor is derived: a coverage
-Monte Carlo SE of 0.005 makes 0.01 the smallest coverage shift
-worth claiming, which needs roughly a 0.07913633 variance share.
-
-**MAIC matches one moment for a binary covariate, not two.** With $x$ binary
-$x^2 = x$ identically, so a balancing function that always forms two columns per
-covariate is rank deficient and the sandwich Jacobian is singular. That is a fact
-about MAIC rather than about this implementation, and it is why the `mixed` arm
-matches five moments where the others match six.
+---
 
 ## 5. Methods
 
-`maic_fixed` (status quo), `maic_entropy` (the entropy-balancing port),
-`maic_perturb` (the perturbation port), `maic_oracle` (fixed moments with the true
-correlation supplied), `stc`, and ML-NMR.
+| method | what it does |
+|---|---|
+| `maic_fixed` | status quo: reported moments treated as constants |
+| `maic_entropy` | adds the moment term, the ported asymptotic variance |
+| `maic_oracle` | the same with the target's **population** correlation supplied |
+| `maic_xcov` | adds the cross term P6 found no method carries |
+| `maic_perturb` | percentile interval from resampling, B = 800 |
+| `stc` | conditional outcome model, marginalized over the reported law |
 
-All four MAIC variants share one weight fit and one sandwich, so they differ in the
-variance they report and in nothing else, which makes the paired comparison a
-comparison of intervals.
+`maic_fixed`, `maic_entropy`, `maic_oracle` and `maic_xcov` come off **one** fit
+and share a point estimate, so contrasts among them are comparisons of intervals
+and nothing else.
 
-**The comparator that can win is `maic_entropy`.** If it restores nominal coverage
-across the grid on the logit scale, the catalog's porting claim is supported, this
-study's second prediction is wrong, and the study says so.
+**`maic_perturb` is not in that set and is not in the paired test.** It resamples
+the source, refits per draw, and reports percentile limits, so it has no standard
+error and its interval is not centered on the shared estimate. Against the others
+it is a comparison of procedures. It is reported in the same table and tested
+separately.
+
+The oracle arm supplies the target **population** correlation, measured from the
+law the sampler uses. It previously supplied the correlation of the latent
+Gaussian, which survives to the covariates only under `mvnorm`: dichotomization
+attenuates it to about 0.238 against a supplied 0.30. An arm that exists to
+isolate the correlation component was injecting a correlation the target does not
+have.
+
+**What the entropy arm can settle.** If it reaches the registered coverage band
+across the grid, the moment term suffices *in these conditions* and the study
+reports that as a negative result about its own prediction. If it closes part of
+the deficit and not all, the split is the contribution, and `maic_xcov` and
+`maic_oracle` say how much of the residual is the cross term and the correlation
+rather than identification. Neither branch settles the catalog's porting claim in
+general, and the analysis will not report it as if it did.
+
+---
 
 ## 6. Replicates, error and cost
 
-**2000 replicates per cell**, set so the coverage Monte Carlo SE at 0.95 is
-at most 0.005. Common random numbers across
-corr_assumed, variance_method, so **Monte Carlo error is clustered on the replicate block**.
+2000 replicates per cell. The coverage Monte Carlo error the design
+**targets** is 0.005; the error 2000 replicates
+actually **deliver** is 0.004873, and that is the figure any
+claim about resolving a coverage difference is judged against.
 
-**Cost: 229.9 core-hours** for the MAIC and STC arms at
-`N_PERTURB = 800`, with the perturbation interval 99% to 100% of
-it. That is the line item the design named as the one a sibling study called cheap
-without measuring.
+Common random numbers block `corr_assumed, variance_method`, so cells differing only in
+the assumed correlation see identical data. Monte Carlo error for every method
+contrast is therefore computed from the **per-replicate difference**, not from an
+independence formula, which would overstate the error of a paired contrast.
 
-**An earlier draft attributed a -124% saving to the reduction in
-`N_PERTURB` alone, and that attribution does not hold.** The comparison figure,
-102.6 core-hours, is a **typed historical measurement**, the
-one number in this document not read from the export. It was taken before several
-other changes, so the difference between the two is not the causal effect of the
-resample count: quartering $B$ can save at most 75% even if every second scaled with
-it, and other work did not.
+Measured cost: **229.9 core-hours** for the MAIC and STC arms, at
+B = 800, which is the registered value rather than a
+different one scaled. The perturbation arm is 99% to 100% of it.
 
-**`N_PERTURB` is derived, not chosen.** At $B = 800$ the
-90th-percentile resampling error is inside the across-replicate spread of the standard
-error itself (0.01891), so more resamples buy nothing a coverage number can
-see.
+**The cost rose by 124%** against the 102.6
+core-hours measured when B was typed at 200 and the grid was smaller. Sizing B
+honestly took it to 800, and the corrected `mixed` arm added cells.
+An earlier draft reported this as a saving.
 
-**ML-NMR is not in that total** and no figure covering it is quoted until its per-fit
-cost is measured.
+---
 
 ## 7. What this cannot settle
 
-- **Nothing here is registered yet**, per the status note above.
-- The aliasing of curvature with overlap is disclosed, not removed.
-- Weibull PH throughout, so nothing separates moment uncertainty from
-  non-proportionality; that is OUT-11's subject.
-- Reporting error, rounding and inclusion-criteria drift are not simulated. The
-  catalog classifies them as estimand ambiguity and transport bias, and this study
-  accepts that classification rather than testing it.
-- **The quadrature and the normal reduction condition every result on a covariate
-  law.** The `mixed` and `lognormal` arms vary the shape; nothing here measures a
-  covariate law outside those three.
+- **No ML-NMR arm.** It is the method most likely to be correct here, and its
+  absence is a scope limit, not an oversight resolved elsewhere.
+- **One overlap level and one true correlation.** Both are fixed at
+  0.4 and 0.3.
+- **Normal-law reconstruction.** Every method reconstructs the target law from
+  moments assuming a Gaussian copula; the `lognormal` and `mixed` arms vary the
+  truth away from that, but the reconstruction itself is never varied.
+- **The cross term is supplied by an oracle.** `maic_xcov` shows what carrying it
+  would buy. No analyst can compute it from a published baseline table, so it is
+  a decomposition, not a recommendation.
+- **The dropped cells.** 285 of
+  288 cells fall below the floor and are not run, so the study
+  says nothing about conditions where the omitted variance is small.

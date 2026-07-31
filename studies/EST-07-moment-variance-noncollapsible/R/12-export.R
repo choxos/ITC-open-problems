@@ -153,6 +153,24 @@ main <- function() {
     lapply(seq_len(nrow(p$P3_identity_convergence[[1]])), function(i)
       as.list(p$P3_identity_convergence[[1]][i, ]))
 
+  ## --- P7: the null control, in the only form that is true ------------------
+  if (!is.null(p$P7_table)) {
+    p7 <- p$P7_table[[1]]
+    out$p7_ok <- p$P7_ok[[1]]
+    out$p7_by_link <- lapply(seq_len(nrow(p7)), function(i)
+      lapply(p7[i, ], function(z) if (is.numeric(z)) signif(z, 4) else z))
+  }
+
+  ## The gate's variance decomposition, so the protocol can show that the
+  ## denominator is the whole variance rather than assert it.
+  if (!is.null(p2$v_bc)) {
+    out$gate_terms <- list(
+      v_omit  = signif(stats::median(p2$v_omit, na.rm = TRUE), 4),
+      v_src   = signif(stats::median(p2$v_src, na.rm = TRUE), 4),
+      v_bc    = signif(stats::median(p2$v_bc, na.rm = TRUE), 4),
+      v_cross = signif(stats::median(p2$v_cross, na.rm = TRUE), 4))
+  }
+
   ## --- P4 and P5: the budget, and the constant that governs it --------------
   out$sec_per_rep <- signif(p$SEC_PER_REP[[1]], 3)
   p4 <- p$P4_table[[1]]
@@ -178,9 +196,16 @@ main <- function() {
     ## than from scaling one of them. 102.6 core-hours was measured at the typed
     ## 200 before P5 ran; it is carried as a historical figure and is the only
     ## number here that is not recomputed on every export.
+    ## THE COST WENT UP, NOT DOWN, and the field is named for that. 102.6
+    ## core-hours was measured when B was typed at 200 and the grid was smaller;
+    ## sizing B honestly took it to 800 and the corrected mixed arm added cells.
+    ## An earlier version of this block computed a "saving" from those two
+    ## figures, which after the resizing evaluated to -124 percent: a saving of
+    ## minus one hundred and twenty four percent is not a saving, and a document
+    ## that phrases it as one is telling the reader the opposite of what happened.
     out$core_hours_at_typed_200 <- 102.6
-    out$budget_saving_pct <-
-      signif(100 * (1 - out$core_hours / out$core_hours_at_typed_200), 3)
+    out$budget_change_pct <-
+      signif(100 * (out$core_hours / out$core_hours_at_typed_200 - 1), 3)
   }
 
   dir.create("results", showWarnings = FALSE)

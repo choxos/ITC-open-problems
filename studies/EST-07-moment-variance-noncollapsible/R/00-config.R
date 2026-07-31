@@ -132,6 +132,13 @@ COVERAGE_MCSE_AT_N <- sqrt(0.95 * 0.05 / N_REP)
 ## found it.
 CRN_BLOCKS <- c("corr_assumed", "variance_method")
 
+## The tolerance below which the estimand's dependence on the target law counts
+## as vanishing, used by probe P7's null control. Set at the numerical noise floor
+## of a central difference on this estimand rather than at a substantive level:
+## the identity link is collapsible, so the gradient there is zero exactly and any
+## departure is arithmetic.
+NULL_TOL <- 1e-8
+
 ## --- decision rule, DESIGN.md section 7 -------------------------------------
 NOMINAL     <- 0.95
 COVER_BAND  <- c(0.935, 0.965)   # design: two-sided, both ends are failures

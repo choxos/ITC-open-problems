@@ -81,75 +81,75 @@ check("the protocol is exactly what the generator produces from this export",
 
 # --- 2. the claims that carry meaning, asserted against the export -----------
 # Each of these is a SENTENCE that could be false while every number in it is
-# correctly interpolated. That is the only class of numeric defect this design
-# leaves open, so it is where the assertions go.
+# correctly interpolated. Round 2 of critique showed that is the dominant failure
+# mode here: the generator was not updated with the code, so fluent prose kept
+# describing a study that no longer existed. These assertions target the claims
+# whose truth changed.
 
-_p3 = D["p3_by_link"]
-# ROUND 1 EXPOSED THIS ASSERTION AS TOO WEAK. It required only that the two
-# directions DIFFER, and "mixed" differs from "anti-conservative" without being
-# opposite to it, so the check passed while the document still claimed one link
-# gives intervals too narrow and the other too wide. A claim of OPPOSITE
-# directions needs one ratio band strictly below 1 and the other strictly above.
-_opposite = ((_p3["logit"]["v_ratio_max"] < 1) and (_p3["cloglog"]["v_ratio_min"] > 1)) \
-    or ((_p3["cloglog"]["v_ratio_max"] < 1) and (_p3["logit"]["v_ratio_min"] > 1))
-check("opposite directions are claimed only if the ratio bands are opposite",
-      _opposite == ("too narrow while one" in PROTOCOL),
-      f"logit {_p3['logit']['v_ratio_min']}-{_p3['logit']['v_ratio_max']}, "
-      f"cloglog {_p3['cloglog']['v_ratio_min']}-{_p3['cloglog']['v_ratio_max']}")
-check("the withdrawn artifact is disclosed where the numbers are",
-      "That was an artifact" in PROTOCOL,
-      "the corrected numbers appear without the correction")
-check("anti-conservative is claimed only where the ratio exceeds one",
-      all((v["v_ratio_min"] > 1) == (v["direction"] == "anti-conservative")
-          for v in _p3.values()),
-      f"{[(k, v['direction'], v['v_ratio_min']) for k, v in _p3.items()]}")
-check("conservative is claimed only where the ratio is below one",
-      all((v["v_ratio_max"] < 1) == (v["direction"] == "conservative")
-          for v in _p3.values()),
-      f"{[(k, v['direction'], v['v_ratio_max']) for k, v in _p3.items()]}")
+# THE WITHDRAWN PREDICTION must stay withdrawn, and the document must not
+# reintroduce a direction claim from P3.
+check("the second prediction is disclosed as withdrawn",
+      "has been withdrawn" in PROTOCOL,
+      "the withdrawal is not stated")
+check("no interval-direction claim is made from P3",
+      "artifact of comparing gradients" in PROTOCOL
+      and "anti-conservative" not in PROTOCOL,
+      "a direction claim has come back")
 
-check("the identity-link convergence claim matches the measurement",
-      D["p3_identity_ok"] is True
-      and "A wrong implementation produces a gap that does not move" in PROTOCOL,
-      "the document claims convergence the probe did not find")
-_conv = D["p3_identity_convergence"]
-check("the convergence is monotone, as the claim requires",
-      all(_conv[i]["gap"] > _conv[i + 1]["gap"] for i in range(len(_conv) - 1)),
-      f"{[round(c['gap'], 5) for c in _conv]}")
+# P6 FAILED ITS FLOOR. The document must say so, and must not say the opposite.
+check("the cross-covariance probe's verdict matches the export",
+      D["p6_ok"] is False and "It does not clear it." in PROTOCOL,
+      f"p6_ok={D['p6_ok']}")
+check("the worst cross-covariance share really is above the floor",
+      D["p6_worst_share"] > D["min_omitted_share"],
+      f"{D['p6_worst_share']} against {D['min_omitted_share']}")
+check("the arm that carries the cross term is named",
+      "maic_xcov" in PROTOCOL, "P6 fails but no arm carries it")
 
-check("the headline is claimed to survive only if the probe says so",
-      D["p3_headline_survives"] is True,
-      "the document leads with a headline P3 refuted")
+# P7: the null control holds only on the collapsible link, and the document must
+# report exactly that pattern.
+if "p7_by_link" in D:
+    _p7 = {r["link"]: r for r in D["p7_by_link"]}
+    check("the null control vanishes on the identity link and no other",
+          _p7["identity"]["vanishes"] is True
+          and all(v["vanishes"] is False
+                  for k, v in _p7.items() if k != "identity"),
+          f"{[(k, v['vanishes']) for k, v in _p7.items()]}")
+    check("the document says the old every-scale control was false",
+          "That is false on both curved links" in PROTOCOL,
+          "the withdrawn control is not disclosed")
 
-# The source-size claim: the document says pinning it made the primary arm
-# undetectable. That is only true if the source size is now a factor AND the
-# logit arm's maximum share clears the floor.
-check("the source size is a factor, as the document says it became",
-      len(D["levels"]["nS"]) > 1,
-      f"nS levels: {D['levels']['nS']}")
-check("the logit arm clears the floor, which is what made the fix necessary",
-      D["omitted_share_by_link"]["logit"]["max"] >= D["min_omitted_share"],
-      f"logit max {D['omitted_share_by_link']['logit']['max']} against floor "
-      f"{D['min_omitted_share']}")
-
-# The cost claim: a saving is claimed, so the two figures must differ in the
-# direction claimed and the arithmetic must hold.
-check("the claimed saving follows from the two measured costs",
-      abs(D["budget_saving_pct"]
-          - 100 * (1 - D["core_hours"] / D["core_hours_at_typed_200"])) < 0.1,
-      f"{D['budget_saving_pct']}% against "
-      f"{D['core_hours']} and {D['core_hours_at_typed_200']}")
-check("the measured cost is reported at the registered resample count",
-      D["core_hours_n_perturb"] == D["n_perturb"],
-      f"measured at {D['core_hours_n_perturb']}, registered {D['n_perturb']}")
+# THE RESAMPLE COUNT must be the one the probe derived, and the document must
+# describe the measurement that derived it rather than an earlier one.
 check("the registered resample count is the one the probe derived",
       D["n_perturb"] == D["n_perturb_needed"],
       f"registered {D['n_perturb']}, derived {D['n_perturb_needed']}")
+check("the measured cost is reported at the registered resample count",
+      D["core_hours_n_perturb"] == D["n_perturb"],
+      f"measured at {D['core_hours_n_perturb']}, registered {D['n_perturb']}")
+check("the perturbation sizing is described by coverage and width, not variance",
+      "biased **inward**" in PROTOCOL and "variance of the draws" in PROTOCOL,
+      "the obsolete criterion is still described as current")
 
-# The grid claim.
-check("the run grid is a subset of the realized grid",
-      D["n_cells"] <= D["n_cells_realized"],
-      f"{D['n_cells']} of {D['n_cells_realized']}")
+# THE COST WENT UP. A document that calls that a saving is telling the reader the
+# opposite of what happened.
+check("the cost change is reported in the direction it actually moved",
+      D["budget_change_pct"] > 0 and "cost rose by" in PROTOCOL
+      and "saving" not in PROTOCOL.split("An earlier draft")[0],
+      f"change {D.get('budget_change_pct')}%")
+
+# THE FLOOR must be the solved one, and the gate must screen on the whole
+# variance rather than a part of it.
+check("the floor is the one solved from the registered coverage shift",
+      abs(D["min_omitted_share"] - 0.0791) < 0.001
+      and "solved from the criterion" in PROTOCOL,
+      f"floor {D['min_omitted_share']}")
+check("the gate's denominator includes the target-trial and cross terms",
+      "gate_terms" in D and "whole variance of the anchored contrast" in PROTOCOL,
+      "the gate still screens on a partial denominator")
+
+# THE QUADRATURE ORDER must be the largest any cell needed, and the document must
+# not claim the product rule is paid at four covariates.
 check("the quadrature order is the largest any cell needed",
       D["quad_order"] == max(c["stable_order"] for c in D["p1_by_cell"]
                              if c["stable_order"] is not None),
@@ -157,6 +157,30 @@ check("the quadrature order is the largest any cell needed",
 check("the order is attributed to the cell that actually forced it",
       D["p1_forced_by"]["order"] == D["quad_order"],
       f"attributed to {D['p1_forced_by']}")
+check("the four-covariate node count is named as avoided, not paid",
+      "not a count this study pays" in PROTOCOL,
+      "the document implies it pays the four-dimensional product rule")
+
+# BOTH ESTIMANDS must be declared and both must actually be computed.
+check("both estimands are declared",
+      set(D["estimands"]) == {"superpopulation", "finite_target"},
+      f"{D['estimands']}")
+_run = (ROOT / "R" / "15-run.R").read_text()
+check("the finite-target estimand has a caller in the runner",
+      "truth_anchored_finite" in _run and "covered_finite" in _run,
+      "the document promises an estimand the runner does not compute")
+
+# THE SOFTWARE CLAIM must match what is on disk.
+for _f in ("R/15-run.R", "R/16-analyze.R"):
+    check(f"the runner/analysis the document claims exists: {_f}",
+          (ROOT / _f).exists(), "named but absent")
+check("the missing ML-NMR arm is disclosed",
+      "No ML-NMR arm" in PROTOCOL, "a scope limit has gone unstated")
+
+# The grid claim.
+check("the run grid is a subset of the realized grid",
+      D["n_cells"] <= D["n_cells_realized"],
+      f"{D['n_cells']} of {D['n_cells_realized']}")
 
 # --- the registration status must not have been quietly upgraded -------------
 check("the document still says it is not registered",

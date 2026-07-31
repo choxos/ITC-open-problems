@@ -92,6 +92,14 @@ run_replicate <- function(cell, r) {
   z <- try(estimate_all(d, cell$link, cell$corr_assumed), silent = TRUE)
   if (inherits(z, "try-error") || !nrow(z)) return(NULL)
 
+  ## THE SECOND ESTIMAND, which round 2 of critique found promised and never
+  ## computed. `truth_anchored_superpop` is the contrast in the target
+  ## SUPERPOPULATION; `truth_anchored_finite` is the contrast in the target sample
+  ## that was actually drawn. An interval can miss the first because it is too
+  ## narrow, or because it is centered on the second. Reporting only one cannot
+  ## tell those apart, which is the distinction the study says it makes.
+  truth_fin <- truth_anchored_finite(pars, pars_T, d$hidden$x, cell$link)
+
   z$rep <- r
   ## The cell's factors travel with every row, so the analysis reads one flat
   ## table and never joins back to the grid. A join is where a mislabeled cell
@@ -101,6 +109,10 @@ run_replicate <- function(cell, r) {
   z$covered <- z$lower <= truth & truth <= z$upper
   z$width <- z$upper - z$lower
   z$error <- z$est - truth
+  ## The same three quantities against the finite-target estimand.
+  z$truth_finite <- truth_fin
+  z$covered_finite <- z$lower <= truth_fin & truth_fin <= z$upper
+  z$error_finite <- z$est - truth_fin
   z
 }
 
