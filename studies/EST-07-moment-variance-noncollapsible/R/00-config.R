@@ -139,6 +139,22 @@ CRN_BLOCKS <- c("corr_assumed", "variance_method")
 ## departure is arithmetic.
 NULL_TOL <- 1e-8
 
+## THE TARGET TRIAL'S BASELINE RISK, on the linear-predictor scale.
+##
+## Added when the unanchored arm was built. The DGM gave the source and target
+## trials the SAME intercept and the same prognostic coefficients, so their
+## control arms were identical and the anchored contrast differenced away a
+## quantity that was already equal. Under that DGM the anchored and unanchored
+## estimands coincide exactly, which makes the unanchored arm a variance exercise
+## with none of its real risk.
+##
+## Anchoring exists precisely because trials differ in baseline risk. With a
+## nonzero shift the anchored contrast still cancels it, by construction, and the
+## unanchored contrast does not: it inherits the shift as bias unless the analyst
+## can predict absolute outcomes. Registering 0 alongside a nonzero level keeps
+## the old behavior available as the case where anchoring is unnecessary.
+BASELINE_SHIFT <- c(0, 0.5)
+
 ## --- decision rule, DESIGN.md section 7 -------------------------------------
 NOMINAL     <- 0.95
 COVER_BAND  <- c(0.935, 0.965)   # design: two-sided, both ends are failures

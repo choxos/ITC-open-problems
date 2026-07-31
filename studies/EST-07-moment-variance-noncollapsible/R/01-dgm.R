@@ -111,7 +111,11 @@ delta_sample <- function(x, pars, link) {
 ## It applies only where eta_a is normal, which is the `mvnorm` shape. The
 ## non-normal shapes keep the product rule, and they are p = 3 by construction
 ## because the design crosses `modifier_span` with the MIDDLE level of `shape`.
-delta_superpopulation_normal <- function(pars, link, mu, sigma, rho, order) {
+## Returns the two ARM MEANS on the response scale, not the contrast. The
+## anchored estimand is a difference of contrasts and the unanchored one is a
+## difference of single arms, so both are built from these rather than each
+## re-integrating the same law.
+arm_means_superpopulation_normal <- function(pars, link, mu, sigma, rho, order) {
   lf <- link_fns(link)
   gh <- gh_rule(order)
   w <- gh$w / sqrt(pi)
@@ -123,21 +127,20 @@ delta_superpopulation_normal <- function(pars, link, mu, sigma, rho, order) {
     s <- sqrt(as.numeric(t(b) %*% S %*% b))
     sum(w * lf$ginv(m + sqrt(2) * s * gh$x))
   }
-  m0 <- arm(pars$beta_prog, pars$alpha)
-  m1 <- arm(pars$beta_prog + pars$beta_em, pars$alpha + pars$tau0)
-  delta_from_arm_means(m0, m1, link)
+  c(m0 = arm(pars$beta_prog, pars$alpha),
+    m1 = arm(pars$beta_prog + pars$beta_em, pars$alpha + pars$tau0))
 }
 
 ## The superpopulation estimand by Gauss-Hermite quadrature over the TRUE law.
 ## The order is PROBE P1's output and is never defaulted: OUT-11's integration
 ## order moved a primary contrast and was caught only because it was measured.
-delta_superpopulation <- function(pars, link, shape, mu, sigma, rho, order) {
+arm_means_superpopulation <- function(pars, link, shape, mu, sigma, rho, order) {
   stopifnot("the quadrature order must come from probe P1" = is.finite(order))
   ## The exact reduction where it applies. P1's order was chosen on the product
   ## rule and is reused here, which is conservative: a one-dimensional integral
   ## needs no more nodes than the same rule needed in three dimensions.
   if (shape == "mvnorm")
-    return(delta_superpopulation_normal(pars, link, mu, sigma, rho, order))
+    return(arm_means_superpopulation_normal(pars, link, mu, sigma, rho, order))
   stopifnot("the product rule is only affordable to three covariates; the
              non-normal shapes are crossed with the middle level of the other
              factors precisely so this cannot be reached at four"
@@ -179,7 +182,18 @@ delta_superpopulation <- function(pars, link, shape, mu, sigma, rho, order) {
     xs <- shape_map(xs, shape, mu, sigma)
   }
   cm <- conditional_means(xs, pars, link)
-  delta_from_arm_means(sum(w * cm$mu0), sum(w * cm$mu1), link)
+  c(m0 = sum(w * cm$mu0), m1 = sum(w * cm$mu1))
+}
+
+## The contrast, from the arm means.
+delta_superpopulation <- function(pars, link, shape, mu, sigma, rho, order) {
+  am <- arm_means_superpopulation(pars, link, shape, mu, sigma, rho, order)
+  delta_from_arm_means(am[["m0"]], am[["m1"]], link)
+}
+
+delta_superpopulation_normal <- function(pars, link, mu, sigma, rho, order) {
+  am <- arm_means_superpopulation_normal(pars, link, mu, sigma, rho, order)
+  delta_from_arm_means(am[["m0"]], am[["m1"]], link)
 }
 
 ## The deterministic map from a standard-normal draw to each shape family, used
@@ -222,6 +236,36 @@ shape_map <- function(x, shape, mu, sigma) {
 ##
 ## `pars` carries the source trial's modification and `pars_T` the target
 ## trial's, which is where `k` acts.
+## --- THE UNANCHORED ESTIMAND ------------------------------------------------
+##
+## Added after the probe phase showed the anchored contrast cannot see the effect
+## this study is about. In an anchored comparison the target trial's own B versus
+## C effect carries about 83% of the interval's variance, so the moment term is
+## roughly 1% of it and clears the detectability floor in 3 of 288 cells. Without
+## an anchor there is no B-versus-C difference, only the target's single treated
+## arm, and the moment term becomes a much larger share of a smaller total.
+##
+## The estimand is the transported A arm against the target's own B arm, with no
+## common comparator to difference away:
+##
+##   Delta_unanchored(F_T) = g( int mu_A dF_T ) - g( int mu_B dF_T ),
+##
+## where mu_A uses the SOURCE parameters and mu_B the TARGET ones. It is the same
+## integrals the anchored estimand uses, without the two control arms.
+truth_unanchored_superpop <- function(pars, pars_T, link, shape, mu, sigma, rho,
+                                      order) {
+  lf <- link_fns(link)
+  a <- arm_means_superpopulation(pars,   link, shape, mu, sigma, rho, order)
+  b <- arm_means_superpopulation(pars_T, link, shape, mu, sigma, rho, order)
+  lf$g(a[["m1"]]) - lf$g(b[["m1"]])
+}
+
+truth_unanchored_finite <- function(pars, pars_T, x, link) {
+  lf <- link_fns(link)
+  lf$g(mean(conditional_means(x, pars,   link)$mu1)) -
+  lf$g(mean(conditional_means(x, pars_T, link)$mu1))
+}
+
 truth_anchored_superpop <- function(pars, pars_T, link, shape, mu, sigma, rho,
                                     order) {
   delta_superpopulation(pars,   link, shape, mu, sigma, rho, order) -

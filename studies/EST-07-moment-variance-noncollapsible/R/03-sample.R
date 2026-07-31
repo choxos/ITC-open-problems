@@ -115,7 +115,8 @@ make_pars <- function(k, em_strength = 0.6, modifier_span = "inside",
 ## --- one replicate ----------------------------------------------------------
 sample_replicate <- function(nS, nT, k, link, shape, rho_true,
                              modifier_span = "inside", em_strength = 0.6,
-                             smd = OVERLAP_SMD) {
+                             smd = OVERLAP_SMD, baseline_shift = 0,
+                             anchored = TRUE) {
   pars <- make_pars(k, em_strength, modifier_span)
   p <- length(pars$beta_em)
   pm <- population_means(smd, p, shape)
@@ -134,6 +135,9 @@ sample_replicate <- function(nS, nT, k, link, shape, rho_true,
   xt <- covariate_law(shape, nT, pm$target, sigma, rho_true)
   pars_T <- pars
   pars_T$beta_em <- k * pars$beta_em
+  ## The target trial's own baseline risk. Cancels in the anchored contrast and
+  ## does not in the unanchored one, which is the whole reason anchoring exists.
+  pars_T$alpha <- pars$alpha + baseline_shift
   Bt <- rbinom(nT, 1, 0.5)
   cmt <- conditional_means(xt, pars_T, link)
   mut <- ifelse(Bt == 1, cmt$mu1, cmt$mu0)
@@ -173,6 +177,7 @@ sample_replicate <- function(nS, nT, k, link, shape, rho_true,
     ## replicate, so carrying them leaks nothing a run configuration does not
     ## already know; the estimators that may read them are the oracle arms only.
     hidden = list(x = xt, pars = pars, pars_T = pars_T, rho_true = rho_true,
+                  baseline_shift = baseline_shift, anchored = anchored,
                   shape = shape, link = link, sigma = sigma, k = k,
                   modifier_span = modifier_span, pop_mean_T = pm$target))
 }
