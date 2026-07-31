@@ -84,8 +84,12 @@ run_replicate <- function(cell, r) {
   ## estimand of the cell. It does not depend on the replicate, but it is
   ## computed per replicate rather than cached because caching it per cell was
   ## how a sibling study came to score replicates against a stale truth.
-  pm <- population_means(shape = cell$shape)
   pars <- d$hidden$pars; pars_T <- d$hidden$pars_T
+  ## THE COVARIATE COUNT COMES FROM THE PARAMETERS, not from the default. The
+  ## `outside` arm carries a fourth covariate, so a defaulted `p` builds a
+  ## three-vector of target means against four coefficients and the truth cannot
+  ## be computed at all. 36 of the registered cells are `outside`.
+  pm <- population_means(OVERLAP_SMD, length(pars$beta_em), cell$shape)
   ## THE TRUTH IS THE ARM'S OWN. The registered grid is now dominated by
   ## unanchored cells, and scoring those against the anchored estimand would give
   ## every replicate the wrong target: the two differ by the whole target-trial

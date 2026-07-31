@@ -286,6 +286,33 @@ arm, which is crossed with `mvnorm` only), overlap at a standardized difference 
 | covariate shape | {lv(L["shape"])} |
 | assumed correlation | {lv(L["corr_assumed"])} |
 | modifier span | {lv(L["modifier_span"])} |
+| anchored | {lv(L["anchored"])} |
+| target baseline shift | {lv(L["baseline_shift"])} |
+
+**The last two factors were added after the probe phase and they change what the
+study is.** `anchored` is crossed with the whole core rather than varied around a
+middle, because the two settings differ by an order of magnitude in what the
+moment term is a share of. The target's baseline risk exists because the DGM
+previously gave source and target the same intercept, so their control arms were
+identical, the anchored contrast differenced away a quantity that was already
+equal, and the two estimands coincided exactly. Anchoring exists precisely because
+trials differ in baseline risk, and without a shift the unanchored arm would carry
+none of its real risk.
+
+**Every cell that clears the floor is unanchored.** Median share of the interval's
+variance carried by the moment term, by link:
+
+| link | unanchored | anchored |
+|---|---|---|
+| `identity` | 0.3612 | 0.0395 |
+| `cloglog` | 0.1570 | 0.0100 |
+| `logit` | 0.0961 | 0.0079 |
+
+So the effect the catalog entry names is material without an anchor and immaterial
+with one, on the curved links as well as the collapsible one. In an anchored
+comparison the target trial's own effect carries about 83% of the interval's
+variance and the moment term about 1%. That is the study's first result and it
+came out of the probe phase, before any replicate was run.
 
 **The overlap is realized, not merely registered.** The `mixed` arm ran at a
 standardized difference of 0.001 on its binary covariate against the registered
