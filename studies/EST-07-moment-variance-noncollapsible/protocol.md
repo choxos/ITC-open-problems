@@ -11,7 +11,7 @@ number below is interpolated from `results/registered-design.json` by
 `review/emit-protocol.py` and checked by `review/verify-protocol.py`.
 
 **What exists.** The data-generating mechanism, both truths, the gradient
-machinery, five of six methods, seven probes, the replicate runner
+machinery, all six of the methods in the table below, seven probes, the runner
 (`R/15-run.R`), the analysis with clustered Monte Carlo error (`R/16-analyze.R`),
 and the export and verification harness. **What does not exist is the ML-NMR
 arm.** No replicate of the registered grid has been run.
@@ -75,8 +75,18 @@ count this study pays.
 
 ### P2: which cells are worth running
 
-**340 of 792 realized cells** clear a floor of
-0.0791 and are run.
+**350 of 792 realized cells** are run: those whose
+omitted-variance share reaches 0.0791, plus a growth ladder
+retained regardless of share.
+
+**THE LADDER IS EXEMPT FROM THE GATE, and prediction 1 is why.** The prediction
+says the coverage deficit does not close as the target grows. The share falls as
+the target grows, because the moment term scales with 1/nT while the source term
+scales with 1/nS, so the gate drops the large-target cells first: exactly the ones
+the prediction is about. A design that screens on the effect being large cannot
+test a claim that the effect persists when it is small. The ladder holds every
+other factor at its middle and walks the target size, and the analysis reports it
+as the prediction-1 test rather than pooling it with the powered grid.
 
 The floor is **solved from the criterion, not asserted to follow from it**.
 Omitting a fraction f of the variance reports a standard error of sqrt(1-f) times
@@ -148,18 +158,39 @@ merely add noise, it narrows every interval systematically. At B = 50 the arm
 undercovers by more than three points from its own resampling budget alone, and
 the study would have reported that as a property of the method.
 
-### P6: a covariance no published method carries, and it does not clear the floor
+**The selection rule, stated rather than implied.** A B is sufficient when two
+conditions hold together: the paired coverage difference from the reference, plus
+that difference's Monte Carlo error, is inside the 0.01 shift
+the study is willing to interpret; and the mean width is within 1% of the
+reference width. The second condition exists because the first saturated once, on
+an interval so over-wide that coverage could not move. **800** is the
+smallest value in the grid meeting both.
+
+### P6: a covariance no published method carries, and it is too large to drop
 
 The reported target moments and the target trial's own effect are computed from
 **the same participants**, so the anchored contrast carries a cross term
 -2 Cov(theta_AC, theta_BC) that every published estimator drops.
 
-Measured against the same floor: **the worst cell reaches
-0.0962 including Monte Carlo error, against a floor of
-0.0791. It does not clear it.**
+**A WORD USED TWO WAYS, corrected.** For the cell gate, "clearing the floor" means
+the omitted variance is LARGE enough that dropping it would move coverage, so the
+cell is worth running. For this probe the same comparison means the opposite
+thing: a cross term above the floor is a term too large to ignore. Three reviewers
+read the old sentence as self-contradictory and they were right. The comparison is
+therefore stated without that word.
+
+The worst cell reaches **0.0962** including Monte Carlo error
+against the 0.0791 threshold, so **the cross term is above
+the threshold and cannot be ignored**.
 The term is largest on the identity link when the target shares the source's
-modification in full, and it does **not** shrink as the target grows, because both
-sides of the ratio scale with 1/nT.
+modification in full.
+
+An earlier draft added that the share "does not shrink as the target grows,
+because both sides of the ratio scale with 1/nT". That was true when the
+denominator was the omitted plus source variance and is **not** true now: the
+denominator is the whole variance of the contrast, whose source component scales
+with 1/nS rather than 1/nT. The share does move with the target size, and the
+growth ladder below is what measures it.
 
 So it is carried rather than argued away. `R/14-calibrate-xcov.R` calibrates it per
 target cell and the `maic_xcov` arm supplies it, which is what lets a coverage
@@ -265,7 +296,7 @@ The reported set is now the single place that defines what a baseline table
 contains, and the balancing function, moment vector, borrowed correlation and STC
 model all follow it.
 
-Cells by source size: 500: 48, 2000: 221, 8000: 71.
+Cells by source size: 500: 48, 2000: 231, 8000: 71.
 
 ---
 
@@ -309,6 +340,11 @@ general, and the analysis will not report it as if it did.
 
 ## 6. Replicates, error and cost
 
+**The registered coverage band is 0.935 to 0.965**,
+two-sided: an interval that is too wide fails it exactly as an interval that is
+too narrow does, because reporting only undercoverage would let a conservative
+method pass as correct.
+
 2000 replicates per cell. The coverage Monte Carlo error the design
 **targets** is 0.005; the error 2000 replicates
 actually **deliver** is 0.004873, and that is the figure any
@@ -319,11 +355,11 @@ the assumed correlation see identical data. Monte Carlo error for every method
 contrast is therefore computed from the **per-replicate difference**, not from an
 independence formula, which would overstate the error of a paired contrast.
 
-Measured cost: **598.8 core-hours** for the MAIC and STC arms, at
+Measured cost: **637.5 core-hours** for the MAIC and STC arms, at
 B = 800, which is the registered value rather than a
 different one scaled. The perturbation arm is 99% to 100% of it.
 
-**The cost rose by 484%** against the 102.6
+**The cost rose by 521%** against the 102.6
 core-hours measured when B was typed at 200 and the grid was smaller. Sizing B
 honestly took it to 800, and the corrected `mixed` arm added cells.
 An earlier draft reported this as a saving.
@@ -342,6 +378,6 @@ An earlier draft reported this as a saving.
 - **The cross term is supplied by an oracle.** `maic_xcov` shows what carrying it
   would buy. No analyst can compute it from a published baseline table, so it is
   a decomposition, not a recommendation.
-- **The dropped cells.** 452 of
+- **The dropped cells.** 442 of
   792 cells fall below the floor and are not run, so the study
   says nothing about conditions where the omitted variance is small.

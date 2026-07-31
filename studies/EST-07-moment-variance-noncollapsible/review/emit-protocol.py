@@ -82,7 +82,7 @@ number below is interpolated from `results/registered-design.json` by
 `review/emit-protocol.py` and checked by `review/verify-protocol.py`.
 
 **What exists.** The data-generating mechanism, both truths, the gradient
-machinery, five of six methods, seven probes, the replicate runner
+machinery, all six of the methods in the table below, seven probes, the runner
 (`R/15-run.R`), the analysis with clustered Monte Carlo error (`R/16-analyze.R`),
 and the export and verification harness. **What does not exist is the ML-NMR
 arm.** No replicate of the registered grid has been run.
@@ -146,8 +146,18 @@ count this study pays.
 
 ### P2: which cells are worth running
 
-**{d["n_cells"]} of {d["n_cells_realized"]} realized cells** clear a floor of
-{d["min_omitted_share"]:.4f} and are run.
+**{d["n_cells"]} of {d["n_cells_realized"]} realized cells** are run: those whose
+omitted-variance share reaches {d["min_omitted_share"]:.4f}, plus a growth ladder
+retained regardless of share.
+
+**THE LADDER IS EXEMPT FROM THE GATE, and prediction 1 is why.** The prediction
+says the coverage deficit does not close as the target grows. The share falls as
+the target grows, because the moment term scales with 1/nT while the source term
+scales with 1/nS, so the gate drops the large-target cells first: exactly the ones
+the prediction is about. A design that screens on the effect being large cannot
+test a claim that the effect persists when it is small. The ladder holds every
+other factor at its middle and walks the target size, and the analysis reports it
+as the prediction-1 test rather than pooling it with the powered grid.
 
 The floor is **solved from the criterion, not asserted to follow from it**.
 Omitting a fraction f of the variance reports a standard error of sqrt(1-f) times
@@ -215,19 +225,40 @@ merely add noise, it narrows every interval systematically. At B = 50 the arm
 undercovers by more than three points from its own resampling budget alone, and
 the study would have reported that as a property of the method.
 
-### P6: a covariance no published method carries, and it does not clear the floor
+**The selection rule, stated rather than implied.** A B is sufficient when two
+conditions hold together: the paired coverage difference from the reference, plus
+that difference's Monte Carlo error, is inside the {d["min_coverage_shift"]} shift
+the study is willing to interpret; and the mean width is within 1% of the
+reference width. The second condition exists because the first saturated once, on
+an interval so over-wide that coverage could not move. **{d["n_perturb"]}** is the
+smallest value in the grid meeting both.
+
+### P6: a covariance no published method carries, and it is too large to drop
 
 The reported target moments and the target trial's own effect are computed from
 **the same participants**, so the anchored contrast carries a cross term
 -2 Cov(theta_AC, theta_BC) that every published estimator drops.
 
-Measured against the same floor: **the worst cell reaches
-{d["p6_worst_share"]} including Monte Carlo error, against a floor of
-{d["min_omitted_share"]:.4f}. It does not clear it.**{
-"" if d.get("p6_ok") is False else " (P6 reports this as cleared, which contradicts the sentence above; regenerate.)"}
+**A WORD USED TWO WAYS, corrected.** For the cell gate, "clearing the floor" means
+the omitted variance is LARGE enough that dropping it would move coverage, so the
+cell is worth running. For this probe the same comparison means the opposite
+thing: a cross term above the floor is a term too large to ignore. Three reviewers
+read the old sentence as self-contradictory and they were right. The comparison is
+therefore stated without that word.
+
+The worst cell reaches **{d["p6_worst_share"]}** including Monte Carlo error
+against the {d["min_omitted_share"]:.4f} threshold, so **the cross term is above
+the threshold and cannot be ignored**.{
+"" if d.get("p6_ok") is False else " (P6's stored verdict disagrees with this sentence; regenerate.)"}
 The term is largest on the identity link when the target shares the source's
-modification in full, and it does **not** shrink as the target grows, because both
-sides of the ratio scale with 1/nT.
+modification in full.
+
+An earlier draft added that the share "does not shrink as the target grows,
+because both sides of the ratio scale with 1/nT". That was true when the
+denominator was the omitted plus source variance and is **not** true now: the
+denominator is the whole variance of the contrast, whose source component scales
+with 1/nS rather than 1/nT. The share does move with the target size, and the
+growth ladder below is what measures it.
 
 So it is carried rather than argued away. `R/14-calibrate-xcov.R` calibrates it per
 target cell and the `maic_xcov` arm supplies it, which is what lets a coverage
@@ -374,6 +405,11 @@ general, and the analysis will not report it as if it did.
 ---
 
 ## 6. Replicates, error and cost
+
+**The registered coverage band is {d["cover_band"][0]} to {d["cover_band"][1]}**,
+two-sided: an interval that is too wide fails it exactly as an interval that is
+too narrow does, because reporting only undercoverage would let a conservative
+method pass as correct.
 
 {d["n_rep"]} replicates per cell. The coverage Monte Carlo error the design
 **targets** is {d["coverage_mcse_target"]}; the error {d["n_rep"]} replicates

@@ -193,7 +193,26 @@ main <- function() {
                n_ok = n_ok, stringsAsFactors = FALSE)
   }))
 
-  keep <- is.finite(shares$share) & shares$share >= MIN_OMITTED_SHARE
+  ## THE GROWTH LADDER IS EXEMPT FROM THE GATE, and round 3 of critique is why.
+  ##
+  ## Prediction 1 says the coverage deficit DOES NOT CLOSE as the target grows.
+  ## Testing that needs cells at every nT with the other factors held fixed. But
+  ## the omitted-variance share falls as nT grows, because the moment term scales
+  ## with 1/nT while the source term scales with 1/nS, so the gate drops the large
+  ## nT cells first: exactly the ones the prediction is about. A design that
+  ## screens on the effect being large cannot test a claim that the effect
+  ## persists when it is small.
+  ##
+  ## So a ladder is retained regardless of share: for each link and each arm, the
+  ## full nT sequence at the middle of everything else. These cells are marked so
+  ## the analysis can report them as the prediction-1 test rather than pooling
+  ## them with the powered grid, where they would dilute it.
+  ladder <- with(shares,
+    shape == GRID_MIDDLE$shape & corr_assumed == GRID_MIDDLE$corr_assumed &
+    modifier_span == GRID_MIDDLE$modifier_span & nS == GRID_MIDDLE$nS &
+    k == GRID_MIDDLE$k & baseline_shift == GRID_MIDDLE$baseline_shift)
+  shares$ladder <- ladder
+  keep <- (is.finite(shares$share) & shares$share >= MIN_OMITTED_SHARE) | ladder
   n_bad <- sum(!is.finite(shares$share))
   if (n_bad) {
     cat(sprintf("\n%d cells produced no finite share; the first few:\n", n_bad))
@@ -224,7 +243,10 @@ main <- function() {
   p$P2_min_share <- list(MIN_OMITTED_SHARE)
   p$P2_min_shift <- list(MIN_COVERAGE_SHIFT)
   saveRDS(p, PROBE_FILE)
-  cat(sprintf("\nregistered cell count: %d\nwritten: %s\n", sum(keep), PROBE_FILE))
+  cat(sprintf("\nregistered cell count: %d, of which %d are growth-ladder\n",
+              sum(keep), sum(ladder & keep)))
+  cat(sprintf("cells retained below the floor to test prediction 1\n"))
+  cat(sprintf("written: %s\n", PROBE_FILE))
 }
 
 if (!interactive() && Sys.getenv("P2_NOMAIN") == "") main()

@@ -98,8 +98,20 @@ check("no interval-direction claim is made from P3",
 
 # P6 FAILED ITS FLOOR. The document must say so, and must not say the opposite.
 check("the cross-covariance probe's verdict matches the export",
-      D["p6_ok"] is False and "It does not clear it." in PROTOCOL,
+      D["p6_ok"] is False
+      and "the cross term is above the threshold and cannot be ignored"
+          in PROTOCOL,
       f"p6_ok={D['p6_ok']}")
+# THE WORD "CLEAR" MUST NOT BE USED FOR THIS PROBE. It means "large enough to be
+# worth running" at the cell gate and would mean the opposite here, which three
+# reviewers independently read as a contradiction.
+_p6_section = PROTOCOL.split("### P6")[1].split("### P7")[0] if "### P6" in PROTOCOL else ""
+# The one permitted use is the sentence that explains the two meanings.
+_p6_rest = _p6_section.split("A WORD USED TWO WAYS")[0] + \
+           _p6_section.split("stated without that word.")[-1]
+check("P6 does not reuse the gate's word for the opposite comparison",
+      "clear" not in _p6_rest,
+      "the ambiguous phrasing has come back")
 check("the worst cross-covariance share really is above the floor",
       D["p6_worst_share"] > D["min_omitted_share"],
       f"{D['p6_worst_share']} against {D['min_omitted_share']}")

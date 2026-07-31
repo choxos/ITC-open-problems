@@ -125,6 +125,11 @@ main <- function() {
     lapply(p6[i, ], function(z) if (is.numeric(z)) signif(z, 4) else z))
   p2 <- p$P2_table[[1]]
   out$n_cells_realized <- nrow(p2)
+  ## The growth-ladder cells, retained below the floor so prediction 1 can be
+  ## tested at target sizes where the effect is small by construction.
+  if (!is.null(p2$ladder))
+    out$n_ladder <- sum(p2$ladder &
+                        p2$cell_id %in% p$P2_grid[[1]]$cell_id, na.rm = TRUE)
   out$omitted_share_by_link <- lapply(split(p2$share, p2$link), function(z)
     list(min = signif(min(z, na.rm = TRUE), 3),
          median = signif(stats::median(z, na.rm = TRUE), 3),
