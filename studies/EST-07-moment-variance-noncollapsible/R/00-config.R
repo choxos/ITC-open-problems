@@ -164,23 +164,37 @@ NULL_TOL <- 1e-8
 
 ## --- decision rule, DESIGN.md section 7 -------------------------------------
 NOMINAL     <- 0.95
-## THE BAND IS DERIVED FROM THE MONTE CARLO ERROR THE DESIGN ACTUALLY HAS, not
-## typed. A band exists to stop a correct method being rejected for Monte Carlo
-## noise, so its half-width is a multiple of the coverage error at the registered
-## replicate count: at 2000 replicates that error is 0.00487, and three of them is
-## 0.0146. Rounding outward to the nearest half-percent gives the band this study
-## has always used, which is why the change is a derivation rather than a
-## revision.
+## THE BAND IS DERIVED, AND THE MULTIPLE IS DERIVED TOO.
 ##
-## Three is the registered multiple: a correct method sits outside a three-error
-## band about once in 370 cells by chance, which across a few hundred cells is
-## well under one expected false failure.
-COVER_BAND_MULT <- 3
-COVER_BAND <- local({
-  half <- COVER_BAND_MULT * COVERAGE_MCSE_AT_N
-  c(floor((NOMINAL_LEVEL <- 0.95 - half) * 200) / 200,
-    ceiling((0.95 + half) * 200) / 200)
-})
+## A band exists to stop a correct method being rejected for Monte Carlo noise, so
+## its half-width is a multiple of the coverage error the design actually has. The
+## first version of this derivation fixed the multiple at three and asserted that
+## gave "well under one expected false failure". At 349 cells a three-error band
+## produces about 0.94 expected false failures, which is about one, not well under
+## one. A reviewer had already asked where the half-width came from.
+##
+## The multiple is now solved from a registered BUDGET for false failures across
+## the whole grid, so the band widens if the grid grows rather than silently
+## admitting more spurious rejections.
+##
+## The band is a tolerance for Monte Carlo noise ONLY. It is not a substantive
+## claim that a coverage of 0.936 is acceptable in practice; it is a statement
+## that this study cannot distinguish 0.936 from 0.95 with the replicates it has.
+FALSE_FAILURE_BUDGET <- 0.1   # expected spurious band failures across the grid
+
+cover_band <- function(n_cells, mcse = COVERAGE_MCSE_AT_N,
+                       budget = FALSE_FAILURE_BUDGET, nominal = NOMINAL) {
+  per_cell <- budget / max(n_cells, 1)
+  z <- stats::qnorm(1 - per_cell / 2)
+  half <- z * mcse
+  c(floor((nominal - half) * 1000) / 1000,
+    ceiling((nominal + half) * 1000) / 1000)
+}
+
+## Evaluated once the grid is known; until P2 has run there is no cell count to
+## derive it from, so it is a placeholder rather than a guess.
+COVER_BAND <- c(NA_real_, NA_real_)
+
 ## CMP-14 registered its band one-sided and counted 76 over-covering scenarios as
 ## successes for two rounds before a reviewer found it.
 

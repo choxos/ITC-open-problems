@@ -158,7 +158,13 @@ main <- function() {
   ## The registered band. Both ends are failures: an interval that is too wide is
   ## as wrong as one that is too narrow, and reporting only undercoverage would
   ## make a conservative method look correct.
-  perf$in_band <- perf$coverage >= COVER_BAND[1] & perf$coverage <= COVER_BAND[2]
+  ## The band is derived from the number of cells actually analyzed, so a run
+  ## covering more cells is judged against a proportionately wider band and the
+  ## expected count of spurious failures stays inside its registered budget.
+  band <- cover_band(length(unique(perf$cell_id)))
+  perf$in_band <- perf$coverage >= band[1] & perf$coverage <= band[2]
+  cat(sprintf("coverage band for %d cells: [%.3f, %.3f]\n",
+              length(unique(perf$cell_id)), band[1], band[2]))
 
   cat("\n=== coverage by method, over cells ===\n")
   by_m <- do.call(rbind, lapply(split(perf, perf$method), function(z)

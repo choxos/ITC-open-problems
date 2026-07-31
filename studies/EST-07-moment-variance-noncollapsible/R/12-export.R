@@ -61,7 +61,10 @@ main <- function() {
   ## a design input and is not the same number.
   out$coverage_mcse_at_n <- signif(COVERAGE_MCSE_AT_N, 4)
   out$nominal <- NOMINAL
-  out$cover_band <- COVER_BAND
+  ## Derived from the realized grid size, not typed: the band widens as the grid
+  ## grows so the expected number of spurious failures stays inside its budget.
+  out$cover_band <- cover_band(out$n_cells)
+  out$false_failure_budget <- FALSE_FAILURE_BUDGET
   out$quad_tol <- QUAD_TOL
   out$n_perturb <- N_PERTURB
   out$crn_blocks <- CRN_BLOCKS
@@ -192,6 +195,23 @@ main <- function() {
 
   ## The gate's variance decomposition, so the protocol can show that the
   ## denominator is the whole variance rather than assert it.
+  ## THE ANCHORED DECOMPOSITION, computed as a median of WITHIN-CELL shares among
+  ## ANCHORED cells. An earlier version divided a median by a sum of medians over
+  ## the whole realized grid and reported it as what anchored comparisons do; a
+  ## ratio of medians is not a median of ratios, and the grid it was taken over
+  ## was mostly unanchored.
+  if (!is.null(p2$v_bc) && !is.null(p2$anchored)) {
+    .a <- p2[p2$anchored, ]
+    .tot <- .a$v_omit + .a$v_src + .a$v_bc + .a$v_cross
+    .ok <- is.finite(.tot) & .tot > 0
+    out$anchored_decomposition <- list(
+      n_cells = sum(.ok),
+      target_trial = signif(stats::median(.a$v_bc[.ok] / .tot[.ok]), 3),
+      source       = signif(stats::median(.a$v_src[.ok] / .tot[.ok]), 3),
+      omitted      = signif(stats::median(.a$v_omit[.ok] / .tot[.ok]), 3),
+      cross        = signif(stats::median(.a$v_cross[.ok] / .tot[.ok]), 3))
+  }
+
   if (!is.null(p2$v_bc)) {
     out$gate_terms <- list(
       v_omit  = signif(stats::median(p2$v_omit, na.rm = TRUE), 4),

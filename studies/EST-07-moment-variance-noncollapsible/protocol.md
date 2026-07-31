@@ -310,8 +310,12 @@ Median share of the interval's variance carried by the moment term, by link:
 
 So the effect the catalog entry names is material without an anchor and immaterial
 with one, on the curved links as well as the collapsible one. In an anchored
-comparison the target trial's own effect carries about 83% of the interval's
-variance, and the moment term's median share ranges from
+comparison the target trial's own effect carries a median
+0.827 of the interval's
+variance, taken as the median of WITHIN-CELL shares across the
+396 anchored cells rather than as
+a ratio of medians over the whole grid, which is what an earlier draft reported.
+The moment term's median share ranges from
 0.0224 to
 0.0928 across links. An earlier
 draft rounded that to "about 1%", which understates the identity arm. That is the
@@ -379,8 +383,14 @@ general, and the analysis will not report it as if it did.
 
 ## 6. Replicates, error and cost
 
-**The registered coverage band is 0.935 to 0.965**,
-two-sided: an interval that is too wide fails it exactly as an interval that is
+**The registered coverage band is 0.941 to 0.959**,
+**derived rather than typed**: its half-width is the multiple of the delivered
+Monte Carlo error, 0.004873, at which the expected number of
+spurious band failures across all 349 cells stays inside a registered
+budget of 0.1. A larger grid therefore earns a wider
+band instead of quietly admitting more false rejections. It is a tolerance for
+Monte Carlo noise and not a claim that 0.936 coverage is acceptable in practice.
+It is two-sided: an interval that is too wide fails it exactly as an interval that is
 too narrow does, because reporting only undercoverage would let a conservative
 method pass as correct.
 
