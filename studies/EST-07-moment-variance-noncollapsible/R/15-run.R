@@ -145,7 +145,9 @@ run_replicate <- function(cell, r) {
   truth_mm <- try(truth_moment_matched(pars, pars_T, cell$link, tr$m, cell$shape,
                                        mu_S = pm$source,
                                        sigma = rep(1, length(pars$beta_em)),
-                                       rho = 0.3, anchored = anch),
+                                       rho = 0.3,
+                                       modifier_span = cell$modifier_span,
+                                       anchored = anch),
                   silent = TRUE)
   if (inherits(truth_mm, "try-error")) truth_mm <- NA_real_
 

@@ -285,9 +285,20 @@ truth_unanchored_finite <- function(pars, pars_T, x, link) {
 ## enough that the weight fit is at its limit rather than at a sample of it.
 MM_SOURCE_N <- 40000L
 
+## `modifier_span` IS REQUIRED, not defaulted. Round 6 of critique found the
+## outside arm's limit at +0.8195 against a superpopulation truth of +0.48, with a
+## recycling warning: `h_of()` was called at its default span, so it built a
+## balancing matrix over all four covariates while the reported moment vector
+## carries only the three the target publishes. R recycled the shorter vector and
+## the weight fit matched nothing in particular. A silent numerical corruption in
+## 36 registered cells, and it was silent because the default made the call look
+## complete.
 truth_moment_matched <- function(pars, pars_T, link, m_reported, shape, mu_S,
-                                 sigma, rho, anchored = TRUE,
+                                 sigma, rho, modifier_span, anchored = TRUE,
                                  n = MM_SOURCE_N) {
+  if (missing(modifier_span))
+    stop("truth_moment_matched() needs modifier_span: the balancing function ",
+         "must be built over the covariates the target actually reports")
   lf <- link_fns(link)
   ## A large draw from the SOURCE law, tilted to the reported moments. The seed is
   ## fixed and restored so this never consumes the replicate's stream.
@@ -297,13 +308,16 @@ truth_moment_matched <- function(pars, pars_T, link, m_reported, shape, mu_S,
   xs <- covariate_law(shape, n, mu_S, sigma, rho)
   if (!is.null(old)) assign(".Random.seed", old, .GlobalEnv)
 
-  h <- h_of(xs)
+  h <- h_of(xs, modifier_span)
   fw <- tryCatch(fit_weights(h, m_reported), error = function(e) NULL)
   if (is.null(fw) || fw$conv != CONVERGENCE$optim_code) return(NA_real_)
   w <- fw$w / sum(fw$w)
 
   ## The arm means the tilted law implies, under the SOURCE parameters for the
   ## transported arm and the TARGET parameters for the comparator.
+  if (ncol(h) != length(m_reported))
+    stop("the balancing matrix has ", ncol(h), " columns against ",
+         length(m_reported), " reported moments")
   cm_s <- conditional_means(xs, pars,   link)
   cm_t <- conditional_means(xs, pars_T, link)
   if (anchored)
