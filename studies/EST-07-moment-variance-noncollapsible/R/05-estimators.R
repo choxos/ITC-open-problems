@@ -473,8 +473,23 @@ stc_estimate <- function(rep_data, link, level = 0.95, n_sim = 2000L) {
   ## that leaves one modifier unmodeled, which is exactly the exposure the arm
   ## exists to create; fitting on all four and then marginalizing over three
   ## would be a mismatch no analyst could commit.
+  ## THE CLOGLOG ARM IS FITTED ON THE COMPLEMENT, and round 6 of critique is why.
+  ##
+  ## This study's cloglog link is defined on the SURVIVAL scale: g(s) =
+  ## log(-log(s)) with ginv(e) = exp(-exp(e)), so the modelled probability is
+  ## P(Y = 1) = S and Y = 1 means survived. R's `binomial(link = "cloglog")`
+  ## models the EVENT probability, 1 - exp(-exp(eta)). Those are complements, so
+  ## fitting the outcome directly estimates the wrong parameterization: against a
+  ## DGP with alpha -0.8, tau0 0.5 and prognostic coefficients 0.4, 0.3, 0.2, the
+  ## direct fit returned -0.07, -0.57 and -0.316, -0.233, -0.172. Every sign
+  ## flipped, and the whole cloglog arm of STC was answering a mirrored question.
+  ##
+  ## MAIC is unaffected: its sandwich differentiates the study's own g and never
+  ## calls `glm`. Only the model-based arm crossed the parameterization.
   xr <- s$x[, s$reported, drop = FALSE]
-  df <- data.frame(Y = s$Y, A = s$A, xr)
+  flip <- identical(link, "cloglog")
+  y_fit <- if (flip) 1 - s$Y else s$Y
+  df <- data.frame(Y = y_fit, A = s$A, xr)
   fit <- tryCatch(stats::glm(Y ~ A * ., data = df, family = fam),
                   error = function(e) NULL)
   if (is.null(fit) || !fit$converged)
@@ -488,8 +503,14 @@ stc_estimate <- function(rep_data, link, level = 0.95, n_sim = 2000L) {
   S <- diag(tr$sd) %*% R_use %*% diag(tr$sd)
   xs <- MASS::mvrnorm(n_sim, tr$mean, S)
   nd <- data.frame(xs); names(nd) <- names(df)[-(1:2)]
-  m1 <- mean(stats::predict(fit, cbind(A = 1, nd), type = "response"))
-  m0 <- mean(stats::predict(fit, cbind(A = 0, nd), type = "response"))
+  ## Predictions come back on the fitted scale, so the complement is undone before
+  ## anything is marginalized: the arm means this study works with are survival
+  ## probabilities.
+  pr <- function(a) {
+    v <- mean(stats::predict(fit, cbind(A = a, nd), type = "response"))
+    if (flip) 1 - v else v
+  }
+  m1 <- pr(1); m0 <- pr(0)
   ## STC differences the same target quantity its MAIC counterpart does.
   lf <- link_fns(link)
   anchored <- !isFALSE(rep_data$hidden$anchored)
@@ -510,8 +531,11 @@ stc_estimate <- function(rep_data, link, level = 0.95, n_sim = 2000L) {
   ## the derivative is of the estimator and not of the reconstruction.
   marg <- function(bet) {
     f2 <- fit; f2$coefficients <- bet
-    m1b <- mean(stats::predict(f2, cbind(A = 1, nd), type = "response"))
-    m0b <- mean(stats::predict(f2, cbind(A = 0, nd), type = "response"))
+    pb <- function(a) {
+      v <- mean(stats::predict(f2, cbind(A = a, nd), type = "response"))
+      if (flip) 1 - v else v
+    }
+    m1b <- pb(1); m0b <- pb(0)
     if (anchored) delta_from_arm_means(m0b, m1b, link) else lf$g(m1b)
   }
   ## CHECKED AGAINST A BOOTSTRAP rather than asserted. Resampling the source 400
