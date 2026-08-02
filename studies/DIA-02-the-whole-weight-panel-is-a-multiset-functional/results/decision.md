@@ -69,13 +69,13 @@ statistic is actively misleading in the direction practitioners read it.
 
 | statistic | family | AUROC | SE |
 | --- | --- | ---: | ---: |
-| `ess_region` | geometric | 0.592 | 0.012 |
-| `ot_cost` | geometric | 0.577 | 0.014 |
+| `ess_region` | geometric | 0.592 | 0.011 |
+| `ot_cost` | geometric | 0.577 | 0.013 |
 | `max_weight` | panel | 0.574 | 0.013 |
 | `hull_gap` | geometric | 0.560 | 0.013 |
-| `ess_kish` | panel | 0.510 | 0.013 |
+| `ess_kish` | panel | 0.510 | 0.014 |
 | `ess_pct` | panel | 0.510 | 0.014 |
-| `entropy_eff` | panel | 0.491 | 0.013 |
+| `entropy_eff` | panel | 0.491 | 0.014 |
 | `top_share` | panel | 0.481 | 0.014 |
 | `balance_omitted` | geometric | 0.465 | 0.014 |
 
@@ -91,14 +91,32 @@ because here the question is whether the arms are distinguishable at all.
 | statistic | family | AUROC | separation | SE |
 | --- | --- | ---: | ---: | ---: |
 | `ess_region` | geometric | 0.0001 | 1.000 | 0.0000 |
-| `ot_cost` | geometric | 0.7260 | 0.726 | 0.0043 |
-| `balance_omitted` | geometric | 0.4653 | 0.535 | 0.0047 |
-| `max_weight` | panel | 0.4954 | 0.505 | 0.0045 |
-| `hull_gap` | geometric | 0.5029 | 0.503 | 0.0047 |
-| `ess_kish` | panel | 0.5016 | 0.502 | 0.0044 |
-| `ess_pct` | panel | 0.5016 | 0.502 | 0.0045 |
-| `entropy_eff` | panel | 0.5008 | 0.501 | 0.0045 |
-| `top_share` | panel | 0.5001 | 0.500 | 0.0047 |
+| `ot_cost` | geometric | 0.7260 | 0.726 | 0.0042 |
+| `balance_omitted` | geometric | 0.4653 | 0.535 | 0.0048 |
+| `max_weight` | panel | 0.4954 | 0.505 | 0.0044 |
+| `hull_gap` | geometric | 0.5029 | 0.503 | 0.0044 |
+| `ess_kish` | panel | 0.5016 | 0.502 | 0.0045 |
+| `ess_pct` | panel | 0.5016 | 0.502 | 0.0043 |
+| `entropy_eff` | panel | 0.5008 | 0.501 | 0.0044 |
+| `top_share` | panel | 0.5001 | 0.500 | 0.0046 |
+
+### Sensitivity to the restriction's boundary
+
+The null control is a hard cut, so `dim3/moderate` is excluded on a rate of 0.0213
+against a threshold of 0.02, a difference of a few Monte Carlo standard
+errors. Adding it back moves nothing, so the cut is not doing the work.
+
+| statistic | family | separation, kept subgrid | plus borderline |
+| --- | --- | ---: | ---: |
+| `ess_region` | geometric | 0.9999 | 0.9997 |
+| `ot_cost` | geometric | 0.7260 | 0.7600 |
+| `balance_omitted` | geometric | 0.5347 | 0.5195 |
+| `max_weight` | panel | 0.5046 | 0.5024 |
+| `hull_gap` | geometric | 0.5029 | 0.5006 |
+| `ess_kish` | panel | 0.5016 | 0.5011 |
+| `ess_pct` | panel | 0.5016 | 0.5011 |
+| `entropy_eff` | panel | 0.5008 | 0.5001 |
+| `top_share` | panel | 0.5001 | 0.5007 |
 
 ## Why the two readings disagree
 
@@ -112,7 +130,7 @@ competitive there and why the registered rule reads REFUTED.
 The proposition is about the second question, and answering it requires
 comparing analyses at DIFFERENT placements. That comparison is section 8's
 control, and at 16,000 replicates every panel member sits within 0.0046 of chance
-with a standard error of 0.0047, so the blindness is measured rather than
+with a standard error of 0.0046, so the blindness is measured rather than
 merely unrejected.
 
 **The registered primary outcome was the wrong measurement for the
@@ -149,12 +167,19 @@ Four things it does not establish.
    eliminated. Its separation of 0.535 here is the tautological zero its own
    code comment predicted, and the comparison the design wanted was not
    run. That is a live threat to the headline, not a settled one.
-3. **`ess_region` requires choosing a region.** The choice here is the
-   effect modifier's upper decile, which an analyst has, because MAIC
-   already requires naming the modifiers. It is not knowledge of where the
-   hole is: in the prognostic-hole arm the hole lies elsewhere and the
-   statistic correctly reads near-normal. But the region is a choice, and a
-   calibrated decision rule would have to register it.
+3. **`ess_region` was handed the easiest possible instance, and its 1.000 is
+   an upper bound rather than an estimate of field performance.** The
+   region it examines and the region the hole empties are the same
+   construction, the modifier's upper decile, so perfect separation is what
+   the arithmetic requires and not evidence about a hole placed elsewhere.
+   Two things keep it from being circular. The region is chosen from the
+   effect-modifier structure, which MAIC already requires naming, not from
+   knowledge of the hole; and in the prognostic-hole arm the hole lies
+   outside the examined region and the statistic correctly reads
+   near-normal rather than firing on any hole at all. What is untested is a
+   hole in a high-modification region the analyst did not think to examine,
+   which is the case where this diagnostic would fail exactly as the panel
+   does.
 4. **No diagnostic here is calibrated.** Separating two placements is not a
    threshold, and this study does not provide one.
 

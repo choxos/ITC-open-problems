@@ -166,6 +166,25 @@ main <- function() {
         fmt(cx$auroc[i], 4), fmt(cx$separation[i]), fmt(cx$se[i], 4))
   add("")
 
+  if (!is.null(a$sensitivity)) {
+    s <- merge(cx[, c("statistic", "family", "separation")],
+               a$sensitivity[, c("statistic", "separation")], by = "statistic",
+               suffixes = c("_kept", "_plus"))
+    s <- s[order(-s$separation_kept), ]
+    add("### Sensitivity to the restriction's boundary\n")
+    add("The null control is a hard cut, so `%s` is excluded on a rate of %s",
+        paste(a$borderline, collapse = ", "),
+        fmt(a$null_by[[a$borderline[1]]], 4))
+    add("against a threshold of %.2f, a difference of a few Monte Carlo standard", 0.02)
+    add("errors. Adding it back moves nothing, so the cut is not doing the work.\n")
+    add("| statistic | family | separation, kept subgrid | plus borderline |")
+    add("| --- | --- | ---: | ---: |")
+    for (i in seq_len(nrow(s)))
+      add("| `%s` | %s | %s | %s |", s$statistic[i], s$family[i],
+          fmt(s$separation_kept[i], 4), fmt(s$separation_plus[i], 4))
+    add("")
+  }
+
   add("## Why the two readings disagree\n")
   add("Section 7 registered the within-arm outcome, and every replicate in that")
   add("arm shares one hole placement. The only thing varying across those")
@@ -215,12 +234,20 @@ main <- function() {
       fmt(cx$separation[cx$statistic == "balance_omitted"]))
   add("   code comment predicted, and the comparison the design wanted was not")
   add("   run. That is a live threat to the headline, not a settled one.")
-  add("3. **`ess_region` requires choosing a region.** The choice here is the")
-  add("   effect modifier's upper decile, which an analyst has, because MAIC")
-  add("   already requires naming the modifiers. It is not knowledge of where the")
-  add("   hole is: in the prognostic-hole arm the hole lies elsewhere and the")
-  add("   statistic correctly reads near-normal. But the region is a choice, and a")
-  add("   calibrated decision rule would have to register it.")
+  add("3. **`ess_region` was handed the easiest possible instance, and its %s is",
+      fmt(max(cx$separation)))
+  add("   an upper bound rather than an estimate of field performance.** The")
+  add("   region it examines and the region the hole empties are the same")
+  add("   construction, the modifier's upper decile, so perfect separation is what")
+  add("   the arithmetic requires and not evidence about a hole placed elsewhere.")
+  add("   Two things keep it from being circular. The region is chosen from the")
+  add("   effect-modifier structure, which MAIC already requires naming, not from")
+  add("   knowledge of the hole; and in the prognostic-hole arm the hole lies")
+  add("   outside the examined region and the statistic correctly reads")
+  add("   near-normal rather than firing on any hole at all. What is untested is a")
+  add("   hole in a high-modification region the analyst did not think to examine,")
+  add("   which is the case where this diagnostic would fail exactly as the panel")
+  add("   does.")
   add("4. **No diagnostic here is calibrated.** Separating two placements is not a")
   add("   threshold, and this study does not provide one.\n")
 

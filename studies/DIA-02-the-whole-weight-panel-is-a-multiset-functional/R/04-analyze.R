@@ -214,6 +214,32 @@ main <- function() {
     print(cross, row.names = FALSE, digits = 3)
   }
 
+  ## --- SENSITIVITY: does the restriction's boundary matter? ------------------
+  ## The null control is a hard cut, so a stratum whose rate sits just above it is
+  ## excluded on a difference of a few Monte Carlo standard errors. If the answer
+  ## moved when such a stratum is added back, the cut would be doing the work
+  ## rather than the data. This recomputes the cross-arm reading with every
+  ## stratum whose null rate is within twice the threshold, and reports both.
+  border <- names(null_by)[null_by > NULL_MAX & null_by <= 2 * NULL_MAX]
+  sens <- NULL
+  if (length(border) && !is.null(cross)) {
+    w <- d[(d$stratum %in% c(ok_strata, border)) &
+           d$omitted_moment %in% LEVELS$omitted_moment[ok_om] &
+           d$hole %in% c("low_modification", "high_modification"), ]
+    lw <- w$hole == "high_modification"
+    sens <- do.call(rbind, lapply(names(DIAGNOSTICS), function(s) {
+      a <- auroc(w[[s]], lw)
+      data.frame(statistic = s, family = DIAGNOSTICS[[s]]$family,
+                 separation = max(a, 1 - a), stringsAsFactors = FALSE)
+    }))
+    cat(sprintf("\n=== SENSITIVITY: adding borderline stratum/strata %s (%d reps)\n",
+                paste(border, collapse = ", "), nrow(w)))
+    cmpm <- merge(cross[, c("statistic", "family", "separation")],
+                  sens[, c("statistic", "separation")], by = "statistic",
+                  suffixes = c("_kept", "_plus_borderline"))
+    print(cmpm[order(-cmpm$separation_kept), ], row.names = FALSE, digits = 4)
+  }
+
   ## --- the comparability defect, quantified ----------------------------------
   sp <- with(d, pmax(ess_def_kish, ess_def_cv, ess_def_entropy) /
                 pmax(pmin(ess_def_kish, ess_def_cv, ess_def_entropy), 1e-12))
@@ -222,6 +248,7 @@ main <- function() {
 
   dir.create("results", showWarnings = FALSE)
   saveRDS(list(primary = prim, cross = cross, arm = arm,
+               sensitivity = sens, borderline = border,
                invariance = inv_all, null_rate = null_rate, null_by = null_by,
                ok_strata = ok_strata, ok_om = LEVELS$omitted_moment[ok_om],
                n_cells_all = length(unique(d$cell_id)),
