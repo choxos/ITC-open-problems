@@ -53,9 +53,12 @@ Four consequences, each a prediction:
    monotone in "how correlated the covariates are", and a study that varies
    correlation without varying the sign pattern would report a monotone
    relationship that does not exist.
-3. **On a collapsible scale with linear modification, $c = 0$ and the
-   reconstruction is irrelevant.** The refuting sentence is then exactly true,
-   and that arm is the design's falsifier.
+3. **On a collapsible scale the reconstruction matters much less, but not zero.**
+   An earlier version of this prediction said $c = 0$ made it *irrelevant*.
+   Section 8 records why that is wrong: collapsibility fixes the relationship
+   between the marginal and the mean conditional effect, not the dependence of
+   that mean on the joint law. Measured, the risk-difference arm carries about a
+   quarter of the log odds ratio's reconstruction error rather than none of it.
 4. **Nonlinear effect modification adds terms the second moment does not
    capture**, so the copula family, not only the correlation matrix, matters
    there. That separates "get the correlations right" from "get the joint law
@@ -117,10 +120,19 @@ the same published summaries and different truths.
 |---|---|---|
 | conventional STC at target means | the plug-in conditional quantity | the closed problem, carried only as a reference point and labeled as such |
 | g-computation, true joint law | oracle | the ceiling; isolates reconstruction from everything else |
-| g-computation, independence | marginals only, zero off-diagonal | the default when nothing is reported |
-| g-computation, Gaussian copula | correlation borrowed from the IPD trial | what implementations do in practice |
-| g-computation, maximum entropy | least-committed law consistent with the reported marginals | the principled reconstruction |
+| g-computation, independence | marginals only, zero off-diagonal | the default when nothing is reported, **and the maximum-entropy law given the marginals** |
+| g-computation, Gaussian copula | correlation borrowed from the IPD trial | what implementations do in practice, **and the maximum-entropy law given the marginals plus a covariance** |
 | **reconstruction interval** | the contrast reported over the set of joint laws consistent with the marginals and a declared correlation range | the honest output when the law is unknown |
+
+> **Correction, made at implementation.** This table previously listed maximum
+> entropy as a sixth arm, distinct from independence. **They are the same
+> distribution.** Maximizing differential entropy subject to fixed marginals
+> gives the product of those marginals, because $H(f) \le \sum_i H(f_i)$ with
+> equality exactly under independence; adding a covariance constraint gives the
+> Gaussian. So the two reconstructions here are not competing heuristics, they
+> are the maximum-entropy solutions under the two information sets an analyst can
+> have. The study therefore cannot report that maximum entropy beat independence,
+> and any result claiming so would be an arithmetic error rather than a finding.
 
 **The comparator that can win is independence.** If it matches the oracle across
 the realistic grid, the residual the catalog names is not material and the
@@ -169,14 +181,44 @@ beside its coverage.
 
 ## 8. Three controls, each of which can fail
 
-**Null control.** On the risk-difference scale with linear modification, $c = 0$
-makes the reconstruction **exactly irrelevant**: every method must agree with the
-oracle to Monte Carlo error. This is algebraic, and a failure means the harness is
-letting the reconstruction affect something it cannot.
+> **Correction, made before the run and after checking the algebra numerically.**
+> An earlier version of this section registered the risk-difference arm as an
+> **exact** null control, on the reasoning that a collapsible scale sets $c = 0$
+> and makes the reconstruction irrelevant. **That is wrong, and the run would
+> have failed a control that was never true.** Collapsibility says the marginal
+> risk difference equals the *mean conditional* risk difference; it does not say
+> that mean is fixed by the marginals. The conditional risk difference of a
+> logistic model, $\mathrm{plogis}(\alpha + \gamma^\top x + \tau) -
+> \mathrm{plogis}(\alpha + \gamma^\top x)$, is a nonlinear function of the
+> prognostic index, so its expectation still moves with $\mathrm{Var}_T(u)$.
+> Measured at $d = 5$, all-positive $\gamma$, linear modification, moving the
+> correlation from 0 to 0.6 moves the marginal risk difference by **-0.0249**,
+> half of the material threshold, against **-0.1012** on the log odds ratio.
+> The scale effect is real and large; the identity is not.
+>
+> The arm is retained and **reclassified as a registered prediction**: the
+> reconstruction error on the collapsible scale should be several times smaller
+> than on the log odds ratio, and the measured ratio is a reported outcome. Two
+> exact null controls replace it below.
 
-**Second null control.** With one covariate there is no off-diagonal, so the joint
-law is the marginal and every reconstruction coincides. Cheap, exact, and it
-catches a whole class of implementation error.
+**Null control, exact.** With one covariate there is no off-diagonal, so the
+joint law *is* the marginal and every reconstruction coincides with the truth by
+definition. Any disagreement between methods at $d = 1$ is an implementation
+fault. Cheap, exact, and it catches a whole class of error. Copula constructors
+reject `dim = 1`, so `draw_target()` handles this case before any copula is
+built, which is why the control is runnable at all.
+
+**Second null control, exact up to integration error.** At correlation zero the
+true law *is* the independence law, so the oracle and the independence
+reconstruction integrate the same distribution and must agree to the integration
+error P1 sized. This one also checks the three copula families collapse onto each
+other there, since all three reduce to the independence copula.
+
+**Registered prediction replacing the withdrawn control.** On the risk-difference
+scale the reconstruction error must be materially smaller than on the log odds
+ratio, in every cell. The ratio is reported. If it is near one, non-collapsibility
+is not the mechanism and section 2's account is wrong about *why* the
+reconstruction matters even where it is right that it does.
 
 **Positive control.** All-positive $\gamma$, correlation 0.6, nonlinear
 modification, five covariates: independence must be biased by at least three
