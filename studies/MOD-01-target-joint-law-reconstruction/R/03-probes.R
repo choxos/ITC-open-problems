@@ -86,10 +86,24 @@ probe_p1 <- function(reps = 12L,
   }))
   cat("integration sample size, one fixed fit, oracle-minus-independence contrast:\n")
   print(it, row.names = FALSE, digits = 4)
-  ok_i <- it$n[it$sd_contrast <= MATERIAL_LOGOR / 20]
+  ## THE CHOICE USES THE UPPER BOUND ON THE MEASURED ERROR, NOT THE POINT
+  ## ESTIMATE. With `reps` repeats the sample standard deviation carries its own
+  ## error of roughly 1/sqrt(2(reps-1)), which is 21% at twelve, so a size whose
+  ## point estimate lands just under the target has a real chance of being over
+  ## it. The upper chi-squared bound is what the constant is chosen against.
+  ##
+  ## THIS ERROR DOES NOT AVERAGE AWAY. The integration sample is cached and
+  ## shared across replicates, so its error is a fixed offset on every replicate
+  ## rather than noise, and running more replicates does not reduce it. That is
+  ## why the target here is tight relative to the material threshold.
+  it$upper <- it$sd_contrast * sqrt((reps - 1) / stats::qchisq(0.025, reps - 1))
+  print(it[, c("n", "sd_contrast", "upper", "frac_material")],
+        row.names = FALSE, digits = 4)
+  ok_i <- it$n[it$upper <= MATERIAL_LOGOR / 20]
   n_int <- if (length(ok_i)) min(ok_i) else max(sizes_int)
-  cat(sprintf("-> N_INT = %d (integration error %s, target <= %s)\n\n",
-              n_int, fmt(it$sd_contrast[it$n == n_int]), fmt(MATERIAL_LOGOR / 20)))
+  cat(sprintf("-> N_INT = %d (integration error %s, upper bound %s, target <= %s)\n\n",
+              n_int, fmt(it$sd_contrast[it$n == n_int]),
+              fmt(it$upper[it$n == n_int]), fmt(MATERIAL_LOGOR / 20)))
   rm(list = ls(.int_cache), envir = .int_cache)
   list(TRUTH_N = truth_n, N_INT = n_int, truth_table = tr, int_table = it)
 }

@@ -38,7 +38,18 @@ build_grid <- function() {
   g <- g[order(g$dim, g$scale, g$modification, g$gamma_sign, g$rho, g$copula), ]
   g$cell_id <- seq_len(nrow(g))
   rownames(g) <- NULL
-  g
+  ## THE REGISTERED PRIMARY CELLS RUN FIRST, so section 7's outcome is answerable
+  ## before the rest of the grid finishes. On a machine that kills long jobs this
+  ## is the difference between an answer and a partial store. `cell_id` is
+  ## assigned BEFORE reordering, so a cell's identity and its file name do not
+  ## depend on the running order and a resumed run stays consistent with a
+  ## completed one.
+  g$primary <- g$scale == "logOR" & g$modification == "nonlinear" &
+               g$gamma_sign == "positive" & g$rho == 0.6
+  ## The falsifier next: the mixed-sign arm is what can take the recommendation
+  ## away, so it should not be the last thing measured.
+  g$falsifier <- g$scale == "logOR" & g$gamma_sign == "mixed" & g$rho == 0.6
+  g[order(-g$primary, -g$falsifier, g$cell_id), ]
 }
 
 cell_file <- function(id) file.path(RUN_DIR, sprintf("cell-%03d.rds", id))

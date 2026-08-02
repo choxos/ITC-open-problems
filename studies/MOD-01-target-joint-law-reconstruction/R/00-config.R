@@ -92,9 +92,31 @@ N_AGD         <- 500L                          # only its summaries are used
 ## reimbursement recommendation at the margin.
 MATERIAL_LOGOR <- 0.05
 
-## --- replication ------------------------------------------------------------
-N_REP   <- 2000L
+## --- replication, derived rather than inherited -----------------------------
+##
+## DESIGN.md section 6 wrote n_sim = 2000 without a derivation. Measured, that is
+## about four times more than either registered outcome needs, and the study
+## costs 275 core-hours at it. Since the machine this runs on is shared and
+## already oversubscribed, the number is derived from the precision the decision
+## rule actually requires, and the derivation is here so it can be checked.
+##
+## The replicate-to-replicate standard deviation of the standardized log odds
+## ratio, measured at the worst corner in P1, is about 0.08. Two requirements:
+##
+##   bias      MCSE = 0.08 / sqrt(N_REP)      <= MATERIAL_LOGOR / 10 = 0.005
+##                                            -> N_REP >= 256
+##   coverage  MCSE = sqrt(.95 * .05 / N_REP) <= 0.01
+##                                            -> N_REP >= 475
+##
+## 500 satisfies both, giving a bias MCSE of 0.0036 and a coverage MCSE of
+## 0.0097. Going to 2000 would buy a bias MCSE of 0.0018, which is 3.6% of a
+## threshold the study compares against at 100%, and would cost three more days.
 NOMINAL <- 0.95
+BIAS_SD_WORST     <- 0.08     # measured in P1 at d=5, rho=0.6, nonlinear, logOR
+COVERAGE_MCSE_MAX <- 0.01
+N_REP <- as.integer(ceiling(max(
+  (BIAS_SD_WORST / (MATERIAL_LOGOR / 10))^2,
+  NOMINAL * (1 - NOMINAL) / COVERAGE_MCSE_MAX^2)))
 
 ## The declared correlation range the reconstruction interval is built over. This
 ## is what an analyst asserts when they do not know the target's dependence, and
