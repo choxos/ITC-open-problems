@@ -64,19 +64,41 @@ main <- function() {
   dir.create("results", showWarnings = FALSE)
   saveRDS(res, "results/floor-probe.rds")
 
-  cat("\n=== smallest size passing the null control (P(material) <= 0.02) ===\n")
+  ## THE VERDICT USES THE UPPER CONFIDENCE BOUND, NOT THE POINT ESTIMATE. At 300
+  ## replicates a rate near the 0.02 threshold carries a Monte Carlo standard
+  ## error around 0.008, so declaring a size adequate because its point estimate
+  ## landed below the threshold would be making a decision inside its own noise:
+  ## exactly the defect this probe exists to repair, one level up. A size is
+  ## adequate only when the Clopper-Pearson upper bound is below the threshold,
+  ## which at zero events out of 300 is the rule of three, 0.010.
+  cat(sprintf("\n=== smallest size passing the null control ===\n"))
+  cat(sprintf("Criterion: upper 95%% bound on P(material) below %.2f, not the point\n", 0.02))
+  cat(sprintf("estimate, because at %d replicates the point estimate's own error near\n", N_PROBE))
+  cat(sprintf("that threshold is about %.3f.\n\n",
+              sqrt(0.02 * 0.98 / N_PROBE)))
+  res$upper <- vapply(seq_len(nrow(res)), function(i) {
+    k <- round(res$p_material[i] * res$n_ok[i])
+    stats::binom.test(k, res$n_ok[i])$conf.int[2]
+  }, 0)
+  print(res[, c("dim", "overlap", "n_source", "p_material", "upper", "sec_per_rep")],
+        row.names = FALSE, digits = 3)
+  cat("\n")
   for (s in STRATA) {
-    z <- res[res$dim == s$dim & res$overlap == s$overlap & res$p_material <= 0.02, ]
+    z <- res[res$dim == s$dim & res$overlap == s$overlap & res$upper <= 0.02, ]
     if (nrow(z)) {
       k <- z[which.min(z$n_source), ]
-      cat(sprintf("dim%d/%s: n = %d, at %.2f s/rep -> %.1f h for 12000 replicates\n",
-                  s$dim, s$overlap, k$n_source, k$sec_per_rep,
+      cat(sprintf("dim%d/%s: n = %d (upper bound %.4f), at %.2f s/rep -> %.1f h for 12000 replicates\n",
+                  s$dim, s$overlap, k$n_source, k$upper, k$sec_per_rep,
                   k$sec_per_rep * 12000 / 3600))
     } else {
-      cat(sprintf("dim%d/%s: NONE of %s passes; the stratum is not rescuable at these sizes\n",
+      cat(sprintf("dim%d/%s: NONE of %s passes; not rescuable at these sizes\n",
                   s$dim, s$overlap, paste(SIZES, collapse = ", ")))
     }
   }
+  cat("\nThe per-replicate cost above omits the geometric diagnostics, which the\n")
+  cat("production runner also computes and which dominate at large n through the\n")
+  cat("sliced transport cost, so treat these times as a lower bound.\n")
+  saveRDS(res, "results/floor-probe.rds")
   cat("\nwritten: results/floor-probe.rds\n")
 }
 
