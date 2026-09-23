@@ -1,0 +1,99 @@
+---
+title: "Pooling standardized and unstandardized edges biases a component effect by exactly the untransported edges' share of the population difference"
+subtitle: "A simulation study answering catalog problem CMP-11"
+author: "Ahmad Sofi-Mahmudi"
+date: 2026-09-23
+bibliography: references.bib
+csl: ../../../vancouver.csl
+link-citations: true
+number-sections: true
+execute:
+  echo: false
+  warning: false
+  message: false
+format:
+  gfm:
+    toc: false
+  pdf:
+    documentclass: article
+    geometry: margin=1in
+    fig-pos: "H"
+  odt: default
+---
+
+```{r setup}
+s <- read.csv("../results/summary.csv"); f3 <- function(x) formatC(x, format = "f", digits = 3)
+q <- function(sc, p, sep, b, m) s[s$scale == sc & s$p_ipd == p & s$sep == sep & s$beta == b & s$method == m, ]
+tm <- s[s$method == "two_stage_marg", ]; fit <- stats::lm(bias ~ pred_b1, data = tm)
+k <- s[s$beta == 0.3 & s$sep == 0.5, ]
+```
+
+# Abstract {.unnumbered}
+
+**Background.** Two-stage component MAIC and STC standardize the individual-data edges to
+the target and pool them with aggregate edges left in their own populations. Catalog
+problem CMP-11 asks how large the resulting population mixture is and whether the two-stage
+route is still the better practical choice.
+
+**Methods.** Eight trials estimating one component's effect, a quarter to three quarters
+with individual data; aggregate trials 0 to 1 SD from the target; effect modification 0 or
+0.3; continuous or binary outcome; two-stage pooling with marginal or conditional
+individual-data edges against transporting every edge to the target; 1000 replicates per cell.
+
+**Results.** The two-stage bias matched its predicted form, the aggregate edges' share of
+the pooled precision times the difference between their own-population and target effects
+(slope `r f3(stats::coef(fit)[2])`, $R^2$ `r f3(summary(fit)$r.squared)`), and was zero whenever modification or
+separation was zero. At a separation of 0.5 SD it reached `r f3(q("continuous", 0.25, 0.5, 0.3, "two_stage_marg")$bias)` with coverage
+`r f3(q("continuous", 0.25, 0.5, 0.3, "two_stage_marg")$coverage)`; transporting every edge removed it and had lower RMSE in every such cell
+(`r f3(min(k$rmse[k$method == "transported"]))` to `r f3(max(k$rmse[k$method == "transported"]))` against `r f3(min(k$rmse[k$method == "two_stage_marg"]))` to `r f3(max(k$rmse[k$method == "two_stage_marg"]))`). Pooling conditional
+rather than marginal individual-data edges added up to `r f3(abs(min(s$bias[s$method == "two_stage_cond" & s$scale == "binary"] - s$bias[s$method == "two_stage_marg" & s$scale == "binary"])))` on the log odds ratio scale.
+
+**Conclusion.** The two-stage estimate has no single population referent and its bias does
+not shrink with sample size. Where the aggregate trials' covariate laws are known well
+enough to transport them, doing so is better even after paying for the extra variance.
+
+# The problem {#sec-problem}
+
+Under linear modification an edge's effect in population $F$ is $\delta + \beta\bar x_F$. MAIC-type
+standardization [@signorovitch2010] moves the individual-data edges to the target; the
+aggregate edges stay at their own means. The pooled component effect is then biased by
+$b_1 = \beta\sum_{e\notin\mathcal I} w_e(\bar x_{S_e} - \bar x_T)$, and component STC adds a second term, $b_2$, from pooling
+conditional coefficients with marginal aggregate effects on a non-collapsible scale.
+
+# Design {#sec-design}
+
+Registered protocol: `protocol.md`. Eight trials, 200 per arm; individual-data trials at
+covariate mean $0.5 - s/2$ and aggregate trials at $0.5 - s$, target 0.5; $s \in \{0, 0.5, 1\}$;
+outcome $0.5x + a(-0.3 + \beta x)$ on the identity or logit scale. Individual-data edges were
+fitted with the treatment interaction and standardized to the target by G-computation
+(marginal) or evaluated at the target mean (conditional). The transported arm shifted every
+aggregate edge by the effect difference implied by the pooled individual-data interaction,
+adding the shift's variance once and ignoring its covariance with the individual-data edges;
+the aggregate trials' covariate laws were known exactly, which makes this arm optimistic.
+
+# Results {#sec-results}
+
+![Observed bias against the predicted $b_1$ in all 36 cells. Dashed: equality.](figures/fig1-b1.png){#fig-b1}
+
+| scale | IPD share | separation | two-stage marginal: bias (coverage) | two-stage conditional | transported | RMSE two-stage / transported |
+|---|---:|---:|---|---|---|---|
+`r z <- s[s$beta == 0.3 & s$method == "two_stage_marg", ]; paste(sprintf("| %s | %.2f | %.1f | %s (%s) | %s (%s) | %s (%s) | %s / %s |", z$scale, z$p_ipd, z$sep, f3(z$bias), f3(z$coverage), f3(vapply(seq_len(nrow(z)), function(i) q(z$scale[i], z$p_ipd[i], z$sep[i], 0.3, "two_stage_cond")$bias, 0)), f3(vapply(seq_len(nrow(z)), function(i) q(z$scale[i], z$p_ipd[i], z$sep[i], 0.3, "two_stage_cond")$coverage, 0)), f3(vapply(seq_len(nrow(z)), function(i) q(z$scale[i], z$p_ipd[i], z$sep[i], 0.3, "transported")$bias, 0)), f3(vapply(seq_len(nrow(z)), function(i) q(z$scale[i], z$p_ipd[i], z$sep[i], 0.3, "transported")$coverage, 0)), f3(z$rmse), f3(vapply(seq_len(nrow(z)), function(i) q(z$scale[i], z$p_ipd[i], z$sep[i], 0.3, "transported")$rmse, 0))), collapse = "\n")`
+
+: Effect modification 0.3; with no modification every method was unbiased. 1000 replicates per cell; bias MCSE at most 0.005. {#tbl-main}
+
+The refuting sentence failed (@tbl-main): at 0.5 SD separation the transported arm had
+the lower RMSE in all six cells, and at 1 SD the two-stage estimates missed the target by
+more than their own effect when a quarter of the edges had individual data. The bias
+tracked $b_1$ closely (@fig-b1). $b_2$ was zero on the continuous scale, as required, and
+negative on the log odds ratio scale, growing with the individual-data share because more
+conditional coefficients entered the pool. The transported arm's coverage was 0.90 to 0.96,
+lowest at the largest separation with few individual-data edges, where its variance
+approximation is weakest.
+
+# What this does not answer {#sec-limits}
+
+Eight trials of one component rather than a component network; no one-stage component
+ML-NMR fit; aggregate covariate laws known exactly; one network size. Peer review has not
+been done.
+
+# References {.unnumbered}
