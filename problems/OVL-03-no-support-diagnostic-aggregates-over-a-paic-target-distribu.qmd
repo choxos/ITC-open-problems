@@ -16,6 +16,12 @@ maturity: "Emerging"
 [High priority]{.chip .chip-priority-high}
 [Emerging]{.chip .chip-maturity-emerging}
 :::
+::: {.callout-important appearance="simple"}
+## A study has been run against this problem
+
+Unsupported target mass caused bias only where the effect bent in the unsupported direction (up to 0.29 for G-computation and 0.30 for MAIC with 27% of the target unsupported), and none with linear modification or orthogonal alignment. Weight and covariate diagnostics, identical across those scenarios by construction, discriminated failed analyses at chance within an overlap level (AUROC 0.48 to 0.52). An outcome-informed score reached 0.59 to 0.66, missing the registered margin by 0.01; neither was usable. Trimming to the supported region was unbiased for the restricted estimand. [Read the study below](#our-study).
+:::
+
 ## Statement
 
 Outcome-regression PAIC such as STC, ML-NMR and parametric g-computation can rely on predictions at target covariate profiles that are sparsely represented or unsupported in the source data, and weight-concentration summaries such as ESS do not diagnose that reliance. General support diagnostics do exist and can be applied to a regression: covariate distance, convex-hull membership, density, prediction variance and classical leverage all flag risk, though none certifies that a transported causal effect is identified. What is missing is the PAIC-specific layer: aggregating those measures over a target distribution that is often known only as published moments, reporting them for a target-standardized marginal contrast rather than for a single prediction, and calibrating rules that map a flag to abstention, an explicit sensitivity model, or target redefinition. Two auditors searched and found no application of conformal prediction or representation-space out-of-distribution scoring to STC, ML-NMR or g-computation-based population adjustment; that is a negative search result rather than a verified absence.
@@ -38,6 +44,61 @@ A regression has no weights to inspect, so a positivity violation shows up as a 
 ## Probable solution or research direction
 
 Start from the support diagnostics that already exist for regression, namely covariate distance, convex-hull membership, density ratios, prediction variance and classical leverage, and solve the PAIC-specific problem, which is aggregating them over a target distribution reconstructed from published marginals and reporting them for a target-standardized marginal contrast rather than for a single prediction. Note that plot_leverage() in cpaic (https://github.com/choxos/cpaic, commit 9d150e9, an unreleased development package that cannot be installed from CRAN) is DIC point leverage computed from posterior deviance variance, so it is a model-fit diagnostic and not the covariate-support diagnostic proposed here; building the latter is genuinely new work. Treat conformal and out-of-distribution tools as candidates for the flagging step only in their weighted or anomaly-score forms, since ordinary conformal prediction carries no guarantee under the shift being diagnosed. Tie every flag to a stated response, whether abstention, target redefinition, or an explicit sensitivity model with declared bounds, rather than to ad hoc interval widening, and frame the whole battery as diagnostic so that a passing score is never read as certifying extrapolation.
+
+## Our study
+
+::: {.study-result}
+**Unsupported target mass matters only where the effect is modified**
+
+*This study was designed against [OVL-01](https://github.com/choxos/ITC-open-problems/tree/main/studies/OVL-01-support-alignment-and-abstention) and bears on this entry in part. What it does not answer is stated below.*
+
+**The question put to it.** When part of the target population lies outside the source trial's support, do weight and covariate diagnostics identify the analyses that fail, or is the modification in the unsupported region, which they cannot see, what decides it?
+
+**What it found.** Unsupported target mass caused bias only where the effect bent in the unsupported direction (up to 0.29 for G-computation and 0.30 for MAIC with 27% of the target unsupported), and none with linear modification or orthogonal alignment. Weight and covariate diagnostics, identical across those scenarios by construction, discriminated failed analyses at chance within an overlap level (AUROC 0.48 to 0.52). An outcome-informed score reached 0.59 to 0.66, missing the registered margin by 0.01; neither was usable. Trimming to the supported region was unbiased for the restricted estimand.
+
+**Results.**
+
+- Registered verdict NEITHER USABLE: at the largest unsupported mass, alignment-aware score minus Kish ESS AUROC 0.090 (SE 0.013) against a 0.10 margin, both below 0.7.
+- Bias with full alignment and bent modification: -0.29 (G-computation) and -0.30 (MAIC); orthogonal alignment at most 0.023; linear modification at most 0.017 at every truncation.
+- Kish ESS, unsupported mass and largest weight share: AUROC 0.48 to 0.52 within each overlap level.
+- Trimmed G-computation against the restricted estimand: bias at most 0.026, coverage 0.926 to 0.962.
+
+**Design.**
+
+Estimand
+:   Target mean difference over the whole target law; restricted estimand over the supported region
+
+Methods compared
+:   MAIC on target means, spline G-computation, G-computation trimmed to the observed range, Kish ESS, unsupported mass, largest weight share and an outcome-informed alignment score as diagnostics
+
+Data-generating mechanism
+:   Anchored transport with one covariate truncated in the source; 36 cells crossing unsupported mass, whether the unsupported direction modifies the effect, linear or bent modification and its strength; MAIC, spline G-computation and trimmed G-computation; weight diagnostics and an outcome-informed score scored as classifiers of failure. 1000 replicates per cell.
+
+Replicates
+:   1000 per scenario, 36,000 in total
+
+**What this does not answer.** Continuous outcome, two covariates; ML-NMR, ML-UMR and NMI not run; failure defined by non-coverage. Peer review has not been done.
+
+**Peer review.** Not yet done. The result stands on the study alone until it is.
+
+Read it: [PDF](/studies/OVL-01-support-alignment-and-abstention/out/OVL-01.pdf) · [Markdown](/studies/OVL-01-support-alignment-and-abstention/out/OVL-01.md) · [OpenDocument](/studies/OVL-01-support-alignment-and-abstention/out/OVL-01.odt) · Code and data: [studies/OVL-01-support-alignment-and-abstention](https://github.com/choxos/ITC-open-problems/tree/main/studies/OVL-01-support-alignment-and-abstention) · Protocol: [registered before the run](/studies/OVL-01-support-alignment-and-abstention/out/OVL-01-protocol.md)
+
+:::
+
+## What this project measured
+
+OVL-01 answers the refuting sentence of this entry. Its G-computation arm fitted natural-spline
+modification, whose prediction variance grows where the source has few patients, and integrated it over
+the target law including 27% of target mass outside the source's support. When the modification bent in
+the unsupported region its interval covered 0.70 with a bias of -0.29 on a 0.04 truth, although it had
+widened there: prediction variance rises with leverage, but no model-based interval represents
+misspecification in a region the data do not reach. A diagnostic that multiplied unsupported distance by
+the estimated interaction discriminated failed analyses better than weight-based ones (AUROC 0.59 to 0.66
+against 0.48 to 0.52) and was still not usable alone.
+
+Not answered: how a support diagnostic should be aggregated over a target distribution that is itself
+reconstructed from published marginals (mean against tail functionals), and how the reconstruction error
+propagates into that diagnostic. OVL-01 used a known target law.
 
 ## Verification
 
