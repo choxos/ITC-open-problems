@@ -43,9 +43,9 @@ ul.task-list li input[type="checkbox"] {
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-41c1a832c222e3337f93b9020a2765d5.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../site_libs/bootstrap/bootstrap-dark-e463b5badde459eb39b62beab52960d6.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../site_libs/bootstrap/bootstrap-41c1a832c222e3337f93b9020a2765d5.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-94fb3dea93af0677c21d295c2fc6d9f8.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-6f9fa67c3ff5f7080557ce154dd9765e.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-94fb3dea93af0677c21d295c2fc6d9f8.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": true,
@@ -432,6 +432,19 @@ ul.task-list li input[type="checkbox"] {
 <div class="problem-meta">
 <p><span class="problem-id">CMP-20</span> <span class="verdict verdict-unverifiable">Unverifiable</span> <span class="chip chip-priority-high">High priority</span> <span class="chip chip-maturity-emerging">Emerging</span></p>
 </div>
+<div class="callout callout-style-simple callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>A study has been run against this problem
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>No, the covariance cancels only when it is common to both arms. The bias followed the identity log{(1 + rho1 CV1(T) CV1(lambda)) / (1 + rho0 CV0(T) CV0(lambda))} (slope 0.994); at plausible dispersions with a differential correlation of at least 0.2, 27 of 64 cells had material bias or undercoverage, with bias up to 0.14 on the log rate ratio and coverage down to 0.17. Integrating aggregate arms over exposure-weighted covariate moments removed the bias everywhere (largest 0.008). Even with zero correlation the unweighted likelihood undercovered at large dispersions (0.84), because the finite-sample covariance is not zero. <a href="#our-study">Read the study below</a>.</p>
+</div>
+</div>
 <section id="statement" class="level2">
 <h2 class="anchored" data-anchor-id="statement">Statement</h2>
 <p>For an aggregate Poisson arm, component ML-NMR multiplies total exposure by the mean modeled rate under the supplied covariate integration distribution. If unweighted participant moments are supplied, that is exact only when exposure has zero covariance with the modeled individual rate; full independence of exposure and covariates is sufficient but not necessary, and treatment-dependent mean follow-up alone is already absorbed by each arm’s own total exposure. The problem is within-arm association between exposure and rate-relevant covariates, which is what differential follow-up by prognosis produces, and publications almost never report exposure-weighted covariate summaries. This is a property of the Poisson aggregate likelihood rather than of any one package: multinma also fits Poisson models with a log time-at-risk offset.</p>
@@ -469,20 +482,38 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="our-study" class="level2">
 <h2 class="anchored" data-anchor-id="our-study">Our study</h2>
-<div class="callout callout-style-simple callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>A study is running
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p><strong>Question.</strong> The aggregate Poisson likelihood multiplies an arm’s total exposure by its mean modeled rate, which is exact only when exposure and rate are uncorrelated. The error is the factor 1 + rho CV(T) CV(lambda) per arm. How much bias does that put on a transported rate ratio at plausible levels of differential follow-up, and do exposure-weighted covariate summaries remove it?</p>
-<p><strong>Design.</strong> A minimal anchored network, individual data on A versus C and arm totals on B versus C, with lognormal exposure solved so each arm’s exposure-rate correlation and dispersions take registered values exactly. 234 attainable cells crossing the control-arm correlation, its difference in the treated arm, CV of exposure, CV of the rate and arm size; unweighted, exposure-weighted and borrowed-slope integration and a sensitivity bound. 1000 replicates per cell.</p>
-<p>The protocol is registered before any result is seen: <a href="../studies/CMP-20-poisson-exposure-rate-covariance/out/CMP-20-protocol.md">read it</a>.</p>
-</div>
+<div class="study-result">
+<p><strong>The aggregate Poisson likelihood is biased by the exposure-rate covariance, and exposure-weighted covariate moments remove the bias</strong></p>
+<p><strong>The question put to it.</strong> The aggregate Poisson likelihood multiplies an arm’s total exposure by its mean modeled rate, which is exact only when exposure and rate are uncorrelated. The error is the factor 1 + rho CV(T) CV(lambda) per arm. How much bias does that put on a transported rate ratio at plausible levels of differential follow-up, and do exposure-weighted covariate summaries remove it?</p>
+<p><strong>What it found.</strong> No, the covariance cancels only when it is common to both arms. The bias followed the identity log{(1 + rho1 CV1(T) CV1(lambda)) / (1 + rho0 CV0(T) CV0(lambda))} (slope 0.994); at plausible dispersions with a differential correlation of at least 0.2, 27 of 64 cells had material bias or undercoverage, with bias up to 0.14 on the log rate ratio and coverage down to 0.17. Integrating aggregate arms over exposure-weighted covariate moments removed the bias everywhere (largest 0.008). Even with zero correlation the unweighted likelihood undercovered at large dispersions (0.84), because the finite-sample covariance is not zero.</p>
+<p><strong>Results.</strong></p>
+<ul>
+<li>Identity check over 208 cells: slope 0.994 (SE 0.002), largest deviation 2.9 MCSE.</li>
+<li>Exposure-weighted moments: bias at most 0.008, coverage 0.908 to 0.965; borrowed exposure slope: bias at most 0.015 but coverage down to 0.69 because the slope’s uncertainty is ignored.</li>
+<li>Null control failed on coverage (0.838 to 0.957 at zero correlation), not bias; positive control’s cell selection corrected after the run; sensitivity range did not contain cells with positive treated-arm correlation (coverage down to 0.71).</li>
+</ul>
+<p><strong>Design.</strong></p>
+<dl>
+<dt>Estimand</dt>
+<dd>
+Target-population log marginal rate ratio, B versus C
+</dd>
+<dt>Methods compared</dt>
+<dd>
+aggregate integration over unweighted moments, exposure-weighted moments, moments tilted by a borrowed exposure slope, sensitivity interval over a declared correlation range
+</dd>
+<dt>Data-generating mechanism</dt>
+<dd>
+A minimal anchored network, individual data on A versus C and arm totals on B versus C, with lognormal exposure solved so each arm’s exposure-rate correlation and dispersions take registered values exactly. 234 attainable cells crossing the control-arm correlation, its difference in the treated arm, CV of exposure, CV of the rate and arm size; unweighted, exposure-weighted and borrowed-slope integration and a sensitivity bound. 1000 replicates per cell.
+</dd>
+<dt>Replicates</dt>
+<dd>
+1000 per cell, 208 main cells and 26 control cells
+</dd>
+</dl>
+<p><strong>What this does not answer.</strong> One covariate, one lognormal exposure law, no overdispersion, the same exposure mechanism in both studies; the likelihood is the study’s own code, not multinma. Peer review has not been done.</p>
+<p><strong>Peer review.</strong> Not yet done. The result stands on the study alone until it is.</p>
+<p>Read it: <a href="../studies/CMP-20-poisson-exposure-rate-covariance/out/CMP-20.pdf">PDF</a> · <a href="../studies/CMP-20-poisson-exposure-rate-covariance/out/CMP-20.md">Markdown</a> · <a href="../studies/CMP-20-poisson-exposure-rate-covariance/out/CMP-20.odt">OpenDocument</a> · Code and data: <a href="https://github.com/choxos/ITC-open-problems/tree/main/studies/CMP-20-poisson-exposure-rate-covariance">studies/CMP-20-poisson-exposure-rate-covariance</a> · Protocol: <a href="../studies/CMP-20-poisson-exposure-rate-covariance/out/CMP-20-protocol.md">registered before the run</a></p>
 </div>
 </section>
 <section id="verification" class="level2">

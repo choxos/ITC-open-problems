@@ -43,9 +43,9 @@ ul.task-list li input[type="checkbox"] {
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-41c1a832c222e3337f93b9020a2765d5.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../site_libs/bootstrap/bootstrap-dark-e463b5badde459eb39b62beab52960d6.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../site_libs/bootstrap/bootstrap-41c1a832c222e3337f93b9020a2765d5.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-94fb3dea93af0677c21d295c2fc6d9f8.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-6f9fa67c3ff5f7080557ce154dd9765e.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-94fb3dea93af0677c21d295c2fc6d9f8.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": true,
@@ -390,6 +390,7 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#why-it-is-open" id="toc-why-it-is-open" class="nav-link" data-scroll-target="#why-it-is-open">Why it is open</a></li>
   <li><a href="#what-has-been-tried" id="toc-what-has-been-tried" class="nav-link" data-scroll-target="#what-has-been-tried">What has been tried</a></li>
   <li><a href="#probable-solution-or-research-direction" id="toc-probable-solution-or-research-direction" class="nav-link" data-scroll-target="#probable-solution-or-research-direction">Probable solution or research direction</a></li>
+  <li><a href="#our-study" id="toc-our-study" class="nav-link" data-scroll-target="#our-study">Our study</a></li>
   <li><a href="#verification" id="toc-verification" class="nav-link" data-scroll-target="#verification">Verification</a></li>
   <li><a href="#how-the-evidence-falls-in-time" id="toc-how-the-evidence-falls-in-time" class="nav-link" data-scroll-target="#how-the-evidence-falls-in-time">How the evidence falls in time</a></li>
   <li><a href="#related-problems" id="toc-related-problems" class="nav-link" data-scroll-target="#related-problems">Related problems</a></li>
@@ -433,6 +434,19 @@ ul.task-list li input[type="checkbox"] {
 <div class="problem-meta">
 <p><span class="problem-id">CMP-15</span> <span class="verdict verdict-unverifiable">Unverifiable</span> <span class="chip chip-priority-high">High priority</span> <span class="chip chip-maturity-emerging">Emerging</span></p>
 </div>
+<div class="callout callout-style-simple callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>A study has been run against this problem
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Yes, modestly on the log odds and log hazard scales and strongly on the log rate scale. With margins and correlation matched, the calibrated Gaussian erred by up to 0.034 on the log odds ratio and 0.032 on the log cumulative hazard ratio (above 0.02 in 5 of 16 primary cells), with opposite signs for lower- and upper-tail dependence, and by up to 0.63 on the log rate ratio. The error plateaued by 256 integration points. A wrong flexible family was worse than the Gaussian in 61% of comparisons, so the defensible report is an envelope over families. <a href="#our-study">Read the study below</a>.</p>
+</div>
+</div>
 <section id="statement" class="level2">
 <h2 class="anchored" data-anchor-id="statement">Statement</h2>
 <p>Component ML-NMR reconstructs each aggregate arm’s joint effect-modifier distribution from marginal summaries using parametric margins, quasi-Monte Carlo points, and a Gaussian copula, and then treats those margins and that correlation as fixed. This is inherited ML-NMR practice rather than a component-specific choice, and part of it has been addressed upstream: multinma 0.6.0 adjusts the correlation matrix used to generate integration points to the underlying Gaussian copula so output correlations better match the requested inputs. What remains open is that reconstruction uncertainty is not propagated into reported intervals in any implementation, and that a Gaussian copula imposes symmetric, tail-independent dependence which may be wrong however well the correlation is calibrated; vine copulas are not implemented.</p>
@@ -471,6 +485,43 @@ ul.task-list li input[type="checkbox"] {
 <section id="probable-solution-or-research-direction" class="level2">
 <h2 class="anchored" data-anchor-id="probable-solution-or-research-direction">Probable solution or research direction</h2>
 <p>Adopt the upstream correlation calibration rather than re-deriving it, and extend it with numerical inversion for arbitrary margin combinations including mixed and discrete margins. Offer vine copulas for asymmetric and tail-dependent dependence and report sensitivity envelopes across dependence specifications, since a single Gaussian copula cannot be checked against anything. Represent target-distribution uncertainty explicitly in the posterior, use robust moment classes that bound the estimand over families of joints consistent with the reported margins, and validate against target IPD wherever it exists.</p>
+</section>
+<section id="our-study" class="level2">
+<h2 class="anchored" data-anchor-id="our-study">Our study</h2>
+<div class="study-result">
+<p><strong>Calibrating the correlation does not fix the copula: the family moves a standardized contrast by up to 0.03 on the log odds and log hazard scales</strong></p>
+<p><strong>The question put to it.</strong> Once a Gaussian copula’s correlation is calibrated to the reported correlations, can the remaining error from copula family (asymmetry and tail dependence) move a target-standardized contrast?</p>
+<p><strong>What it found.</strong> Yes, modestly on the log odds and log hazard scales and strongly on the log rate scale. With margins and correlation matched, the calibrated Gaussian erred by up to 0.034 on the log odds ratio and 0.032 on the log cumulative hazard ratio (above 0.02 in 5 of 16 primary cells), with opposite signs for lower- and upper-tail dependence, and by up to 0.63 on the log rate ratio. The error plateaued by 256 integration points. A wrong flexible family was worse than the Gaussian in 61% of comparisons, so the defensible report is an envelope over families.</p>
+<p><strong>Results.</strong></p>
+<ul>
+<li>Identity link: every error exactly zero, as the second-order argument requires.</li>
+<li>Uncalibrated versus calibrated Gaussian: at most 0.001 apart on the logit and complementary log-log scales.</li>
+<li>Envelope over five families contained a t-copula truth outside them in 22 of 24 cells, median width 0.044.</li>
+<li>Matched-correlation control narrowly failed: 0.0057 against a 0.005 tolerance, within the check’s Monte Carlo error.</li>
+</ul>
+<p><strong>Design.</strong></p>
+<dl>
+<dt>Estimand</dt>
+<dd>
+Target-standardized marginal contrast on the link scale
+</dd>
+<dt>Methods compared</dt>
+<dd>
+calibrated Gaussian copula, uncalibrated Gaussian copula, alternative copula families calibrated to the same correlation, envelope over families
+</dd>
+<dt>Data-generating mechanism</dt>
+<dd>
+Population-level numerical study: three covariates with normal or skewed margins, true Clayton, Gumbel or t copula at Pearson correlation 0.3 or 0.6, against calibrated and uncalibrated Gaussian and alternative-family reconstructions; identity, logit, log and complementary log-log links; integration order by randomized quasi-Monte Carlo.
+</dd>
+<dt>Replicates</dt>
+<dd>
+Population-level calculation: 10^6 draws per joint law, 2 margins x 2 correlations x 6 families
+</dd>
+</dl>
+<p><strong>What this does not answer.</strong> Population-level; three exchangeable covariates with common margins; no mixed or discrete margins, vines or reconstruction uncertainty. Peer review has not been done.</p>
+<p><strong>Peer review.</strong> Not yet done. The result stands on the study alone until it is.</p>
+<p>Read it: <a href="../studies/CMP-15-the-copula-error-lives-above-the-second-moment/out/CMP-15.pdf">PDF</a> · <a href="../studies/CMP-15-the-copula-error-lives-above-the-second-moment/out/CMP-15.md">Markdown</a> · <a href="../studies/CMP-15-the-copula-error-lives-above-the-second-moment/out/CMP-15.odt">OpenDocument</a> · Code and data: <a href="https://github.com/choxos/ITC-open-problems/tree/main/studies/CMP-15-the-copula-error-lives-above-the-second-moment">studies/CMP-15-the-copula-error-lives-above-the-second-moment</a> · Protocol: <a href="../studies/CMP-15-the-copula-error-lives-above-the-second-moment/out/CMP-15-protocol.md">registered before the run</a></p>
+</div>
 </section>
 <section id="verification" class="level2">
 <h2 class="anchored" data-anchor-id="verification">Verification</h2>
