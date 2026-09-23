@@ -1,0 +1,91 @@
+---
+title: "Adding time-constant component hazard ratios mispredicted a combination's RMST when effects were delayed or follow-up differed"
+subtitle: "A simulation study answering catalog problem CMP-18"
+author: "Ahmad Sofi-Mahmudi"
+date: 2026-09-23
+bibliography: references.bib
+csl: ../../../vancouver.csl
+link-citations: true
+number-sections: true
+execute:
+  echo: false
+  warning: false
+  message: false
+format:
+  gfm:
+    toc: false
+  pdf:
+    documentclass: article
+    geometry: margin=1in
+    fig-pos: "H"
+  odt: default
+---
+
+```{r setup}
+s <- read.csv("../results/summary.csv"); f3 <- function(x) formatC(x, format = "f", digits = 3)
+q <- function(p, fa, m) s[s$profile == p & s$fa == fa & s$method == m, ]
+```
+
+# Abstract {.unnumbered}
+
+**Background.** Component survival models add time-constant log hazard ratios. A
+time-constant fit to a time-varying effect is a least-false average weighted by each trial's
+own event times, so two components' averages from different trials need not add up to the
+combination's. Catalog problem CMP-18 asks whether this matters for the estimands decisions use.
+
+**Methods.** Trials of each of two components against control, 300 per arm, with constant,
+jointly delayed, or delayed-versus-waning effects, and follow-up of 3 years in both or 1.5 and 3
+years; stratified Cox models with time-constant or piecewise (before and after one year)
+component effects predicting the combination's 3-year RMST difference; bootstrap SEs; 500
+replicates per cell.
+
+**Results.** With both effects delayed, the time-constant prediction was biased by
+`r f3(q("same", 3, "constant")$bias)` years (truth `r f3(q("same", 3, "constant")$truth)`), coverage `r f3(q("same", 3, "constant")$coverage)`, and the piecewise model reduced the
+bias to `r f3(q("same", 3, "piecewise")$bias)` (coverage `r f3(q("same", 3, "piecewise")$coverage)`). With delayed and waning effects and unequal follow-up, the time-constant prediction was
+biased by `r f3(q("different", 1.5, "constant")$bias)` (coverage `r f3(q("different", 1.5, "constant")$coverage)`) and the piecewise model by
+`r f3(q("different", 1.5, "piecewise")$bias)` (coverage `r f3(q("different", 1.5, "piecewise")$coverage)`), because neither can learn a late effect the shorter trial never observed.
+
+**Conclusion.** A time-constant component effect is adequate only when the combination's
+effect is itself roughly constant and the trials cover the same follow-up. A time-varying
+extension fixes the first condition, not the second.
+
+# The problem {#sec-problem}
+
+A Cox fit to a non-proportional effect converges to a least-false hazard ratio that depends on
+the event-time distribution and censoring [@struthers1986]. Component models add such summaries
+across trials with different follow-up and different effect profiles, and then apply the sum to
+a combination nobody observed. The prediction is right only if the summaries' weights match and
+the combined effect is constant in time.
+
+# Design {#sec-design}
+
+Registered protocol: `protocol.md`. Control hazard Weibull (shape 1.2, scale 3 years). Log
+hazard ratios: constant ($-0.4$ each), both delayed ($-0.5(1 - e^{-t/0.7})$), or A delayed and B
+waning ($-0.5e^{-t/0.7}$), whose sum is constant at $-0.5$. The combination's log hazard ratio is the
+sum. Prediction: trial 1's control Nelson-Aalen cumulative hazard times the fitted hazard ratios;
+SEs from 60 bootstrap resamples within trial arms.
+
+# Results {#sec-results}
+
+| component profiles | follow-up A, B (years) | truth | constant: bias (coverage) | piecewise: bias (coverage) |
+|---|---|---:|---|---|
+`r z <- s[s$method == "constant", ]; paste(sprintf("| %s | %.1f, %.1f | %s | %s (%s) | %s (%s) |", z$profile, z$fa, z$fb, f3(z$truth), f3(z$bias), f3(z$coverage), f3(vapply(seq_len(nrow(z)), function(i) q(z$profile[i], z$fa[i], "piecewise")$bias, 0)), f3(vapply(seq_len(nrow(z)), function(i) q(z$profile[i], z$fa[i], "piecewise")$coverage, 0))), collapse = "\n")`
+
+: 3-year RMST difference of the combination (years); 500 replicates per cell, bias MCSE at most 0.005. {#tbl-main}
+
+The registered rule returned that neither model was nominal where it mattered (@tbl-main): at
+unequal follow-up the piecewise model covered `r f3(q("different", 1.5, "piecewise")$coverage)`, below the 0.93 required. Two
+failures appeared. **Delayed effects:** a constant hazard ratio moves benefit earlier than a
+delayed one, and RMST credits early benefit, so the time-constant prediction overstated the
+combination's gain even with equal follow-up; the piecewise model largely corrected it. **Unequal
+follow-up:** component A's effect after 1.5 years was never observed, so both models extrapolated
+its effect from the early period, where it had not yet appeared. With delayed and waning effects
+and equal follow-up the time-constant model was accurate, because the two effects summed to a
+constant and the trials weighted time alike.
+
+# What this does not answer {#sec-limits}
+
+Two single-component trials rather than a component network; no disconnection or population
+adjustment; one piecewise extension; one horizon. Peer review has not been done.
+
+# References {.unnumbered}

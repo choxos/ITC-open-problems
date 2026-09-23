@@ -16,6 +16,12 @@ maturity: "Promising"
 [Very high priority]{.chip .chip-priority-very-high}
 [Promising]{.chip .chip-maturity-promising}
 :::
+::: {.callout-important appearance="simple"}
+## A study has been run against this problem
+
+No. With both component effects delayed, adding time-constant hazard ratios overstated the combination's 3-year RMST gain by 0.055 years (truth 0.405, coverage 0.88); a piecewise model reduced the bias to 0.017. With delayed and waning components and follow-up of 1.5 versus 3 years, the time-constant prediction was biased by -0.102 (coverage 0.82) and the piecewise model by -0.072 (coverage 0.91), because neither can learn a late effect the shorter trial never observed. With equal follow-up and effects summing to a constant, the time-constant model was accurate. [Read the study below](#our-study).
+:::
+
 ## Statement
 
 Component survival models place time-invariant component effects on the hazard, with flexible piecewise and M-spline baselines that vary the study-specific baseline hazard but do not create time-varying treatment or component effects. Combination-therapy components can produce delayed, waning, or crossing effects, and if two components have different time profiles the additive combination of their time-constant summaries has no clear correspondence to the combination's actual hazard trajectory. Non-proportional hazards is not an open gap at the non-component level: multinma has supported it since 0.6.0 (2024-01-24) through aux_regression, which allows treatment and covariate effects on shape parameters and spline coefficients across a wide family of baseline hazards. Cure and multistate models are absent from both.
@@ -41,14 +47,39 @@ Port the existing auxiliary-parameter regression approach to component effects, 
 
 ## Our study
 
-::: {.callout-note}
-## A study is running
+::: {.study-result}
+**Adding time-constant component hazard ratios mispredicted a combination's RMST when effects were delayed or follow-up differed**
 
-**Question.** When two components have different time profiles of effect and their trials differ in follow-up, does adding their time-constant hazard ratios predict the combination's RMST, and does a piecewise extension fix it?
+**The question put to it.** When two components have different time profiles of effect and their trials differ in follow-up, does adding their time-constant hazard ratios predict the combination's RMST, and does a piecewise extension fix it?
 
-**Design.** Trials of each component against control with constant, jointly delayed, or delayed-versus-waning effects and equal or unequal follow-up; stratified Cox with time-constant or piecewise component effects predicting the combination's 3-year RMST difference. 4 cells, 500 replicates each.
+**What it found.** No. With both component effects delayed, adding time-constant hazard ratios overstated the combination's 3-year RMST gain by 0.055 years (truth 0.405, coverage 0.88); a piecewise model reduced the bias to 0.017. With delayed and waning components and follow-up of 1.5 versus 3 years, the time-constant prediction was biased by -0.102 (coverage 0.82) and the piecewise model by -0.072 (coverage 0.91), because neither can learn a late effect the shorter trial never observed. With equal follow-up and effects summing to a constant, the time-constant model was accurate.
 
-The protocol is registered before any result is seen: [read it](/studies/CMP-18-time-varying-component-effects/out/CMP-18-protocol.md).
+**Results.**
+
+- Registered rule: neither model nominal where it mattered (piecewise 0.906 at unequal follow-up).
+- A constant hazard ratio moves benefit earlier than a delayed one, and RMST credits early benefit.
+- Constant effects: both models unbiased with coverage 0.93 to 0.94.
+
+**Design.**
+
+Estimand
+:   3-year RMST difference of the component combination versus control
+
+Methods compared
+:   time-constant component Cox model, piecewise (before/after 1 year) component Cox model
+
+Data-generating mechanism
+:   Trials of each component against control with constant, jointly delayed, or delayed-versus-waning effects and equal or unequal follow-up; stratified Cox with time-constant or piecewise component effects predicting the combination's 3-year RMST difference. 4 cells, 500 replicates each.
+
+Replicates
+:   500 per cell, 4 cells
+
+**What this does not answer.** Two single-component trials rather than a component network; no disconnection or population adjustment; one piecewise extension; one horizon. Peer review has not been done.
+
+**Peer review.** Not yet done. The result stands on the study alone until it is.
+
+Read it: [PDF](/studies/CMP-18-time-varying-component-effects/out/CMP-18.pdf) · [Markdown](/studies/CMP-18-time-varying-component-effects/out/CMP-18.md) · [OpenDocument](/studies/CMP-18-time-varying-component-effects/out/CMP-18.odt) · Code and data: [studies/CMP-18-time-varying-component-effects](https://github.com/choxos/ITC-open-problems/tree/main/studies/CMP-18-time-varying-component-effects) · Protocol: [registered before the run](/studies/CMP-18-time-varying-component-effects/out/CMP-18-protocol.md)
+
 :::
 
 ## Verification
