@@ -1,0 +1,104 @@
+---
+title: "Where the individual data sit decides the error of a population-adjusted network contrast at the same total sample size"
+subtitle: "A numerical study answering catalog problem DIA-07"
+author: "Ahmad Sofi-Mahmudi"
+date: 2026-09-23
+bibliography: references.bib
+csl: ../../../vancouver.csl
+link-citations: true
+number-sections: true
+execute:
+  echo: false
+  warning: false
+  message: false
+format:
+  gfm:
+    toc: false
+  pdf:
+    documentclass: article
+    geometry: margin=1in
+    fig-pos: "H"
+  odt: default
+---
+
+```{r setup}
+s <- read.csv("../results/summary.csv"); rg <- read.csv("../results/ranges.csv")
+f2 <- function(x) formatC(x, format = "f", digits = 2); f3 <- function(x) formatC(x, format = "f", digits = 3)
+k <- function(t, e, G = 0.1, M = 1) s[s$topology == t & s$ipd_edge == e & s$G == G & s$M_T == M, ]
+r1 <- rg[rg$G == 0.1 & rg$M_T == 1, ]
+```
+
+# Abstract {.unnumbered}
+
+**Background.** Simulation studies of population adjustment use two-trial templates
+and index information by sample size. Catalog problem DIA-07 asks whether, at the same
+total size, the network's topology and the position of the individual-data trial
+change the error of the decision contrast.
+
+**Methods.** An exact calculation for four-treatment networks (line, star,
+loop-with-tail, two paths) of 1200 patients, with effect modification on every
+treatment, one individual-data trial standardized to the target and placed on each
+edge in turn, and a fixed-effect network meta-analysis of the rest.
+
+**Results.** With moderate modification and a target shifted by one covariate SD, the
+probability of getting the sign of D versus A wrong ranged from `r f3(r1$err_min)` to
+`r f3(r1$err_max)` across topologies and placements. An individual-data trial off every
+path to the contrast carried zero weight and changed nothing. Standardizing one edge
+could increase the bias, from `r f2(abs(k("line", "none")$bias))` to
+`r f2(abs(k("line", "C-D")$bias))` in the line network, by removing an error that had
+offset the others.
+
+**Conclusion.** Results from a two-trial template do not transfer to a network by
+matching total size. Reports should state the topology, where the individual data
+sit, and the share of the decision contrast those data carry.
+
+# The problem {#sec-problem}
+
+A network estimate of a contrast is a weighted sum of the trial estimates, the target
+row of the hat matrix. In a population-adjusted network only some trials are
+standardized to the target; the rest estimate their own population's effect. The error
+of the contrast is the weighted sum of the unadjusted trials' population biases, so it
+depends on which trials lie on the paths to the contrast, with what weights, and on
+whether their biases add or cancel. None of that is a function of total sample size.
+Multilevel network meta-regression addresses this by modeling the modification
+throughout the network [@phillippo2020mlnmr]; a trial-by-trial adjustment does not.
+
+# Design {#sec-design}
+
+Registered protocol: `protocol.md`. Effect of treatment $k$ against A at covariate $x$:
+$d_k + g_kx$ with $d = (0, -0.1, -0.2, -0.15)$ and $g = (0, G, 3G, 2G)$, $G \in \{0.05, 0.1, 0.2\}$.
+The decision contrast D versus A in a target with covariate mean $M_T \in \{0.5, 1\}$; all
+trial populations have mean 0. 1200 patients split equally over the trials; the
+individual-data trial is standardized by regression (unbiased, variance inflated by
+$1 + M_T^2$); the others report their own population's effect. Bias, SD, coverage and
+decision error are exact.
+
+# Results {#sec-results}
+
+![Decision error by topology and position of the individual-data trial.](figures/fig1-decision.png){#fig-decision}
+
+| configuration | truth | bias | SD | coverage | decision error | IPD share |
+|---|---:|---:|---:|---:|---:|---:|
+`r z <- s[s$G == 0.1 & s$M_T == 1, ]; paste(sprintf("| %s, %s | %s | %s | %s | %s | %s | %s |", z$topology, ifelse(z$ipd_edge == "none", "no IPD", paste("IPD on", z$ipd_edge)), f2(z$truth), f3(z$bias), f3(z$sd), f3(z$coverage), f3(z$decision_error), f2(z$ipd_weight)), collapse = "\n")`
+
+: $G = 0.1$, $M_T = 1$: D is slightly worse than A in the target (truth 0.05) but better in the trials' populations. IPD share: the individual-data trial's share of the absolute hat-matrix row. {#tbl-main}
+
+The registered condition failed in all six scenarios: decision error spread by
+`r f3(min(rg$err_max - rg$err_min))` to `r f3(max(rg$err_max - rg$err_min))` across configurations at the same total size (@fig-decision). Three
+mechanisms produced the spread (@tbl-main). **Zero weight:** in the star, an
+individual-data trial of A versus B or A versus C has no weight on D versus A, so
+standardizing it changed nothing; only the direct A-D trial removed the bias.
+**Cancellation:** in the line, the modification differences along A-B-C-D are $G$, $2G$
+and $-G$; standardizing B-C left $G - G = 0$ and an unbiased estimate by coincidence.
+**Partial adjustment making things worse:** standardizing C-D removed the one bias that
+offset the others, raising the bias from `r f2(abs(k("line", "none")$bias))` to
+`r f2(abs(k("line", "C-D")$bias))` and dropping coverage to `r f3(k("line", "C-D")$coverage)`.
+
+# What this does not answer {#sec-limits}
+
+A deterministic calculation for a continuous outcome with linear modification, four
+hand-built topologies, one individual-data trial and a fixed-effect model; no
+generated topology families, component networks, ML-NMR or articulation-edge
+enumeration. Peer review has not been done.
+
+# References {.unnumbered}
