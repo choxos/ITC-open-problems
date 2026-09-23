@@ -16,6 +16,12 @@ maturity: "Promising"
 [High priority]{.chip .chip-priority-high}
 [Promising]{.chip .chip-maturity-promising}
 :::
+::: {.callout-important appearance="simple"}
+## A study has been run against this problem
+
+No. Even with a fivefold difference in between-study variance, AIC chose class-specific variances in only 18% of networks with five studies per class, 40% with twelve and 79% with forty. Balanced selection accuracy reached 0.8 only at 40 studies per class and only for AIC; BIC and a likelihood-ratio test did not within 40. At the network sizes population-adjusted analyses use, the heterogeneity structure cannot be chosen from the data, so the shared default is untested rather than supported. [Read the study below](#our-study).
+:::
+
 ## Statement
 
 Network models in current software default to a single between-study heterogeneity variance shared across the whole network, adopted for estimability rather than for plausibility: multinma's tau is one network-wide scalar, as is the common tau recorded by cMLNMR in cpaic, an unreleased development package on GitHub that is not on CRAN. The structured alternatives are not open research. Thorlund et al. 2013 (pmid:23311298) state the problem and build and compare four replacements for the homogeneous-variance assumption, empirically derived heterogeneity priors exist for 80 settings (Turner et al. 2015, doi:10.1002/sim.6381) and weakly informative ones for the very-few-studies case (Rover et al. 2021, doi:10.1002/jrsm.1475), and class-specific variance components with sharing across sparse classes ship in multinma via class_sd since 0.8.0 (Perren et al. 2025, doi:10.1177/0272989X251389887), although that is a within-class treatment standard deviation rather than tau. What has not been done is establishing how large a network must be before the competing variance structures are distinguishable, and no structure indexes heterogeneity by target population; nor is the direction of the error fixed, since a shared variance can overstate uncertainty in a sparse stratum as readily as understate it, depending on which strata are more heterogeneous.
@@ -44,14 +50,39 @@ The modeling work is largely done, so the useful contributions are evaluation an
 
 ## Our study
 
-::: {.callout-note}
-## A study is running
+::: {.study-result}
+**Shared and class-specific heterogeneity cannot be told apart below about 40 studies per class**
 
-**Question.** How many studies per class are needed before model comparison reliably distinguishes a shared between-study variance from class-specific ones?
+**The question put to it.** How many studies per class are needed before model comparison reliably distinguishes a shared between-study variance from class-specific ones?
 
-**Design.** Two classes of 2 to 40 studies each with between-study variance ratio 1, 2 or 5; shared and separate REML fits compared by AIC, BIC and a likelihood-ratio test. 21 cells, 2000 replicates each.
+**What it found.** No. Even with a fivefold difference in between-study variance, AIC chose class-specific variances in only 18% of networks with five studies per class, 40% with twelve and 79% with forty. Balanced selection accuracy reached 0.8 only at 40 studies per class and only for AIC; BIC and a likelihood-ratio test did not within 40. At the network sizes population-adjusted analyses use, the heterogeneity structure cannot be chosen from the data, so the shared default is untested rather than supported.
 
-The protocol is registered before any result is seen: [read it](/studies/HET-03-how-many-studies-before-the-structures-differ/out/HET-03-protocol.md).
+**Results.**
+
+- Twofold variance ratio: separate structure chosen in at most 27% of networks by any criterion up to 40 studies per class.
+- AIC false-positive rate rose from 0.6% (2 studies per class) to 15% (40).
+- BIC with two studies per class chose separate variances under the null in 12% because its penalty log(2m-2) is below 2.
+
+**Design.**
+
+Estimand
+:   Probability of selecting the true heterogeneity structure
+
+Methods compared
+:   AIC, BIC, likelihood-ratio test
+
+Data-generating mechanism
+:   Two classes of 2 to 40 studies each with between-study variance ratio 1, 2 or 5; shared and separate REML fits compared by AIC, BIC and a likelihood-ratio test. 21 cells, 2000 replicates each.
+
+Replicates
+:   2000 per cell, 21 cells
+
+**What this does not answer.** Two classes, contrast-level data, frequentist criteria; no Bayesian model comparison, informative priors, ML-NMR or class-specific treatment SD. Peer review has not been done.
+
+**Peer review.** Not yet done. The result stands on the study alone until it is.
+
+Read it: [PDF](/studies/HET-03-how-many-studies-before-the-structures-differ/out/HET-03.pdf) · [Markdown](/studies/HET-03-how-many-studies-before-the-structures-differ/out/HET-03.md) · [OpenDocument](/studies/HET-03-how-many-studies-before-the-structures-differ/out/HET-03.odt) · Code and data: [studies/HET-03-how-many-studies-before-the-structures-differ](https://github.com/choxos/ITC-open-problems/tree/main/studies/HET-03-how-many-studies-before-the-structures-differ) · Protocol: [registered before the run](/studies/HET-03-how-many-studies-before-the-structures-differ/out/HET-03-protocol.md)
+
 :::
 
 ## Verification
