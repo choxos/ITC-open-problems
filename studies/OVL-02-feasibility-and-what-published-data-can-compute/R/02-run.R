@@ -1,0 +1,14 @@
+## Registered run.   Rscript R/02-run.R
+source("R/00-model.R")
+sh <- read.csv("results/shifts.csv")
+g <- build_grid(); dir.create("results/run", recursive = TRUE, showWarnings = FALSE)
+for (i in seq_len(nrow(g))) {
+  cc <- g[i, ]; f <- sprintf("results/run/cell-%02d.rds", cc$cell)
+  if (file.exists(f)) next
+  s <- if (cc$shift == "easy") EASY_SHIFT else sh$s[sh$dim == cc$dim & sh$shift == cc$shift]
+  th <- truth(cc, s)
+  r <- t(vapply(seq_len(N_SIM), function(k) {
+    set.seed(MASTER_SEED %% 1e6 + 7919L * k + 104729L * cc$cell); one_rep(cc, s, th) }, numeric(8)))
+  saveRDS(data.frame(cell = cc$cell, rep = seq_len(N_SIM), s = s, truth = th, r), f)
+  cat("cell", cc$cell, "done\n")
+}
