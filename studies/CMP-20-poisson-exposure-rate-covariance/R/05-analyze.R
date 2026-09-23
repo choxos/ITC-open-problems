@@ -69,7 +69,11 @@ big <- abs(sn$pred_arm_C) > 0.02
 c_second <- all(abs(sn$arm_C_bias[big]) > 3 * sn$bias_mcse[big]) &&
             all(within3(sn$bias, sn$bias_mcse))
 pm <- summ[summ$arm == "main" & summ$rho0 == -0.6 & summ$drho == 0.4, ]
-pm <- pm[pm$cv_t == max(pm$cv_t) & pm$cv_lam == max(pm$cv_lam), ]
+## The largest attainable dispersions: the attainable cells with the largest
+## CV(T) x CV(lambda) product. (The first version required the largest CV(T) and the
+## largest CV(lambda) at once, a combination that is not attainable at rho0 = -0.6,
+## so it selected no cell; corrected after the run, see the manuscript.)
+pm <- pm[pm$cv_t * pm$cv_lam == max(pm$cv_t * pm$cv_lam), ]
 pu <- pm[pm$method == "unweighted", ]; pw <- pm[pm$method == "weighted", ]
 c_pos <- nrow(pu) > 0 && all(abs(pu$bias) > 3 * pu$bias_mcse) &&
          all(within3(pw$bias, pw$bias_mcse)) && all(pw$coverage >= 0.93 & pw$coverage <= 0.97)

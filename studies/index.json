@@ -291,23 +291,36 @@
  },
  "CMP-20": {
   "slug": "CMP-20-poisson-exposure-rate-covariance",
-  "title": "The exposure-rate covariance the Poisson aggregate likelihood assumes away",
-  "status": "running",
+  "title": "The aggregate Poisson likelihood is biased by the exposure-rate covariance, and exposure-weighted covariate moments remove the bias",
+  "status": "complete",
   "question": "The aggregate Poisson likelihood multiplies an arm's total exposure by its mean modeled rate, which is exact only when exposure and rate are uncorrelated. The error is the factor 1 + rho CV(T) CV(lambda) per arm. How much bias does that put on a transported rate ratio at plausible levels of differential follow-up, and do exposure-weighted covariate summaries remove it?",
-  "answer": null,
-  "findings": [],
-  "not_answered": null,
+  "answer": "No, the covariance cancels only when it is common to both arms. The bias followed the identity log{(1 + rho1 CV1(T) CV1(lambda)) / (1 + rho0 CV0(T) CV0(lambda))} (slope 0.994); at plausible dispersions with a differential correlation of at least 0.2, 27 of 64 cells had material bias or undercoverage, with bias up to 0.14 on the log rate ratio and coverage down to 0.17. Integrating aggregate arms over exposure-weighted covariate moments removed the bias everywhere (largest 0.008). Even with zero correlation the unweighted likelihood undercovered at large dispersions (0.84), because the finite-sample covariance is not zero.",
+  "findings": [
+   "Identity check over 208 cells: slope 0.994 (SE 0.002), largest deviation 2.9 MCSE.",
+   "Exposure-weighted moments: bias at most 0.008, coverage 0.908 to 0.965; borrowed exposure slope: bias at most 0.015 but coverage down to 0.69 because the slope's uncertainty is ignored.",
+   "Null control failed on coverage (0.838 to 0.957 at zero correlation), not bias; positive control's cell selection corrected after the run; sensitivity range did not contain cells with positive treated-arm correlation (coverage down to 0.71)."
+  ],
+  "not_answered": "One covariate, one lognormal exposure law, no overdispersion, the same exposure mechanism in both studies; the likelihood is the study's own code, not multinma. Peer review has not been done.",
   "design": "A minimal anchored network, individual data on A versus C and arm totals on B versus C, with lognormal exposure solved so each arm's exposure-rate correlation and dispersions take registered values exactly. 234 attainable cells crossing the control-arm correlation, its difference in the treated arm, CV of exposure, CV of the rate and arm size; unweighted, exposure-weighted and borrowed-slope integration and a sensitivity bound. 1000 replicates per cell.",
-  "n_sim": null,
-  "estimand": null,
-  "methods_compared": [],
-  "date_completed": null,
+  "n_sim": "1000 per cell, 208 main cells and 26 control cells",
+  "estimand": "Target-population log marginal rate ratio, B versus C",
+  "methods_compared": [
+   "aggregate integration over unweighted moments",
+   "exposure-weighted moments",
+   "moments tilted by a borrowed exposure slope",
+   "sensitivity interval over a declared correlation range"
+  ],
+  "date_completed": "2026-09-23",
   "week": null,
   "code": "studies/CMP-20-poisson-exposure-rate-covariance",
   "protocol": "studies/CMP-20-poisson-exposure-rate-covariance/out/CMP-20-protocol.md",
   "review": null,
   "review_rounds": 0,
-  "downloads": {},
+  "downloads": {
+   "gfm": "studies/CMP-20-poisson-exposure-rate-covariance/out/CMP-20.md",
+   "pdf": "studies/CMP-20-poisson-exposure-rate-covariance/out/CMP-20.pdf",
+   "odt": "studies/CMP-20-poisson-exposure-rate-covariance/out/CMP-20.odt"
+  },
   "primary_problem": "CMP-20",
   "secondary": false
  },
