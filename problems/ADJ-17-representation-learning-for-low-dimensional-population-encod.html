@@ -390,6 +390,7 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#why-it-is-open" id="toc-why-it-is-open" class="nav-link" data-scroll-target="#why-it-is-open">Why it is open</a></li>
   <li><a href="#what-has-been-tried" id="toc-what-has-been-tried" class="nav-link" data-scroll-target="#what-has-been-tried">What has been tried</a></li>
   <li><a href="#probable-solution-or-research-direction" id="toc-probable-solution-or-research-direction" class="nav-link" data-scroll-target="#probable-solution-or-research-direction">Probable solution or research direction</a></li>
+  <li><a href="#our-study" id="toc-our-study" class="nav-link" data-scroll-target="#our-study">Our study</a></li>
   <li><a href="#verification" id="toc-verification" class="nav-link" data-scroll-target="#verification">Verification</a></li>
   <li><a href="#related-problems" id="toc-related-problems" class="nav-link" data-scroll-target="#related-problems">Related problems</a></li>
   <li><a href="#source" id="toc-source" class="nav-link" data-scroll-target="#source">Source</a></li>
@@ -432,6 +433,19 @@ ul.task-list li input[type="checkbox"] {
 <div class="problem-meta">
 <p><span class="problem-id">ADJ-17</span> <span class="verdict verdict-confirmed-open">Confirmed open</span> <span class="chip chip-priority-medium">Medium priority</span> <span class="chip chip-maturity-speculative">Speculative</span></p>
 </div>
+<div class="callout callout-style-simple callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>A study has been run against this problem
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>No.&nbsp;With the treatment effect modified along a low-variance direction of 20 covariates, STC on five principal components reconstructed 91% of the covariate variance and lost the whole modification: bias -0.20 at a 0.5 SD target shift and -0.40 at 1 SD, coverage 0.49 and 0.02. Ten components (95% reconstructed) still lost most of it. STC on all covariates or on a declared modifier score was unbiased with nominal coverage in every cell, so reconstruction quality does not certify an encoding for transport. <a href="#our-study">Read the study below</a>.</p>
+</div>
+</div>
 <section id="statement" class="level2">
 <h2 class="anchored" data-anchor-id="statement">Statement</h2>
 <p>No learned population representation has been used inside an indirect comparison or population adjustment, so the ITC-specific problem is open, though the underlying machinery is well developed elsewhere in balanced representation learning for causal effect estimation and in cross-institution record harmonization. For an encoding to support valid transport, the relevant conditional treatment effect must be representable from the encoding, with exchangeability, positivity and measurement comparability still holding, and no data-only objective can guarantee that unknown effect modifiers survive compression. The auditability objection needs softening: a learned encoding is harder to audit than a declared mapping, but transparent encoders, reconstruction checks, interaction-preservation checks and external validation can reveal some losses.</p>
@@ -447,6 +461,42 @@ ul.task-list li input[type="checkbox"] {
 <section id="probable-solution-or-research-direction" class="level2">
 <h2 class="anchored" data-anchor-id="probable-solution-or-research-direction">Probable solution or research direction</h2>
 <p>Investigate representation learning for high-dimensional biomarker harmonization under a stated sufficiency condition that says which heterogeneity the encoding must retain, and require diagnostics that report what the representation dropped, using reconstruction and interaction-preservation checks rather than asserting opacity. Compare against declared, human-readable harmonization mappings before accepting an opaque encoding in a submission.</p>
+</section>
+<section id="our-study" class="level2">
+<h2 class="anchored" data-anchor-id="our-study">Our study</h2>
+<div class="study-result">
+<p><strong>An encoding that reconstructs 91% of the covariates’ variance dropped the effect modifier entirely</strong></p>
+<p><strong>The question put to it.</strong> Can a covariate encoding learned to reconstruct the covariates drop an effect modifier while reconstructing them well, and would a declared mapping or the full covariate set avoid the resulting transport bias?</p>
+<p><strong>What it found.</strong> No.&nbsp;With the treatment effect modified along a low-variance direction of 20 covariates, STC on five principal components reconstructed 91% of the covariate variance and lost the whole modification: bias -0.20 at a 0.5 SD target shift and -0.40 at 1 SD, coverage 0.49 and 0.02. Ten components (95% reconstructed) still lost most of it. STC on all covariates or on a declared modifier score was unbiased with nominal coverage in every cell, so reconstruction quality does not certify an encoding for transport.</p>
+<p><strong>Results.</strong></p>
+<ul>
+<li>Low-variance modifier: bias at 2, 5, 10 components -0.20, -0.20, -0.14 (0.5 SD shift).</li>
+<li>High-variance modifier: kept at 5 and 10 components; partly lost at 2 because the leading directions had equal variance.</li>
+<li>All-covariate and declared-score STC: bias within 0.01, coverage 0.937 to 0.965.</li>
+</ul>
+<p><strong>Design.</strong></p>
+<dl>
+<dt>Estimand</dt>
+<dd>
+Target-population mean difference, -0.5 + 0.4 times the shift along the modifier
+</dd>
+<dt>Methods compared</dt>
+<dd>
+STC on principal components (2, 5, 10), STC on all covariates, STC on a declared modifier score
+</dd>
+<dt>Data-generating mechanism</dt>
+<dd>
+Twenty covariates with five strong and fifteen weak directions; the modifier on a strong or weak direction; STC on 2, 5 or 10 principal components, on all covariates, or on a declared modifier score, standardized to a shifted target. 12 cells, 1000 replicates each.
+</dd>
+<dt>Replicates</dt>
+<dd>
+1000 per cell, 12 cells
+</dd>
+</dl>
+<p><strong>What this does not answer.</strong> Principal components only; no treatment-effect-preserving or nonlinear encoder, nonlinear heterogeneity or measurement shift; continuous outcome. Peer review has not been done.</p>
+<p><strong>Peer review.</strong> Not yet done. The result stands on the study alone until it is.</p>
+<p>Read it: <a href="../studies/ADJ-17-what-an-encoding-drops/out/ADJ-17.pdf">PDF</a> · <a href="../studies/ADJ-17-what-an-encoding-drops/out/ADJ-17.md">Markdown</a> · <a href="../studies/ADJ-17-what-an-encoding-drops/out/ADJ-17.odt">OpenDocument</a> · Code and data: <a href="https://github.com/choxos/ITC-open-problems/tree/main/studies/ADJ-17-what-an-encoding-drops">studies/ADJ-17-what-an-encoding-drops</a> · Protocol: <a href="../studies/ADJ-17-what-an-encoding-drops/out/ADJ-17-protocol.md">registered before the run</a></p>
+</div>
 </section>
 <section id="verification" class="level2">
 <h2 class="anchored" data-anchor-id="verification">Verification</h2>
