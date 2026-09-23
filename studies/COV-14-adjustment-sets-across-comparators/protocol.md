@@ -22,7 +22,7 @@ depends on $b_k - b_j$; under the intersection this is
 $\sum_{m \notin S}(c_m + \beta_m)(\mu_{m,k} - \mu_{m,j})$, small when comparator
 populations are similar and not otherwise. The probe table confirms this without
 sampling noise: with similar populations the intersection's bias spread across
-contrasts is smaller in every cell; with dispersed populations it is larger in 8 of
+contrasts is smaller in every cell; with dispersed populations it is larger in 13 of
 18.
 
 ## 2. Design
