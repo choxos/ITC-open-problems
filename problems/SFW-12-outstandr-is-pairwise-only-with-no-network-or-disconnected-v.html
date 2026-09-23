@@ -447,6 +447,19 @@ ul.task-list li input[type="checkbox"] {
 <p>This entry describes a limitation of a specific implementation rather than of the field. It is catalogued because the underlying methodological problem is general, and because a reference implementation is where such problems become concrete and checkable.</p>
 </div>
 </div>
+<div class="callout callout-style-simple callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>A study has been run against this problem
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Partly. Across five defensible reconstructions of the aggregate trial’s covariates (normal or gamma margins; the IPD’s, the target’s, or no correlation), outstandR’s G-computation estimate ranged by 0.049 to 0.052 on the log odds ratio scale within a dataset: at the registered materiality threshold, but about a fifth of its sampling SD. The default (normal margins, IPD correlation) was biased by -0.02 to -0.06 on skewed covariates; gamma margins removed most of it. Tail dependence in the true copula changed the range by at most 0.002. <a href="#our-study">Read the study below</a>.</p>
+</div>
+</div>
 <section id="statement" class="level2">
 <h2 class="anchored" data-anchor-id="statement">Statement</h2>
 <p>outstandR reached CRAN as version 2.0.0 on 10 June 2026, titled Model-Based Standardisation for Indirect Treatment Comparison with Limited Subject-Level Data (Green, Gao and Remiro-Azocar), implementing the parametric G-computation approach of Remiro-Azocar, Heath and Baio (doi:10.1002/jrsm.1565). Its CRAN description is framed entirely around the two-trial limited-IPD problem with no mention of networks, so the pairwise focus holds, and no published validation covers its behavior in networks or across disconnected evidence. Dependence on the target covariate distribution is partly definitional rather than a defect, since standardization is defined relative to a declared target, and the package ships custom-copula and diagnostics-and-uncertainty vignettes that acknowledge the sensitivity rather than hiding it. Dependence on the outcome model is a genuine robustness concern, and any disconnected-network use would additionally require structural bridge assumptions that standardization cannot identify.</p>
@@ -488,20 +501,38 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="our-study" class="level2">
 <h2 class="anchored" data-anchor-id="our-study">Our study</h2>
-<div class="callout callout-style-simple callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>A study is running
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p><strong>Question.</strong> How much does outstandR’s G-computation estimate depend on how it reconstructs the aggregate trial’s covariate distribution from published means and SDs, when the true covariates are skewed and tail-dependent?</p>
-<p><strong>Design.</strong> Skewed target covariates with a Clayton or Gaussian copula, IPD with the same or a different correlation; outstandR’s G-computation under five reconstructions (default, reported correlation, independence, gamma margins); anchored binary-outcome comparison. 4 cells, 400 replicates each.</p>
-<p>The protocol is registered before any result is seen: <a href="../studies/SFW-12-characterizing-a-package-rather-than-extending-it/out/SFW-12-protocol.md">read it</a>.</p>
-</div>
+<div class="study-result">
+<p><strong>outstandR’s G-computation estimate moved by about 0.05 on the log odds ratio across defensible target reconstructions</strong></p>
+<p><strong>The question put to it.</strong> How much does outstandR’s G-computation estimate depend on how it reconstructs the aggregate trial’s covariate distribution from published means and SDs, when the true covariates are skewed and tail-dependent?</p>
+<p><strong>What it found.</strong> Partly. Across five defensible reconstructions of the aggregate trial’s covariates (normal or gamma margins; the IPD’s, the target’s, or no correlation), outstandR’s G-computation estimate ranged by 0.049 to 0.052 on the log odds ratio scale within a dataset: at the registered materiality threshold, but about a fifth of its sampling SD. The default (normal margins, IPD correlation) was biased by -0.02 to -0.06 on skewed covariates; gamma margins removed most of it. Tail dependence in the true copula changed the range by at most 0.002.</p>
+<p><strong>Results.</strong></p>
+<ul>
+<li>Margin family and correlation choice each contributed about half of the range.</li>
+<li>Independence was the worst reconstruction; the IPD’s correlation added bias when the target’s differed.</li>
+<li>Registered verdict: material, with the range at the threshold in every cell.</li>
+</ul>
+<p><strong>Design.</strong></p>
+<dl>
+<dt>Estimand</dt>
+<dd>
+Anchored marginal log odds ratio B versus A in the target
+</dd>
+<dt>Methods compared</dt>
+<dd>
+outstandR G-computation under five covariate reconstructions
+</dd>
+<dt>Data-generating mechanism</dt>
+<dd>
+Skewed target covariates with a Clayton or Gaussian copula, IPD with the same or a different correlation; outstandR’s G-computation under five reconstructions (default, reported correlation, independence, gamma margins); anchored binary-outcome comparison. 4 cells, 400 replicates each.
+</dd>
+<dt>Replicates</dt>
+<dd>
+400 per cell, 4 cells
+</dd>
+</dl>
+<p><strong>What this does not answer.</strong> Pairwise anchored comparison, two covariates, correct outcome model, point estimates only; no Bayesian G-computation, multiple-imputation marginalization or network use. Peer review has not been done.</p>
+<p><strong>Peer review.</strong> Not yet done. The result stands on the study alone until it is.</p>
+<p>Read it: <a href="../studies/SFW-12-characterizing-a-package-rather-than-extending-it/out/SFW-12.pdf">PDF</a> · <a href="../studies/SFW-12-characterizing-a-package-rather-than-extending-it/out/SFW-12.md">Markdown</a> · <a href="../studies/SFW-12-characterizing-a-package-rather-than-extending-it/out/SFW-12.odt">OpenDocument</a> · Code and data: <a href="https://github.com/choxos/ITC-open-problems/tree/main/studies/SFW-12-characterizing-a-package-rather-than-extending-it">studies/SFW-12-characterizing-a-package-rather-than-extending-it</a> · Protocol: <a href="../studies/SFW-12-characterizing-a-package-rather-than-extending-it/out/SFW-12-protocol.md">registered before the run</a></p>
 </div>
 </section>
 <section id="verification" class="level2">
