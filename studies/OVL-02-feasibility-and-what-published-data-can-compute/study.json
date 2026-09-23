@@ -1,7 +1,19 @@
 {
  "problem_id": "OVL-02",
- "title": "Is an infeasible MAIC calibration signaled, and by what?",
- "status": "running",
- "question": "MAIC has no solution when the target mean lies outside the convex hull of the source covariates. How often does that happen, does the optimizer say so, and can ESS, the maximum weight or the residual balance tell infeasible analyses from hard feasible ones?",
- "design": "Binary-outcome MAIC with 3 or 8 covariates, target shifts set to give 0 to 90% infeasibility by linear program, with and without effect modification; 24 cells. 1000 replicates per cell."
+ "title": "An infeasible MAIC is signaled by its own balance table, not by its effective sample size",
+ "status": "complete",
+ "date_completed": "2026-09-23",
+ "question": "MAIC has no solution when the target mean lies outside the convex hull of the source covariates. Does the optimizer say so, and can ESS, the maximum weight or the residual balance tell infeasible analyses from hard feasible ones?",
+ "answer": "The residual imbalance of the returned weights does, almost perfectly: above 0.001 in 99.9% of infeasible and 0.1% of feasible analyses. The optimizer reported convergence on 17% of infeasible problems. ESS ranks analyses well but the conventional rule of ESS below 10% of n flagged 73% of feasible analyses near the hull boundary as well as every infeasible one, so it cannot separate impossible from hard; and hard feasible analyses near the boundary undercovered badly anyway.",
+ "findings": [
+  "AUROC for infeasibility: residual imbalance 1.000, ESS 0.996, maximum weight 0.993, optimizer non-convergence 0.909.",
+  "ESS below 10% of n: flags 100% of infeasible and 73% of feasible analyses in the near-boundary scenarios.",
+  "Silent failure: the optimizer reported convergence on 0% to 8% of infeasible problems with 3 covariates and 22% to 34% with 8.",
+  "Infeasible analyses had ESS about 1 and no usable estimate; feasible analyses near the boundary had ESS 3 to 14 and coverage 0.62 to 0.85."
+ ],
+ "not_answered": "Only feasibility of the mean constraint; support for the target joint law cannot be checked from published marginals. Normal covariates, MAIC on means, one sample size; the proposed diagnostics' computability taxonomy was not simulated. Peer review has not been done.",
+ "design": "Binary-outcome MAIC with 3 or 8 covariates and a target shifted so 0% to 90% of source samples were infeasible by linear program, with and without effect modification; 24 scenarios; ESS, maximum weight, residual imbalance and convergence code scored as detectors of infeasibility.",
+ "estimand": "Linear-program feasibility of the calibration, and the target marginal log odds ratio",
+ "methods_compared": ["Kish ESS", "maximum weight", "residual imbalance of the returned weights", "optimizer convergence code"],
+ "n_sim": "1000 per scenario, 24,000 in total"
 }

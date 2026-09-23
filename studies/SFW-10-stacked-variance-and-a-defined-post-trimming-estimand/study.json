@@ -1,7 +1,19 @@
 {
  "problem_id": "SFW-10",
- "title": "MAIC variance with the weighting step, and the estimand trimming targets",
- "status": "running",
+ "title": "Stacking the weighting step into the MAIC sandwich makes intervals narrower, not better",
+ "status": "complete",
+ "date_completed": "2026-09-23",
  "question": "Does a stacked sandwich that accounts for weight estimation give better MAIC intervals than the fixed-weight sandwich or the ESS-based conventional variance, and what population does a trimmed MAIC actually estimate?",
- "design": "Binary-outcome MAIC with three covariates, 90 cells crossing overlap, event risk, effect modification, its alignment with the prognostic direction, and weight trimming; four variance estimators and two truths (declared target and trimming-induced population). 1000 replicates per cell."
+ "answer": "No. Stacking lowered the standard error in every untrimmed scenario (by up to 11%), because estimating calibration weights removes outcome variation the covariates explain; where MAIC intervals already undercover, at poor overlap, that made them worse (coverage down to 0.844). The fixed-weight sandwich was in band in 24 of 30 scenarios, the ESS-based variance in 18 and the stacked sandwich in 17, so current guidance stands. Trimming moved the estimand by up to 0.19 on the log odds ratio scale.",
+ "findings": [
+  "Stacked over fixed-weight SE: 0.887 to 0.993, below 1 beyond Monte Carlo error in all 30 untrimmed scenarios; DESIGN.md's prediction of both signs fails.",
+  "Coverage: fixed-weight 0.893 to 0.960; ESS-based 0.885 to 0.980; stacked 0.844 to 0.953; stacked with n/(n-k) 0.847 to 0.953.",
+  "Every estimator loses coverage as ESS falls; the stacked sandwich fastest.",
+  "Trimming at the 95th percentile moved the estimand by up to 0.19; in 72% of trimmed scenarios the estimate was closer to the population the capped weights induce than to the declared target."
+ ],
+ "not_answered": "No bootstrap and one sample size, so where stacking's asymptotic advantage appears is not located. Binary outcome, three covariates, MAIC on means. Peer review has not been done.",
+ "design": "Binary-outcome MAIC with three covariates, 90 scenarios crossing target shift, event risk, effect modification and its alignment, and weight trimming; four variance estimators; trimmed analyses scored against the declared target and the induced population.",
+ "estimand": "Target-population marginal log odds ratio, A versus C; for trimmed analyses also the effect in the population the capped weights induce",
+ "methods_compared": ["fixed-weight sandwich", "ESS-based conventional variance", "stacked sandwich", "stacked sandwich with n/(n-k)"],
+ "n_sim": "1000 per scenario, 90,000 in total"
 }

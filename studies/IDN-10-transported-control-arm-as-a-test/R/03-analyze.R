@@ -26,4 +26,6 @@ md <- c("# Decision", "",
   sprintf("Per-replicate AUROC of |z| for a biased contrast: %.3f.", au), "",
   "| alarm threshold on abs z | false alarm (unbiased cells) | detection (biased cells) |", "|---:|---:|---:|",
   sprintf("| %.3f | %.3f | %.3f |", oc$z_tol, oc$false_alarm, oc$detection), "")
+write.csv(data.frame(auroc = au), "results/auroc.csv", row.names = FALSE)
+write.csv(oc, "results/thresholds.csv", row.names = FALSE)
 writeLines(md, "results/decision.md"); cat(md, sep = "\n")

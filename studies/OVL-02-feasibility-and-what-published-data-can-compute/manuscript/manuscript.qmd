@@ -1,0 +1,103 @@
+---
+title: "An infeasible MAIC is signaled by its own balance table, not by its effective sample size"
+subtitle: "A simulation study answering catalog problem OVL-02"
+author: "Ahmad Sofi-Mahmudi"
+date: 2026-09-23
+bibliography: references.bib
+csl: ../../../vancouver.csl
+link-citations: true
+number-sections: true
+execute:
+  echo: false
+  warning: false
+  message: false
+format:
+  gfm:
+    toc: false
+  pdf:
+    documentclass: article
+    geometry: margin=1in
+    fig-pos: "H"
+  odt: default
+---
+
+```{r setup}
+det <- read.csv("../results/detectors.csv"); s <- read.csv("../results/summary.csv")
+f3 <- function(x) formatC(x, format = "f", digits = 3)
+g <- function(k, col) det[det$detector == k, col]
+b <- s[s$shift != "easy", ]
+```
+
+# Abstract {.unnumbered}
+
+**Background.** Method-of-moments MAIC has a solution only if the target mean lies in
+the convex hull of the source covariates [@glimm2022]. Without one, the optimizer
+returns weights that satisfy nothing. Catalog problem OVL-02 asks whether this is
+signaled, and whether a low effective sample size is the signal.
+
+**Methods.** Binary-outcome MAIC with 3 or 8 covariates, the target shifted so that 0%
+to 90% of source samples were infeasible by linear program, with and without effect
+modification; 24 scenarios, 1000 replicates each. Detectors: Kish ESS, maximum weight,
+the residual imbalance of the returned weights, and the optimizer's convergence code.
+
+**Results.** The residual imbalance separated infeasible from feasible calibrations
+almost perfectly (AUROC `r f3(g("residual imbalance", "auroc"))`; above $10^{-3}$ in
+`r f3(g("residual imbalance", "flag_infeasible"))` of infeasible and
+`r f3(g("residual imbalance", "flag_feasible"))` of feasible analyses). The optimizer
+reported convergence on `r round(100 * (1 - g("optimizer non-convergence", "flag_infeasible")))`%
+of infeasible problems. ESS ranked analyses well (AUROC `r f3(g("ESS (low)", "auroc"))`)
+but the conventional reading, ESS below 10% of $n$, flagged every infeasible analysis
+and `r round(100 * g("ESS (low)", "flag_feasible"))`% of feasible ones near the hull
+boundary. Near the boundary feasible analyses were themselves unreliable, with
+coverage `r f3(min(b$cover_feas))` to `r f3(max(b$cover_feas))`.
+
+**Conclusion.** Infeasibility is decidable and already visible: the balance of the
+returned weights on the matched moments is zero at any solution and bounded away from
+zero without one. Balance tables should be computed from the returned weights, not
+assumed; a threshold on ESS cannot tell "impossible" from "hard".
+
+# The problem {#sec-problem}
+
+MAIC minimizes $\sum_i \exp\{\alpha^\top(x_i - m_T)\}$. If $m_T$ lies outside the convex
+hull of the $x_i$, there is a direction in which every term decreases, the objective has
+no minimizer, and a quasi-Newton routine drifts until a tolerance stops it. The
+returned weights then put almost all mass on the few rows nearest the target and
+match nothing. Our DIA-03 study found post-weighting balance on matched moments
+identically zero; that holds only when a solution exists. The catalog's refuting
+sentence is that infeasibility is rare and yields an ESS low enough that existing
+conventions catch it.
+
+# Design {#sec-design}
+
+Registered protocol: `protocol.md`. Source trial of 400 with $d \in \{3, 8\}$
+independent normal covariates; target mean at distance $s$ along the equal-weight
+direction, with $s$ set by probe to give 10%, 30%, 50%, 70% and 90% infeasibility
+(`results/shifts.csv`), plus a feasible-with-margin shift of 1.5. Binary outcome with
+prognostic coefficient 0.4 per covariate and modification 0 or 0.5 on $x_1$.
+Feasibility by linear program (Rglpk).
+
+# Results {#sec-results}
+
+![Each replicate's ESS against its residual imbalance. The dashed line is the 0.001 residual threshold; the dotted line is ESS at 10% of n.](figures/fig1-detectors.png){#fig-det}
+
+The two detectors carry different information (@fig-det). Residual imbalance is
+effectively binary: at most about $10^{-4}$ for feasible analyses and at least
+$10^{-2}$ for infeasible ones. ESS is continuous and small on both sides of the
+boundary: median ESS was `r f3(min(b$ess_med_feas))` to `r f3(max(b$ess_med_feas))` for
+feasible and about 1 for infeasible analyses. Silent failure depended on dimension:
+the optimizer reported convergence on `r round(100 * min(s$silent[s$dim == 3], na.rm = TRUE))`% to
+`r round(100 * max(s$silent[s$dim == 3], na.rm = TRUE))`% of infeasible problems in three
+dimensions and `r round(100 * min(s$silent[s$dim == 8], na.rm = TRUE))`% to
+`r round(100 * max(s$silent[s$dim == 8], na.rm = TRUE))`% in eight. Infeasible analyses
+produced no usable estimate or an absurd one; feasible analyses close to the boundary
+undercovered badly, so passing the feasibility check is necessary, not sufficient.
+
+# What this does not answer {#sec-limits}
+
+Feasibility of the mean constraint only; a feasible calibration can still correspond
+to a target joint law with no support in the source, which published marginals cannot
+reveal. Normal covariates, MAIC on means, one sample size. The computability taxonomy
+of the proposed diagnostics in DESIGN.md is analytic and was not simulated. Peer review
+has not been done.
+
+# References {.unnumbered}

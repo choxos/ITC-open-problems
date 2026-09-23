@@ -16,6 +16,12 @@ maturity: "Promising"
 [High priority]{.chip .chip-priority-high}
 [Promising]{.chip .chip-maturity-promising}
 :::
+::: {.callout-important appearance="simple"}
+## A study has been run against this problem
+
+Ignoring the within-trial covariance errs in a direction set by the contrast, not by how the arms' effect modification aligns. The trial's own B-versus-C interval became conservative in every scenario, while the network A-versus-B interval, which borrows through the trial, fell below nominal in 15 of 30 scenarios. The shared-weighting part of the covariance took both signs but never reversed a contrast's error. Dropping the trial widened the network interval by 29% to 91%. [Read the study below](#our-study).
+:::
+
 ## Statement
 
 When a multi-arm trial's contrasts are population-adjusted one at a time, the within-study covariance induced by a shared arm and a shared weighting step is not recovered by naive variance formulas, so standard errors and network precision would be wrong. Current implementations avoid the error by refusing the capability rather than by solving it: both the component MAIC and component STC routes reject IPD studies with more than two arms, so multi-arm IPD trials must be split or dropped. The covariance is handled natively on the synthesis side of frequentist CNMA and in the one-stage ML-NMR likelihood, which keeps multi-arm trials inside a single arm-level model; what is missing is a two-stage adjusted estimator that carries it, and any multi-arm handling in component PAIC.
@@ -42,14 +48,41 @@ Use a multivariate bootstrap or stacked estimating equations that carry all of a
 
 ## Our study
 
-::: {.callout-note}
-## A study is running
+::: {.study-result}
+**Splitting a multi-arm trial's adjusted contrasts is conservative for one contrast and anticonservative for another**
 
-**Question.** When a three-arm trial's population-adjusted contrasts share an arm and a weight vector, what is lost by treating them as independent, is the error ever anticonservative, and is dropping the trial cheaper?
+**The question put to it.** When a three-arm trial's population-adjusted contrasts share an arm and a weight vector, what is lost by treating them as independent, is the error ever anticonservative, and is dropping the trial cheaper?
 
-**Design.** Three-arm individual-data trial weighted to a target, plus two aggregate trials in the target; 30 cells crossing effect modification, its alignment across arms, target shift and shared-arm size; split, weights-fixed, stacked and drop analyses. 1000 replicates per cell.
+**What it found.** Ignoring the within-trial covariance errs in a direction set by the contrast, not by how the arms' effect modification aligns. The trial's own B-versus-C interval became conservative in every scenario, while the network A-versus-B interval, which borrows through the trial, fell below nominal in 15 of 30 scenarios. The shared-weighting part of the covariance took both signs but never reversed a contrast's error. Dropping the trial widened the network interval by 29% to 91%.
 
-The protocol is registered before any result is seen: [read it](/studies/CMP-12-multi-arm-covariance-two-stage/out/CMP-12-protocol.md).
+**Results.**
+
+- Split, trial-alone d_BC: coverage 0.957 to 1.000, above nominal beyond 3 MCSE in 29 of 30 scenarios and below in none; DESIGN.md's alignment-sign prediction is withdrawn by its registered test.
+- Split, network d_AB: coverage 0.4 to 3.7 points below the stacked sandwich, below nominal beyond 3 MCSE in 15 of 30 scenarios against 0 for the stacked sandwich.
+- The shared-weighting covariance term was -22% to +15% of the Monte Carlo covariance, dominated by the shared-arm term.
+- Joint sandwiches recovered 0.76 to 1.15 (stacked) and 0.73 to 1.12 (weights fixed) of the Monte Carlo covariance; stacked trial-alone intervals covered 0.919 to 0.960.
+- Dropping the trial was unbiased and widened the network d_AB interval by a median 53%.
+
+**Design.**
+
+Estimand
+:   d_AB, d_AC and d_BC in the target population
+
+Methods compared
+:   split (covariance zero), joint sandwich, weights fixed, stacked sandwich, drop the trial
+
+Data-generating mechanism
+:   Three-arm individual-data trial weighted by MAIC to a target, plus aggregate A-versus-C and B-versus-C trials in the target; 30 scenarios crossing effect-modification strength, its alignment across arms, target shift and shared-arm size; split, weights-fixed, stacked and drop analyses, network by generalized least squares.
+
+Replicates
+:   1000 per scenario, 30,000 in total
+
+**What this does not answer.** Continuous outcome, linear modification, one three-arm trial in a fixed two-trial aggregate network; four-arm trials, the one-stage ML-NMR comparator and a bootstrap are not run, and target moments are fixed. Peer review has not been done.
+
+**Peer review.** Not yet done. The result stands on the study alone until it is.
+
+Read it: [PDF](/studies/CMP-12-multi-arm-covariance-two-stage/out/CMP-12.pdf) · [Markdown](/studies/CMP-12-multi-arm-covariance-two-stage/out/CMP-12.md) · [OpenDocument](/studies/CMP-12-multi-arm-covariance-two-stage/out/CMP-12.odt) · Code and data: [studies/CMP-12-multi-arm-covariance-two-stage](https://github.com/choxos/ITC-open-problems/tree/main/studies/CMP-12-multi-arm-covariance-two-stage) · Protocol: [registered before the run](/studies/CMP-12-multi-arm-covariance-two-stage/out/CMP-12-protocol.md)
+
 :::
 
 ## Verification

@@ -22,15 +22,12 @@ format:
 ---
 
 ```{r setup}
-source("../R/00-model.R", chdir = TRUE)
 s <- read.csv("../results/summary.csv")
-d <- do.call(rbind, lapply(list.files("../results/run", full.names = TRUE), readRDS))
-d <- merge(d[is.finite(d$est), ], build_grid(), by = "cell")
-auroc <- function(sc, y) { r <- rank(c(sc[y], sc[!y])); ny <- sum(y); (sum(r[seq_len(ny)]) - ny * (ny + 1) / 2) / (ny * sum(!y)) }
-au <- auroc(abs(d$check_z), d$mu_v > 0)
+au <- read.csv("../results/auroc.csv")$auroc
+th <- read.csv("../results/thresholds.csv")
 f3 <- function(x) formatC(x, format = "f", digits = 3)
 cell <- function(u, v, n) s[s$mu_u == u & s$mu_v == v & s$n_t == n, ]
-fa <- function(t) mean(abs(d$check_z[d$mu_v == 0]) > t); de <- function(t) mean(abs(d$check_z[d$mu_v > 0]) > t)
+fa <- function(t) th$false_alarm[abs(th$z_tol - t) < 1e-6]; de <- function(t) th$detection[abs(th$z_tol - t) < 1e-6]
 ```
 
 # Abstract {.unnumbered}

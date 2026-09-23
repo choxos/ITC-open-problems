@@ -1,0 +1,106 @@
+---
+title: "Reconstructing a target covariate from a median: when the mean is enough and when it is not"
+subtitle: "A simulation study answering catalog problem COV-12"
+author: "Ahmad Sofi-Mahmudi"
+date: 2026-09-23
+bibliography: references.bib
+csl: ../../../vancouver.csl
+link-citations: true
+number-sections: true
+execute:
+  echo: false
+  warning: false
+  message: false
+format:
+  gfm:
+    toc: false
+  pdf:
+    documentclass: article
+    geometry: margin=1in
+    fig-pos: "H"
+  odt: default
+---
+
+```{r setup}
+s <- read.csv("../results/summary.csv")
+rg <- read.csv("../results/regression.csv")
+fi <- unlist(rg[rg$link == "identity", c("slope", "r2")]); fl <- unlist(rg[rg$link == "logit", c("slope", "r2")])
+f3 <- function(x) formatC(x, format = "f", digits = 3)
+nm <- s[s$method == "normal", ]; ln <- s[s$method == "lognormal", ]
+b <- function(z, lk, sk, sm, n = 200, be = 0.8) z$bias[z$link == lk & z$skew == sk & z$summary == sm & z$n_t == n & z$beta == be]
+```
+
+# Abstract {.unnumbered}
+
+**Background.** Integration-based population adjustment needs the target's whole
+covariate marginal, and publications often report a skewed covariate as a median with
+interquartile range or range. Catalog problem COV-12 asks whether the error this puts
+into the transported contrast is controlled by the error in the reconstructed mean,
+which is what median-to-mean estimators minimize.
+
+**Methods.** A known conditional model was integrated over reconstructed target
+marginals so that reconstruction was the only error. Seventy-two scenarios crossed the
+link (identity, logit), skewness (none, moderate, strong), the reported summary
+(median with IQR or with range), target size (50, 200, 1000) and effect modification,
+1000 replicates each. Reconstructions: a normal law with Wan et al.'s mean and SD
+[@wan2014], and a shifted lognormal matched to the reported quantiles.
+
+**Results.** Under the identity link, contrast error equaled the modification
+coefficient times the mean error exactly (slope `r f3(fi[["slope"]])`, $R^2$
+`r f3(fi[["r2"]])`). Under the logit link it did not ($R^2$ `r f3(fl[["r2"]])`). With
+strong skew and a reported range, the normal reconstruction biased the contrast by
+`r f3(b(nm, "identity", 1, "range"))` (identity) and `r f3(b(nm, "logit", 1, "range"))`
+(logit) at 200 patients, and the bias grew with sample size because the range does.
+The quantile-matched lognormal kept every bias within `r f3(max(abs(ln$bias)))`.
+
+**Conclusion.** The mean is the right target for a collapsible, linear adjustment and
+the wrong one for a curved link, where the variance and shape of the reconstruction
+also reach the estimate. For a skewed covariate reported with a range, a normal
+reconstruction is badly wrong; a reconstruction that respects the asymmetry of the
+reported quantiles is not.
+
+# The problem {#sec-problem}
+
+For a reconstructed marginal $\hat F$, the contrast error is
+$\int\tau(x)\,d(\hat F - F)$. With an identity link and linear
+$\tau(x) = \tau_0 + \beta x$, it is $\beta(\hat{\bar x} - \bar x)$: only the mean matters.
+With a logit link the marginal contrast integrates a nonlinear function, so the
+reconstruction's variance and higher moments enter. Reporting a median with a range is
+itself a signal of skew, which is where a normal reconstruction's shape is wrong.
+
+# Design {#sec-design}
+
+Registered protocol: `protocol.md`. The target covariate is lognormal with log-SD 0,
+0.5 or 1, rescaled to mean 1 and SD 1. Conditional A-versus-C effect
+$-0.6 + \beta x$ with prognostic slope 0.8, on the identity or logit scale (logit
+baseline $\operatorname{logit}(0.3)$), $\beta \in \{0.3, 0.8\}$, held known. Truth integrates
+over 2000 quantiles of the true law. A third arm integrates over the target's own
+sample, the floor for any reconstruction; the registered regression uses errors net
+of that floor. After registration, the regressor was corrected to measure mean error
+against the sample mean; two completed cells were discarded unread (see `protocol.md`).
+
+# Results {#sec-results}
+
+![Bias in the target contrast by skewness, reported summary and link ($\beta = 0.8$).](figures/fig1-bias.png){#fig-bias}
+
+The registered test separates the two links: the refuting sentence holds under the
+identity link and fails under the logit link. Under the identity link the normal
+reconstruction's bias is entirely its biased mean, which reaches
+`r f3(b(nm, "identity", 0.5, "iqr"))` with moderate skew and an IQR and
+`r f3(b(nm, "identity", 1, "range", 1000))` with strong skew, a range and 1000
+patients (@fig-bias). Under the logit link the contrast is less sensitive to the mean
+but carries errors the mean does not explain. The lognormal reconstruction's bias
+stayed within `r f3(max(abs(ln$bias)))` in every scenario. It is not free without skew: sampling
+asymmetry in the reported quantiles triggers it, and its bias there reached
+`r f3(max(abs(ln$bias[ln$skew == 0])))` against `r f3(max(abs(nm$bias[nm$skew == 0])))` for the
+normal reconstruction.
+
+# What this does not answer {#sec-limits}
+
+One covariate with a known conditional model; in practice the outcome model is also
+estimated and a multivariate marginal needs a dependence structure (CMP-15). The
+lognormal matcher suits right skew; other shapes, bounded scales and bimodality are not
+tested. ML-NMR integration is represented by direct integration over the reconstructed
+law. Peer review has not been done.
+
+# References {.unnumbered}

@@ -1,7 +1,23 @@
 {
  "problem_id": "COV-12",
- "title": "Target marginals reconstructed from a median with IQR or range",
- "status": "running",
+ "title": "Reconstructing a target covariate from a median: when the mean is enough and when it is not",
+ "status": "complete",
+ "date_completed": "2026-09-23",
  "question": "When a target publication reports a skewed covariate as a median with IQR or range, how much error does reconstructing its marginal put into a target-standardized contrast, and is that error a function of the reconstructed mean alone?",
- "design": "Known conditional model integrated over reconstructed target marginals, 72 cells crossing link, skewness, reported summary, target size and modification strength; normal (Wan et al.) and quantile-matched lognormal reconstructions against the sample floor. 1000 replicates per cell."
+ "answer": "Under an identity link with linear effect modification, yes: the contrast error is exactly the modification coefficient times the mean error. Under a logit link, no: the mean explains only 60% of the error's variance, because the reconstruction's spread and shape also enter. With strong skew and a reported range, a normal reconstruction biased the contrast by more than 1 on the identity scale and 0.4 on the log odds ratio scale, growing with sample size; a lognormal matched to the reported quantiles kept bias below 0.1.",
+ "findings": [
+  "Registered test, contrast error net of the sample floor regressed on the modification coefficient times mean error: identity link slope 1.000, R^2 1.000; logit link slope 0.246, R^2 0.597.",
+  "Normal reconstruction (Wan et al.) with strong skew and a range: bias 1.15 (identity) and 0.42 (logit) at 200 patients; 2.15 (identity) at 1000, since the range grows with n.",
+  "Quantile-matched shifted lognormal: largest bias 0.092 across all 72 scenarios.",
+  "Without skew the lognormal matcher is not free: sampling asymmetry in the reported quantiles triggers it, and its bias reached 0.08, against 0.005 for the normal reconstruction."
+ ],
+ "not_answered": "One covariate with a known conditional model; estimated outcome models and multivariate marginals with dependence (CMP-15) are not covered. The lognormal matcher suits right skew only. ML-NMR integration is represented by direct integration. Two cells were run before a regressor correction and discarded unread. Peer review has not been done.",
+ "design": "A known conditional model integrated over target marginals reconstructed from a sample median with IQR or range; 72 scenarios crossing link, skewness, reported summary, target size (50 to 1000) and modification strength.",
+ "estimand": "Target-population marginal treatment effect (difference or log odds ratio)",
+ "methods_compared": [
+  "normal reconstruction (Wan et al.)",
+  "quantile-matched shifted lognormal",
+  "integration over the target's own sample (floor)"
+ ],
+ "n_sim": "1000 per scenario, 72,000 in total"
 }

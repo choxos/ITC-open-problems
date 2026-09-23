@@ -15,6 +15,16 @@ population differences, which is where these problems live.
 
 ## Completed
 
+### [CMP-12](problems/CMP-12-no-two-stage-adjusted-estimator-carries-multi-arm-covariance.qmd) — Splitting a multi-arm trial's adjusted contrasts is conservative for one contrast and anticonservative for another
+
+**Question.** When a three-arm trial's population-adjusted contrasts share an arm and a weight vector, what is lost by treating them as independent, is the error ever anticonservative, and is dropping the trial cheaper?
+
+**Answer.** Ignoring the within-trial covariance errs in a direction set by the contrast, not by how the arms' effect modification aligns. The trial's own B-versus-C interval became conservative in every scenario, while the network A-versus-B interval, which borrows through the trial, fell below nominal in 15 of 30 scenarios. The shared-weighting part of the covariance took both signs but never reversed a contrast's error. Dropping the trial widened the network interval by 29% to 91%.
+
+**What it does not answer.** Continuous outcome, linear modification, one three-arm trial in a fixed two-trial aggregate network; four-arm trials, the one-stage ML-NMR comparator and a bootstrap are not run, and target moments are fixed. Peer review has not been done.
+
+Read it: [PDF](/studies/CMP-12-multi-arm-covariance-two-stage/out/CMP-12.pdf) · [Markdown](/studies/CMP-12-multi-arm-covariance-two-stage/out/CMP-12.md) · [OpenDocument](/studies/CMP-12-multi-arm-covariance-two-stage/out/CMP-12.odt)
+
 ### [CMP-13](problems/CMP-13-shared-gamma-conflates-within-and-between-study-modification.qmd) — Separating within-trial from across-trial component effect modification
 
 Also bears on [IDN-06](problems/IDN-06-ml-nmr-interactions-can-rest-solely-on-aggregate-data-variat.qmd).
@@ -46,6 +56,16 @@ Read it: [PDF](/studies/CMP-14-aggregate-only-interactions/out/CMP-14.pdf) · [M
 **What it does not answer.** The other half of CMU-02, wiring these diagnostics into released software, is untouched; neither multinma nor cpaic is run. The model is conjugate Gaussian with an identity link, a correctly specified linear mean and known variances, so nothing transfers directly to a non-conjugate posterior where MCMC error enters and the diagnostics behave differently. Only automated thresholds are evaluated; a plot read by an experienced analyst is a different instrument. Thresholds were taken from the source literature and not tuned. CMP-14 is touched only for the generic aggregate-only interaction, not for component models, and IDN-06 is not addressed at all because this design contains no within-versus-between discrepancy.
 
 Read it: [PDF](/studies/CMU-02-prior-driven-posteriors/out/CMU-02.pdf) · [Markdown](/studies/CMU-02-prior-driven-posteriors/out/CMU-02.md) · [OpenDocument](/studies/CMU-02-prior-driven-posteriors/out/CMU-02.odt)
+
+### [COV-12](problems/COV-12-no-aggregate-integration-method-for-median-based-covariate-s.qmd) — Reconstructing a target covariate from a median: when the mean is enough and when it is not
+
+**Question.** When a target publication reports a skewed covariate as a median with IQR or range, how much error does reconstructing its marginal put into a target-standardized contrast, and is that error a function of the reconstructed mean alone?
+
+**Answer.** Under an identity link with linear effect modification, yes: the contrast error is exactly the modification coefficient times the mean error. Under a logit link, no: the mean explains only 60% of the error's variance, because the reconstruction's spread and shape also enter. With strong skew and a reported range, a normal reconstruction biased the contrast by more than 1 on the identity scale and 0.4 on the log odds ratio scale, growing with sample size; a lognormal matched to the reported quantiles kept bias below 0.1.
+
+**What it does not answer.** One covariate with a known conditional model; estimated outcome models and multivariate marginals with dependence (CMP-15) are not covered. The lognormal matcher suits right skew only. ML-NMR integration is represented by direct integration. Two cells were run before a regressor correction and discarded unread. Peer review has not been done.
+
+Read it: [PDF](/studies/COV-12-median-summaries-into-integration/out/COV-12.pdf) · [Markdown](/studies/COV-12-median-summaries-into-integration/out/COV-12.md) · [OpenDocument](/studies/COV-12-median-summaries-into-integration/out/COV-12.odt)
 
 ### [DIA-02](problems/DIA-02-no-agreed-ess-definition-and-no-support-geometry-diagnostics.qmd) — The reported weight panel cannot see where support is missing
 
@@ -121,6 +141,36 @@ Read it: [PDF](/studies/MOD-15-a-rule-stated-in-the-wrong-standard-error/out/MOD
 
 Read it: [PDF](/studies/OUT-06-baseline-severity-as-a-modifier-of-its-own-adjustment/out/OUT-06.pdf) · [Markdown](/studies/OUT-06-baseline-severity-as-a-modifier-of-its-own-adjustment/out/OUT-06.md) · [OpenDocument](/studies/OUT-06-baseline-severity-as-a-modifier-of-its-own-adjustment/out/OUT-06.odt)
 
+### [OVL-02](problems/OVL-02-ess-is-an-insufficient-overlap-diagnostic-and-no-battery-is-.qmd) — An infeasible MAIC is signaled by its own balance table, not by its effective sample size
+
+**Question.** MAIC has no solution when the target mean lies outside the convex hull of the source covariates. Does the optimizer say so, and can ESS, the maximum weight or the residual balance tell infeasible analyses from hard feasible ones?
+
+**Answer.** The residual imbalance of the returned weights does, almost perfectly: above 0.001 in 99.9% of infeasible and 0.1% of feasible analyses. The optimizer reported convergence on 17% of infeasible problems. ESS ranks analyses well but the conventional rule of ESS below 10% of n flagged 73% of feasible analyses near the hull boundary as well as every infeasible one, so it cannot separate impossible from hard; and hard feasible analyses near the boundary undercovered badly anyway.
+
+**What it does not answer.** Only feasibility of the mean constraint; support for the target joint law cannot be checked from published marginals. Normal covariates, MAIC on means, one sample size; the proposed diagnostics' computability taxonomy was not simulated. Peer review has not been done.
+
+Read it: [PDF](/studies/OVL-02-feasibility-and-what-published-data-can-compute/out/OVL-02.pdf) · [Markdown](/studies/OVL-02-feasibility-and-what-published-data-can-compute/out/OVL-02.md) · [OpenDocument](/studies/OVL-02-feasibility-and-what-published-data-can-compute/out/OVL-02.odt)
+
+### [OVL-06](problems/OVL-06-no-standardized-sample-size-planning-guidance-or-software-fo.qmd) — Planning a MAIC from the estimator's influence function, not from n or Kish ESS
+
+**Question.** Before any data exist, which planning quantity predicts the precision a MAIC will achieve: nominal sample size, Kish effective sample size, or the estimator's influence-function variance evaluated at posited source and target laws?
+
+**Answer.** The influence-function variance. It predicted the achieved SD within 10% in 85% of 72 scenarios, missing only at 150 patients with 10% prevalence. Kish ESS was within 10% in 58% and understated the achieved SD in 99% of scenarios, so it is optimistic, not the conservative quantity it is usually taken to be; nominal n was within 10% in 21%.
+
+**What it does not answer.** The planner is assumed to know the source and target laws. Binary outcome, anchored-side precision and MAIC on means only; the unanchored bias floor and survival outcomes are not run. Peer review has not been done.
+
+Read it: [PDF](/studies/OVL-06-planning-in-information-rather-than-in-n/out/OVL-06.pdf) · [Markdown](/studies/OVL-06-planning-in-information-rather-than-in-n/out/OVL-06.md) · [OpenDocument](/studies/OVL-06-planning-in-information-rather-than-in-n/out/OVL-06.odt)
+
+### [SFW-10](problems/SFW-10-maicplus-variance-trimming-and-estimand-disclosure-gaps.qmd) — Stacking the weighting step into the MAIC sandwich makes intervals narrower, not better
+
+**Question.** Does a stacked sandwich that accounts for weight estimation give better MAIC intervals than the fixed-weight sandwich or the ESS-based conventional variance, and what population does a trimmed MAIC actually estimate?
+
+**Answer.** No. Stacking lowered the standard error in every untrimmed scenario (by up to 11%), because estimating calibration weights removes outcome variation the covariates explain; where MAIC intervals already undercover, at poor overlap, that made them worse (coverage down to 0.844). The fixed-weight sandwich was in band in 24 of 30 scenarios, the ESS-based variance in 18 and the stacked sandwich in 17, so current guidance stands. Trimming moved the estimand by up to 0.19 on the log odds ratio scale.
+
+**What it does not answer.** No bootstrap and one sample size, so where stacking's asymptotic advantage appears is not located. Binary outcome, three covariates, MAIC on means. Peer review has not been done.
+
+Read it: [PDF](/studies/SFW-10-stacked-variance-and-a-defined-post-trimming-estimand/out/SFW-10.pdf) · [Markdown](/studies/SFW-10-stacked-variance-and-a-defined-post-trimming-estimand/out/SFW-10.md) · [OpenDocument](/studies/SFW-10-stacked-variance-and-a-defined-post-trimming-estimand/out/SFW-10.odt)
+
 ## Under way
 
 ::: {.table-scroll}
@@ -128,20 +178,16 @@ Read it: [PDF](/studies/OUT-06-baseline-severity-as-a-modifier-of-its-own-adjust
 | Problem | Study | Status |
 |---|---|---|
 | [ADJ-15](problems/ADJ-15-privacy-guarantees-and-governance-for-shared-trial-level-dat.qmd) | Target moments released under differential privacy | running |
-| [CMP-12](problems/CMP-12-no-two-stage-adjusted-estimator-carries-multi-arm-covariance.qmd) | Covariance of adjusted contrasts from a multi-arm trial | running |
 | [CMP-20](problems/CMP-20-poisson-aggregate-likelihood-needs-zero-exposure-rate-covari.qmd) | The exposure-rate covariance the Poisson aggregate likelihood assumes away | running |
 | [COV-03](problems/COV-03-design-dependent-roles-of-prognostic-covariates.qmd) | What an anchored comparison must balance on a non-collapsible scale | running |
 | [COV-09](problems/COV-09-measurement-non-equivalence-of-covariates-across-trials.qmd) | The same covariate name, two instruments | running |
-| [COV-12](problems/COV-12-no-aggregate-integration-method-for-median-based-covariate-s.qmd) | Target marginals reconstructed from a median with IQR or range | running |
 | [COV-14](problems/COV-14-per-comparator-adjustment-sets-yield-non-comparable-paic-con.qmd) | Covariate sets that differ across comparators, and the ranking read from them | running |
 | [EST-06](problems/EST-06-the-maic-paradox-swapping-the-ipd-trial-can-reverse-the-comp.qmd) | How often swapping the individual-data trial reverses a MAIC | running |
 | [MIS-01](problems/MIS-01-missing-aggregate-summaries-and-unavailable-ipd-have-no-reme.qmd) | Missing covariate values in the individual-data trial of a MAIC | running |
 | [MOD-16](problems/MOD-16-no-criterion-chooses-pooled-or-arm-separate-matching-in-anch.qmd) | Pooled versus arm-separate matching in anchored MAIC | running |
 | [OUT-02](problems/OUT-02-rare-events-separation-and-zero-event-studies-in-weighted-sy.qmd) | Effective sample size counted in events | running |
+| [OUT-08](problems/OUT-08-overdispersed-counts-and-recurrent-events-as-total-disease-b.qmd) | Overdispersed and zero-inflated counts transported by G-computation | running |
 | [OUT-14](problems/OUT-14-pseudo-ipd-cannot-express-delayed-entry-or-assessment-window.qmd) | Assessment grids that differ between trials | running |
-| [OVL-02](problems/OVL-02-ess-is-an-insufficient-overlap-diagnostic-and-no-battery-is-.qmd) | Is an infeasible MAIC calibration signaled, and by what? | running |
-| [OVL-06](problems/OVL-06-no-standardized-sample-size-planning-guidance-or-software-fo.qmd) | Planning a MAIC in information rather than in n | running |
-| [SFW-10](problems/SFW-10-maicplus-variance-trimming-and-estimand-disclosure-gaps.qmd) | MAIC variance with the weighting step, and the estimand trimming targets | running |
 
 :::
 

@@ -15,6 +15,7 @@ fitlink <- function(lk) {
   f <- stats::lm(e ~ m); c(slope = coef(f)[["m"]], r2 = summary(f)$r.squared)
 }
 fi <- fitlink("identity"); fl <- fitlink("logit")
+write.csv(data.frame(link = c("identity", "logit"), rbind(fi, fl)), "results/regression.csv", row.names = FALSE)
 worst <- summ[summ$method == "normal", ]; worst <- worst[order(-abs(worst$bias)), ][1:5, ]
 md <- c("# Decision", "",
   sprintf("**Refuting sentence (contrast error is a monotone function of mean-recovery error): holds under the identity link (slope %.3f, R^2 %.3f); %s under the logit link (slope %.3f, R^2 %.3f).**",

@@ -16,6 +16,12 @@ maturity: "Promising"
 [Very high priority]{.chip .chip-priority-very-high}
 [Promising]{.chip .chip-maturity-promising}
 :::
+::: {.callout-important appearance="simple"}
+## A study has been run against this problem
+
+The residual imbalance of the returned weights does, almost perfectly: above 0.001 in 99.9% of infeasible and 0.1% of feasible analyses. The optimizer reported convergence on 17% of infeasible problems. ESS ranks analyses well but the conventional rule of ESS below 10% of n flagged 73% of feasible analyses near the hull boundary as well as every infeasible one, so it cannot separate impossible from hard; and hard feasible analyses near the boundary undercovered badly anyway. [Read the study below](#our-study).
+:::
+
 ## Statement
 
 The conventional MAIC effective sample size is a scalar functional of the weight vector: it records only how concentrated the weights are, and carries no information about where in covariate space the weight mass sits, about moments left out of the balancing constraints, about the outcome model, or about the network position of the adjusted edge. Two parts of the proposed eleven-item battery are already built. Glimm and Yau 2022 supply the support-geometry item as a published convex-hull feasibility test with an R package, proving that the MAIC calibration problem has a finite solution only if the target mean lies in the convex hull of the source covariate rows, and demonstrating a real subgroup where a linear program proves infeasibility while optim() silently returns weights with an ESS of 2 percent of n (doi:10.1002/pst.2210); and cpaic, an unreleased development R package on GitHub (commit 9d150e9) that a reader cannot install from CRAN, exports weight_diagnostics(), which already reports ESS, n, entropy efficiency, coefficient of variation, maximum normalized weight, top-5-percent mass and residual balance, and edge_influence(), which reports whether an individual-patient-data edge informs the requested contrast at all. What remains open is standardization rather than invention, plus feasibility for several items: a PAIC reporting and risk-of-bias framework now exists (Ishak et al. 2025, doi:10.1007/s40273-025-01503-1) but does not fix a computed minimum diagnostic set that software must emit, only 3 of 133 reviewed PAIC articles reported all key methodological aspects (doi:10.1016/j.jclinepi.2023.09.004), and the density-ratio, convex-hull and stratum-specific-ESS items are not generally computable when the target is known only through published marginal moments.
@@ -44,14 +50,40 @@ Demote ESS from a sufficiency certificate to one entry in a standardized battery
 
 ## Our study
 
-::: {.callout-note}
-## A study is running
+::: {.study-result}
+**An infeasible MAIC is signaled by its own balance table, not by its effective sample size**
 
-**Question.** MAIC has no solution when the target mean lies outside the convex hull of the source covariates. How often does that happen, does the optimizer say so, and can ESS, the maximum weight or the residual balance tell infeasible analyses from hard feasible ones?
+**The question put to it.** MAIC has no solution when the target mean lies outside the convex hull of the source covariates. Does the optimizer say so, and can ESS, the maximum weight or the residual balance tell infeasible analyses from hard feasible ones?
 
-**Design.** Binary-outcome MAIC with 3 or 8 covariates, target shifts set to give 0 to 90% infeasibility by linear program, with and without effect modification; 24 cells. 1000 replicates per cell.
+**What it found.** The residual imbalance of the returned weights does, almost perfectly: above 0.001 in 99.9% of infeasible and 0.1% of feasible analyses. The optimizer reported convergence on 17% of infeasible problems. ESS ranks analyses well but the conventional rule of ESS below 10% of n flagged 73% of feasible analyses near the hull boundary as well as every infeasible one, so it cannot separate impossible from hard; and hard feasible analyses near the boundary undercovered badly anyway.
 
-The protocol is registered before any result is seen: [read it](/studies/OVL-02-feasibility-and-what-published-data-can-compute/out/OVL-02-protocol.md).
+**Results.**
+
+- AUROC for infeasibility: residual imbalance 1.000, ESS 0.996, maximum weight 0.993, optimizer non-convergence 0.909.
+- ESS below 10% of n: flags 100% of infeasible and 73% of feasible analyses in the near-boundary scenarios.
+- Silent failure: the optimizer reported convergence on 0% to 8% of infeasible problems with 3 covariates and 22% to 34% with 8.
+- Infeasible analyses had ESS about 1 and no usable estimate; feasible analyses near the boundary had ESS 3 to 14 and coverage 0.62 to 0.85.
+
+**Design.**
+
+Estimand
+:   Linear-program feasibility of the calibration, and the target marginal log odds ratio
+
+Methods compared
+:   Kish ESS, maximum weight, residual imbalance of the returned weights, optimizer convergence code
+
+Data-generating mechanism
+:   Binary-outcome MAIC with 3 or 8 covariates and a target shifted so 0% to 90% of source samples were infeasible by linear program, with and without effect modification; 24 scenarios; ESS, maximum weight, residual imbalance and convergence code scored as detectors of infeasibility.
+
+Replicates
+:   1000 per scenario, 24,000 in total
+
+**What this does not answer.** Only feasibility of the mean constraint; support for the target joint law cannot be checked from published marginals. Normal covariates, MAIC on means, one sample size; the proposed diagnostics' computability taxonomy was not simulated. Peer review has not been done.
+
+**Peer review.** Not yet done. The result stands on the study alone until it is.
+
+Read it: [PDF](/studies/OVL-02-feasibility-and-what-published-data-can-compute/out/OVL-02.pdf) · [Markdown](/studies/OVL-02-feasibility-and-what-published-data-can-compute/out/OVL-02.md) · [OpenDocument](/studies/OVL-02-feasibility-and-what-published-data-can-compute/out/OVL-02.odt) · Code and data: [studies/OVL-02-feasibility-and-what-published-data-can-compute](https://github.com/choxos/ITC-open-problems/tree/main/studies/OVL-02-feasibility-and-what-published-data-can-compute) · Protocol: [registered before the run](/studies/OVL-02-feasibility-and-what-published-data-can-compute/out/OVL-02-protocol.md)
+
 :::
 
 ## Verification
