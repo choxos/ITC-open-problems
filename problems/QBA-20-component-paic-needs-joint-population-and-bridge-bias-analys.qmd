@@ -18,6 +18,12 @@ tractability: 4
 [Emerging]{.chip .chip-maturity-emerging}
 [Tractability 4/5]{.chip}
 :::
+::: {.callout-important appearance="simple"}
+## A study has been run against this problem
+
+No. With an omitted modifier (population layer) and component drift (bridge layer) acting on one cross-gap log odds ratio of -0.20, each one-at-a-time curve stayed within 0.16 and never reversed the decision, while the joint elicited box reached a bias of -0.41 and 7% of it reversed the decision; 23% to 26% of the box lay outside the one-at-a-time envelope at every scale. Component-by-modifier drift, which current tooling excludes, moved the estimate by 0.04 alone because it acts through its product with the modifier imbalance. [Read the study below](#our-study).
+:::
+
 ## Statement
 
 In a disconnected component PAIC with no cross-gap evidence, violations of population transportability and of component invariance are both unidentified and should be assessed jointly, since either can offset the other and an analysis that varies only one may report spurious robustness; population or selection bias is not necessarily nonidentified when adequate covariates and transport assumptions are available. Structural bridge bias includes component main-effect drift and component-by-modifier drift across subnetworks, treatment versions, eras or backbones, and can also include component-by-component nonadditivity and backbone interactions. Evaluating a joint sensitivity model means integrating inverse-linked perturbed predictions over the joint target distribution of measured and omitted covariates, with the corresponding marginal survival or RMST functional for time-to-event estimands, and that joint target distribution is what published aggregate data do not supply.
@@ -39,6 +45,43 @@ When no cross-gap evidence exists neither layer is identified, and because they 
 ## Probable solution or research direction
 
 Implement a joint sensitivity model placing subnetwork-specific component main-effect drift, component-by-modifier drift, omitted modifiers, measurement bias and decision thresholds in one coherent framework, integrating inverse-linked perturbed predictions over the joint target covariate distribution and using the marginal survival or RMST functional for time-to-event estimands. Report which bias layer dominates under an explicitly stated attribution rule and whether apparent robustness comes from cancellation between the layers. Expose feasibility, effective sample size, edge influence, effect and decision-reversal surfaces and partial-identification bounds as a single object, and state which forms of drift, including component-by-component nonadditivity, the model does and does not cover.
+
+## Our study
+
+::: {.study-result}
+**One-at-a-time sensitivity analysis of two bias layers reports robustness that the joint analysis does not support**
+
+**The question put to it.** Do one-at-a-time sensitivity analyses of population transportability and component invariance bound their joint effect on a cross-gap contrast, or can the layers offset and report spurious robustness?
+
+**What it found.** No. With an omitted modifier (population layer) and component drift (bridge layer) acting on one cross-gap log odds ratio of -0.20, each one-at-a-time curve stayed within 0.16 and never reversed the decision, while the joint elicited box reached a bias of -0.41 and 7% of it reversed the decision; 23% to 26% of the box lay outside the one-at-a-time envelope at every scale. Component-by-modifier drift, which current tooling excludes, moved the estimate by 0.04 alone because it acts through its product with the modifier imbalance.
+
+**Results.**
+
+- Scale 1: one-at-a-time envelope -0.156 to 0.157; joint -0.413 to 0.341; 7% of the box reverses the decision.
+- Masking: in 4% of the box both layers exceed 0.1 in absolute value and the net bias is below 0.05.
+- Elicited dependence: 32% to 34% of draws outside the one-at-a-time envelope when the layers are positively correlated, 21% to 24% independent, 5% to 12% negatively correlated.
+
+**Design.**
+
+Estimand
+:   Bias of the reported target marginal log odds ratio of the cross-gap contrast
+
+Methods compared
+:   one-at-a-time sensitivity curves, joint sensitivity region over both layers
+
+Data-generating mechanism
+:   Population-level calculation on a logistic model: omitted-modifier imbalance, component main-effect drift and component-by-modifier drift varied one at a time and jointly over elicited ranges at three scales, with independent and dependent elicitations.
+
+Replicates
+:   Population-level calculation: 21^3 grid and 4000 elicited draws x 3 dependence structures at 3 scales
+
+**What this does not answer.** Population-level calculation on one logistic model; no sampling, component network fit or survival scale; joint covariate law known, so the cost of eliciting it is not measured; component non-additivity and backbone interactions not included. Peer review has not been done.
+
+**Peer review.** Not yet done. The result stands on the study alone until it is.
+
+Read it: [PDF](/studies/QBA-20-two-unidentified-layers-that-can-offset/out/QBA-20.pdf) · [Markdown](/studies/QBA-20-two-unidentified-layers-that-can-offset/out/QBA-20.md) · [OpenDocument](/studies/QBA-20-two-unidentified-layers-that-can-offset/out/QBA-20.odt) · Code and data: [studies/QBA-20-two-unidentified-layers-that-can-offset](https://github.com/choxos/ITC-open-problems/tree/main/studies/QBA-20-two-unidentified-layers-that-can-offset) · Protocol: [registered before the run](/studies/QBA-20-two-unidentified-layers-that-can-offset/out/QBA-20-protocol.md)
+
+:::
 
 ## Verification
 

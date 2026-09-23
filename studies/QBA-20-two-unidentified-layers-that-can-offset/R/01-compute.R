@@ -25,6 +25,6 @@ res <- do.call(rbind, lapply(c(0.5, 1, 1.5), function(k) {
     el_outside_ind = el$independent[["outside"]], el_outside_pos = el$positive[["outside"]], el_outside_neg = el$negative[["outside"]],
     el_rev_ind = el$independent[["reversal"]], el_rev_pos = el$positive[["reversal"]], el_rev_neg = el$negative[["reversal"]]), grid = G)
 }))
-write.csv(do.call(rbind, res[1, ]), "results/summary.csv", row.names = FALSE)
-write.csv(do.call(rbind, res[2, ]), "results/grid.csv", row.names = FALSE)
-print(do.call(rbind, res[1, ]))
+write.csv(do.call(rbind, res[, "summary"]), "results/summary.csv", row.names = FALSE)
+write.csv(do.call(rbind, res[, "grid"]), "results/grid.csv", row.names = FALSE)
+print(do.call(rbind, res[, "summary"]))
