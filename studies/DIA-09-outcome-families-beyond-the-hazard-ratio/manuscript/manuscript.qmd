@@ -1,0 +1,106 @@
+---
+title: "Transporting competing-risks outcomes: the hazard ratio travels, the cumulative incidence does not"
+subtitle: "A simulation study answering catalog problem DIA-09 (competing-risks family)"
+author: "Ahmad Sofi-Mahmudi"
+date: 2026-09-23
+bibliography: references.bib
+csl: ../../../vancouver.csl
+link-citations: true
+number-sections: true
+execute:
+  echo: false
+  warning: false
+  message: false
+format:
+  gfm:
+    toc: false
+  pdf:
+    documentclass: article
+    geometry: margin=1in
+    fig-pos: "H"
+  odt: default
+---
+
+```{r setup}
+s <- read.csv("../results/summary.csv")
+f3 <- function(x) formatC(x, format = "f", digits = 3)
+hr <- s[s$estimand == "hr", ]; A <- s[s$estimand == "A", ]; df <- s[s$estimand == "diff", ]
+src <- A[A$method %in% c("maic_A", "stc_A"), ]; rc <- A[A$method == "stc_recal_A", ]; rcd <- df[df$method == "stc_recal", ]
+k4 <- src[src$k_t == 4, ]; k05 <- src[src$k_t == 0.5, ]
+d4 <- df[df$method %in% c("maic", "stc") & df$k_t == 4, ]
+```
+
+# Abstract {.unnumbered}
+
+**Background.** Population adjustment reweights or models covariates, and results for
+hazard ratios are assumed to carry over to other outcome types. For competing risks the
+quantity a decision model uses, the cumulative incidence, also depends on the competing
+cause's hazard in the target. Catalog problem DIA-09 asks whether outcome families beyond
+the hazard ratio behave differently; this study runs the competing-risks family.
+
+**Methods.** Transport from a trial of A versus C (300 per arm) to a target whose competing
+hazard was 0.5, 1, 2 or 4 times the source's beyond what a measured covariate explains,
+with and without effect modification, at two overlap levels: 16 scenarios, 1000 replicates
+each. MAIC, cause-specific STC, and STC with the competing hazard recalibrated to the
+target's reported proportion of control patients with a competing event.
+
+**Results.** The cause-1 log hazard ratio was unbiased in every scenario (largest bias
+`r f3(max(abs(hr$bias)))`). A's cumulative incidence at two years, from MAIC or STC, was biased
+by `r f3(min(k4$bias))` to `r f3(max(k4$bias))` with coverage at most `r f3(max(k4$coverage))` when
+the target's competing hazard was four times the source's (true incidence `r f3(min(k4$truth))`
+to `r f3(max(k4$truth))`), and by `r f3(min(k05$bias))` to `r f3(max(k05$bias))` when it was half.
+The A-minus-C difference was affected less (at most `r f3(max(abs(d4$bias)))`). Recalibration
+removed the bias (at most `r f3(max(abs(rc$bias)))`) but its intervals for the absolute incidence
+covered `r f3(min(rc$coverage))` to `r f3(max(rc$coverage))` because they ignore the uncertainty
+in the reported proportion. The registered rule, bias beyond 0.05 in every scenario with a
+differing competing hazard, was met in 20 of 24 method-scenarios; the four exceptions were
+at half the competing hazard.
+
+**Conclusion.** Covariate adjustment transports cause-specific hazards, not cumulative
+incidences. When a decision model uses absolute event probabilities, the target's competing
+risk must be supplied from target data.
+
+# The problem {#sec-problem}
+
+With cause-specific hazards $h_1$ and $h_2$, the cumulative incidence of cause 1 is
+$\int_0^t h_1(u)S(u)\,du$ with $S$ depending on both hazards [@putter2007]. MAIC
+[@signorovitch2010] or a cause-specific outcome model can transport $h_1$ correctly and still
+compute the incidence with the source's $h_2$. If the target's competing risk differs for
+reasons the measured covariates do not capture (age, comorbidity, background mortality in
+another country), the absolute incidence is wrong while every hazard ratio is right.
+
+# Design {#sec-design}
+
+Registered protocol: `protocol.md`; ADEMP structure [@morris2019]. Source $x \sim N(0, 1)$,
+target $x \sim N(\mu_T, 1)$, $\mu_T \in \{0.5, 1\}$. Exponential hazards
+$h_1 = 0.3\exp\{0.5x + A(-0.5 + bx)\}$, $b \in \{0, 0.4\}$, and $h_2 = K\cdot0.2\exp(0.5x)$ with
+$K = 1$ in the source and $K_T$ in the target. Administrative censoring at 3 years; horizon 2
+years. The target reports covariate means and SDs and the proportion of its 300 control
+patients with a competing event by 2 years. MAIC uses weighted proportions (no censoring
+before the horizon); STC fits exponential cause-specific models and integrates over the
+target; recalibration shifts the competing-cause intercept to reproduce the reported
+proportion.
+
+# Results {#sec-results}
+
+![Bias at 2 years of A's cumulative incidence and of the A-minus-C difference against the target's relative competing hazard.](figures/fig1-bias.png){#fig-bias}
+
+The bias of the absolute incidence grew with the competing-hazard ratio and had the sign
+the mechanism predicts (@fig-bias): a higher competing hazard in the target removes patients
+before they can have the event, so source-based estimates were too high. The difference
+between arms moved in the same direction but by less, because the competing hazard scales
+both arms' incidence.
+
+The recalibrated analysis was unbiased for both quantities. Its intervals for the difference
+held nominal coverage (`r f3(min(rcd$coverage))` to `r f3(max(rcd$coverage))`); for the absolute
+incidence they did not, and adding the sampling variance of the reported proportion would be
+needed.
+
+# What this does not answer {#sec-limits}
+
+Only the competing-risks family was run; cure fractions, recurrent events, ordinal outcomes
+and joint net-benefit outcomes, which DESIGN.md lists, were not. OUT-11 covers
+non-proportional survival. Exponential hazards and one covariate; no ML-NMR. Peer review has
+not been done.
+
+# References {.unnumbered}
