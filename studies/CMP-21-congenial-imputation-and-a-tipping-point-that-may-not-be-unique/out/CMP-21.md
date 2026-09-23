@@ -90,10 +90,10 @@ tipping sets. The more useful result is
 <a href="#fig-slopes" class="quarto-xref">Figure 1</a>: the
 per-replicate slope was centered near zero and spread widely in both
 directions, with differing missingness shifting its center only
-slightly. The registered non-monotonicity count (any sign change in
-successive differences) exceeded 75% in every cell, but it counts
-sub-0.01 wiggles from refitting and is not interpretable as substantive
-non-monotonicity.
+slightly. The curves themselves were non-monotone over the range in 77%
+to 80% of replicates (any change of direction between successive
+shifts), yet they crossed the decision threshold in more than one
+interval in at most 4%: their turning points lay away from zero.
 
 # What this does not answer
 
