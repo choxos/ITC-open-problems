@@ -1,7 +1,24 @@
 {
  "problem_id": "MIS-01",
  "title": "Missing covariate values in the individual-data trial of a MAIC",
- "status": "running",
+ "status": "complete",
  "question": "When a matched covariate is missing for some patients in the individual-data trial, when is complete-case MAIC biased, and do inverse-probability-of-observation weighting and multiple imputation repair it?",
- "design": "Continuous-outcome MAIC with one partly missing matched covariate, one observed matched covariate and one unmatched covariate; 36 cells crossing missingness rate, six mechanisms and whether the unmatched covariate modifies the effect; complete case, observation weighting and congenial or generic imputation. 1000 replicates per cell."
+ "design": "Continuous-outcome MAIC with one partly missing matched covariate, one observed matched covariate and one unmatched covariate; 36 cells crossing missingness rate, six mechanisms and whether the unmatched covariate modifies the effect; complete case, observation weighting and congenial or generic imputation. 1000 replicates per cell.",
+ "date_completed": "2026-09-23",
+ "answer": "Complete-case MAIC bias is set by the missingness mechanism, not the rate. It is unbiased when missingness depends only on matched covariates, including the missing covariate itself, and biased already at 15% missingness when it depends on an unmatched effect modifier, the outcome with modification, or an unmatched covariate in one arm only. Weighting and imputation repair the missing-at-random cases (imputation with arm interactions most reliably) but are biased by up to 0.22 when missingness depends on the missing covariate itself, where complete case is not.",
+ "findings": [
+  "Complete case within 3 MCSE of zero in all 24 scenarios predicted unbiased and beyond 3 MCSE in all 4 predicted-biased scenarios at 15% missingness.",
+  "Missingness in one arm driven by an unmatched prognostic covariate: complete-case bias -0.34 at 15% and -0.65 at 30%, with no effect modification.",
+  "Missingness driven by the missing covariate: complete case within 0.035; observation weighting and imputation biased by up to 0.22.",
+  "Imputation without arm interactions carried small systematic bias (up to 0.05); observation weighting failed with extreme weights when 60% to 95% of one arm was missing."
+ ],
+ "not_answered": "Missing outcomes, binary outcomes, STC, overlap levels and pattern-mixture sensitivity analysis not run; single-driver mechanisms only. Peer review has not been done.",
+ "estimand": "Target-population mean difference, A versus C, in the anchored MAIC",
+ "methods_compared": [
+  "complete-case MAIC",
+  "observation weighting",
+  "multiple imputation with arm interactions",
+  "multiple imputation without arm terms"
+ ],
+ "n_sim": "1000 per scenario (997 in 4), 36,000 in total"
 }
