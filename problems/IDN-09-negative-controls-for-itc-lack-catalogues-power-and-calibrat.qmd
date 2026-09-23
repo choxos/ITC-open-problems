@@ -16,6 +16,12 @@ maturity: "Promising"
 [Very high priority]{.chip .chip-priority-very-high}
 [Promising]{.chip .chip-maturity-promising}
 :::
+::: {.callout-important appearance="simple"}
+## A study has been run against this problem
+
+Only in a knife-edge case. A negative-control outcome with no treatment effect detects a population difference (flag rate up to 0.83) but calibrates the primary contrast correctly only when its dependence on the unmeasured covariate equals the primary outcome's and that covariate does not modify the treatment effect (bias 0.001). Otherwise the calibrated contrast was biased by -0.18 to 0.40: it missed the modification part, overcorrected with a more strongly dependent control, and cancelled by coincidence in one scenario. [Read the study below](#our-study).
+:::
+
 ## Statement
 
 Prespecified negative-control outcomes and negative-control covariates can provide qualitative falsification for indirect comparisons under explicit null-effect, shared-bias and estimand-scale conditions, and a calibrated signal is evidence against a joint set of assumptions rather than a measurement of bias in the primary contrast. The calibration machinery the source treats as nonexistent does exist outside this setting: control outcome calibration corrects estimates for unobserved confounding using control outcomes and comes with a sensitivity analysis for its own identifying assumption (doi:10.1093/aje/kwt303), and empirical calibration of confidence intervals from banks of negative and synthesized positive controls is routine in OHDSI network studies (doi:10.1073/pnas.1708282114, cran:EmpiricalCalibration). Both were built for unmeasured confounding within observational data and have not been adapted to cross-study transport, and for indirect comparisons specifically there are no disease-area catalogues of design-sensitive control outcomes, no power or specificity characterization under correlated baseline covariates and non-collapsible scales, and no validated mapping from a control signal to a bias parameter for the primary contrast.
@@ -39,6 +45,43 @@ A valid negative-control outcome must have no causal treatment effect on the spe
 ## Probable solution or research direction
 
 Adapt rather than invent: take control outcome calibration and empirical calibration from the observational-confounding setting and re-derive what they require when the bias is cross-study transport instead of within-source confounding. Build disease-area catalogues of candidate control outcomes and prespecified control-covariate lists elicited from clinicians, and require their reporting in trial publications and submissions so comparator studies can be checked at all. Characterize the power and specificity of placebo-covariate tests under realistic covariate correlation and non-collapsible scales, and wire a positive test into modifier selection so it forces respecification rather than being reported as an incidental finding.
+
+## Our study
+
+::: {.study-result}
+**A negative-control outcome for transport bias**
+
+**The question put to it.** Can a negative-control outcome detect and calibrate transport bias in an unanchored MAIC, and when does the calibration fail?
+
+**What it found.** Only in a knife-edge case. A negative-control outcome with no treatment effect detects a population difference (flag rate up to 0.83) but calibrates the primary contrast correctly only when its dependence on the unmeasured covariate equals the primary outcome's and that covariate does not modify the treatment effect (bias 0.001). Otherwise the calibrated contrast was biased by -0.18 to 0.40: it missed the modification part, overcorrected with a more strongly dependent control, and cancelled by coincidence in one scenario.
+
+**Results.**
+
+- Refuting sentence fails: calibrated bias -0.183 to 0.399 wherever the control's bias differed from the primary's.
+- Control test size 0.039 to 0.056 without a shift; power 0.04 to 0.83 with a 0.5 SD shift, rising with the control's dependence on the unmeasured covariate.
+- With modification by the unmeasured covariate and a matched control, calibration left 0.19 of 0.41 naive bias.
+
+**Design.**
+
+Estimand
+:   Marginal log odds ratio of the primary outcome, B versus A, in the target
+
+Methods compared
+:   naive unanchored MAIC, negative-control test, negative-control calibrated contrast
+
+Data-generating mechanism
+:   Unanchored MAIC with an unmeasured covariate shifted between populations, a negative-control outcome sharing some, all or more of its prognostic dependence, and effect modification absent or present; naive, control-test and calibrated contrasts. 16 cells, 2000 replicates each.
+
+Replicates
+:   2000 per scenario, 32,000 in total
+
+**What this does not answer.** One control outcome rather than a bank with empirical calibration; unanchored only; availability of control outcomes not surveyed. Peer review has not been done.
+
+**Peer review.** Not yet done. The result stands on the study alone until it is.
+
+Read it: [PDF](/studies/IDN-09-calibration-built-for-a-different-bias/out/IDN-09.pdf) · [Markdown](/studies/IDN-09-calibration-built-for-a-different-bias/out/IDN-09.md) · [OpenDocument](/studies/IDN-09-calibration-built-for-a-different-bias/out/IDN-09.odt) · Code and data: [studies/IDN-09-calibration-built-for-a-different-bias](https://github.com/choxos/ITC-open-problems/tree/main/studies/IDN-09-calibration-built-for-a-different-bias) · Protocol: [registered before the run](/studies/IDN-09-calibration-built-for-a-different-bias/out/IDN-09-protocol.md)
+
+:::
 
 ## Verification
 

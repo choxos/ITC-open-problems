@@ -16,6 +16,12 @@ maturity: "Promising"
 [High priority]{.chip .chip-priority-high}
 [Promising]{.chip .chip-maturity-promising}
 :::
+::: {.callout-important appearance="simple"}
+## A study has been run against this problem
+
+A baseline-risk bridge transports whatever makes the subnetworks' baselines differ. When a design nuisance (such as an endpoint definition) coincided with the subnetwork it passed one for one into the cross-gap contrast (bias 0.2 to 0.7) and no adjustment was possible. When a quarter of trials used the other definition, adjusting for it removed the nuisance but not prognostic drift between subnetworks (bias 0.19 to 0.20). [Read the study below](#our-study).
+:::
+
 ## Statement
 
 Arm-based baseline-synthesis, reference-prediction, and aggregate-level matching models link disconnected subnetworks through a baseline-outcome structure, allowing disconnected RCTs and single-arm studies to be included. An observed control-arm risk depends on prognosis, endpoint definition, follow-up, ascertainment, care context, and calendar time, so it is not intrinsically exchangeable across designs or components. Thom et al. 2022 measured what this costs: disconnected-treatment bias ran from -0.16 to 0.392 for aggregate-level matching and from -0.102 to 0.40 for reference prediction, with coverage of 0.30 to 0.82 and 0.64 to 0.94 respectively, and they recommend reference prediction on coverage grounds. Beliveau et al. 2017 is not the cautionary result the source made it: across the two disconnected datasets it examined it found the use of random baseline treatment effects appropriate, while warning that the normality and exchangeability assumptions could be inappropriate in datasets it did not observe.
@@ -39,6 +45,43 @@ Where a single baseline parameter both carries the cross-gap bridge and absorbs 
 ## Probable solution or research direction
 
 Use separate baseline distributions for connected, disconnected, and single-arm evidence, and use commensurate rather than fully exchangeable baseline priors so the bridge is down-weighted when source and target baselines conflict. Condition reference prediction on design covariates where the relevant covariates are measured, overlap, and can be modeled correctly, since the improvement depends on those conditions rather than being automatic, and calibrate with negative controls that detect design-driven baseline differences. Report an explicit posterior decomposition of how much the baseline bridge moves each treatment contrast, and treat reference prediction as a conditional method rather than a solution to disconnection.
+
+## Our study
+
+::: {.study-result}
+**A baseline-risk bridge across a disconnected network**
+
+**The question put to it.** When disconnected subnetworks are linked through exchangeable baseline risks, does study-level design nuisance pass into the cross-gap contrast, and can design covariates separate it from prognosis?
+
+**What it found.** A baseline-risk bridge transports whatever makes the subnetworks' baselines differ. When a design nuisance (such as an endpoint definition) coincided with the subnetwork it passed one for one into the cross-gap contrast (bias 0.2 to 0.7) and no adjustment was possible. When a quarter of trials used the other definition, adjusting for it removed the nuisance but not prognostic drift between subnetworks (bias 0.19 to 0.20).
+
+**Results.**
+
+- Refuting sentence fails: without crossover, adjustment possible in 0% of analyses and bridge bias 0.207 to 0.712.
+- With 25% crossover and no drift, adjusted bias within 0.003.
+- With prognostic drift 0.2, adjusted bias 0.191 to 0.204.
+
+**Design.**
+
+Estimand
+:   Cross-gap contrast C versus A on the log odds scale
+
+Methods compared
+:   exchangeable-baseline bridge, bridge adjusted for a design covariate
+
+Data-generating mechanism
+:   Two subnetworks with prognostic drift, a design nuisance on the baseline and a design covariate overlapping the gap or not; exchangeable-baseline bridge with and without design adjustment. 24 cells, 2000 replicates each.
+
+Replicates
+:   2000 per scenario, 48,000 in total
+
+**What this does not answer.** Study-level summaries, no Bayesian arm-based model or commensurate prior, one design covariate. Peer review has not been done.
+
+**Peer review.** Not yet done. The result stands on the study alone until it is.
+
+Read it: [PDF](/studies/DIS-03-one-parameter-doing-two-jobs/out/DIS-03.pdf) · [Markdown](/studies/DIS-03-one-parameter-doing-two-jobs/out/DIS-03.md) · [OpenDocument](/studies/DIS-03-one-parameter-doing-two-jobs/out/DIS-03.odt) · Code and data: [studies/DIS-03-one-parameter-doing-two-jobs](https://github.com/choxos/ITC-open-problems/tree/main/studies/DIS-03-one-parameter-doing-two-jobs) · Protocol: [registered before the run](/studies/DIS-03-one-parameter-doing-two-jobs/out/DIS-03-protocol.md)
+
+:::
 
 ## Verification
 

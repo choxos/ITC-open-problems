@@ -16,6 +16,12 @@ maturity: "Promising"
 [Very high priority]{.chip .chip-priority-very-high}
 [Promising]{.chip .chip-maturity-promising}
 :::
+::: {.callout-important appearance="simple"}
+## A study has been run against this problem
+
+No. MAIC on a misclassified binary modifier was biased even with identical assays in both studies (-0.03 to -0.13 on the log odds ratio scale), because reweighting recorded categories leaves each category's true composition at the source's; correcting the target prevalence alone did not help. Correcting only STC's outcome model left bias of -0.012 to -0.051. Fully corrected STC and MAIC with weights chosen on the latent prevalence were unbiased (within 0.006). [Read the study below](#our-study).
+:::
+
 ## Statement
 
 Biomarker assays, severity scales, response definitions, cut-points and eligibility criteria can differ between the IPD source and the comparator study, and the matching parameters are mechanism-specific: sensitivity and specificity for binary misclassification, calibration slope and intercept and error variance for continuous proxies, and differential terms only where the error differs by study, treatment or outcome. Nourredine et al. 2025 (doi:10.1002/sim.70236) show what is at stake in an unweighted unanchored external-control design, where sensitivity and specificity of 0.9 still left roughly 67% relative bias and 79.6% interval coverage while a validation-informed likelihood held bias near zero at about 95.5% coverage with wider intervals. A joint latent measurement, outcome, target-distribution and weighting model can be written down in principle, so the gap is the absence of a validated PAIC-specific implementation and of the validation data that would inform it, not the absence of any joint form.
@@ -41,14 +47,39 @@ Implement and validate the joint model that is already available on paper, speci
 
 ## Our study
 
-::: {.callout-note}
-## A study is running
+::: {.study-result}
+**A misclassified covariate that is both balanced and a modifier**
 
-**Question.** When a binary effect modifier is misclassified in the source, the target or both, which corrections does population adjustment need, and is correcting the outcome model alone enough?
+**The question put to it.** When a binary effect modifier is misclassified in the source, the target or both, which corrections does population adjustment need, and is correcting the outcome model alone enough?
 
-**Design.** Anchored transport with a misclassified binary modifier under four assay scenarios and two modification strengths; naive, prevalence-corrected and latent-weight MAIC; naive, outcome-only corrected and fully corrected latent-class STC. 8 cells, 1000 replicates each.
+**What it found.** No. MAIC on a misclassified binary modifier was biased even with identical assays in both studies (-0.03 to -0.13 on the log odds ratio scale), because reweighting recorded categories leaves each category's true composition at the source's; correcting the target prevalence alone did not help. Correcting only STC's outcome model left bias of -0.012 to -0.051. Fully corrected STC and MAIC with weights chosen on the latent prevalence were unbiased (within 0.006).
 
-The protocol is registered before any result is seen: [read it](/studies/QBA-06-an-error-that-enters-twice/out/QBA-06-protocol.md).
+**Results.**
+
+- Refuting sentence fails: outcome-only correction biased beyond 3 MCSE and 0.03 in some scenarios (to -0.051).
+- MAIC on the recorded covariate with identical assays: bias beyond 3 MCSE in 4 of 4 scenarios.
+- Latent-prevalence MAIC and fully corrected STC: bias -0.006 to 0.006.
+
+**Design.**
+
+Estimand
+:   Marginal log odds ratio, A versus C, in the target's true covariate law
+
+Methods compared
+:   MAIC on the recorded covariate, MAIC with prevalence correction, MAIC with latent-prevalence weights, STC on the recorded covariate, STC with the outcome model corrected, fully corrected STC
+
+Data-generating mechanism
+:   Anchored transport with a misclassified binary modifier under four assay scenarios and two modification strengths; naive, prevalence-corrected and latent-weight MAIC; naive, outcome-only corrected and fully corrected latent-class STC. 8 cells, 1000 replicates each.
+
+Replicates
+:   1000 per scenario, 8,000 in total
+
+**What this does not answer.** Known assay parameters; one binary covariate; no interval assessment. Peer review has not been done.
+
+**Peer review.** Not yet done. The result stands on the study alone until it is.
+
+Read it: [PDF](/studies/QBA-06-an-error-that-enters-twice/out/QBA-06.pdf) · [Markdown](/studies/QBA-06-an-error-that-enters-twice/out/QBA-06.md) · [OpenDocument](/studies/QBA-06-an-error-that-enters-twice/out/QBA-06.odt) · Code and data: [studies/QBA-06-an-error-that-enters-twice](https://github.com/choxos/ITC-open-problems/tree/main/studies/QBA-06-an-error-that-enters-twice) · Protocol: [registered before the run](/studies/QBA-06-an-error-that-enters-twice/out/QBA-06-protocol.md)
+
 :::
 
 ## Verification
