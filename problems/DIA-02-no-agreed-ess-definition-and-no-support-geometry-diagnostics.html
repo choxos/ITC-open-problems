@@ -390,6 +390,7 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#why-it-is-open" id="toc-why-it-is-open" class="nav-link" data-scroll-target="#why-it-is-open">Why it is open</a></li>
   <li><a href="#what-has-been-tried" id="toc-what-has-been-tried" class="nav-link" data-scroll-target="#what-has-been-tried">What has been tried</a></li>
   <li><a href="#probable-solution-or-research-direction" id="toc-probable-solution-or-research-direction" class="nav-link" data-scroll-target="#probable-solution-or-research-direction">Probable solution or research direction</a></li>
+  <li><a href="#our-study" id="toc-our-study" class="nav-link" data-scroll-target="#our-study">Our study</a></li>
   <li><a href="#what-this-project-measured" id="toc-what-this-project-measured" class="nav-link" data-scroll-target="#what-this-project-measured">What this project measured</a></li>
   <li><a href="#verification" id="toc-verification" class="nav-link" data-scroll-target="#verification">Verification</a></li>
   <li><a href="#how-the-evidence-falls-in-time" id="toc-how-the-evidence-falls-in-time" class="nav-link" data-scroll-target="#how-the-evidence-falls-in-time">How the evidence falls in time</a></li>
@@ -437,6 +438,19 @@ ul.task-list li input[type="checkbox"] {
 <div class="source-unsourced">
 <p><strong>Source note.</strong> This entry derives in part from a source document whose inline citations were ChatGPT interface tokens rather than references, and so resolve to nothing. Claims below are attributed to that document and were checked independently where possible; anything that could not be independently sourced is marked in the verification trail.</p>
 </div>
+<div class="callout callout-style-simple callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>A study has been run against this problem
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>It matters. Two source populations that remove the same mass at the same threshold, one in the effect-modifying coordinate and one in a prognostic coordinate, give panels that agree to within 1.6% while one estimate is biased by 0.016 on the marginal risk difference and the other by less than 0.0001, and material error is 24 times as frequent in the first. Across the two placements every panel member sits within 0.005 of chance; region-specific ESS separates them almost perfectly and sliced optimal transport cost at 0.73, but a convex hull distance maximized over coordinates is as blind as the panel. The registered within-arm primary outcome reads the other way (panel 0.574, best geometric 0.592, rule returns refuted) because within one arm the hole placement is fixed and the outcome measures sampling noise, not geometry. Both readings are reported. Balance on the omitted moment, the comparator most likely to overturn the headline, was never fairly tested. <a href="#our-study">Read the study below</a>.</p>
+</div>
+</div>
 <section id="statement" class="level2">
 <h2 class="anchored" data-anchor-id="statement">Statement</h2>
 <p>A global effective sample size is a scalar function of the weight distribution, so it does not encode where in covariate space the support lies or whether the supported region is relevant to the decision contrast. Reporting is demonstrably incomplete in practice: of 117 oncology MAICs reviewed by Farinasso et al.&nbsp;2025 (doi:10.1016/j.vhri.2025.101088), only three fulfilled all NICE recommendations and the distribution of weights was among the least reported items. The claim that software reports ESS alone and never computes contrast-specific influence is too strong: cpaic, an unreleased development package on GitHub that is not on CRAN, already exports a weight panel with effective sample size, entropy efficiency, weight variation, concentration and residual balance, plus an edge influence function for a named treatment contrast. What remains missing is a definition set agreed across packages and the support-geometry diagnostics that no package computes: region-specific ESS, convex-hull distance, density-ratio and optimal-transport cost, out-of-distribution maps, and balance on omitted moments.</p>
@@ -476,9 +490,48 @@ ul.task-list li input[type="checkbox"] {
 <h2 class="anchored" data-anchor-id="probable-solution-or-research-direction">Probable solution or research direction</h2>
 <p>Standardize and extend what exists rather than specify a panel from scratch: agree one definition set across packages, starting from the multi-metric weight panel and contrast-specific influence already implemented in cpaic, and add the support-geometry diagnostics no package computes, namely region-specific ESS, convex-hull distance between source and target support, density-ratio and optimal-transport cost, out-of-distribution maps, and balance on omitted as well as fitted moments. Require the agreed panel in publications and submissions. Evaluate each member of the panel in simulation for its ability to predict realized error, and drop the ones that only describe the fit.</p>
 </section>
+<section id="our-study" class="level2">
+<h2 class="anchored" data-anchor-id="our-study">Our study</h2>
+<div class="study-result">
+<p><strong>The reported weight panel cannot see where support is missing</strong></p>
+<p><strong>The question put to it.</strong> Every member of the overlap panel MAIC reports (Kish ESS, ESS percentage, entropy efficiency, maximum weight, top-share) is a symmetric function of the weights, so none can depend on where in covariate space the source fails to cover the target. Does that blindness matter in an ordinary covariate law, or do weight concentration and support geometry move together tightly enough that the panel is an adequate proxy?</p>
+<p><strong>What it found.</strong> It matters. Two source populations that remove the same mass at the same threshold, one in the effect-modifying coordinate and one in a prognostic coordinate, give panels that agree to within 1.6% while one estimate is biased by 0.016 on the marginal risk difference and the other by less than 0.0001, and material error is 24 times as frequent in the first. Across the two placements every panel member sits within 0.005 of chance; region-specific ESS separates them almost perfectly and sliced optimal transport cost at 0.73, but a convex hull distance maximized over coordinates is as blind as the panel. The registered within-arm primary outcome reads the other way (panel 0.574, best geometric 0.592, rule returns refuted) because within one arm the hole placement is fixed and the outcome measures sampling noise, not geometry. Both readings are reported. Balance on the omitted moment, the comparator most likely to overturn the headline, was never fairly tested.</p>
+<p><strong>Results.</strong></p>
+<ul>
+<li>The manipulation works in a plain multivariate normal law. With strong effect modification, a hole in the modifying coordinate biases MAIC’s marginal risk difference by 0.0164 and a same-sized hole in a prognostic coordinate by -0.0001, while every panel member agrees between the two arms to within 1.6%. The refuting sentence, that such a counterexample needs configurations that do not occur, fails.</li>
+<li>Across the two hole placements, over 16,000 replicates, the best panel member separates them at 0.505 against 0.5 for chance, standard error 0.004. Region-specific ESS separates them at 1.000 and sliced optimal transport cost at 0.726. Convex hull distance, though it reads position, separates at 0.503 because it is a maximum over coordinates and both arms remove an identical wedge.</li>
+<li>The registered primary, AUROC against material error within the high-modification arm, returns refuted: best panel member 0.574, best geometric 0.592, a gap of 0.018 against a registered materiality of 0.10. Within one arm every replicate shares the hole placement, so the registered outcome asks which replicate drew a bad sample, and a concentration measure answers that as well as anything. The registered outcome was the wrong measurement for the proposition; it is reported as registered, not relabeled.</li>
+<li>Two of three controls failed on parts of the grid. At eight covariates and moderate overlap MAIC’s own error exceeds the 0.03 material threshold in 0.289 of replicates with no hole at all, the same threshold-below-noise defect IDN-05 documented. Leaving the modifier’s second moment unmatched breaks the symmetry the manipulation rests on and the panels diverge by up to 91%. The analysis runs on the 12 of 48 cells the controls leave, all at good overlap.</li>
+<li>Two of the three ESS definitions implemented are the same statistic when weights are normalized, so the measured comparability spread is Kish against entropy ESS: median 1.55 times, 90th percentile 3.50, maximum 15.5 on identical data.</li>
+<li>A post hoc probe prices the rescue of the failed strata by the upper Clopper-Pearson bound: 48,000 source records at dim3/moderate and 192,000 at dim8/moderate. It was not run.</li>
+</ul>
+<p><strong>Design.</strong></p>
+<dl>
+<dt>Estimand</dt>
+<dd>
+Target-population marginal risk difference, and material error above 0.03 as the classifier label
+</dd>
+<dt>Methods compared</dt>
+<dd>
+Kish ESS, ESS percentage, entropy efficiency, maximum weight, top 5% share, balance on an omitted moment, region-specific ESS, coordinatewise convex hull distance, sliced optimal transport cost
+</dd>
+<dt>Data-generating mechanism</dt>
+<dd>
+Target covariates independent standard normal in 3 or 8 dimensions; source shifted by 0.25 or 0.60 with a wedge above the 90th percentile removed from the effect-modifying coordinate, from a prognostic coordinate, or not at all. Binary outcome on the logit scale with one modifying coordinate. 48 cells crossing dimension, hole placement, overlap, balancing set and modification strength, source size 16,000. Nine diagnostics scored by AUROC within the high-modification arm and across the two hole placements.
+</dd>
+<dt>Replicates</dt>
+<dd>
+2000 per cell, 96,000 replicates; 24,000 on the 12 cells the controls leave
+</dd>
+</dl>
+<p><strong>What this does not answer.</strong> Balance on the omitted moment, the free check registered as most likely to overturn the headline, was not tested: every cell where it had anything to see was removed by the matched-multiset control. Region-specific ESS was handed the easiest instance, since the region it examines is the region the hole empties, so its near-perfect separation is an upper bound; a hole in a high-modification region the analyst did not think to examine is untested and there it would fail like the panel. No diagnostic is calibrated to a threshold. The analysis subgrid was chosen by a mechanical rule written after the run was read. The realized high-modification hole holds 22% of the modification mass against a registered 25%. MAIC weights only, a binary outcome, normal covariates, one rectangular hole, good overlap only after the null control, and two of the three published ESS definitions. Peer review has not been done.</p>
+<p><strong>Peer review.</strong> Not yet done. The result stands on the study alone until it is.</p>
+<p>Read it: <a href="../studies/DIA-02-the-whole-weight-panel-is-a-multiset-functional/out/DIA-02.pdf">PDF</a> · <a href="../studies/DIA-02-the-whole-weight-panel-is-a-multiset-functional/out/DIA-02.md">Markdown</a> · <a href="../studies/DIA-02-the-whole-weight-panel-is-a-multiset-functional/out/DIA-02.odt">OpenDocument</a> · Code and data: <a href="https://github.com/choxos/ITC-open-problems/tree/main/studies/DIA-02-the-whole-weight-panel-is-a-multiset-functional">studies/DIA-02-the-whole-weight-panel-is-a-multiset-functional</a> · Protocol: <a href="../studies/DIA-02-the-whole-weight-panel-is-a-multiset-functional/out/DIA-02-protocol.md">registered before the run</a></p>
+</div>
+</section>
 <section id="what-this-project-measured" class="level2">
 <h2 class="anchored" data-anchor-id="what-this-project-measured">What this project measured</h2>
-<p><strong>Study <code>studies/DIA-02-the-whole-weight-panel-is-a-multiset-functional</code>, run and decided against a rule registered before the run.</strong> 48 cells, 2000 replicates each, 96,000 replicates. Nine diagnostics: the five reported panel members, all symmetric functions of the weight multiset, against four candidates that read position as well as weight.</p>
+<p><strong>Study <code>studies/DIA-02-the-whole-weight-panel-is-a-multiset-functional</code>.</strong> Its primary outcome and controls were fixed before the run; the rule restricting the analysis to the cells the controls leave standing was written after it, as its protocol records. 48 cells, 2000 replicates each, 96,000 replicates. Nine diagnostics: the five reported panel members, all symmetric functions of the weight multiset, against four candidates that read position as well as weight.</p>
 <p><strong>The manipulation.</strong> Two source populations remove the same mass at the same threshold on exchangeable standard normal coordinates and differ only in which coordinate carries the hole: the one that modifies the treatment effect, or a purely prognostic one. The first is biased by <strong>+0.01639</strong> on the target marginal risk difference; the second by <strong>-0.00009</strong>, which is zero to five decimal places. Material error, meaning the transported effect wrong by more than 0.03 absolute risk, occurs on <strong>0.106</strong> of replicates in the first and <strong>0.005</strong> in the second, against <strong>0.003</strong> with no hole at all.</p>
 <p><strong>Result on the registered primary: refuted.</strong> Section 7 registered the AUROC of each diagnostic against material error <em>within</em> the modifying-hole arm. There the best panel member reaches 0.574 (<code>max_weight</code>) and the best geometric candidate 0.592 (<code>ess_region</code>), a gap of 0.018 against a registered materiality of 0.10. By the registered rule the panel discriminates as well as the geometric diagnostics, and the proposition is refuted.</p>
 <p><strong>Result on the study’s own control: confirmed, emphatically.</strong> Section 8 registered a separate check, that at matched multisets every panel member must be numerically identical across the two support arms. Read as a discrimination task over 16,000 replicates, <strong>every panel member sits within 0.005 of chance</strong> (<code>max_weight</code> 0.505, <code>ess_kish</code> 0.502, <code>entropy_eff</code> 0.501, <code>top_share</code> 0.500) with a standard error of 0.005, while <code>ess_region</code> separates the two arms at <strong>1.000</strong> and optimal-transport cost at 0.726. The blindness is measured, not merely unrejected.</p>
