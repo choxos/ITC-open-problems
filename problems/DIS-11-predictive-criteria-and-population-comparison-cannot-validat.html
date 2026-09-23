@@ -390,6 +390,7 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#why-it-is-open" id="toc-why-it-is-open" class="nav-link" data-scroll-target="#why-it-is-open">Why it is open</a></li>
   <li><a href="#what-has-been-tried" id="toc-what-has-been-tried" class="nav-link" data-scroll-target="#what-has-been-tried">What has been tried</a></li>
   <li><a href="#probable-solution-or-research-direction" id="toc-probable-solution-or-research-direction" class="nav-link" data-scroll-target="#probable-solution-or-research-direction">Probable solution or research direction</a></li>
+  <li><a href="#our-study" id="toc-our-study" class="nav-link" data-scroll-target="#our-study">Our study</a></li>
   <li><a href="#verification" id="toc-verification" class="nav-link" data-scroll-target="#verification">Verification</a></li>
   <li><a href="#how-the-evidence-falls-in-time" id="toc-how-the-evidence-falls-in-time" class="nav-link" data-scroll-target="#how-the-evidence-falls-in-time">How the evidence falls in time</a></li>
   <li><a href="#related-problems" id="toc-related-problems" class="nav-link" data-scroll-target="#related-problems">Related problems</a></li>
@@ -433,6 +434,19 @@ ul.task-list li input[type="checkbox"] {
 <div class="problem-meta">
 <p><span class="problem-id">DIS-11</span> <span class="verdict verdict-partially-addressed">Partially addressed</span> <span class="chip chip-priority-very-high">Very high priority</span> <span class="chip chip-maturity-established">Established</span></p>
 </div>
+<div class="callout callout-style-simple callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>A study has been run against this problem
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>No.&nbsp;Candidate models that share the bridge had identical cross-gap bias (0 to 0.5 across scenarios), and the leave-one-trial-out winner was set by within-subnetwork structure: meta-regression won when a trial covariate changed the contrast, the common-effect model when not, with the same distribution at every bridge error. A predictive criterion on observed trials cannot rank models by an error they share. <a href="#our-study">Read the study below</a>.</p>
+</div>
+</div>
 <section id="statement" class="level2">
 <h2 class="anchored" data-anchor-id="statement">Statement</h2>
 <p>Predictive criteria computed on observed within-subnetwork units compare models but cannot establish the correctness of an unobserved cross-gap extrapolation, and leave-one-out cross-validation will still return a winner when every candidate shares a false bridge assumption. The qualifier matters: predictive checks can falsify observable restrictions, and validation using external cross-gap evidence or synthetic deletion of a link from a connected network does have leverage. Population comparison is a useful screening diagnostic for bridges that require population exchangeability, but it is computed over reported covariates while the bridge requires exchangeability with respect to every variable creating cross-study outcome differences, so it cannot rule out unmeasured prognostic or design differences; it is not logically required for component, class, or mechanistic bridges. Both checks are shipping alongside disconnected-network fits: multinma pull request #68 lists LOO-PSIS cross-validation and compare_populations() under testing.</p>
@@ -467,6 +481,41 @@ ul.task-list li input[type="checkbox"] {
 <section id="probable-solution-or-research-direction" class="level2">
 <h2 class="anchored" data-anchor-id="probable-solution-or-research-direction">Probable solution or research direction</h2>
 <p>Declare the prediction unit explicitly (participant, arm, study, or subnetwork), implement leave-one-study and leave-one-subnetwork validation matched to the cross-gap question, and keep ordinary predictive criteria labeled as model comparison. Where a connected network can be thinned into a disconnected one, use synthetic bridge deletion as the validation with actual leverage, and use external cross-gap evidence where any exists. Present population comparison as a screening step for bridges that assume population exchangeability, paired with sensitivity analysis for unmeasured prognostic and design differences, negative-control or falsification checks, and a stated bridge assumption, rather than as evidence the bridge holds.</p>
+</section>
+<section id="our-study" class="level2">
+<h2 class="anchored" data-anchor-id="our-study">Our study</h2>
+<div class="study-result">
+<p><strong>A predictive winner among models that share a false bridge</strong></p>
+<p><strong>The question put to it.</strong> When candidate models share a bridge assumption across a disconnected network, does a predictive criterion computed on observed trials rank them by their cross-gap error?</p>
+<p><strong>What it found.</strong> No.&nbsp;Candidate models that share the bridge had identical cross-gap bias (0 to 0.5 across scenarios), and the leave-one-trial-out winner was set by within-subnetwork structure: meta-regression won when a trial covariate changed the contrast, the common-effect model when not, with the same distribution at every bridge error. A predictive criterion on observed trials cannot rank models by an error they share.</p>
+<p><strong>Results.</strong></p>
+<ul>
+<li>Refuting sentence fails: winner distribution independent of the bridge error (chi-square p 0.68 and 0.44).</li>
+<li>Cross-gap bias -0.007 to 0.499, identical across candidates.</li>
+</ul>
+<p><strong>Design.</strong></p>
+<dl>
+<dt>Estimand</dt>
+<dd>
+Cross-gap contrast C versus A
+</dd>
+<dt>Methods compared</dt>
+<dd>
+leave-one-trial-out log predictive density over three candidate models sharing an exchangeable-baseline bridge
+</dd>
+<dt>Data-generating mechanism</dt>
+<dd>
+Two disconnected subnetworks linked by exchangeable baselines with a design nuisance of varying size; three candidate models sharing the bridge ranked by leave-one-trial-out predictive density. 6 cells, 1000 replicates each.
+</dd>
+<dt>Replicates</dt>
+<dd>
+1000 per scenario, 6,000 in total
+</dd>
+</dl>
+<p><strong>What this does not answer.</strong> Frequentist predictive densities rather than LOO-PSIS on ML-NMR; no grouped leave-subnetwork-out or synthetic deletion; population comparison not simulated. Peer review has not been done.</p>
+<p><strong>Peer review.</strong> Not yet done. The result stands on the study alone until it is.</p>
+<p>Read it: <a href="../studies/DIS-11-a-winner-among-models-that-share-a-false-assumption/out/DIS-11.pdf">PDF</a> · <a href="../studies/DIS-11-a-winner-among-models-that-share-a-false-assumption/out/DIS-11.md">Markdown</a> · <a href="../studies/DIS-11-a-winner-among-models-that-share-a-false-assumption/out/DIS-11.odt">OpenDocument</a> · Code and data: <a href="https://github.com/choxos/ITC-open-problems/tree/main/studies/DIS-11-a-winner-among-models-that-share-a-false-assumption">studies/DIS-11-a-winner-among-models-that-share-a-false-assumption</a> · Protocol: <a href="../studies/DIS-11-a-winner-among-models-that-share-a-false-assumption/out/DIS-11-protocol.md">registered before the run</a></p>
+</div>
 </section>
 <section id="verification" class="level2">
 <h2 class="anchored" data-anchor-id="verification">Verification</h2>
