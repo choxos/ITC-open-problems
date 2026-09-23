@@ -179,6 +179,16 @@ Read it: [PDF](/studies/DIA-14-qba-scored-as-a-classifier/out/DIA-14.pdf) · [Ma
 
 Read it: [PDF](/studies/EST-06-maic-reversal-region/out/EST-06.pdf) · [Markdown](/studies/EST-06-maic-reversal-region/out/EST-06.md) · [OpenDocument](/studies/EST-06-maic-reversal-region/out/EST-06.odt)
 
+### [IDN-01](problems/IDN-01-transitivity-and-conditional-constancy-cannot-be-tested-in-s.qmd) — What each transitivity screen can see
+
+**Question.** Do the available transitivity screens (covariate dissimilarity, loop inconsistency, heterogeneity), run together, detect the violations that bias a network estimate, and can their pattern of flags identify the mechanism?
+
+**Answer.** No. Each screen sees one direction of violation, and an unmeasured modifier that makes one treatment look better in every comparison that includes it is invisible to all three: at size 0.4 it biased the network estimate by 0.40 with coverage near zero while the screens together fired at their null rate (0.28). Loop breaks and drift were detected with power rising in the number of studies, but the pattern of flags identified the mechanism poorly, and a measured modifier was always flagged although adjustment removed its bias.
+
+**What it does not answer.** Stylized triangle networks with continuous estimates; calendar drift as random shifts; abandonment records not scored. Peer review has not been done.
+
+Read it: [PDF](/studies/IDN-01-calibrating-transitivity-screens/out/IDN-01.pdf) · [Markdown](/studies/IDN-01-calibrating-transitivity-screens/out/IDN-01.md) · [OpenDocument](/studies/IDN-01-calibrating-transitivity-screens/out/IDN-01.odt)
+
 ### [IDN-05](problems/IDN-05-the-shared-effect-modifier-check-has-low-and-uncalibrated-po.qmd) — A violation twice the size that would change a decision raises the shared effect modifier check's alarm rate from 1.3% to 4.5%
 
 **Question.** Population adjustment across a network assumes that a covariate modifies the effect of every active treatment in a class in the same way. There is one published within-network check on that assumption: fit the model with a single interaction shared across the class, refit with treatment-specific interactions one covariate at a time, and compare the posteriors and the model fit. Its authors say it likely has low power. Nobody has measured it, there is no threshold that separates a pass from a failure, and there is no statement of what a pass licenses. Scored against a known truth under a declared distribution of networks, what is it worth?
@@ -188,6 +198,16 @@ Read it: [PDF](/studies/EST-06-maic-reversal-region/out/EST-06.pdf) · [Markdown
 **What it does not answer.** The design is a best case in several specific ways that favour the check, and failures attributable to those idealizations are conservative; no general lower-bound claim is made, because three features cut the other way. The true marginal reference risk in the target is supplied to the estimator. Covariates are normal with known target moments and study covariate means are drawn independently of study baselines and of the random treatment effects, so the ecological route identifying the aggregate-only treatment's interaction is unbiased by construction. Conditional constancy holds and only one covariate drifts, linearly. Against that: the fits are fixed-effect while half the cells generate random treatment effects, which is a second specification error that inflates firing; the likelihood is integrated over 64 quadrature points and refitting at 256 changes the DIC verdict in 8.3% of a 24-network subset, which is noise belonging to the implementation and not to the evidence, and 256 points is not demonstrated to be converged; and a single individual-level study is an assumption about the network rather than necessarily a pessimistic one. Beyond that: what a second individual-level study would buy is not measured, that factor having been dropped to pay for treatment-effect heterogeneity. With two active treatments and two covariates, multiplicity across covariates and the selection involved in reading the widest of several pairwise differences are not measured. Where treatment-effect heterogeneity is present the estimand is not cleanly defined, since truth is set at a random effect of zero while a fixed-effect model targets a function of the realized studies; primary results are repeated on the sixteen homogeneous cells and do not change. The hierarchical middle ground between shared and independent interactions could not be fitted because the package does not implement it, and we did not implement it ourselves: that is a reason for its absence, not a justification. The five decision rules scored here are our formalizations of an exploratory published practice, not published rules, and their operating characteristics are ours. Fifty replicates per cell gives a per-cell standard error of 0.065, so nothing is read off a single cell.
 
 Read it: [PDF](/studies/IDN-05-shared-modifier-check-power/out/IDN-05.pdf) · [Markdown](/studies/IDN-05-shared-modifier-check-power/out/IDN-05.md) · [OpenDocument](/studies/IDN-05-shared-modifier-check-power/out/IDN-05.odt)
+
+### [IDN-07](problems/IDN-07-no-agreed-criterion-for-when-a-held-out-trial-discrepancy-fa.qmd) — Calibrating a held-out-trial falsification rule
+
+**Question.** When one trial is withheld and its contrast predicted from the rest, which pass or fail rule holds its type I error, how much power does it have, and what does omitting a variance component or mis-targeting the prediction do?
+
+**Answer.** A held-out-trial check has a controllable size if the prediction targets the withheld trial's own population and its variance includes between-trial heterogeneity: the full rule's size was 0.035 to 0.073 (registered limit 0.07, exceeded by 0.003 in one scenario). Omitting heterogeneity raised size to 0.104, and aiming the prediction at the remaining trials' population raised it to 0.96. Power against a violation as large as the effect was only 0.21 to 0.47, so a pass licenses very little.
+
+**What it does not answer.** Continuous outcome and G-computation only; no MAIC weight variance, no Bayesian predictive or conditional-moment rule; five aggregate trials. Peer review has not been done.
+
+Read it: [PDF](/studies/IDN-07-held-out-trial-falsification-protocol/out/IDN-07.pdf) · [Markdown](/studies/IDN-07-held-out-trial-falsification-protocol/out/IDN-07.md) · [OpenDocument](/studies/IDN-07-held-out-trial-falsification-protocol/out/IDN-07.odt)
 
 ### [IDN-10](problems/IDN-10-transported-control-arm-outcomes-are-uncalibrated-where-it-m.qmd) — A transported control-arm check carries no information about the anchored contrast
 
@@ -330,8 +350,9 @@ Read it: [PDF](/studies/SFW-10-stacked-variance-and-a-defined-post-trimming-esti
 | [CMP-20](problems/CMP-20-poisson-aggregate-likelihood-needs-zero-exposure-rate-covari.qmd) | The exposure-rate covariance the Poisson aggregate likelihood assumes away | running |
 | [DEC-11](problems/DEC-11-intervals-omit-selection-reconstruction-and-target-summary-e.qmd) | Coverage of an STC interval after selecting effect modifiers on the same data | running |
 | [DIA-08](problems/DIA-08-paic-simulations-generate-only-shared-linear-effect-modifica.qmd) | Does the generator's effect-modification structure decide the method ranking? | running |
-| [IDN-01](problems/IDN-01-transitivity-and-conditional-constancy-cannot-be-tested-in-s.qmd) | What each transitivity screen can see | running |
-| [IDN-07](problems/IDN-07-no-agreed-criterion-for-when-a-held-out-trial-discrepancy-fa.qmd) | Calibrating a held-out-trial falsification rule | running |
+| [MOD-18](problems/MOD-18-risk-modeling-network-meta-regression-treats-a-fitted-risk-s.qmd) | An estimated risk score used as a regressor | running |
+| [OUT-05](problems/OUT-05-unequal-variances-skew-and-bounded-scales-in-continuous-outc.qmd) | The transported mean is safe and the responder probability is not | running |
+| [OUT-07](problems/OUT-07-informative-censoring-and-outcome-dependent-missingness.qmd) | Informative censoring on the two sides of an indirect comparison | running |
 | [OVL-01](problems/OVL-01-weak-overlap-leaves-target-regions-the-source-data-cannot-su.qmd) | Unsupported target mass matters only where the effect is modified | running |
 
 :::

@@ -764,22 +764,36 @@
  "IDN-01": {
   "slug": "IDN-01-calibrating-transitivity-screens",
   "title": "What each transitivity screen can see",
-  "status": "running",
+  "status": "complete",
   "question": "Do the available transitivity screens (covariate dissimilarity, loop inconsistency, heterogeneity), run together, detect the violations that bias a network estimate, and can their pattern of flags identify the mechanism?",
-  "answer": null,
-  "findings": [],
-  "not_answered": null,
+  "answer": "No. Each screen sees one direction of violation, and an unmeasured modifier that makes one treatment look better in every comparison that includes it is invisible to all three: at size 0.4 it biased the network estimate by 0.40 with coverage near zero while the screens together fired at their null rate (0.28). Loop breaks and drift were detected with power rising in the number of studies, but the pattern of flags identified the mechanism poorly, and a measured modifier was always flagged although adjustment removed its bias.",
+  "findings": [
+   "Refuting sentence fails: loop-consistent unmeasured modification of 0.4, any-screen detection 0.281 and 0.279 against 0.274 and 0.283 with no violation; bias -0.40.",
+   "Loop break of 0.4: detected in 0.77 (2 studies per comparison) and 0.98 (5); drift of 0.4: 0.95 and 1.00.",
+   "Measured modifier: dissimilarity flagged 100% of analyses; meta-regression bias at most 0.003.",
+   "Mechanism read from the flag pattern: loop breaks 43% correct, drift 34%; drift often triggered the loop test."
+  ],
+  "not_answered": "Stylized triangle networks with continuous estimates; calendar drift as random shifts; abandonment records not scored. Peer review has not been done.",
   "design": "Triangle networks with two or five studies per comparison and five violation mechanisms, including a loop-consistent unmeasured modifier constructed to be invisible to every screen; 26 cells, 2000 replicates each; detection, bias, coverage and mechanism identification.",
-  "n_sim": null,
-  "estimand": null,
-  "methods_compared": [],
-  "date_completed": null,
+  "n_sim": "2000 per scenario, 52,000 in total",
+  "estimand": "B versus C effect in a declared target population",
+  "methods_compared": [
+   "covariate dissimilarity screen",
+   "Bucher loop inconsistency test",
+   "Cochran's Q heterogeneity screen",
+   "their union"
+  ],
+  "date_completed": "2026-09-23",
   "week": null,
   "code": "studies/IDN-01-calibrating-transitivity-screens",
   "protocol": "studies/IDN-01-calibrating-transitivity-screens/out/IDN-01-protocol.md",
   "review": null,
   "review_rounds": 0,
-  "downloads": {},
+  "downloads": {
+   "gfm": "studies/IDN-01-calibrating-transitivity-screens/out/IDN-01.md",
+   "pdf": "studies/IDN-01-calibrating-transitivity-screens/out/IDN-01.pdf",
+   "odt": "studies/IDN-01-calibrating-transitivity-screens/out/IDN-01.odt"
+  },
   "primary_problem": "IDN-01",
   "secondary": false
  },
@@ -831,22 +845,36 @@
  "IDN-07": {
   "slug": "IDN-07-held-out-trial-falsification-protocol",
   "title": "Calibrating a held-out-trial falsification rule",
-  "status": "running",
+  "status": "complete",
   "question": "When one trial is withheld and its contrast predicted from the rest, which pass or fail rule holds its type I error, how much power does it have, and what does omitting a variance component or mis-targeting the prediction do?",
-  "answer": null,
-  "findings": [],
-  "not_answered": null,
+  "answer": "A held-out-trial check has a controllable size if the prediction targets the withheld trial's own population and its variance includes between-trial heterogeneity: the full rule's size was 0.035 to 0.073 (registered limit 0.07, exceeded by 0.003 in one scenario). Omitting heterogeneity raised size to 0.104, and aiming the prediction at the remaining trials' population raised it to 0.96. Power against a violation as large as the effect was only 0.21 to 0.47, so a pass licenses very little.",
+  "findings": [
+   "Registered verdict: FULL RULE SIZE NOT HELD, by 0.003 in one of 8 null scenarios (MCSE 0.006); every other null scenario 0.035 to 0.064.",
+   "Power of the full rule: 0.07 to 0.17 at violation 0.15 and 0.21 to 0.47 at violation 0.3.",
+   "Null mean of the discrepancy: at most 0.009 with the external target, down to -0.60 with the reduced-network target.",
+   "Sign-disagreement rule: flagged 0.02 to 0.44 of valid analyses depending on the effect's distance from zero."
+  ],
+  "not_answered": "Continuous outcome and G-computation only; no MAIC weight variance, no Bayesian predictive or conditional-moment rule; five aggregate trials. Peer review has not been done.",
   "design": "One individual-data trial and five aggregate trials with a continuous outcome and linear effect modification; 24 cells crossing violation size, heterogeneity, covariate spread and withheld-trial position; full, naive, mis-targeted and decision-flip rules. 2000 replicates per cell.",
-  "n_sim": null,
-  "estimand": null,
-  "methods_compared": [],
-  "date_completed": null,
+  "n_sim": "2000 per scenario, 48,000 in total",
+  "estimand": "The withheld trial's contrast in its own population, and the discrepancy between prediction and observation",
+  "methods_compared": [
+   "full-variance standardized discrepancy",
+   "naive-variance discrepancy",
+   "prediction at the reduced-network target",
+   "sign-disagreement rule"
+  ],
+  "date_completed": "2026-09-23",
   "week": null,
   "code": "studies/IDN-07-held-out-trial-falsification-protocol",
   "protocol": "studies/IDN-07-held-out-trial-falsification-protocol/out/IDN-07-protocol.md",
   "review": null,
   "review_rounds": 0,
-  "downloads": {},
+  "downloads": {
+   "gfm": "studies/IDN-07-held-out-trial-falsification-protocol/out/IDN-07.md",
+   "pdf": "studies/IDN-07-held-out-trial-falsification-protocol/out/IDN-07.pdf",
+   "odt": "studies/IDN-07-held-out-trial-falsification-protocol/out/IDN-07.odt"
+  },
   "primary_problem": "IDN-07",
   "secondary": false
  },
@@ -1069,6 +1097,28 @@
   "primary_problem": "MOD-16",
   "secondary": false
  },
+ "MOD-18": {
+  "slug": "MOD-18-a-generated-regressor-worst-where-it-is-used",
+  "title": "An estimated risk score used as a regressor",
+  "status": "running",
+  "question": "When a risk score estimated in a prognostic cohort is used as a regressor for treatment-effect heterogeneity, does treating it as data understate the interval, and is the understatement worst at the tails of risk?",
+  "answer": null,
+  "findings": [],
+  "not_answered": null,
+  "design": "Logistic prognostic score from cohorts of 300 to 5000, used in a six-trial individual-data meta-regression with calibration drift; plug-in and bootstrap-propagated intervals for the treatment effect at the 10th, 50th and 90th risk percentiles. 6 cells, 500 replicates each.",
+  "n_sim": null,
+  "estimand": null,
+  "methods_compared": [],
+  "date_completed": null,
+  "week": null,
+  "code": "studies/MOD-18-a-generated-regressor-worst-where-it-is-used",
+  "protocol": "studies/MOD-18-a-generated-regressor-worst-where-it-is-used/out/MOD-18-protocol.md",
+  "review": null,
+  "review_rounds": 0,
+  "downloads": {},
+  "primary_problem": "MOD-18",
+  "secondary": false
+ },
  "OUT-02": {
   "slug": "OUT-02-effective-event-sample-size",
   "title": "Effective sample size counted in events: right direction, no gain over ESS times the event rate",
@@ -1102,6 +1152,28 @@
    "odt": "studies/OUT-02-effective-event-sample-size/out/OUT-02.odt"
   },
   "primary_problem": "OUT-02",
+  "secondary": false
+ },
+ "OUT-05": {
+  "slug": "OUT-05-the-mean-is-safe-and-the-responder-probability-is-not",
+  "title": "The transported mean is safe and the responder probability is not",
+  "status": "running",
+  "question": "When a bounded continuous outcome is transported by G-computation with a pooled normal residual, is the mean contrast safe while the responder-probability contrast is biased, and does a floor make the bias depend on the target population?",
+  "answer": null,
+  "findings": [],
+  "not_answered": null,
+  "design": "Source trial with arm-specific residual SDs, skewed or normal errors and a floor at 0, 10% or 25% mass, transported to targets at two shifts; normal pooled-SD, arm-specific SD, Tobit and direct logistic responder models; mean and responder contrasts at two thresholds. 24 cells, 1000 replicates each.",
+  "n_sim": null,
+  "estimand": null,
+  "methods_compared": [],
+  "date_completed": null,
+  "week": null,
+  "code": "studies/OUT-05-the-mean-is-safe-and-the-responder-probability-is-not",
+  "protocol": "studies/OUT-05-the-mean-is-safe-and-the-responder-probability-is-not/out/OUT-05-protocol.md",
+  "review": null,
+  "review_rounds": 0,
+  "downloads": {},
+  "primary_problem": "OUT-05",
   "secondary": false
  },
  "OUT-06": {
@@ -1138,6 +1210,28 @@
    "odt": "studies/OUT-06-baseline-severity-as-a-modifier-of-its-own-adjustment/out/OUT-06.odt"
   },
   "primary_problem": "OUT-06",
+  "secondary": false
+ },
+ "OUT-07": {
+  "slug": "OUT-07-censoring-mechanisms-that-do-not-cancel",
+  "title": "Informative censoring on the two sides of an indirect comparison",
+  "status": "running",
+  "question": "When censoring depends on latent risk in the source and comparator trials to different degrees, does the bias cancel in the indirect RMST contrast, what does source-side IPCW achieve, and does a one-sided comparator sensitivity analysis cover the truth?",
+  "answer": null,
+  "findings": [],
+  "not_answered": null,
+  "design": "Shared-frailty event and censoring processes with separate dependence in the source and comparator; 24 cells crossing the two dependences, censoring prevalence and anchored or unanchored design; naive Kaplan-Meier, source-side IPCW and a comparator delta-adjusted sensitivity analysis. 1000 replicates per cell.",
+  "n_sim": null,
+  "estimand": null,
+  "methods_compared": [],
+  "date_completed": null,
+  "week": null,
+  "code": "studies/OUT-07-censoring-mechanisms-that-do-not-cancel",
+  "protocol": "studies/OUT-07-censoring-mechanisms-that-do-not-cancel/out/OUT-07-protocol.md",
+  "review": null,
+  "review_rounds": 0,
+  "downloads": {},
+  "primary_problem": "OUT-07",
   "secondary": false
  },
  "OUT-08": {

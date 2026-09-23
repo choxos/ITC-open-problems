@@ -16,6 +16,12 @@ maturity: "Promising"
 [Very high priority]{.chip .chip-priority-very-high}
 [Promising]{.chip .chip-maturity-promising}
 :::
+::: {.callout-important appearance="simple"}
+## A study has been run against this problem
+
+A held-out-trial check has a controllable size if the prediction targets the withheld trial's own population and its variance includes between-trial heterogeneity: the full rule's size was 0.035 to 0.073 (registered limit 0.07, exceeded by 0.003 in one scenario). Omitting heterogeneity raised size to 0.104, and aiming the prediction at the remaining trials' population raised it to 0.96. Power against a violation as large as the effect was only 0.21 to 0.47, so a pass licenses very little. [Read the study below](#our-study).
+:::
+
 ## Statement
 
 Refitting an ITC or PAIC model with one connected trial withheld and comparing the predicted contrast with the observed one is a coherent falsification design, but only if removing the trial leaves the required contrast identifiable and the withheld population's target covariate distribution can be specified without using its outcome contrast. We are not aware of a standardized protocol saying how to run it or when a discrepancy counts as falsifying, and neither auditor could certify that absence: the literature auditor found no source asserting it, and the source-code auditor treated a literature-wide absence claim as outside the technical lens. The nearest work found is adjacent rather than on point, namely leave-one-trial-out influence and outlier diagnostics for network meta-analysis (arXiv:1910.13080) and formal falsification tests for external validity with defined test statistics and error control from outside the ITC literature (Hussain et al., AISTATS 2023). The two secondary claims survive: study-level held-out prediction and patient-level cross-validation answer different questions, and withholding a trial changes the evidence base and can change the implied target population, though not when the target is externally prespecified.
@@ -41,14 +47,40 @@ Write the protocol rather than the method: specify the identifiability precondit
 
 ## Our study
 
-::: {.callout-note}
-## A study is running
+::: {.study-result}
+**Calibrating a held-out-trial falsification rule**
 
-**Question.** When one trial is withheld and its contrast predicted from the rest, which pass or fail rule holds its type I error, how much power does it have, and what does omitting a variance component or mis-targeting the prediction do?
+**The question put to it.** When one trial is withheld and its contrast predicted from the rest, which pass or fail rule holds its type I error, how much power does it have, and what does omitting a variance component or mis-targeting the prediction do?
 
-**Design.** One individual-data trial and five aggregate trials with a continuous outcome and linear effect modification; 24 cells crossing violation size, heterogeneity, covariate spread and withheld-trial position; full, naive, mis-targeted and decision-flip rules. 2000 replicates per cell.
+**What it found.** A held-out-trial check has a controllable size if the prediction targets the withheld trial's own population and its variance includes between-trial heterogeneity: the full rule's size was 0.035 to 0.073 (registered limit 0.07, exceeded by 0.003 in one scenario). Omitting heterogeneity raised size to 0.104, and aiming the prediction at the remaining trials' population raised it to 0.96. Power against a violation as large as the effect was only 0.21 to 0.47, so a pass licenses very little.
 
-The protocol is registered before any result is seen: [read it](/studies/IDN-07-held-out-trial-falsification-protocol/out/IDN-07-protocol.md).
+**Results.**
+
+- Registered verdict: FULL RULE SIZE NOT HELD, by 0.003 in one of 8 null scenarios (MCSE 0.006); every other null scenario 0.035 to 0.064.
+- Power of the full rule: 0.07 to 0.17 at violation 0.15 and 0.21 to 0.47 at violation 0.3.
+- Null mean of the discrepancy: at most 0.009 with the external target, down to -0.60 with the reduced-network target.
+- Sign-disagreement rule: flagged 0.02 to 0.44 of valid analyses depending on the effect's distance from zero.
+
+**Design.**
+
+Estimand
+:   The withheld trial's contrast in its own population, and the discrepancy between prediction and observation
+
+Methods compared
+:   full-variance standardized discrepancy, naive-variance discrepancy, prediction at the reduced-network target, sign-disagreement rule
+
+Data-generating mechanism
+:   One individual-data trial and five aggregate trials with a continuous outcome and linear effect modification; 24 cells crossing violation size, heterogeneity, covariate spread and withheld-trial position; full, naive, mis-targeted and decision-flip rules. 2000 replicates per cell.
+
+Replicates
+:   2000 per scenario, 48,000 in total
+
+**What this does not answer.** Continuous outcome and G-computation only; no MAIC weight variance, no Bayesian predictive or conditional-moment rule; five aggregate trials. Peer review has not been done.
+
+**Peer review.** Not yet done. The result stands on the study alone until it is.
+
+Read it: [PDF](/studies/IDN-07-held-out-trial-falsification-protocol/out/IDN-07.pdf) · [Markdown](/studies/IDN-07-held-out-trial-falsification-protocol/out/IDN-07.md) · [OpenDocument](/studies/IDN-07-held-out-trial-falsification-protocol/out/IDN-07.odt) · Code and data: [studies/IDN-07-held-out-trial-falsification-protocol](https://github.com/choxos/ITC-open-problems/tree/main/studies/IDN-07-held-out-trial-falsification-protocol) · Protocol: [registered before the run](/studies/IDN-07-held-out-trial-falsification-protocol/out/IDN-07-protocol.md)
+
 :::
 
 ## Verification
