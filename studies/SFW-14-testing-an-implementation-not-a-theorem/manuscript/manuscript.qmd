@@ -1,0 +1,128 @@
+---
+title: "drMAIC 0.1.0 returns the MAIC estimate as its doubly robust estimate, with an interval six times too narrow"
+subtitle: "A simulation study answering catalog problem SFW-14"
+author: "Ahmad Sofi-Mahmudi"
+date: 2026-09-23
+bibliography: references.bib
+csl: ../../../vancouver.csl
+link-citations: true
+number-sections: true
+execute:
+  echo: false
+  warning: false
+  message: false
+format:
+  gfm:
+    toc: false
+  pdf:
+    documentclass: article
+    geometry: margin=1in
+    fig-pos: "H"
+  odt: default
+---
+
+```{r setup}
+s <- read.csv("../results/summary.csv"); bt <- read.csv("../results/bootstrap.csv")
+f3 <- function(x) formatC(x, format = "f", digits = 3)
+r3 <- function(a, b) paste(f3(min(a)), "to", f3(max(b)))
+off <- s[s$weights == "wrong" & s$outcome == "right" & s$m1_t == 0.5, ]
+```
+
+# Abstract {.unnumbered}
+
+**Background.** drMAIC [@drmaic] is a CRAN package offering a doubly robust
+matching-adjusted indirect comparison with analytic and bootstrap intervals. It has no
+methods publication or independent evaluation. Catalog problem SFW-14 asks whether it
+implements what it claims.
+
+**Methods.** Code inspection, then an unanchored binary-outcome simulation: a 2 by 2 of
+correct or incorrect weighting and outcome models at two levels of overlap, 600
+replicates per cell, against a correctly augmented estimator; the package's percentile
+bootstrap in two cells (150 replicates each).
+
+**Results.** The package's doubly robust estimate equaled its MAIC estimate in every
+replicate (largest difference `r formatC(max(s$max_abs_identity), format = "e", digits = 1)`).
+With wrong weights and a correct outcome model it therefore kept MAIC's bias
+(`r f3(off$bias_dr)`, MCSE `r f3(off$mcse_maic)`), which correct augmentation removed
+(`r f3(off$bias_aug)`). The analytic standard error was `r r3(s$pkg_se, s$pkg_se)`
+against an empirical SD of `r r3(s$emp_sd_dr, s$emp_sd_dr)`, and 95% intervals covered
+`r r3(s$pkg_cov, s$pkg_cov)`. The percentile bootstrap covered `r r3(bt$coverage, bt$coverage)`.
+
+**Conclusion.** drMAIC 0.1.0 is not doubly robust and its intervals are invalid. It
+should not be used in submissions until the four defects below are fixed.
+
+# The problem {#sec-problem}
+
+An augmented weighting estimator is consistent if either the weighting model or the
+outcome model is correct [@bang2005]. That is a theorem; a simulation can test only
+whether code implements it. MAIC [@signorovitch2010] supplies the weights. The
+augmentation must average the outcome model's predictions over the **target**
+population and add the weighted mean residual in the individual-data trial.
+
+# What the code does {#sec-code}
+
+Four defects in `dr_maic()` and `bootstrap_ci()`, read before the run:
+
+1. **The outcome-model term is averaged over the wrong population.** The code sets
+   `theta_stc <- sum(w_norm * m_hat)`, the weighted mean of predictions over the
+   individual-data patients, then adds `dr_correction`, the weighted mean residual. The
+   sum is $\sum_i w_i \hat m_i + \sum_i w_i (Y_i - \hat m_i) = \sum_i w_i Y_i$, the MAIC
+   estimate, whatever the outcome model. The weights never meet the target covariate
+   law except through the moments they balance.
+2. **The variance is divided by $n$ twice.** `.dr_variance()` returns
+   `sum((w_norm * (Y - theta))^2) / n`; with normalized weights, `sum(...)` is already
+   the variance of the weighted mean.
+3. **The scales are mixed.** That probability-scale variance, plus the comparator's
+   probability-scale squared SE, is reported as the SE of a log odds ratio.
+4. **The bootstrap resamples a different analysis.** `bootstrap_ci()` recomputes
+   weights on means only, refits the outcome model with the default formula, and holds
+   the comparator's estimate fixed, so its interval omits the comparator's sampling
+   error.
+
+The time-to-event path returns a weighted median survival time labeled as a hazard
+ratio; it is reported here from the code and not simulated.
+
+# Design {#sec-design}
+
+Registered protocol: `protocol.md`. Individual data on A (300 patients); the target
+publishes $x_1$'s mean and SD, the proportion with $x_2 = 1$, and B's response
+proportion and SE (300 patients). Source $x_1 \sim N(0, 1)$, $x_2 \sim \text{Bern}(0.4)$;
+target $x_1 \sim N(m, 0.8^2)$, $x_2 \sim \text{Bern}(0.6)$, $m \in \{0.5, 1\}$. Outcome
+$\operatorname{logit} P(Y = 1) = -0.5 + 0.6x_1 + 0.5x_2 + 0.4x_1^2$ for A, B adding $-0.4$.
+Estimand: the target marginal log odds ratio, A versus B. Correct weights balance
+means and $x_1$'s second moment (the true density ratio); wrong weights balance
+means only. The correct outcome model includes $x_1^2$; the wrong one is linear. The
+comparator is augmentation done correctly, with the outcome model averaged over the
+published target law and a 50-resample bootstrap SE.
+
+# Results {#sec-results}
+
+![Bias of the package's two estimates and of correct augmentation. The package's two estimates coincide in every cell.](figures/fig1-bias.png){#fig-bias}
+
+| weights | outcome model | target $x_1$ mean | drMAIC DR bias | correct augmentation bias | drMAIC SE | empirical SD | drMAIC coverage | augmentation coverage |
+|---|---|---:|---:|---:|---:|---:|---:|---:|
+`r paste(sprintf("| %s | %s | %.1f | %s | %s | %s | %s | %s | %s |", s$weights, s$outcome, s$m1_t, f3(s$bias_dr), f3(s$bias_aug), f3(s$pkg_se), f3(s$emp_sd_dr), f3(s$pkg_cov), f3(s$aug_cov)), collapse = "\n")`
+
+: Per cell, 600 replicates. MCSE of bias 0.007 to 0.009. {#tbl-main}
+
+All three registered failure conditions held (@fig-bias, @tbl-main). Where MAIC with
+wrong weights was biased ($m = 0.5$), the package's doubly robust estimate carried the
+same bias and correct augmentation did not. At $m = 1$ wrong weights produced little
+bias for either, so that cell does not discriminate. With both models wrong, correct
+augmentation was biased, as the theorem allows. The analytic SE was essentially the
+comparator's probability-scale SE, about one sixth of the true SD on the log odds
+ratio scale. Correct augmentation's intervals covered
+`r r3(s$aug_cov, s$aug_cov)`.
+
+The percentile bootstrap, `r bt$n[1]` replicates per cell with 200 resamples, covered
+`r f3(bt$coverage[1])` and `r f3(bt$coverage[2])`. The comparator's sampling variance it
+omits is 44% of the total variance at $m = 0.5$, and the resampled weights balance
+means only.
+
+# What this does not answer {#sec-limits}
+
+One package version, binary outcome, one sample size. G-MAIC, the published augmented
+weighting comparator named in the design, was not run. Continuous outcomes follow the
+same identity in defect 1 but were not simulated. Peer review has not been done.
+
+# References {.unnumbered}

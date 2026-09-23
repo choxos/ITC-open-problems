@@ -599,6 +599,16 @@ Read it: [PDF](/studies/QBA-26-a-benchmark-that-cannot-reach-what-it-is-asked-ab
 
 Read it: [PDF](/studies/SFW-10-stacked-variance-and-a-defined-post-trimming-estimand/out/SFW-10.pdf) · [Markdown](/studies/SFW-10-stacked-variance-and-a-defined-post-trimming-estimand/out/SFW-10.md) · [OpenDocument](/studies/SFW-10-stacked-variance-and-a-defined-post-trimming-estimand/out/SFW-10.odt)
 
+### [SFW-14](problems/SFW-14-drmaic-has-no-methods-paper-and-no-independent-evaluation.qmd) — drMAIC 0.1.0 returns the MAIC estimate as its doubly robust estimate, with an interval six times too narrow
+
+**Question.** Does drMAIC 0.1.0 implement a doubly robust MAIC with valid intervals: is its augmented estimate robust to a wrong weighting model when the outcome model is right, and do its intervals cover?
+
+**Answer.** No. drMAIC 0.1.0 averages the outcome model over the individual-data patients instead of the target population, so its doubly robust estimate equals its MAIC estimate in every replicate (difference below 2e-15) and keeps MAIC's bias when the weights are wrong and the outcome model right (0.066 against 0.004 for correct augmentation). Its analytic SE divides by n twice and mixes probability and log odds scales: 0.028 against an empirical SD of 0.17 to 0.22, coverage 0.20 to 0.26. Its percentile bootstrap covers 0.78 to 0.79.
+
+**What it does not answer.** One package version, binary outcome, one sample size; G-MAIC not run; the time-to-event path (a weighted median labeled a hazard ratio) read from code, not simulated. Peer review has not been done.
+
+Read it: [PDF](/studies/SFW-14-testing-an-implementation-not-a-theorem/out/SFW-14.pdf) · [Markdown](/studies/SFW-14-testing-an-implementation-not-a-theorem/out/SFW-14.md) · [OpenDocument](/studies/SFW-14-testing-an-implementation-not-a-theorem/out/SFW-14.odt)
+
 ## Under way
 
 ::: {.table-scroll}
@@ -606,9 +616,9 @@ Read it: [PDF](/studies/SFW-10-stacked-variance-and-a-defined-post-trimming-esti
 | Problem | Study | Status |
 |---|---|---|
 | [ADJ-04](problems/ADJ-04-flexible-outcome-surfaces-and-support-diagnostics-in-standar.qmd) | Weighted conformal prediction under covariate shift | running |
+| [ADJ-10](problems/ADJ-10-data-driven-modifier-and-causal-structure-discovery-with-few.qmd) | Data-driven modifier discovery across few trials | running |
 | [CMP-20](problems/CMP-20-poisson-aggregate-likelihood-needs-zero-exposure-rate-covari.qmd) | The exposure-rate covariance the Poisson aggregate likelihood assumes away | running |
 | [COV-04](problems/COV-04-selection-uncertainty-in-paic-interaction-shrinkage-is-uncal.qmd) | Coverage of shrinkage and selection priors on interactions | running |
-| [SFW-14](problems/SFW-14-drmaic-has-no-methods-paper-and-no-independent-evaluation.qmd) | Testing drMAIC against the properties it claims | running |
 
 :::
 

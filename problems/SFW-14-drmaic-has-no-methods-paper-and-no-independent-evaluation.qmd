@@ -25,6 +25,12 @@ It is catalogued because the underlying methodological problem is general, and b
 reference implementation is where such problems become concrete and checkable.
 :::
 
+::: {.callout-important appearance="simple"}
+## A study has been run against this problem
+
+No. drMAIC 0.1.0 averages the outcome model over the individual-data patients instead of the target population, so its doubly robust estimate equals its MAIC estimate in every replicate (difference below 2e-15) and keeps MAIC's bias when the weights are wrong and the outcome model right (0.066 against 0.004 for correct augmentation). Its analytic SE divides by n twice and mixes probability and log odds scales: 0.028 against an empirical SD of 0.17 to 0.22, coverage 0.20 to 0.26. Its percentile bootstrap covers 0.78 to 0.79. [Read the study below](#our-study).
+:::
+
 ## Statement
 
 drMAIC 0.1.0 appeared on CRAN on 29 March 2026 as Doubly Robust Matching-Adjusted Indirect Comparison for HTA, sole author Anupama Singh, implementing entropy balancing with augmented, doubly robust MAIC, diagnostics and bootstrap confidence intervals for binary and time-to-event outcomes, with one vignette and a single test file; its repository was created on 23 March 2026 and last pushed the next day. No accompanying methods publication and no independent evaluation were found, so treating it as a reference implementation is premature. What such an audit can settle needs separating from what it cannot: double robustness is an analytical property holding under identification, positivity, regularity and correct specification of at least one nuisance model, so simulation tests the implementation and its finite-sample behavior rather than the theorem. Augmented weighting for PAIC is also not new with drMAIC, since Gao, Heath and Baio (doi:10.1017/rsm.2025.10021) published G-MAIC, which combines outcome regression with weighting adjustment and was evaluated across 18 scenarios against MAIC and parametric G-computation.
@@ -50,14 +56,40 @@ Subject drMAIC to independent review of its code and estimating equations, then 
 
 ## Our study
 
-::: {.callout-note}
-## A study is running
+::: {.study-result}
+**drMAIC 0.1.0 returns the MAIC estimate as its doubly robust estimate, with an interval six times too narrow**
 
-**Question.** Does drMAIC 0.1.0 implement a doubly robust MAIC with valid intervals: is its augmented estimate robust to a wrong weighting model when the outcome model is right, and do its intervals cover?
+**The question put to it.** Does drMAIC 0.1.0 implement a doubly robust MAIC with valid intervals: is its augmented estimate robust to a wrong weighting model when the outcome model is right, and do its intervals cover?
 
-**Design.** Unanchored binary-outcome transport in a 2 x 2 of correct or wrong weighting and outcome models at two overlap levels; drMAIC's MAIC, DR estimate, analytic interval and bootstrap interval against a correctly augmented estimator. 8 cells, 600 replicates each, plus a bootstrap arm.
+**What it found.** No. drMAIC 0.1.0 averages the outcome model over the individual-data patients instead of the target population, so its doubly robust estimate equals its MAIC estimate in every replicate (difference below 2e-15) and keeps MAIC's bias when the weights are wrong and the outcome model right (0.066 against 0.004 for correct augmentation). Its analytic SE divides by n twice and mixes probability and log odds scales: 0.028 against an empirical SD of 0.17 to 0.22, coverage 0.20 to 0.26. Its percentile bootstrap covers 0.78 to 0.79.
 
-The protocol is registered before any result is seen: [read it](/studies/SFW-14-testing-an-implementation-not-a-theorem/out/SFW-14-protocol.md).
+**Results.**
+
+- Defect 1: theta_stc = sum(w_norm * m_hat), so the augmented estimate reduces algebraically to the weighted mean of Y.
+- Defect 2 and 3: .dr_variance returns sum((w_norm*(Y-theta))^2)/n on the probability scale and it is reported as the SE of a log odds ratio.
+- Defect 4: bootstrap_ci() reweights on means only, refits the default outcome formula and holds the comparator fixed.
+- Wrong weights, right outcome model, target mean 0.5: drMAIC DR bias 0.066 (MCSE 0.007); correct augmentation 0.004; correct augmentation coverage 0.93 to 0.96 across cells.
+
+**Design.**
+
+Estimand
+:   Target-population marginal log odds ratio, A versus B
+
+Methods compared
+:   drMAIC MAIC, drMAIC doubly robust with analytic interval, drMAIC percentile bootstrap, correctly augmented weighting with bootstrap SE
+
+Data-generating mechanism
+:   Unanchored binary-outcome transport in a 2 x 2 of correct or wrong weighting and outcome models at two overlap levels; drMAIC's MAIC, DR estimate, analytic interval and bootstrap interval against a correctly augmented estimator. 8 cells, 600 replicates each, plus a bootstrap arm.
+
+Replicates
+:   600 per cell, 8 cells; package bootstrap 150 per cell in 2 cells
+
+**What this does not answer.** One package version, binary outcome, one sample size; G-MAIC not run; the time-to-event path (a weighted median labeled a hazard ratio) read from code, not simulated. Peer review has not been done.
+
+**Peer review.** Not yet done. The result stands on the study alone until it is.
+
+Read it: [PDF](/studies/SFW-14-testing-an-implementation-not-a-theorem/out/SFW-14.pdf) · [Markdown](/studies/SFW-14-testing-an-implementation-not-a-theorem/out/SFW-14.md) · [OpenDocument](/studies/SFW-14-testing-an-implementation-not-a-theorem/out/SFW-14.odt) · Code and data: [studies/SFW-14-testing-an-implementation-not-a-theorem](https://github.com/choxos/ITC-open-problems/tree/main/studies/SFW-14-testing-an-implementation-not-a-theorem) · Protocol: [registered before the run](/studies/SFW-14-testing-an-implementation-not-a-theorem/out/SFW-14-protocol.md)
+
 :::
 
 ## Verification

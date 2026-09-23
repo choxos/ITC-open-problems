@@ -57,6 +57,28 @@
   "primary_problem": "ADJ-09",
   "secondary": false
  },
+ "ADJ-10": {
+  "slug": "ADJ-10-discovery-that-cannot-repair-transport",
+  "title": "Data-driven modifier discovery across few trials",
+  "status": "running",
+  "question": "Are effect modifiers discovered from pooled trial data stable and correct enough to use, and do study-level confounders create false modifiers that more data do not remove?",
+  "answer": null,
+  "findings": [],
+  "not_answered": null,
+  "design": "Three to twelve trials at a fixed total of 2400 patients, one or three true modifiers among ten candidates, study-level confounding absent or present; pooled and within-trial lasso at two penalty rules; power, false discoveries, stability and target error. 12 cells, 300 replicates each.",
+  "n_sim": null,
+  "estimand": null,
+  "methods_compared": [],
+  "date_completed": null,
+  "week": null,
+  "code": "studies/ADJ-10-discovery-that-cannot-repair-transport",
+  "protocol": "studies/ADJ-10-discovery-that-cannot-repair-transport/out/ADJ-10-protocol.md",
+  "review": null,
+  "review_rounds": 0,
+  "downloads": {},
+  "primary_problem": "ADJ-10",
+  "secondary": false
+ },
  "ADJ-15": {
   "slug": "ADJ-15-noise-whose-variance-is-known-exactly",
   "title": "Target moments released under differential privacy",
@@ -2361,23 +2383,37 @@
  },
  "SFW-14": {
   "slug": "SFW-14-testing-an-implementation-not-a-theorem",
-  "title": "Testing drMAIC against the properties it claims",
-  "status": "running",
+  "title": "drMAIC 0.1.0 returns the MAIC estimate as its doubly robust estimate, with an interval six times too narrow",
+  "status": "complete",
   "question": "Does drMAIC 0.1.0 implement a doubly robust MAIC with valid intervals: is its augmented estimate robust to a wrong weighting model when the outcome model is right, and do its intervals cover?",
-  "answer": null,
-  "findings": [],
-  "not_answered": null,
+  "answer": "No. drMAIC 0.1.0 averages the outcome model over the individual-data patients instead of the target population, so its doubly robust estimate equals its MAIC estimate in every replicate (difference below 2e-15) and keeps MAIC's bias when the weights are wrong and the outcome model right (0.066 against 0.004 for correct augmentation). Its analytic SE divides by n twice and mixes probability and log odds scales: 0.028 against an empirical SD of 0.17 to 0.22, coverage 0.20 to 0.26. Its percentile bootstrap covers 0.78 to 0.79.",
+  "findings": [
+   "Defect 1: theta_stc = sum(w_norm * m_hat), so the augmented estimate reduces algebraically to the weighted mean of Y.",
+   "Defect 2 and 3: .dr_variance returns sum((w_norm*(Y-theta))^2)/n on the probability scale and it is reported as the SE of a log odds ratio.",
+   "Defect 4: bootstrap_ci() reweights on means only, refits the default outcome formula and holds the comparator fixed.",
+   "Wrong weights, right outcome model, target mean 0.5: drMAIC DR bias 0.066 (MCSE 0.007); correct augmentation 0.004; correct augmentation coverage 0.93 to 0.96 across cells."
+  ],
+  "not_answered": "One package version, binary outcome, one sample size; G-MAIC not run; the time-to-event path (a weighted median labeled a hazard ratio) read from code, not simulated. Peer review has not been done.",
   "design": "Unanchored binary-outcome transport in a 2 x 2 of correct or wrong weighting and outcome models at two overlap levels; drMAIC's MAIC, DR estimate, analytic interval and bootstrap interval against a correctly augmented estimator. 8 cells, 600 replicates each, plus a bootstrap arm.",
-  "n_sim": null,
-  "estimand": null,
-  "methods_compared": [],
-  "date_completed": null,
+  "n_sim": "600 per cell, 8 cells; package bootstrap 150 per cell in 2 cells",
+  "estimand": "Target-population marginal log odds ratio, A versus B",
+  "methods_compared": [
+   "drMAIC MAIC",
+   "drMAIC doubly robust with analytic interval",
+   "drMAIC percentile bootstrap",
+   "correctly augmented weighting with bootstrap SE"
+  ],
+  "date_completed": "2026-09-23",
   "week": null,
   "code": "studies/SFW-14-testing-an-implementation-not-a-theorem",
   "protocol": "studies/SFW-14-testing-an-implementation-not-a-theorem/out/SFW-14-protocol.md",
   "review": null,
   "review_rounds": 0,
-  "downloads": {},
+  "downloads": {
+   "gfm": "studies/SFW-14-testing-an-implementation-not-a-theorem/out/SFW-14.md",
+   "pdf": "studies/SFW-14-testing-an-implementation-not-a-theorem/out/SFW-14.pdf",
+   "odt": "studies/SFW-14-testing-an-implementation-not-a-theorem/out/SFW-14.odt"
+  },
   "primary_problem": "SFW-14",
   "secondary": false
  }
