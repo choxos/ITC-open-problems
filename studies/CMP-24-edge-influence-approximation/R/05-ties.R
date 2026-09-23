@@ -12,6 +12,6 @@ res <- lapply(c(2L, 8L), function(ci) { cc <- g[ci, ]
 r <- do.call(rbind, res)
 out <- do.call(rbind, lapply(c(2L, 8L), function(ci) { z <- r[r$cell == ci, ]; w <- z[!z$agree, ]
   data.frame(cell = ci, n = nrow(z), top_disagree = mean(!z$agree), diag_top_in_ref_top2 = mean(z$ref_rank_of_diag_top <= 2),
-             median_rel_gap_when_disagree = stats::median(w$rel_gap), diag_top_three_arm_when_disagree = mean(w$diag3),
+             median_rel_gap_when_disagree = stats::median(w$rel_gap), share_rel_gap_lt_0.1_when_disagree = mean(w$rel_gap < 0.1), diag_top_three_arm_when_disagree = mean(w$diag3),
              ref_top_three_arm_when_disagree = mean(w$ref3), share_studies_three_arm = mean(z$share3)) }))
 write.csv(out, "results/ties.csv", row.names = FALSE); print(out)

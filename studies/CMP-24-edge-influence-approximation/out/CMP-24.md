@@ -25,11 +25,11 @@ more than 10% of networks.
 two-arm networks (largest difference 8.2e-15) and ranked studies well
 there with $\tau$ fixed at 0 (Spearman 0.95 to 0.97, top study missed in
 5% to 6%). With three-arm studies and $\tau$ fixed, Spearman stayed at
-0.90 to 0.92 but the top study was missed in 28% to 46% of networks,
-almost always because a three-arm study was promoted. With $\tau$
-re-estimated, the mean Spearman was 0.51 to 0.70 (two-arm networks 0.53
-to 0.70) and the top study was missed in 20% to 59%. The registered
-verdict is **not fit for ranking**.
+0.90 to 0.92 but the top study was missed in 28% to 46% of networks; in
+a post hoc rerun the diagonal’s choice was a three-arm study in almost
+all misses. With $\tau$ re-estimated, the mean Spearman was 0.51 to 0.70
+(two-arm networks 0.53 to 0.70) and the top study was missed in 20% to
+59%. The registered verdict is **not fit for ranking**.
 
 **Conclusion.** The refuting sentence fails. Both dropped terms change
 which study the diagnostic names as most influential; the heterogeneity
@@ -108,10 +108,11 @@ equaled the correct model’s hat row at the same $\hat\tau$ to 8.2e-15.
 mean Spearman of 0.90 to 0.92, but the most important study was
 misidentified in 28% to 46% of networks (two-arm: 5% to 6%). A post hoc
 rerun of the first 150 networks of these cells (`R/05-ties.R`) showed
-the misses were not near-ties: the reference importance of the study the
-diagonal named was a median 15% to 21% below the reference maximum. When
-the two disagreed, the diagonal’s top study was three-arm in 98% to 100%
-of networks against 18% to 25% for the reference’s, while 30% to 32% of
+the misses were mostly not near-ties: the reference importance of the
+study the diagonal named was a median 15% to 21% below the reference
+maximum, and within 10% of it in 18% to 37% of misses. When the two
+disagreed, the diagonal’s top study was three-arm in 98% to 100% of
+networks against 18% to 25% for the reference’s, while 30% to 32% of
 studies were three-arm. Summing absolute coefficients over three
 dependent rows promotes multi-arm studies, as the design predicted.
 
