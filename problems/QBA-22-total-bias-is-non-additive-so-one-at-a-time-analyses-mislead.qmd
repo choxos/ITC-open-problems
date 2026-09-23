@@ -18,6 +18,12 @@ tractability: 4
 [Emerging]{.chip .chip-maturity-emerging}
 [Tractability 4/5]{.chip}
 :::
+::: {.callout-important appearance="simple"}
+## A study has been run against this problem
+
+No. An omitted confounder and misclassification of the comparator's outcome interacted by up to 0.16 on the log odds ratio scale: with both at their largest the joint bias was about half the sum of the separate biases, and with the confounder reversed the joint bias had the opposite sign to that sum. Measurement error in a matched covariate combined nearly additively with either. The joint bias exceeded the largest single-mechanism bias in 22 of 36 combinations, so one-at-a-time analyses neither add up to nor bound it. [Read the study below](#our-study).
+:::
+
 ## Statement
 
 Bias mechanisms interact on nonlinear estimand scales, so total bias need not equal the sum of population, bridge and measurement bias, and a set of one-at-a-time curves cannot establish joint robustness, though surviving each curve does not prove that cancellation is what saved the estimate. This now has direct evidence in the external-control setting: Ackerman et al. 2024 (doi:10.3389/fdsfr.2024.1423493) show that misclassified progression events and irregular assessment times occurring together may generate bias greater than the sum of their parts. Joint multiple-bias machinery also already exists outside population adjustment: Brendel, Torres and Arah (doi:10.1093/ije/dyad001) adjust uncontrolled confounding, selection bias and misclassification simultaneously via imputation and regression weighting, with a CRAN implementation, so the PAIC-specific gap is composition of those bias models with the population-adjustment step rather than multiple-bias composition itself. The joint region also has no reportable form. Threshold and tipping-point machinery computes a decision-invariant region in as many dimensions as there are perturbed quantities, but no scalar summary, visualization or reporting convention exists once more than two or three data points, contrasts or bias parameters move at once; the obstruction is stated to be display and interpretation rather than derivation. Candidate low-dimensional functionals such as the minimum-norm violation vector under a stated metric, the region's inradius, or the fraction of a prespecified plausible bias set that preserves the decision have not been proposed, evaluated or standardized, so the joint robustness statement this entry shows to be necessary is currently one that cannot be printed.
@@ -44,6 +50,45 @@ Nonlinear link functions and marginalization make the map from bias parameters t
 ## Probable solution or research direction
 
 Compose the existing joint multiple-bias machinery with the population-adjustment step rather than reinventing it: take simultaneous imputation and weighting adjustment for confounding, selection and misclassification and make it operate on a weighted or standardized PAIC estimator, computed from an explicitly defined ideal target trial, a decision estimand and a causal diagram for each departure. Report joint and mechanism-specific results together so reinforcement and cancellation are visible, and state the dependence assumption used, including independence where that is the intended scenario. Present order-robust or Shapley-style summaries as descriptive allocations conditional on the assumed bias model, stating the fixed parameter vector or the joint distribution they average over.
+
+## Our study
+
+::: {.study-result}
+**Do bias mechanisms in an unanchored MAIC combine additively?**
+
+*This study was designed against [DIA-13](https://github.com/choxos/ITC-open-problems/tree/main/studies/DIA-13-biases-that-act-together) and bears on this entry in part. What it does not answer is stated below.*
+
+**The question put to it.** When an omitted confounder, comparator outcome misclassification and covariate measurement error act together on an unanchored MAIC, is their joint bias the sum of their separate biases, and does a one-at-a-time analysis bound it?
+
+**What it found.** No. An omitted confounder and misclassification of the comparator's outcome interacted by up to 0.16 on the log odds ratio scale: with both at their largest the joint bias was about half the sum of the separate biases, and with the confounder reversed the joint bias had the opposite sign to that sum. Measurement error in a matched covariate combined nearly additively with either. The joint bias exceeded the largest single-mechanism bias in 22 of 36 combinations, so one-at-a-time analyses neither add up to nor bound it.
+
+**Results.**
+
+- Refuting sentence fails: median interaction 30% of the summed separate biases where two or three mechanisms acted.
+- Confounder by misclassification: interaction up to 0.163; other pairs at most 0.005.
+- Joint bias beyond the largest single-mechanism bias in 22 of 36 combinations; mechanisms partly cancelled in 16.
+
+**Design.**
+
+Estimand
+:   Marginal log odds ratio, B versus A, in the target (unanchored)
+
+Methods compared
+:   unanchored MAIC limit under combinations of three bias mechanisms
+
+Data-generating mechanism
+:   Population-level numerical study: exact bias of the MAIC limit over 45 combinations of three mechanisms, with interaction terms by inclusion-exclusion.
+
+Replicates
+:   Population-level calculation, 45 combinations, exact quadrature
+
+**What this does not answer.** Population-level only; no bias-analysis procedure, false reassurance or tipping sets; three mechanisms; selection and correlated parameters not varied. Peer review has not been done.
+
+**Peer review.** Not yet done. The result stands on the study alone until it is.
+
+Read it: [PDF](/studies/DIA-13-biases-that-act-together/out/DIA-13.pdf) · [Markdown](/studies/DIA-13-biases-that-act-together/out/DIA-13.md) · [OpenDocument](/studies/DIA-13-biases-that-act-together/out/DIA-13.odt) · Code and data: [studies/DIA-13-biases-that-act-together](https://github.com/choxos/ITC-open-problems/tree/main/studies/DIA-13-biases-that-act-together) · Protocol: [registered before the run](/studies/DIA-13-biases-that-act-together/out/DIA-13-protocol.md)
+
+:::
 
 ## Verification
 
