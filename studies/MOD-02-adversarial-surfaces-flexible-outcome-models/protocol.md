@@ -33,6 +33,8 @@ surface every method is unbiased within 3 MCSE with coverage 0.93 to 0.97. Dropp
 
 ## 4. Departures from DESIGN.md
 
-No BART (not installed) and no random forest; GAMs play the flexible and structured roles; no doubly robust
+The full GAM was first written with a factor `by` variable plus a common smooth, which is rank
+deficient (42 of 44 coefficients identified); it was changed to centered difference smooths (ordered-factor
+`by`, full rank) and the run restarted before any result was read. No BART (not installed) and no random forest; GAMs play the flexible and structured roles; no doubly robust
 or ML-NMR arm; logit link only; one source size and event rate; model-based intervals only, no
 cross-fitting or tuned resampling; individual-data transport of A versus C only.

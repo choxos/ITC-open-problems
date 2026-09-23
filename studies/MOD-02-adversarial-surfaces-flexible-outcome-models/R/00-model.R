@@ -42,8 +42,10 @@ fit_all <- function(d, mu) {
   f1 <- stats::glm(y ~ (x1 + x2) * A, family = stats::binomial(), data = d)
   mm <- function(z) stats::model.matrix(~ (x1 + x2) * A, z)
   out <- list(stc = gcomp(mm(Z1), mm(Z0), stats::coef(f1), stats::vcov(f1)))
-  d$Af <- factor(d$A); Z1$Af <- factor(1, levels = 0:1); Z0$Af <- factor(0, levels = 0:1)
-  f2 <- mgcv::gam(y ~ Af + s(x1, k = 8) + s(x2, k = 8) + s(x1, by = Af, k = 8) + s(x2, by = Af, k = 8), family = stats::binomial(), data = d, method = "REML")
+  ## Baseline smooths plus centered treatment-difference smooths (ordered-factor by
+  ## variable), which keeps the model full rank.
+  d$Ao <- ordered(d$A); Z1$Ao <- ordered(1, levels = 0:1); Z0$Ao <- ordered(0, levels = 0:1)
+  f2 <- mgcv::gam(y ~ Ao + s(x1, k = 8) + s(x2, k = 8) + s(x1, by = Ao, k = 8) + s(x2, by = Ao, k = 8), family = stats::binomial(), data = d, method = "REML")
   out$gam_full <- gcomp(stats::predict(f2, Z1, type = "lpmatrix"), stats::predict(f2, Z0, type = "lpmatrix"), stats::coef(f2), f2$Vp)
   f3 <- mgcv::gam(y ~ A + s(x1, k = 8) + s(x2, k = 8) + A:x1 + A:x2, family = stats::binomial(), data = d, method = "REML")
   out$gam_struct <- gcomp(stats::predict(f3, Z1, type = "lpmatrix"), stats::predict(f3, Z0, type = "lpmatrix"), stats::coef(f3), f3$Vp)
