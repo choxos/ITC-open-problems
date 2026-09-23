@@ -1,7 +1,21 @@
 {
  "problem_id": "CMP-24",
- "title": "cpaic's diagonal-weight edge influence against refitted references",
- "status": "running",
+ "title": "A diagonal-weight influence ranked studies correctly only with two-arm studies and heterogeneity held fixed",
+ "status": "complete",
  "question": "Does the diagonal-weight influence that cpaic's edge_influence() reports rank studies the way refitted leave-one-study-out references do, once multi-arm covariance and re-estimated heterogeneity enter?",
- "design": "Random four-treatment networks of 8 or 16 studies, two-arm only or with three-arm studies, tau 0 to 0.3; diagonal influence against leave-one-study-out variance importance and estimate change with tau re-estimated. 12 cells, 500 networks each."
+ "design": "Random four-treatment networks of 8 or 16 studies, two-arm only or with three-arm studies, tau 0 to 0.3; diagonal influence against leave-one-study-out variance importance and estimate change with tau re-estimated. 12 cells, 500 networks each.",
+ "date_completed": "2026-09-23",
+ "answer": "No, the refuting sentence fails; the registered verdict is not fit for ranking. The diagonal influence equaled the correct hat row for two-arm networks (difference 8e-15) and ranked studies well there with tau fixed at 0 (mean Spearman with refitted variance importance 0.95 to 0.97; top study missed in 5% to 6%). With three-arm studies and tau fixed, Spearman stayed at 0.90 to 0.92 but the top study was missed in 28% to 46% of networks, almost always because a three-arm study was promoted. With tau re-estimated, mean Spearman was 0.51 to 0.70, including two-arm networks, and the top study was missed in 20% to 59%.",
+ "findings": [
+  "Post hoc: when the top study disagreed at tau 0, the diagonal's choice was three-arm in 98% to 100% of networks against 18% to 25% for the reference's, and its reference importance was a median 15% to 21% below the maximum; the misses were not near-ties.",
+  "In 8-study two-arm networks with tau 0.3, 259 of 365 studies with zero diagonal influence moved the estimate when removed, through the re-estimated tau alone.",
+  "Spearman with the absolute change in the estimate was 0.50 to 0.59 in every cell, including the exact case: influence measures leverage, not realized change."
+ ],
+ "not_answered": "Standard network meta-analysis rather than component networks with population adjustment; study-level deletion; cpaic's formula reimplemented, not called; no fixed-tau reference; a block-weighted hat matrix was not tested; 120 of 6000 networks with singular refits dropped. Peer review has not been done.",
+ "estimand": "Rank agreement between each study's diagonal-weight influence on the D versus A contrast and its refitted leave-one-study-out variance importance",
+ "methods_compared": [
+  "cpaic diagonal-weight influence (commit cf27b1a)",
+  "leave-one-study-out refit of the correct model, tau re-estimated"
+ ],
+ "n_sim": "500 networks per cell, 12 cells"
 }

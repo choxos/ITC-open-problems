@@ -1,0 +1,128 @@
+---
+title: "A diagonal-weight influence ranked studies correctly only with two-arm studies and heterogeneity held fixed"
+subtitle: "A simulation study answering catalog problem CMP-24"
+author: "Ahmad Sofi-Mahmudi"
+date: 2026-09-23
+bibliography: references.bib
+csl: ../../../vancouver.csl
+link-citations: true
+number-sections: true
+execute:
+  echo: false
+  warning: false
+  message: false
+format:
+  gfm:
+    toc: false
+  pdf:
+    documentclass: article
+    geometry: margin=1in
+    fig-pos: "H"
+  odt: default
+---
+
+```{r setup}
+s <- read.csv("../results/summary.csv"); tt <- read.csv("../results/ties.csv")
+f2 <- function(x) formatC(x, format = "f", digits = 2); pc <- function(x) sprintf("%.0f%%", 100 * x)
+rg <- function(x) paste(f2(min(x)), "to", f2(max(x))); rgp <- function(x) paste(pc(min(x)), "to", pc(max(x)))
+two0 <- s[s$multi == "two-arm" & s$tau == 0, ]; thr0 <- s[s$multi == "three-arm" & s$tau == 0, ]
+re <- s[s$tau > 0, ]; re2 <- re[re$multi == "two-arm", ]; pr <- s[s$multi == "three-arm" & s$tau == 0.3, ]
+z5 <- s[s$K == 8 & s$multi == "two-arm" & s$tau == 0.3, ]
+```
+
+# Abstract {.unnumbered}
+
+**Background.** cpaic's `edge_influence()` reports each study's contribution to a requested
+contrast from a hat matrix with diagonal inverse-variance weights and $\hat\tau^2$ held fixed. The
+catalog (CMP-24) says this is exact for two-arm studies at fixed weights and approximate otherwise.
+The refuting sentence: the approximation preserves the ranking even where it misstates values.
+
+**Methods.** Random connected four-treatment networks of 8 or 16 studies, all two-arm or with
+three-arm studies, true $\tau$ of 0, 0.1 or 0.3; 500 networks per cell. The diagonal influence was
+compared with leave-one-study-out refits of the correct model (within-study covariance, $\tau$
+re-estimated by REML), scored by variance importance. Registered rule: not fit for ranking if in
+any cell the mean Spearman correlation is below 0.9 or the most important study is misidentified in
+more than 10% of networks.
+
+**Results.** The diagonal influence equaled the correct hat row for two-arm networks (largest
+difference `r formatC(max(two0$exact_diff), format = "e", digits = 1)`) and ranked studies well there with $\tau$ fixed at 0
+(Spearman `r rg(two0$rho_importance)`, top study missed in `r rgp(two0$top_disagree)`). With three-arm studies
+and $\tau$ fixed, Spearman stayed at `r rg(thr0$rho_importance)` but the top study was missed in
+`r rgp(thr0$top_disagree)` of networks, almost always because a three-arm study was promoted. With $\tau$
+re-estimated, the mean Spearman was `r rg(re$rho_importance)` (two-arm networks `r rg(re2$rho_importance)`) and the top study
+was missed in `r rgp(re$top_disagree)`. The registered verdict is **not fit for ranking**.
+
+**Conclusion.** The refuting sentence fails. Both dropped terms change which study the diagnostic
+names as most influential; the heterogeneity term lowers the rank correlation more.
+
+# The problem {#sec-problem}
+
+An influence diagnostic is read as an ordering: which study carries the contrast. cpaic's
+calculation writes the contrast as $a'y$ over all pairwise rows, $a = m'(X'WX)^+X'W$ with
+$W = \operatorname{diag}\{1/(v_j + \hat\tau^2)\}$, and sums $|a_j|$ over each study's rows. Two terms are
+dropped. A multi-arm study's pairwise rows are correlated and linearly dependent, so the diagonal
+weights count its information more than once. Removing a study changes $\hat\tau^2$ and thereby every
+weight, which a fixed-$\hat\tau$ hat matrix cannot see. The reference is the refitted influence,
+following the variance-based definition of study importance [@rucker2020].
+
+# Design {#sec-design}
+
+Registered protocol: `protocol.md`. Treatments A to D with true effects $(0, -0.2, -0.3, -0.4)$
+against A; target D versus A. Each study compares a random pair, or with probability 0.3 a random
+triple (three-arm cells); arm sizes 50 to 300; random effects with correlation 0.5 within
+multi-arm studies. The diagonal influence is reimplemented from cpaic's formula (commit cf27b1a)
+with $\hat\tau^2$ from the correct model. Reference: leave-one-study-out refits of the correct model
+(basic contrasts, block within-study covariance, REML $\tau^2$; $\tau$ fixed at 0 in the $\tau = 0$ cells),
+scored by variance importance $1 - \operatorname{Var}_{\text{full}}/\operatorname{Var}_{-s}$ and by absolute change
+in the estimate. The $\tau = 0$ cells therefore isolate the multi-arm term; the $\tau > 0$ cells add the
+re-estimation term. Networks in which removing one study disconnected a treatment other than A or
+D made the refit singular and were dropped: `r sum(500 - s$n)` of 6000, all in 8-study cells
+(`r rgp((500 - s$n[s$K == 8]) / 500)` per cell).
+
+# Results {#sec-results}
+
+![Per-network Spearman correlation between the diagonal influence and refitted variance importance; dashed line, the registered 0.9.](figures/fig1-spearman.png){#fig-sp}
+
+| studies | design | true $\tau$ | networks | mean Spearman | share below 0.9 | top study missed | Spearman with estimate change |
+|---:|---|---:|---:|---:|---:|---:|---:|
+`r paste(sprintf("| %d | %s | %.1f | %d | %s | %s | %s | %s |", s$K, s$multi, s$tau, s$n, f2(s$rho_importance), f2(s$rho_importance_lt09), f2(s$top_disagree), f2(s$rho_change)), collapse = "\n")`
+
+: Registered results. Spearman correlations are means over networks. {#tbl-main}
+
+**Exactness (P1).** In every two-arm network the diagonal influence equaled the correct model's
+hat row at the same $\hat\tau$ to `r formatC(max(s$exact_diff, na.rm = TRUE), format = "e", digits = 1)`.
+
+**Multi-arm term.** With $\tau$ fixed at 0, three-arm networks kept a mean Spearman of
+`r rg(thr0$rho_importance)`, but the most important study was misidentified in `r rgp(thr0$top_disagree)` of
+networks (two-arm: `r rgp(two0$top_disagree)`). A post hoc rerun of the first 150 networks of these cells
+(`R/05-ties.R`) showed the misses were not near-ties: the reference importance of the study the
+diagonal named was a median `r rgp(tt$median_rel_gap_when_disagree)` below the reference maximum. When the two
+disagreed, the diagonal's top study was three-arm in `r rgp(tt$diag_top_three_arm_when_disagree)` of networks against
+`r rgp(tt$ref_top_three_arm_when_disagree)` for the reference's, while `r rgp(tt$share_studies_three_arm)` of studies were three-arm.
+Summing absolute coefficients over three dependent rows promotes multi-arm studies, as the
+design predicted.
+
+**Heterogeneity term.** With $\tau$ re-estimated, the mean Spearman was `r rg(re$rho_importance)` and the top
+study was missed in `r rgp(re$top_disagree)`, including two-arm networks where the fixed-$\hat\tau$ calculation
+is exact. Removing a study moves $\hat\tau^2$ and so reweights all others; removing a study that
+raises $\hat\tau$ can make the estimate more precise, which gives negative importance. In 8-study two-arm networks with
+$\tau = 0.3$, `r z5$zero_but_moves` of `r z5$zero_studies` studies with zero diagonal influence (their comparison did not
+reach D versus A) moved the estimate when removed, through $\hat\tau$ alone.
+
+**Estimate change.** Spearman with the absolute change in the estimate was `r rg(s$rho_change)` in every
+cell, including the exact case: the influence measures leverage, while the realized change also
+depends on the study's residual.
+
+# What this does not answer {#sec-limits}
+
+Standard network meta-analysis, not component networks with population adjustment; study-level,
+not edge-level, deletion; the formula was reimplemented rather than called, because the package's
+working tree was changing during the study. No fixed-$\hat\tau$ reference was computed, so in the
+$\tau > 0$ cells the reference's own sampling noise through $\hat\tau$ is part of the disagreement, which
+is the dropped term by construction. Whether a block-weighted hat matrix, exact at fixed $\hat\tau$ for
+multi-arm studies, restores the ranking in the $\tau = 0$ cells was not tested. The tie analysis is
+post hoc. Dropped networks with singular refits are the ones containing a sole bridge to an
+off-target treatment. Peer review has not been done. Conflict of interest: cpaic is written by
+this catalog's author.
+
+# References {.unnumbered}
