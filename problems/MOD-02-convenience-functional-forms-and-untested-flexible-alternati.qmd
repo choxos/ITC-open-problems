@@ -23,6 +23,12 @@ below are attributed to that document and were checked independently where possi
 anything that could not be independently sourced is marked in the verification trail.
 :::
 
+::: {.callout-important appearance="simple"}
+## A study has been run against this problem
+
+Largely yes, the refuting sentence holds. Under a hinge in the treatment effect at a target 1.5 SD from the source, parametric STC was biased by -0.144 and a GAM with smooth treatment modification by -0.085 (coverage 0.93): about 40% less bias, short of the registered halving, with the same RMSE (0.314 against 0.318) because its variance was larger. Under a covariate-by-covariate modification every method was biased by about -0.18, since additive smooths cannot represent a product. A threshold prognostic term largely cancelled in all methods. [Read the study below](#our-study).
+:::
+
 ## Statement
 
 Functional form and interaction structure in population-adjusted outcome models are chosen for convenience, and conventional STC can be biased when that structure is wrong, particularly where transport requires extrapolation; unanchored MAIC can be biased when important adjustment variables are omitted from the matching. The simulation evidence the source invoked does not say what the source said. Hatswell, Freemantle and Baio (doi:10.1016/j.jval.2020.02.008) evaluated unanchored MAIC only and never STC, and found MAIC unbiased across a range of misspecification scenarios, biased only when important characteristics were left out of the matching and degraded when matched characteristics had low explanatory power or overlap was poor. The defensible open part is that flexible outcome models such as splines, BART, Gaussian processes, causal forests, super learner and TMLE have not been benchmarked against parametric baselines in PAIC under adversarial data-generating mechanisms.
@@ -48,14 +54,39 @@ Run head-to-head comparisons of parametric STC, flexible STC, BART and TMLE-styl
 
 ## Our study
 
-::: {.callout-note}
-## A study is running
+::: {.study-result}
+**Flexible outcome models reduced but did not remove transport bias where the target left the data, and could not see a modification they were not built to see**
 
-**Question.** Do flexible outcome models remove the transport bias a parametric STC incurs under threshold, hinge and covariate-interaction surfaces, and with valid intervals, as overlap worsens?
+**The question put to it.** Do flexible outcome models remove the transport bias a parametric STC incurs under threshold, hinge and covariate-interaction surfaces, and with valid intervals, as overlap worsens?
 
-**Design.** Binary-outcome source trial with one adversarial surface feature at a time and targets at three distances; parametric STC, a GAM with smooth modification and a structured GAM with linear modification, standardized by G-computation. 12 cells, 500 replicates each.
+**What it found.** Largely yes, the refuting sentence holds. Under a hinge in the treatment effect at a target 1.5 SD from the source, parametric STC was biased by -0.144 and a GAM with smooth treatment modification by -0.085 (coverage 0.93): about 40% less bias, short of the registered halving, with the same RMSE (0.314 against 0.318) because its variance was larger. Under a covariate-by-covariate modification every method was biased by about -0.18, since additive smooths cannot represent a product. A threshold prognostic term largely cancelled in all methods.
 
-The protocol is registered before any result is seen: [read it](/studies/MOD-02-adversarial-surfaces-flexible-outcome-models/out/MOD-02-protocol.md).
+**Results.**
+
+- Bias grew with target distance for every method on the hinge and product surfaces.
+- The structured GAM (smooth prognosis, linear modification) was no better than STC on the hinge surface.
+- Coverage stayed near 0.90 to 0.93 in biased cells because intervals were wide (empirical SD about 0.3).
+
+**Design.**
+
+Estimand
+:   Target-population marginal log odds ratio, A versus C
+
+Methods compared
+:   parametric STC, GAM with smooth treatment modification, GAM with linear treatment modification
+
+Data-generating mechanism
+:   Binary-outcome source trial with one adversarial surface feature at a time and targets at three distances; parametric STC, a GAM with smooth modification and a structured GAM with linear modification, standardized by G-computation. 12 cells, 500 replicates each.
+
+Replicates
+:   500 per cell, 12 cells
+
+**What this does not answer.** No BART, random forest, doubly robust or ML-NMR arm; logit link, one sample size; model-based intervals only. Peer review has not been done.
+
+**Peer review.** Not yet done. The result stands on the study alone until it is.
+
+Read it: [PDF](/studies/MOD-02-adversarial-surfaces-flexible-outcome-models/out/MOD-02.pdf) · [Markdown](/studies/MOD-02-adversarial-surfaces-flexible-outcome-models/out/MOD-02.md) · [OpenDocument](/studies/MOD-02-adversarial-surfaces-flexible-outcome-models/out/MOD-02.odt) · Code and data: [studies/MOD-02-adversarial-surfaces-flexible-outcome-models](https://github.com/choxos/ITC-open-problems/tree/main/studies/MOD-02-adversarial-surfaces-flexible-outcome-models) · Protocol: [registered before the run](/studies/MOD-02-adversarial-surfaces-flexible-outcome-models/out/MOD-02-protocol.md)
+
 :::
 
 ## Verification
