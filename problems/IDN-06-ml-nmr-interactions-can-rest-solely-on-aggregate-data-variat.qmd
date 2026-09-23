@@ -19,7 +19,7 @@ maturity: "Promising"
 ::: {.callout-important appearance="simple"}
 ## A study has been run against this problem
 
-Fitting one shared interaction matrix on a globally centered covariate is not pooling: for a binary modifier with study prevalence p_s it is algebraically identical to imposing that the causal within-trial coefficient equals the confounded across-trial one. In the model simulated, coverage of a nominal 95% interval for the causal interaction falls from 93.8% when that happens to be true to 17.2% when the two are equal and opposite, and further in networks whose contrasts move two components at once. Separating them costs about 5% in interval width and removes an order of magnitude of bias. The catalog's stated cause is incomplete: the loss is present with all twelve trials supplying individual data, so aggregate data are not necessary for it, but removing individual data roughly doubles the bias, so they amplify it. [Read the study below](#our-study).
+By none of them reliably. With one aggregate trial the data carry no information about the treatment's interaction, yet the shared-interaction model's credible interval was as narrow as the individual-data trial's and covered 0.68 and 0.15 at discordance 0.15 and 0.3; a separate model returned its prior. With four aggregate trials the separate model covered nominally until an ecological term of 0.1 entered the between-trial gradient, then 0.71. The shared model's apparent recovery there came from the ecological bias offsetting the discordance. [Read the study below](#our-study).
 :::
 
 ## Statement
@@ -49,41 +49,37 @@ Do not rebuild the flags; make them standard and test them. Evaluate in simulati
 ## Our study
 
 ::: {.study-result}
-**Separating within-trial from across-trial component effect modification**
+**An aggregate-only treatment's interaction is identified by assumption, by an ecological gradient or by the prior, and each fails differently**
 
-*This study was designed against [CMP-13](https://github.com/choxos/ITC-open-problems/tree/main/studies/CMP-13-within-between-interaction) and bears on this entry in part. What it does not answer is stated below.*
+**The question put to it.** When a treatment has only aggregate data, is its effect-modifier interaction identified by the data, by the shared-interaction assumption, or by the prior, and do credible intervals cover when the assumption fails?
 
-**The question put to it.** Component ML-NMR fits one shared interaction on a globally centered covariate, which algebraically forces the causal within-trial interaction to equal the confounded across-trial association. How much does that cost, when, and is the damage really caused by aggregate data as the catalog claims?
-
-**What it found.** Fitting one shared interaction matrix on a globally centered covariate is not pooling: for a binary modifier with study prevalence p_s it is algebraically identical to imposing that the causal within-trial coefficient equals the confounded across-trial one. In the model simulated, coverage of a nominal 95% interval for the causal interaction falls from 93.8% when that happens to be true to 17.2% when the two are equal and opposite, and further in networks whose contrasts move two components at once. Separating them costs about 5% in interval width and removes an order of magnitude of bias. The catalog's stated cause is incomplete: the loss is present with all twelve trials supplying individual data, so aggregate data are not necessary for it, but removing individual data roughly doubles the bias, so they amplify it.
+**What it found.** By none of them reliably. With one aggregate trial the data carry no information about the treatment's interaction, yet the shared-interaction model's credible interval was as narrow as the individual-data trial's and covered 0.68 and 0.15 at discordance 0.15 and 0.3; a separate model returned its prior. With four aggregate trials the separate model covered nominally until an ecological term of 0.1 entered the between-trial gradient, then 0.71. The shared model's apparent recovery there came from the ecological bias offsetting the discordance.
 
 **Results.**
 
-- Coverage under the shared restriction degrades monotonically with the discordance between the within-trial and across-trial coefficients, from 93.8% at no discordance to 17.2% when they are equal and opposite, and it is worse in bundled component networks whose contrasts move two components at once than where every contrast isolates one.
-- Both separated estimators are nominal at every discordance examined, 92.6% to 96.3%, including under a nonlinear across-trial pattern where the linear split model is itself misspecified.
-- CMP-13 says aggregate studies cause the pull. With all twelve trials supplying individual patient data the shared model still has median absolute standardized bias 0.15 and coverage as low as 44.6%, so aggregate data are not necessary. But bias rises to 0.29 and coverage falls to 17.2% as individual data are removed, so they amplify it. The registered refutation threshold was narrowly missed (47% of cells against 50%) and we report that rather than moving it.
-- Where a component appears in no individual-data arm, the three methods behave in three different ways: the IPD-anchored estimator declines to report it in 100% of replicates; the shared model returns a confident -0.34 against a truth of zero, sourced entirely from the across-trial gradient; and the joint split returns intervals so wide that coverage approaches one, when it returns one at all.
-- A study-clustered sandwich, included so the comparison could not be won on the variance estimator, covered 75.4% to 92.4% where the shared model is correctly specified. With twelve clusters it is badly anticonservative, and it is reported as a finding rather than used as the comparator.
+- Direct share of posterior precision (information about the interaction itself): zero for every model with one aggregate trial.
+- Shared-model coverage at nonzero discordance without ecological bias: 0.149 to 0.867; separate model with a gradient: 0.942 to 0.955.
+- With the ecological term, separate-model bias about 0.09 and coverage 0.71 to 0.74.
 
 **Design.**
 
 Estimand
-:   Within-trial component interaction on the conditional log-rate scale
+:   Effect-modifier interaction of the aggregate-only treatment
 
 Methods compared
-:   shared-info (status quo), shared-sandwich, joint-split, ipd-anchored
+:   shared-interaction model, separate interaction with a vague prior, hierarchical interaction
 
 Data-generating mechanism
-:   Twelve-trial two-component Poisson network with a binary effect modifier whose prevalence varies across studies, aggregate arms generated by exact integration. 320 scenarios crossing network structure, the discordance between within-trial and across-trial modification, IPD availability including a case where one component has no within-trial data at all, arm size and prevalence spread. 2000 replicates each.
+:   Exact conjugate-normal calculation: an individual-data trial for one treatment, one to four aggregate trials for another at spread covariate means, discordance between the two interactions and an ecological term; shared, separate and hierarchical models.
 
 Replicates
-:   2000 per scenario, 640,000 networks
+:   Exact calculation over 36 cells
 
-**What this does not answer.** The registered global analysis is uninformative and the regime split that produced a usable answer was prompted by observing that failure, so it is not prespecified. The general headline about component ML-NMR is not established: the likelihood and nuisance structures are not mapped onto the fixed- and random-effect specifications the implemented method offers, and free study-by-treatment effects or priors can absorb or alter the term the identity isolates. A maximum-likelihood analogue of component ML-NMR. Implemented ML-NMR is Bayesian and priors matter most where interactions are weakly identified, so the coverage numbers do not transfer to multinma; the algebra does, and therefore so does the direction. One binary modifier, a log link, a Poisson outcome, additive components with no synergy, no random treatment-effect heterogeneity, no inconsistency, and exactly reported study prevalences. Under the discordance patterns the split model is correctly specified, so the study measures the cost of an algebraically known restriction rather than establishing that real networks contain within/across disagreement or how large it typically is. Continuous or multiple correlated modifiers, misspecified aggregate covariate distributions, and time-to-event outcomes are untested. It does not touch IDN-05.
+**What this does not answer.** Conjugate normal models on contrast-level data rather than multinma fits; one covariate; fixed prior scales. Peer review has not been done.
 
-**Peer review.** 2 rounds, two independent reviewers. The reports, the point-by-point responses and the editorial decision are published in full: [read the review](/studies/CMP-13-within-between-interaction/out/CMP-13-peer-review.md).
+**Peer review.** Not yet done. The result stands on the study alone until it is.
 
-Read it: [PDF](/studies/CMP-13-within-between-interaction/out/CMP-13.pdf) · [Markdown](/studies/CMP-13-within-between-interaction/out/CMP-13.md) · [OpenDocument](/studies/CMP-13-within-between-interaction/out/CMP-13.odt) · Code and data: [studies/CMP-13-within-between-interaction](https://github.com/choxos/ITC-open-problems/tree/main/studies/CMP-13-within-between-interaction) · Protocol: [registered before the run](/studies/CMP-13-within-between-interaction/out/CMP-13-protocol.md) · Review: [full history](/studies/CMP-13-within-between-interaction/out/CMP-13-peer-review.md)
+Read it: [PDF](/studies/IDN-06-within-between-in-bayesian-mlnmr/out/IDN-06.pdf) · [Markdown](/studies/IDN-06-within-between-in-bayesian-mlnmr/out/IDN-06.md) · [OpenDocument](/studies/IDN-06-within-between-in-bayesian-mlnmr/out/IDN-06.odt) · Code and data: [studies/IDN-06-within-between-in-bayesian-mlnmr](https://github.com/choxos/ITC-open-problems/tree/main/studies/IDN-06-within-between-in-bayesian-mlnmr) · Protocol: [registered before the run](/studies/IDN-06-within-between-in-bayesian-mlnmr/out/IDN-06-protocol.md)
 
 :::
 

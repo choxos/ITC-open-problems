@@ -1,0 +1,101 @@
+---
+title: "An aggregate-only treatment's interaction is identified by assumption, by an ecological gradient or by the prior, and each fails differently"
+subtitle: "An exact calculation answering catalog problem IDN-06"
+author: "Ahmad Sofi-Mahmudi"
+date: 2026-09-23
+bibliography: references.bib
+csl: ../../../vancouver.csl
+link-citations: true
+number-sections: true
+execute:
+  echo: false
+  warning: false
+  message: false
+format:
+  gfm:
+    toc: false
+  pdf:
+    documentclass: article
+    geometry: margin=1in
+    fig-pos: "H"
+  odt: default
+---
+
+```{r setup}
+r <- read.csv("../results/summary.csv"); f3 <- function(x) formatC(x, format = "f", digits = 3)
+q <- function(S, sp, D, E, m) r[r$S == S & r$spread == sp & r$D == D & r$E == E & r$model == m, ]
+```
+
+# Abstract {.unnumbered}
+
+**Background.** In multilevel network meta-regression a treatment with only aggregate
+data gets its effect-modifier interaction from a shared-interaction assumption, from
+the gradient across its trials' covariate means, or from the prior
+[@phillippo2020mlnmr]. Catalog problem IDN-06 asks which of these identifies it and
+what the credible interval then means.
+
+**Methods.** An exact normal-normal calculation: an individual-data trial of one
+treatment, one to four aggregate trials of another, discordance between the two
+interactions of 0 to 0.3, and an ecological term in the aggregate gradient; shared,
+separate (vague prior) and hierarchical models. Coverage is exact because every
+posterior mean is linear in normal data.
+
+**Results.** With one aggregate trial the data carried no information about the
+treatment's interaction, yet the shared model's interval was as narrow as the
+individual-data trial's and covered `r f3(q(1, 1, 0.15, 0, "shared")$coverage)` and
+`r f3(q(1, 1, 0.3, 0, "shared")$coverage)` at discordance 0.15 and 0.3; the separate model returned its
+prior. With four aggregate trials the separate model covered nominally until an
+ecological term of 0.1 entered the gradient, then `r f3(q(4, 1, 0, 0.1, "separate")$coverage)`. The shared
+model then covered better only because the ecological bias happened to offset the
+discordance.
+
+**Conclusion.** Report where each interaction's precision comes from. An interval for an
+aggregate-only treatment's interaction can come entirely from assumption; one that
+comes from the gradient inherits ecological bias; neither can be checked from the
+network alone.
+
+# The problem {#sec-problem}
+
+A single aggregate trial reports an effect at one covariate mean and says nothing about
+how the effect varies with the covariate. Several trials at different means give a
+between-trial gradient, which is exposed to study-level confounding. The shared
+restriction imports another treatment's within-trial interaction, which is right only if
+the two interactions agree. A Bayesian fit converges in all three cases and reports a
+proper interval; the source of its precision is not reported.
+
+# Design {#sec-design}
+
+Registered protocol: `protocol.md`. $b_j \sim N(\beta_j, 0.01)$ with $\beta_j = 0.3$; $S \in \{1, 2, 4\}$
+aggregate trials of treatment $k$ at covariate means spread 0.3 or 1 around 0.5, each with
+variance 0.01, plus $E(m_s - \bar m)$, $E \in \{0, 0.1\}$; $\beta_k = \beta_j + D$. Shared: $\beta_k = \beta_j$,
+combining the within-trial estimate and the gradient. Separate: prior $N(0, 0.5^2)$ and the
+gradient. Hierarchical: $\beta_k \sim N(\beta_j, 0.15^2)$ and the gradient. The direct share is
+the part of the posterior precision coming from information about $\beta_k$ itself.
+
+# Results {#sec-results}
+
+![Coverage of the 95% credible interval for the aggregate-only treatment's interaction (covariate-mean spread 1).](figures/fig1-coverage.png){#fig-coverage}
+
+| trials | discordance | ecological | model | bias | posterior SD | coverage | direct share |
+|---:|---:|---:|---|---:|---:|---:|---:|
+`r z <- r[r$spread == 1 & r$S != 2, ]; paste(sprintf("| %d | %.2f | %.1f | %s | %s | %s | %s | %s |", z$S, z$D, z$E, z$model, f3(z$bias), f3(z$sd_post), f3(z$coverage), f3(z$data_share)), collapse = "\n")`
+
+: Covariate-mean spread 1. Full table in `results/decision.md`. {#tbl-main}
+
+The registered primary was confirmed (@fig-coverage, @tbl-main): the shared model's
+coverage fell to `r f3(min(r$coverage[r$model == "shared" & r$D > 0 & r$E == 0]))` at nonzero discordance while
+the separate model covered 0.942 to 0.955 wherever it had a gradient and no ecological
+term. The three failures are distinct. **Assumption:** with one aggregate trial the direct
+share was zero for every model; the shared interval was narrow and wrong under
+discordance, and the hierarchical interval covered only as far as its prior spread
+allowed. **Ecology:** with a gradient, the separate model's direct share was near 1 and its
+bias was the ecological term. **Offsetting:** the shared model combined both sources and
+could look right when the two errors cancelled.
+
+# What this does not answer {#sec-limits}
+
+Conjugate normal models on contrast-level data rather than multinma fits; one covariate;
+fixed prior scales; the shared model's gradient and within-trial information are pooled
+by precision as a linear model would pool them. Peer review has not been done.
+
+# References {.unnumbered}
