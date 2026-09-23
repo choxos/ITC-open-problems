@@ -970,6 +970,37 @@
   "primary_problem": "DIS-03",
   "secondary": false
  },
+ "DIS-11": {
+  "slug": "DIS-11-a-winner-among-models-that-share-a-false-assumption",
+  "title": "A predictive winner among models that share a false bridge",
+  "status": "complete",
+  "question": "When candidate models share a bridge assumption across a disconnected network, does a predictive criterion computed on observed trials rank them by their cross-gap error?",
+  "answer": "No. Candidate models that share the bridge had identical cross-gap bias (0 to 0.5 across scenarios), and the leave-one-trial-out winner was set by within-subnetwork structure: meta-regression won when a trial covariate changed the contrast, the common-effect model when not, with the same distribution at every bridge error. A predictive criterion on observed trials cannot rank models by an error they share.",
+  "findings": [
+   "Refuting sentence fails: winner distribution independent of the bridge error (chi-square p 0.68 and 0.44).",
+   "Cross-gap bias -0.007 to 0.499, identical across candidates."
+  ],
+  "not_answered": "Frequentist predictive densities rather than LOO-PSIS on ML-NMR; no grouped leave-subnetwork-out or synthetic deletion; population comparison not simulated. Peer review has not been done.",
+  "design": "Two disconnected subnetworks linked by exchangeable baselines with a design nuisance of varying size; three candidate models sharing the bridge ranked by leave-one-trial-out predictive density. 6 cells, 1000 replicates each.",
+  "n_sim": "1000 per scenario, 6,000 in total",
+  "estimand": "Cross-gap contrast C versus A",
+  "methods_compared": [
+   "leave-one-trial-out log predictive density over three candidate models sharing an exchangeable-baseline bridge"
+  ],
+  "date_completed": "2026-09-23",
+  "week": null,
+  "code": "studies/DIS-11-a-winner-among-models-that-share-a-false-assumption",
+  "protocol": "studies/DIS-11-a-winner-among-models-that-share-a-false-assumption/out/DIS-11-protocol.md",
+  "review": null,
+  "review_rounds": 0,
+  "downloads": {
+   "gfm": "studies/DIS-11-a-winner-among-models-that-share-a-false-assumption/out/DIS-11.md",
+   "pdf": "studies/DIS-11-a-winner-among-models-that-share-a-false-assumption/out/DIS-11.pdf",
+   "odt": "studies/DIS-11-a-winner-among-models-that-share-a-false-assumption/out/DIS-11.odt"
+  },
+  "primary_problem": "DIS-11",
+  "secondary": false
+ },
  "EST-06": {
   "slug": "EST-06-maic-reversal-region",
   "title": "When two sponsors' MAICs disagree: how often, why, and which common target resolves it",
@@ -1978,22 +2009,34 @@
  "QBA-07": {
   "slug": "QBA-07-invoking-only-the-parameters-the-setting-warrants",
   "title": "Outcome ascertainment in an external comparator",
-  "status": "running",
+  "status": "complete",
   "question": "Does an interval-censored analysis cover the ascertainment differences between a trial and a routine-care comparator, or do missed detections and risk-dependent visiting still bias the RMST contrast?",
-  "answer": null,
-  "findings": [],
-  "not_answered": null,
+  "answer": "Partly. With every progression detected, an interval-censored model removed the bias from the external arm's sparser visits (within 0.05 months) and was not biased by visits that depended on patients' risk at the strength simulated. When the external arm missed progression at some visits, every method was biased, by 0.25 to 0.38 months at a per-visit sensitivity of 0.85 and 0.67 to 0.94 at 0.7, against a true difference of 1.59 months. Missed detection needs its own bias parameter.",
+  "findings": [
+   "Refuting sentence fails: interval-censored bias 0.25 to 0.94 months with missed detections.",
+   "Perfect detection: interval-censored bias -0.05 to 0.01 months; recorded times up to 0.42.",
+   "Risk-dependent visiting reduced the recorded-time bias and left the interval-censored model unbiased, contrary to DESIGN.md's prediction."
+  ],
+  "not_answered": "No lag, linkage loss or false positives; one frailty and visiting strength; no sensitivity analysis over the detection parameter; no population adjustment. Peer review has not been done.",
   "design": "Trial arm with scheduled visits against an external arm with regular or risk-dependent visits and per-visit detection sensitivity of 1, 0.85 or 0.7; Kaplan-Meier, midpoint and interval-censored Weibull RMST. 12 cells, 1000 replicates each.",
-  "n_sim": null,
-  "estimand": null,
-  "methods_compared": [],
-  "date_completed": null,
+  "n_sim": "1000 per scenario, 12,000 in total",
+  "estimand": "RMST at 24 months, external arm B minus trial arm A, from true event times",
+  "methods_compared": [
+   "Kaplan-Meier on recorded times",
+   "interval midpoints",
+   "interval-censored Weibull"
+  ],
+  "date_completed": "2026-09-23",
   "week": null,
   "code": "studies/QBA-07-invoking-only-the-parameters-the-setting-warrants",
   "protocol": "studies/QBA-07-invoking-only-the-parameters-the-setting-warrants/out/QBA-07-protocol.md",
   "review": null,
   "review_rounds": 0,
-  "downloads": {},
+  "downloads": {
+   "gfm": "studies/QBA-07-invoking-only-the-parameters-the-setting-warrants/out/QBA-07.md",
+   "pdf": "studies/QBA-07-invoking-only-the-parameters-the-setting-warrants/out/QBA-07.pdf",
+   "odt": "studies/QBA-07-invoking-only-the-parameters-the-setting-warrants/out/QBA-07.odt"
+  },
   "primary_problem": "QBA-07",
   "secondary": false
  },
@@ -2133,6 +2176,28 @@
    "odt": "studies/SFW-10-stacked-variance-and-a-defined-post-trimming-estimand/out/SFW-10.odt"
   },
   "primary_problem": "SFW-10",
+  "secondary": false
+ },
+ "SFW-14": {
+  "slug": "SFW-14-testing-an-implementation-not-a-theorem",
+  "title": "Testing drMAIC against the properties it claims",
+  "status": "running",
+  "question": "Does drMAIC 0.1.0 implement a doubly robust MAIC with valid intervals: is its augmented estimate robust to a wrong weighting model when the outcome model is right, and do its intervals cover?",
+  "answer": null,
+  "findings": [],
+  "not_answered": null,
+  "design": "Unanchored binary-outcome transport in a 2 x 2 of correct or wrong weighting and outcome models at two overlap levels; drMAIC's MAIC, DR estimate, analytic interval and bootstrap interval against a correctly augmented estimator. 8 cells, 600 replicates each, plus a bootstrap arm.",
+  "n_sim": null,
+  "estimand": null,
+  "methods_compared": [],
+  "date_completed": null,
+  "week": null,
+  "code": "studies/SFW-14-testing-an-implementation-not-a-theorem",
+  "protocol": "studies/SFW-14-testing-an-implementation-not-a-theorem/out/SFW-14-protocol.md",
+  "review": null,
+  "review_rounds": 0,
+  "downloads": {},
+  "primary_problem": "SFW-14",
   "secondary": false
  }
 }

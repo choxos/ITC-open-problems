@@ -36,5 +36,5 @@ loo <- function(d, k) sum(sapply(seq_len(nrow(d)), function(i) { tr <- d[-i, ]; 
 fit_all <- function(cell, d) {
   bridge <- mean(d$y_ctrl[d$sub == 2]) - mean(d$y_ctrl[d$sub == 1])               # C versus A from exchangeable baselines
   scores <- sapply(names(fitters), function(k) loo(d, k))
-  c(bridge = bridge, scores, winner = which.max(scores))
+  c(bridge = bridge, scores, winner = unname(which.max(scores)))
 }

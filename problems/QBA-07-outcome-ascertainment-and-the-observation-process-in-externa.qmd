@@ -16,6 +16,12 @@ maturity: "Promising"
 [High priority]{.chip .chip-priority-high}
 [Promising]{.chip .chip-maturity-promising}
 :::
+::: {.callout-important appearance="simple"}
+## A study has been run against this problem
+
+Partly. With every progression detected, an interval-censored model removed the bias from the external arm's sparser visits (within 0.05 months) and was not biased by visits that depended on patients' risk at the strength simulated. When the external arm missed progression at some visits, every method was biased, by 0.25 to 0.38 months at a per-visit sensitivity of 0.85 and 0.67 to 0.94 at 0.7, against a true difference of 1.59 months. Missed detection needs its own bias parameter. [Read the study below](#our-study).
+:::
+
 ## Statement
 
 Protocol-driven trial assessment and routine-care capture detect the same events at different times and with different completeness, so using detection time as event time can make progression curves depend on the assessment grid, and baseline covariate balancing generally cannot remove a residual study-specific observation process. Ackerman et al. 2024 (doi:10.3389/fdsfr.2024.1423493) quantify this for external control arms, simulating bias from misclassified progression events and irregular assessment timing and showing that together they may generate bias greater than the sum of their parts, but they measure the problem rather than correct it. The sub-mechanisms need different parameters and not all are always required: sensitivity and specificity address event classification, lag and interval endpoints address timing, linkage completeness addresses missing capture, and visit-process association parameters are needed only when observation is informative. Where visit times are noninformative given modeled covariates and the event is known to lie between visits, an interval-censored likelihood already accommodates different grids without an extra bias parameter, and cpaic (choxos/cpaic@9d150e9, an unreleased development package on GitHub, not installable from CRAN) implements exactly that.
@@ -42,14 +48,39 @@ Build on the interval-censored likelihood that already exists for the noninforma
 
 ## Our study
 
-::: {.callout-note}
-## A study is running
+::: {.study-result}
+**Outcome ascertainment in an external comparator**
 
-**Question.** Does an interval-censored analysis cover the ascertainment differences between a trial and a routine-care comparator, or do missed detections and risk-dependent visiting still bias the RMST contrast?
+**The question put to it.** Does an interval-censored analysis cover the ascertainment differences between a trial and a routine-care comparator, or do missed detections and risk-dependent visiting still bias the RMST contrast?
 
-**Design.** Trial arm with scheduled visits against an external arm with regular or risk-dependent visits and per-visit detection sensitivity of 1, 0.85 or 0.7; Kaplan-Meier, midpoint and interval-censored Weibull RMST. 12 cells, 1000 replicates each.
+**What it found.** Partly. With every progression detected, an interval-censored model removed the bias from the external arm's sparser visits (within 0.05 months) and was not biased by visits that depended on patients' risk at the strength simulated. When the external arm missed progression at some visits, every method was biased, by 0.25 to 0.38 months at a per-visit sensitivity of 0.85 and 0.67 to 0.94 at 0.7, against a true difference of 1.59 months. Missed detection needs its own bias parameter.
 
-The protocol is registered before any result is seen: [read it](/studies/QBA-07-invoking-only-the-parameters-the-setting-warrants/out/QBA-07-protocol.md).
+**Results.**
+
+- Refuting sentence fails: interval-censored bias 0.25 to 0.94 months with missed detections.
+- Perfect detection: interval-censored bias -0.05 to 0.01 months; recorded times up to 0.42.
+- Risk-dependent visiting reduced the recorded-time bias and left the interval-censored model unbiased, contrary to DESIGN.md's prediction.
+
+**Design.**
+
+Estimand
+:   RMST at 24 months, external arm B minus trial arm A, from true event times
+
+Methods compared
+:   Kaplan-Meier on recorded times, interval midpoints, interval-censored Weibull
+
+Data-generating mechanism
+:   Trial arm with scheduled visits against an external arm with regular or risk-dependent visits and per-visit detection sensitivity of 1, 0.85 or 0.7; Kaplan-Meier, midpoint and interval-censored Weibull RMST. 12 cells, 1000 replicates each.
+
+Replicates
+:   1000 per scenario, 12,000 in total
+
+**What this does not answer.** No lag, linkage loss or false positives; one frailty and visiting strength; no sensitivity analysis over the detection parameter; no population adjustment. Peer review has not been done.
+
+**Peer review.** Not yet done. The result stands on the study alone until it is.
+
+Read it: [PDF](/studies/QBA-07-invoking-only-the-parameters-the-setting-warrants/out/QBA-07.pdf) · [Markdown](/studies/QBA-07-invoking-only-the-parameters-the-setting-warrants/out/QBA-07.md) · [OpenDocument](/studies/QBA-07-invoking-only-the-parameters-the-setting-warrants/out/QBA-07.odt) · Code and data: [studies/QBA-07-invoking-only-the-parameters-the-setting-warrants](https://github.com/choxos/ITC-open-problems/tree/main/studies/QBA-07-invoking-only-the-parameters-the-setting-warrants) · Protocol: [registered before the run](/studies/QBA-07-invoking-only-the-parameters-the-setting-warrants/out/QBA-07-protocol.md)
+
 :::
 
 ## Verification
