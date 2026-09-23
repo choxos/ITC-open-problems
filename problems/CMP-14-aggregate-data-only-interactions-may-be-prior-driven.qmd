@@ -19,7 +19,7 @@ maturity: "Promising"
 ::: {.callout-important appearance="simple"}
 ## A study has been run against this problem
 
-At the thresholds the literature suggests, they miss most of it. Pairing each warning with whether that replicate's own interval missed, a composite of four diagnostics has sensitivity 0.37 at a false-alarm rate of 0.16, falling to 0.13 outside two engineered geometries; the one sensitive rule fires on half the sound analyses too. Used as continuous scores the same statistics reach AUC 0.51 to 0.78, so this is a failure of thresholds rather than of the statistics. What no threshold repairs is that these diagnostics measure the prior's influence while the harm comes from the prior's location: with disconnected evidence and a tight prior four standard deviations from the truth, going from 100 to 400 per arm drops the warning rate from 0.98 to 0.01 while coverage stays near zero. [Read the study below](#our-study).
+Not reliably, and the reason is structural. On an exact identity-link arm of 504 scenarios and a logit arm of 72, no threshold on contraction, on either effective-rank reading, or on the estimability screen separates scenarios whose 95% interval covers nominally from those that fail. The summaries are functions of Fisher information and the prior, so within one design they are exactly constant while coverage ranges from 0 to 0.96. They partly catch the failure they were designed for: contraction flags 59% of failures caused by a tight prior. They catch none of the 142 failures caused by a biased route, where the ecological route carries between-study confounding or the additivity route a synergy, because confounding moves the posterior mean and not its information. A clean contraction says the likelihood spoke, not that it was right. Every result is exploratory. [Read the study below](#our-study).
 :::
 
 ## Statement
@@ -47,42 +47,40 @@ Promote the existing prior-versus-posterior comparison and prior-sensitivity ref
 ## Our study
 
 ::: {.study-result}
-**Do prior-sensitivity diagnostics catch the analyses that are actually wrong?**
+**Prior-to-posterior contraction and effective likelihood rank measure information, not bias**
 
-*This study was designed against [CMU-02](https://github.com/choxos/ITC-open-problems/tree/main/studies/CMU-02-prior-driven-posteriors) and bears on this entry in part. What it does not answer is stated below.*
+**The question put to it.** CMP-14 asks for two default summaries, prior-to-posterior contraction per interaction and an effective likelihood rank, so an analyst sees when an aggregate-only interaction is held up by its prior. Would those summaries tell the analyst whether the reported interval covers?
 
-**The question put to it.** In a population-adjusted network a proper prior yields a proper posterior even where the likelihood identifies nothing, so a narrow interval can reflect the prior rather than the evidence. The diagnostics that would expose this exist. What are their operating characteristics: do they flag the analyses whose intervals actually miss the truth, and how often do they cry wolf?
-
-**What it found.** At the thresholds the literature suggests, they miss most of it. Pairing each warning with whether that replicate's own interval missed, a composite of four diagnostics has sensitivity 0.37 at a false-alarm rate of 0.16, falling to 0.13 outside two engineered geometries; the one sensitive rule fires on half the sound analyses too. Used as continuous scores the same statistics reach AUC 0.51 to 0.78, so this is a failure of thresholds rather than of the statistics. What no threshold repairs is that these diagnostics measure the prior's influence while the harm comes from the prior's location: with disconnected evidence and a tight prior four standard deviations from the truth, going from 100 to 400 per arm drops the warning rate from 0.98 to 0.01 while coverage stays near zero.
+**What it found.** Not reliably, and the reason is structural. On an exact identity-link arm of 504 scenarios and a logit arm of 72, no threshold on contraction, on either effective-rank reading, or on the estimability screen separates scenarios whose 95% interval covers nominally from those that fail. The summaries are functions of Fisher information and the prior, so within one design they are exactly constant while coverage ranges from 0 to 0.96. They partly catch the failure they were designed for: contraction flags 59% of failures caused by a tight prior. They catch none of the 142 failures caused by a biased route, where the ecological route carries between-study confounding or the additivity route a synergy, because confounding moves the posterior mean and not its information. A clean contraction says the likelihood spoke, not that it was right. Every result is exploratory.
 
 **Results.**
 
-- Prespecified verdict: diagnostics fail at the thresholds the literature suggests. Composite sensitivity 0.366 (MCSE 0.002), false alarm 0.158; 0.127 and 0.025 outside the engineered positive controls.
-- Sensitivity and specificity trade off completely. Tight-and-loose prior refitting catches 0.83 of misses outside the controls and fires on 53% of covered replicates. Contraction, the prior-only benchmark and power-scaling keep false alarms low and catch almost nothing.
-- The composite adds almost nothing over its best component: 0.366 against contraction's 0.363, at a higher false-alarm rate. Requiring two of four rules to agree neither buys specificity nor recovers sensitivity.
-- More data makes the warning quieter while the answer stays wrong. Disconnected evidence, tight prior, true interaction four prior SDs away: coverage near zero at both sample sizes, warning rate 0.98 at 100 per arm and 0.01 at 400. Contraction is what every diagnostic reads as reassurance.
-- A first implementation measured power-scaling by posterior mean shift and found sensitivity 0.000 everywhere. That was our error: with a zero-centred prior, scaling the prior up and the likelihood down give identical posterior means, so the standard rule can never fire. Measured distributionally it works, and the verdict does not depend on the amendment.
-- The structural rank screen is the only rule with no false alarms at all, and it is blind to every failure where the contrast is estimable and the answer is still wrong.
+- All four registered statistics (contraction, target-level likelihood ratio, whole-model effective rank, estimability screen) take values shared by failing and nominal scenarios on both arms, so no threshold on any of them separates the classes. On E1 there are 251 failing and 169 nominal scenarios; on E2, 41 and 12.
+- On the identity link with known residual variance the posterior covariance does not involve the outcomes. Within one information state, spread, network size and prior, contraction, target ratio and effective rank are exactly constant across discordance and synergy levels while coverage ranges over 0.956.
+- Decomposed by cause (post hoc), 109 E1 failures come from a prior of SD 0.1 pulling a true interaction of 0.4 toward zero and 142 from a biased route. Contraction flags 58.7% of the first and 0% of the second; target ratio 41.3% and 0%; effective rank 56.0% and 0%.
+- Scenario pairs matched on spread, size and prior whose contraction differs by less than 0.02 differ in coverage by up to 0.951 on E1.
+- On the logit arm the rules score far better on average (contraction Youden 0.805 against 0.220 on E1) because 34 of its 41 failures sit at the tight prior and it has only 12 nominal scenarios. The overlap persists.
+- Three aggregate routes identify an interaction on the logit link, through differences in covariate means, covariate variances or baseline risk; only the first works on the identity link. None is randomized.
 
 **Design.**
 
 Estimand
-:   Target-population marginal C versus B mean difference, and the conditional interaction coefficient
+:   The within-trial interaction of the target component, true value 0.4; coverage of its nominal 95% interval
 
 Methods compared
-:   no-diagnostic baseline, structural rank screen, prior-to-posterior contraction, prior-only benchmark, power-scaling sensitivity, tight and loose refit, composite rule
+:   prior-to-posterior contraction, target-level likelihood to prior precision ratio, whole-model effective likelihood rank, estimability screen, source survival (post hoc candidate)
 
 Data-generating mechanism
-:   A conjugate Gaussian population-adjusted network in which every piece of evidence reduces without loss to a normal observation, so the posterior and every power-scaled posterior are exact and no diagnostic is contaminated by MCMC noise. 120 scenarios crossing the evidence available about the weakly identified treatment, arm size, whether the truth agrees with the zero-centered prior, prior scale, and the target population. 2000 replicates each.
+:   Exact computation on a four-component network, one scalar covariate, twelve arms in every state. The target interaction is identified by its own IPD trial, by a combination arm under additivity, by the between-study contrast in aggregate covariate means, by differing covariate variances (logit only), or not at all. E1: identity link, known variance, 504 scenarios crossing state, covariate spread, network size, interaction prior SD, discordance and synergy. E2: logit link, asymptotic, 72 scenarios.
 
 Replicates
-:   2000 per scenario, 240,000 datasets and 480,000 contrast evaluations
+:   Exact and asymptotic computation: 504 E1 scenarios and 72 E2 scenarios, no Monte Carlo replicates
 
-**What this does not answer.** The other half of CMU-02, wiring these diagnostics into released software, is untouched; neither multinma nor cpaic is run. The model is conjugate Gaussian with an identity link, a correctly specified linear mean and known variances, so nothing transfers directly to a non-conjugate posterior where MCMC error enters and the diagnostics behave differently. Only automated thresholds are evaluated; a plot read by an experienced analyst is a different instrument. Thresholds were taken from the source literature and not tuned. CMP-14 is touched only for the generic aggregate-only interaction, not for component models, and IDN-06 is not addressed at all because this design contains no within-versus-between discrepancy.
+**What this does not answer.** Nothing here is confirmatory: E1 was computed before its protocol existed, E2's separation rules were rebuilt after its output was read, and the cause decomposition was added for the manuscript. E1 is exact for a design realized at its quadrature nodes and E2 is asymptotic, so no posterior was sampled and neither is an average over realized designs. The exact invariance of the summaries holds for known-variance Gaussian models; with estimated variances or random effects they would move with a departure and whether that movement could ever warn is untested. One target component, one covariate, one network geometry, a normal within-study covariate law on the logit arm, and departures acting on the mean only. The protocol went through thirteen rounds of critique; the manuscript has not been peer reviewed.
 
-**Peer review.** 2 rounds, two independent reviewers. The reports, the point-by-point responses and the editorial decision are published in full: [read the review](/studies/CMU-02-prior-driven-posteriors/out/CMU-02-peer-review.md).
+**Peer review.** Not yet done. The result stands on the study alone until it is.
 
-Read it: [PDF](/studies/CMU-02-prior-driven-posteriors/out/CMU-02.pdf) · [Markdown](/studies/CMU-02-prior-driven-posteriors/out/CMU-02.md) · [OpenDocument](/studies/CMU-02-prior-driven-posteriors/out/CMU-02.odt) · Code and data: [studies/CMU-02-prior-driven-posteriors](https://github.com/choxos/ITC-open-problems/tree/main/studies/CMU-02-prior-driven-posteriors) · Protocol: [registered before the run](/studies/CMU-02-prior-driven-posteriors/out/CMU-02-protocol.md) · Review: [full history](/studies/CMU-02-prior-driven-posteriors/out/CMU-02-peer-review.md)
+Read it: [PDF](/studies/CMP-14-aggregate-only-interactions/out/CMP-14.pdf) · [Markdown](/studies/CMP-14-aggregate-only-interactions/out/CMP-14.md) · [OpenDocument](/studies/CMP-14-aggregate-only-interactions/out/CMP-14.odt) · Code and data: [studies/CMP-14-aggregate-only-interactions](https://github.com/choxos/ITC-open-problems/tree/main/studies/CMP-14-aggregate-only-interactions) · Protocol: [registered before the run](/studies/CMP-14-aggregate-only-interactions/out/CMP-14-protocol.md)
 
 :::
 

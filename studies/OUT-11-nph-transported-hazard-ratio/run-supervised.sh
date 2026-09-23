@@ -55,7 +55,16 @@ while true; do
     # Space-separated, so the membership test below cannot depend on pgrep's
     # output order: with newlines still in it, `case " $matches "` would only
     # ever match the first pid.
-    matches=$(pgrep -f "[-]-file=R/07-run.R" | tr '\n' ' ')
+    # The path is relative and other repositories on this machine have runners
+    # with the same file name, so a candidate counts only if its working
+    # directory is this study's. MOD-01's supervisor adopted a foreign process
+    # before it checked this.
+    here=$(pwd -P)
+    matches=""
+    for m in $(pgrep -f "[-]-file=R/07-run.R"); do
+      c=$(lsof -p "$m" -a -d cwd -Fn 2>/dev/null | grep '^n' | cut -c2-)
+      [ "$c" = "$here" ] && matches="$matches $m"
+    done
     found=""
     for m in $matches; do
       mp=$(ps -o ppid= -p "$m" 2>/dev/null | tr -d ' ')

@@ -1,0 +1,329 @@
+---
+title: "Prior-to-posterior contraction and effective likelihood rank measure information, not bias"
+subtitle: "An exploratory computation answering catalog problem CMP-14"
+author: "Ahmad Sofi-Mahmudi"
+date: 2026-09-22
+bibliography: references.bib
+csl: ../../../vancouver.csl
+link-citations: true
+number-sections: true
+execute:
+  echo: false
+  warning: false
+  message: false
+format:
+  gfm:
+    toc: false
+  pdf:
+    documentclass: article
+    geometry: margin=1in
+    fig-pos: "H"
+  odt: default
+---
+
+```{r setup}
+R  <- jsonlite::fromJSON("../results/registered-design.json", simplifyVector = TRUE)
+dec <- read.csv("../results/decomposition.csv")
+cau <- read.csv("../results/failure-causes.csv")
+inv <- read.csv("../results/invariance.csv")
+e1 <- readRDS("../results/e1.rds")
+e2 <- readRDS("../results/e2.rds")
+f3 <- function(x) formatC(x, format = "f", digits = 3)
+f4 <- function(x) formatC(x, format = "f", digits = 4)
+pct <- function(x) paste0(formatC(100 * x, format = "f", digits = 1), "%")
+cls <- function(d) ifelse(d$coverage < 0.90, "fail",
+                   ifelse(abs(d$coverage - 0.95) <= 0.01, "nominal", "neither"))
+c1 <- table(cls(e1)); c2 <- table(cls(e2))
+n_mis <- sum(cau$Freq[cau$cause == "misspecified"])
+n_tp  <- sum(cau$Freq[cau$cause == "tight prior"])
+g <- function(r, col) dec[dec$rule == r, col]
+W <- R$warnings; W2 <- R$e2_warnings
+e2fail <- table(e2$prior_sd[cls(e2) == "fail"])
+```
+
+# Abstract {.unnumbered}
+
+**Background.** In component network meta-regression, an interaction informed
+only by aggregate data can be held to a finite credible interval by its prior
+alone. Catalog problem CMP-14 asks for two default summaries to expose this:
+prior-to-posterior contraction per interaction and an effective likelihood rank.
+We asked what those summaries would tell an analyst about whether the reported
+interval covers.
+
+**Methods.** An exact computation on a four-component network with known
+truth. The first arm (E1) uses an identity link with known residual variance, so
+every posterior is closed form: `r R$n_scenarios` scenarios crossing the
+information state of the target interaction (own trial, additivity, ecological
+route, absent), between-study covariate spread, network size, prior scale on the
+interactions, between-within discordance and additivity violation. The second arm
+(E2) uses a logit link and asymptotic information over `r R$e2_n_scenarios`
+scenarios, adding a curvature state identified only by differing covariate
+variances. Coverage of the nominal 95% interval for the target interaction was
+classed as failing (below 0.90), nominal (within 0.01 of 0.95) or neither.
+
+**Results.** No threshold on contraction, on either effective-rank reading, or on
+the estimability screen separates failing from nominal scenarios on either arm:
+every statistic takes at least one value that both classes share. The reason is
+structural. On the identity link the posterior covariance does not involve the
+outcomes, so within one design and prior the summaries are exactly constant while
+coverage ranges over `r f3(inv$max_range_within_design[inv$quantity == "coverage"])`.
+Decomposed by cause, `r n_tp` E1 failures come from a prior of SD 0.1 pulling a
+true interaction of 0.4 toward zero, and `r n_mis` from a biased route, meaning
+discordance on the ecological route or synergy on the additivity route.
+Contraction flags `r pct(g("contraction", "caught_tight_prior"))` of the first
+kind; no summary flags any of the second. On the logit arm the summaries separate much better on
+average (Youden `r f3(W2$youden[W2$rule == "contraction"])` for contraction) because
+`r e2fail[["0.1"]]` of its `r sum(e2fail)` failures sit at the tight prior, but the
+overlap persists.
+
+**Conclusion.** The summaries CMP-14 asks for answer the question they were
+designed for, whether the prior dominates a coordinate, and partially catch the
+failures a dominant prior causes. They are blind by construction to the failure
+an aggregate route adds, which is that the route is not randomized and can
+identify the wrong quantity with plenty of information. A clean contraction is
+evidence that the likelihood spoke, not that it told the truth. Every result here
+is exploratory: E1 ran before the protocol existed and E2's rules were rebuilt
+after its output had been read.
+
+# The problem {#sec-problem}
+
+Multilevel network meta-regression [@phillippo2020mlnmr] and its component
+extensions estimate how covariates modify treatment effects by combining
+individual participant data (IPD), where the modification is identified within
+trials, with aggregate data, where it can only be identified through differences
+between studies. A proper prior yields a proper posterior, so an interaction the
+likelihood barely touches still gets a finite credible interval
+[@gelman2017]. Existing mitigations are visual or require a deliberate refit:
+prior and posterior overlays, prior sensitivity refits, power scaling
+[@kallioinen2024]. CMP-14 asks for two default numerical summaries so that an
+analyst who does not ask still sees a warning:
+
+- **contraction**, the marginal posterior standard deviation of the interaction
+  over its marginal prior standard deviation, where values near 1 mean the data
+  did not move the prior; and
+- **effective likelihood rank**, the number of directions in which the likelihood
+  outweighs the prior, reported for the whole model and per parameter.
+
+Both are functions of Fisher information and the prior. That observation is the
+whole study: a summary built from information can tell an analyst how much the
+likelihood said, and cannot tell them whether what it said was right.
+
+# Design {#sec-design}
+
+The protocol (`protocol.md`) went through thirteen rounds of adversarial critique
+and records its own standing first: **nothing here is confirmatory**. E1 was
+computed before the protocol existed; E2's separation rules were rebuilt after its
+output was read. `CHANGES.md` lists every design choice changed after a number was
+seen. The decomposition in @sec-cause was added for this manuscript, after the
+decision file, and is labeled post hoc.
+
+## The model
+
+Four binary components. A treatment is an indicator vector $c \in \{0,1\}^4$ with
+additive main effect $c'\delta$ and additive modification $c'\Gamma$ of a scalar
+covariate $x$. On E1,
+
+$$
+E[y] \;=\; \alpha_s + c'\delta + x\,(\beta + c'\Gamma), \qquad
+\operatorname{Var}(y) = 1,
+$$
+
+with the residual variance known, so the posterior covariance is
+$(I + P_0)^{-1}$ in the scale of the prior precision $P_0$ and depends on the
+covariate design but not on the outcomes. E2 uses the same linear predictor on the
+logit scale, with the likelihood integrated over a normal within-study covariate
+law by 64-point Gauss-Hermite quadrature. Every true interaction is 0.4, every main
+effect $-0.5$, the prognostic slope 0.3. Component 3 is the target; components 1,
+2 and 4 always have their own IPD trials.
+
+## Information states for the target interaction
+
+| state | route to the target interaction | randomized |
+|---|---|:--:|
+| own IPD | its own IPD trial | yes |
+| additivity | only inside a combination arm, under additivity | yes |
+| ecological | aggregate studies, between-study contrast in covariate means | no |
+| curvature (E2 only) | two aggregate studies with equal means and different SDs | no |
+| absent | nothing | not applicable |
+
+Every state has the same twelve arms and the same per-arm information weight, so
+states differ in route and not in size.
+
+## Departures
+
+Two departures make a route identify the wrong quantity without changing how much
+information it carries. **Discordance** adds $0.15$ or $0.40$ to the target
+interaction in the aggregate rows, so the between-study association differs from
+the within-study one. **Synergy** adds $0.2$ to the covariate slope of the
+combination arm, violating additivity. The fitted model has one interaction per
+component and is otherwise correctly specified.
+
+## Grid
+
+E1 crosses state, between-study covariate spread (0.3 to 3), total network size
+(1000, 3000, 10000), prior SD on the interactions (0.1, 0.5, 1, 2.5), discordance
+(ecological only) and synergy (additivity only): `r R$n_scenarios` scenarios. E2
+is a reduced factorial of `r R$e2_n_scenarios` scenarios on the logit link at prior
+SDs 0.1 and 1. Coverage on E1 is exact for a design realized at its quadrature
+nodes; on E2 it is the asymptotic normal approximation.
+
+## Diagnostics and rules
+
+| rule | alarms when | threshold |
+|---|---|---|
+| contraction | posterior SD / prior SD $\geq$ 0.50 | conventional |
+| target ratio | likelihood precision / prior precision on the target $<$ 1 | conventional |
+| effective rank | count of eigendirections with likelihood outweighing prior $<$ parameter count | structural |
+| rank screen | target coordinate not identified by the likelihood | structural |
+
+A post hoc candidate, the share of the target's likelihood precision surviving
+deletion of the between-study source, is reported in the protocol and is not part
+of any claim here.
+
+# Results {#sec-results}
+
+## Classes
+
+```{r}
+#| label: tbl-classes
+#| tbl-cap: "Scenarios by coverage class."
+knitr::kable(data.frame(arm = c("E1, exact", "E2, logit"),
+  failing = c(c1[["fail"]], c2[["fail"]]), nominal = c(c1[["nominal"]], c2[["nominal"]]),
+  neither = c(c1[["neither"]], c2[["neither"]]),
+  total = c(sum(c1), sum(c2))), align = "lrrrr")
+```
+
+## No threshold separates the classes {#sec-overlap}
+
+For each statistic we asked whether the range of values taken by failing scenarios
+overlaps the range taken by nominal ones. One shared value is enough to show that
+no threshold can separate them, whatever mixture of scenarios a practitioner faces.
+**All four registered statistics overlap on both arms** (@tbl-overlap). The rank
+screen's overlap is half structural: a non-identified coordinate has coverage
+exactly 0 or 1 on both arms and so is never nominal, but `r sum(e1$estimable[cls(e1) == "fail"])`
+of E1's `r c1[["fail"]]` failures are identified, so the screen misses most failures.
+
+```{r}
+#| label: tbl-overlap
+#| tbl-cap: "E1: the most reassuring value among failing scenarios against the least reassuring value among nominal ones. Where the first is more reassuring than the second, the ranges overlap."
+o <- R$overlap
+o <- o[o$standing != "post-hoc-candidate", ]
+knitr::kable(data.frame(statistic = o$statistic,
+  `reassuring when` = ifelse(o$safe_is_low, "low", "high"),
+  `most reassuring failure` = signif(o$most_reassuring_failure, 4),
+  `least reassuring nominal` = signif(o$least_reassuring_success, 4),
+  overlaps = ifelse(o$overlaps, "yes", "no"), check.names = FALSE), align = "llrrc")
+```
+
+## Why: the summaries are functions of the design {#sec-cause}
+
+Within one information state, spread, network size and prior, E1's contraction,
+target ratio and effective rank are exactly constant across the discordance and
+synergy levels (largest range `r f4(max(inv$max_range_within_design[1:3]))`), while
+coverage ranges over `r f3(inv$max_range_within_design[inv$quantity == "coverage"])`.
+That is the algebra of the known-variance Gaussian model: the posterior covariance
+$(I + P_0)^{-1}$ does not involve $y$, so a departure that shifts the mean the
+route identifies moves the posterior mean and nothing the summaries read.
+
+The failures therefore split by cause, and the split is by design factor rather
+than by any outcome (@tbl-cause, post hoc).
+
+```{r}
+#| label: tbl-cause
+#| tbl-cap: "Post hoc. Share of E1's failing scenarios each rule flags, by cause of failure, and its false-alarm rate among nominal scenarios. Tight prior: prior SD 0.1. Biased route: prior SD 0.5 or wider with discordance or synergy."
+knitr::kable(data.frame(rule = dec$rule,
+  `tight prior` = pct(dec$caught_tight_prior),
+  `biased route` = pct(dec$caught_misspecified),
+  `false alarm` = pct(dec$false_alarm_nominal), check.names = FALSE),
+  align = "lrrr")
+```
+
+Of the `r n_mis` failures from a biased route (`r cau$Freq[cau$cause == "misspecified" & cau$state == "ecological"]`
+ecological, `r cau$Freq[cau$cause == "misspecified" & cau$state == "additivity"]`
+additivity), **no rule flags any**. Of the `r n_tp` failures from the tight prior,
+contraction flags `r pct(g("contraction", "caught_tight_prior"))`, which is the
+failure the summary was built for (@fig-cc). The ecological route can deliver an
+interval that is well informed, far from its prior, and wrong: at discordance 0.4,
+ecological scenarios with a wide prior reach coverage as low as
+`r formatC(min(e1$coverage[e1$state == "ecological" & e1$discord == 0.4 & e1$prior_sd >= 0.5]), format = "e", digits = 1)`.
+
+![E1: contraction against coverage, by cause of failure. The shaded band is nominal coverage, the dashed line the failure threshold, the dotted line the contraction alarm.](figures/fig1-contraction-coverage.png){#fig-cc}
+
+## Matched information, different coverage
+
+Pairing each additivity scenario with ecological scenarios sharing its spread, size
+and prior, the pairs whose contraction differs by less than
+`r R$pairs_close_tol` (`r R$pairs_close` of `r R$pairs_total`) differ in coverage by
+up to `r f3(R$pairs_close_max_cover_gap)`. Two evidence structures an analyst would
+read as equally well identified differ by almost the whole unit interval in whether
+the interval covers. On E2 the only close pair has no discordance, so the
+comparison is not available there.
+
+## The logit arm
+
+On E2 the registered rules look far better on average: Youden
+`r f3(W2$youden[W2$rule == "contraction"])` for contraction and
+`r f3(W2$youden[W2$rule == "eff_rank"])` for effective rank, against
+`r f3(W$youden[W$rule == "contraction"])` and `r f3(W$youden[W$rule == "eff_rank"])`
+on E1. The improvement is a property of the grid: `r e2fail[["0.1"]]` of E2's
+`r sum(e2fail)` failures sit at prior SD 0.1, the cause the summaries catch, and E2
+has only `r c2[["nominal"]]` nominal scenarios, so its zero false-alarm rates are
+weakly determined. On the curved link the summaries do move a little with the
+departures, because Fisher information depends on the parameter, but the overlap
+of @sec-overlap persists on E2 for every statistic.
+
+## The sign of the contraction and coverage relation
+
+Across E1's `r R$anticorrelation_pooled$n_scenarios` confounded ecological
+scenarios the rank correlation between contraction and coverage is
+`r f4(R$anticorrelation_pooled$rho_contraction_vs_coverage)`: contraction becomes
+more reassuring as coverage gets worse, because a larger between-study spread
+sharpens the route without reducing the bias it carries, so the interval narrows
+around the wrong value. On E2's eight
+confounded scenarios the correlation is
+`r f4(R$e2_anticorrelation_pooled$rho_contraction_vs_coverage)`. A correlation over
+eight deterministic points describes those points and settles nothing.
+
+# What this means for CMP-14 {#sec-meaning}
+
+The entry is right that nothing in the default output tells an analyst the prior
+did the work, and the two summaries it asks for would say so where it is true.
+They should be reported. But they should be reported as what they are, statements
+about information, and the entry's framing, that a proper interval is not evidence
+that the likelihood contributed, has a second half it does not state: **a
+contracted interval is not evidence that the likelihood was right.** An aggregate
+route to an interaction is non-randomized, and its failure mode is confounding,
+which is invisible to any summary built from Fisher information and the prior. The
+check that addresses that failure is not a contraction number but a statement of
+which route identifies each interaction and whether that route is randomized,
+which `estimable_effects_at()` in the unreleased `cpaic` partly provides, together
+with a within-between separation of the kind our CMP-13 study evaluated.
+
+# What this does not answer {#sec-limits}
+
+1. **Nothing is confirmatory.** E1 ran before the protocol; E2's rules were rebuilt
+   after its output was read; the cause decomposition was added for this
+   manuscript.
+2. **Exact, not sampled.** E1 is exact for a design realized at its quadrature
+   nodes and E2 is asymptotic; neither is an average over realized designs, and no
+   posterior was sampled, so sampler failure is outside the study.
+3. **The invariance is specific to known-variance Gaussian models.** On E2 the
+   summaries move slightly with the departures. With an estimated residual variance
+   or a random-effects model they would move more, and whether that movement is
+   ever large enough to warn is untested.
+4. **One target component, one covariate, one network geometry**, a normal
+   within-study covariate law on the logit arm, and departures that act on the
+   mean only.
+5. **Peer review of this manuscript has not been done**, though the protocol went
+   through thirteen rounds of critique.
+
+# Reproducing this study {.unnumbered}
+
+```
+Rscript R/03-run-e1.R && Rscript R/04-analyze.R
+Rscript R/07-run-e2.R
+Rscript R/05-export.R && Rscript R/11-decision.R
+Rscript R/12-decompose.R && Rscript R/13-figures.R
+```
+
+# References {.unnumbered}
