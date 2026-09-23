@@ -433,6 +433,19 @@ ul.task-list li input[type="checkbox"] {
 <div class="problem-meta">
 <p><span class="problem-id">COV-12</span> <span class="verdict verdict-confirmed-open">Confirmed open</span> <span class="chip chip-priority-high">High priority</span> <span class="chip chip-maturity-promising">Promising</span> <span class="chip">Tractability 4/5</span></p>
 </div>
+<div class="callout callout-style-simple callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>A study has been run against this problem
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Under an identity link with linear effect modification, yes: the contrast error is exactly the modification coefficient times the mean error. Under a logit link, no: the mean explains only 60% of the error’s variance, because the reconstruction’s spread and shape also enter. With strong skew and a reported range, a normal reconstruction biased the contrast by more than 1 on the identity scale and 0.4 on the log odds ratio scale, growing with sample size; a lognormal matched to the reported quantiles kept bias below 0.1. <a href="#our-study">Read the study below</a>.</p>
+</div>
+</div>
 <section id="statement" class="level2">
 <h2 class="anchored" data-anchor-id="statement">Statement</h2>
 <p>Multilevel network meta-regression and its component extensions build each aggregate arm’s integration distribution by fitting a parametric marginal to reported summaries, which requires a mean and a standard deviation for every continuous covariate. Oncology and hematology trials routinely report a median with range or interquartile range instead, and a range does not identify the dispersion of a continuous distribution. A developed literature converts median-based summaries into a mean and a standard deviation for aggregate meta-analysis, from Wan et al.&nbsp;2014 through Luo et al.&nbsp;2018, Shi et al.&nbsp;2020 and McGrath et al.&nbsp;2020, with a maintained implementation in metamedian, but none of it has been connected to the integration step: no work states which estimator to pair with which marginal family, whether the reconstructed marginal reproduces the features of the covariate law that the target estimand actually depends on, or how the extra estimation error should propagate into the posterior. What happens instead is ad hoc. Maciel et al.&nbsp;2024, implementing ML-NMR for time-to-event outcomes in relapsed refractory multiple myeloma, had only median and range for the continuous covariates, assumed a Poisson marginal for the number of prior treatment lines because it was a count, recovered its mean from the median through a distributional identity, and stated that this may not have been precise, especially for small populations. The failure sits upstream of every other integration concern: if the marginal law is wrong, the copula linking the margins, the quasi-Monte Carlo integration points and the integration-error diagnostics are all conditioned on a misspecified distribution.</p>
@@ -494,20 +507,39 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="our-study" class="level2">
 <h2 class="anchored" data-anchor-id="our-study">Our study</h2>
-<div class="callout callout-style-simple callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>A study is running
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p><strong>Question.</strong> When a target publication reports a skewed covariate as a median with IQR or range, how much error does reconstructing its marginal put into a target-standardized contrast, and is that error a function of the reconstructed mean alone?</p>
-<p><strong>Design.</strong> Known conditional model integrated over reconstructed target marginals, 72 cells crossing link, skewness, reported summary, target size and modification strength; normal (Wan et al.) and quantile-matched lognormal reconstructions against the sample floor. 1000 replicates per cell.</p>
-<p>The protocol is registered before any result is seen: <a href="../studies/COV-12-median-summaries-into-integration/out/COV-12-protocol.md">read it</a>.</p>
-</div>
+<div class="study-result">
+<p><strong>Reconstructing a target covariate from a median: when the mean is enough and when it is not</strong></p>
+<p><strong>The question put to it.</strong> When a target publication reports a skewed covariate as a median with IQR or range, how much error does reconstructing its marginal put into a target-standardized contrast, and is that error a function of the reconstructed mean alone?</p>
+<p><strong>What it found.</strong> Under an identity link with linear effect modification, yes: the contrast error is exactly the modification coefficient times the mean error. Under a logit link, no: the mean explains only 60% of the error’s variance, because the reconstruction’s spread and shape also enter. With strong skew and a reported range, a normal reconstruction biased the contrast by more than 1 on the identity scale and 0.4 on the log odds ratio scale, growing with sample size; a lognormal matched to the reported quantiles kept bias below 0.1.</p>
+<p><strong>Results.</strong></p>
+<ul>
+<li>Registered test, contrast error net of the sample floor regressed on the modification coefficient times mean error: identity link slope 1.000, R^2 1.000; logit link slope 0.246, R^2 0.597.</li>
+<li>Normal reconstruction (Wan et al.) with strong skew and a range: bias 1.15 (identity) and 0.42 (logit) at 200 patients; 2.15 (identity) at 1000, since the range grows with n.</li>
+<li>Quantile-matched shifted lognormal: largest bias 0.092 across all 72 scenarios.</li>
+<li>Without skew the lognormal matcher is not free: sampling asymmetry in the reported quantiles triggers it, and its bias reached 0.08, against 0.005 for the normal reconstruction.</li>
+</ul>
+<p><strong>Design.</strong></p>
+<dl>
+<dt>Estimand</dt>
+<dd>
+Target-population marginal treatment effect (difference or log odds ratio)
+</dd>
+<dt>Methods compared</dt>
+<dd>
+normal reconstruction (Wan et al.), quantile-matched shifted lognormal, integration over the target’s own sample (floor)
+</dd>
+<dt>Data-generating mechanism</dt>
+<dd>
+A known conditional model integrated over target marginals reconstructed from a sample median with IQR or range; 72 scenarios crossing link, skewness, reported summary, target size (50 to 1000) and modification strength.
+</dd>
+<dt>Replicates</dt>
+<dd>
+1000 per scenario, 72,000 in total
+</dd>
+</dl>
+<p><strong>What this does not answer.</strong> One covariate with a known conditional model; estimated outcome models and multivariate marginals with dependence (CMP-15) are not covered. The lognormal matcher suits right skew only. ML-NMR integration is represented by direct integration. Two cells were run before a regressor correction and discarded unread. Peer review has not been done.</p>
+<p><strong>Peer review.</strong> Not yet done. The result stands on the study alone until it is.</p>
+<p>Read it: <a href="../studies/COV-12-median-summaries-into-integration/out/COV-12.pdf">PDF</a> · <a href="../studies/COV-12-median-summaries-into-integration/out/COV-12.md">Markdown</a> · <a href="../studies/COV-12-median-summaries-into-integration/out/COV-12.odt">OpenDocument</a> · Code and data: <a href="https://github.com/choxos/ITC-open-problems/tree/main/studies/COV-12-median-summaries-into-integration">studies/COV-12-median-summaries-into-integration</a> · Protocol: <a href="../studies/COV-12-median-summaries-into-integration/out/COV-12-protocol.md">registered before the run</a></p>
 </div>
 </section>
 <section id="verification" class="level2">

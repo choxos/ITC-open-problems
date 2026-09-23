@@ -449,6 +449,19 @@ ul.task-list li input[type="checkbox"] {
 <p>This entry describes a limitation of a specific implementation rather than of the field. It is catalogued because the underlying methodological problem is general, and because a reference implementation is where such problems become concrete and checkable.</p>
 </div>
 </div>
+<div class="callout callout-style-simple callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>A study has been run against this problem
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>No.&nbsp;Stacking lowered the standard error in every untrimmed scenario (by up to 11%), because estimating calibration weights removes outcome variation the covariates explain; where MAIC intervals already undercover, at poor overlap, that made them worse (coverage down to 0.844). The fixed-weight sandwich was in band in 24 of 30 scenarios, the ESS-based variance in 18 and the stacked sandwich in 17, so current guidance stands. Trimming moved the estimand by up to 0.19 on the log odds ratio scale. <a href="#our-study">Read the study below</a>.</p>
+</div>
+</div>
 <section id="statement" class="level2">
 <h2 class="anchored" data-anchor-id="statement">Statement</h2>
 <p>maicplus 0.1.2 still needs a joint sandwich estimator covering the outcome and weight-estimation equations (#111), parallel bootstrap (#148), explicit estimand metadata and ATT reporting (#142), alternative weight scaling (#178), reporting expansion (#154) and principled trimming or truncation that discloses the lost calibration and changed target (#141). Several disclosures the source asked for already exist in the release: the bootstrap re-estimates weights inside each IPD resample, the anchored path perturbs the published comparator effect by its standard error, scaled and unscaled weights are exposed, the survival effect is labeled as a hazard ratio, and the unanchored bootstrap documents that it assumes no uncertainty in the comparator trial population. The claim about propagating aggregate-data uncertainty in the bootstrap has no matching open issue, the nearest being #143 on pinning down the anchored bootstrap, although target covariate summaries do remain fixed. Treating estimated weights as fixed also does not invariably understate variance, and simple trimming changes calibration and the effective target without producing a clean ATT estimand.</p>
@@ -506,20 +519,39 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="our-study" class="level2">
 <h2 class="anchored" data-anchor-id="our-study">Our study</h2>
-<div class="callout callout-style-simple callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>A study is running
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p><strong>Question.</strong> Does a stacked sandwich that accounts for weight estimation give better MAIC intervals than the fixed-weight sandwich or the ESS-based conventional variance, and what population does a trimmed MAIC actually estimate?</p>
-<p><strong>Design.</strong> Binary-outcome MAIC with three covariates, 90 cells crossing overlap, event risk, effect modification, its alignment with the prognostic direction, and weight trimming; four variance estimators and two truths (declared target and trimming-induced population). 1000 replicates per cell.</p>
-<p>The protocol is registered before any result is seen: <a href="../studies/SFW-10-stacked-variance-and-a-defined-post-trimming-estimand/out/SFW-10-protocol.md">read it</a>.</p>
-</div>
+<div class="study-result">
+<p><strong>Stacking the weighting step into the MAIC sandwich makes intervals narrower, not better</strong></p>
+<p><strong>The question put to it.</strong> Does a stacked sandwich that accounts for weight estimation give better MAIC intervals than the fixed-weight sandwich or the ESS-based conventional variance, and what population does a trimmed MAIC actually estimate?</p>
+<p><strong>What it found.</strong> No.&nbsp;Stacking lowered the standard error in every untrimmed scenario (by up to 11%), because estimating calibration weights removes outcome variation the covariates explain; where MAIC intervals already undercover, at poor overlap, that made them worse (coverage down to 0.844). The fixed-weight sandwich was in band in 24 of 30 scenarios, the ESS-based variance in 18 and the stacked sandwich in 17, so current guidance stands. Trimming moved the estimand by up to 0.19 on the log odds ratio scale.</p>
+<p><strong>Results.</strong></p>
+<ul>
+<li>Stacked over fixed-weight SE: 0.887 to 0.993, below 1 beyond Monte Carlo error in all 30 untrimmed scenarios; DESIGN.md’s prediction of both signs fails.</li>
+<li>Coverage: fixed-weight 0.893 to 0.960; ESS-based 0.885 to 0.980; stacked 0.844 to 0.953; stacked with n/(n-k) 0.847 to 0.953.</li>
+<li>Every estimator loses coverage as ESS falls; the stacked sandwich fastest.</li>
+<li>Trimming at the 95th percentile moved the estimand by up to 0.19; in 72% of trimmed scenarios the estimate was closer to the population the capped weights induce than to the declared target.</li>
+</ul>
+<p><strong>Design.</strong></p>
+<dl>
+<dt>Estimand</dt>
+<dd>
+Target-population marginal log odds ratio, A versus C; for trimmed analyses also the effect in the population the capped weights induce
+</dd>
+<dt>Methods compared</dt>
+<dd>
+fixed-weight sandwich, ESS-based conventional variance, stacked sandwich, stacked sandwich with n/(n-k)
+</dd>
+<dt>Data-generating mechanism</dt>
+<dd>
+Binary-outcome MAIC with three covariates, 90 scenarios crossing target shift, event risk, effect modification and its alignment, and weight trimming; four variance estimators; trimmed analyses scored against the declared target and the induced population.
+</dd>
+<dt>Replicates</dt>
+<dd>
+1000 per scenario, 90,000 in total
+</dd>
+</dl>
+<p><strong>What this does not answer.</strong> No bootstrap and one sample size, so where stacking’s asymptotic advantage appears is not located. Binary outcome, three covariates, MAIC on means. Peer review has not been done.</p>
+<p><strong>Peer review.</strong> Not yet done. The result stands on the study alone until it is.</p>
+<p>Read it: <a href="../studies/SFW-10-stacked-variance-and-a-defined-post-trimming-estimand/out/SFW-10.pdf">PDF</a> · <a href="../studies/SFW-10-stacked-variance-and-a-defined-post-trimming-estimand/out/SFW-10.md">Markdown</a> · <a href="../studies/SFW-10-stacked-variance-and-a-defined-post-trimming-estimand/out/SFW-10.odt">OpenDocument</a> · Code and data: <a href="https://github.com/choxos/ITC-open-problems/tree/main/studies/SFW-10-stacked-variance-and-a-defined-post-trimming-estimand">studies/SFW-10-stacked-variance-and-a-defined-post-trimming-estimand</a> · Protocol: <a href="../studies/SFW-10-stacked-variance-and-a-defined-post-trimming-estimand/out/SFW-10-protocol.md">registered before the run</a></p>
 </div>
 </section>
 <section id="verification" class="level2">

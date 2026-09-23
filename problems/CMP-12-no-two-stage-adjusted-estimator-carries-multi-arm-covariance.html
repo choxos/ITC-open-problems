@@ -433,6 +433,19 @@ ul.task-list li input[type="checkbox"] {
 <div class="problem-meta">
 <p><span class="problem-id">CMP-12</span> <span class="verdict verdict-partially-addressed">Partially addressed</span> <span class="chip chip-priority-high">High priority</span> <span class="chip chip-maturity-promising">Promising</span></p>
 </div>
+<div class="callout callout-style-simple callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>A study has been run against this problem
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Ignoring the within-trial covariance errs in a direction set by the contrast, not by how the arms’ effect modification aligns. The trial’s own B-versus-C interval became conservative in every scenario, while the network A-versus-B interval, which borrows through the trial, fell below nominal in 15 of 30 scenarios. The shared-weighting part of the covariance took both signs but never reversed a contrast’s error. Dropping the trial widened the network interval by 29% to 91%. <a href="#our-study">Read the study below</a>.</p>
+</div>
+</div>
 <section id="statement" class="level2">
 <h2 class="anchored" data-anchor-id="statement">Statement</h2>
 <p>When a multi-arm trial’s contrasts are population-adjusted one at a time, the within-study covariance induced by a shared arm and a shared weighting step is not recovered by naive variance formulas, so standard errors and network precision would be wrong. Current implementations avoid the error by refusing the capability rather than by solving it: both the component MAIC and component STC routes reject IPD studies with more than two arms, so multi-arm IPD trials must be split or dropped. The covariance is handled natively on the synthesis side of frequentist CNMA and in the one-stage ML-NMR likelihood, which keeps multi-arm trials inside a single arm-level model; what is missing is a two-stage adjusted estimator that carries it, and any multi-arm handling in component PAIC.</p>
@@ -474,20 +487,40 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="our-study" class="level2">
 <h2 class="anchored" data-anchor-id="our-study">Our study</h2>
-<div class="callout callout-style-simple callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>A study is running
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p><strong>Question.</strong> When a three-arm trial’s population-adjusted contrasts share an arm and a weight vector, what is lost by treating them as independent, is the error ever anticonservative, and is dropping the trial cheaper?</p>
-<p><strong>Design.</strong> Three-arm individual-data trial weighted to a target, plus two aggregate trials in the target; 30 cells crossing effect modification, its alignment across arms, target shift and shared-arm size; split, weights-fixed, stacked and drop analyses. 1000 replicates per cell.</p>
-<p>The protocol is registered before any result is seen: <a href="../studies/CMP-12-multi-arm-covariance-two-stage/out/CMP-12-protocol.md">read it</a>.</p>
-</div>
+<div class="study-result">
+<p><strong>Splitting a multi-arm trial’s adjusted contrasts is conservative for one contrast and anticonservative for another</strong></p>
+<p><strong>The question put to it.</strong> When a three-arm trial’s population-adjusted contrasts share an arm and a weight vector, what is lost by treating them as independent, is the error ever anticonservative, and is dropping the trial cheaper?</p>
+<p><strong>What it found.</strong> Ignoring the within-trial covariance errs in a direction set by the contrast, not by how the arms’ effect modification aligns. The trial’s own B-versus-C interval became conservative in every scenario, while the network A-versus-B interval, which borrows through the trial, fell below nominal in 15 of 30 scenarios. The shared-weighting part of the covariance took both signs but never reversed a contrast’s error. Dropping the trial widened the network interval by 29% to 91%.</p>
+<p><strong>Results.</strong></p>
+<ul>
+<li>Split, trial-alone d_BC: coverage 0.957 to 1.000, above nominal beyond 3 MCSE in 29 of 30 scenarios and below in none; DESIGN.md’s alignment-sign prediction is withdrawn by its registered test.</li>
+<li>Split, network d_AB: coverage 0.4 to 3.7 points below the stacked sandwich, below nominal beyond 3 MCSE in 15 of 30 scenarios against 0 for the stacked sandwich.</li>
+<li>The shared-weighting covariance term was -22% to +15% of the Monte Carlo covariance, dominated by the shared-arm term.</li>
+<li>Joint sandwiches recovered 0.76 to 1.15 (stacked) and 0.73 to 1.12 (weights fixed) of the Monte Carlo covariance; stacked trial-alone intervals covered 0.919 to 0.960.</li>
+<li>Dropping the trial was unbiased and widened the network d_AB interval by a median 53%.</li>
+</ul>
+<p><strong>Design.</strong></p>
+<dl>
+<dt>Estimand</dt>
+<dd>
+d_AB, d_AC and d_BC in the target population
+</dd>
+<dt>Methods compared</dt>
+<dd>
+split (covariance zero), joint sandwich, weights fixed, stacked sandwich, drop the trial
+</dd>
+<dt>Data-generating mechanism</dt>
+<dd>
+Three-arm individual-data trial weighted by MAIC to a target, plus aggregate A-versus-C and B-versus-C trials in the target; 30 scenarios crossing effect-modification strength, its alignment across arms, target shift and shared-arm size; split, weights-fixed, stacked and drop analyses, network by generalized least squares.
+</dd>
+<dt>Replicates</dt>
+<dd>
+1000 per scenario, 30,000 in total
+</dd>
+</dl>
+<p><strong>What this does not answer.</strong> Continuous outcome, linear modification, one three-arm trial in a fixed two-trial aggregate network; four-arm trials, the one-stage ML-NMR comparator and a bootstrap are not run, and target moments are fixed. Peer review has not been done.</p>
+<p><strong>Peer review.</strong> Not yet done. The result stands on the study alone until it is.</p>
+<p>Read it: <a href="../studies/CMP-12-multi-arm-covariance-two-stage/out/CMP-12.pdf">PDF</a> · <a href="../studies/CMP-12-multi-arm-covariance-two-stage/out/CMP-12.md">Markdown</a> · <a href="../studies/CMP-12-multi-arm-covariance-two-stage/out/CMP-12.odt">OpenDocument</a> · Code and data: <a href="https://github.com/choxos/ITC-open-problems/tree/main/studies/CMP-12-multi-arm-covariance-two-stage">studies/CMP-12-multi-arm-covariance-two-stage</a> · Protocol: <a href="../studies/CMP-12-multi-arm-covariance-two-stage/out/CMP-12-protocol.md">registered before the run</a></p>
 </div>
 </section>
 <section id="verification" class="level2">
