@@ -18,6 +18,12 @@ tractability: 3
 [Promising]{.chip .chip-maturity-promising}
 [Tractability 3/5]{.chip}
 :::
+::: {.callout-important appearance="simple"}
+## A study has been run against this problem
+
+Opposing interactions on direct and indirect paths attenuate the pooled network meta-regression interaction toward zero, fully at the balance point and partly across a continuum, while the effect-consistency check stays at its null rate. The target effect was biased by 0.13 to 0.30 whether or not the covariate was selected. A direct interaction-consistency check detects it when studies per path and covariate spread are adequate (up to 1.00) and has little power otherwise (0.16 with two studies and narrow spread). [Read the study below](#our-study).
+:::
+
 ## Statement
 
 Treatment-by-covariate interaction coefficients satisfy a consistency equation of their own, and when it fails, direct and indirect evidence can carry interactions of opposite sign that cancel in a pooled network meta-regression, so the fit reports no effect modification for a covariate that strongly modifies the effect within each evidence path. Donegan, Dias and Welton 2019 construct the case explicitly: in a fabricated antimalarial network the interaction coefficients from direct evidence were 0.0000 (95 percent credible interval -0.0115 to 0.0116) while the corresponding indirect coefficients were 0.0399, -0.0400 and 0.0800, and the network meta-regression concluded that no interaction exists. The ordinary consistency check passes at the same time: the posterior probability that direct and indirect evidence agree was 0.9976 to 1.000 for the log odds ratios and 0 for the interaction coefficients, so an analyst who checks treatment effects for inconsistency sees nothing wrong. Effect-modifier sets for population adjustment are routinely assembled from meta-regression, network meta-regression and published interaction estimates, and no selection procedure, guidance document or software checks the consistency of the interaction coefficients before a covariate is accepted or rejected. The result is a matching-adjusted indirect comparison, simulated treatment comparison or multilevel network meta-regression balanced on a modifier set that omits a real modifier because it was cancelled rather than absent, and the omission is invisible to every downstream balance, overlap and effective sample size diagnostic, all of which are computed after the set is fixed.
@@ -47,14 +53,40 @@ Make the interaction consistency check part of modifier selection rather than a 
 
 ## Our study
 
-::: {.callout-note}
-## A study is running
+::: {.study-result}
+**Interaction coefficients have their own consistency equation**
 
-**Question.** When direct and indirect paths carry opposing treatment-by-covariate interactions, does the pooled network meta-regression mask the modifier while the effect-consistency check passes, and can an interaction-consistency check detect it?
+**The question put to it.** When direct and indirect paths carry opposing treatment-by-covariate interactions, does the pooled network meta-regression mask the modifier while the effect-consistency check passes, and can an interaction-consistency check detect it?
 
-**Design.** Triangle networks with path-specific interaction slopes (consistent, partly opposing, cancelling), two to eight studies per comparison, two covariate spreads and effect inconsistency absent or present; consistency meta-regression, modifier selection, interaction and effect consistency checks. 36 cells, 2000 replicates each.
+**What it found.** Opposing interactions on direct and indirect paths attenuate the pooled network meta-regression interaction toward zero, fully at the balance point and partly across a continuum, while the effect-consistency check stays at its null rate. The target effect was biased by 0.13 to 0.30 whether or not the covariate was selected. A direct interaction-consistency check detects it when studies per path and covariate spread are adequate (up to 1.00) and has little power otherwise (0.16 with two studies and narrow spread).
 
-The protocol is registered before any result is seen: [read it](/studies/COV-10-a-modifier-masked-while-the-consistency-check-passes/out/COV-10-protocol.md).
+**Results.**
+
+- Effect-consistency check flag rate 0.094 to 0.107 in every interaction-inconsistent scenario without effect inconsistency (blindness confirmed).
+- Refuting sentence fails: partly opposing interactions biased the target by -0.13 to -0.26.
+- Cancelling configuration: pooled interaction mean near 0 but replicate SD 0.13 to 0.67 against model SE 0.03 to 0.38 (1.5 to 4.2 times), so the Wald test selected the covariate in 31% to 88% of analyses.
+- Interaction-consistency check power 0.16 to 1.00, rising with studies per comparison and covariate spread.
+
+**Design.**
+
+Estimand
+:   C versus A effect at a covariate value of 1.5, with the AC path's modification as truth
+
+Methods compared
+:   consistency network meta-regression with covariate selection, interaction-consistency test, effect-consistency (Bucher) test
+
+Data-generating mechanism
+:   Triangle networks with path-specific interaction slopes (consistent, partly opposing, cancelling), two to eight studies per comparison, two covariate spreads and effect inconsistency absent or present; consistency meta-regression, modifier selection, interaction and effect consistency checks. 36 cells, 2000 replicates each.
+
+Replicates
+:   2000 per scenario, 72,000 in total
+
+**What this does not answer.** Stylized triangles with continuous estimates; design-by-treatment interaction model and larger networks not run. Peer review has not been done.
+
+**Peer review.** Not yet done. The result stands on the study alone until it is.
+
+Read it: [PDF](/studies/COV-10-a-modifier-masked-while-the-consistency-check-passes/out/COV-10.pdf) · [Markdown](/studies/COV-10-a-modifier-masked-while-the-consistency-check-passes/out/COV-10.md) · [OpenDocument](/studies/COV-10-a-modifier-masked-while-the-consistency-check-passes/out/COV-10.odt) · Code and data: [studies/COV-10-a-modifier-masked-while-the-consistency-check-passes](https://github.com/choxos/ITC-open-problems/tree/main/studies/COV-10-a-modifier-masked-while-the-consistency-check-passes) · Protocol: [registered before the run](/studies/COV-10-a-modifier-masked-while-the-consistency-check-passes/out/COV-10-protocol.md)
+
 :::
 
 ## Verification
