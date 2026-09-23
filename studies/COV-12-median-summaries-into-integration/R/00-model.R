@@ -70,7 +70,7 @@ one_rep <- function(cell, th) {
   rn <- recon(s, cell, "normal"); rl <- recon(s, cell, "lognormal")
   est <- c(normal = contrast_over(rn, cell), lognormal = contrast_over(rl, cell),
            sample_exact = contrast_over(x, cell))
-  ## the reconstructed means' errors (the true mean is 1), for the registered
+  ## the reconstructed means' errors against the sample mean, for the registered
   ## test of whether contrast error is a function of mean error alone
-  c(est - th, mean_err_normal = mean(rn) - 1, mean_err_lognormal = mean(rl) - 1)
+  c(est - th, mean_err_normal = mean(rn) - mean(x), mean_err_lognormal = mean(rl) - mean(x))
 }
