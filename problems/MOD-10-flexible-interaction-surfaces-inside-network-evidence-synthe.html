@@ -390,6 +390,8 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#why-it-is-open" id="toc-why-it-is-open" class="nav-link" data-scroll-target="#why-it-is-open">Why it is open</a></li>
   <li><a href="#what-has-been-tried" id="toc-what-has-been-tried" class="nav-link" data-scroll-target="#what-has-been-tried">What has been tried</a></li>
   <li><a href="#probable-solution-or-research-direction" id="toc-probable-solution-or-research-direction" class="nav-link" data-scroll-target="#probable-solution-or-research-direction">Probable solution or research direction</a></li>
+  <li><a href="#our-study" id="toc-our-study" class="nav-link" data-scroll-target="#our-study">Our study</a></li>
+  <li><a href="#what-this-project-measured" id="toc-what-this-project-measured" class="nav-link" data-scroll-target="#what-this-project-measured">What this project measured</a></li>
   <li><a href="#verification" id="toc-verification" class="nav-link" data-scroll-target="#verification">Verification</a></li>
   <li><a href="#how-the-evidence-falls-in-time" id="toc-how-the-evidence-falls-in-time" class="nav-link" data-scroll-target="#how-the-evidence-falls-in-time">How the evidence falls in time</a></li>
   <li><a href="#related-problems" id="toc-related-problems" class="nav-link" data-scroll-target="#related-problems">Related problems</a></li>
@@ -433,6 +435,19 @@ ul.task-list li input[type="checkbox"] {
 <div class="problem-meta">
 <p><span class="problem-id">MOD-10</span> <span class="verdict verdict-confirmed-open">Confirmed open</span> <span class="chip chip-priority-medium-high">Medium-high priority</span> <span class="chip chip-maturity-promising">Promising</span></p>
 </div>
+<div class="callout callout-style-simple callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>A study has been run against this problem
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Largely yes, the refuting sentence holds. Under a hinge in the treatment effect at a target 1.5 SD from the source, parametric STC was biased by -0.144 and a GAM with smooth treatment modification by -0.085 (coverage 0.93): about 40% less bias, short of the registered halving, with the same RMSE (0.314 against 0.318) because its variance was larger. Under a covariate-by-covariate modification every method was biased by about -0.18, since additive smooths cannot represent a product. A threshold prognostic term largely cancelled in all methods. <a href="#our-study">Read the study below</a>.</p>
+</div>
+</div>
 <section id="statement" class="level2">
 <h2 class="anchored" data-anchor-id="statement">Statement</h2>
 <p>Neither Bayesian additive regression trees nor Gaussian-process treatment-covariate interaction surfaces have been developed for network population adjustment; the literature auditor searched for either embedded in a hierarchical evidence-synthesis model with target standardization and found none. Both are legitimate candidates, and neither identifies target expectations outside the observed support, where numerical predictions are model or prior extrapolations that cross-fitting cannot repair. Reading a fitted surface as evidence of causal effect modification is invalid when it rests on feature importance alone, although conditional treatment-effect heterogeneity can carry a causal interpretation under a randomized or otherwise identified design. Gaussian-process scaling is implementation-dependent, since sparse and inducing-point approximations reduce the computational cost, but no approximation creates support.</p>
@@ -463,6 +478,48 @@ ul.task-list li input[type="checkbox"] {
 <section id="probable-solution-or-research-direction" class="level2">
 <h2 class="anchored" data-anchor-id="probable-solution-or-research-direction">Probable solution or research direction</h2>
 <p>Embed BART or Gaussian-process interaction surfaces as nuisance components of a hierarchical evidence-synthesis model with target standardization, coupled to support diagnostics that flag the parts of the target distribution where the surface is extrapolating. Separate discovery from inference with cross-fitting or an equivalent device, and use sparse or inducing-point approximations where Gaussian-process cost is the barrier, while treating support as the limit no approximation removes. Use flexible fits for standardization and stress testing, and make causal effect-modification claims from the design rather than from the fitted surface.</p>
+</section>
+<section id="our-study" class="level2">
+<h2 class="anchored" data-anchor-id="our-study">Our study</h2>
+<div class="study-result">
+<p><strong>Flexible outcome models reduced but did not remove transport bias where the target left the data, and could not see a modification they were not built to see</strong></p>
+<p><em>This study was designed against <a href="https://github.com/choxos/ITC-open-problems/tree/main/studies/MOD-02-adversarial-surfaces-flexible-outcome-models">MOD-02</a> and bears on this entry in part. What it does not answer is stated below.</em></p>
+<p><strong>The question put to it.</strong> Do flexible outcome models remove the transport bias a parametric STC incurs under threshold, hinge and covariate-interaction surfaces, and with valid intervals, as overlap worsens?</p>
+<p><strong>What it found.</strong> Largely yes, the refuting sentence holds. Under a hinge in the treatment effect at a target 1.5 SD from the source, parametric STC was biased by -0.144 and a GAM with smooth treatment modification by -0.085 (coverage 0.93): about 40% less bias, short of the registered halving, with the same RMSE (0.314 against 0.318) because its variance was larger. Under a covariate-by-covariate modification every method was biased by about -0.18, since additive smooths cannot represent a product. A threshold prognostic term largely cancelled in all methods.</p>
+<p><strong>Results.</strong></p>
+<ul>
+<li>Bias grew with target distance for every method on the hinge and product surfaces.</li>
+<li>The structured GAM (smooth prognosis, linear modification) was no better than STC on the hinge surface.</li>
+<li>Coverage stayed near 0.90 to 0.93 in biased cells because intervals were wide (empirical SD about 0.3).</li>
+</ul>
+<p><strong>Design.</strong></p>
+<dl>
+<dt>Estimand</dt>
+<dd>
+Target-population marginal log odds ratio, A versus C
+</dd>
+<dt>Methods compared</dt>
+<dd>
+parametric STC, GAM with smooth treatment modification, GAM with linear treatment modification
+</dd>
+<dt>Data-generating mechanism</dt>
+<dd>
+Binary-outcome source trial with one adversarial surface feature at a time and targets at three distances; parametric STC, a GAM with smooth modification and a structured GAM with linear modification, standardized by G-computation. 12 cells, 500 replicates each.
+</dd>
+<dt>Replicates</dt>
+<dd>
+500 per cell, 12 cells
+</dd>
+</dl>
+<p><strong>What this does not answer.</strong> No BART, random forest, doubly robust or ML-NMR arm; logit link, one sample size; model-based intervals only. Peer review has not been done.</p>
+<p><strong>Peer review.</strong> Not yet done. The result stands on the study alone until it is.</p>
+<p>Read it: <a href="../studies/MOD-02-adversarial-surfaces-flexible-outcome-models/out/MOD-02.pdf">PDF</a> · <a href="../studies/MOD-02-adversarial-surfaces-flexible-outcome-models/out/MOD-02.md">Markdown</a> · <a href="../studies/MOD-02-adversarial-surfaces-flexible-outcome-models/out/MOD-02.odt">OpenDocument</a> · Code and data: <a href="https://github.com/choxos/ITC-open-problems/tree/main/studies/MOD-02-adversarial-surfaces-flexible-outcome-models">studies/MOD-02-adversarial-surfaces-flexible-outcome-models</a> · Protocol: <a href="../studies/MOD-02-adversarial-surfaces-flexible-outcome-models/out/MOD-02-protocol.md">registered before the run</a></p>
+</div>
+</section>
+<section id="what-this-project-measured" class="level2">
+<h2 class="anchored" data-anchor-id="what-this-project-measured">What this project measured</h2>
+<p>MOD-02 bears on this entry’s crossover question in the pairwise case. With a hinge in the treatment effect and targets 0.5, 1 and 1.5 SD from the source, a GAM with smooth treatment modification had less bias than parametric STC at every distance (-0.009, -0.017, -0.085 against -0.018, -0.045, -0.144), so there was no crossover in bias; but its variance grew faster, and at the farthest target the two had the same RMSE (0.314 and 0.318). Under a covariate-by-covariate modification that the additive smooths could not represent, the flexible model was no better anywhere (bias -0.183 against -0.175 at 1.5 SD). Flexibility therefore helped only within the shapes it spans, and its gain in the unsupported region was consumed by extrapolation variance.</p>
+<p>Not answered: the network case, BART or Gaussian-process surfaces inside an ML-NMR likelihood, and the computational burden the entry names; these results are from a single individual-data trial.</p>
 </section>
 <section id="verification" class="level2">
 <h2 class="anchored" data-anchor-id="verification">Verification</h2>
