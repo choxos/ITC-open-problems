@@ -18,7 +18,9 @@ rho <- function(c1, c2, B = 200) {
   set.seed(c1 * 100 + c2); reps <- intersect(unique(z1$rep), unique(z2$rep))
   bs <- replicate(B, { k <- sample(reps, replace = TRUE)
     stats::cor(rmse_vec(z1[z1$rep %in% k, ]), rmse_vec(z2[z2$rep %in% k, ]), method = "spearman") })
-  c(rho = r0, se = stats::sd(bs), p_below_09 = mean(bs < 0.9)) }
+  ## Spearman rho with five methods takes values in steps of 0.1; round so a single
+  ## adjacent swap (rho = 0.9) is not read as 0.8999... by the registered rule.
+  c(rho = round(r0, 10), se = stats::sd(bs), p_below_09 = mean(round(bs, 10) < 0.9)) }
 pairs <- do.call(rbind, lapply(c(0.3, 0.8, 1.2), function(m) {
   ref <- g$cell[g$departure == "linear" & g$law == "normal" & g$m == m]
   alt <- g[(g$departure != "linear" & g$departure != "none" & g$law == "normal" | g$law == "skewed") & g$m == m, ]

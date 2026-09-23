@@ -1,7 +1,25 @@
 {
  "problem_id": "DIA-08",
  "title": "Does the generator's effect-modification structure decide the method ranking?",
- "status": "running",
+ "status": "complete",
  "question": "When effect modification departs from the shared linear form most simulations use, does the ranking of population-adjustment methods change?",
- "design": "Anchored binary-outcome comparison with reported moments held fixed; linear, threshold, interaction and quadratic modification at three overlap levels, plus skewed covariates; unadjusted, two MAIC and two STC specifications ranked by RMSE and compared by rank correlation. 2000 replicates per cell."
+ "design": "Anchored binary-outcome comparison with reported moments held fixed; linear, threshold, interaction and quadratic modification at three overlap levels, plus skewed covariates; unadjusted, two MAIC and two STC specifications ranked by RMSE and compared by rank correlation. 2000 replicates per cell.",
+ "date_completed": "2026-09-23",
+ "answer": "Not at these magnitudes. The RMSE ordering under shared linear modification was reproduced under threshold, interaction and quadratic modification at every overlap level (rank correlation 0.9 to 1.0, the only change a swap between the two worst methods). STC with linear interactions ranked first everywhere even though the departures biased it by up to 0.12, because weighting methods lost more to variance at poor overlap. The generator decides a ranking only when a departure's bias exceeds the precision differences between methods.",
+ "findings": [
+  "Registered verdict REFUTED: Spearman correlation between the linear and departure orderings 0.9 to 1.0 in all 9 comparisons (the analysis first classified one exact 0.9 as below threshold through floating point; rounding fixed it).",
+  "STC linear bias under the interaction and quadratic departures at target mean 1.2: 0.12 and 0.10, coverage 0.94; RMSE 0.34 against 0.53 to 0.56 for MAIC.",
+  "Quadratic STC did not overtake linear STC under the departures it models: its extra variance exceeded the bias it removed.",
+  "Skewed covariates with linear modification reordered methods as much as any modification departure."
+ ],
+ "not_answered": "Moderate departure magnitudes only; treatment-specific, subnetwork and within-versus-between departures need a network and were not run; no ML-NMR. Peer review has not been done.",
+ "estimand": "Marginal log odds ratio, B versus A, in the target population",
+ "methods_compared": [
+  "unadjusted (Bucher)",
+  "MAIC on means",
+  "MAIC on means and SDs",
+  "STC with linear interactions",
+  "STC with quadratic and product interactions"
+ ],
+ "n_sim": "2000 per scenario, 32,000 in total"
 }

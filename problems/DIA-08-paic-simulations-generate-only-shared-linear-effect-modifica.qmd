@@ -16,6 +16,12 @@ maturity: "Promising"
 [Very high priority]{.chip .chip-priority-very-high}
 [Promising]{.chip .chip-maturity-promising}
 :::
+::: {.callout-important appearance="simple"}
+## A study has been run against this problem
+
+Not at these magnitudes. The RMSE ordering under shared linear modification was reproduced under threshold, interaction and quadratic modification at every overlap level (rank correlation 0.9 to 1.0, the only change a swap between the two worst methods). STC with linear interactions ranked first everywhere even though the departures biased it by up to 0.12, because weighting methods lost more to variance at poor overlap. The generator decides a ranking only when a departure's bias exceeds the precision differences between methods. [Read the study below](#our-study).
+:::
+
 ## Statement
 
 PAIC simulation generators have begun to include non-normal, bimodal and Gamma covariates and deliberate positivity violations: Phillippo et al. 2020 (doi:10.1002/sim.8759) includes Gamma covariate scenarios and an explicit overlap sweep from no overlap to full overlap, Serret-Larmande et al. 2025 (arxiv:2507.12241) runs eight scenarios from ideal conditions to positivity violations with bimodal covariates, and copula (NORTA) generation of comparator covariates from reported summaries is already in use (doi:10.1017/rsm.2025.13). The premise also needs correcting: matching the full mean vector and covariance matrix of a nonsingular multivariate normal fixes the joint law, so the matched-moments failure mode comes from balancing a finite set of reported moments rather than from Gaussianity as such, and a shared-linear generator can still separate methods on efficiency, variance and finite-sample behavior even though it cannot test robustness to departures. The gap that survives is on the effect-modification side: component-specific, nonlinear-threshold and subnetwork-varying modification, decoupling of the within-study interaction from the between-study ecological gradient, participation-only variables and trial-engagement effects are all absent.
@@ -42,14 +48,40 @@ Take the non-normal, bimodal and copula-based covariate generators that already 
 
 ## Our study
 
-::: {.callout-note}
-## A study is running
+::: {.study-result}
+**Does the generator's effect-modification structure decide the method ranking?**
 
-**Question.** When effect modification departs from the shared linear form most simulations use, does the ranking of population-adjustment methods change?
+**The question put to it.** When effect modification departs from the shared linear form most simulations use, does the ranking of population-adjustment methods change?
 
-**Design.** Anchored binary-outcome comparison with reported moments held fixed; linear, threshold, interaction and quadratic modification at three overlap levels, plus skewed covariates; unadjusted, two MAIC and two STC specifications ranked by RMSE and compared by rank correlation. 2000 replicates per cell.
+**What it found.** Not at these magnitudes. The RMSE ordering under shared linear modification was reproduced under threshold, interaction and quadratic modification at every overlap level (rank correlation 0.9 to 1.0, the only change a swap between the two worst methods). STC with linear interactions ranked first everywhere even though the departures biased it by up to 0.12, because weighting methods lost more to variance at poor overlap. The generator decides a ranking only when a departure's bias exceeds the precision differences between methods.
 
-The protocol is registered before any result is seen: [read it](/studies/DIA-08-generators-that-decide-the-comparison/out/DIA-08-protocol.md).
+**Results.**
+
+- Registered verdict REFUTED: Spearman correlation between the linear and departure orderings 0.9 to 1.0 in all 9 comparisons (the analysis first classified one exact 0.9 as below threshold through floating point; rounding fixed it).
+- STC linear bias under the interaction and quadratic departures at target mean 1.2: 0.12 and 0.10, coverage 0.94; RMSE 0.34 against 0.53 to 0.56 for MAIC.
+- Quadratic STC did not overtake linear STC under the departures it models: its extra variance exceeded the bias it removed.
+- Skewed covariates with linear modification reordered methods as much as any modification departure.
+
+**Design.**
+
+Estimand
+:   Marginal log odds ratio, B versus A, in the target population
+
+Methods compared
+:   unadjusted (Bucher), MAIC on means, MAIC on means and SDs, STC with linear interactions, STC with quadratic and product interactions
+
+Data-generating mechanism
+:   Anchored binary-outcome comparison with reported moments held fixed; linear, threshold, interaction and quadratic modification at three overlap levels, plus skewed covariates; unadjusted, two MAIC and two STC specifications ranked by RMSE and compared by rank correlation. 2000 replicates per cell.
+
+Replicates
+:   2000 per scenario, 32,000 in total
+
+**What this does not answer.** Moderate departure magnitudes only; treatment-specific, subnetwork and within-versus-between departures need a network and were not run; no ML-NMR. Peer review has not been done.
+
+**Peer review.** Not yet done. The result stands on the study alone until it is.
+
+Read it: [PDF](/studies/DIA-08-generators-that-decide-the-comparison/out/DIA-08.pdf) · [Markdown](/studies/DIA-08-generators-that-decide-the-comparison/out/DIA-08.md) · [OpenDocument](/studies/DIA-08-generators-that-decide-the-comparison/out/DIA-08.odt) · Code and data: [studies/DIA-08-generators-that-decide-the-comparison](https://github.com/choxos/ITC-open-problems/tree/main/studies/DIA-08-generators-that-decide-the-comparison) · Protocol: [registered before the run](/studies/DIA-08-generators-that-decide-the-comparison/out/DIA-08-protocol.md)
+
 :::
 
 ## Verification
