@@ -43,9 +43,9 @@ ul.task-list li input[type="checkbox"] {
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-41c1a832c222e3337f93b9020a2765d5.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../site_libs/bootstrap/bootstrap-dark-e463b5badde459eb39b62beab52960d6.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../site_libs/bootstrap/bootstrap-41c1a832c222e3337f93b9020a2765d5.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-94fb3dea93af0677c21d295c2fc6d9f8.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-6f9fa67c3ff5f7080557ce154dd9765e.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-94fb3dea93af0677c21d295c2fc6d9f8.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": true,
@@ -434,6 +434,19 @@ ul.task-list li input[type="checkbox"] {
 <div class="problem-meta">
 <p><span class="problem-id">ADJ-15</span> <span class="verdict verdict-partially-addressed">Partially addressed</span> <span class="chip chip-priority-high">High priority</span> <span class="chip chip-maturity-emerging">Emerging</span></p>
 </div>
+<div class="callout callout-style-simple callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>A study has been run against this problem
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Privacy noise is not negligible at usable budgets for trial-sized targets: at epsilon 1 and 150 patients it was 8% to 60% of the estimate’s variance and ignoring it cut coverage to 0.88 to 0.94; at 40 patients to 0.73. Its variance is known exactly, and adding it restored coverage in every scenario, conservatively where noise dominated. Releasing second moments pays only at larger budgets; at small ones it made MAIC infeasible in up to 87% of replicates. <a href="#our-study">Read the study below</a>.</p>
+</div>
+</div>
 <section id="statement" class="level2">
 <h2 class="anchored" data-anchor-id="statement">Statement</h2>
 <p>Differential privacy would let data holders publish richer target-population summaries under a formal guarantee, and adjacent work exists: differentially private covariate balancing propagates privacy noise into weighted treatment-effect estimators (arXiv:2410.14789), FedECA delivers federated inverse-probability-weighted external-control analysis without pooling individual data (arXiv:2311.16984), and methods exist for choosing the privacy parameter for trial data release (PMC11031247). None calibrates a budget for the target moments PAIC needs, and no PAIC estimator treats released summaries as noisy inputs and propagates that noise into the transported effect. Two claims need narrowing: a correctly calibrated guarantee does not cease to hold because an arm is small, with utility rather than validity the casualty, and the assertion that no governance framework exists in evidence synthesis was not verifiable by any auditor.</p>
@@ -479,20 +492,39 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="our-study" class="level2">
 <h2 class="anchored" data-anchor-id="our-study">Our study</h2>
-<div class="callout callout-style-simple callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>A study is running
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p><strong>Question.</strong> When a target trial releases covariate moments under differential privacy, how much does ignoring the added noise cost MAIC coverage at realistic arm sizes and budgets, does propagating its known variance repair it, and when do extra released moments stop paying for their share of the budget?</p>
-<p><strong>Design.</strong> MAIC to Laplace-privatized target means or means and second moments, 48 cells crossing target size (40 to 500), privacy budget, released statistics and linear or quadratic effect modification; non-private, noise-ignored and noise-propagated analyses. 1000 replicates per cell.</p>
-<p>The protocol is registered before any result is seen: <a href="../studies/ADJ-15-noise-whose-variance-is-known-exactly/out/ADJ-15-protocol.md">read it</a>.</p>
-</div>
+<div class="study-result">
+<p><strong>Target moments released under differential privacy</strong></p>
+<p><strong>The question put to it.</strong> When a target trial releases covariate moments under differential privacy, how much does ignoring the added noise cost MAIC coverage at realistic arm sizes and budgets, does propagating its known variance repair it, and when do extra released moments stop paying for their share of the budget?</p>
+<p><strong>What it found.</strong> Privacy noise is not negligible at usable budgets for trial-sized targets: at epsilon 1 and 150 patients it was 8% to 60% of the estimate’s variance and ignoring it cut coverage to 0.88 to 0.94; at 40 patients to 0.73. Its variance is known exactly, and adding it restored coverage in every scenario, conservatively where noise dominated. Releasing second moments pays only at larger budgets; at small ones it made MAIC infeasible in up to 87% of replicates.</p>
+<p><strong>Results.</strong></p>
+<ul>
+<li>Refuting sentence fails: coverage ignoring the noise was as low as 0.883 at epsilon of at least 1 and targets of at least 150.</li>
+<li>Propagating the known noise variance gave coverage of at least 0.926 in every private scenario, the minimum matching the non-private analysis’s own misspecification; it reached 1.000 where noise dominated.</li>
+<li>Releasing means and second moments with a split budget left no feasible weights in 45% to 87% of replicates at 40 to 150 patients and epsilon 0.5 to 1.</li>
+<li>Under quadratic modification at epsilon 4 and 150 patients second moments cut RMSE from 0.229 to 0.171.</li>
+</ul>
+<p><strong>Design.</strong></p>
+<dl>
+<dt>Estimand</dt>
+<dd>
+Target-population mean difference, A versus C, at the target trial’s own covariate moments
+</dd>
+<dt>Methods compared</dt>
+<dd>
+MAIC to non-private moments, MAIC to private moments, noise ignored, MAIC to private moments, noise variance propagated
+</dd>
+<dt>Data-generating mechanism</dt>
+<dd>
+MAIC to Laplace-privatized target means or means and second moments, 48 cells crossing target size (40 to 500), privacy budget, released statistics and linear or quadratic effect modification; non-private, noise-ignored and noise-propagated analyses. 1000 replicates per cell.
+</dd>
+<dt>Replicates</dt>
+<dd>
+1000 per scenario, 48,000 in total
+</dd>
+</dl>
+<p><strong>What this does not answer.</strong> Laplace mechanism only; Gaussian mechanism, released correlations and overlap not varied. Results are conditional on feasible weights. Budget choice and governance are outside the study. Peer review has not been done.</p>
+<p><strong>Peer review.</strong> Not yet done. The result stands on the study alone until it is.</p>
+<p>Read it: <a href="../studies/ADJ-15-noise-whose-variance-is-known-exactly/out/ADJ-15.pdf">PDF</a> · <a href="../studies/ADJ-15-noise-whose-variance-is-known-exactly/out/ADJ-15.md">Markdown</a> · <a href="../studies/ADJ-15-noise-whose-variance-is-known-exactly/out/ADJ-15.odt">OpenDocument</a> · Code and data: <a href="https://github.com/choxos/ITC-open-problems/tree/main/studies/ADJ-15-noise-whose-variance-is-known-exactly">studies/ADJ-15-noise-whose-variance-is-known-exactly</a> · Protocol: <a href="../studies/ADJ-15-noise-whose-variance-is-known-exactly/out/ADJ-15-protocol.md">registered before the run</a></p>
 </div>
 </section>
 <section id="verification" class="level2">
