@@ -18,6 +18,12 @@ tractability: 2
 [Promising]{.chip .chip-maturity-promising}
 [Tractability 2/5]{.chip}
 :::
+::: {.callout-important appearance="simple"}
+## A study has been run against this problem
+
+Double robustness protects against one misspecified nuisance model and nothing else. With an omitted confounder the augmented estimator carried exactly the same bias as correctly specified weighting or outcome-regression estimators, and with both models wrong the misspecification and omitted-variable biases added. A sensitivity grid built on a misspecified analysis is therefore shifted by the misspecification bias. With exact-balance weights, augmentation by an outcome model built from the balanced terms reproduces MAIC. [Read the study below](#our-study).
+:::
+
 ## Statement
 
 A linear STC applied where thresholds, splines or interactions operate produces outcome-model misspecification bias, and QBA for an omitted covariate holds the outcome model fixed, so it does not repair it. Double robustness is a property of the measured-data layer only: Campbell and Remiro-Azocar (doi:10.1017/rsm.2026.10106) place externally controlled single-arm trials and unanchored ITCs in one causal framework and augment entropy-balancing MAIC with a conditional outcome model, giving robustness to misspecification of one of the two measured-data nuisance models, while identification still rests on conditional data-source ignorability and positivity with no bias-parameter indexing. No published unanchored-PAIC estimator is simultaneously doubly robust and indexed by explicit residual-bias parameters; drMAIC on CRAN offers doubly robust MAIC with E-values, weight trimming and variable-exclusion analyses, which is a generic screen rather than such an estimator.
@@ -44,14 +50,40 @@ Take the doubly robust augmented MAIC that already exists and index it by bias p
 
 ## Our study
 
-::: {.callout-note}
-## A study is running
+::: {.study-result}
+**Which failures double robustness covers**
 
-**Question.** Does a doubly robust MAIC protect against an omitted confounder, and what happens to a sensitivity grid built on a misspecified outcome model?
+**The question put to it.** Does a doubly robust MAIC protect against an omitted confounder, and what happens to a sensitivity grid built on a misspecified outcome model?
 
-**Design.** Unanchored transport with a nonlinear outcome, misspecifiable weighting and outcome models and an omitted binary confounder; MAIC, outcome regression and augmented estimators under every combination of model correctness; 16 cells crossing omitted-variable strength, imbalance and overlap. 2000 replicates per cell.
+**What it found.** Double robustness protects against one misspecified nuisance model and nothing else. With an omitted confounder the augmented estimator carried exactly the same bias as correctly specified weighting or outcome-regression estimators, and with both models wrong the misspecification and omitted-variable biases added. A sensitivity grid built on a misspecified analysis is therefore shifted by the misspecification bias. With exact-balance weights, augmentation by an outcome model built from the balanced terms reproduces MAIC.
 
-The protocol is registered before any result is seen: [read it](/studies/QBA-11-what-double-robustness-does-not-cover/out/QBA-11-protocol.md).
+**Results.**
+
+- Both models correct: augmented bias equal to the omitted-variable bias in all 16 scenarios; largest difference from correct outcome regression 0.0015.
+- Omitted variable absent, one model wrong: augmented estimator unbiased (second null control held); the wrong single-model estimator biased by up to 0.20.
+- Both models wrong: bias additive in misspecification and omitted-variable parts, largest interaction 0.008, within 3 MCSE in 16 of 16 scenarios.
+- Registered region-inclusion criterion not met as stated (0.888 against a 0.90 threshold) because the region omitted sampling error; the misspecified region was displaced by 0.195 to 0.201 at every omitted-variable strength.
+
+**Design.**
+
+Estimand
+:   Target-population mean outcome under A (unanchored)
+
+Methods compared
+:   MAIC with correct or wrong weights, outcome regression with correct or wrong model, augmented (doubly robust) estimator under the four combinations
+
+Data-generating mechanism
+:   Unanchored transport with a nonlinear outcome, misspecifiable weighting and outcome models and an omitted binary confounder; MAIC, outcome regression and augmented estimators under every combination of model correctness; 16 cells crossing omitted-variable strength, imbalance and overlap. 2000 replicates per cell.
+
+Replicates
+:   2000 per scenario, 32,000 in total
+
+**What this does not answer.** Continuous outcome only; no cross-fitting; drMAIC E-value screen and a formally bias-indexed doubly robust estimator not run. Peer review has not been done.
+
+**Peer review.** Not yet done. The result stands on the study alone until it is.
+
+Read it: [PDF](/studies/QBA-11-what-double-robustness-does-not-cover/out/QBA-11.pdf) · [Markdown](/studies/QBA-11-what-double-robustness-does-not-cover/out/QBA-11.md) · [OpenDocument](/studies/QBA-11-what-double-robustness-does-not-cover/out/QBA-11.odt) · Code and data: [studies/QBA-11-what-double-robustness-does-not-cover](https://github.com/choxos/ITC-open-problems/tree/main/studies/QBA-11-what-double-robustness-does-not-cover) · Protocol: [registered before the run](/studies/QBA-11-what-double-robustness-does-not-cover/out/QBA-11-protocol.md)
+
 :::
 
 ## Verification

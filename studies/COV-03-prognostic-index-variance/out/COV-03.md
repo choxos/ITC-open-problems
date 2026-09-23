@@ -85,9 +85,9 @@ removed it in all 12 scenarios.
 Effective sample size decided whether that removal paid. With the source
 less dispersed than the target, variance balancing had to up-weight the
 few extreme source patients, and its RMSE exceeded that of MAIC on means
-in NA of 6 scenarios. With the source more dispersed, it cost little:
-balancing the index variance lowered RMSE in NA of 6 scenarios and
-balancing every variance in NA, the rest within 0.01. Balancing only the
+in 6 of 6 scenarios. With the source more dispersed, it cost little:
+balancing the index variance lowered RMSE in 6 of 6 scenarios and
+balancing every variance in 3, the rest within 0.01. Balancing only the
 estimated index variance kept more effective sample size than balancing
 every variance (522 against 361 on average) with similar bias.
 
