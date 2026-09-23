@@ -16,7 +16,8 @@ is a constructed curiosity.
 **Correction from the probe.** DESIGN.md says averaging opposing precise estimates gives "a
 precise estimate of nothing". The pooled interaction is zero on average, but its model-based
 SE assumes consistent interactions; under inconsistency the estimate scatters across
-analyses far more than that SE (0.17 against 0.05 in the probe), so a Wald test of the
+analyses far more than that SE (SD 0.19 against a mean model SE of 0.05 over 400 probe
+replicates, cancelling scenario, covariate SD 1, four studies per comparison), so a Wald test of the
 interactions often rejects. The masking shows in the pooled coefficient's value, not in
 selection.
 
