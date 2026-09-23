@@ -16,6 +16,12 @@ maturity: "Emerging"
 [High priority]{.chip .chip-priority-high}
 [Emerging]{.chip .chip-maturity-emerging}
 :::
+::: {.callout-important appearance="simple"}
+## A study has been run against this problem
+
+Unadjusted node splitting tests inconsistency plus population mismatch. With no true inconsistency it flagged 14% to 98% of analyses when the direct and indirect study sets differed in an effect modifier, and it fell to its null rate when the mismatch cancelled a real conflict. A split adjusted for the modifier held size (4% to 6%) and recovered some masked conflicts, but its precision fell as the gap between the study sets grew. [Read the study below](#our-study).
+:::
+
 ## Statement
 
 Standard aggregate-data node splitting, as implemented in netmeta and gemtc, compares direct and indirect evidence without standardizing either path to a common target population, so a population difference between the paths and a genuine loop conflict arrive as a single number. Node splitting is local to a comparison rather than a global test of the network, and it can already be fitted inside a population-adjusted regression: multinma has supported consistency = 'nodesplit' since 0.4.0 and the same call accepts a regression formula and integration points, so both paths can be compared after adjustment (Phillippo et al. 2022, doi:10.1177/0272989X221117162 assess inconsistency inside a population-adjusted psoriasis model with estimates produced for three external target populations). Two things remain undone: that adjusted split reports a conditional inconsistency factor rather than one standardized to a named target population on the marginal scale, and no study has quantified how often the unadjusted diagnostic flags population mismatch as inconsistency or misses true inconsistency that a compensating mismatch has masked. Whether consistency is population-indexed at all needs care, because marginal effects on non-collapsible measures are population-dependent (Chandler and Ishak, arxiv:2602.17041) but a loop whose every effect is defined in the same population telescopes algebraically, so population-varying inconsistency requires different populations along the evidence paths, design-specific effect surfaces, or an inconsistency-by-covariate interaction.
@@ -43,14 +49,40 @@ The immediate work is measurement rather than method: run the simulation that qu
 
 ## Our study
 
-::: {.callout-note}
-## A study is running
+::: {.study-result}
+**A population difference arriving as inconsistency**
 
-**Question.** When the studies supplying the direct and indirect paths of a loop differ in an effect modifier, how often does unadjusted node splitting flag the population difference as inconsistency or miss a real conflict that the difference cancels, and what does an adjusted split achieve?
+**The question put to it.** When the studies supplying the direct and indirect paths of a loop differ in an effect modifier, how often does unadjusted node splitting flag the population difference as inconsistency or miss a real conflict that the difference cancels, and what does an adjusted split achieve?
 
-**Design.** Triangle networks with a covariate gap between the direct and indirect study sets, modification strength, true loop inconsistency and two or four studies per comparison; unadjusted and meta-regression-adjusted node splits. 54 cells, 2000 replicates each.
+**What it found.** Unadjusted node splitting tests inconsistency plus population mismatch. With no true inconsistency it flagged 14% to 98% of analyses when the direct and indirect study sets differed in an effect modifier, and it fell to its null rate when the mismatch cancelled a real conflict. A split adjusted for the modifier held size (4% to 6%) and recovered some masked conflicts, but its precision fell as the gap between the study sets grew.
 
-The protocol is registered before any result is seen: [read it](/studies/HET-04-population-mismatch-arriving-as-inconsistency/out/HET-04-protocol.md).
+**Results.**
+
+- Refuting sentence fails: unadjusted flag rate 0.141 to 0.982 with no inconsistency and differing populations; adjusted 0.041 to 0.058.
+- Exact masking: unadjusted 0.058 to 0.105; adjusted 0.074 to 0.254.
+- Adjusted inconsistency SE rose from 0.10 to 0.30 as the covariate gap went from 0 to 1 (four studies per comparison, modification 0.4); power against 0.2 fell from 0.54 to 0.12.
+- Unadjusted split at 0.10 even with no gap under modification 0.4, from covariate-driven heterogeneity.
+
+**Design.**
+
+Estimand
+:   Loop inconsistency factor for the B versus C contrast
+
+Methods compared
+:   unadjusted node split, meta-regression-adjusted node split
+
+Data-generating mechanism
+:   Triangle networks with a covariate gap between the direct and indirect study sets, modification strength, true loop inconsistency and two or four studies per comparison; unadjusted and meta-regression-adjusted node splits. 54 cells, 2000 replicates each.
+
+Replicates
+:   2000 per scenario, 108,000 in total
+
+**What this does not answer.** Continuous study estimates, one loop, no Bayesian node split or marginalization to a named target. Peer review has not been done.
+
+**Peer review.** Not yet done. The result stands on the study alone until it is.
+
+Read it: [PDF](/studies/HET-04-population-mismatch-arriving-as-inconsistency/out/HET-04.pdf) · [Markdown](/studies/HET-04-population-mismatch-arriving-as-inconsistency/out/HET-04.md) · [OpenDocument](/studies/HET-04-population-mismatch-arriving-as-inconsistency/out/HET-04.odt) · Code and data: [studies/HET-04-population-mismatch-arriving-as-inconsistency](https://github.com/choxos/ITC-open-problems/tree/main/studies/HET-04-population-mismatch-arriving-as-inconsistency) · Protocol: [registered before the run](/studies/HET-04-population-mismatch-arriving-as-inconsistency/out/HET-04-protocol.md)
+
 :::
 
 ## Verification

@@ -18,6 +18,12 @@ tractability: 3
 [Emerging]{.chip .chip-maturity-emerging}
 [Tractability 3/5]{.chip}
 :::
+::: {.callout-important appearance="simple"}
+## A study has been run against this problem
+
+No. The RMST change caused by a hazard-scale bias depends on the baseline hazard's shape and the event level: at the same survival by 24 months the same bias moved RMST up to 1.44 times as much for a decreasing as for an increasing hazard, and the proportional (first-order) reinterpretation understated the change by about 25% with few events and overstated it by up to 8% with many. A hazard-ratio sensitivity analysis must be translated with the baseline curve or stated on the RMST scale. [Read the study below](#our-study).
+:::
+
 ## Statement
 
 When proportional hazards is implausible a QBA reporting only a hazard ratio does not answer the decision question, and sensitivity should target the survival functional the decision uses, such as landmark survival, RMST difference, cumulative incidence under competing risks, cure fraction, recurrent-event burden or multistate occupancy; differing follow-up alone does not invalidate a hazard ratio when proportional hazards holds and that ratio is the prespecified estimand. Soutar et al. 2025 (doi:10.1186/s12874-025-02551-z) supply subject-level Bayesian data-augmentation QBA for the difference in RMST under user-specified exposure and outcome associations, recovering the target with minimal bias in the simulated structures studied, but they assume subject-level data for both groups and report that lacking IPD blocked plausibility assessment of their sensitivity scenarios in the applied example. The limited-aggregate-data extension is the open part, and where pseudo-IPD is reconstructed from a published curve its reconstruction error is a distinct uncertainty layer, although landmark survival and in-window RMST can be estimated from a published Kaplan-Meier curve without reconstructing pseudo-IPD at all.
@@ -40,6 +46,42 @@ A bias parameter specified on the hazard scale does not induce a fixed distortio
 ## Probable solution or research direction
 
 Develop estimand-specific survival QBA that parameterizes bias directly for the quantity the economic model uses and reports the sensitivity surface on that scale rather than the hazard scale, and extend the subject-level RMST data-augmentation route to aggregate or reconstructed comparators with tipping combinations of exposure and survival associations. Where landmark survival or in-window RMST is the target, work from the published Kaplan-Meier curve directly rather than reconstructing pseudo-IPD; where reconstruction is unavoidable, build a distribution over reconstructions consistent with the published curve, numbers at risk and event counts, and propagate that uncertainty together with the confounding parameters. Add censoring QBA when informative censoring is plausible rather than by default.
+
+## Our study
+
+::: {.study-result}
+**Does a hazard-scale bias translate proportionally into RMST?**
+
+**The question put to it.** Can a sensitivity analysis stated as a hazard-ratio bias be reinterpreted as a proportional bias in RMST, the quantity the decision uses?
+
+**What it found.** No. The RMST change caused by a hazard-scale bias depends on the baseline hazard's shape and the event level: at the same survival by 24 months the same bias moved RMST up to 1.44 times as much for a decreasing as for an increasing hazard, and the proportional (first-order) reinterpretation understated the change by about 25% with few events and overstated it by up to 8% with many. A hazard-ratio sensitivity analysis must be translated with the baseline curve or stated on the RMST scale.
+
+**Results.**
+
+- Refuting sentence fails: ratio of largest to smallest RMST change across shapes 1.20 to 1.44 at matched survival.
+- Proportional prediction error at a bias hazard ratio of 2: -25% to -26% at 80% survival, -14% to -17% at 50%, -1% to +8% at 20%.
+
+**Design.**
+
+Estimand
+:   Change in RMST at 24 months induced by a multiplicative hazard bias
+
+Methods compared
+:   exact translation by integration, proportional (first-order) reinterpretation
+
+Data-generating mechanism
+:   Population-level numerical study: four baseline hazard shapes at three survival levels, bias hazard ratios 1.1 to 2, RMST at 24 months against the first-order proportional prediction.
+
+Replicates
+:   Population-level calculation: 4 shapes x 3 survival levels x 4 bias levels
+
+**What this does not answer.** Only the hazard-to-RMST translation; the PAIC layer, pseudo-IPD and curve-based arms, reconstruction error and tipping sets not run. Peer review has not been done.
+
+**Peer review.** Not yet done. The result stands on the study alone until it is.
+
+Read it: [PDF](/studies/QBA-24-bias-parameterized-on-the-scale-the-decision-uses/out/QBA-24.pdf) · [Markdown](/studies/QBA-24-bias-parameterized-on-the-scale-the-decision-uses/out/QBA-24.md) · [OpenDocument](/studies/QBA-24-bias-parameterized-on-the-scale-the-decision-uses/out/QBA-24.odt) · Code and data: [studies/QBA-24-bias-parameterized-on-the-scale-the-decision-uses](https://github.com/choxos/ITC-open-problems/tree/main/studies/QBA-24-bias-parameterized-on-the-scale-the-decision-uses) · Protocol: [registered before the run](/studies/QBA-24-bias-parameterized-on-the-scale-the-decision-uses/out/QBA-24-protocol.md)
+
+:::
 
 ## Verification
 
