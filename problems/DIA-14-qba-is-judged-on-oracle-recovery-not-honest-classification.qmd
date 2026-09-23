@@ -16,6 +16,12 @@ maturity: "Emerging"
 [Very high priority]{.chip .chip-priority-very-high}
 [Emerging]{.chip .chip-maturity-emerging}
 :::
+::: {.callout-important appearance="simple"}
+## A study has been run against this problem
+
+A QBA's robust verdict is only as good as the elicited region. When the region contains the true bias the grid never reassures falsely (an exact property); with elicitation errors scaled to the region it reassured falsely at most 17% of the time the true bias reversed the decision, but with the common region centered at zero bias it did so 78%, 37% and 9% of the time at half-widths 0.05, 0.15 and 0.3. Probabilistic QBA avoided false reassurance by calling 62% to 85% of sound decisions fragile. Oracle recovery was nominal throughout and revealed none of this. [Read the study below](#our-study).
+:::
+
 ## Statement
 
 Recovering the truth when supplied with the true sensitivity parameters is a necessary implementation check but says nothing about whether a QBA classifies robustness honestly when those parameters are unknown. The measures that would show this are not reported: false-reassurance and false-fragility rates, sensitivity-set truth inclusion, tipping-point error, calibration of probabilistic intervals, decision-reversal classification and expected regret, feasibility across the QBA grid, and Monte Carlo error of the QBA computation itself. Ren et al. 2025 (doi:10.1017/rsm.2025.13) exemplifies the practice: the QBA is demonstrated by graphical presentation of point estimates and intervals across assumed bias parameters on a case study, with none of these measures and no simulation evaluation of the method. The further claim that no minimum ADEMP standard exists for QBA simulation in PAIC is an absence claim the literature auditor could not verify.
@@ -40,14 +46,40 @@ Score QBA methods as classifiers of robustness against an explicit decision rule
 
 ## Our study
 
-::: {.callout-note}
-## A study is running
+::: {.study-result}
+**A quantitative bias analysis verdict scored as a classifier**
 
-**Question.** How often does a QBA declare a MAIC decision robust when the true bias would reverse it, how does that depend on the elicited region rather than the method, and does oracle recovery reveal it?
+**The question put to it.** How often does a QBA declare a MAIC decision robust when the true bias would reverse it, how does that depend on the elicited region rather than the method, and does oracle recovery reveal it?
 
-**Design.** Unanchored MAIC with an unmeasured binary confounder; elicited bias regions with exclusion probability set directly, three error directions and three widths; grid and probabilistic QBA scored on false reassurance and false fragility; 18 cells, 2000 replicates each.
+**What it found.** A QBA's robust verdict is only as good as the elicited region. When the region contains the true bias the grid never reassures falsely (an exact property); with elicitation errors scaled to the region it reassured falsely at most 17% of the time the true bias reversed the decision, but with the common region centered at zero bias it did so 78%, 37% and 9% of the time at half-widths 0.05, 0.15 and 0.3. Probabilistic QBA avoided false reassurance by calling 62% to 85% of sound decisions fragile. Oracle recovery was nominal throughout and revealed none of this.
 
-The protocol is registered before any result is seen: [read it](/studies/DIA-14-qba-scored-as-a-classifier/out/DIA-14-protocol.md).
+**Results.**
+
+- Exact checks: zero grid false reassurance in every replicate whose region contained the true bias and at exclusion probability 0.
+- Primary (exclusion 0.1, half-width 0.15): grid false reassurance 0.008 (symmetric) and 0.020 (understated); false fragility 0.333 and 0.279. Probabilistic QBA 0.000 and 0.710 to 0.748. Neither dominated.
+- Refuting sentence fails: oracle coverage 0.951 to 0.961 in every scenario while grid false reassurance under a zero-centered region was 0.776, 0.370 and 0.092.
+- The probabilistic QBA's own Monte Carlo error (1000 draws) changed its verdict in 0.9% to 1.6% of analyses.
+
+**Design.**
+
+Estimand
+:   Robustness classification: whether the decision at the true bias equals the unadjusted decision
+
+Methods compared
+:   no QBA, deterministic grid (equivalent to bounds and tipping point for one scalar bias), probabilistic QBA
+
+Data-generating mechanism
+:   Unanchored MAIC with an unmeasured binary confounder; elicited bias regions with exclusion probability set directly, three error directions and three widths; grid and probabilistic QBA scored on false reassurance and false fragility; 18 cells, 2000 replicates each.
+
+Replicates
+:   2000 per scenario, 36,000 in total, each scored under 21 elicitation settings
+
+**What this does not answer.** One scalar bias parameter; effect modification and overlap not varied; the elicitation model is assumed. Peer review has not been done.
+
+**Peer review.** Not yet done. The result stands on the study alone until it is.
+
+Read it: [PDF](/studies/DIA-14-qba-scored-as-a-classifier/out/DIA-14.pdf) · [Markdown](/studies/DIA-14-qba-scored-as-a-classifier/out/DIA-14.md) · [OpenDocument](/studies/DIA-14-qba-scored-as-a-classifier/out/DIA-14.odt) · Code and data: [studies/DIA-14-qba-scored-as-a-classifier](https://github.com/choxos/ITC-open-problems/tree/main/studies/DIA-14-qba-scored-as-a-classifier) · Protocol: [registered before the run](/studies/DIA-14-qba-scored-as-a-classifier/out/DIA-14-protocol.md)
+
 :::
 
 ## Verification
