@@ -43,9 +43,9 @@ ul.task-list li input[type="checkbox"] {
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-94fb3dea93af0677c21d295c2fc6d9f8.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../site_libs/bootstrap/bootstrap-dark-6f9fa67c3ff5f7080557ce154dd9765e.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../site_libs/bootstrap/bootstrap-94fb3dea93af0677c21d295c2fc6d9f8.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-41c1a832c222e3337f93b9020a2765d5.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-e463b5badde459eb39b62beab52960d6.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-41c1a832c222e3337f93b9020a2765d5.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": true,
@@ -437,6 +437,19 @@ ul.task-list li input[type="checkbox"] {
 <div class="source-unsourced">
 <p><strong>Source note.</strong> This entry derives in part from a source document whose inline citations were ChatGPT interface tokens rather than references, and so resolve to nothing. Claims below are attributed to that document and were checked independently where possible; anything that could not be independently sourced is marked in the verification trail.</p>
 </div>
+<div class="callout callout-style-simple callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>A study has been run against this problem
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>EESS is the reciprocal of the sandwich variance of a weighted log odds, and it differs from ESS times the event rate by E_w[w]E_w[p]/E_w[wp]: below 1 when weights concentrate on high-risk patients, above 1 on low-risk ones (the design had the direction reversed). As a predictor of failure the two were equivalent (AUROC 0.839 and 0.858) and ESS alone was poor (0.662). Their predictive value comes from zero-event analyses; once an estimate exists, non-coverage is near nominal and neither predicts it. <a href="#our-study">Read the study below</a>.</p>
+</div>
+</div>
 <section id="statement" class="level2">
 <h2 class="anchored" data-anchor-id="statement">Statement</h2>
 <p>Rare events and concentrated weights leave the binary likelihood weakly informative, so estimates can separate and become strongly sensitive to the prior or penalty that is then doing the identification work. The failure is narrower than the source said: a contrast-level log-odds estimate is infinite or undefined with a zero cell, but zero counts can enter an arm-based binomial, Bayesian or penalized likelihood without a continuity correction, and a double-zero study carries no conditional odds-ratio information that any likelihood choice can recover. Rare-event machinery does exist in the unweighted network meta-analysis literature, specifically penalized likelihood regression (Evrenoglou et al., arxiv:2109.10221, PMC9805041), which the source asserted without citing. Weight diagnostics still report a patient effective sample size that says nothing about how many events support the contrast, and no effective event sample size convention has been implemented.</p>
@@ -474,20 +487,39 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="our-study" class="level2">
 <h2 class="anchored" data-anchor-id="our-study">Our study</h2>
-<div class="callout callout-style-simple callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>A study is running
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p><strong>Question.</strong> With rare binary outcomes, does an effective sample size counted in events (EESS) predict when a MAIC interval fails better than the reported ESS multiplied by the event rate, and in which direction do the two diverge?</p>
-<p><strong>Design.</strong> Anchored-side MAIC on a binary outcome with one prognostic covariate, 108 cells crossing event risk, size and direction of the covariate shift, sample size and treatment effect. 1000 replicates per cell.</p>
-<p>The protocol is registered before any result is seen: <a href="../studies/OUT-02-effective-event-sample-size/out/OUT-02-protocol.md">read it</a>.</p>
-</div>
+<div class="study-result">
+<p><strong>Effective sample size counted in events: right direction, no gain over ESS times the event rate</strong></p>
+<p><strong>The question put to it.</strong> With rare binary outcomes, does an effective sample size counted in events (EESS) predict when a MAIC interval fails better than the reported ESS multiplied by the event rate, and in which direction do the two diverge?</p>
+<p><strong>What it found.</strong> EESS is the reciprocal of the sandwich variance of a weighted log odds, and it differs from ESS times the event rate by E_w[w]E_w[p]/E_w[wp]: below 1 when weights concentrate on high-risk patients, above 1 on low-risk ones (the design had the direction reversed). As a predictor of failure the two were equivalent (AUROC 0.839 and 0.858) and ESS alone was poor (0.662). Their predictive value comes from zero-event analyses; once an estimate exists, non-coverage is near nominal and neither predicts it.</p>
+<p><strong>Results.</strong></p>
+<ul>
+<li>Median EESS / (ESS p): 0.47 to 0.79 when weights concentrate on high-risk patients, 1.28 to 2.40 on low-risk patients, 1.00 to 1.03 when the shift is in a non-prognostic covariate.</li>
+<li>AUROC for failure (no estimate or non-coverage) over 108,000 analyses: EESS 0.839, ESS x event rate 0.858, ESS 0.662; the registered rule, requiring EESS to be better by 0.05, is refuted.</li>
+<li>No estimate (an arm with no events) in up to 86% of analyses at risk 0.005 and 300 per arm.</li>
+<li>Among analyses with an estimate, non-coverage was 5.7% and the diagnostics’ AUROC 0.54 to 0.59 (exploratory).</li>
+</ul>
+<p><strong>Design.</strong></p>
+<dl>
+<dt>Estimand</dt>
+<dd>
+Target-population marginal log odds ratio, A versus C; failure of its interval
+</dd>
+<dt>Methods compared</dt>
+<dd>
+event-based ESS (EESS), ESS times the event rate, Kish ESS
+</dd>
+<dt>Data-generating mechanism</dt>
+<dd>
+Binary-outcome MAIC with one prognostic covariate among three, 108 scenarios crossing event risk (0.005 to 0.1), size and direction of the target shift relative to risk, sample size and effect; EESS, ESS times the event rate and ESS as per-analysis predictors of failure.
+</dd>
+<dt>Replicates</dt>
+<dd>
+1000 per scenario, 108,000 in total
+</dd>
+</dl>
+<p><strong>What this does not answer.</strong> One prognostic covariate, MAIC on means; the penalized, Firth, Bayesian and fail-closed estimators were not run, and unanchored comparisons and multivariable separation are outside the design. Peer review has not been done.</p>
+<p><strong>Peer review.</strong> Not yet done. The result stands on the study alone until it is.</p>
+<p>Read it: <a href="../studies/OUT-02-effective-event-sample-size/out/OUT-02.pdf">PDF</a> · <a href="../studies/OUT-02-effective-event-sample-size/out/OUT-02.md">Markdown</a> · <a href="../studies/OUT-02-effective-event-sample-size/out/OUT-02.odt">OpenDocument</a> · Code and data: <a href="https://github.com/choxos/ITC-open-problems/tree/main/studies/OUT-02-effective-event-sample-size">studies/OUT-02-effective-event-sample-size</a> · Protocol: <a href="../studies/OUT-02-effective-event-sample-size/out/OUT-02-protocol.md">registered before the run</a></p>
 </div>
 </section>
 <section id="verification" class="level2">
