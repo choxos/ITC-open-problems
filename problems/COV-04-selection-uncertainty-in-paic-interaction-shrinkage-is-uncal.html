@@ -43,9 +43,9 @@ ul.task-list li input[type="checkbox"] {
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-94fb3dea93af0677c21d295c2fc6d9f8.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../site_libs/bootstrap/bootstrap-dark-6f9fa67c3ff5f7080557ce154dd9765e.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
-<link href="../site_libs/bootstrap/bootstrap-94fb3dea93af0677c21d295c2fc6d9f8.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-41c1a832c222e3337f93b9020a2765d5.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-e463b5badde459eb39b62beab52960d6.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-41c1a832c222e3337f93b9020a2765d5.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": true,
@@ -434,6 +434,19 @@ ul.task-list li input[type="checkbox"] {
 <div class="problem-meta">
 <p><span class="problem-id">COV-04</span> <span class="verdict verdict-partially-addressed">Partially addressed</span> <span class="chip chip-priority-high">High priority</span> <span class="chip chip-maturity-promising">Promising</span></p>
 </div>
+<div class="callout callout-style-simple callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>A study has been run against this problem
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>No.&nbsp;Continuous shrinkage does not select, but its intervals still undercovered: 95% posterior intervals for the transported effect covered 0.794 to 0.948 with an empirical-Bayes ridge prior and 0.868 to 0.959 with a hierarchical normal prior, against 0.939 to 0.955 for a flat prior. When the interactions the target weights push the effect the same way, their joint shrinkage biases the transported effect (up to 0.19) and the narrower interval does not carry the bias. Integrating the prior scale recovers only part of the loss. <a href="#our-study">Read the study below</a>.</p>
+</div>
+</div>
 <section id="statement" class="level2">
 <h2 class="anchored" data-anchor-id="statement">Statement</h2>
 <p>Shrinkage on treatment-by-covariate interactions in place of stepwise selection is already a benchmarked recommendation in evidence synthesis: LASSO, ridge, adaptive LASSO, Bayesian LASSO and stochastic search variable selection were compared against stepwise regression and the all-interactions model for IPD meta-analysis, with shrinkage recommended and stepwise regression advised against (Seo et al.&nbsp;2021, doi:10.1002/sim.8859), and Bayesian variable selection has been carried into component network meta-analysis combining aggregate data and IPD (Efthimiou et al.&nbsp;2022, doi:10.1002/sim.9372). What survives as open is the honest-uncertainty half: neither evaluation covers the regularized horseshoe, heredity constraints or projection-predictive selection, and both report mean squared error rather than interval coverage with the selection step included. A posterior interval reported conditional on a data-selected model, with the selection event ignored, is not automatically honest, and that calibration has not been checked for decision-grade PAIC use.</p>
@@ -471,20 +484,39 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="our-study" class="level2">
 <h2 class="anchored" data-anchor-id="our-study">Our study</h2>
-<div class="callout callout-style-simple callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>A study is running
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p><strong>Question.</strong> Do posterior intervals from shrinkage or selection priors on treatment-by-covariate interactions keep frequentist coverage for the transported effect when the whole procedure is repeated?</p>
-<p><strong>Design.</strong> Continuous-outcome STC with eight candidate interactions, one strong or three moderate modifiers, two sample sizes; flat, empirical-Bayes ridge, hierarchical normal, spike-and-slab averaging and median-probability-model priors. 4 cells, 1000 replicates each.</p>
-<p>The protocol is registered before any result is seen: <a href="../studies/COV-04-coverage-with-the-selection-step-included/out/COV-04-protocol.md">read it</a>.</p>
-</div>
+<div class="study-result">
+<p><strong>Shrinkage priors on interactions do not give honest intervals for a transported effect</strong></p>
+<p><strong>The question put to it.</strong> Do posterior intervals from shrinkage or selection priors on treatment-by-covariate interactions keep frequentist coverage for the transported effect when the whole procedure is repeated?</p>
+<p><strong>What it found.</strong> No.&nbsp;Continuous shrinkage does not select, but its intervals still undercovered: 95% posterior intervals for the transported effect covered 0.794 to 0.948 with an empirical-Bayes ridge prior and 0.868 to 0.959 with a hierarchical normal prior, against 0.939 to 0.955 for a flat prior. When the interactions the target weights push the effect the same way, their joint shrinkage biases the transported effect (up to 0.19) and the narrower interval does not carry the bias. Integrating the prior scale recovers only part of the loss.</p>
+<p><strong>Results.</strong></p>
+<ul>
+<li>Worst cell, three moderate modifiers at 100 per arm: empirical-Bayes ridge 0.794, hierarchical normal 0.868, spike-and-slab averaging 0.908, median-probability model 0.785, flat 0.954.</li>
+<li>Plugging in the fitted prior scale costs up to 0.074 coverage relative to integrating it; the remainder is prior-truth conflict at a fixed nonzero truth.</li>
+<li>The median-probability model’s conditional interval, the Bayesian form of DEC-11’s selection, was the worst prior at 300 per arm (0.840 with three moderate modifiers).</li>
+<li>With one strong modifier at 300 per arm every prior except the median-probability model covered at least 0.948.</li>
+</ul>
+<p><strong>Design.</strong></p>
+<dl>
+<dt>Estimand</dt>
+<dd>
+Target-population mean difference, A versus C, -0.5 + 0.5 times the sum of the interactions
+</dd>
+<dt>Methods compared</dt>
+<dd>
+flat prior, empirical-Bayes ridge, hierarchical normal (half-Cauchy scale), spike-and-slab model averaging, median-probability model
+</dd>
+<dt>Data-generating mechanism</dt>
+<dd>
+Continuous-outcome STC with eight candidate interactions, one strong or three moderate modifiers, two sample sizes; flat, empirical-Bayes ridge, hierarchical normal, spike-and-slab averaging and median-probability-model priors. 4 cells, 1000 replicates each.
+</dd>
+<dt>Replicates</dt>
+<dd>
+1000 per cell, 4 cells
+</dd>
+</dl>
+<p><strong>What this does not answer.</strong> Continuous outcome with conjugate priors; no horseshoe, heredity constraints or projection-predictive selection; aligned modifiers only, no null scenario. Peer review has not been done.</p>
+<p><strong>Peer review.</strong> Not yet done. The result stands on the study alone until it is.</p>
+<p>Read it: <a href="../studies/COV-04-coverage-with-the-selection-step-included/out/COV-04.pdf">PDF</a> · <a href="../studies/COV-04-coverage-with-the-selection-step-included/out/COV-04.md">Markdown</a> · <a href="../studies/COV-04-coverage-with-the-selection-step-included/out/COV-04.odt">OpenDocument</a> · Code and data: <a href="https://github.com/choxos/ITC-open-problems/tree/main/studies/COV-04-coverage-with-the-selection-step-included">studies/COV-04-coverage-with-the-selection-step-included</a> · Protocol: <a href="../studies/COV-04-coverage-with-the-selection-step-included/out/COV-04-protocol.md">registered before the run</a></p>
 </div>
 </section>
 <section id="verification" class="level2">
