@@ -1,0 +1,124 @@
+---
+title: "The covariate value at which the better treatment changes is often not estimable as a point, and borrowed precision can make its interval wrong"
+subtitle: "A simulation study answering catalog problem DEC-28"
+author: "Ahmad Sofi-Mahmudi"
+date: 2026-09-23
+bibliography: references.bib
+csl: ../../../vancouver.csl
+link-citations: true
+number-sections: true
+execute:
+  echo: false
+  warning: false
+  message: false
+format:
+  gfm:
+    toc: false
+  pdf:
+    documentclass: article
+    geometry: margin=1in
+    fig-pos: "H"
+  odt: default
+---
+
+```{r setup}
+s <- read.csv("../results/summary.csv"); f2 <- function(x) formatC(x, format = "f", digits = 2); f3 <- function(x) formatC(x, format = "f", digits = 3)
+pc <- function(x) sprintf("%.0f%%", 100 * x); rg <- function(x, f = f3) paste(f(min(x)), "to", f(max(x)))
+q <- function(beta, est, b = 0, xs = NULL) { z <- s[abs(s$beta - beta) < 1e-9 & s$estimator == est & s$b_eco == b, ]; if (!is.null(xs)) z <- z[z$xstar == xs, ]; z }
+```
+
+# Abstract {.unnumbered}
+
+**Background.** With effect modification, the better of two treatments can change at
+a covariate value $x^\star = -\delta/\beta$, the ratio of the treatment effect at zero to
+the interaction. Applied analyses report it as a point. Catalog problem DEC-28 asks
+whether it is well enough determined for that.
+
+**Methods.** One individual-data trial of 400 patients, alone or combined with five
+aggregate trials at different covariate means; interactions of 0.3, 0.15 and 0.05
+outcome SD per covariate SD; an ecological term in the aggregate trials absent or
+present; delta-method and Fieller intervals, and the regret of treating by the point
+estimate. 2000 replicates per cell.
+
+**Results.** From the individual trial alone at an interaction of 0.15, the exact
+(Fieller) 95% confidence set for $x^\star$ was unbounded in
+`r rg(1 - q(0.15, "within")$bounded, pc)` of replicates, while the delta-method
+interval was always finite. Adding aggregate trials supplied `r pc(mean(s$between_share[s$estimator == "combined"]))`
+of the interaction's precision and made the sets bounded; with a between-trial
+ecological term of 0.1 per covariate SD, their coverage fell to
+`r rg(s$fieller_cov[s$estimator == "combined" & s$b_eco > 0 & s$xstar == 1.5])` for a boundary at 1.5 while the
+individual trial's sets kept `r rg(q(0.15, "within", 0.1)$fieller_cov)`.
+
+**Conclusion.** A cut-point should be reported with its Fieller set, which can
+legitimately be unbounded; a bounded interval obtained by borrowing between-trial
+interaction information is only as good as the assumption that that information is
+free of ecological bias.
+
+# The problem {#sec-problem}
+
+$x^\star$ is a ratio whose denominator is an interaction, the least precisely estimated
+quantity in a trial. The delta method linearizes the ratio and always returns a finite
+interval. The exact set of Fieller [@fieller1954] is
+$\{x : (\hat\delta + \hat\beta x)^2 \le z^2\,\widehat{\operatorname{var}}(\hat\delta + \hat\beta x)\}$: the
+covariate values at which the treatment difference is not significantly different
+from zero. It is a bounded interval only when the interaction itself is significant,
+and otherwise two half-lines or the whole line. It is also the set where the pointwise
+probability that A is better lies between 0.025 and 0.975, so a plot of that
+probability shows it directly. Treating by the probability at 0.5 is the plug-in rule,
+so the two have the same regret; the map changes what is reported, not the decision.
+
+Precision for the interaction can be borrowed from trials at different covariate
+means, as shared-interaction network models do. That information is between-trial and
+exposed to ecological bias [@riley2020], which no interval reflects.
+
+# Design {#sec-design}
+
+Registered protocol: `protocol.md`. Individual effect of A over B
+$\eta(x) = \delta + \beta x$ with $\beta \in \{0.3, 0.15, 0.05\}$ and $x^\star \in \{0.5, 1.5\}$. The
+individual trial: 400 patients, $x \sim N(0, 1)$, $y = 0.3x + A\eta(x) + e$, $e \sim N(0, 1)$. Five
+aggregate trials at covariate means $-1$ to $1.5$ report their effect with SE 0.1; the
+ecological term adds $b(m_k - \bar m)$, $b \in \{0, 0.1\}$. The combined estimator is
+generalized least squares on both sources. Regret of the plug-in rule in a target
+$x \sim N(0.5, 1)$ is reported as a share of the value of individualized treatment (the
+gain from treating by the true boundary over treating everyone with the better
+treatment on average).
+
+# Results {#sec-results}
+
+![Type of the 95% Fieller set for $x^\star$ without the ecological term.](figures/fig1-fieller.png){#fig-fieller}
+
+| interaction | $x^\star$ | ecological term | estimator | median $z$ of interaction | delta coverage | Fieller coverage | Fieller bounded | regret share |
+|---:|---:|---:|---|---:|---:|---:|---:|---:|
+`r paste(sprintf("| %.2f | %.1f | %.1f | %s | %.1f | %s | %s | %s | %s |", s$beta, s$xstar, s$b_eco, ifelse(s$estimator == "within", "individual trial", "combined"), s$median_beta_z, f3(s$delta_cov), f3(s$fieller_cov), pc(s$bounded), f2(s$regret_share)), collapse = "\n")`
+
+: 2000 replicates per cell; coverage MCSE at most 0.011. Regret share above 1: treating by the estimated boundary did worse than treating everyone with the better treatment on average. {#tbl-main}
+
+The registered condition failed (@tbl-main). From one trial of 400 patients a bounded
+confidence set for $x^\star$ existed in `r rg(q(0.3, "within")$bounded, pc)` of replicates
+at the largest interaction and `r rg(q(0.15, "within")$bounded, pc)` at the moderate one
+(@fig-fieller). The delta-method interval covered `r rg(q(0.15, "within")$delta_cov)` there,
+finite in every replicate. Regret was a large share of what individualization could
+gain, and at the smallest interaction it exceeded that gain.
+
+Borrowing interaction information from the aggregate trials made the boundary look
+determined: its sets were bounded in `r rg(q(0.15, "combined", 0)$bounded, pc)` of
+replicates at 0.15. Without the ecological term the Fieller sets kept their coverage
+(`r rg(s$fieller_cov[s$b_eco == 0])` over all cells), while the delta-method interval
+fell to `r f3(min(s$delta_cov[s$b_eco == 0]))` at the weakest interaction. With the term,
+the combined estimator's sets were narrower still and covered
+`r rg(s$fieller_cov[s$estimator == "combined" & s$b_eco > 0 & s$xstar == 1.5])` for the
+boundary at 1.5, where a slope bias moves the crossing most; for the boundary at 0.5,
+near the aggregate trials' mean covariate value, coverage was
+`r rg(s$fieller_cov[s$estimator == "combined" & s$b_eco > 0 & s$xstar == 0.5])`. The individual trial's sets were
+unaffected. The pointwise optimality probability rarely gave false certainty
+(at most `r pc(max(s$false_certain))` of profiles half a unit or more from the
+boundary), so the failure is concentrated at the boundary itself.
+
+# What this does not answer {#sec-limits}
+
+Two treatments and one modifier, so a point boundary; no modifier selection, which
+would make every interval narrower than it should be; frequentist closed-form
+estimators rather than ML-NMR; the ecological term is a declared linear shift. Peer
+review has not been done.
+
+# References {.unnumbered}

@@ -1,7 +1,24 @@
 {
  "problem_id": "DEC-28",
- "title": "Inference on the covariate value at which the better treatment changes",
- "status": "running",
+ "title": "The covariate value at which the better treatment changes is often not estimable as a point, and borrowed precision can make its interval wrong",
+ "status": "complete",
  "question": "Is the covariate boundary between two treatments' optimality well enough determined at achievable interaction precision to report as a point, and do standard intervals for it hold when interaction information comes partly from between-trial variation?",
- "design": "One individual-data trial plus five aggregate trials; interaction 0.3, 0.15 or 0.05, two boundary positions, an ecological term absent or present; within-trial and combined estimators; delta-method and Fieller intervals, regret and the pointwise optimality map. 12 cells, 2000 replicates each."
+ "design": "One individual-data trial plus five aggregate trials; interaction 0.3, 0.15 or 0.05, two boundary positions, an ecological term absent or present; within-trial and combined estimators; delta-method and Fieller intervals, regret and the pointwise optimality map. 12 cells, 2000 replicates each.",
+ "date_completed": "2026-09-23",
+ "answer": "No. From one trial of 400 patients at a moderate interaction the exact (Fieller) 95% confidence set for the boundary was unbounded in 66% to 69% of replicates, while the delta-method interval was always finite and covered as little as 0.86 at the weakest interaction. Borrowing interaction precision from aggregate trials at different covariate means (81% of the precision) made the sets bounded, but a between-trial ecological term of 0.1 cut their coverage to 0.68 to 0.70 for a boundary away from the trials' mean covariate value. Treating by the point estimate at the moderate interaction lost 31% to 95% of the value of individualized treatment with one trial.",
+ "findings": [
+  "Fieller sets bounded from one trial: 84% to 85% at interaction 0.3, 31% to 34% at 0.15, 7% to 9% at 0.05.",
+  "The pointwise probability that A is better, thresholded at 0.5, is the plug-in rule; its (0.025, 0.975) region is the Fieller set, so it changes the report, not the decision.",
+  "With the ecological term, combined-estimator coverage 0.68 to 0.70 at boundary 1.5 and 0.92 to 0.93 at 0.5; individual-trial coverage 0.95.",
+  "At interaction 0.05, treating by the estimated boundary did worse than treating everyone with the better treatment on average (regret share up to 3.6)."
+ ],
+ "not_answered": "Two treatments and one modifier; no modifier selection; closed-form frequentist estimators rather than ML-NMR; declared linear ecological term. Peer review has not been done.",
+ "estimand": "The boundary x* = -delta/beta between two treatments' optimality, and regret of treating by its estimate",
+ "methods_compared": [
+  "plug-in cut-point",
+  "delta-method interval",
+  "Fieller confidence set",
+  "pointwise optimality probability"
+ ],
+ "n_sim": "2000 per cell, 12 cells, two estimators each"
 }

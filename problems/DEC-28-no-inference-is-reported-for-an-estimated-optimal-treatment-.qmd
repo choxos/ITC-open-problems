@@ -18,6 +18,12 @@ tractability: 4
 [Emerging]{.chip .chip-maturity-emerging}
 [Tractability 4/5]{.chip}
 :::
+::: {.callout-important appearance="simple"}
+## A study has been run against this problem
+
+No. From one trial of 400 patients at a moderate interaction the exact (Fieller) 95% confidence set for the boundary was unbounded in 66% to 69% of replicates, while the delta-method interval was always finite and covered as little as 0.86 at the weakest interaction. Borrowing interaction precision from aggregate trials at different covariate means (81% of the precision) made the sets bounded, but a between-trial ecological term of 0.1 cut their coverage to 0.68 to 0.70 for a boundary away from the trials' mean covariate value. Treating by the point estimate at the moderate interaction lost 31% to 95% of the value of individualized treatment with one trial. [Read the study below](#our-study).
+:::
+
 ## Statement
 
 When an effect measure is non-collapsible and effect modification is present, the population-average conditional and population-average marginal estimands can rank treatments oppositely; a worked logistic example gives conditional log odds ratios of -4 and -3 favoring one treatment while the marginal effects of -2.36 and -2.49 favor another, so deciding on the marginal effect assigns the inferior treatment to 75% of the population. The published resolution is to stratify the decision: boundaries between optimal treatment choices can be determined mathematically in the L-dimensional effect-modifier space, and cut-points are read off plots of fitted individual-level effects. Both the covariate that defines the partition and the location of the cut-point are therefore functions of estimated interaction coefficients, yet the resulting subgroup recommendation is issued as a point statement. No population-adjustment implementation reports a posterior or bootstrap distribution over the boundary, a probability that a given covariate profile lies on the recommended side of it, or subgroup-specific contrast intervals that account for the partition having been estimated from the same data. Applied work inherits the omission: a two-stage network meta-regression prediction model reports which treatment is preferable for high-risk and for low-risk patients, and a cost-effectiveness model built on risk-specific network estimates reports that one drug carries the higher net monetary benefit up to a baseline risk of 55% after which another takes over, neither with an interval on where the switch occurs. The missing object is inference on a partition rather than on a contrast, and the two are not interchangeable: a narrow interval on every contrast is compatible with a boundary that could sit almost anywhere.
@@ -45,6 +51,44 @@ The optimal-treatment partition is defined by an argmax over treatments, so the 
 ## Probable solution or research direction
 
 Define the estimand before the estimator: the optimal-treatment partition as a functional of the fitted interaction vector, and for each covariate profile the posterior probability that a named treatment is optimal, which is smooth even where the argmax is not and can be mapped over a declared target population directly from existing multilevel network meta-regression draws. Report that probability map alongside any cut-point, with a pointwise credible band obtained by recomputing the boundary in every posterior draw, and state which part of its variability comes from within-study and which from across-study interaction estimation. Score the procedure in a simulation crossing modifier strength, overlap and network topology, using the probability of assigning the wrong treatment at profiles near the boundary and the coverage of subgroup contrast intervals when the same data chose the partition. For frequentist population adjustment, port the m-out-of-n bootstrap to the boundary parameters and check whether its coverage survives the extra layer of target-population standardization. Then make it a reporting requirement, so that a stratified recommendation cannot be published as a bare cut-point.
+
+## Our study
+
+::: {.study-result}
+**The covariate value at which the better treatment changes is often not estimable as a point, and borrowed precision can make its interval wrong**
+
+**The question put to it.** Is the covariate boundary between two treatments' optimality well enough determined at achievable interaction precision to report as a point, and do standard intervals for it hold when interaction information comes partly from between-trial variation?
+
+**What it found.** No. From one trial of 400 patients at a moderate interaction the exact (Fieller) 95% confidence set for the boundary was unbounded in 66% to 69% of replicates, while the delta-method interval was always finite and covered as little as 0.86 at the weakest interaction. Borrowing interaction precision from aggregate trials at different covariate means (81% of the precision) made the sets bounded, but a between-trial ecological term of 0.1 cut their coverage to 0.68 to 0.70 for a boundary away from the trials' mean covariate value. Treating by the point estimate at the moderate interaction lost 31% to 95% of the value of individualized treatment with one trial.
+
+**Results.**
+
+- Fieller sets bounded from one trial: 84% to 85% at interaction 0.3, 31% to 34% at 0.15, 7% to 9% at 0.05.
+- The pointwise probability that A is better, thresholded at 0.5, is the plug-in rule; its (0.025, 0.975) region is the Fieller set, so it changes the report, not the decision.
+- With the ecological term, combined-estimator coverage 0.68 to 0.70 at boundary 1.5 and 0.92 to 0.93 at 0.5; individual-trial coverage 0.95.
+- At interaction 0.05, treating by the estimated boundary did worse than treating everyone with the better treatment on average (regret share up to 3.6).
+
+**Design.**
+
+Estimand
+:   The boundary x* = -delta/beta between two treatments' optimality, and regret of treating by its estimate
+
+Methods compared
+:   plug-in cut-point, delta-method interval, Fieller confidence set, pointwise optimality probability
+
+Data-generating mechanism
+:   One individual-data trial plus five aggregate trials; interaction 0.3, 0.15 or 0.05, two boundary positions, an ecological term absent or present; within-trial and combined estimators; delta-method and Fieller intervals, regret and the pointwise optimality map. 12 cells, 2000 replicates each.
+
+Replicates
+:   2000 per cell, 12 cells, two estimators each
+
+**What this does not answer.** Two treatments and one modifier; no modifier selection; closed-form frequentist estimators rather than ML-NMR; declared linear ecological term. Peer review has not been done.
+
+**Peer review.** Not yet done. The result stands on the study alone until it is.
+
+Read it: [PDF](/studies/DEC-28-inference-on-the-optimal-treatment-boundary/out/DEC-28.pdf) · [Markdown](/studies/DEC-28-inference-on-the-optimal-treatment-boundary/out/DEC-28.md) · [OpenDocument](/studies/DEC-28-inference-on-the-optimal-treatment-boundary/out/DEC-28.odt) · Code and data: [studies/DEC-28-inference-on-the-optimal-treatment-boundary](https://github.com/choxos/ITC-open-problems/tree/main/studies/DEC-28-inference-on-the-optimal-treatment-boundary) · Protocol: [registered before the run](/studies/DEC-28-inference-on-the-optimal-treatment-boundary/out/DEC-28-protocol.md)
+
+:::
 
 ## Verification
 
