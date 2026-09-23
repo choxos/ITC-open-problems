@@ -2722,25 +2722,73 @@
  },
  "OUT-13": {
   "slug": "OUT-13-an-ensemble-that-is-not-an-imputation",
-  "title": "Is a reconstruction ensemble's spread the reconstruction error?",
-  "status": "running",
+  "title": "Reconstruction ensembles were not imputations: their spread overstated the error in restricted mean survival and understated it in the extrapolated tail",
+  "status": "complete",
   "question": "When individual data are reconstructed repeatedly from a published Kaplan-Meier curve, does the spread of the ensemble match the true reconstruction error, so that pooling it like multiple imputation is valid?",
-  "answer": null,
-  "findings": [],
-  "not_answered": null,
+  "answer": "No, the refuting sentence fails: neither ensemble behaved as a multiple imputation. For RMST to 24 months at a 6-month risk table the variance calibration ratio (one for an imputation) was 31.8 to 44.3 for six analyst variants and 2.3 to 11.2 for 20 observation-model draws, the registered 'both far from one' outcome. Across cells the draws overstated the error of RMST (2.1 to 13.1) and 12-month survival (1.1 to 3.5) and understated it for Weibull survival at 48 months (0.15 to 0.77; 90% intervals covered the true-data value in 42% to 77%). Reconstruction error was small against sampling error (single-reconstruction RMSE 2% to 8% of the sampling SD for RMST, 11% to 26% for 48-month survival), so population coverage stayed at 0.91 to 0.98.",
+  "findings": [
+   "The analyst variants' mean overstated RMST by 0.17 to 0.19 months in every cell; a post hoc rerun traced it to sparse digitization (error 0.29 to 0.34 months with 30 points, 0.15 to 0.16 with 60, 0.06 with 120), and their spread is that ordering, not uncertainty.",
+   "Rubin pooling widened intervals by at most 1% with the draws; the variants widened them by up to 23% only for 48-month survival without a risk table.",
+   "Positive control failed (12-month survival RMSE 13% of the sampling SD in the coarse, no-table, clustered cell against a registered 25%): milestone survival was not materially affected in this design.",
+   "The null control (monthly table) passed on 161 of 300 replicates; 139 were lost to a 20-second wall-clock guard that fired under a machine load average of 500 to 900."
+  ],
+  "not_answered": "The draws are not a posterior: Guyot's event-count rounding is held fixed and there is no likelihood for the published ordinates. One arm and no downstream comparison, so propagation into a population-adjusted or component comparison (CMP-17) is not measured; no human digitization error; one sample size. The mechanism analyses are post hoc. Peer review has not been done.",
   "design": "Simulated trial data rendered as a pixel-rounded Kaplan-Meier figure with or without a risk table, reconstructed by Guyot's algorithm; analyst-variant and observation-model ensembles scored by the ratio of their spread to the true reconstruction error for RMST, milestone and extrapolated survival. 13 cells, 300 replicates each.",
-  "n_sim": null,
-  "estimand": null,
-  "methods_compared": [],
-  "date_completed": null,
+  "n_sim": "300 per cell, 13 cells",
+  "estimand": "Variance calibration ratio of a reconstruction ensemble: mean between-reconstruction variance times (1 + 1/M) over the variance of the ensemble mean's error against the true data",
+  "methods_compared": [
+   "single Guyot reconstruction",
+   "analyst variants (30, 60, 120 points; event total given or not)",
+   "observation-model draws (pixel and censoring positions redrawn)"
+  ],
+  "date_completed": "2026-09-23",
   "week": null,
   "code": "studies/OUT-13-an-ensemble-that-is-not-an-imputation",
   "protocol": "studies/OUT-13-an-ensemble-that-is-not-an-imputation/out/OUT-13-protocol.md",
   "review": null,
   "review_rounds": 0,
-  "downloads": {},
+  "downloads": {
+   "gfm": "studies/OUT-13-an-ensemble-that-is-not-an-imputation/out/OUT-13.md",
+   "pdf": "studies/OUT-13-an-ensemble-that-is-not-an-imputation/out/OUT-13.pdf",
+   "odt": "studies/OUT-13-an-ensemble-that-is-not-an-imputation/out/OUT-13.odt"
+  },
   "primary_problem": "OUT-13",
   "secondary": false
+ },
+ "CMP-17": {
+  "slug": "OUT-13-an-ensemble-that-is-not-an-imputation",
+  "title": "Reconstruction ensembles were not imputations: their spread overstated the error in restricted mean survival and understated it in the extrapolated tail",
+  "status": "complete",
+  "question": "When individual data are reconstructed repeatedly from a published Kaplan-Meier curve, does the spread of the ensemble match the true reconstruction error, so that pooling it like multiple imputation is valid?",
+  "answer": "No, the refuting sentence fails: neither ensemble behaved as a multiple imputation. For RMST to 24 months at a 6-month risk table the variance calibration ratio (one for an imputation) was 31.8 to 44.3 for six analyst variants and 2.3 to 11.2 for 20 observation-model draws, the registered 'both far from one' outcome. Across cells the draws overstated the error of RMST (2.1 to 13.1) and 12-month survival (1.1 to 3.5) and understated it for Weibull survival at 48 months (0.15 to 0.77; 90% intervals covered the true-data value in 42% to 77%). Reconstruction error was small against sampling error (single-reconstruction RMSE 2% to 8% of the sampling SD for RMST, 11% to 26% for 48-month survival), so population coverage stayed at 0.91 to 0.98.",
+  "findings": [
+   "The analyst variants' mean overstated RMST by 0.17 to 0.19 months in every cell; a post hoc rerun traced it to sparse digitization (error 0.29 to 0.34 months with 30 points, 0.15 to 0.16 with 60, 0.06 with 120), and their spread is that ordering, not uncertainty.",
+   "Rubin pooling widened intervals by at most 1% with the draws; the variants widened them by up to 23% only for 48-month survival without a risk table.",
+   "Positive control failed (12-month survival RMSE 13% of the sampling SD in the coarse, no-table, clustered cell against a registered 25%): milestone survival was not materially affected in this design.",
+   "The null control (monthly table) passed on 161 of 300 replicates; 139 were lost to a 20-second wall-clock guard that fired under a machine load average of 500 to 900."
+  ],
+  "not_answered": "The draws are not a posterior: Guyot's event-count rounding is held fixed and there is no likelihood for the published ordinates. One arm and no downstream comparison, so propagation into a population-adjusted or component comparison (CMP-17) is not measured; no human digitization error; one sample size. The mechanism analyses are post hoc. Peer review has not been done.",
+  "design": "Simulated trial data rendered as a pixel-rounded Kaplan-Meier figure with or without a risk table, reconstructed by Guyot's algorithm; analyst-variant and observation-model ensembles scored by the ratio of their spread to the true reconstruction error for RMST, milestone and extrapolated survival. 13 cells, 300 replicates each.",
+  "n_sim": "300 per cell, 13 cells",
+  "estimand": "Variance calibration ratio of a reconstruction ensemble: mean between-reconstruction variance times (1 + 1/M) over the variance of the ensemble mean's error against the true data",
+  "methods_compared": [
+   "single Guyot reconstruction",
+   "analyst variants (30, 60, 120 points; event total given or not)",
+   "observation-model draws (pixel and censoring positions redrawn)"
+  ],
+  "date_completed": "2026-09-23",
+  "week": null,
+  "code": "studies/OUT-13-an-ensemble-that-is-not-an-imputation",
+  "protocol": "studies/OUT-13-an-ensemble-that-is-not-an-imputation/out/OUT-13-protocol.md",
+  "review": null,
+  "review_rounds": 0,
+  "downloads": {
+   "gfm": "studies/OUT-13-an-ensemble-that-is-not-an-imputation/out/OUT-13.md",
+   "pdf": "studies/OUT-13-an-ensemble-that-is-not-an-imputation/out/OUT-13.pdf",
+   "odt": "studies/OUT-13-an-ensemble-that-is-not-an-imputation/out/OUT-13.odt"
+  },
+  "primary_problem": "OUT-13",
+  "secondary": true
  },
  "OUT-14": {
   "slug": "OUT-14-an-assessment-grid-that-looks-like-a-treatment-effect",

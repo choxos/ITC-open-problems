@@ -16,6 +16,12 @@ maturity: "Emerging"
 [Very high priority]{.chip .chip-priority-very-high}
 [Emerging]{.chip .chip-maturity-emerging}
 :::
+::: {.callout-important appearance="simple"}
+## A study has been run against this problem
+
+No, the refuting sentence fails: neither ensemble behaved as a multiple imputation. For RMST to 24 months at a 6-month risk table the variance calibration ratio (one for an imputation) was 31.8 to 44.3 for six analyst variants and 2.3 to 11.2 for 20 observation-model draws, the registered 'both far from one' outcome. Across cells the draws overstated the error of RMST (2.1 to 13.1) and 12-month survival (1.1 to 3.5) and understated it for Weibull survival at 48 months (0.15 to 0.77; 90% intervals covered the true-data value in 42% to 77%). Reconstruction error was small against sampling error (single-reconstruction RMSE 2% to 8% of the sampling SD for RMST, 11% to 26% for 48-month survival), so population coverage stayed at 0.91 to 0.98. [Read the study below](#our-study).
+:::
+
 ## Statement
 
 Component survival models condition on pseudo-IPD reconstructed from digitized Kaplan-Meier curves and at-risk tables as if the event and censoring times were observed, with no reconstruction-error layer, and the implemented route further rejects event-count and person-time summaries as insufficient for its exact individual survival likelihood. Reconstruction uncertainty now has some machinery behind it: RESOLVE-IPD (arXiv 2511.01785, November 2025) extracts coordinates and explicit censoring marks from vectorized figures, drops the uniform-censoring assumption, and generates ensembles of valid labelings so that a downstream meta-analysis propagates that uncertainty. It is a preprint and its propagated uncertainty is over subgroup label assignment rather than over pixel-level curve reading or at-risk-table rounding, so it narrows the gap without closing it, and no measurement model of this kind is implemented in component PAIC.
@@ -38,6 +44,60 @@ The reconstruction pipeline turns an image plus a risk table into an exact-looki
 ## Probable solution or research direction
 
 Generate multiple reconstructions and pool across them, using the ensemble machinery that already exists for subgroup labeling as the template, and extend it to pixel-level curve reading and at-risk-table rounding. Build a Bayesian measurement model for those two error sources and propagate it into the posterior rather than conditioning on one reconstruction. Report how much of the reported precision survives the propagation, since that is the number a decision maker needs.
+
+## Our study
+
+::: {.study-result}
+**Reconstruction ensembles were not imputations: their spread overstated the error in restricted mean survival and understated it in the extrapolated tail**
+
+*This study was designed against [OUT-13](https://github.com/choxos/ITC-open-problems/tree/main/studies/OUT-13-an-ensemble-that-is-not-an-imputation) and bears on this entry in part. What it does not answer is stated below.*
+
+**The question put to it.** When individual data are reconstructed repeatedly from a published Kaplan-Meier curve, does the spread of the ensemble match the true reconstruction error, so that pooling it like multiple imputation is valid?
+
+**What it found.** No, the refuting sentence fails: neither ensemble behaved as a multiple imputation. For RMST to 24 months at a 6-month risk table the variance calibration ratio (one for an imputation) was 31.8 to 44.3 for six analyst variants and 2.3 to 11.2 for 20 observation-model draws, the registered 'both far from one' outcome. Across cells the draws overstated the error of RMST (2.1 to 13.1) and 12-month survival (1.1 to 3.5) and understated it for Weibull survival at 48 months (0.15 to 0.77; 90% intervals covered the true-data value in 42% to 77%). Reconstruction error was small against sampling error (single-reconstruction RMSE 2% to 8% of the sampling SD for RMST, 11% to 26% for 48-month survival), so population coverage stayed at 0.91 to 0.98.
+
+**Results.**
+
+- The analyst variants' mean overstated RMST by 0.17 to 0.19 months in every cell; a post hoc rerun traced it to sparse digitization (error 0.29 to 0.34 months with 30 points, 0.15 to 0.16 with 60, 0.06 with 120), and their spread is that ordering, not uncertainty.
+- Rubin pooling widened intervals by at most 1% with the draws; the variants widened them by up to 23% only for 48-month survival without a risk table.
+- Positive control failed (12-month survival RMSE 13% of the sampling SD in the coarse, no-table, clustered cell against a registered 25%): milestone survival was not materially affected in this design.
+- The null control (monthly table) passed on 161 of 300 replicates; 139 were lost to a 20-second wall-clock guard that fired under a machine load average of 500 to 900.
+
+**Design.**
+
+Estimand
+:   Variance calibration ratio of a reconstruction ensemble: mean between-reconstruction variance times (1 + 1/M) over the variance of the ensemble mean's error against the true data
+
+Methods compared
+:   single Guyot reconstruction, analyst variants (30, 60, 120 points; event total given or not), observation-model draws (pixel and censoring positions redrawn)
+
+Data-generating mechanism
+:   Simulated trial data rendered as a pixel-rounded Kaplan-Meier figure with or without a risk table, reconstructed by Guyot's algorithm; analyst-variant and observation-model ensembles scored by the ratio of their spread to the true reconstruction error for RMST, milestone and extrapolated survival. 13 cells, 300 replicates each.
+
+Replicates
+:   300 per cell, 13 cells
+
+**What this does not answer.** The draws are not a posterior: Guyot's event-count rounding is held fixed and there is no likelihood for the published ordinates. One arm and no downstream comparison, so propagation into a population-adjusted or component comparison (CMP-17) is not measured; no human digitization error; one sample size. The mechanism analyses are post hoc. Peer review has not been done.
+
+**Peer review.** Not yet done. The result stands on the study alone until it is.
+
+Read it: [PDF](/studies/OUT-13-an-ensemble-that-is-not-an-imputation/out/OUT-13.pdf) · [Markdown](/studies/OUT-13-an-ensemble-that-is-not-an-imputation/out/OUT-13.md) · [OpenDocument](/studies/OUT-13-an-ensemble-that-is-not-an-imputation/out/OUT-13.odt) · Code and data: [studies/OUT-13-an-ensemble-that-is-not-an-imputation](https://github.com/choxos/ITC-open-problems/tree/main/studies/OUT-13-an-ensemble-that-is-not-an-imputation) · Protocol: [registered before the run](/studies/OUT-13-an-ensemble-that-is-not-an-imputation/out/OUT-13-protocol.md)
+
+:::
+
+## What this project measured
+
+OUT-13 measured whether repeated reconstructions from a published Kaplan-Meier curve carry the right
+uncertainty. They did not, and the direction depended on the functional. Observation-model draws, which
+redraw each step's pixel position and each censoring's time within its risk-table interval, overstated
+the reconstruction error of RMST to 24 months by a factor of 2 to 13 and understated it for Weibull
+survival extrapolated to 48 months (ratio 0.15 to 0.77; their 90% intervals covered the true-data value
+in 42% to 77% of replicates). The error itself concentrated in the tail: a single reconstruction's RMSE
+was 2% to 8% of the sampling SD for RMST and 11% to 26% for 48-month survival.
+
+Not answered: how that tail error propagates into a population-adjusted or component comparison. OUT-13
+used one arm and no downstream model, so the propagation this entry asks about is untested; an ensemble
+built from these draws would not repair it, since it understates exactly the component that matters there.
 
 ## Verification
 

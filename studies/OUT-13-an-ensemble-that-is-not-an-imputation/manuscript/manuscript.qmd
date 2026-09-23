@@ -1,0 +1,163 @@
+---
+title: "Reconstruction ensembles were not imputations: their spread overstated the error in restricted mean survival and understated it in the extrapolated tail"
+subtitle: "A simulation study answering catalog problem OUT-13"
+author: "Ahmad Sofi-Mahmudi"
+date: 2026-09-23
+bibliography: references.bib
+csl: ../../../vancouver.csl
+link-citations: true
+number-sections: true
+execute:
+  echo: false
+  warning: false
+  message: false
+format:
+  gfm:
+    toc: false
+  pdf:
+    documentclass: article
+    geometry: margin=1in
+    fig-pos: "H"
+  odt: default
+---
+
+```{r setup}
+s <- read.csv("../results/summary.csv"); mech <- read.csv("../results/mechanism-summary.csv")
+f2 <- function(x) formatC(x, format = "f", digits = 2); f3 <- function(x) formatC(x, format = "f", digits = 3)
+rg <- function(x, f = f2) { a <- sub("^-(0\\.0+)$", "\\1", f(min(x))); b <- sub("^-(0\\.0+)$", "\\1", f(max(x))); if (a == b) a else paste(a, "to", b) }
+m <- s[s$ctrl == "none", ]
+q <- function(meth, est, col, z = m) z[z$method == meth & z$estimand == est, col]
+pr <- m[m$table == 6, ]
+nul <- s[s$ctrl == "null" & s$method == "single", ]
+pos <- s[s$cell == 12 & s$method == "single" & s$estimand == "s12", ]
+ens <- m[m$method %in% c("variants", "draws"), ]
+mo <- read.csv("../results/mechanism.csv"); bb <- mo[grepl("^B_", mo$quantity), ]
+md <- function(ci, e, col) { z <- bb[bb$cell == ci & bb$quantity == paste0("B_", e), ]; f2(stats::median(z[[col]] / z$both, na.rm = TRUE)) }
+ve <- function(k) rg(mech$events_given[mech$quantity == sprintf("rmst24_error_%d_points", k)])
+same <- isTRUE(all.equal(mech$events_given, mech$events_not_given))
+```
+
+# Abstract {.unnumbered}
+
+**Background.** Individual data reconstructed from a published Kaplan-Meier curve by Guyot's
+algorithm [@guyot2012] are often reconstructed several times and pooled as if the repetitions were
+multiple imputations [@rubin1987]. That is valid only if their spread matches the error of the
+reconstruction. Catalog problem OUT-13's refuting sentence: the ensembles analysts already build are
+calibrated.
+
+**Methods.** One arm of 250 patients, Weibull event times, rendered as a pixel-rounded curve (fine
+or coarse) with a 3-monthly, 6-monthly or no risk table and spread or clustered censoring; 300
+replicates per cell. Two ensembles: six analyst variants (30, 60 or 120 digitized points, event total
+given or not) and 20 observation-model draws (pixel positions and censoring times redrawn). Calibration
+ratio: the ensemble's between-reconstruction variance times $1 + 1/M$ over the variance of its mean's
+error against the true data; one for an imputation.
+
+**Results.** For RMST to 24 months at a 6-month risk table the ratio was `r rg(q("variants", "rmst24", "ratio_var", pr))`
+for the variants and `r rg(q("draws", "rmst24", "ratio_var", pr))` for the draws: both far from one, the registered
+outcome. Across all cells the draws overstated the error of RMST (`r rg(q("draws", "rmst24", "ratio_var"))`) and of
+12-month survival (`r rg(q("draws", "s12", "ratio_var"))`) and understated it for Weibull survival at 48
+months (`r rg(q("draws", "s48", "ratio_var"))`). The variants' mean was biased by `r rg(q("variants", "rmst24", "err_bias"))`
+months of RMST in every cell. Reconstruction error itself was small against sampling error: a single
+reconstruction's RMSE was `r rg(q("single", "rmst24", "materiality"))` of the sampling SD for RMST and
+`r rg(q("single", "s48", "materiality"))` for 48-month survival, and population coverage stayed at
+`r rg(s$pop_cov)`.
+
+**Conclusion.** Neither ensemble is an imputation. The miscalibration has a direction that depends on
+the functional: conservative for RMST, anticonservative in the extrapolated tail, which is where the
+reconstruction error is concentrated.
+
+# The problem {#sec-problem}
+
+Write $\theta(D)$ for a functional of the true data $D$ and $P$ for the publication. An ensemble
+$\theta_1, \dots, \theta_M$ computed from reconstructions pools as an imputation when the $\theta_m$ are
+draws from $\theta(D) \mid P$. Then the ensemble mean's error $\bar\theta - \theta(D)$ has variance
+$E(B)(1 + 1/M)$, with $B$ the between-reconstruction variance, and the calibration ratio
+$E(B)(1 + 1/M)/\mathrm{Var}(\bar\theta - \theta(D))$ equals one. Analyst variants are not draws from
+anything: they differ by choices whose effects are deterministic. Observation-model draws redraw what
+the publication does not fix (the position of each step within its pixel and each censoring within its
+risk-table interval) but hold Guyot's event-count rounding fixed and use no likelihood for the
+published ordinates, so they approximate the posterior at best.
+
+# Design {#sec-design}
+
+Registered protocol: `protocol.md`. One arm, $n = 250$, Weibull event times (shape 1.2, median 18
+months), uniform accrual over 24 months and follow-up to 36; in the clustered pattern 30% also drop out
+just before a 6-monthly visit. The publication is the curve read at pixel-column centers of a
+$1500 \times 1000$ (fine) or $300 \times 200$ (coarse) plot with ordinates rounded to the pixel grid, the
+risk table and the event total. Reconstruction by IPDfromKM 0.1.10. Functionals: RMST to 24 months and
+survival at 12 months from the Kaplan-Meier curve, survival at 48 months from a Weibull fit. The error
+is each reconstruction's value minus the value on the true data of the same replicate, so the ratio
+estimates the expected conditional variance. Near one: 0.67 to 1.5; far: below 0.5 or above 2. MCSEs by
+bootstrap over replicates. 12 cells plus a null control (fine, monthly table, spread censoring).
+
+# Results {#sec-results}
+
+![Variance calibration ratio by design cell and functional, with 95% Monte Carlo intervals; shaded, the registered band of calibration.](figures/fig1-ratio.png){#fig-ratio}
+
+| functional | ensemble | variance ratio | MSE ratio | mean error | coverage of the true-data value (nominal 0.90) |
+|---|---|---:|---:|---:|---:|
+`r paste(unlist(lapply(c("rmst24", "s12", "s48"), function(e) lapply(c("variants", "draws"), function(k) { z <- ens[ens$estimand == e & ens$method == k, ]; sprintf("| %s | %s | %s | %s | %s | %s |", e, k, rg(z$ratio_var), rg(z$ratio_mse), rg(z$err_bias, f3), rg(z$recon_cov90)) }))), collapse = "\n")`
+
+: Ranges over the 12 main cells, 298 to 300 replicates each. RMST in months. {#tbl-main}
+
+**Primary.** In the four 6-month-table cells the variants' ratio was `r rg(q("variants", "rmst24", "ratio_var", pr))`
+and the draws' `r rg(q("draws", "rmst24", "ratio_var", pr))`, all far from one: the registered "both far"
+outcome (@fig-ratio).
+
+**Analyst variants.** The variants' mean missed the true-data RMST by `r rg(q("variants", "rmst24", "err_bias"))`
+months in every cell, with a variance ratio of `r rg(q("variants", "rmst24", "ratio_var"))` but an MSE ratio of
+`r rg(q("variants", "rmst24", "ratio_mse"))`. A large variance ratio with an MSE ratio below one is the signature of
+a deterministic disagreement between variants repeated in every replicate: their spread is analyst
+choice, not uncertainty about the data. A post hoc rerun of the first 10 replicates of two 6-month-table cells
+(`R/05-mechanism.R`) located it: the RMST error was `r ve(30)` months with 30 digitized points,
+`r ve(60)` with 60 and `r ve(120)` with 120, `r if (same) "identical" else "not identical"` with and without the event total.
+Sparse digitization misses drops and keeps the curve high; the ensemble's spread is that ordering.
+
+**Observation-model draws.** For RMST the draws overstated the error, by a factor of
+`r rg(q("draws", "rmst24", "ratio_var", m[m$res == "fine", ]))` at fine resolution and
+`r rg(q("draws", "rmst24", "ratio_var", m[m$res == "coarse", ]))` at coarse resolution; for survival at 48 months they
+understated it (`r rg(q("draws", "s48", "ratio_var"))`), and their 90% intervals covered the true-data value in
+only `r rg(q("draws", "s48", "recon_cov90"))` of replicates. In the same post hoc rerun, the
+between-reconstruction variance of RMST came mainly from random censoring placement at fine resolution
+(median ratio to the combined variance: censoring only `r md(3, "rmst24", "censoring")`, pixel jitter only
+`r md(3, "rmst24", "jitter")`) and from pixel jitter at coarse resolution (`r md(4, "rmst24", "jitter")` against
+`r md(4, "rmst24", "censoring")`); for 12-month survival it was pixel jitter alone (`r md(3, "s12", "jitter")` and
+`r md(4, "s12", "jitter")` against at most `r md(3, "s12", "censoring")`). What the draws miss in the tail was not
+located; Guyot's event-count rounding, which they hold fixed, is an untested candidate.
+
+**Non-uniformity.** Width inflation from Rubin pooling differed across the three functionals by a
+factor of at least 2 in 12 of 12 cells, meeting the registered criterion; but the draws' inflation was
+at most `r f3(max(q("draws", "rmst24", "inflation"), q("draws", "s12", "inflation"), q("draws", "s48", "inflation")))`
+in every cell, and the variants' reached `r f2(max(q("variants", "s48", "inflation")))` only for 48-month
+survival without a risk table.
+
+**Materiality.** A single reconstruction's RMSE was `r rg(q("single", "rmst24", "materiality"))` of the sampling
+SD for RMST, `r rg(q("single", "s12", "materiality"))` for 12-month survival and `r rg(q("single", "s48", "materiality"))` for
+48-month survival. Coverage of the population value was `r rg(s$pop_cov)` for every method, and interval
+widths were `r rg(s$width_vs_oracle)` times the true-data analysis's.
+
+**Controls.** Null control (fine, monthly table): single-reconstruction RMSE `r f3(nul$materiality[nul$estimand == "rmst24"])`
+and `r f3(nul$materiality[nul$estimand == "s12"])` of the sampling SD for RMST and 12-month survival, below the
+registered 0.10, on `r nul$n_rep[1]` of 300 replicates (below). Positive control: in the coarse,
+no-table, clustered cell the single reconstruction's RMSE for 12-month survival was
+`r f3(pos$materiality)` of the sampling SD, short of the registered 0.25, so the entry's concern about
+milestone survival is not reachable in this design.
+
+**Failed replicates.** The reconstruction carried a 20-second wall-clock guard against hangs. The null
+control ran while the shared machine's load average was 500 to 900, and the guard fired on
+reconstructions that would have finished: `r 300 - nul$n_rep[1]` of its 300 replicates were lost when the single
+reconstruction timed out, and ensembles shrank in others (to one member in three), so its ensemble
+ratios are not reported. In the main cells 2 replicates were dropped (cell 9) and four ensembles ran
+one or two members short. Two of the lost replicates, rerun from their seeds, completed without error,
+so the losses are plausibly independent of the data; a full rerun with a CPU-time guard was not done.
+
+# What this does not answer {#sec-limits}
+
+Observation-model draws hold Guyot's event-count rounding fixed and use no likelihood for the
+published ordinates, so they are not the posterior; a principled imputation was not built. One arm,
+no downstream comparison: how the tail miscalibration propagates into a population-adjusted or
+component comparison is CMP-17's question. No human digitization error, line width or censoring
+marks; one sample size. The positive control failed, so milestone survival was never materially
+affected here. The mechanism analyses are post hoc. Peer review has not been done.
+
+# References {.unnumbered}
