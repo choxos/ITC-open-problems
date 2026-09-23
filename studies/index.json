@@ -432,25 +432,78 @@
  },
  "COV-04": {
   "slug": "COV-04-coverage-with-the-selection-step-included",
-  "title": "Coverage of shrinkage and selection priors on interactions",
-  "status": "running",
+  "title": "Shrinkage priors on interactions do not give honest intervals for a transported effect",
+  "status": "complete",
   "question": "Do posterior intervals from shrinkage or selection priors on treatment-by-covariate interactions keep frequentist coverage for the transported effect when the whole procedure is repeated?",
-  "answer": null,
-  "findings": [],
-  "not_answered": null,
+  "answer": "No. Continuous shrinkage does not select, but its intervals still undercovered: 95% posterior intervals for the transported effect covered 0.794 to 0.948 with an empirical-Bayes ridge prior and 0.868 to 0.959 with a hierarchical normal prior, against 0.939 to 0.955 for a flat prior. When the interactions the target weights push the effect the same way, their joint shrinkage biases the transported effect (up to 0.19) and the narrower interval does not carry the bias. Integrating the prior scale recovers only part of the loss.",
+  "findings": [
+   "Worst cell, three moderate modifiers at 100 per arm: empirical-Bayes ridge 0.794, hierarchical normal 0.868, spike-and-slab averaging 0.908, median-probability model 0.785, flat 0.954.",
+   "Plugging in the fitted prior scale costs up to 0.074 coverage relative to integrating it; the remainder is prior-truth conflict at a fixed nonzero truth.",
+   "The median-probability model's conditional interval, the Bayesian form of DEC-11's selection, was the worst prior at 300 per arm (0.840 with three moderate modifiers).",
+   "With one strong modifier at 300 per arm every prior except the median-probability model covered at least 0.948."
+  ],
+  "not_answered": "Continuous outcome with conjugate priors; no horseshoe, heredity constraints or projection-predictive selection; aligned modifiers only, no null scenario. Peer review has not been done.",
   "design": "Continuous-outcome STC with eight candidate interactions, one strong or three moderate modifiers, two sample sizes; flat, empirical-Bayes ridge, hierarchical normal, spike-and-slab averaging and median-probability-model priors. 4 cells, 1000 replicates each.",
-  "n_sim": null,
-  "estimand": null,
-  "methods_compared": [],
-  "date_completed": null,
+  "n_sim": "1000 per cell, 4 cells",
+  "estimand": "Target-population mean difference, A versus C, -0.5 + 0.5 times the sum of the interactions",
+  "methods_compared": [
+   "flat prior",
+   "empirical-Bayes ridge",
+   "hierarchical normal (half-Cauchy scale)",
+   "spike-and-slab model averaging",
+   "median-probability model"
+  ],
+  "date_completed": "2026-09-23",
   "week": null,
   "code": "studies/COV-04-coverage-with-the-selection-step-included",
   "protocol": "studies/COV-04-coverage-with-the-selection-step-included/out/COV-04-protocol.md",
   "review": null,
   "review_rounds": 0,
-  "downloads": {},
+  "downloads": {
+   "gfm": "studies/COV-04-coverage-with-the-selection-step-included/out/COV-04.md",
+   "pdf": "studies/COV-04-coverage-with-the-selection-step-included/out/COV-04.pdf",
+   "odt": "studies/COV-04-coverage-with-the-selection-step-included/out/COV-04.odt"
+  },
   "primary_problem": "COV-04",
   "secondary": false
+ },
+ "COV-01": {
+  "slug": "DEC-11-selection-uncertainty-and-what-belongs-in-an-interval",
+  "title": "Coverage of an STC interval after selecting effect modifiers on the same data",
+  "status": "complete",
+  "question": "When effect modifiers are selected on the analyzed data before an STC, does an interval that treats the selected model as fixed keep its coverage, and does resampling the whole procedure restore it?",
+  "answer": "Selecting effect modifiers on the analyzed data (interactions with p < 0.2) left the naive STC interval covering 0.887 to 0.927, because its SE ignored which model was selected; a bootstrap that repeats the selection restored 0.938 to 0.968. Lasso at the one-standard-error penalty dropped real modifiers and coverage fell to 0.33 with three modifiers at 1000 per arm. Fitting all candidate interactions kept coverage at 0.93 to 0.96.",
+  "findings": [
+   "Refuting sentence fails: naive coverage after significance selection below 0.93 beyond Monte Carlo error in some scenarios (0.887 to 0.927); bias at most 0.046.",
+   "Whole-procedure bootstrap: 0.938 to 0.968.",
+   "Lasso (lambda 1se) kept on average 0.01 to 0.15 interactions; coverage as low as 0.333 and bias about -0.2 with three real modifiers.",
+   "The shortfall was not monotone in sample size with three modifiers (largest at 300 per arm), as registered."
+  ],
+  "not_answered": "STC only; MAIC-based selection, overlap, larger candidate sets and target-summary uncertainty not run; 400 replicates. Peer review has not been done.",
+  "design": "G-computation STC with six candidate modifiers, five selection rules (all, oracle, none, p < 0.2, lasso), naive and whole-procedure bootstrap intervals, three sample sizes and one or three true modifiers. 400 replicates per cell.",
+  "n_sim": "400 per scenario, 2,400 in total, each with a 60-resample bootstrap",
+  "estimand": "Target-population marginal log odds ratio, A versus C",
+  "methods_compared": [
+   "all interactions",
+   "oracle interactions",
+   "no interactions",
+   "p < 0.2 selection with naive interval",
+   "p < 0.2 selection with whole-procedure bootstrap",
+   "lasso selection"
+  ],
+  "date_completed": "2026-09-23",
+  "week": null,
+  "code": "studies/DEC-11-selection-uncertainty-and-what-belongs-in-an-interval",
+  "protocol": "studies/DEC-11-selection-uncertainty-and-what-belongs-in-an-interval/out/DEC-11-protocol.md",
+  "review": null,
+  "review_rounds": 0,
+  "downloads": {
+   "gfm": "studies/DEC-11-selection-uncertainty-and-what-belongs-in-an-interval/out/DEC-11.md",
+   "pdf": "studies/DEC-11-selection-uncertainty-and-what-belongs-in-an-interval/out/DEC-11.pdf",
+   "odt": "studies/DEC-11-selection-uncertainty-and-what-belongs-in-an-interval/out/DEC-11.odt"
+  },
+  "primary_problem": "DEC-11",
+  "secondary": true
  },
  "COV-09": {
   "slug": "COV-09-balancing-a-number-that-means-different-things",
@@ -702,44 +755,6 @@
   },
   "primary_problem": "DEC-11",
   "secondary": false
- },
- "COV-01": {
-  "slug": "DEC-11-selection-uncertainty-and-what-belongs-in-an-interval",
-  "title": "Coverage of an STC interval after selecting effect modifiers on the same data",
-  "status": "complete",
-  "question": "When effect modifiers are selected on the analyzed data before an STC, does an interval that treats the selected model as fixed keep its coverage, and does resampling the whole procedure restore it?",
-  "answer": "Selecting effect modifiers on the analyzed data (interactions with p < 0.2) left the naive STC interval covering 0.887 to 0.927, because its SE ignored which model was selected; a bootstrap that repeats the selection restored 0.938 to 0.968. Lasso at the one-standard-error penalty dropped real modifiers and coverage fell to 0.33 with three modifiers at 1000 per arm. Fitting all candidate interactions kept coverage at 0.93 to 0.96.",
-  "findings": [
-   "Refuting sentence fails: naive coverage after significance selection below 0.93 beyond Monte Carlo error in some scenarios (0.887 to 0.927); bias at most 0.046.",
-   "Whole-procedure bootstrap: 0.938 to 0.968.",
-   "Lasso (lambda 1se) kept on average 0.01 to 0.15 interactions; coverage as low as 0.333 and bias about -0.2 with three real modifiers.",
-   "The shortfall was not monotone in sample size with three modifiers (largest at 300 per arm), as registered."
-  ],
-  "not_answered": "STC only; MAIC-based selection, overlap, larger candidate sets and target-summary uncertainty not run; 400 replicates. Peer review has not been done.",
-  "design": "G-computation STC with six candidate modifiers, five selection rules (all, oracle, none, p < 0.2, lasso), naive and whole-procedure bootstrap intervals, three sample sizes and one or three true modifiers. 400 replicates per cell.",
-  "n_sim": "400 per scenario, 2,400 in total, each with a 60-resample bootstrap",
-  "estimand": "Target-population marginal log odds ratio, A versus C",
-  "methods_compared": [
-   "all interactions",
-   "oracle interactions",
-   "no interactions",
-   "p < 0.2 selection with naive interval",
-   "p < 0.2 selection with whole-procedure bootstrap",
-   "lasso selection"
-  ],
-  "date_completed": "2026-09-23",
-  "week": null,
-  "code": "studies/DEC-11-selection-uncertainty-and-what-belongs-in-an-interval",
-  "protocol": "studies/DEC-11-selection-uncertainty-and-what-belongs-in-an-interval/out/DEC-11-protocol.md",
-  "review": null,
-  "review_rounds": 0,
-  "downloads": {
-   "gfm": "studies/DEC-11-selection-uncertainty-and-what-belongs-in-an-interval/out/DEC-11.md",
-   "pdf": "studies/DEC-11-selection-uncertainty-and-what-belongs-in-an-interval/out/DEC-11.pdf",
-   "odt": "studies/DEC-11-selection-uncertainty-and-what-belongs-in-an-interval/out/DEC-11.odt"
-  },
-  "primary_problem": "DEC-11",
-  "secondary": true
  },
  "DIA-02": {
   "slug": "DIA-02-the-whole-weight-panel-is-a-multiset-functional",

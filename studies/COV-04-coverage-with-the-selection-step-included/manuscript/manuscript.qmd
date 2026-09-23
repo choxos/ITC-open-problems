@@ -1,0 +1,118 @@
+---
+title: "Shrinkage priors on interactions do not give honest intervals for a transported effect"
+subtitle: "A simulation study answering catalog problem COV-04"
+author: "Ahmad Sofi-Mahmudi"
+date: 2026-09-23
+bibliography: references.bib
+csl: ../../../vancouver.csl
+link-citations: true
+number-sections: true
+execute:
+  echo: false
+  warning: false
+  message: false
+format:
+  gfm:
+    toc: false
+  pdf:
+    documentclass: article
+    geometry: margin=1in
+    fig-pos: "H"
+  odt: default
+---
+
+```{r setup}
+s <- read.csv("../results/summary.csv")
+f3 <- function(x) formatC(x, format = "f", digits = 3)
+v <- function(m, col = "coverage") s[[col]][s$method == m]
+rg <- function(m, col = "coverage") paste(f3(min(v(m, col))), "to", f3(max(v(m, col))))
+at <- function(m, n, pat, col = "coverage") s[[col]][s$method == m & s$n == n & s$pattern == pat]
+```
+
+# Abstract {.unnumbered}
+
+**Background.** Simulated treatment comparison needs the treatment-by-covariate
+interactions, and with many candidates analysts shrink or select them. Continuous
+shrinkage does not select, so its posterior interval is often taken to be honest by
+construction. Catalog problem COV-04 asks whether it is.
+
+**Methods.** Continuous-outcome STC with eight candidate interactions, one strong
+modifier or three moderate ones, 100 or 300 patients per arm; 1000 replicates per
+cell with the whole procedure rerun each time. Five priors on the interactions: flat,
+empirical-Bayes ridge, hierarchical normal, spike-and-slab averaging and the
+median-probability model.
+
+**Results.** Coverage of the transported effect's 95% interval was
+`r rg("eb_ridge")` for empirical-Bayes ridge, `r rg("hier_normal")` for the
+hierarchical normal, `r rg("spike_slab")` for spike-and-slab averaging,
+`r rg("median_model")` for the median-probability model and `r rg("flat")` for the
+flat prior. Every non-flat prior's bias was negative, toward no effect modification,
+reaching `r f3(-min(s$bias))` with three moderate modifiers at 100 per arm.
+
+**Conclusion.** Shrinkage does not select but it still undercovers: when the
+interactions the target weights push the effect in one direction, their joint
+shrinkage biases the transported effect and the narrower interval does not carry
+that bias. Only the flat prior was honest in every cell.
+
+# The problem {#sec-problem}
+
+The transported effect in STC is the conditional effect plus the interactions weighted
+by the target's covariate means. Shrinking the interactions toward zero pulls that
+sum toward the source-population effect. If the interactions share a sign relative
+to the target shift, the pull accumulates rather than averaging out. A posterior
+interval is centered on the shrunk sum and is narrower than the flat one, so whether
+it covers at a fixed truth is an empirical question, not a property of the prior
+class. The median-probability model [@barbieri2004] conditions on a selected set and
+is the Bayesian form of DEC-11's selection problem.
+
+# Design {#sec-design}
+
+Registered protocol: `protocol.md`; ADEMP as in @morris2019. Eight independent
+$N(0, 1)$ covariates; $y = 0.5\sum_j x_j + A(-0.5 + \sum_m \beta_m x_m) + e$,
+$e \sim N(0, 1)$, with $\beta = 0.5$ on one covariate or $0.25$ on three. Target
+covariate means 0.5; estimand $-0.5 + 0.5\sum_m\beta_m$. Main effects flat, residual
+SD plugged in, conjugate normal posteriors computed exactly. Empirical-Bayes ridge
+sets the interaction prior SD by maximizing the marginal likelihood; the hierarchical
+normal integrates it over a half-Cauchy(0, 0.5) prior [@gelman2006]; spike-and-slab
+averages over all 256 inclusion patterns (slab SD 0.5, inclusion probability 0.5).
+
+# Results {#sec-results}
+
+![Coverage by prior. Dashed: nominal 0.95; dotted: the registered threshold 0.93.](figures/fig1-coverage.png){#fig-coverage}
+
+| n per arm | modifiers | prior | bias | coverage | width |
+|---:|---|---|---:|---:|---:|
+`r paste(sprintf("| %d | %s | %s | %s | %s | %s |", s$n, ifelse(s$pattern == "one_strong", "one strong", "three moderate"), gsub("_", " ", s$method), f3(s$bias), f3(s$coverage), f3(s$width)), collapse = "\n")`
+
+: 1000 replicates per cell; coverage MCSE at most 0.013. {#tbl-main}
+
+The registered failure condition held: both continuous-shrinkage priors covered below
+0.93 beyond Monte Carlo error, worst with three moderate modifiers at 100 per arm
+(empirical-Bayes ridge `r f3(at("eb_ridge", 100, "three_moderate"))`, hierarchical
+normal `r f3(at("hier_normal", 100, "three_moderate"))`). Three moderate modifiers
+were worse than one strong one because each is individually weak and is shrunk
+further, while the target sums all three.
+
+Integrating the prior scale instead of plugging in its maximum recovered part of the
+loss (`r f3(at("eb_ridge", 100, "three_moderate"))` to
+`r f3(at("hier_normal", 100, "three_moderate"))`), which is the uncertainty in the
+fitted scale that DESIGN.md pointed to. The rest is the bias a zero-centered prior
+imposes at a fixed nonzero truth, and fully Bayesian averaging does not remove it.
+Spike-and-slab averaging undercovered less (lowest `r f3(min(v("spike_slab")))`)
+because its slab leaves included interactions nearly unshrunk. Selecting the
+median-probability model and conditioning on it was the worst prior at 300 per arm
+and within 0.011 of the empirical-Bayes ridge at 100.
+
+Larger trials reduced every bias, and with one strong modifier at 300 per arm every
+prior except the median-probability model covered at least 0.948.
+
+# What this does not answer {#sec-limits}
+
+Continuous outcome with conjugate normal priors; the regularized horseshoe, heredity
+constraints and projection-predictive selection were not run. All true interactions
+were nonnegative and the target shift was the same for every covariate, which is the
+aligned case; with interactions of mixed sign relative to the shift the shrinkage bias
+partly cancels and coverage should be closer to nominal. No null scenario without
+modifiers. Peer review has not been done.
+
+# References {.unnumbered}
