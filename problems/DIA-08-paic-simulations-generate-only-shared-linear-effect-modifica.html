@@ -390,6 +390,7 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#why-it-is-open" id="toc-why-it-is-open" class="nav-link" data-scroll-target="#why-it-is-open">Why it is open</a></li>
   <li><a href="#what-has-been-tried" id="toc-what-has-been-tried" class="nav-link" data-scroll-target="#what-has-been-tried">What has been tried</a></li>
   <li><a href="#probable-solution-or-research-direction" id="toc-probable-solution-or-research-direction" class="nav-link" data-scroll-target="#probable-solution-or-research-direction">Probable solution or research direction</a></li>
+  <li><a href="#our-study" id="toc-our-study" class="nav-link" data-scroll-target="#our-study">Our study</a></li>
   <li><a href="#verification" id="toc-verification" class="nav-link" data-scroll-target="#verification">Verification</a></li>
   <li><a href="#how-the-evidence-falls-in-time" id="toc-how-the-evidence-falls-in-time" class="nav-link" data-scroll-target="#how-the-evidence-falls-in-time">How the evidence falls in time</a></li>
   <li><a href="#related-problems" id="toc-related-problems" class="nav-link" data-scroll-target="#related-problems">Related problems</a></li>
@@ -433,6 +434,19 @@ ul.task-list li input[type="checkbox"] {
 <div class="problem-meta">
 <p><span class="problem-id">DIA-08</span> <span class="verdict verdict-overstated">Overstated</span> <span class="chip chip-priority-very-high">Very high priority</span> <span class="chip chip-maturity-promising">Promising</span></p>
 </div>
+<div class="callout callout-style-simple callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>A study has been run against this problem
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Not at these magnitudes. The RMSE ordering under shared linear modification was reproduced under threshold, interaction and quadratic modification at every overlap level (rank correlation 0.9 to 1.0, the only change a swap between the two worst methods). STC with linear interactions ranked first everywhere even though the departures biased it by up to 0.12, because weighting methods lost more to variance at poor overlap. The generator decides a ranking only when a departure’s bias exceeds the precision differences between methods. <a href="#our-study">Read the study below</a>.</p>
+</div>
+</div>
 <section id="statement" class="level2">
 <h2 class="anchored" data-anchor-id="statement">Statement</h2>
 <p>PAIC simulation generators have begun to include non-normal, bimodal and Gamma covariates and deliberate positivity violations: Phillippo et al.&nbsp;2020 (doi:10.1002/sim.8759) includes Gamma covariate scenarios and an explicit overlap sweep from no overlap to full overlap, Serret-Larmande et al.&nbsp;2025 (arxiv:2507.12241) runs eight scenarios from ideal conditions to positivity violations with bimodal covariates, and copula (NORTA) generation of comparator covariates from reported summaries is already in use (doi:10.1017/rsm.2025.13). The premise also needs correcting: matching the full mean vector and covariance matrix of a nonsingular multivariate normal fixes the joint law, so the matched-moments failure mode comes from balancing a finite set of reported moments rather than from Gaussianity as such, and a shared-linear generator can still separate methods on efficiency, variance and finite-sample behavior even though it cannot test robustness to departures. The gap that survives is on the effect-modification side: component-specific, nonlinear-threshold and subnetwork-varying modification, decoupling of the within-study interaction from the between-study ecological gradient, participation-only variables and trial-engagement effects are all absent.</p>
@@ -471,6 +485,43 @@ ul.task-list li input[type="checkbox"] {
 <section id="probable-solution-or-research-direction" class="level2">
 <h2 class="anchored" data-anchor-id="probable-solution-or-research-direction">Probable solution or research direction</h2>
 <p>Take the non-normal, bimodal and copula-based covariate generators that already exist and add explicit control over local support gaps, tail behavior and correlation, so that scenarios matching every reported moment while having disjoint local support can be produced on demand; vary target definition (trial, registry, pooled, overlap), measurement error, differing cut-points and missing target moments with wrong dependence assumptions as factors rather than fixing them. Concentrate new work on the effect-modification side by generating treatment-specific, component-specific, nonlinear-threshold, modifier-by-modifier and subnetwork-varying modification, and explicitly decoupling the within-study interaction from the between-study ecological gradient so aggregation bias becomes measurable. Add participation-only variables and trial-engagement effects through an explicit selection model to test whether adjusting for them inflates variance or induces bias.</p>
+</section>
+<section id="our-study" class="level2">
+<h2 class="anchored" data-anchor-id="our-study">Our study</h2>
+<div class="study-result">
+<p><strong>Does the generator’s effect-modification structure decide the method ranking?</strong></p>
+<p><strong>The question put to it.</strong> When effect modification departs from the shared linear form most simulations use, does the ranking of population-adjustment methods change?</p>
+<p><strong>What it found.</strong> Not at these magnitudes. The RMSE ordering under shared linear modification was reproduced under threshold, interaction and quadratic modification at every overlap level (rank correlation 0.9 to 1.0, the only change a swap between the two worst methods). STC with linear interactions ranked first everywhere even though the departures biased it by up to 0.12, because weighting methods lost more to variance at poor overlap. The generator decides a ranking only when a departure’s bias exceeds the precision differences between methods.</p>
+<p><strong>Results.</strong></p>
+<ul>
+<li>Registered verdict REFUTED: Spearman correlation between the linear and departure orderings 0.9 to 1.0 in all 9 comparisons (the analysis first classified one exact 0.9 as below threshold through floating point; rounding fixed it).</li>
+<li>STC linear bias under the interaction and quadratic departures at target mean 1.2: 0.12 and 0.10, coverage 0.94; RMSE 0.34 against 0.53 to 0.56 for MAIC.</li>
+<li>Quadratic STC did not overtake linear STC under the departures it models: its extra variance exceeded the bias it removed.</li>
+<li>Skewed covariates with linear modification reordered methods as much as any modification departure.</li>
+</ul>
+<p><strong>Design.</strong></p>
+<dl>
+<dt>Estimand</dt>
+<dd>
+Marginal log odds ratio, B versus A, in the target population
+</dd>
+<dt>Methods compared</dt>
+<dd>
+unadjusted (Bucher), MAIC on means, MAIC on means and SDs, STC with linear interactions, STC with quadratic and product interactions
+</dd>
+<dt>Data-generating mechanism</dt>
+<dd>
+Anchored binary-outcome comparison with reported moments held fixed; linear, threshold, interaction and quadratic modification at three overlap levels, plus skewed covariates; unadjusted, two MAIC and two STC specifications ranked by RMSE and compared by rank correlation. 2000 replicates per cell.
+</dd>
+<dt>Replicates</dt>
+<dd>
+2000 per scenario, 32,000 in total
+</dd>
+</dl>
+<p><strong>What this does not answer.</strong> Moderate departure magnitudes only; treatment-specific, subnetwork and within-versus-between departures need a network and were not run; no ML-NMR. Peer review has not been done.</p>
+<p><strong>Peer review.</strong> Not yet done. The result stands on the study alone until it is.</p>
+<p>Read it: <a href="../studies/DIA-08-generators-that-decide-the-comparison/out/DIA-08.pdf">PDF</a> · <a href="../studies/DIA-08-generators-that-decide-the-comparison/out/DIA-08.md">Markdown</a> · <a href="../studies/DIA-08-generators-that-decide-the-comparison/out/DIA-08.odt">OpenDocument</a> · Code and data: <a href="https://github.com/choxos/ITC-open-problems/tree/main/studies/DIA-08-generators-that-decide-the-comparison">studies/DIA-08-generators-that-decide-the-comparison</a> · Protocol: <a href="../studies/DIA-08-generators-that-decide-the-comparison/out/DIA-08-protocol.md">registered before the run</a></p>
+</div>
 </section>
 <section id="verification" class="level2">
 <h2 class="anchored" data-anchor-id="verification">Verification</h2>

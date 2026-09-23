@@ -390,6 +390,7 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#why-it-is-open" id="toc-why-it-is-open" class="nav-link" data-scroll-target="#why-it-is-open">Why it is open</a></li>
   <li><a href="#what-has-been-tried" id="toc-what-has-been-tried" class="nav-link" data-scroll-target="#what-has-been-tried">What has been tried</a></li>
   <li><a href="#probable-solution-or-research-direction" id="toc-probable-solution-or-research-direction" class="nav-link" data-scroll-target="#probable-solution-or-research-direction">Probable solution or research direction</a></li>
+  <li><a href="#our-study" id="toc-our-study" class="nav-link" data-scroll-target="#our-study">Our study</a></li>
   <li><a href="#verification" id="toc-verification" class="nav-link" data-scroll-target="#verification">Verification</a></li>
   <li><a href="#how-the-evidence-falls-in-time" id="toc-how-the-evidence-falls-in-time" class="nav-link" data-scroll-target="#how-the-evidence-falls-in-time">How the evidence falls in time</a></li>
   <li><a href="#related-problems" id="toc-related-problems" class="nav-link" data-scroll-target="#related-problems">Related problems</a></li>
@@ -433,6 +434,19 @@ ul.task-list li input[type="checkbox"] {
 <div class="problem-meta">
 <p><span class="problem-id">QBA-24</span> <span class="verdict verdict-partially-addressed">Partially addressed</span> <span class="chip chip-priority-very-high">Very high priority</span> <span class="chip chip-maturity-emerging">Emerging</span> <span class="chip">Tractability 3/5</span></p>
 </div>
+<div class="callout callout-style-simple callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>A study has been run against this problem
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>No.&nbsp;The RMST change caused by a hazard-scale bias depends on the baseline hazard’s shape and the event level: at the same survival by 24 months the same bias moved RMST up to 1.44 times as much for a decreasing as for an increasing hazard, and the proportional (first-order) reinterpretation understated the change by about 25% with few events and overstated it by up to 8% with many. A hazard-ratio sensitivity analysis must be translated with the baseline curve or stated on the RMST scale. <a href="#our-study">Read the study below</a>.</p>
+</div>
+</div>
 <section id="statement" class="level2">
 <h2 class="anchored" data-anchor-id="statement">Statement</h2>
 <p>When proportional hazards is implausible a QBA reporting only a hazard ratio does not answer the decision question, and sensitivity should target the survival functional the decision uses, such as landmark survival, RMST difference, cumulative incidence under competing risks, cure fraction, recurrent-event burden or multistate occupancy; differing follow-up alone does not invalidate a hazard ratio when proportional hazards holds and that ratio is the prespecified estimand. Soutar et al.&nbsp;2025 (doi:10.1186/s12874-025-02551-z) supply subject-level Bayesian data-augmentation QBA for the difference in RMST under user-specified exposure and outcome associations, recovering the target with minimal bias in the simulated structures studied, but they assume subject-level data for both groups and report that lacking IPD blocked plausibility assessment of their sensitivity scenarios in the applied example. The limited-aggregate-data extension is the open part, and where pseudo-IPD is reconstructed from a published curve its reconstruction error is a distinct uncertainty layer, although landmark survival and in-window RMST can be estimated from a published Kaplan-Meier curve without reconstructing pseudo-IPD at all.</p>
@@ -467,6 +481,41 @@ ul.task-list li input[type="checkbox"] {
 <section id="probable-solution-or-research-direction" class="level2">
 <h2 class="anchored" data-anchor-id="probable-solution-or-research-direction">Probable solution or research direction</h2>
 <p>Develop estimand-specific survival QBA that parameterizes bias directly for the quantity the economic model uses and reports the sensitivity surface on that scale rather than the hazard scale, and extend the subject-level RMST data-augmentation route to aggregate or reconstructed comparators with tipping combinations of exposure and survival associations. Where landmark survival or in-window RMST is the target, work from the published Kaplan-Meier curve directly rather than reconstructing pseudo-IPD; where reconstruction is unavoidable, build a distribution over reconstructions consistent with the published curve, numbers at risk and event counts, and propagate that uncertainty together with the confounding parameters. Add censoring QBA when informative censoring is plausible rather than by default.</p>
+</section>
+<section id="our-study" class="level2">
+<h2 class="anchored" data-anchor-id="our-study">Our study</h2>
+<div class="study-result">
+<p><strong>Does a hazard-scale bias translate proportionally into RMST?</strong></p>
+<p><strong>The question put to it.</strong> Can a sensitivity analysis stated as a hazard-ratio bias be reinterpreted as a proportional bias in RMST, the quantity the decision uses?</p>
+<p><strong>What it found.</strong> No.&nbsp;The RMST change caused by a hazard-scale bias depends on the baseline hazard’s shape and the event level: at the same survival by 24 months the same bias moved RMST up to 1.44 times as much for a decreasing as for an increasing hazard, and the proportional (first-order) reinterpretation understated the change by about 25% with few events and overstated it by up to 8% with many. A hazard-ratio sensitivity analysis must be translated with the baseline curve or stated on the RMST scale.</p>
+<p><strong>Results.</strong></p>
+<ul>
+<li>Refuting sentence fails: ratio of largest to smallest RMST change across shapes 1.20 to 1.44 at matched survival.</li>
+<li>Proportional prediction error at a bias hazard ratio of 2: -25% to -26% at 80% survival, -14% to -17% at 50%, -1% to +8% at 20%.</li>
+</ul>
+<p><strong>Design.</strong></p>
+<dl>
+<dt>Estimand</dt>
+<dd>
+Change in RMST at 24 months induced by a multiplicative hazard bias
+</dd>
+<dt>Methods compared</dt>
+<dd>
+exact translation by integration, proportional (first-order) reinterpretation
+</dd>
+<dt>Data-generating mechanism</dt>
+<dd>
+Population-level numerical study: four baseline hazard shapes at three survival levels, bias hazard ratios 1.1 to 2, RMST at 24 months against the first-order proportional prediction.
+</dd>
+<dt>Replicates</dt>
+<dd>
+Population-level calculation: 4 shapes x 3 survival levels x 4 bias levels
+</dd>
+</dl>
+<p><strong>What this does not answer.</strong> Only the hazard-to-RMST translation; the PAIC layer, pseudo-IPD and curve-based arms, reconstruction error and tipping sets not run. Peer review has not been done.</p>
+<p><strong>Peer review.</strong> Not yet done. The result stands on the study alone until it is.</p>
+<p>Read it: <a href="../studies/QBA-24-bias-parameterized-on-the-scale-the-decision-uses/out/QBA-24.pdf">PDF</a> · <a href="../studies/QBA-24-bias-parameterized-on-the-scale-the-decision-uses/out/QBA-24.md">Markdown</a> · <a href="../studies/QBA-24-bias-parameterized-on-the-scale-the-decision-uses/out/QBA-24.odt">OpenDocument</a> · Code and data: <a href="https://github.com/choxos/ITC-open-problems/tree/main/studies/QBA-24-bias-parameterized-on-the-scale-the-decision-uses">studies/QBA-24-bias-parameterized-on-the-scale-the-decision-uses</a> · Protocol: <a href="../studies/QBA-24-bias-parameterized-on-the-scale-the-decision-uses/out/QBA-24-protocol.md">registered before the run</a></p>
+</div>
 </section>
 <section id="verification" class="level2">
 <h2 class="anchored" data-anchor-id="verification">Verification</h2>

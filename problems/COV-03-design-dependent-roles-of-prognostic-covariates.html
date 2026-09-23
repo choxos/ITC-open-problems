@@ -434,6 +434,19 @@ ul.task-list li input[type="checkbox"] {
 <div class="problem-meta">
 <p><span class="problem-id">COV-03</span> <span class="verdict verdict-overstated">Overstated</span> <span class="chip chip-priority-high">High priority</span> <span class="chip chip-maturity-established">Established</span></p>
 </div>
+<div class="callout callout-style-simple callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>A study has been run against this problem
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Yes. On the log odds ratio scale a difference in the spread of prognosis between trials biases an anchored MAIC that balances only means by up to 0.11, even with no effect modification. Balancing variances or the variance of the prognostic index removes the bias, but when the source is less dispersed than the target the loss of effective sample size makes RMSE worse than not balancing. G-computation was unbiased with the lowest RMSE throughout. <a href="#our-study">Read the study below</a>.</p>
+</div>
+</div>
 <section id="statement" class="level2">
 <h2 class="anchored" data-anchor-id="statement">Statement</h2>
 <p>Whether a strong prognostic non-modifier should be adjusted for depends on the estimand and the design, not on the variable alone. For a conditional or collapsible effect in an anchored comparison, balancing such a variable spends effective sample size without removing bias, although including it in an outcome model can improve precision. For non-collapsible measures such as the odds ratio or hazard ratio, a variable that is purely prognostic on the conditional scale can still change the marginal effect, so cross-study imbalance in it can bias an anchored marginal comparison even when marginal covariate moments are balanced (Remiro-Azocar 2024, doi:10.1002/sim.10111). In unanchored comparisons, omitting prognostic variables biases the cross-study contrast on any scale.</p>
@@ -479,20 +492,39 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="our-study" class="level2">
 <h2 class="anchored" data-anchor-id="our-study">Our study</h2>
-<div class="callout callout-style-simple callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>A study is running
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p><strong>Question.</strong> On the log odds ratio scale a purely prognostic covariate changes the marginal effect. Does an anchored MAIC that balances only covariate means, as practice does, leave material bias, and does balancing the variance of the prognostic index remove it at acceptable cost in effective sample size?</p>
-<p><strong>Design.</strong> Anchored and unanchored binary-outcome comparisons, 108 cells crossing prognostic strength, the source-to-target ratio of prognostic index variance, target mean shift and effect modification; five methods including MAIC on means, on means and variances, on the prognostic index variance, and G-computation. 1000 replicates per cell.</p>
-<p>The protocol is registered before any result is seen: <a href="../studies/COV-03-prognostic-index-variance/out/COV-03-protocol.md">read it</a>.</p>
-</div>
+<div class="study-result">
+<p><strong>What an anchored comparison must balance on a non-collapsible scale</strong></p>
+<p><strong>The question put to it.</strong> On the log odds ratio scale a purely prognostic covariate changes the marginal effect. Does an anchored MAIC that balances only covariate means, as practice does, leave material bias, and does balancing the variance of the prognostic index remove it at acceptable cost in effective sample size?</p>
+<p><strong>What it found.</strong> Yes. On the log odds ratio scale a difference in the spread of prognosis between trials biases an anchored MAIC that balances only means by up to 0.11, even with no effect modification. Balancing variances or the variance of the prognostic index removes the bias, but when the source is less dispersed than the target the loss of effective sample size makes RMSE worse than not balancing. G-computation was unbiased with the lowest RMSE throughout.</p>
+<p><strong>Results.</strong></p>
+<ul>
+<li>MAIC on means biased by 0.05 to 0.11 in the 12 primary anchored scenarios, beyond 0.05 (95% Monte Carlo interval) in 9; registered verdict CONFIRMED.</li>
+<li>Unadjusted anchored bias on the exact population bias: slope 0.981 (SE 0.018).</li>
+<li>Balancing variances cut the bias to at most 0.08 (0.02 in all but one scenario) but dropped effective sample size to 44 to 284 of 1000 when the source index variance was half the target’s.</li>
+<li>G-computation: largest absolute bias 0.024 anchored and 0.020 unanchored, lowest RMSE in every primary scenario.</li>
+</ul>
+<p><strong>Design.</strong></p>
+<dl>
+<dt>Estimand</dt>
+<dd>
+Marginal log odds ratio, B versus A, in the target population
+</dd>
+<dt>Methods compared</dt>
+<dd>
+unadjusted, MAIC on means, MAIC on means and variances, MAIC on means and the prognostic index variance, G-computation
+</dd>
+<dt>Data-generating mechanism</dt>
+<dd>
+Anchored and unanchored binary-outcome comparisons, 108 cells crossing prognostic strength, the source-to-target ratio of prognostic index variance, target mean shift and effect modification; five methods including MAIC on means, on means and variances, on the prognostic index variance, and G-computation. 1000 replicates per cell.
+</dd>
+<dt>Replicates</dt>
+<dd>
+1000 per scenario, 108,000 in total
+</dd>
+</dl>
+<p><strong>What this does not answer.</strong> Independent normal covariates and a correctly specified outcome model favor G-computation. Hazard ratios, skewed covariates and augmented estimators not run; MAIC intervals treat weights as fixed. Peer review has not been done.</p>
+<p><strong>Peer review.</strong> Not yet done. The result stands on the study alone until it is.</p>
+<p>Read it: <a href="../studies/COV-03-prognostic-index-variance/out/COV-03.pdf">PDF</a> · <a href="../studies/COV-03-prognostic-index-variance/out/COV-03.md">Markdown</a> · <a href="../studies/COV-03-prognostic-index-variance/out/COV-03.odt">OpenDocument</a> · Code and data: <a href="https://github.com/choxos/ITC-open-problems/tree/main/studies/COV-03-prognostic-index-variance">studies/COV-03-prognostic-index-variance</a> · Protocol: <a href="../studies/COV-03-prognostic-index-variance/out/COV-03-protocol.md">registered before the run</a></p>
 </div>
 </section>
 <section id="verification" class="level2">

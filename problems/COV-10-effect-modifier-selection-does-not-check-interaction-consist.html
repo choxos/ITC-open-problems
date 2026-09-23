@@ -390,6 +390,7 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#why-it-is-open" id="toc-why-it-is-open" class="nav-link" data-scroll-target="#why-it-is-open">Why it is open</a></li>
   <li><a href="#what-has-been-tried" id="toc-what-has-been-tried" class="nav-link" data-scroll-target="#what-has-been-tried">What has been tried</a></li>
   <li><a href="#probable-solution-or-research-direction" id="toc-probable-solution-or-research-direction" class="nav-link" data-scroll-target="#probable-solution-or-research-direction">Probable solution or research direction</a></li>
+  <li><a href="#our-study" id="toc-our-study" class="nav-link" data-scroll-target="#our-study">Our study</a></li>
   <li><a href="#verification" id="toc-verification" class="nav-link" data-scroll-target="#verification">Verification</a></li>
   <li><a href="#related-problems" id="toc-related-problems" class="nav-link" data-scroll-target="#related-problems">Related problems</a></li>
   <li><a href="#source" id="toc-source" class="nav-link" data-scroll-target="#source">Source</a></li>
@@ -431,6 +432,19 @@ ul.task-list li input[type="checkbox"] {
 
 <div class="problem-meta">
 <p><span class="problem-id">COV-10</span> <span class="verdict verdict-confirmed-open">Confirmed open</span> <span class="chip chip-priority-high">High priority</span> <span class="chip chip-maturity-promising">Promising</span> <span class="chip">Tractability 3/5</span></p>
+</div>
+<div class="callout callout-style-simple callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>A study has been run against this problem
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Opposing interactions on direct and indirect paths attenuate the pooled network meta-regression interaction toward zero, fully at the balance point and partly across a continuum, while the effect-consistency check stays at its null rate. The target effect was biased by 0.13 to 0.30 whether or not the covariate was selected. A direct interaction-consistency check detects it when studies per path and covariate spread are adequate (up to 1.00) and has little power otherwise (0.16 with two studies and narrow spread). <a href="#our-study">Read the study below</a>.</p>
+</div>
 </div>
 <section id="statement" class="level2">
 <h2 class="anchored" data-anchor-id="statement">Statement</h2>
@@ -482,6 +496,43 @@ ul.task-list li input[type="checkbox"] {
 <section id="probable-solution-or-research-direction" class="level2">
 <h2 class="anchored" data-anchor-id="probable-solution-or-research-direction">Probable solution or research direction</h2>
 <p>Make the interaction consistency check part of modifier selection rather than a separate methodological exercise: implement interaction node splitting and the interaction design-by-treatment model in a maintained package so a candidate covariate can be screened against the network before it is accepted or discarded, and report the direct and indirect interaction coefficients side by side with the posterior probability that they agree. Establish operating characteristics before recommending it, since the diagnostic will be used to keep covariates as well as to drop them: simulate networks with opposing path-specific interactions of known size and report the probability of recovering the masked modifier as a function of the number of trials per path, the between-trial variation in the covariate and the size of the cancellation. Where the network is too sparse to split, require the report to state that the check could not be run instead of citing the pooled coefficient as evidence of no modification. Define the action when the check fires: a covariate whose interaction differs across paths is a modifier on at least one of them, so balancing on it is defensible even though the pooled coefficient says otherwise, and the analysis should say which path drove the decision.</p>
+</section>
+<section id="our-study" class="level2">
+<h2 class="anchored" data-anchor-id="our-study">Our study</h2>
+<div class="study-result">
+<p><strong>Interaction coefficients have their own consistency equation</strong></p>
+<p><strong>The question put to it.</strong> When direct and indirect paths carry opposing treatment-by-covariate interactions, does the pooled network meta-regression mask the modifier while the effect-consistency check passes, and can an interaction-consistency check detect it?</p>
+<p><strong>What it found.</strong> Opposing interactions on direct and indirect paths attenuate the pooled network meta-regression interaction toward zero, fully at the balance point and partly across a continuum, while the effect-consistency check stays at its null rate. The target effect was biased by 0.13 to 0.30 whether or not the covariate was selected. A direct interaction-consistency check detects it when studies per path and covariate spread are adequate (up to 1.00) and has little power otherwise (0.16 with two studies and narrow spread).</p>
+<p><strong>Results.</strong></p>
+<ul>
+<li>Effect-consistency check flag rate 0.094 to 0.107 in every interaction-inconsistent scenario without effect inconsistency (blindness confirmed).</li>
+<li>Refuting sentence fails: partly opposing interactions biased the target by -0.13 to -0.26.</li>
+<li>Cancelling configuration: pooled interaction mean near 0 but replicate SD 0.13 to 0.67 against model SE 0.03 to 0.38 (1.5 to 4.2 times), so the Wald test selected the covariate in 31% to 88% of analyses.</li>
+<li>Interaction-consistency check power 0.16 to 1.00, rising with studies per comparison and covariate spread.</li>
+</ul>
+<p><strong>Design.</strong></p>
+<dl>
+<dt>Estimand</dt>
+<dd>
+C versus A effect at a covariate value of 1.5, with the AC path’s modification as truth
+</dd>
+<dt>Methods compared</dt>
+<dd>
+consistency network meta-regression with covariate selection, interaction-consistency test, effect-consistency (Bucher) test
+</dd>
+<dt>Data-generating mechanism</dt>
+<dd>
+Triangle networks with path-specific interaction slopes (consistent, partly opposing, cancelling), two to eight studies per comparison, two covariate spreads and effect inconsistency absent or present; consistency meta-regression, modifier selection, interaction and effect consistency checks. 36 cells, 2000 replicates each.
+</dd>
+<dt>Replicates</dt>
+<dd>
+2000 per scenario, 72,000 in total
+</dd>
+</dl>
+<p><strong>What this does not answer.</strong> Stylized triangles with continuous estimates; design-by-treatment interaction model and larger networks not run. Peer review has not been done.</p>
+<p><strong>Peer review.</strong> Not yet done. The result stands on the study alone until it is.</p>
+<p>Read it: <a href="../studies/COV-10-a-modifier-masked-while-the-consistency-check-passes/out/COV-10.pdf">PDF</a> · <a href="../studies/COV-10-a-modifier-masked-while-the-consistency-check-passes/out/COV-10.md">Markdown</a> · <a href="../studies/COV-10-a-modifier-masked-while-the-consistency-check-passes/out/COV-10.odt">OpenDocument</a> · Code and data: <a href="https://github.com/choxos/ITC-open-problems/tree/main/studies/COV-10-a-modifier-masked-while-the-consistency-check-passes">studies/COV-10-a-modifier-masked-while-the-consistency-check-passes</a> · Protocol: <a href="../studies/COV-10-a-modifier-masked-while-the-consistency-check-passes/out/COV-10-protocol.md">registered before the run</a></p>
+</div>
 </section>
 <section id="verification" class="level2">
 <h2 class="anchored" data-anchor-id="verification">Verification</h2>

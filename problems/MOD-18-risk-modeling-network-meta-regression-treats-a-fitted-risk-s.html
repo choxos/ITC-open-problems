@@ -390,6 +390,7 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#why-it-is-open" id="toc-why-it-is-open" class="nav-link" data-scroll-target="#why-it-is-open">Why it is open</a></li>
   <li><a href="#what-has-been-tried" id="toc-what-has-been-tried" class="nav-link" data-scroll-target="#what-has-been-tried">What has been tried</a></li>
   <li><a href="#probable-solution-or-research-direction" id="toc-probable-solution-or-research-direction" class="nav-link" data-scroll-target="#probable-solution-or-research-direction">Probable solution or research direction</a></li>
+  <li><a href="#our-study" id="toc-our-study" class="nav-link" data-scroll-target="#our-study">Our study</a></li>
   <li><a href="#verification" id="toc-verification" class="nav-link" data-scroll-target="#verification">Verification</a></li>
   <li><a href="#related-problems" id="toc-related-problems" class="nav-link" data-scroll-target="#related-problems">Related problems</a></li>
   <li><a href="#source" id="toc-source" class="nav-link" data-scroll-target="#source">Source</a></li>
@@ -431,6 +432,19 @@ ul.task-list li input[type="checkbox"] {
 
 <div class="problem-meta">
 <p><span class="problem-id">MOD-18</span> <span class="verdict verdict-confirmed-open">Confirmed open</span> <span class="chip chip-priority-medium-high">Medium-high priority</span> <span class="chip chip-maturity-emerging">Emerging</span> <span class="chip">Tractability 3/5</span></p>
+</div>
+<div class="callout callout-style-simple callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>A study has been run against this problem
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Little, given a prognostic cohort of about a thousand patients or more: propagating the score’s estimation uncertainty widened intervals by at most 2.4%, and plug-in coverage stayed near nominal. With 300 cohort patients the widening reached 7% at the risk tails against about 1% at the median, confirming that the understatement is worst where recommendations are made, and plug-in coverage fell to 0.924. The registered rule (plug-in coverage at least 0.93 everywhere) was missed in that one scenario, so the refuting sentence fails as registered. <a href="#our-study">Read the study below</a>.</p>
+</div>
 </div>
 <section id="statement" class="level2">
 <h2 class="anchored" data-anchor-id="statement">Statement</h2>
@@ -478,6 +492,42 @@ ul.task-list li input[type="checkbox"] {
 <section id="probable-solution-or-research-direction" class="level2">
 <h2 class="anchored" data-anchor-id="probable-solution-or-research-direction">Probable solution or research direction</h2>
 <p>Quantify the understatement first, because it is cheap and decides whether the rest is worth doing: refit a published risk-modeling network meta-regression with the prognostic model and recalibration bootstrapped, and report how much the credible intervals on risk-stratified treatment effects widen, separately at the median and at the tails of the risk distribution. Then write the joint model: one Bayesian specification in which the cohort likelihood, the recalibration and the network meta-regression share parameters, and state the conditions under which the treatment-by-risk interaction is identified when the cohort and the trials differ in population. Compare the joint fit against a cut-feedback fit and against the staged fit on interval width, calibration of the predicted benefit and stability of the recalibration parameters, so the cost of protecting the prognostic model from trial feedback is measured rather than assumed. Report the risk score with its own uncertainty in the output, so that a stratified recommendation at the tail can be seen to rest on a weakly estimated score.</p>
+</section>
+<section id="our-study" class="level2">
+<h2 class="anchored" data-anchor-id="our-study">Our study</h2>
+<div class="study-result">
+<p><strong>An estimated risk score used as a regressor</strong></p>
+<p><strong>The question put to it.</strong> When a risk score estimated in a prognostic cohort is used as a regressor for treatment-effect heterogeneity, does treating it as data understate the interval, and is the understatement worst at the tails of risk?</p>
+<p><strong>What it found.</strong> Little, given a prognostic cohort of about a thousand patients or more: propagating the score’s estimation uncertainty widened intervals by at most 2.4%, and plug-in coverage stayed near nominal. With 300 cohort patients the widening reached 7% at the risk tails against about 1% at the median, confirming that the understatement is worst where recommendations are made, and plug-in coverage fell to 0.924. The registered rule (plug-in coverage at least 0.93 everywhere) was missed in that one scenario, so the refuting sentence fails as registered.</p>
+<p><strong>Results.</strong></p>
+<ul>
+<li>Widening ratio 1.001 to 1.024 with cohorts of 1000 or 5000; 1.011 to 1.073 with 300.</li>
+<li>Tails against median with 300: widening 1.065 to 1.073 against 1.011 to 1.012.</li>
+<li>Plug-in coverage 0.924 to 0.970; propagated 0.932 to 0.974.</li>
+</ul>
+<p><strong>Design.</strong></p>
+<dl>
+<dt>Estimand</dt>
+<dd>
+Treatment log odds ratio at the 10th, 50th and 90th percentiles of true risk
+</dd>
+<dt>Methods compared</dt>
+<dd>
+plug-in interval treating the score as data, interval adding bootstrap variance of the score
+</dd>
+<dt>Data-generating mechanism</dt>
+<dd>
+Logistic prognostic score from cohorts of 300 to 5000, used in a six-trial individual-data meta-regression with calibration drift; plug-in and bootstrap-propagated intervals for the treatment effect at the 10th, 50th and 90th risk percentiles. 6 cells, 500 replicates each.
+</dd>
+<dt>Replicates</dt>
+<dd>
+500 per scenario, 3,000 in total, each with 20 bootstrap refits
+</dd>
+</dl>
+<p><strong>What this does not answer.</strong> Pairwise six-trial analysis; frequentist bootstrap rather than a joint or cut Bayesian model; well-specified score. Peer review has not been done.</p>
+<p><strong>Peer review.</strong> Not yet done. The result stands on the study alone until it is.</p>
+<p>Read it: <a href="../studies/MOD-18-a-generated-regressor-worst-where-it-is-used/out/MOD-18.pdf">PDF</a> · <a href="../studies/MOD-18-a-generated-regressor-worst-where-it-is-used/out/MOD-18.md">Markdown</a> · <a href="../studies/MOD-18-a-generated-regressor-worst-where-it-is-used/out/MOD-18.odt">OpenDocument</a> · Code and data: <a href="https://github.com/choxos/ITC-open-problems/tree/main/studies/MOD-18-a-generated-regressor-worst-where-it-is-used">studies/MOD-18-a-generated-regressor-worst-where-it-is-used</a> · Protocol: <a href="../studies/MOD-18-a-generated-regressor-worst-where-it-is-used/out/MOD-18-protocol.md">registered before the run</a></p>
+</div>
 </section>
 <section id="verification" class="level2">
 <h2 class="anchored" data-anchor-id="verification">Verification</h2>

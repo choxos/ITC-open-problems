@@ -390,6 +390,7 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#why-it-is-open" id="toc-why-it-is-open" class="nav-link" data-scroll-target="#why-it-is-open">Why it is open</a></li>
   <li><a href="#what-has-been-tried" id="toc-what-has-been-tried" class="nav-link" data-scroll-target="#what-has-been-tried">What has been tried</a></li>
   <li><a href="#probable-solution-or-research-direction" id="toc-probable-solution-or-research-direction" class="nav-link" data-scroll-target="#probable-solution-or-research-direction">Probable solution or research direction</a></li>
+  <li><a href="#our-study" id="toc-our-study" class="nav-link" data-scroll-target="#our-study">Our study</a></li>
   <li><a href="#verification" id="toc-verification" class="nav-link" data-scroll-target="#verification">Verification</a></li>
   <li><a href="#how-the-evidence-falls-in-time" id="toc-how-the-evidence-falls-in-time" class="nav-link" data-scroll-target="#how-the-evidence-falls-in-time">How the evidence falls in time</a></li>
   <li><a href="#related-problems" id="toc-related-problems" class="nav-link" data-scroll-target="#related-problems">Related problems</a></li>
@@ -436,6 +437,19 @@ ul.task-list li input[type="checkbox"] {
 <div class="source-unsourced">
 <p><strong>Source note.</strong> This entry derives in part from a source document whose inline citations were ChatGPT interface tokens rather than references, and so resolve to nothing. Claims below are attributed to that document and were checked independently where possible; anything that could not be independently sourced is marked in the verification trail.</p>
 </div>
+<div class="callout callout-style-simple callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>A study has been run against this problem
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>For a threshold on a known side of the truth, yes: near the threshold in poor-overlap scenarios the RMSE and expected-loss rankings correlated at only 0.45, and the disagreement was reproducible, not noise. It came from the direction of bias: a biased method decided wrongly far less often when its bias pointed away from the threshold (0.11 against 0.64). Averaged over the two sides of the threshold, as an analyst who does not know the truth must, the rankings agreed (0.93, the same best method in every poor-overlap scenario). RMSE is therefore an adequate proxy for decision error unless the side of the threshold is known. <a href="#our-study">Read the study below</a>.</p>
+</div>
+</div>
 <section id="statement" class="level2">
 <h2 class="anchored" data-anchor-id="statement">Statement</h2>
 <p>ADEMP does not require, and its performance-measure inventory does not contain, any decision or net-benefit measure: Table 6 of Morris et al.&nbsp;2019 lists bias, EmpSE, relative precision, MSE, model standard error, coverage and rejection percentage only. Whether ITC and PAIC method comparisons routinely omit decision metrics such as wrong-decision probability, net-benefit error or rank reversal is contested: the literature auditor searched and found no such evaluation, while GPT-5.6 Sol holds that this prevalence claim is not established by the cited paper. Decision-level assessment already exists outside method-comparison simulation, in threshold analysis for applied network meta-analysis (Phillippo et al.&nbsp;2018) and in NICE DSU TSD 7’s probability that a strategy is optimal at a threshold willingness to pay. Expected value of perfect or sample information does not belong on the list of estimator-quality metrics: it measures the value of collecting information and can rise as uncertainty rises.</p>
@@ -474,6 +488,43 @@ ul.task-list li input[type="checkbox"] {
 <section id="probable-solution-or-research-direction" class="level2">
 <h2 class="anchored" data-anchor-id="probable-solution-or-research-direction">Probable solution or research direction</h2>
 <p>Carry the existing threshold-and-loss machinery into method-comparison simulation instead of inventing decision metrics: report wrong-decision probability, net-benefit error and rank reversal alongside bias, RMSE and coverage under a prespecified decision model, threshold and loss, which the ADEMP performance-measure element is broad enough to hold. Re-score published benchmark scenarios on both axes so the estimation ranking and the decision ranking can be compared. Keep expected value of information out of that set and use it where it belongs, as a research-design criterion.</p>
+</section>
+<section id="our-study" class="level2">
+<h2 class="anchored" data-anchor-id="our-study">Our study</h2>
+<div class="study-result">
+<p><strong>Do estimation and decision rankings of population-adjustment methods agree?</strong></p>
+<p><strong>The question put to it.</strong> When population-adjustment methods are ranked by the decisions their estimates lead to rather than by RMSE, does the ranking change, and how does it depend on where the truth sits relative to the decision threshold?</p>
+<p><strong>What it found.</strong> For a threshold on a known side of the truth, yes: near the threshold in poor-overlap scenarios the RMSE and expected-loss rankings correlated at only 0.45, and the disagreement was reproducible, not noise. It came from the direction of bias: a biased method decided wrongly far less often when its bias pointed away from the threshold (0.11 against 0.64). Averaged over the two sides of the threshold, as an analyst who does not know the truth must, the rankings agreed (0.93, the same best method in every poor-overlap scenario). RMSE is therefore an adequate proxy for decision error unless the side of the threshold is known.</p>
+<p><strong>Results.</strong></p>
+<ul>
+<li>Registered primary (near threshold, poor overlap, symmetric loss): mean Spearman correlation 0.45 (95% bootstrap interval 0.29 to 0.60); RMSE-best also loss-best in 38% of strata; verdict CONFIRMED.</li>
+<li>Exploratory: split-half reliability of the rankings 1.00 (RMSE) and 0.96 (expected loss) in poor-overlap scenarios, against a cross-measure correlation of 0.44.</li>
+<li>Biased methods (|bias| &gt; 0.05), threshold 0.1 from the truth: wrong-decision probability 0.114 with bias pointing away from the threshold and 0.635 toward it.</li>
+<li>Exploratory: loss averaged over both sides of the threshold correlated with RMSE at 0.93 (distance 0.1) and 0.96 (0.3) in poor-overlap scenarios.</li>
+</ul>
+<p><strong>Design.</strong></p>
+<dl>
+<dt>Estimand</dt>
+<dd>
+Wrong-decision probability and expected loss of adopting B over A, against the true recommendation
+</dd>
+<dt>Methods compared</dt>
+<dd>
+unadjusted, MAIC on means, MAIC on means and variances, MAIC on the prognostic index variance, G-computation
+</dd>
+<dt>Data-generating mechanism</dt>
+<dd>
+Re-scoring of COV-03’s 108,000 stored replicates (five methods) against thresholds 0.1 or 0.3 above or below the truth, with loss ratios 1, 2 and 5; rank correlation between RMSE and expected-loss rankings by stratum, plus exploratory split-half reliability and two-sided averaging.
+</dd>
+<dt>Replicates</dt>
+<dd>
+108,000 replicates re-scored (108 scenarios x 1000), 5 methods, 12 threshold-loss settings
+</dd>
+</dl>
+<p><strong>What this does not answer.</strong> Decision on the relative effect only, without a net-benefit model; one source of replicates (COV-03) and five methods; no ML-NMR; priors on the side of the threshold not modeled. Peer review has not been done.</p>
+<p><strong>Peer review.</strong> Not yet done. The result stands on the study alone until it is.</p>
+<p>Read it: <a href="../studies/DEC-01-when-the-two-rankings-disagree/out/DEC-01.pdf">PDF</a> · <a href="../studies/DEC-01-when-the-two-rankings-disagree/out/DEC-01.md">Markdown</a> · <a href="../studies/DEC-01-when-the-two-rankings-disagree/out/DEC-01.odt">OpenDocument</a> · Code and data: <a href="https://github.com/choxos/ITC-open-problems/tree/main/studies/DEC-01-when-the-two-rankings-disagree">studies/DEC-01-when-the-two-rankings-disagree</a> · Protocol: <a href="../studies/DEC-01-when-the-two-rankings-disagree/out/DEC-01-protocol.md">registered before the run</a></p>
+</div>
 </section>
 <section id="verification" class="level2">
 <h2 class="anchored" data-anchor-id="verification">Verification</h2>

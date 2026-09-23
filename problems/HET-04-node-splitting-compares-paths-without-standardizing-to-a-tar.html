@@ -390,6 +390,7 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#why-it-is-open" id="toc-why-it-is-open" class="nav-link" data-scroll-target="#why-it-is-open">Why it is open</a></li>
   <li><a href="#what-has-been-tried" id="toc-what-has-been-tried" class="nav-link" data-scroll-target="#what-has-been-tried">What has been tried</a></li>
   <li><a href="#probable-solution-or-research-direction" id="toc-probable-solution-or-research-direction" class="nav-link" data-scroll-target="#probable-solution-or-research-direction">Probable solution or research direction</a></li>
+  <li><a href="#our-study" id="toc-our-study" class="nav-link" data-scroll-target="#our-study">Our study</a></li>
   <li><a href="#verification" id="toc-verification" class="nav-link" data-scroll-target="#verification">Verification</a></li>
   <li><a href="#how-the-evidence-falls-in-time" id="toc-how-the-evidence-falls-in-time" class="nav-link" data-scroll-target="#how-the-evidence-falls-in-time">How the evidence falls in time</a></li>
   <li><a href="#related-problems" id="toc-related-problems" class="nav-link" data-scroll-target="#related-problems">Related problems</a></li>
@@ -433,6 +434,19 @@ ul.task-list li input[type="checkbox"] {
 <div class="problem-meta">
 <p><span class="problem-id">HET-04</span> <span class="verdict verdict-partially-addressed">Partially addressed</span> <span class="chip chip-priority-high">High priority</span> <span class="chip chip-maturity-emerging">Emerging</span></p>
 </div>
+<div class="callout callout-style-simple callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>A study has been run against this problem
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Unadjusted node splitting tests inconsistency plus population mismatch. With no true inconsistency it flagged 14% to 98% of analyses when the direct and indirect study sets differed in an effect modifier, and it fell to its null rate when the mismatch cancelled a real conflict. A split adjusted for the modifier held size (4% to 6%) and recovered some masked conflicts, but its precision fell as the gap between the study sets grew. <a href="#our-study">Read the study below</a>.</p>
+</div>
+</div>
 <section id="statement" class="level2">
 <h2 class="anchored" data-anchor-id="statement">Statement</h2>
 <p>Standard aggregate-data node splitting, as implemented in netmeta and gemtc, compares direct and indirect evidence without standardizing either path to a common target population, so a population difference between the paths and a genuine loop conflict arrive as a single number. Node splitting is local to a comparison rather than a global test of the network, and it can already be fitted inside a population-adjusted regression: multinma has supported consistency = ‘nodesplit’ since 0.4.0 and the same call accepts a regression formula and integration points, so both paths can be compared after adjustment (Phillippo et al.&nbsp;2022, doi:10.1177/0272989X221117162 assess inconsistency inside a population-adjusted psoriasis model with estimates produced for three external target populations). Two things remain undone: that adjusted split reports a conditional inconsistency factor rather than one standardized to a named target population on the marginal scale, and no study has quantified how often the unadjusted diagnostic flags population mismatch as inconsistency or misses true inconsistency that a compensating mismatch has masked. Whether consistency is population-indexed at all needs care, because marginal effects on non-collapsible measures are population-dependent (Chandler and Ishak, arxiv:2602.17041) but a loop whose every effect is defined in the same population telescopes algebraically, so population-varying inconsistency requires different populations along the evidence paths, design-specific effect surfaces, or an inconsistency-by-covariate interaction.</p>
@@ -475,6 +489,43 @@ ul.task-list li input[type="checkbox"] {
 <section id="probable-solution-or-research-direction" class="level2">
 <h2 class="anchored" data-anchor-id="probable-solution-or-research-direction">Probable solution or research direction</h2>
 <p>The immediate work is measurement rather than method: run the simulation that quantifies how often unadjusted node splitting flags population mismatch as inconsistency and how often a compensating mismatch masks a real conflict, since that number decides whether the adjusted version is worth its cost. Beyond that, marginalize the ML-NMR node split so the inconsistency factor is reported at a named target population on the decision scale rather than at a covariate profile, and treat population-indexed inconsistency parameters as the harder remaining case. Any such diagnostic inherits the transport assumptions and cannot separate genuine inconsistency from unmeasured population or design differences, so it should be reported with that limit stated. In cpaic, an unreleased development package on GitHub that is not on CRAN, neither piece exists at commit 9d150e9: relative_effects() evaluates a conditional contrast at a single covariate profile without marginal standardization, and no node-splitting or design-by-treatment diagnostic is exported.</p>
+</section>
+<section id="our-study" class="level2">
+<h2 class="anchored" data-anchor-id="our-study">Our study</h2>
+<div class="study-result">
+<p><strong>A population difference arriving as inconsistency</strong></p>
+<p><strong>The question put to it.</strong> When the studies supplying the direct and indirect paths of a loop differ in an effect modifier, how often does unadjusted node splitting flag the population difference as inconsistency or miss a real conflict that the difference cancels, and what does an adjusted split achieve?</p>
+<p><strong>What it found.</strong> Unadjusted node splitting tests inconsistency plus population mismatch. With no true inconsistency it flagged 14% to 98% of analyses when the direct and indirect study sets differed in an effect modifier, and it fell to its null rate when the mismatch cancelled a real conflict. A split adjusted for the modifier held size (4% to 6%) and recovered some masked conflicts, but its precision fell as the gap between the study sets grew.</p>
+<p><strong>Results.</strong></p>
+<ul>
+<li>Refuting sentence fails: unadjusted flag rate 0.141 to 0.982 with no inconsistency and differing populations; adjusted 0.041 to 0.058.</li>
+<li>Exact masking: unadjusted 0.058 to 0.105; adjusted 0.074 to 0.254.</li>
+<li>Adjusted inconsistency SE rose from 0.10 to 0.30 as the covariate gap went from 0 to 1 (four studies per comparison, modification 0.4); power against 0.2 fell from 0.54 to 0.12.</li>
+<li>Unadjusted split at 0.10 even with no gap under modification 0.4, from covariate-driven heterogeneity.</li>
+</ul>
+<p><strong>Design.</strong></p>
+<dl>
+<dt>Estimand</dt>
+<dd>
+Loop inconsistency factor for the B versus C contrast
+</dd>
+<dt>Methods compared</dt>
+<dd>
+unadjusted node split, meta-regression-adjusted node split
+</dd>
+<dt>Data-generating mechanism</dt>
+<dd>
+Triangle networks with a covariate gap between the direct and indirect study sets, modification strength, true loop inconsistency and two or four studies per comparison; unadjusted and meta-regression-adjusted node splits. 54 cells, 2000 replicates each.
+</dd>
+<dt>Replicates</dt>
+<dd>
+2000 per scenario, 108,000 in total
+</dd>
+</dl>
+<p><strong>What this does not answer.</strong> Continuous study estimates, one loop, no Bayesian node split or marginalization to a named target. Peer review has not been done.</p>
+<p><strong>Peer review.</strong> Not yet done. The result stands on the study alone until it is.</p>
+<p>Read it: <a href="../studies/HET-04-population-mismatch-arriving-as-inconsistency/out/HET-04.pdf">PDF</a> · <a href="../studies/HET-04-population-mismatch-arriving-as-inconsistency/out/HET-04.md">Markdown</a> · <a href="../studies/HET-04-population-mismatch-arriving-as-inconsistency/out/HET-04.odt">OpenDocument</a> · Code and data: <a href="https://github.com/choxos/ITC-open-problems/tree/main/studies/HET-04-population-mismatch-arriving-as-inconsistency">studies/HET-04-population-mismatch-arriving-as-inconsistency</a> · Protocol: <a href="../studies/HET-04-population-mismatch-arriving-as-inconsistency/out/HET-04-protocol.md">registered before the run</a></p>
+</div>
 </section>
 <section id="verification" class="level2">
 <h2 class="anchored" data-anchor-id="verification">Verification</h2>

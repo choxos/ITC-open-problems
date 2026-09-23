@@ -390,6 +390,7 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#why-it-is-open" id="toc-why-it-is-open" class="nav-link" data-scroll-target="#why-it-is-open">Why it is open</a></li>
   <li><a href="#what-has-been-tried" id="toc-what-has-been-tried" class="nav-link" data-scroll-target="#what-has-been-tried">What has been tried</a></li>
   <li><a href="#probable-solution-or-research-direction" id="toc-probable-solution-or-research-direction" class="nav-link" data-scroll-target="#probable-solution-or-research-direction">Probable solution or research direction</a></li>
+  <li><a href="#our-study" id="toc-our-study" class="nav-link" data-scroll-target="#our-study">Our study</a></li>
   <li><a href="#verification" id="toc-verification" class="nav-link" data-scroll-target="#verification">Verification</a></li>
   <li><a href="#how-the-evidence-falls-in-time" id="toc-how-the-evidence-falls-in-time" class="nav-link" data-scroll-target="#how-the-evidence-falls-in-time">How the evidence falls in time</a></li>
   <li><a href="#related-problems" id="toc-related-problems" class="nav-link" data-scroll-target="#related-problems">Related problems</a></li>
@@ -433,6 +434,19 @@ ul.task-list li input[type="checkbox"] {
 <div class="problem-meta">
 <p><span class="problem-id">QBA-26</span> <span class="verdict verdict-partially-addressed">Partially addressed</span> <span class="chip chip-priority-high">High priority</span> <span class="chip chip-maturity-promising">Promising</span></p>
 </div>
+<div class="callout callout-style-simple callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>A study has been run against this problem
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>No.&nbsp;With three or six omitted variables each no stronger than the strongest measured covariate, the leave-one-covariate-out benchmark covered the true residual bias in at most 7% of analyses, the bias being 1.4 to 5.7 times the benchmark. Scaling by the square root of the number of omitted variables did not fix it; scaling by the number itself did when each omitted variable was weaker than the strongest measured one. The benchmark also shrank as omitted structure grew, through odds-ratio non-collapsibility. <a href="#our-study">Read the study below</a>.</p>
+</div>
+</div>
 <section id="statement" class="level2">
 <h2 class="anchored" data-anchor-id="statement">Statement</h2>
 <p>Two data-based routes to sensitivity parameters exist, and the first has been implemented for unanchored MAIC: Yi and Jiang 2025 (doi:10.57264/cer-2024-0235) build artificially risk-unbalanced groups with a predetermined hazard ratio of 1.8, reweight on the candidate prognostic factors and check whether the reweighted hazard ratio returns to one, reporting 0.9157 with all covariates included and 1.671 when one critical prognostic factor was omitted. It is a covariate-sufficiency diagnostic: it does not convert an induced bias into a sensitivity-parameter range and does not bound residual bias from unobserved structure. The second route, negative-control outcomes or exposures, needs a control that shares the relevant confounding and selection structure and has no causal relation to the outcome of interest, and it detects rather than quantifies, since a signal may instead reflect failure of the negative-control assumptions and a null signal does not establish absence of bias; converting an association into a bias-parameter range for the primary estimand requires further bridge, completeness or proportional-bias assumptions that have not been developed for population-adjusted comparisons.</p>
@@ -463,6 +477,42 @@ ul.task-list li input[type="checkbox"] {
 <section id="probable-solution-or-research-direction" class="level2">
 <h2 class="anchored" data-anchor-id="probable-solution-or-research-direction">Probable solution or research direction</h2>
 <p>Treat a held-out benchmark as calibration by analogy that is neither an upper nor a lower bound, rerunning the whole PAIC procedure and accounting for the held-out variable’s scale, prevalence, role and correlation with the retained variables, and extend it so it can address composite and multivariate omitted structure. Use it as one rung of an explicit evidence hierarchy alongside internal validation data, external evidence, randomized-benchmark emulation and formal elicitation rather than as standalone justification. Encourage reporting of candidate negative-control outcomes in trial and external-control publications so the diagnostic becomes usable with aggregate data, and develop the bridge or completeness assumptions under which a negative-control association converts into a bias-parameter range for the primary estimand rather than a pass or fail.</p>
+</section>
+<section id="our-study" class="level2">
+<h2 class="anchored" data-anchor-id="our-study">Our study</h2>
+<div class="study-result">
+<p><strong>A single-covariate benchmark against omitted composite structure</strong></p>
+<p><strong>The question put to it.</strong> Does the bias from dropping the strongest measured covariate bound the residual bias from several omitted variables, and does a scaled benchmark calibrate?</p>
+<p><strong>What it found.</strong> No.&nbsp;With three or six omitted variables each no stronger than the strongest measured covariate, the leave-one-covariate-out benchmark covered the true residual bias in at most 7% of analyses, the bias being 1.4 to 5.7 times the benchmark. Scaling by the square root of the number of omitted variables did not fix it; scaling by the number itself did when each omitted variable was weaker than the strongest measured one. The benchmark also shrank as omitted structure grew, through odds-ratio non-collapsibility.</p>
+<p><strong>Results.</strong></p>
+<ul>
+<li>Refuting sentence fails: plain benchmark coverage 0.00 to 0.07 for q of 3 or 6 with each omitted variable at most as strong as the strongest measured.</li>
+<li>Scaled by sqrt(q): coverage 0.00 to 0.76; by the oracle correlation-adjusted factor: 0.00 to 0.98; by q: 0.99 to 1.00 at half strength and 0.57 to 0.67 at equal strength.</li>
+<li>Median benchmark fell from 0.163 (one weak omitted variable) to 0.067 (six strong correlated ones) while the true bias rose from 0.08 to 0.56 and beyond.</li>
+</ul>
+<p><strong>Design.</strong></p>
+<dl>
+<dt>Estimand</dt>
+<dd>
+A’s marginal log odds in the target (the unanchored comparison’s A side) and MAIC’s residual bias
+</dd>
+<dt>Methods compared</dt>
+<dd>
+leave-one-covariate-out benchmark, benchmark times sqrt(q), benchmark times the oracle correlation-adjusted factor, benchmark times q
+</dd>
+<dt>Data-generating mechanism</dt>
+<dd>
+Unanchored binary-outcome MAIC with four measured covariates and one, three or six correlated omitted covariates of varying strength; leave-one-covariate-out benchmark, unscaled and scaled by sqrt(q), by the oracle correlation-adjusted factor and by q; coverage of the true residual bias. 21 cells, 1000 replicates each.
+</dd>
+<dt>Replicates</dt>
+<dd>
+1000 per scenario, 21,000 in total
+</dd>
+</dl>
+<p><strong>What this does not answer.</strong> Omitted variables shifted in the same direction; one overlap level; negative-control route not run. Peer review has not been done.</p>
+<p><strong>Peer review.</strong> Not yet done. The result stands on the study alone until it is.</p>
+<p>Read it: <a href="../studies/QBA-26-a-benchmark-that-cannot-reach-what-it-is-asked-about/out/QBA-26.pdf">PDF</a> · <a href="../studies/QBA-26-a-benchmark-that-cannot-reach-what-it-is-asked-about/out/QBA-26.md">Markdown</a> · <a href="../studies/QBA-26-a-benchmark-that-cannot-reach-what-it-is-asked-about/out/QBA-26.odt">OpenDocument</a> · Code and data: <a href="https://github.com/choxos/ITC-open-problems/tree/main/studies/QBA-26-a-benchmark-that-cannot-reach-what-it-is-asked-about">studies/QBA-26-a-benchmark-that-cannot-reach-what-it-is-asked-about</a> · Protocol: <a href="../studies/QBA-26-a-benchmark-that-cannot-reach-what-it-is-asked-about/out/QBA-26-protocol.md">registered before the run</a></p>
+</div>
 </section>
 <section id="verification" class="level2">
 <h2 class="anchored" data-anchor-id="verification">Verification</h2>

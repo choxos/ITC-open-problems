@@ -390,6 +390,7 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#why-it-is-open" id="toc-why-it-is-open" class="nav-link" data-scroll-target="#why-it-is-open">Why it is open</a></li>
   <li><a href="#what-has-been-tried" id="toc-what-has-been-tried" class="nav-link" data-scroll-target="#what-has-been-tried">What has been tried</a></li>
   <li><a href="#probable-solution-or-research-direction" id="toc-probable-solution-or-research-direction" class="nav-link" data-scroll-target="#probable-solution-or-research-direction">Probable solution or research direction</a></li>
+  <li><a href="#our-study" id="toc-our-study" class="nav-link" data-scroll-target="#our-study">Our study</a></li>
   <li><a href="#verification" id="toc-verification" class="nav-link" data-scroll-target="#verification">Verification</a></li>
   <li><a href="#how-the-evidence-falls-in-time" id="toc-how-the-evidence-falls-in-time" class="nav-link" data-scroll-target="#how-the-evidence-falls-in-time">How the evidence falls in time</a></li>
   <li><a href="#related-problems" id="toc-related-problems" class="nav-link" data-scroll-target="#related-problems">Related problems</a></li>
@@ -432,6 +433,19 @@ ul.task-list li input[type="checkbox"] {
 
 <div class="problem-meta">
 <p><span class="problem-id">QBA-22</span> <span class="verdict verdict-partially-addressed">Partially addressed</span> <span class="chip chip-priority-very-high">Very high priority</span> <span class="chip chip-maturity-emerging">Emerging</span> <span class="chip">Tractability 4/5</span></p>
+</div>
+<div class="callout callout-style-simple callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>A study has been run against this problem
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>No.&nbsp;An omitted confounder and misclassification of the comparator’s outcome interacted by up to 0.16 on the log odds ratio scale: with both at their largest the joint bias was about half the sum of the separate biases, and with the confounder reversed the joint bias had the opposite sign to that sum. Measurement error in a matched covariate combined nearly additively with either. The joint bias exceeded the largest single-mechanism bias in 22 of 36 combinations, so one-at-a-time analyses neither add up to nor bound it. <a href="#our-study">Read the study below</a>.</p>
+</div>
 </div>
 <section id="statement" class="level2">
 <h2 class="anchored" data-anchor-id="statement">Statement</h2>
@@ -483,6 +497,43 @@ ul.task-list li input[type="checkbox"] {
 <section id="probable-solution-or-research-direction" class="level2">
 <h2 class="anchored" data-anchor-id="probable-solution-or-research-direction">Probable solution or research direction</h2>
 <p>Compose the existing joint multiple-bias machinery with the population-adjustment step rather than reinventing it: take simultaneous imputation and weighting adjustment for confounding, selection and misclassification and make it operate on a weighted or standardized PAIC estimator, computed from an explicitly defined ideal target trial, a decision estimand and a causal diagram for each departure. Report joint and mechanism-specific results together so reinforcement and cancellation are visible, and state the dependence assumption used, including independence where that is the intended scenario. Present order-robust or Shapley-style summaries as descriptive allocations conditional on the assumed bias model, stating the fixed parameter vector or the joint distribution they average over.</p>
+</section>
+<section id="our-study" class="level2">
+<h2 class="anchored" data-anchor-id="our-study">Our study</h2>
+<div class="study-result">
+<p><strong>Do bias mechanisms in an unanchored MAIC combine additively?</strong></p>
+<p><em>This study was designed against <a href="https://github.com/choxos/ITC-open-problems/tree/main/studies/DIA-13-biases-that-act-together">DIA-13</a> and bears on this entry in part. What it does not answer is stated below.</em></p>
+<p><strong>The question put to it.</strong> When an omitted confounder, comparator outcome misclassification and covariate measurement error act together on an unanchored MAIC, is their joint bias the sum of their separate biases, and does a one-at-a-time analysis bound it?</p>
+<p><strong>What it found.</strong> No.&nbsp;An omitted confounder and misclassification of the comparator’s outcome interacted by up to 0.16 on the log odds ratio scale: with both at their largest the joint bias was about half the sum of the separate biases, and with the confounder reversed the joint bias had the opposite sign to that sum. Measurement error in a matched covariate combined nearly additively with either. The joint bias exceeded the largest single-mechanism bias in 22 of 36 combinations, so one-at-a-time analyses neither add up to nor bound it.</p>
+<p><strong>Results.</strong></p>
+<ul>
+<li>Refuting sentence fails: median interaction 30% of the summed separate biases where two or three mechanisms acted.</li>
+<li>Confounder by misclassification: interaction up to 0.163; other pairs at most 0.005.</li>
+<li>Joint bias beyond the largest single-mechanism bias in 22 of 36 combinations; mechanisms partly cancelled in 16.</li>
+</ul>
+<p><strong>Design.</strong></p>
+<dl>
+<dt>Estimand</dt>
+<dd>
+Marginal log odds ratio, B versus A, in the target (unanchored)
+</dd>
+<dt>Methods compared</dt>
+<dd>
+unanchored MAIC limit under combinations of three bias mechanisms
+</dd>
+<dt>Data-generating mechanism</dt>
+<dd>
+Population-level numerical study: exact bias of the MAIC limit over 45 combinations of three mechanisms, with interaction terms by inclusion-exclusion.
+</dd>
+<dt>Replicates</dt>
+<dd>
+Population-level calculation, 45 combinations, exact quadrature
+</dd>
+</dl>
+<p><strong>What this does not answer.</strong> Population-level only; no bias-analysis procedure, false reassurance or tipping sets; three mechanisms; selection and correlated parameters not varied. Peer review has not been done.</p>
+<p><strong>Peer review.</strong> Not yet done. The result stands on the study alone until it is.</p>
+<p>Read it: <a href="../studies/DIA-13-biases-that-act-together/out/DIA-13.pdf">PDF</a> · <a href="../studies/DIA-13-biases-that-act-together/out/DIA-13.md">Markdown</a> · <a href="../studies/DIA-13-biases-that-act-together/out/DIA-13.odt">OpenDocument</a> · Code and data: <a href="https://github.com/choxos/ITC-open-problems/tree/main/studies/DIA-13-biases-that-act-together">studies/DIA-13-biases-that-act-together</a> · Protocol: <a href="../studies/DIA-13-biases-that-act-together/out/DIA-13-protocol.md">registered before the run</a></p>
+</div>
 </section>
 <section id="verification" class="level2">
 <h2 class="anchored" data-anchor-id="verification">Verification</h2>

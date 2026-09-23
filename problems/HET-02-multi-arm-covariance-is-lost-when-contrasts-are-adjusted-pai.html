@@ -390,6 +390,7 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#why-it-is-open" id="toc-why-it-is-open" class="nav-link" data-scroll-target="#why-it-is-open">Why it is open</a></li>
   <li><a href="#what-has-been-tried" id="toc-what-has-been-tried" class="nav-link" data-scroll-target="#what-has-been-tried">What has been tried</a></li>
   <li><a href="#probable-solution-or-research-direction" id="toc-probable-solution-or-research-direction" class="nav-link" data-scroll-target="#probable-solution-or-research-direction">Probable solution or research direction</a></li>
+  <li><a href="#our-study" id="toc-our-study" class="nav-link" data-scroll-target="#our-study">Our study</a></li>
   <li><a href="#verification" id="toc-verification" class="nav-link" data-scroll-target="#verification">Verification</a></li>
   <li><a href="#how-the-evidence-falls-in-time" id="toc-how-the-evidence-falls-in-time" class="nav-link" data-scroll-target="#how-the-evidence-falls-in-time">How the evidence falls in time</a></li>
   <li><a href="#related-problems" id="toc-related-problems" class="nav-link" data-scroll-target="#related-problems">Related problems</a></li>
@@ -435,6 +436,19 @@ ul.task-list li input[type="checkbox"] {
 </div>
 <div class="source-unsourced">
 <p><strong>Source note.</strong> This entry derives in part from a source document whose inline citations were ChatGPT interface tokens rather than references, and so resolve to nothing. Claims below are attributed to that document and were checked independently where possible; anything that could not be independently sourced is marked in the verification trail.</p>
+</div>
+<div class="callout callout-style-simple callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>A study has been run against this problem
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Entering pseudo-contrasts built against one comparator arm as independent counts that arm once per study. Its reported SE shrank as studies were added while the estimate’s spread did not, so coverage fell from 0.88 with one study to 0.57 with eight (comparator arm of 50). Modeling the shared covariance kept coverage at 0.95. In this fixed-effect network the point estimate barely changed; the error is in the stated precision. <a href="#our-study">Read the study below</a>.</p>
+</div>
 </div>
 <section id="statement" class="level2">
 <h2 class="anchored" data-anchor-id="statement">Statement</h2>
@@ -490,6 +504,42 @@ ul.task-list li input[type="checkbox"] {
 <section id="probable-solution-or-research-direction" class="level2">
 <h2 class="anchored" data-anchor-id="probable-solution-or-research-direction">Probable solution or research direction</h2>
 <p>Do not rebuild the one-stage arm-level likelihood, which ML-NMR in multinma already provides; extend the weighting branch to match it. Derive a MAIC-style estimator that applies one weight set to a joint arm-level model, with a sandwich or multivariate bootstrap variance that accounts for weight estimation as well as the outcome model, and give two-stage implementations a joint covariance matrix to export instead of marginal standard errors. Benchmark it in simulations that inject three-arm and four-arm studies with correlated contrasts and unequal variances, reporting variance recovery, inconsistency inflation and undercoverage, with ML-NMR as the reference rather than as the thing being replaced. In cpaic the concrete step is multi-arm support for cmaic() and cstc(), which currently reject such studies outright.</p>
+</section>
+<section id="our-study" class="level2">
+<h2 class="anchored" data-anchor-id="our-study">Our study</h2>
+<div class="study-result">
+<p><strong>Matched single-arm studies built against one comparator arm</strong></p>
+<p><strong>The question put to it.</strong> When several single-arm studies are each matched to the same comparator arm and their pseudo-contrasts enter a network as independent, how much does that overstate precision, and does it change the conclusion?</p>
+<p><strong>What it found.</strong> Entering pseudo-contrasts built against one comparator arm as independent counts that arm once per study. Its reported SE shrank as studies were added while the estimate’s spread did not, so coverage fell from 0.88 with one study to 0.57 with eight (comparator arm of 50). Modeling the shared covariance kept coverage at 0.95. In this fixed-effect network the point estimate barely changed; the error is in the stated precision.</p>
+<p><strong>Results.</strong></p>
+<ul>
+<li>Refuting sentence fails: naive coverage 0.567 to 0.884 with two or more pseudo-contrasts; correct 0.945 to 0.955.</li>
+<li>Naive SE with a comparator arm of 50: 0.137 (one study) to 0.059 (eight), against a true spread of 0.167 to 0.147.</li>
+<li>Mean absolute difference between naive and correct point estimates small; sign disagreement rare.</li>
+</ul>
+<p><strong>Design.</strong></p>
+<dl>
+<dt>Estimand</dt>
+<dd>
+A versus C mean difference in the network
+</dd>
+<dt>Methods compared</dt>
+<dd>
+generalized least squares with the shared-arm covariance, pseudo-contrasts entered as independent
+</dd>
+<dt>Data-generating mechanism</dt>
+<dd>
+Network with two randomized trials and one to eight single-arm studies sharing one comparator arm; fixed-effect generalized least squares with the correct block covariance or with independence. 8 cells, 4000 replicates each.
+</dd>
+<dt>Replicates</dt>
+<dd>
+4000 per scenario, 32,000 in total
+</dd>
+</dl>
+<p><strong>What this does not answer.</strong> Fixed-effect continuous network without a weighting step; heterogeneity and conflicting evidence, where the point estimate can also move, not run. Peer review has not been done.</p>
+<p><strong>Peer review.</strong> Not yet done. The result stands on the study alone until it is.</p>
+<p>Read it: <a href="../studies/HET-02-one-comparator-arm-counted-many-times/out/HET-02.pdf">PDF</a> · <a href="../studies/HET-02-one-comparator-arm-counted-many-times/out/HET-02.md">Markdown</a> · <a href="../studies/HET-02-one-comparator-arm-counted-many-times/out/HET-02.odt">OpenDocument</a> · Code and data: <a href="https://github.com/choxos/ITC-open-problems/tree/main/studies/HET-02-one-comparator-arm-counted-many-times">studies/HET-02-one-comparator-arm-counted-many-times</a> · Protocol: <a href="../studies/HET-02-one-comparator-arm-counted-many-times/out/HET-02-protocol.md">registered before the run</a></p>
+</div>
 </section>
 <section id="verification" class="level2">
 <h2 class="anchored" data-anchor-id="verification">Verification</h2>

@@ -390,6 +390,7 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#why-it-is-open" id="toc-why-it-is-open" class="nav-link" data-scroll-target="#why-it-is-open">Why it is open</a></li>
   <li><a href="#what-has-been-tried" id="toc-what-has-been-tried" class="nav-link" data-scroll-target="#what-has-been-tried">What has been tried</a></li>
   <li><a href="#probable-solution-or-research-direction" id="toc-probable-solution-or-research-direction" class="nav-link" data-scroll-target="#probable-solution-or-research-direction">Probable solution or research direction</a></li>
+  <li><a href="#our-study" id="toc-our-study" class="nav-link" data-scroll-target="#our-study">Our study</a></li>
   <li><a href="#verification" id="toc-verification" class="nav-link" data-scroll-target="#verification">Verification</a></li>
   <li><a href="#how-the-evidence-falls-in-time" id="toc-how-the-evidence-falls-in-time" class="nav-link" data-scroll-target="#how-the-evidence-falls-in-time">How the evidence falls in time</a></li>
   <li><a href="#related-problems" id="toc-related-problems" class="nav-link" data-scroll-target="#related-problems">Related problems</a></li>
@@ -433,6 +434,19 @@ ul.task-list li input[type="checkbox"] {
 <div class="problem-meta">
 <p><span class="problem-id">QBA-11</span> <span class="verdict verdict-confirmed-open">Confirmed open</span> <span class="chip chip-priority-very-high">Very high priority</span> <span class="chip chip-maturity-promising">Promising</span> <span class="chip">Tractability 2/5</span></p>
 </div>
+<div class="callout callout-style-simple callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>A study has been run against this problem
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Double robustness protects against one misspecified nuisance model and nothing else. With an omitted confounder the augmented estimator carried exactly the same bias as correctly specified weighting or outcome-regression estimators, and with both models wrong the misspecification and omitted-variable biases added. A sensitivity grid built on a misspecified analysis is therefore shifted by the misspecification bias. With exact-balance weights, augmentation by an outcome model built from the balanced terms reproduces MAIC. <a href="#our-study">Read the study below</a>.</p>
+</div>
+</div>
 <section id="statement" class="level2">
 <h2 class="anchored" data-anchor-id="statement">Statement</h2>
 <p>A linear STC applied where thresholds, splines or interactions operate produces outcome-model misspecification bias, and QBA for an omitted covariate holds the outcome model fixed, so it does not repair it. Double robustness is a property of the measured-data layer only: Campbell and Remiro-Azocar (doi:10.1017/rsm.2026.10106) place externally controlled single-arm trials and unanchored ITCs in one causal framework and augment entropy-balancing MAIC with a conditional outcome model, giving robustness to misspecification of one of the two measured-data nuisance models, while identification still rests on conditional data-source ignorability and positivity with no bias-parameter indexing. No published unanchored-PAIC estimator is simultaneously doubly robust and indexed by explicit residual-bias parameters; drMAIC on CRAN offers doubly robust MAIC with E-values, weight trimming and variable-exclusion analyses, which is a generic screen rather than such an estimator.</p>
@@ -471,6 +485,43 @@ ul.task-list li input[type="checkbox"] {
 <section id="probable-solution-or-research-direction" class="level2">
 <h2 class="anchored" data-anchor-id="probable-solution-or-research-direction">Probable solution or research direction</h2>
 <p>Take the doubly robust augmented MAIC that already exists and index it by bias parameters with cross-fitting, so the estimate is computed at every point of the sensitivity region and the measured-confounding layer and the residual-bias layer are reported separately, or apply bias functions and bounds to the existing doubly robust functional where that suffices. Publish an explicit demonstration of which failures double robustness does and does not cover. Treat unsupported target profiles as a positivity problem calling for support restrictions, bounds or stated extrapolation assumptions, and use flexible learner multiverses, residual-bias functions, model averaging across plausible forms and calibration against held-out trials as optional tools for functional-form error rather than as remedies for nonidentification.</p>
+</section>
+<section id="our-study" class="level2">
+<h2 class="anchored" data-anchor-id="our-study">Our study</h2>
+<div class="study-result">
+<p><strong>Which failures double robustness covers</strong></p>
+<p><strong>The question put to it.</strong> Does a doubly robust MAIC protect against an omitted confounder, and what happens to a sensitivity grid built on a misspecified outcome model?</p>
+<p><strong>What it found.</strong> Double robustness protects against one misspecified nuisance model and nothing else. With an omitted confounder the augmented estimator carried exactly the same bias as correctly specified weighting or outcome-regression estimators, and with both models wrong the misspecification and omitted-variable biases added. A sensitivity grid built on a misspecified analysis is therefore shifted by the misspecification bias. With exact-balance weights, augmentation by an outcome model built from the balanced terms reproduces MAIC.</p>
+<p><strong>Results.</strong></p>
+<ul>
+<li>Both models correct: augmented bias equal to the omitted-variable bias in all 16 scenarios; largest difference from correct outcome regression 0.0015.</li>
+<li>Omitted variable absent, one model wrong: augmented estimator unbiased (second null control held); the wrong single-model estimator biased by up to 0.20.</li>
+<li>Both models wrong: bias additive in misspecification and omitted-variable parts, largest interaction 0.008, within 3 MCSE in 16 of 16 scenarios.</li>
+<li>Registered region-inclusion criterion not met as stated (0.888 against a 0.90 threshold) because the region omitted sampling error; the misspecified region was displaced by 0.195 to 0.201 at every omitted-variable strength.</li>
+</ul>
+<p><strong>Design.</strong></p>
+<dl>
+<dt>Estimand</dt>
+<dd>
+Target-population mean outcome under A (unanchored)
+</dd>
+<dt>Methods compared</dt>
+<dd>
+MAIC with correct or wrong weights, outcome regression with correct or wrong model, augmented (doubly robust) estimator under the four combinations
+</dd>
+<dt>Data-generating mechanism</dt>
+<dd>
+Unanchored transport with a nonlinear outcome, misspecifiable weighting and outcome models and an omitted binary confounder; MAIC, outcome regression and augmented estimators under every combination of model correctness; 16 cells crossing omitted-variable strength, imbalance and overlap. 2000 replicates per cell.
+</dd>
+<dt>Replicates</dt>
+<dd>
+2000 per scenario, 32,000 in total
+</dd>
+</dl>
+<p><strong>What this does not answer.</strong> Continuous outcome only; no cross-fitting; drMAIC E-value screen and a formally bias-indexed doubly robust estimator not run. Peer review has not been done.</p>
+<p><strong>Peer review.</strong> Not yet done. The result stands on the study alone until it is.</p>
+<p>Read it: <a href="../studies/QBA-11-what-double-robustness-does-not-cover/out/QBA-11.pdf">PDF</a> · <a href="../studies/QBA-11-what-double-robustness-does-not-cover/out/QBA-11.md">Markdown</a> · <a href="../studies/QBA-11-what-double-robustness-does-not-cover/out/QBA-11.odt">OpenDocument</a> · Code and data: <a href="https://github.com/choxos/ITC-open-problems/tree/main/studies/QBA-11-what-double-robustness-does-not-cover">studies/QBA-11-what-double-robustness-does-not-cover</a> · Protocol: <a href="../studies/QBA-11-what-double-robustness-does-not-cover/out/QBA-11-protocol.md">registered before the run</a></p>
+</div>
 </section>
 <section id="verification" class="level2">
 <h2 class="anchored" data-anchor-id="verification">Verification</h2>
