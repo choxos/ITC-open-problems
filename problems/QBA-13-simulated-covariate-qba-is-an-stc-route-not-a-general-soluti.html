@@ -390,6 +390,7 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#why-it-is-open" id="toc-why-it-is-open" class="nav-link" data-scroll-target="#why-it-is-open">Why it is open</a></li>
   <li><a href="#what-has-been-tried" id="toc-what-has-been-tried" class="nav-link" data-scroll-target="#what-has-been-tried">What has been tried</a></li>
   <li><a href="#probable-solution-or-research-direction" id="toc-probable-solution-or-research-direction" class="nav-link" data-scroll-target="#probable-solution-or-research-direction">Probable solution or research direction</a></li>
+  <li><a href="#our-study" id="toc-our-study" class="nav-link" data-scroll-target="#our-study">Our study</a></li>
   <li><a href="#verification" id="toc-verification" class="nav-link" data-scroll-target="#verification">Verification</a></li>
   <li><a href="#how-the-evidence-falls-in-time" id="toc-how-the-evidence-falls-in-time" class="nav-link" data-scroll-target="#how-the-evidence-falls-in-time">How the evidence falls in time</a></li>
   <li><a href="#related-problems" id="toc-related-problems" class="nav-link" data-scroll-target="#related-problems">Related problems</a></li>
@@ -433,6 +434,19 @@ ul.task-list li input[type="checkbox"] {
 <div class="problem-meta">
 <p><span class="problem-id">QBA-13</span> <span class="verdict verdict-confirmed-open">Confirmed open</span> <span class="chip chip-priority-very-high">Very high priority</span> <span class="chip chip-maturity-promising">Promising</span></p>
 </div>
+<div class="callout callout-style-simple callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>A study has been run against this problem
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The MAIC extension of the simulated-covariate bias analysis was feasible in at least 99.8% of replicates across assumed target prevalences from 0.1 to 0.9, lost effective sample size to 85 to 109 of 300 only at the extreme, and had a reported SE 3% to 14% above STC’s. Both routes were unbiased. The restriction to STC was conservative rather than necessary. Both routes’ multiply imputed intervals widened along the sweep more than the estimate’s real spread (SE up to 0.28 against about 0.13), so coverage exceeded nominal. <a href="#our-study">Read the study below</a>.</p>
+</div>
+</div>
 <section id="statement" class="level2">
 <h2 class="anchored" data-anchor-id="statement">Statement</h2>
 <p>Ren et al.&nbsp;2025 (doi:10.1017/rsm.2025.13) extend the NORTA-based marginal unanchored STC of Ren et al.&nbsp;2024 (doi:10.1002/jrsm.1718) by simulating an assumed synthetic joint distribution for covariates measured in the IPD but unreported in the comparator publication, averaging individual predictions on the natural outcome scale before transforming to the log odds scale, and presenting deterministic sensitivity curves with bootstrap confidence intervals; they do not present tipping-point plots, and the case study instead reads a significance-crossing value off the curve. This is the beginning of formal QBA for limited-aggregate-data PAIC rather than a completed solution: the workflow is implemented only for STC, and the authors restrict it there because a MAIC extension would suffer extreme effective-sample-size loss and might fail to produce feasible weights. Their statement that no additional assumptions are required cannot be read literally, since target marginals, dependence, source-to-target outcome associations, copula form and regression form are all assumed.</p>
@@ -467,6 +481,42 @@ ul.task-list li input[type="checkbox"] {
 <section id="probable-solution-or-research-direction" class="level2">
 <h2 class="anchored" data-anchor-id="probable-solution-or-research-direction">Probable solution or research direction</h2>
 <p>Treat the simulated-covariate route as one family within a broader QBA framework, extend it to multiple correlated omitted variables and treatment-specific associations, and state its assumptions about target distributions, correlations, outcome associations, copula form and model form explicitly rather than describing it as assumption-free. Develop parallel routes for weighting and one-stage estimators so the same sensitivity question can be asked of any PAIC estimator, addressing the feasibility and effective-sample-size loss that led the authors to restrict the published version to STC. Report the sensitivity curve against a clinical or decision threshold rather than reading it off a significance boundary.</p>
+</section>
+<section id="our-study" class="level2">
+<h2 class="anchored" data-anchor-id="our-study">Our study</h2>
+<div class="study-result">
+<p><strong>A simulated-covariate bias analysis by STC and by MAIC</strong></p>
+<p><strong>The question put to it.</strong> Is a MAIC version of the simulated-covariate bias analysis infeasible or too imprecise, as its authors assumed when restricting it to STC?</p>
+<p><strong>What it found.</strong> The MAIC extension of the simulated-covariate bias analysis was feasible in at least 99.8% of replicates across assumed target prevalences from 0.1 to 0.9, lost effective sample size to 85 to 109 of 300 only at the extreme, and had a reported SE 3% to 14% above STC’s. Both routes were unbiased. The restriction to STC was conservative rather than necessary. Both routes’ multiply imputed intervals widened along the sweep more than the estimate’s real spread (SE up to 0.28 against about 0.13), so coverage exceeded nominal.</p>
+<p><strong>Results.</strong></p>
+<ul>
+<li>Refuting sentence holds: feasibility 0.998 to 1.000; MAIC SE / STC SE 1.03 to 1.14.</li>
+<li>Effective sample size 85 to 231 of 300 along the sweep.</li>
+<li>Bias at most 0.009 for both routes; coverage 0.956 to 1.000 (conservative toward the extremes).</li>
+</ul>
+<p><strong>Design.</strong></p>
+<dl>
+<dt>Estimand</dt>
+<dd>
+A’s marginal log odds in a target with the assumed prevalence of the unmeasured covariate
+</dd>
+<dt>Methods compared</dt>
+<dd>
+simulated-covariate STC, simulated-covariate MAIC
+</dd>
+<dt>Data-generating mechanism</dt>
+<dd>
+Unanchored transport with an unmeasured binary covariate imputed from its assumed relations; STC and MAIC sensitivity curves over the assumed target prevalence, with feasibility and effective sample size. 2 cells, 500 replicates each.
+</dd>
+<dt>Replicates</dt>
+<dd>
+500 per scenario, 1,000 in total, each over a 5-point sweep with 10 imputations
+</dd>
+</dl>
+<p><strong>What this does not answer.</strong> One binary unmeasured covariate, correct assumed relations, unanchored A side only, no decision reading. Peer review has not been done.</p>
+<p><strong>Peer review.</strong> Not yet done. The result stands on the study alone until it is.</p>
+<p>Read it: <a href="../studies/QBA-13-testing-the-reason-maic-was-excluded/out/QBA-13.pdf">PDF</a> · <a href="../studies/QBA-13-testing-the-reason-maic-was-excluded/out/QBA-13.md">Markdown</a> · <a href="../studies/QBA-13-testing-the-reason-maic-was-excluded/out/QBA-13.odt">OpenDocument</a> · Code and data: <a href="https://github.com/choxos/ITC-open-problems/tree/main/studies/QBA-13-testing-the-reason-maic-was-excluded">studies/QBA-13-testing-the-reason-maic-was-excluded</a> · Protocol: <a href="../studies/QBA-13-testing-the-reason-maic-was-excluded/out/QBA-13-protocol.md">registered before the run</a></p>
+</div>
 </section>
 <section id="verification" class="level2">
 <h2 class="anchored" data-anchor-id="verification">Verification</h2>
