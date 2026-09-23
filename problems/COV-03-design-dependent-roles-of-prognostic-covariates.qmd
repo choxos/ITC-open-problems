@@ -16,6 +16,12 @@ maturity: "Established"
 [High priority]{.chip .chip-priority-high}
 [Established]{.chip .chip-maturity-established}
 :::
+::: {.callout-important appearance="simple"}
+## A study has been run against this problem
+
+Yes. On the log odds ratio scale a difference in the spread of prognosis between trials biases an anchored MAIC that balances only means by up to 0.11, even with no effect modification. Balancing variances or the variance of the prognostic index removes the bias, but when the source is less dispersed than the target the loss of effective sample size makes RMSE worse than not balancing. G-computation was unbiased with the lowest RMSE throughout. [Read the study below](#our-study).
+:::
+
 ## Statement
 
 Whether a strong prognostic non-modifier should be adjusted for depends on the estimand and the design, not on the variable alone. For a conditional or collapsible effect in an anchored comparison, balancing such a variable spends effective sample size without removing bias, although including it in an outcome model can improve precision. For non-collapsible measures such as the odds ratio or hazard ratio, a variable that is purely prognostic on the conditional scale can still change the marginal effect, so cross-study imbalance in it can bias an anchored marginal comparison even when marginal covariate moments are balanced (Remiro-Azocar 2024, doi:10.1002/sim.10111). In unanchored comparisons, omitting prognostic variables biases the cross-study contrast on any scale.
@@ -43,14 +49,40 @@ Index covariate role by estimand and scale in guidance and in software, keeping 
 
 ## Our study
 
-::: {.callout-note}
-## A study is running
+::: {.study-result}
+**What an anchored comparison must balance on a non-collapsible scale**
 
-**Question.** On the log odds ratio scale a purely prognostic covariate changes the marginal effect. Does an anchored MAIC that balances only covariate means, as practice does, leave material bias, and does balancing the variance of the prognostic index remove it at acceptable cost in effective sample size?
+**The question put to it.** On the log odds ratio scale a purely prognostic covariate changes the marginal effect. Does an anchored MAIC that balances only covariate means, as practice does, leave material bias, and does balancing the variance of the prognostic index remove it at acceptable cost in effective sample size?
 
-**Design.** Anchored and unanchored binary-outcome comparisons, 108 cells crossing prognostic strength, the source-to-target ratio of prognostic index variance, target mean shift and effect modification; five methods including MAIC on means, on means and variances, on the prognostic index variance, and G-computation. 1000 replicates per cell.
+**What it found.** Yes. On the log odds ratio scale a difference in the spread of prognosis between trials biases an anchored MAIC that balances only means by up to 0.11, even with no effect modification. Balancing variances or the variance of the prognostic index removes the bias, but when the source is less dispersed than the target the loss of effective sample size makes RMSE worse than not balancing. G-computation was unbiased with the lowest RMSE throughout.
 
-The protocol is registered before any result is seen: [read it](/studies/COV-03-prognostic-index-variance/out/COV-03-protocol.md).
+**Results.**
+
+- MAIC on means biased by 0.05 to 0.11 in the 12 primary anchored scenarios, beyond 0.05 (95% Monte Carlo interval) in 9; registered verdict CONFIRMED.
+- Unadjusted anchored bias on the exact population bias: slope 0.981 (SE 0.018).
+- Balancing variances cut the bias to at most 0.08 (0.02 in all but one scenario) but dropped effective sample size to 44 to 284 of 1000 when the source index variance was half the target's.
+- G-computation: largest absolute bias 0.024 anchored and 0.020 unanchored, lowest RMSE in every primary scenario.
+
+**Design.**
+
+Estimand
+:   Marginal log odds ratio, B versus A, in the target population
+
+Methods compared
+:   unadjusted, MAIC on means, MAIC on means and variances, MAIC on means and the prognostic index variance, G-computation
+
+Data-generating mechanism
+:   Anchored and unanchored binary-outcome comparisons, 108 cells crossing prognostic strength, the source-to-target ratio of prognostic index variance, target mean shift and effect modification; five methods including MAIC on means, on means and variances, on the prognostic index variance, and G-computation. 1000 replicates per cell.
+
+Replicates
+:   1000 per scenario, 108,000 in total
+
+**What this does not answer.** Independent normal covariates and a correctly specified outcome model favor G-computation. Hazard ratios, skewed covariates and augmented estimators not run; MAIC intervals treat weights as fixed. Peer review has not been done.
+
+**Peer review.** Not yet done. The result stands on the study alone until it is.
+
+Read it: [PDF](/studies/COV-03-prognostic-index-variance/out/COV-03.pdf) · [Markdown](/studies/COV-03-prognostic-index-variance/out/COV-03.md) · [OpenDocument](/studies/COV-03-prognostic-index-variance/out/COV-03.odt) · Code and data: [studies/COV-03-prognostic-index-variance](https://github.com/choxos/ITC-open-problems/tree/main/studies/COV-03-prognostic-index-variance) · Protocol: [registered before the run](/studies/COV-03-prognostic-index-variance/out/COV-03-protocol.md)
+
 :::
 
 ## Verification

@@ -18,6 +18,12 @@ tractability: 2
 [Emerging]{.chip .chip-maturity-emerging}
 [Tractability 2/5]{.chip}
 :::
+::: {.callout-important appearance="simple"}
+## A study has been run against this problem
+
+Overdispersion leaves the transported rate ratio unbiased and makes the Poisson interval too narrow (coverage down to 0.61); a sandwich or negative binomial restores it. A structural-zero fraction that differs between source and target biases the transported absolute rate in every count model, including zero-inflated Poisson, by up to 0.56 on the log scale; the rate ratio is protected only without effect modification. Recalibrating the zero part to the target's reported zero proportion repairs the absolute rate when the source has structural zeros to learn from. [Read the study below](#our-study).
+:::
+
 ## Statement
 
 The population-adjusted implementations the auditors checked fit Poisson models for counts and offer no negative-binomial, Poisson-lognormal, hurdle, zero-inflated, recurrent-event or frailty family, so those options are unavailable rather than merely uncommon. The consequence is narrower than the source said: where the conditional mean is correctly specified the Poisson estimating score remains unbiased under negative-binomial variance, so residual overdispersion invalidates likelihood-based uncertainty while leaving rate-ratio point estimates consistent, and transport bias instead requires misspecification of the conditional mean, the zero mechanism, the frailty or the exposure weighting. Time to first event and total event burden remain different estimands that can move in different directions, and general count meta-analysis evidence shows pooled effects and precision differ by whether a rate ratio, Poisson, negative-binomial, dichotomized risk ratio or time-to-first-event analysis is used (doi:10.1186/s13643-015-0144-x). The two auditors disagreed about how much of the source's mechanism survives, and that disagreement is recorded rather than resolved.
@@ -45,14 +51,40 @@ Extend component ML-NMR to negative-binomial and Poisson-lognormal likelihoods s
 
 ## Our study
 
-::: {.callout-note}
-## A study is running
+::: {.study-result}
+**Overdispersed and zero-inflated counts transported by G-computation**
 
-**Question.** For count outcomes transported to a target, does overdispersion bias the estimate or only its interval, and when the fraction of structural zeros differs between populations, what does a count model transport wrongly and what repairs it?
+**The question put to it.** For count outcomes transported to a target, does overdispersion bias the estimate or only its interval, and when the fraction of structural zeros differs between populations, what does a count model transport wrongly and what repairs it?
 
-**Design.** G-computation from an individual-data trial with negative-binomial or zero-inflated Poisson counts, 14 cells separating dispersion from structural-zero differences, with and without effect modification; Poisson, sandwich, negative binomial, zero-inflated and recalibrated zero-inflated fits. 500 replicates per cell.
+**What it found.** Overdispersion leaves the transported rate ratio unbiased and makes the Poisson interval too narrow (coverage down to 0.61); a sandwich or negative binomial restores it. A structural-zero fraction that differs between source and target biases the transported absolute rate in every count model, including zero-inflated Poisson, by up to 0.56 on the log scale; the rate ratio is protected only without effect modification. Recalibrating the zero part to the target's reported zero proportion repairs the absolute rate when the source has structural zeros to learn from.
 
-The protocol is registered before any result is seen: [read it](/studies/OUT-08-overdispersion-breaks-the-interval-not-the-estimate/out/OUT-08-protocol.md).
+**Results.**
+
+- Poisson rate-ratio coverage 0.846 to 0.610 under overdispersion with bias at most 0.010; sandwich 0.926 to 0.948, so the registered rule (0.93 everywhere) was missed by 0.004 in one cell with MCSE 0.012.
+- Differing structural-zero fractions: absolute log-rate bias 0.40 to 0.56 in absolute value for Poisson, negative binomial and zero-inflated Poisson, coverage 0.000 to 0.028.
+- Rate ratio with differing zero fractions: bias at most 0.007 without effect modification, up to 0.11 with it.
+- Zero part recalibrated to the target's zero proportion: absolute-rate bias at most 0.04 when the source had structural zeros, 0.25 when it had none.
+
+**Design.**
+
+Estimand
+:   Log rate ratio, A versus C, and log rate under A, in the target population
+
+Methods compared
+:   Poisson, Poisson with sandwich variance, negative binomial, zero-inflated Poisson, zero-inflated Poisson with recalibrated zero part
+
+Data-generating mechanism
+:   G-computation from an individual-data trial with negative-binomial or zero-inflated Poisson counts, 14 cells separating dispersion from structural-zero differences, with and without effect modification; Poisson, sandwich, negative binomial, zero-inflated and recalibrated zero-inflated fits. 500 replicates per cell.
+
+Replicates
+:   500 per scenario, 7,000 in total
+
+**What this does not answer.** One covariate; frailty, exposure weighting, recurrent events and zero-inflated negative binomial not run. Peer review has not been done.
+
+**Peer review.** Not yet done. The result stands on the study alone until it is.
+
+Read it: [PDF](/studies/OUT-08-overdispersion-breaks-the-interval-not-the-estimate/out/OUT-08.pdf) · [Markdown](/studies/OUT-08-overdispersion-breaks-the-interval-not-the-estimate/out/OUT-08.md) · [OpenDocument](/studies/OUT-08-overdispersion-breaks-the-interval-not-the-estimate/out/OUT-08.odt) · Code and data: [studies/OUT-08-overdispersion-breaks-the-interval-not-the-estimate](https://github.com/choxos/ITC-open-problems/tree/main/studies/OUT-08-overdispersion-breaks-the-interval-not-the-estimate) · Protocol: [registered before the run](/studies/OUT-08-overdispersion-breaks-the-interval-not-the-estimate/out/OUT-08-protocol.md)
+
 :::
 
 ## Verification

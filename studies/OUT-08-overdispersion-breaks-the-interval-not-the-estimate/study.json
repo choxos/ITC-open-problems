@@ -1,7 +1,25 @@
 {
  "problem_id": "OUT-08",
  "title": "Overdispersed and zero-inflated counts transported by G-computation",
- "status": "running",
+ "status": "complete",
  "question": "For count outcomes transported to a target, does overdispersion bias the estimate or only its interval, and when the fraction of structural zeros differs between populations, what does a count model transport wrongly and what repairs it?",
- "design": "G-computation from an individual-data trial with negative-binomial or zero-inflated Poisson counts, 14 cells separating dispersion from structural-zero differences, with and without effect modification; Poisson, sandwich, negative binomial, zero-inflated and recalibrated zero-inflated fits. 500 replicates per cell."
+ "design": "G-computation from an individual-data trial with negative-binomial or zero-inflated Poisson counts, 14 cells separating dispersion from structural-zero differences, with and without effect modification; Poisson, sandwich, negative binomial, zero-inflated and recalibrated zero-inflated fits. 500 replicates per cell.",
+ "date_completed": "2026-09-23",
+ "answer": "Overdispersion leaves the transported rate ratio unbiased and makes the Poisson interval too narrow (coverage down to 0.61); a sandwich or negative binomial restores it. A structural-zero fraction that differs between source and target biases the transported absolute rate in every count model, including zero-inflated Poisson, by up to 0.56 on the log scale; the rate ratio is protected only without effect modification. Recalibrating the zero part to the target's reported zero proportion repairs the absolute rate when the source has structural zeros to learn from.",
+ "findings": [
+  "Poisson rate-ratio coverage 0.846 to 0.610 under overdispersion with bias at most 0.010; sandwich 0.926 to 0.948, so the registered rule (0.93 everywhere) was missed by 0.004 in one cell with MCSE 0.012.",
+  "Differing structural-zero fractions: absolute log-rate bias 0.40 to 0.56 in absolute value for Poisson, negative binomial and zero-inflated Poisson, coverage 0.000 to 0.028.",
+  "Rate ratio with differing zero fractions: bias at most 0.007 without effect modification, up to 0.11 with it.",
+  "Zero part recalibrated to the target's zero proportion: absolute-rate bias at most 0.04 when the source had structural zeros, 0.25 when it had none."
+ ],
+ "not_answered": "One covariate; frailty, exposure weighting, recurrent events and zero-inflated negative binomial not run. Peer review has not been done.",
+ "estimand": "Log rate ratio, A versus C, and log rate under A, in the target population",
+ "methods_compared": [
+  "Poisson",
+  "Poisson with sandwich variance",
+  "negative binomial",
+  "zero-inflated Poisson",
+  "zero-inflated Poisson with recalibrated zero part"
+ ],
+ "n_sim": "500 per scenario, 7,000 in total"
 }

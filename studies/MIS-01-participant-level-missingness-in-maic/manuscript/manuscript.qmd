@@ -53,9 +53,11 @@ itself, and biased already at 15% where predicted (for example
 `r f3(v("MAR_u_armA", 0.15, 0, "complete_case"))` with arm-specific missingness). When
 missingness depended on $x_1$ itself, weighting and imputation, which assume the data
 missing at random, were biased by up to `r f3(max(abs(rep_mnar$bias)))` while complete
-case stayed within `r f3(max(abs(mn$bias[mn$method == "complete_case"])))`. Arm-specific
-missingness at high rates defeated every method. Imputation with arm interactions was
-the most reliable repair under missing at random.
+case stayed within `r f3(max(abs(mn$bias[mn$method == "complete_case"])))`. When 95% of one arm was
+missing, weighting and arm-interacted imputation failed (bias
+`r f3(v("MAR_u_armA", 0.5, 0.3, "ipw"))` and `r f3(v("MAR_u_armA", 0.5, 0.3, "mi_congenial"))`).
+Otherwise imputation with arm interactions was the most reliable repair under missing at
+random.
 
 **Conclusion.** Report the missingness mechanism, not the rate. Complete case is the
 right analysis when missingness depends only on the matched covariates, including the

@@ -26,9 +26,9 @@ driven by $x_1$ itself, and biased already at 15% where predicted (for
 example -0.338 with arm-specific missingness). When missingness depended
 on $x_1$ itself, weighting and imputation, which assume the data missing
 at random, were biased by up to 0.221 while complete case stayed within
-0.035. Arm-specific missingness at high rates defeated every method.
-Imputation with arm interactions was the most reliable repair under
-missing at random.
+0.035. When 95% of one arm was missing, weighting and arm-interacted
+imputation failed (bias -0.978 and -0.193). Otherwise imputation with
+arm interactions was the most reliable repair under missing at random.
 
 **Conclusion.** Report the missingness mechanism, not the rate. Complete
 case is the right analysis when missingness depends only on the matched

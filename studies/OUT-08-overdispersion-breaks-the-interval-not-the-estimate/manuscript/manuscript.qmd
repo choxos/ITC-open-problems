@@ -1,0 +1,114 @@
+---
+title: "Transporting count outcomes: overdispersion breaks the interval, a differing zero fraction breaks the absolute rate"
+subtitle: "A simulation study answering catalog problem OUT-08"
+author: "Ahmad Sofi-Mahmudi"
+date: 2026-09-23
+bibliography: references.bib
+csl: ../../../vancouver.csl
+link-citations: true
+number-sections: true
+execute:
+  echo: false
+  warning: false
+  message: false
+format:
+  gfm:
+    toc: false
+  pdf:
+    documentclass: article
+    geometry: margin=1in
+    fig-pos: "H"
+  odt: default
+---
+
+```{r setup}
+s <- read.csv("../results/summary.csv")
+f3 <- function(x) formatC(x, format = "f", digits = 3)
+A <- s[s$part == "A" & is.finite(s$theta), ]; B <- s[s$part == "B", ]
+pa <- A[A$method == "poisson", ]; sa <- A[A$method == "poisson_sandwich", ]; na <- A[A$method == "negbin", ]; za <- A[A$method == "zip", ]
+dif <- B[B$pi_s != B$pi_t, ]; unc <- dif[dif$method %in% c("poisson", "negbin", "zip"), ]
+cal <- dif[dif$method == "zip_calibrated", ]
+b0 <- dif[dif$b == 0 & dif$method %in% c("poisson_sandwich", "negbin"), ]
+b4 <- dif[dif$b == 0.4 & dif$method %in% c("poisson_sandwich", "negbin", "zip"), ]
+c0 <- cal[cal$pi_s == 0, ]; c1 <- cal[cal$pi_s > 0, ]
+```
+
+# Abstract {.unnumbered}
+
+**Background.** Count outcomes such as exacerbations are transported from an
+individual-data trial to a target population with Poisson or negative binomial
+G-computation. Catalog problem OUT-08 asks what overdispersion and structural zeros
+do to the transported estimate.
+
+**Methods.** A versus C trial of 300 per arm, one covariate, target shifted by 0.5 SD.
+Part A: negative binomial counts with size $\infty$, 2 or 0.7 and no structural zeros.
+Part B: Poisson counts with a structural-zero fraction of 0.2 in the source and 0, 0.2
+or 0.4 in the target, or 0 and 0.2. Each with or without effect modification: 14
+scenarios, 500 replicates each. Poisson, Poisson with a sandwich variance, negative
+binomial, zero-inflated Poisson, and zero-inflated Poisson with its zero part
+recalibrated to the target's reported proportion of control patients without events.
+
+**Results.** Overdispersion left the Poisson rate ratio unbiased and cut its coverage to
+`r f3(min(pa$cover_rr))`; a sandwich variance restored `r f3(min(sa$cover_rr))` to
+`r f3(max(sa$cover_rr))` and the negative binomial `r f3(min(na$cover_rr))` to `r f3(max(na$cover_rr))`.
+The registered rule required the sandwich to reach 0.93 in every cell and missed by
+0.004 in one (MCSE 0.012). A structural-zero fraction that differed between populations
+biased the transported absolute log rate by up to `r f3(max(abs(unc$bias_rate)))` in every
+count model, with coverage near zero. The rate ratio was protected without effect
+modification (bias at most `r f3(max(abs(b0$bias_rr)))`) and biased by up to
+`r f3(max(abs(b4$bias_rr)))` with it. Recalibrating the zero part to the target's reported
+zero proportion removed the absolute-rate bias when the source had structural zeros
+(at most `r f3(max(abs(c1$bias_rate)))`), but not when it had none
+(`r f3(c0$bias_rate[c0$b == 0.4])`).
+
+**Conclusion.** Overdispersion is a variance problem that a sandwich or negative
+binomial fixes. A differing zero fraction is a transport problem that no dispersion
+parameter fixes; it needs target information on zeros and a source in which the zero
+process is identifiable.
+
+# The problem {#sec-problem}
+
+Under a negative binomial with the correct mean, the Poisson score equations are
+unbiased, so the estimate is consistent and only the model-based variance is wrong
+[@zeileis2006]. Structural zeros are different. If a fraction $\pi(x)$ of patients cannot
+have events, the target rate is $\int\{1 - \pi_T(x)\}\mu_a(x)\,dF_T$, and a model fitted
+to the source learns $\{1 - \pi_S(x)\}\mu_a(x)$. The rate ratio cancels $1 - \pi$ when
+the effect is constant; with effect modification the at-risk composition enters the
+ratio too. A zero-inflated model [@lambert1992] separates the two parts, but its zero
+part still describes the source.
+
+# Design {#sec-design}
+
+Registered protocol: `protocol.md`; ADEMP structure [@morris2019]. Counts: structural
+zero with probability $\operatorname{logit}^{-1}(z_{\text{pop}} + 0.8x)$, otherwise
+NB with mean $1.2\exp\{0.4x + A(-0.4 + bx)\}$, $b \in \{0, 0.4\}$. The two parts are not
+crossed, so the zero-inflated fit is not misspecified by dispersion in part B.
+G-computation over the target law; delta-method SEs. The recalibrated model shifts the
+zero-part intercept until its predicted zero proportion in the target control arm
+matches the reported one; its SE ignores the sampling error of that proportion.
+
+# Results {#sec-results}
+
+![Coverage of the transported log rate ratio by outcome dispersion (part A).](figures/fig1-dispersion.png){#fig-disp}
+
+Part A (@fig-disp): every mean model was unbiased for the rate ratio (Poisson at most
+`r f3(max(abs(pa$bias_rr)))`); only the intervals differed. The zero-inflated Poisson,
+misspecified by the dispersion, lost coverage like the Poisson (`r f3(min(za$cover_rr))`).
+
+![Bias of A's transported log rate by structural-zero fractions (part B).](figures/fig2-zeros.png){#fig-zeros}
+
+Part B (@fig-zeros): with equal zero fractions every model transported correctly. With
+the target's fraction higher or lower than the source's, the absolute rate was off by
+the log of the ratio of at-risk fractions, and the zero-inflated model was no better
+than the Poisson. Recalibration needs the zero part's slope from the source, which is
+not identified when the source has no structural zeros; there it overcorrected. Its
+coverage (`r f3(min(c1$cover_rate))` to `r f3(max(c1$cover_rate))` where it was unbiased)
+reflects the ignored uncertainty in the reported zero proportion.
+
+# What this does not answer {#sec-limits}
+
+One covariate; frailty models, exposure-time weighting (CMP-20), recurrent-event
+models and zero-inflated negative binomial fits were not run. The target's zero
+proportion was assumed reported for its control arm. Peer review has not been done.
+
+# References {.unnumbered}

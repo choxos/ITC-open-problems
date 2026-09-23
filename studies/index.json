@@ -272,22 +272,37 @@
  "COV-03": {
   "slug": "COV-03-prognostic-index-variance",
   "title": "What an anchored comparison must balance on a non-collapsible scale",
-  "status": "running",
+  "status": "complete",
   "question": "On the log odds ratio scale a purely prognostic covariate changes the marginal effect. Does an anchored MAIC that balances only covariate means, as practice does, leave material bias, and does balancing the variance of the prognostic index remove it at acceptable cost in effective sample size?",
-  "answer": null,
-  "findings": [],
-  "not_answered": null,
+  "answer": "Yes. On the log odds ratio scale a difference in the spread of prognosis between trials biases an anchored MAIC that balances only means by up to 0.11, even with no effect modification. Balancing variances or the variance of the prognostic index removes the bias, but when the source is less dispersed than the target the loss of effective sample size makes RMSE worse than not balancing. G-computation was unbiased with the lowest RMSE throughout.",
+  "findings": [
+   "MAIC on means biased by 0.05 to 0.11 in the 12 primary anchored scenarios, beyond 0.05 (95% Monte Carlo interval) in 9; registered verdict CONFIRMED.",
+   "Unadjusted anchored bias on the exact population bias: slope 0.981 (SE 0.018).",
+   "Balancing variances cut the bias to at most 0.08 (0.02 in all but one scenario) but dropped effective sample size to 44 to 284 of 1000 when the source index variance was half the target's.",
+   "G-computation: largest absolute bias 0.024 anchored and 0.020 unanchored, lowest RMSE in every primary scenario."
+  ],
+  "not_answered": "Independent normal covariates and a correctly specified outcome model favor G-computation. Hazard ratios, skewed covariates and augmented estimators not run; MAIC intervals treat weights as fixed. Peer review has not been done.",
   "design": "Anchored and unanchored binary-outcome comparisons, 108 cells crossing prognostic strength, the source-to-target ratio of prognostic index variance, target mean shift and effect modification; five methods including MAIC on means, on means and variances, on the prognostic index variance, and G-computation. 1000 replicates per cell.",
-  "n_sim": null,
-  "estimand": null,
-  "methods_compared": [],
-  "date_completed": null,
+  "n_sim": "1000 per scenario, 108,000 in total",
+  "estimand": "Marginal log odds ratio, B versus A, in the target population",
+  "methods_compared": [
+   "unadjusted",
+   "MAIC on means",
+   "MAIC on means and variances",
+   "MAIC on means and the prognostic index variance",
+   "G-computation"
+  ],
+  "date_completed": "2026-09-23",
   "week": null,
   "code": "studies/COV-03-prognostic-index-variance",
   "protocol": "studies/COV-03-prognostic-index-variance/out/COV-03-protocol.md",
   "review": null,
   "review_rounds": 0,
-  "downloads": {},
+  "downloads": {
+   "gfm": "studies/COV-03-prognostic-index-variance/out/COV-03.md",
+   "pdf": "studies/COV-03-prognostic-index-variance/out/COV-03.pdf",
+   "odt": "studies/COV-03-prognostic-index-variance/out/COV-03.odt"
+  },
   "primary_problem": "COV-03",
   "secondary": false
  },
@@ -963,22 +978,37 @@
  "OUT-08": {
   "slug": "OUT-08-overdispersion-breaks-the-interval-not-the-estimate",
   "title": "Overdispersed and zero-inflated counts transported by G-computation",
-  "status": "running",
+  "status": "complete",
   "question": "For count outcomes transported to a target, does overdispersion bias the estimate or only its interval, and when the fraction of structural zeros differs between populations, what does a count model transport wrongly and what repairs it?",
-  "answer": null,
-  "findings": [],
-  "not_answered": null,
+  "answer": "Overdispersion leaves the transported rate ratio unbiased and makes the Poisson interval too narrow (coverage down to 0.61); a sandwich or negative binomial restores it. A structural-zero fraction that differs between source and target biases the transported absolute rate in every count model, including zero-inflated Poisson, by up to 0.56 on the log scale; the rate ratio is protected only without effect modification. Recalibrating the zero part to the target's reported zero proportion repairs the absolute rate when the source has structural zeros to learn from.",
+  "findings": [
+   "Poisson rate-ratio coverage 0.846 to 0.610 under overdispersion with bias at most 0.010; sandwich 0.926 to 0.948, so the registered rule (0.93 everywhere) was missed by 0.004 in one cell with MCSE 0.012.",
+   "Differing structural-zero fractions: absolute log-rate bias 0.40 to 0.56 in absolute value for Poisson, negative binomial and zero-inflated Poisson, coverage 0.000 to 0.028.",
+   "Rate ratio with differing zero fractions: bias at most 0.007 without effect modification, up to 0.11 with it.",
+   "Zero part recalibrated to the target's zero proportion: absolute-rate bias at most 0.04 when the source had structural zeros, 0.25 when it had none."
+  ],
+  "not_answered": "One covariate; frailty, exposure weighting, recurrent events and zero-inflated negative binomial not run. Peer review has not been done.",
   "design": "G-computation from an individual-data trial with negative-binomial or zero-inflated Poisson counts, 14 cells separating dispersion from structural-zero differences, with and without effect modification; Poisson, sandwich, negative binomial, zero-inflated and recalibrated zero-inflated fits. 500 replicates per cell.",
-  "n_sim": null,
-  "estimand": null,
-  "methods_compared": [],
-  "date_completed": null,
+  "n_sim": "500 per scenario, 7,000 in total",
+  "estimand": "Log rate ratio, A versus C, and log rate under A, in the target population",
+  "methods_compared": [
+   "Poisson",
+   "Poisson with sandwich variance",
+   "negative binomial",
+   "zero-inflated Poisson",
+   "zero-inflated Poisson with recalibrated zero part"
+  ],
+  "date_completed": "2026-09-23",
   "week": null,
   "code": "studies/OUT-08-overdispersion-breaks-the-interval-not-the-estimate",
   "protocol": "studies/OUT-08-overdispersion-breaks-the-interval-not-the-estimate/out/OUT-08-protocol.md",
   "review": null,
   "review_rounds": 0,
-  "downloads": {},
+  "downloads": {
+   "gfm": "studies/OUT-08-overdispersion-breaks-the-interval-not-the-estimate/out/OUT-08.md",
+   "pdf": "studies/OUT-08-overdispersion-breaks-the-interval-not-the-estimate/out/OUT-08.pdf",
+   "odt": "studies/OUT-08-overdispersion-breaks-the-interval-not-the-estimate/out/OUT-08.odt"
+  },
   "primary_problem": "OUT-08",
   "secondary": false
  },
@@ -1108,6 +1138,28 @@
    "odt": "studies/OVL-06-planning-in-information-rather-than-in-n/out/OVL-06.odt"
   },
   "primary_problem": "OVL-06",
+  "secondary": false
+ },
+ "QBA-11": {
+  "slug": "QBA-11-what-double-robustness-does-not-cover",
+  "title": "Which failures double robustness covers",
+  "status": "running",
+  "question": "Does a doubly robust MAIC protect against an omitted confounder, and what happens to a sensitivity grid built on a misspecified outcome model?",
+  "answer": null,
+  "findings": [],
+  "not_answered": null,
+  "design": "Unanchored transport with a nonlinear outcome, misspecifiable weighting and outcome models and an omitted binary confounder; MAIC, outcome regression and augmented estimators under every combination of model correctness; 16 cells crossing omitted-variable strength, imbalance and overlap. 2000 replicates per cell.",
+  "n_sim": null,
+  "estimand": null,
+  "methods_compared": [],
+  "date_completed": null,
+  "week": null,
+  "code": "studies/QBA-11-what-double-robustness-does-not-cover",
+  "protocol": "studies/QBA-11-what-double-robustness-does-not-cover/out/QBA-11-protocol.md",
+  "review": null,
+  "review_rounds": 0,
+  "downloads": {},
+  "primary_problem": "QBA-11",
   "secondary": false
  },
  "SFW-10": {
