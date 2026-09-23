@@ -1,0 +1,114 @@
+---
+title: "When two sponsors' MAICs disagree: how often, why, and which common target resolves it"
+subtitle: "A simulation study answering catalog problem EST-06"
+author: "Ahmad Sofi-Mahmudi"
+date: 2026-09-23
+bibliography: references.bib
+csl: ../../../vancouver.csl
+link-citations: true
+number-sections: true
+execute:
+  echo: false
+  warning: false
+  message: false
+format:
+  gfm:
+    toc: false
+  pdf:
+    documentclass: article
+    geometry: margin=1in
+    fig-pos: "H"
+  odt: default
+---
+
+```{r setup}
+r <- read.csv("../results/reversal.csv"); s <- read.csv("../results/summary.csv")
+f3 <- function(x) formatC(x, format = "f", digits = 3)
+main <- r[r$beta > 0 & r$sep > 0, ]
+key <- c("sep", "beta", "sizes", "sets")
+bt <- merge(main[main$position == "between", c(key, "p_reversal")], main[main$position == "outside", c(key, "p_reversal")], by = key, suffixes = c("_b", "_o"))
+bt$diff <- bt$p_reversal_b - bt$p_reversal_o; cm <- bt[bt$sets == "common", ]
+pl <- main[main$position == "between" & main$sep <= 1 & main$beta <= 0.4 & main$sets == "common", ]
+dsb <- s[s$method == "sponsorB" & s$sets == "differing" & s$beta > 0, ]
+rem <- s[s$method %in% c("transportD", "average") & s$beta > 0 & s$sep > 0 & s$sets == "common", ]
+med <- function(m) stats::median(rem$rmse_FD[rem$method == m])
+```
+
+# Abstract {.unnumbered}
+
+**Background.** Two sponsors analyzing the same two trials, each holding its own
+individual data and weighting it to the other trial's population, can reach opposite
+conclusions while each analysis is internally coherent [@jiang2025]. Catalog problem
+EST-06 asks how often, under what configurations, and whether the disagreement is a
+target-population difference or sampling error and differing adjustment sets.
+
+**Methods.** Two trials (A versus C in population $F_A$, B versus C in $F_B$) with linear
+modification of B's effect by one covariate. The sponsors' targets, $\Delta(F_B)$ and
+$\Delta(F_A)$, have opposite signs exactly when the zero-effect point of the modifier
+lies between the two populations. We placed that point between, at, or outside the
+populations and crossed separation, modification strength, trial sizes and adjustment
+sets over 108 scenarios, 1000 replicates each; we also scored transport of both trials
+to a declared population and the average of the two analyses.
+
+**Results.** Placing the zero-effect point between the populations rather than outside
+raised the probability that the sponsors' estimates had opposite signs by more than 0.20
+in `r sum(cm$diff > 0.20)` of `r nrow(cm)` common-set configurations (median
+`r f3(stats::median(cm$diff))`). In the plausible range (separation up to 1 SD,
+modification up to 0.4) reversals occurred in `r f3(min(pl$p_reversal))` to
+`r f3(max(pl$p_reversal))` of analyses. The two sponsors' estimates were correlated
+(`r f3(min(r$corr))` to `r f3(max(r$corr))`), and a normal approximation ignoring that
+correlation misstated the reversal probability by up to
+`r f3(max(abs(r$p_reversal - r$p_pred_indep)))`. When one sponsor omitted the modifier its
+bias was `r f3(min(dsb$bias_native))` to `r f3(max(dsb$bias_native))`. Transport of both
+trials to a declared population and the simple average of the two analyses had
+essentially the same error (median RMSE `r f3(med("transportD"))` and `r f3(med("average"))`).
+
+**Conclusion.** Disagreement between sponsors is mostly a real difference in target
+populations, and it is frequent at ordinary separations. Under linear modification the
+average of the two analyses is not arbitrary: it estimates the effect in the population
+with the midpoint covariate mean, as accurately as transporting both trials there.
+
+# The problem {#sec-problem}
+
+With $\Delta(F) = d_B - d_A + \beta\,\bar x_{1,F}$, the zero-effect point is
+$x_1^* = -(d_B - d_A)/\beta$, and the sponsors' targets differ in sign exactly when
+$x_1^*$ lies between the populations' means. Sampling error can reverse estimates
+anywhere, and a sponsor that leaves the modifier out of its weights estimates neither
+target. The simulation separates these.
+
+# Design {#sec-design}
+
+Registered protocol: `protocol.md`. Two covariates (prognostic coefficients 0.5), $F_A$
+and $F_B$ with $x_1$ means $\mp$sep/2; continuous outcome, residual SD 1. Factors:
+separation 0.5, 1 or 1.5 SD; $\beta \in \{0.2, 0.4, 0.6\}$; $x_1^*$ at $0.1\cdot$sep
+(between), at $F_A$'s mean, or at sep/2 + 0.5 (outside); 200 per arm in both trials or
+300 and 100; common adjustment sets, or sponsor B adjusting for $x_2$ only. Estimands in
+closed form; $F_D$ has covariate means 0.
+
+# Results {#sec-results}
+
+![Probability that the two sponsors' estimates have opposite signs, common adjustment sets.](figures/fig1-reversal.png){#fig-rev}
+
+Reversal probability tracked the position of the zero-effect point far more than any
+other factor (@fig-rev). With the point outside the populations, reversals came from
+sampling error alone and fell as separation and modification grew; with it between,
+they rose toward the true reversal. A bivariate normal with the estimates' correlation
+predicted the simulated reversal probability within
+`r f3(max(abs(r$p_reversal - r$p_pred_corr)))`. The correlation arises because both
+sponsors use both trials' data, one as individual records and one as its published
+contrast.
+
+Omitting the modifier made sponsor B's estimate a mixture of the two targets, biased by
+up to `r f3(max(dsb$bias_native))` against its own. Both remedies were unbiased for
+$\Delta(F_D)$ (largest bias `r f3(max(abs(rem$bias_FD)))`). The average of the two analyses
+needs no individual data from both sponsors, but it equals the midpoint population's
+effect only because modification is linear here.
+
+# What this does not answer {#sec-limits}
+
+Linear modification and a continuous outcome; under nonlinear modification or a
+non-collapsible scale the average is not the midpoint effect. The arbitrated indirect
+comparison and measurement differences between trials were not run; overlap was set by
+separation rather than varied separately. Peer review has not been done.
+
+# References {.unnumbered}

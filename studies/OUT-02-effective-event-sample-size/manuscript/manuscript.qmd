@@ -1,0 +1,102 @@
+---
+title: "Effective sample size counted in events: right direction, no gain over ESS times the event rate"
+subtitle: "A simulation study answering catalog problem OUT-02"
+author: "Ahmad Sofi-Mahmudi"
+date: 2026-09-23
+bibliography: references.bib
+csl: ../../../vancouver.csl
+link-citations: true
+number-sections: true
+execute:
+  echo: false
+  warning: false
+  message: false
+format:
+  gfm:
+    toc: false
+  pdf:
+    documentclass: article
+    geometry: margin=1in
+    fig-pos: "H"
+  odt: default
+---
+
+```{r setup}
+s <- read.csv("../results/summary.csv"); a <- read.csv("../results/auroc.csv"); ex <- read.csv("../results/exploratory-estimated-only.csv")
+f3 <- function(x) formatC(x, format = "f", digits = 3)
+au <- function(k) a$auroc[a$diagnostic == k]; ae <- function(k) ex$auroc[ex$diagnostic == k]
+al <- s[s$direction == "aligned", ]; mi <- s[s$direction == "misaligned", ]; ind <- s[s$direction == "independent", ]
+```
+
+# Abstract {.unnumbered}
+
+**Background.** With rare binary outcomes, the information in a MAIC estimate is carried
+by events, which Kish's ESS does not count. Catalog problem OUT-02 proposed an
+event-based effective sample size (EESS) and argued it would reveal weights that
+concentrate away from the patients who have events.
+
+**Methods.** $\mathrm{EESS} = (\sum_i w_iy_i)^2/\sum_i w_i^2y_i$ is the reciprocal of the
+sandwich variance of a weighted log odds for small risks, and its ratio to
+$\mathrm{ESS}\cdot\bar p$ is $E_w[w]E_w[p]/E_w[wp]$. We compared EESS, ESS times the event
+rate and ESS as predictors of interval failure in 108 scenarios (event risk 0.005 to
+0.1, target shift that concentrates weights on high-risk, low-risk or no particular
+patients, 300 or 1000 per arm, null or nonzero effect), 1000 replicates each.
+
+**Results.** The direction held in every scenario, reversed from the design's
+statement: EESS was below ESS times the event rate when weights concentrated on
+high-risk patients (ratio `r f3(min(al$med_ratio))` to `r f3(max(al$med_ratio))`) and
+above it when they concentrated on low-risk patients (`r f3(min(mi$med_ratio))` to
+`r f3(max(mi$med_ratio))`). As predictors of failure (no estimate or non-coverage), EESS
+and ESS times the event rate were equivalent (AUROC `r f3(au("EESS"))` and
+`r f3(au("ESS x p-hat"))`) and ESS alone was poor (`r f3(au("ESS"))`). Among analyses that
+produced an estimate, non-coverage was `r f3(ex$noncoverage[1])` and no diagnostic
+predicted it (AUROC `r f3(ae("EESS"))` to `r f3(ae("ESS x p-hat"))`).
+
+**Conclusion.** Counting events matters: ESS alone misreads rare-event information.
+Counting them by EESS rather than ESS times the event rate adds nothing a planner or
+reader can use, because EESS is what the sandwich variance already reports.
+
+# The problem {#sec-problem}
+
+For a weighted proportion, $\mathrm{Var}(\operatorname{logit}\hat p) \approx
+\sum_i w_i^2y_i/(\sum_i w_iy_i)^2 = 1/\mathrm{EESS}$ when risks are small, so EESS is the
+effective number of events. Against the weights-only reading,
+$E[\mathrm{EESS}]/(\mathrm{ESS}\cdot\bar p) = E_w[w]E_w[p]/E_w[wp]$, which falls below 1
+when weights and risk covary positively. DESIGN.md stated the opposite direction. Its
+refuting sentence was that ESS and event risk together are sufficient.
+
+# Design {#sec-design}
+
+Registered protocol: `protocol.md`. Source trial A versus C with three normal
+covariates, only $x_1$ prognostic (log odds 1 per SD). MAIC to a target shifted by $s$
+in $x_1$ upward (weights on high-risk patients), downward, or in the non-prognostic
+$x_2$. Target control-arm risk 0.005, 0.02 or 0.10; $s \in \{0.3, 0.6, 0.9\}$; 300 or 1000
+per arm; conditional log odds ratio 0 or $-0.5$. Estimand: target marginal log odds
+ratio by quadrature. Weighted log odds ratio with a sandwich variance; no estimate when
+an arm has no events. Diagnostics combined over arms as $1/(1/a_1 + 1/a_0)$.
+
+# Results {#sec-results}
+
+![Cell failure rate against each diagnostic's cell median.](figures/fig1-diagnostics.png){#fig-diag}
+
+Failure was dominated by analyses with no events in an arm, up to
+`r f3(max(s$no_est))` of replicates at the lowest risk and smaller size, and both
+event-based diagnostics track it closely (@fig-diag); ESS does not, because it is the
+same whatever the risk. The registered rule, which required EESS to beat ESS times the
+event rate by at least 0.05, reads refuted: the difference was
+`r f3(au("EESS") - au("ESS x p-hat"))` (bootstrap SE `r f3(a$diff_se[1])`). Coverage among
+estimated analyses was `r f3(min(s$coverage, na.rm = TRUE))` to
+`r f3(max(s$coverage, na.rm = TRUE))`.
+
+The exploratory restriction to analyses with an estimate (`R/05-exploratory.R`, written
+after the registered analysis) shows why neither diagnostic predicts non-coverage:
+EESS is the reciprocal of the variance the interval already uses.
+
+# What this does not answer {#sec-limits}
+
+One prognostic covariate and MAIC on means; the Firth, penalized, Bayesian and
+fail-closed estimators in DESIGN.md were not run, so what happens to a zero-event
+analysis under those methods is not measured. Unanchored comparisons and separation in
+multivariable outcome models are outside the design. Peer review has not been done.
+
+# References {.unnumbered}

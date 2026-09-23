@@ -1,7 +1,19 @@
 {
  "problem_id": "OUT-02",
- "title": "Effective sample size counted in events",
- "status": "running",
+ "title": "Effective sample size counted in events: right direction, no gain over ESS times the event rate",
+ "status": "complete",
+ "date_completed": "2026-09-23",
  "question": "With rare binary outcomes, does an effective sample size counted in events (EESS) predict when a MAIC interval fails better than the reported ESS multiplied by the event rate, and in which direction do the two diverge?",
- "design": "Anchored-side MAIC on a binary outcome with one prognostic covariate, 108 cells crossing event risk, size and direction of the covariate shift, sample size and treatment effect. 1000 replicates per cell."
+ "answer": "EESS is the reciprocal of the sandwich variance of a weighted log odds, and it differs from ESS times the event rate by E_w[w]E_w[p]/E_w[wp]: below 1 when weights concentrate on high-risk patients, above 1 on low-risk ones (the design had the direction reversed). As a predictor of failure the two were equivalent (AUROC 0.839 and 0.858) and ESS alone was poor (0.662). Their predictive value comes from zero-event analyses; once an estimate exists, non-coverage is near nominal and neither predicts it.",
+ "findings": [
+  "Median EESS / (ESS p): 0.47 to 0.79 when weights concentrate on high-risk patients, 1.28 to 2.40 on low-risk patients, 1.00 to 1.03 when the shift is in a non-prognostic covariate.",
+  "AUROC for failure (no estimate or non-coverage) over 108,000 analyses: EESS 0.839, ESS x event rate 0.858, ESS 0.662; the registered rule, requiring EESS to be better by 0.05, is refuted.",
+  "No estimate (an arm with no events) in up to 86% of analyses at risk 0.005 and 300 per arm.",
+  "Among analyses with an estimate, non-coverage was 5.7% and the diagnostics' AUROC 0.54 to 0.59 (exploratory)."
+ ],
+ "not_answered": "One prognostic covariate, MAIC on means; the penalized, Firth, Bayesian and fail-closed estimators were not run, and unanchored comparisons and multivariable separation are outside the design. Peer review has not been done.",
+ "design": "Binary-outcome MAIC with one prognostic covariate among three, 108 scenarios crossing event risk (0.005 to 0.1), size and direction of the target shift relative to risk, sample size and effect; EESS, ESS times the event rate and ESS as per-analysis predictors of failure.",
+ "estimand": "Target-population marginal log odds ratio, A versus C; failure of its interval",
+ "methods_compared": ["event-based ESS (EESS)", "ESS times the event rate", "Kish ESS"],
+ "n_sim": "1000 per scenario, 108,000 in total"
 }

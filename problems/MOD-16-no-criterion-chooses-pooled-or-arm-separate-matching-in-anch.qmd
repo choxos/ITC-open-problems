@@ -18,6 +18,12 @@ tractability: 5
 [Established]{.chip .chip-maturity-established}
 [Tractability 5/5]{.chip}
 :::
+::: {.callout-important appearance="simple"}
+## A study has been run against this problem
+
+The product claim is wrong. Given an aggregate-trial imbalance kappa, pooled matching is biased by kappa (beta/2 + gamma_X + gamma_U rho_T) and arm-separate matching by kappa gamma_U (rho_T - rho_S); simulation matched both (slopes 1.00 and 0.96). Arm-separate matching reproduces the aggregate imbalance in the individual-data contrast so it cancels, and is biased only when an unmatched prognostic covariate relates to the matched one differently in the two trials. It had smaller bias than pooled matching in every scenario with an imposed imbalance and 10% to 27% lower RMSE under chance imbalance. [Read the study below](#our-study).
+:::
+
 ## Statement
 
 In an anchored matching-adjusted indirect comparison the analyst may estimate one weight vector matching the pooled individual patient data trial to the pooled aggregate trial, or two weight vectors matching the active arm to the aggregate active arm and the control arm to the aggregate control arm separately. The two choices identify different quantities and fail in opposite directions. Arm-separate matching reproduces whatever arm imbalance the aggregate trial had and was more precise and less biased in the simulation that introduced it; it also reweights the two arms of a randomized trial by different functions, so the within-trial balance that randomization supplied on covariates outside the matching set is no longer guaranteed. The evaluation that introduced it recommends it while stating that the approach might break the randomization, that covariates might be imbalanced after weighting, and that further investigation under a more diverse array of situations is needed. No diagnostic reports whether randomization-induced balance on unmatched covariates survived a particular arm-separate weighting, and no rule maps the observed arm imbalance in the aggregate trial and the prognostic strength of unmatched covariates onto a choice. Because arm-level aggregate summaries are routinely published the choice arises in most anchored analyses, it is exposed as an ungoverned user option in the tooling built around the method, and no reporting requirement asks which was used.
@@ -46,14 +52,41 @@ Run one simulation study whose factors are the ones that separate the two option
 
 ## Our study
 
-::: {.callout-note}
-## A study is running
+::: {.study-result}
+**Arm-separate matching cancels the aggregate trial's chance imbalance; pooled matching carries it**
 
-**Question.** Arm-separate matching weights each individual-data arm to the corresponding aggregate arm; pooled matching uses one weight function. When does each give a biased anchored comparison, and is the bias of arm-separate matching the product of unmatched prognostic strength and aggregate arm imbalance, as the design claims?
+**The question put to it.** Arm-separate matching weights each individual-data arm to the corresponding aggregate arm; pooled matching uses one weight function. When does each give a biased anchored comparison, and is the bias of arm-separate matching the product of unmatched prognostic strength and aggregate arm imbalance, as the design claims?
 
-**Design.** Continuous outcome, one matched and one unmatched prognostic covariate, 96 cells crossing an imposed aggregate-trial imbalance, the unmatched covariate's prognostic strength, the covariate correlation in each trial, and shared effect modification. Unadjusted, pooled, arm-separate and two-stage MAIC. 1000 replicates per cell.
+**What it found.** The product claim is wrong. Given an aggregate-trial imbalance kappa, pooled matching is biased by kappa (beta/2 + gamma_X + gamma_U rho_T) and arm-separate matching by kappa gamma_U (rho_T - rho_S); simulation matched both (slopes 1.00 and 0.96). Arm-separate matching reproduces the aggregate imbalance in the individual-data contrast so it cancels, and is biased only when an unmatched prognostic covariate relates to the matched one differently in the two trials. It had smaller bias than pooled matching in every scenario with an imposed imbalance and 10% to 27% lower RMSE under chance imbalance.
 
-The protocol is registered before any result is seen: [read it](/studies/MOD-16-pooled-versus-arm-separate-matching/out/MOD-16-protocol.md).
+**Results.**
+
+- With the matched-unmatched correlation shared between trials, arm-separate bias was within Monte Carlo error of zero in all 16 scenarios with an unmatched prognostic covariate and an imposed imbalance (largest 0.011).
+- Slope of simulated on predicted bias: pooled 1.004 (SE 0.011); arm-separate 0.958 (SE 0.035).
+- Under chance imbalance, arm-separate RMSE over pooled 0.73 to 0.90; its sandwich interval overcovered (0.965 to 0.991) because the two trials' imbalances are positively correlated.
+- Two-stage MAIC behaved like pooled matching, correcting the individual trial's imbalance but not the aggregate trial's.
+- The design's candidate diagnostic, the weighted difference in the unmatched covariate between arms, estimates rho_S kappa and cannot see rho_T; its correlation with arm-separate bias was -0.41.
+
+**Design.**
+
+Estimand
+:   Anchored B-versus-A mean difference in the target
+
+Methods compared
+:   unadjusted Bucher, pooled MAIC, arm-separate MAIC, two-stage MAIC
+
+Data-generating mechanism
+:   Anchored MAIC with a continuous outcome, 300 per arm; 96 scenarios crossing an imposed aggregate-arm imbalance in the matched covariate (0, 0.1, 0.2 SD or chance), the unmatched covariate's prognostic strength, the matched-unmatched correlation in each trial and shared effect modification; unadjusted, pooled, arm-separate and two-stage MAIC.
+
+Replicates
+:   1000 per scenario, 96,000 in total
+
+**What this does not answer.** Continuous outcome, linear model, one matched and one unmatched covariate, shared effect modification; the non-collapsible case, where arm-separate matching compares arms in different populations, is not studied, and the arm-separate interval's conservatism is not repaired. Peer review has not been done.
+
+**Peer review.** Not yet done. The result stands on the study alone until it is.
+
+Read it: [PDF](/studies/MOD-16-pooled-versus-arm-separate-matching/out/MOD-16.pdf) · [Markdown](/studies/MOD-16-pooled-versus-arm-separate-matching/out/MOD-16.md) · [OpenDocument](/studies/MOD-16-pooled-versus-arm-separate-matching/out/MOD-16.odt) · Code and data: [studies/MOD-16-pooled-versus-arm-separate-matching](https://github.com/choxos/ITC-open-problems/tree/main/studies/MOD-16-pooled-versus-arm-separate-matching) · Protocol: [registered before the run](/studies/MOD-16-pooled-versus-arm-separate-matching/out/MOD-16-protocol.md)
+
 :::
 
 ## Verification
