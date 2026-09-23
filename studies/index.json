@@ -428,22 +428,37 @@
  "DEC-01": {
   "slug": "DEC-01-when-the-two-rankings-disagree",
   "title": "Do estimation and decision rankings of population-adjustment methods agree?",
-  "status": "running",
+  "status": "complete",
   "question": "When population-adjustment methods are ranked by the decisions their estimates lead to rather than by RMSE, does the ranking change, and how does it depend on where the truth sits relative to the decision threshold?",
-  "answer": null,
-  "findings": [],
-  "not_answered": null,
-  "design": "Re-scoring of COV-03's 108,000 stored replicates (five methods) against thresholds placed near and far from the truth on both sides, with symmetric and asymmetric losses; rank correlation between RMSE and expected-loss rankings by stratum.",
-  "n_sim": null,
-  "estimand": null,
-  "methods_compared": [],
-  "date_completed": null,
+  "answer": "For a threshold on a known side of the truth, yes: near the threshold in poor-overlap scenarios the RMSE and expected-loss rankings correlated at only 0.45, and the disagreement was reproducible, not noise. It came from the direction of bias: a biased method decided wrongly far less often when its bias pointed away from the threshold (0.11 against 0.64). Averaged over the two sides of the threshold, as an analyst who does not know the truth must, the rankings agreed (0.93, the same best method in every poor-overlap scenario). RMSE is therefore an adequate proxy for decision error unless the side of the threshold is known.",
+  "findings": [
+   "Registered primary (near threshold, poor overlap, symmetric loss): mean Spearman correlation 0.45 (95% bootstrap interval 0.29 to 0.60); RMSE-best also loss-best in 38% of strata; verdict CONFIRMED.",
+   "Exploratory: split-half reliability of the rankings 1.00 (RMSE) and 0.96 (expected loss) in poor-overlap scenarios, against a cross-measure correlation of 0.44.",
+   "Biased methods (|bias| > 0.05), threshold 0.1 from the truth: wrong-decision probability 0.114 with bias pointing away from the threshold and 0.635 toward it.",
+   "Exploratory: loss averaged over both sides of the threshold correlated with RMSE at 0.93 (distance 0.1) and 0.96 (0.3) in poor-overlap scenarios."
+  ],
+  "not_answered": "Decision on the relative effect only, without a net-benefit model; one source of replicates (COV-03) and five methods; no ML-NMR; priors on the side of the threshold not modeled. Peer review has not been done.",
+  "design": "Re-scoring of COV-03's 108,000 stored replicates (five methods) against thresholds 0.1 or 0.3 above or below the truth, with loss ratios 1, 2 and 5; rank correlation between RMSE and expected-loss rankings by stratum, plus exploratory split-half reliability and two-sided averaging.",
+  "n_sim": "108,000 replicates re-scored (108 scenarios x 1000), 5 methods, 12 threshold-loss settings",
+  "estimand": "Wrong-decision probability and expected loss of adopting B over A, against the true recommendation",
+  "methods_compared": [
+   "unadjusted",
+   "MAIC on means",
+   "MAIC on means and variances",
+   "MAIC on the prognostic index variance",
+   "G-computation"
+  ],
+  "date_completed": "2026-09-23",
   "week": null,
   "code": "studies/DEC-01-when-the-two-rankings-disagree",
   "protocol": "studies/DEC-01-when-the-two-rankings-disagree/out/DEC-01-protocol.md",
   "review": null,
   "review_rounds": 0,
-  "downloads": {},
+  "downloads": {
+   "gfm": "studies/DEC-01-when-the-two-rankings-disagree/out/DEC-01.md",
+   "pdf": "studies/DEC-01-when-the-two-rankings-disagree/out/DEC-01.pdf",
+   "odt": "studies/DEC-01-when-the-two-rankings-disagree/out/DEC-01.odt"
+  },
   "primary_problem": "DEC-01",
   "secondary": false
  },

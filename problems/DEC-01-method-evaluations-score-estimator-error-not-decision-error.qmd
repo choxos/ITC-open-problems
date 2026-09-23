@@ -23,6 +23,12 @@ below are attributed to that document and were checked independently where possi
 anything that could not be independently sourced is marked in the verification trail.
 :::
 
+::: {.callout-important appearance="simple"}
+## A study has been run against this problem
+
+For a threshold on a known side of the truth, yes: near the threshold in poor-overlap scenarios the RMSE and expected-loss rankings correlated at only 0.45, and the disagreement was reproducible, not noise. It came from the direction of bias: a biased method decided wrongly far less often when its bias pointed away from the threshold (0.11 against 0.64). Averaged over the two sides of the threshold, as an analyst who does not know the truth must, the rankings agreed (0.93, the same best method in every poor-overlap scenario). RMSE is therefore an adequate proxy for decision error unless the side of the threshold is known. [Read the study below](#our-study).
+:::
+
 ## Statement
 
 ADEMP does not require, and its performance-measure inventory does not contain, any decision or net-benefit measure: Table 6 of Morris et al. 2019 lists bias, EmpSE, relative precision, MSE, model standard error, coverage and rejection percentage only. Whether ITC and PAIC method comparisons routinely omit decision metrics such as wrong-decision probability, net-benefit error or rank reversal is contested: the literature auditor searched and found no such evaluation, while GPT-5.6 Sol holds that this prevalence claim is not established by the cited paper. Decision-level assessment already exists outside method-comparison simulation, in threshold analysis for applied network meta-analysis (Phillippo et al. 2018) and in NICE DSU TSD 7's probability that a strategy is optimal at a threshold willingness to pay. Expected value of perfect or sample information does not belong on the list of estimator-quality metrics: it measures the value of collecting information and can rise as uncertainty rises.
@@ -49,14 +55,40 @@ Carry the existing threshold-and-loss machinery into method-comparison simulatio
 
 ## Our study
 
-::: {.callout-note}
-## A study is running
+::: {.study-result}
+**Do estimation and decision rankings of population-adjustment methods agree?**
 
-**Question.** When population-adjustment methods are ranked by the decisions their estimates lead to rather than by RMSE, does the ranking change, and how does it depend on where the truth sits relative to the decision threshold?
+**The question put to it.** When population-adjustment methods are ranked by the decisions their estimates lead to rather than by RMSE, does the ranking change, and how does it depend on where the truth sits relative to the decision threshold?
 
-**Design.** Re-scoring of COV-03's 108,000 stored replicates (five methods) against thresholds placed near and far from the truth on both sides, with symmetric and asymmetric losses; rank correlation between RMSE and expected-loss rankings by stratum.
+**What it found.** For a threshold on a known side of the truth, yes: near the threshold in poor-overlap scenarios the RMSE and expected-loss rankings correlated at only 0.45, and the disagreement was reproducible, not noise. It came from the direction of bias: a biased method decided wrongly far less often when its bias pointed away from the threshold (0.11 against 0.64). Averaged over the two sides of the threshold, as an analyst who does not know the truth must, the rankings agreed (0.93, the same best method in every poor-overlap scenario). RMSE is therefore an adequate proxy for decision error unless the side of the threshold is known.
 
-The protocol is registered before any result is seen: [read it](/studies/DEC-01-when-the-two-rankings-disagree/out/DEC-01-protocol.md).
+**Results.**
+
+- Registered primary (near threshold, poor overlap, symmetric loss): mean Spearman correlation 0.45 (95% bootstrap interval 0.29 to 0.60); RMSE-best also loss-best in 38% of strata; verdict CONFIRMED.
+- Exploratory: split-half reliability of the rankings 1.00 (RMSE) and 0.96 (expected loss) in poor-overlap scenarios, against a cross-measure correlation of 0.44.
+- Biased methods (|bias| > 0.05), threshold 0.1 from the truth: wrong-decision probability 0.114 with bias pointing away from the threshold and 0.635 toward it.
+- Exploratory: loss averaged over both sides of the threshold correlated with RMSE at 0.93 (distance 0.1) and 0.96 (0.3) in poor-overlap scenarios.
+
+**Design.**
+
+Estimand
+:   Wrong-decision probability and expected loss of adopting B over A, against the true recommendation
+
+Methods compared
+:   unadjusted, MAIC on means, MAIC on means and variances, MAIC on the prognostic index variance, G-computation
+
+Data-generating mechanism
+:   Re-scoring of COV-03's 108,000 stored replicates (five methods) against thresholds 0.1 or 0.3 above or below the truth, with loss ratios 1, 2 and 5; rank correlation between RMSE and expected-loss rankings by stratum, plus exploratory split-half reliability and two-sided averaging.
+
+Replicates
+:   108,000 replicates re-scored (108 scenarios x 1000), 5 methods, 12 threshold-loss settings
+
+**What this does not answer.** Decision on the relative effect only, without a net-benefit model; one source of replicates (COV-03) and five methods; no ML-NMR; priors on the side of the threshold not modeled. Peer review has not been done.
+
+**Peer review.** Not yet done. The result stands on the study alone until it is.
+
+Read it: [PDF](/studies/DEC-01-when-the-two-rankings-disagree/out/DEC-01.pdf) · [Markdown](/studies/DEC-01-when-the-two-rankings-disagree/out/DEC-01.md) · [OpenDocument](/studies/DEC-01-when-the-two-rankings-disagree/out/DEC-01.odt) · Code and data: [studies/DEC-01-when-the-two-rankings-disagree](https://github.com/choxos/ITC-open-problems/tree/main/studies/DEC-01-when-the-two-rankings-disagree) · Protocol: [registered before the run](/studies/DEC-01-when-the-two-rankings-disagree/out/DEC-01-protocol.md)
+
 :::
 
 ## Verification
