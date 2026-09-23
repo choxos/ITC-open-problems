@@ -16,6 +16,12 @@ maturity: "Promising"
 [Very high priority]{.chip .chip-priority-very-high}
 [Promising]{.chip .chip-maturity-promising}
 :::
+::: {.callout-important appearance="simple"}
+## A study has been run against this problem
+
+The MAIC extension of the simulated-covariate bias analysis was feasible in at least 99.8% of replicates across assumed target prevalences from 0.1 to 0.9, lost effective sample size to 85 to 109 of 300 only at the extreme, and had a reported SE 3% to 14% above STC's. Both routes were unbiased. The restriction to STC was conservative rather than necessary. Both routes' multiply imputed intervals widened along the sweep more than the estimate's real spread (SE up to 0.28 against about 0.13), so coverage exceeded nominal. [Read the study below](#our-study).
+:::
+
 ## Statement
 
 Ren et al. 2025 (doi:10.1017/rsm.2025.13) extend the NORTA-based marginal unanchored STC of Ren et al. 2024 (doi:10.1002/jrsm.1718) by simulating an assumed synthetic joint distribution for covariates measured in the IPD but unreported in the comparator publication, averaging individual predictions on the natural outcome scale before transforming to the log odds scale, and presenting deterministic sensitivity curves with bootstrap confidence intervals; they do not present tipping-point plots, and the case study instead reads a significance-crossing value off the curve. This is the beginning of formal QBA for limited-aggregate-data PAIC rather than a completed solution: the workflow is implemented only for STC, and the authors restrict it there because a MAIC extension would suffer extreme effective-sample-size loss and might fail to produce feasible weights. Their statement that no additional assumptions are required cannot be read literally, since target marginals, dependence, source-to-target outcome associations, copula form and regression form are all assumed.
@@ -38,6 +44,43 @@ The workflow is embedded in an STC and g-computation route, so it does not trans
 ## Probable solution or research direction
 
 Treat the simulated-covariate route as one family within a broader QBA framework, extend it to multiple correlated omitted variables and treatment-specific associations, and state its assumptions about target distributions, correlations, outcome associations, copula form and model form explicitly rather than describing it as assumption-free. Develop parallel routes for weighting and one-stage estimators so the same sensitivity question can be asked of any PAIC estimator, addressing the feasibility and effective-sample-size loss that led the authors to restrict the published version to STC. Report the sensitivity curve against a clinical or decision threshold rather than reading it off a significance boundary.
+
+## Our study
+
+::: {.study-result}
+**A simulated-covariate bias analysis by STC and by MAIC**
+
+**The question put to it.** Is a MAIC version of the simulated-covariate bias analysis infeasible or too imprecise, as its authors assumed when restricting it to STC?
+
+**What it found.** The MAIC extension of the simulated-covariate bias analysis was feasible in at least 99.8% of replicates across assumed target prevalences from 0.1 to 0.9, lost effective sample size to 85 to 109 of 300 only at the extreme, and had a reported SE 3% to 14% above STC's. Both routes were unbiased. The restriction to STC was conservative rather than necessary. Both routes' multiply imputed intervals widened along the sweep more than the estimate's real spread (SE up to 0.28 against about 0.13), so coverage exceeded nominal.
+
+**Results.**
+
+- Refuting sentence holds: feasibility 0.998 to 1.000; MAIC SE / STC SE 1.03 to 1.14.
+- Effective sample size 85 to 231 of 300 along the sweep.
+- Bias at most 0.009 for both routes; coverage 0.956 to 1.000 (conservative toward the extremes).
+
+**Design.**
+
+Estimand
+:   A's marginal log odds in a target with the assumed prevalence of the unmeasured covariate
+
+Methods compared
+:   simulated-covariate STC, simulated-covariate MAIC
+
+Data-generating mechanism
+:   Unanchored transport with an unmeasured binary covariate imputed from its assumed relations; STC and MAIC sensitivity curves over the assumed target prevalence, with feasibility and effective sample size. 2 cells, 500 replicates each.
+
+Replicates
+:   500 per scenario, 1,000 in total, each over a 5-point sweep with 10 imputations
+
+**What this does not answer.** One binary unmeasured covariate, correct assumed relations, unanchored A side only, no decision reading. Peer review has not been done.
+
+**Peer review.** Not yet done. The result stands on the study alone until it is.
+
+Read it: [PDF](/studies/QBA-13-testing-the-reason-maic-was-excluded/out/QBA-13.pdf) · [Markdown](/studies/QBA-13-testing-the-reason-maic-was-excluded/out/QBA-13.md) · [OpenDocument](/studies/QBA-13-testing-the-reason-maic-was-excluded/out/QBA-13.odt) · Code and data: [studies/QBA-13-testing-the-reason-maic-was-excluded](https://github.com/choxos/ITC-open-problems/tree/main/studies/QBA-13-testing-the-reason-maic-was-excluded) · Protocol: [registered before the run](/studies/QBA-13-testing-the-reason-maic-was-excluded/out/QBA-13-protocol.md)
+
+:::
 
 ## Verification
 
