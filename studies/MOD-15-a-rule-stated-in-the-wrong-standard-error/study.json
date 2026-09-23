@@ -1,7 +1,20 @@
 {
  "problem_id": "MOD-15",
- "title": "The half-standard-error rule for pooling within- and across-trial interactions",
- "status": "running",
+ "title": "The half-standard-error pooling rule for interactions is stated in the wrong standard error",
+ "status": "complete",
+ "date_completed": "2026-09-23",
  "question": "The published rule pools within-trial and across-trial interaction estimates when they differ by less than half the across-trial standard error. What are its pass rate, the bias and coverage of what it reports, and how does it compare with a test stated in the difference's own standard error?",
- "design": "Exact bivariate-normal computation over 24 network configurations (number of trials, dispersion of trial covariate means, ecological bias), with standard errors from a model of 200-patient trials and an individual-level check."
+ "answer": "The difference's standard error is sqrt(sW^2 + sA^2), not sA, so under equality the rule pools with probability at most 0.383 (0.31 to 0.37 in the networks studied): it refuses valid pooling most of the time in every regime. When it pools under ecological bias, the pooled interval can cover as little as 22%. Its RMSE matches never pooling to within 0.3%, forgoing the 2% to 19% gain pooling offers when the estimates agree.",
+ "findings": [
+  "Pass probability under equality: 0.314 to 0.374, bounded above by P(|Z| < 0.5) = 0.383 in any network.",
+  "Coverage of the pooled interval given pooling falls with ecological bias: 0.72 at delta 0.1 and 0.22 at delta 0.2 with 20 trials and dispersed trial means, where the rule still pools in 6% and 0.04% of analyses.",
+  "Averaged over its decisions, the rule's RMSE is within 0.3% of never pooling in every configuration.",
+  "Never pooling had the lowest worst-case RMSE over ecological bias 0 to 0.2 in five of six configurations; always pooling had it in one.",
+  "An individual-level check of 2000 networks per configuration reproduced the standard errors, the pass probability (0.366 against 0.374 exact) and the conditional coverage (0.951 against 0.950)."
+ ],
+ "not_answered": "Independent normal estimates with known standard errors; no between-trial heterogeneity; all trials with individual data. The ML-NMR case, where aggregate trials inform only the across-trial component, is not computed. No agreement rule can detect trial-level confounding that is small relative to the across-trial standard error. Peer review has not been done.",
+ "design": "Exact bivariate-normal computation of pass probability, bias, RMSE and coverage for never pooling, always pooling, the half-SE rule and tests on the difference at 5% and 20%, over 24 configurations: 5, 10 or 20 trials of 200, trial covariate means spread with SD 0.25 or 0.75, ecological bias 0 to 0.4.",
+ "estimand": "The within-trial treatment-covariate interaction",
+ "methods_compared": ["never pool", "always pool", "half-SE rule", "size-5% test on the difference", "size-20% test"],
+ "n_sim": "Exact computation; individual-level check of 2000 networks in each of four configurations"
 }

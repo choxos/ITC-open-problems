@@ -1,7 +1,19 @@
 {
  "problem_id": "IDN-10",
- "title": "The transported control-arm check as a classifier",
- "status": "running",
+ "title": "A transported control-arm check carries no information about the anchored contrast",
+ "status": "complete",
+ "date_completed": "2026-09-23",
  "question": "Does agreement between a MAIC-transported control arm and the target's observed control arm tell an analyst whether the anchored relative effect is biased?",
- "design": "Anchored binary-outcome MAIC with an unmeasured prognostic covariate and an unmeasured effect modifier shifted independently between populations, 18 cells; the check's alarm rate and the contrast's bias per cell. 1000 replicates per cell."
+ "answer": "No. The check tests prognostic transport, which an anchored contrast does not need, and cannot see effect-modification transport, which it does. A prognostic shift raised the alarm rate to 0.48 while the contrast was nearly unbiased (bias -0.03 to -0.06); a modifier shift biased the log odds ratio by 0.30 with the alarm rate at 0.044. Pooled over 18,000 analyses the check's AUROC for a biased contrast was 0.50.",
+ "findings": [
+  "Prognostic shift of 0.6 SD, no modifier shift: alarm rate 0.41 to 0.48, contrast bias -0.03 to -0.06.",
+  "Modifier shift of 0.6 SD, no prognostic shift: alarm rate 0.044 to 0.050, contrast bias 0.28 to 0.30, coverage 0.78 to 0.82.",
+  "At every threshold on |z| the detection rate equaled the false-alarm rate (0.21 against 0.21 at 1.96); AUROC 0.502.",
+  "The check targets the right assumption only in unanchored comparisons, where the relative effect depends on prognostic transport; that case was not simulated."
+ ],
+ "not_answered": "Binary outcome only; survival-curve and RMST versions, unanchored comparisons, offsetting prognostic mechanisms and outcome-definition or follow-up differences are not simulated. Peer review has not been done.",
+ "design": "Anchored binary-outcome MAIC, individual data on A versus C and arm counts on B versus C; an unmeasured prognostic covariate and an unmeasured modifier of A's effect shifted independently between populations; 18 scenarios crossing both shifts and target size.",
+ "estimand": "Anchored B-versus-A marginal log odds ratio in the target; the check's alarm as a classifier of material bias",
+ "methods_compared": ["anchored MAIC", "transported control-arm check at several thresholds"],
+ "n_sim": "1000 per scenario, 18,000 in total"
 }
