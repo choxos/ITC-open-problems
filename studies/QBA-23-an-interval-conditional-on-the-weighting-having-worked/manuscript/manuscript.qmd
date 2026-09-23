@@ -1,0 +1,74 @@
+---
+title: "A bootstrap that drops failed resamples reassures most where the weighting is least reliable"
+subtitle: "A simulation study answering catalog problem QBA-23"
+author: "Ahmad Sofi-Mahmudi"
+date: 2026-09-23
+bibliography: references.bib
+csl: ../../../vancouver.csl
+link-citations: true
+number-sections: true
+execute:
+  echo: false
+  warning: false
+  message: false
+format:
+  gfm:
+    toc: false
+  pdf:
+    documentclass: article
+    geometry: margin=1in
+    fig-pos: "H"
+  odt: default
+---
+
+```{r setup}
+s <- read.csv("../results/summary.csv")
+f3 <- function(x) formatC(x, format = "f", digits = 3); f1 <- function(x) formatC(x, format = "f", digits = 1)
+hi <- s[s$resample_failure > 0.1, ]; lo <- s[s$resample_failure <= 0.1, ]
+```
+
+# Abstract {.unnumbered}
+
+**Background.** Sensitivity analyses for MAIC often bootstrap over a grid of assumptions, and resamples whose weights
+cannot be computed are dropped. Catalog problem QBA-23 asks whether that conditioning matters.
+
+**Methods.** MAIC of 100 or 300 patients with one covariate, sweeping the assumed target mean from 1 to 2.5 SD above the
+source's (2 scenarios, 500 replicates, 200 bootstrap resamples each). Percentile intervals from the successful resamples
+were scored against the analysis's own estimand.
+
+**Results.** Where fewer than 10% of resamples failed, coverage was `r f3(min(lo$coverage_given_success))` to
+`r f3(max(lo$coverage_given_success))`. Where more failed, it was `r f3(min(hi$coverage_given_success))` to
+`r f3(max(hi$coverage_given_success))` among analyses whose original fit succeeded, and `r f3(min(hi$coverage_unconditional))` to
+`r f3(max(hi$coverage_unconditional))` counting failed original fits as giving no interval. Resample failure reached
+`r f3(max(s$resample_failure))` and effective sample size fell to `r f1(min(s$ess))`.
+
+**Conclusion.** Failed resamples are the ones lacking the few patients who make the weights possible, so the survivors are
+a selected sample and their interval is falsely narrow. Report the failure share at each grid point as a result; where it is
+material, the interval should not be presented.
+
+# The problem {#sec-problem}
+
+MAIC [@signorovitch2010] to a target mean is feasible only if the mean lies inside the sample's range, and near its edge the
+weights rest on a handful of patients. A bootstrap [@efron1993] resample that omits them cannot reach the target and fails;
+the resamples that succeed are those that include them, so their spread understates the estimate's.
+
+# Design {#sec-design}
+
+Registered protocol: `protocol.md`; ADEMP structure [@morris2019]. $x \sim N(0, 1)$, $y = x + e$; the estimand at assumed
+target mean $m$ is $m$. Weights by log-sum-exp minimization, failed when outside the sample range or when balance was not
+reached to $10^{-4}$. A first solver overflowed at the edge of its search interval and was replaced before the probes.
+
+# Results {#sec-results}
+
+![Share of failed bootstrap resamples and interval coverage along the assumed target mean.](figures/fig1-failure.png){#fig-fail}
+
+Failure and undercoverage rose together (@fig-fail). Even where every resample succeeded, the percentile interval
+undercovered somewhat, since effective sample size was already small; beyond the point where failures began, coverage
+collapsed. A larger sample moved the collapse further out but did not remove it.
+
+# What this does not answer {#sec-limits}
+
+One covariate and a continuous outcome; the cost side of nested resampling (warm starts, surrogates) and identified-set
+outputs were not studied. Peer review has not been done.
+
+# References {.unnumbered}

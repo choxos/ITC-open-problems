@@ -1,7 +1,20 @@
 {
  "problem_id": "QBA-23",
  "title": "Bootstrap intervals over a bias grid when resamples fail",
- "status": "running",
+ "status": "complete",
  "question": "When a bootstrap sensitivity analysis drops resamples whose weights fail near the edge of support, how does the interval behave, and is conditioning on success immaterial?",
- "design": "Unanchored MAIC with a sweep of the assumed target mean toward the source's support boundary; percentile bootstrap intervals from successful resamples; coverage conditional on success and unconditional. 2 cells, 500 replicates each, 200 resamples."
+ "design": "Unanchored MAIC with a sweep of the assumed target mean toward the source's support boundary; percentile bootstrap intervals from successful resamples; coverage conditional on success and unconditional. 2 cells, 500 replicates each, 200 resamples.",
+ "date_completed": "2026-09-23",
+ "answer": "No. Near the edge of the source's support, up to 67% of bootstrap resamples failed to produce MAIC weights, and the percentile interval from the survivors covered only 0.29 to 0.65 (0.14 to 0.56 counting failed original fits as giving no interval). The surviving resamples are those that contain the few patients who make the weights possible, so their spread understates the estimate's. The failure share should be reported as a result and the interval withheld where it is material.",
+ "findings": [
+  "Refuting sentence fails: coverage given success 0.288 to 0.645 where more than 10% of resamples failed.",
+  "Where failures were rare, coverage 0.87 to 0.93, already below nominal at low effective sample size.",
+  "Effective sample size fell to about 3 of 100 or 5 of 300 at the most extreme assumed target mean."
+ ],
+ "not_answered": "One covariate, continuous outcome; cost and surrogate approaches and identified sets not studied. Peer review has not been done.",
+ "estimand": "A's target mean outcome at each assumed target covariate mean",
+ "methods_compared": [
+  "MAIC with percentile bootstrap over successful resamples"
+ ],
+ "n_sim": "500 per scenario, 1,000 in total, 200 resamples each at 4 grid points"
 }

@@ -16,6 +16,12 @@ maturity: "Emerging"
 [Very high priority]{.chip .chip-priority-very-high}
 [Emerging]{.chip .chip-maturity-emerging}
 :::
+::: {.callout-important appearance="simple"}
+## A study has been run against this problem
+
+No. Near the edge of the source's support, up to 67% of bootstrap resamples failed to produce MAIC weights, and the percentile interval from the survivors covered only 0.29 to 0.65 (0.14 to 0.56 counting failed original fits as giving no interval). The surviving resamples are those that contain the few patients who make the weights possible, so their spread understates the estimate's. The failure share should be reported as a result and the interval withheld where it is material. [Read the study below](#our-study).
+:::
+
 ## Statement
 
 A decision-grade unanchored PAIC QBA should inventory and propagate the material data and model uncertainties, state which sensitivity assumptions are held fixed and which are probabilistic, and separately quantify numerical integration and Monte Carlo error rather than folding them into inferential uncertainty as if they were random scientific parameters. The source's count of eleven layers is not defensible: read literally the list names thirteen entities and about ten categories when paired items are grouped, and it conflates sampling uncertainty, model uncertainty, nonidentified sensitivity assumptions, deterministic numerical error, Monte Carlo estimation error and downstream decision-model uncertainty. Nested resampling and a fully joint Bayesian model are two important options but not the only credible ones, since sandwich or estimating-equation variance, the delta method, multiple imputation, modular Monte Carlo schemes, parametric bootstrap and hybrids also apply, and only the resampling route has a failed-replicate problem at all.
@@ -40,14 +46,39 @@ Specify one propagation scheme appropriate to the estimator, whether nested resa
 
 ## Our study
 
-::: {.callout-note}
-## A study is running
+::: {.study-result}
+**Bootstrap intervals over a bias grid when resamples fail**
 
-**Question.** When a bootstrap sensitivity analysis drops resamples whose weights fail near the edge of support, how does the interval behave, and is conditioning on success immaterial?
+**The question put to it.** When a bootstrap sensitivity analysis drops resamples whose weights fail near the edge of support, how does the interval behave, and is conditioning on success immaterial?
 
-**Design.** Unanchored MAIC with a sweep of the assumed target mean toward the source's support boundary; percentile bootstrap intervals from successful resamples; coverage conditional on success and unconditional. 2 cells, 500 replicates each, 200 resamples.
+**What it found.** No. Near the edge of the source's support, up to 67% of bootstrap resamples failed to produce MAIC weights, and the percentile interval from the survivors covered only 0.29 to 0.65 (0.14 to 0.56 counting failed original fits as giving no interval). The surviving resamples are those that contain the few patients who make the weights possible, so their spread understates the estimate's. The failure share should be reported as a result and the interval withheld where it is material.
 
-The protocol is registered before any result is seen: [read it](/studies/QBA-23-an-interval-conditional-on-the-weighting-having-worked/out/QBA-23-protocol.md).
+**Results.**
+
+- Refuting sentence fails: coverage given success 0.288 to 0.645 where more than 10% of resamples failed.
+- Where failures were rare, coverage 0.87 to 0.93, already below nominal at low effective sample size.
+- Effective sample size fell to about 3 of 100 or 5 of 300 at the most extreme assumed target mean.
+
+**Design.**
+
+Estimand
+:   A's target mean outcome at each assumed target covariate mean
+
+Methods compared
+:   MAIC with percentile bootstrap over successful resamples
+
+Data-generating mechanism
+:   Unanchored MAIC with a sweep of the assumed target mean toward the source's support boundary; percentile bootstrap intervals from successful resamples; coverage conditional on success and unconditional. 2 cells, 500 replicates each, 200 resamples.
+
+Replicates
+:   500 per scenario, 1,000 in total, 200 resamples each at 4 grid points
+
+**What this does not answer.** One covariate, continuous outcome; cost and surrogate approaches and identified sets not studied. Peer review has not been done.
+
+**Peer review.** Not yet done. The result stands on the study alone until it is.
+
+Read it: [PDF](/studies/QBA-23-an-interval-conditional-on-the-weighting-having-worked/out/QBA-23.pdf) · [Markdown](/studies/QBA-23-an-interval-conditional-on-the-weighting-having-worked/out/QBA-23.md) · [OpenDocument](/studies/QBA-23-an-interval-conditional-on-the-weighting-having-worked/out/QBA-23.odt) · Code and data: [studies/QBA-23-an-interval-conditional-on-the-weighting-having-worked](https://github.com/choxos/ITC-open-problems/tree/main/studies/QBA-23-an-interval-conditional-on-the-weighting-having-worked) · Protocol: [registered before the run](/studies/QBA-23-an-interval-conditional-on-the-weighting-having-worked/out/QBA-23-protocol.md)
+
 :::
 
 ## Verification
