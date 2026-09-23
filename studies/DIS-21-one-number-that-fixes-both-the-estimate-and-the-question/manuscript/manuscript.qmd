@@ -1,0 +1,112 @@
+---
+title: "A matched bridge's admission threshold sets its bias: at the threshold used in practice the bridged contrast was biased by twice the true effect"
+subtitle: "A simulation study answering catalog problem DIS-21"
+author: "Ahmad Sofi-Mahmudi"
+date: 2026-09-23
+bibliography: references.bib
+csl: ../../../vancouver.csl
+link-citations: true
+number-sections: true
+execute:
+  echo: false
+  warning: false
+  message: false
+format:
+  gfm:
+    toc: false
+  pdf:
+    documentclass: article
+    geometry: margin=1in
+    fig-pos: "H"
+  odt: default
+---
+
+```{r setup}
+s <- read.csv("../results/summary.csv"); f2 <- function(x) formatC(x, format = "f", digits = 2); f3 <- function(x) formatC(x, format = "f", digits = 3)
+pc <- function(x) sprintf("%.0f%%", 100 * x)
+q <- function(shift, index, m, tau = 0) s[s$shift == shift & s$index == index & s$mult == m & s$tau_s == tau, ]
+```
+
+# Abstract {.unnumbered}
+
+**Background.** A disconnected network can be bridged by matching arms of trials on
+either side on their reported covariate means and treating a close pair as if
+randomized. The analyst sets the maximum admissible distance. In the one published
+calibration, arms of the same trial differed by about a tenth of the threshold used
+[@schmitz2018]. Catalog problem DIS-21 asks how the threshold relates to the bridge's
+bias.
+
+**Methods.** Two subnetworks of six trials each, with populations close or shifted
+across the gap; control arms matched at thresholds of 1 to 20 times the median
+distance between arms of one randomized trial; an index with all three covariates or
+without the most prognostic one; study-level baseline heterogeneity absent or present.
+2000 replicates per cell.
+
+**Results.** With populations shifted across the gap, the bridged contrast (truth
+$-0.2$) was biased by `r f3(q(0.5, "all", 1)$bias)` at the within-trial distance, where the
+network was connected in `r pc(q(0.5, "all", 1)$connected)` of replicates, by
+`r f3(q(0.5, "all", 3)$bias)` at three times it, and by `r f3(q(0.5, "all", 10)$bias)` at ten
+times it, where it was always connected and its interval covered
+`r pc(q(0.5, "all", 10)$coverage)` of the time. An index that omitted the most prognostic
+covariate was biased by `r f3(q(0.5, "omits_x1", 1)$bias)` even at the tightest threshold.
+
+**Conclusion.** The threshold trades bias against whether the comparison exists, and
+neither the trade nor its terms are visible in a single analysis. A bridged estimate
+should be reported as a curve over the threshold in within-trial units, with the
+probability that the bridge exists at each point.
+
+# The problem {#sec-problem}
+
+A matched bridge assumes that two arms from different trials, similar on reported
+covariates, differ only by their treatments. The residual difference in prognosis is
+the bridge's bias, and it grows with the distance admitted. The threshold also decides
+which pairs exist, so tightening it to control bias can disconnect the network. The
+natural unit for the threshold is the distance between two arms of one randomized
+trial, which are exchangeable by design. A case study comparing this bridge with
+component network meta-analysis found they could disagree [@rucker2021].
+
+# Design {#sec-design}
+
+Registered protocol: `protocol.md`. Six trials of A versus C and six of B versus D, 150
+patients per arm. Trial populations have three covariate means from $N(0, 0.3^2)$ on one
+side of the gap and $N(s, 0.3^2)$ on the other, $s \in \{0, 0.5\}$; arm means add sampling
+error. Arm outcome means: study-level baseline $\alpha_t \sim N(0, \tau^2)$, $\tau \in \{0, 0.1\}$, plus
+$0.5\bar x_1 + 0.3\bar x_2 + 0.1\bar x_3$, plus the treatment effect (A $-0.3$, B $-0.1$, C and D 0).
+Every C-D arm pair within the threshold enters as a pseudo-trial; all pairs, A-C trials
+and B-D trials are pooled by fixed effect, as in practice. The within-trial unit was
+`r f3(s$unit[s$index == "all"][1])` (all covariates).
+
+# Results {#sec-results}
+
+![Probability the bridge exists, bias and coverage against the threshold, without study-level heterogeneity. Bias and coverage are conditional on the bridge existing.](figures/fig1-threshold.png){#fig-threshold}
+
+| gap shift | index | threshold | connected | pairs | bias | coverage |
+|---:|---|---:|---:|---:|---:|---:|
+`r z <- s[s$tau_s == 0 & s$mult %in% c(1, 3, 5, 10), ]; paste(sprintf("| %.1f | %s | %g | %s | %.1f | %s | %s |", z$shift, ifelse(z$index == "all", "all covariates", "without x1"), z$mult, pc(z$connected), z$n_adm, f3(z$bias), f3(z$coverage)), collapse = "\n")`
+
+: Threshold in multiples of the within-trial distance; no study-level heterogeneity; 2000 replicates, bias MCSE at most 0.010. {#tbl-main}
+
+The registered condition failed: in the poor-overlap cells the bias moved by 0.19 to
+0.39 across the thresholds at which the bridge existed at least a fifth of the time
+(@fig-threshold, @tbl-main). The threshold near the one used in practice, about ten
+within-trial units here, admitted almost every pair and returned the bias of an
+unmatched comparison. Tight thresholds removed most of the bias only when the index
+contained the prognostic covariates, and then the bridge often did not exist.
+
+Coverage failed even without bias. With populations close across the gap, the
+interval covered `r pc(q(0, "all", 1)$coverage)` at the tightest threshold and
+`r pc(q(0, "all", 10)$coverage)` at ten units, because pairs that reuse the same arms were
+pooled as independent. An index missing a prognostic covariate left each pair's
+prognostic difference as unmodeled noise, and coverage was about three quarters at
+every threshold. Study-level baseline heterogeneity (SD 0.1) lowered coverage further
+at every threshold (to `r pc(q(0, "all", 1, 0.1)$coverage)` at the tightest with good overlap),
+since no covariate distance can see it.
+
+# What this does not answer {#sec-limits}
+
+Monte Carlo networks only, no deletions from real networks; one distance with two
+covariate sets and no alternative normalization; no component network meta-analysis
+bridge; admitted pairs pooled as independent, as in practice, rather than by a model
+for shared arms. Peer review has not been done.
+
+# References {.unnumbered}

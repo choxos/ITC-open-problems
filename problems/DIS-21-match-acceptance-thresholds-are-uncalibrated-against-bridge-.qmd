@@ -18,6 +18,12 @@ tractability: 4
 [Emerging]{.chip .chip-maturity-emerging}
 [Tractability 4/5]{.chip}
 :::
+::: {.callout-important appearance="simple"}
+## A study has been run against this problem
+
+No. With trial populations shifted across the gap, the bridged contrast (truth -0.2) was biased by -0.03 at the within-trial arm distance, where the bridge existed in only 8% of replicates, -0.13 at three times it and -0.44 at ten times it, near the threshold used in practice, where it always existed and its interval never covered. An index omitting the most prognostic covariate was biased by -0.25 even at the tightest threshold. Pooling pairs that reuse arms made intervals undercover even without bias (0.76 at ten units with good overlap). [Read the study below](#our-study).
+:::
+
 ## Statement
 
 When single-arm or aggregate studies are matched on reported baseline summaries to manufacture an edge that randomization did not supply, the analyst must set a maximum admissible dissimilarity, and nothing ties that cutoff to the bias it induces in the bridged contrast. The one empirical anchor available points the other way: arms of the same randomized trial differ by an average distance of 0.01, range 0.00 to 0.03, on a clinician-weighted covariate index, roughly an order of magnitude tighter than the threshold of 0.1 used in practice, and only one of eight admitted matches in a multiple myeloma network would have survived a randomized-trial-comparable cutoff (Schmitz et al. 2018, doi:10.1186/s12874-018-0509-7). The cutoff also decides which cross-gap comparisons exist at all, since 8 of 56 candidate pairings fell below it and 5 of those connected the two subnetworks, so one number silently fixes both the point estimate and the reported comparison set. What the choice can cost is visible where an external check exists: on one contrast the matched analysis returned a hazard ratio of 1.15 (0.77 to 1.74) against 0.73 (0.52 to 1.03) and 0.60 (0.35 to 1.01) from individual-patient analyses, putting the bridged estimate on the opposite side of the null with the widest interval. A loose threshold matches studies that are not comparable while a tight one leaves the network disconnected or admits so few matches that uncertainty is understated, and nothing trades the two off. The distance metric, its covariate weights, its normalization and the threshold are all analyst choices with no standard, and a released implementation now exposes them as ordinary function arguments.
@@ -44,6 +50,43 @@ Calibrating a cutoff against bias requires knowing the bridged contrast for cand
 ## Probable solution or research direction
 
 Calibrate on networks where the answer is known: take connected networks with covariate reporting, delete edges to create artificial gaps, admit matches over a grid of thresholds, and report bias, interval coverage and decision reversal in the bridged contrast as a function of dissimilarity, separately for each index definition. Publish the resulting curve rather than a single number, so an analyst can read the expected bias at the threshold being proposed and see how many comparisons survive it. Standardize the index first, since a calibrated threshold means nothing without a fixed covariate set, weighting rule and normalization; the distribution of within-randomized-trial distances is the natural unit, so express thresholds as multiples of it. Report the whole admissible match space as a sensitivity analysis rather than one admitted set, and state the comparison set as a function of the threshold so that comparisons existing only at loose cutoffs are visibly conditional on it.
+
+## Our study
+
+::: {.study-result}
+**A matched bridge's admission threshold sets its bias: at the threshold used in practice the bridged contrast was biased by twice the true effect**
+
+**The question put to it.** How do the bias of a matched bridge across a disconnected network and the existence of the bridged comparison depend on the admission threshold, expressed in multiples of the distance between arms of one randomized trial?
+
+**What it found.** No. With trial populations shifted across the gap, the bridged contrast (truth -0.2) was biased by -0.03 at the within-trial arm distance, where the bridge existed in only 8% of replicates, -0.13 at three times it and -0.44 at ten times it, near the threshold used in practice, where it always existed and its interval never covered. An index omitting the most prognostic covariate was biased by -0.25 even at the tightest threshold. Pooling pairs that reuse arms made intervals undercover even without bias (0.76 at ten units with good overlap).
+
+**Results.**
+
+- Bias moved by 0.19 to 0.39 across thresholds at which the bridge existed at least a fifth of the time (poor overlap).
+- Probability the bridge exists at the within-trial distance: 46% (good overlap) and 8% (poor), all covariates in the index.
+- Study-level baseline heterogeneity (SD 0.1) lowered coverage at every threshold, since no covariate distance sees it.
+
+**Design.**
+
+Estimand
+:   Cross-gap mean difference A versus B through a matched C-D bridge
+
+Methods compared
+:   matched bridge at thresholds of 1 to 20 within-trial distance units, two covariate indices
+
+Data-generating mechanism
+:   Two disconnected subnetworks of six trials; cross-gap control arms matched on covariate means at thresholds of 1 to 20 within-trial units; good or poor overlap, an index with or without the most prognostic covariate, study-level heterogeneity absent or present. 8 cells, 2000 replicates each.
+
+Replicates
+:   2000 per cell, 8 cells, 8 thresholds on the same data
+
+**What this does not answer.** Monte Carlo networks only, no real-network deletions; one distance with two covariate sets; no component network meta-analysis bridge; admitted pairs pooled as independent. Peer review has not been done.
+
+**Peer review.** Not yet done. The result stands on the study alone until it is.
+
+Read it: [PDF](/studies/DIS-21-one-number-that-fixes-both-the-estimate-and-the-question/out/DIS-21.pdf) · [Markdown](/studies/DIS-21-one-number-that-fixes-both-the-estimate-and-the-question/out/DIS-21.md) · [OpenDocument](/studies/DIS-21-one-number-that-fixes-both-the-estimate-and-the-question/out/DIS-21.odt) · Code and data: [studies/DIS-21-one-number-that-fixes-both-the-estimate-and-the-question](https://github.com/choxos/ITC-open-problems/tree/main/studies/DIS-21-one-number-that-fixes-both-the-estimate-and-the-question) · Protocol: [registered before the run](/studies/DIS-21-one-number-that-fixes-both-the-estimate-and-the-question/out/DIS-21-protocol.md)
+
+:::
 
 ## Verification
 
