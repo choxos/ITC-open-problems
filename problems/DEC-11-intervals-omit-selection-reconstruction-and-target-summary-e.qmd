@@ -16,6 +16,12 @@ maturity: "Promising"
 [Very high priority]{.chip .chip-priority-very-high}
 [Promising]{.chip .chip-maturity-promising}
 :::
+::: {.callout-important appearance="simple"}
+## A study has been run against this problem
+
+Selecting effect modifiers on the analyzed data (interactions with p < 0.2) left the naive STC interval covering 0.887 to 0.927, because its SE ignored which model was selected; a bootstrap that repeats the selection restored 0.938 to 0.968. Lasso at the one-standard-error penalty dropped real modifiers and coverage fell to 0.33 with three modifiers at 1000 per arm. Fitting all candidate interactions kept coverage at 0.93 to 0.96. [Read the study below](#our-study).
+:::
+
 ## Statement
 
 The estimated-weights component of this problem is solved and evaluated: Chandler and Proskorovsky 2024 (10.1002/jrsm.1759) compared four families of MAIC variance estimator across 108 scenarios and give guidance by overlap, effective sample size and outcome type, following Remiro-Azocar et al. 2021 (10.1002/jrsm.1511), which had shown the robust sandwich estimator understates variability at small ESS. What remains unpropagated is model-selection uncertainty where selection used the analyzed data, pseudo-IPD reconstruction uncertainty, target-summary uncertainty, and any decomposition separating sampling from prior and structural contributions. Bridge uncertainty belongs on that list only with a caveat: it is structural rather than sampling-based and should be reported through separate sensitivity or tipping analysis unless a defensible probability model supports joint propagation. The claim that standard software returns one interval with no components is also not true of cpaic, an unreleased GitHub development package not on CRAN, which re-estimates MAIC weights inside an arm-stratified bootstrap, preserves multi-arm covariance, and carries an integration-error diagnostic for component ML-NMR.
@@ -42,14 +48,40 @@ Adopt the published variance-estimation guidance for weights instead of treating
 
 ## Our study
 
-::: {.callout-note}
-## A study is running
+::: {.study-result}
+**Coverage of an STC interval after selecting effect modifiers on the same data**
 
-**Question.** When effect modifiers are selected on the analyzed data before an STC, does an interval that treats the selected model as fixed keep its coverage, and does resampling the whole procedure restore it?
+**The question put to it.** When effect modifiers are selected on the analyzed data before an STC, does an interval that treats the selected model as fixed keep its coverage, and does resampling the whole procedure restore it?
 
-**Design.** G-computation STC with six candidate modifiers, five selection rules (all, oracle, none, p < 0.2, lasso), naive and whole-procedure bootstrap intervals, three sample sizes and one or three true modifiers. 400 replicates per cell.
+**What it found.** Selecting effect modifiers on the analyzed data (interactions with p < 0.2) left the naive STC interval covering 0.887 to 0.927, because its SE ignored which model was selected; a bootstrap that repeats the selection restored 0.938 to 0.968. Lasso at the one-standard-error penalty dropped real modifiers and coverage fell to 0.33 with three modifiers at 1000 per arm. Fitting all candidate interactions kept coverage at 0.93 to 0.96.
 
-The protocol is registered before any result is seen: [read it](/studies/DEC-11-selection-uncertainty-and-what-belongs-in-an-interval/out/DEC-11-protocol.md).
+**Results.**
+
+- Refuting sentence fails: naive coverage after significance selection below 0.93 beyond Monte Carlo error in some scenarios (0.887 to 0.927); bias at most 0.046.
+- Whole-procedure bootstrap: 0.938 to 0.968.
+- Lasso (lambda 1se) kept on average 0.01 to 0.15 interactions; coverage as low as 0.333 and bias about -0.2 with three real modifiers.
+- The shortfall was not monotone in sample size with three modifiers (largest at 300 per arm), as registered.
+
+**Design.**
+
+Estimand
+:   Target-population marginal log odds ratio, A versus C
+
+Methods compared
+:   all interactions, oracle interactions, no interactions, p < 0.2 selection with naive interval, p < 0.2 selection with whole-procedure bootstrap, lasso selection
+
+Data-generating mechanism
+:   G-computation STC with six candidate modifiers, five selection rules (all, oracle, none, p < 0.2, lasso), naive and whole-procedure bootstrap intervals, three sample sizes and one or three true modifiers. 400 replicates per cell.
+
+Replicates
+:   400 per scenario, 2,400 in total, each with a 60-resample bootstrap
+
+**What this does not answer.** STC only; MAIC-based selection, overlap, larger candidate sets and target-summary uncertainty not run; 400 replicates. Peer review has not been done.
+
+**Peer review.** Not yet done. The result stands on the study alone until it is.
+
+Read it: [PDF](/studies/DEC-11-selection-uncertainty-and-what-belongs-in-an-interval/out/DEC-11.pdf) · [Markdown](/studies/DEC-11-selection-uncertainty-and-what-belongs-in-an-interval/out/DEC-11.md) · [OpenDocument](/studies/DEC-11-selection-uncertainty-and-what-belongs-in-an-interval/out/DEC-11.odt) · Code and data: [studies/DEC-11-selection-uncertainty-and-what-belongs-in-an-interval](https://github.com/choxos/ITC-open-problems/tree/main/studies/DEC-11-selection-uncertainty-and-what-belongs-in-an-interval) · Protocol: [registered before the run](/studies/DEC-11-selection-uncertainty-and-what-belongs-in-an-interval/out/DEC-11-protocol.md)
+
 :::
 
 ## Verification

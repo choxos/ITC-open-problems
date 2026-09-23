@@ -23,6 +23,12 @@ below are attributed to that document and were checked independently where possi
 anything that could not be independently sourced is marked in the verification trail.
 :::
 
+::: {.callout-important appearance="simple"}
+## A study has been run against this problem
+
+Selecting effect modifiers on the analyzed data (interactions with p < 0.2) left the naive STC interval covering 0.887 to 0.927, because its SE ignored which model was selected; a bootstrap that repeats the selection restored 0.938 to 0.968. Lasso at the one-standard-error penalty dropped real modifiers and coverage fell to 0.33 with three modifiers at 1000 per arm. Fitting all candidate interactions kept coverage at 0.93 to 0.96. [Read the study below](#our-study).
+:::
+
 ## Statement
 
 There is no agreed default for choosing the effect-modifier set: the right set depends on the treatment contrast, estimand, effect scale, design and available support, and in the small samples typical of these analyses significance screening is unstable while balancing on every available covariate can destroy overlap and exhaust the information available for interaction terms. Reviews document what applied work does: NICE technology appraisals selected covariates by availability, expert opinion, effective sample size, statistical significance or cross-validation (Phillippo et al. 2019, doi:10.1017/S0266462319000333); of 117 oncology MAICs only 3 met all NICE recommendations, with evidence of effect-modifier status among the least reported items (Farinasso 2025, doi:10.1016/j.vhri.2025.101088); and no study among 27 CAR-T indirect comparisons described its identification methodology (Neumann 2026, doi:10.57264/cer-2026-0033). Adjustment sets are not uniformly small: those reviews report anywhere from no adjustment to 19 covariates, and a median of 6 (range 1 to 13) for unanchored analyses. A formal causal covariate-selection procedure does exist for transporting experimental results (Egami and Hartman, arxiv:1909.02669), but it assumes richer target data than an aggregate-data comparator supplies, and it has not been benchmarked for this setting.
@@ -51,14 +57,42 @@ Prespecify the selection process and record it: causal and clinical knowledge, c
 
 ## Our study
 
-::: {.callout-note}
-## A study is running
+::: {.study-result}
+**Coverage of an STC interval after selecting effect modifiers on the same data**
 
-**Question.** When effect modifiers are selected on the analyzed data before an STC, does an interval that treats the selected model as fixed keep its coverage, and does resampling the whole procedure restore it?
+*This study was designed against [DEC-11](https://github.com/choxos/ITC-open-problems/tree/main/studies/DEC-11-selection-uncertainty-and-what-belongs-in-an-interval) and bears on this entry in part. What it does not answer is stated below.*
 
-**Design.** G-computation STC with six candidate modifiers, five selection rules (all, oracle, none, p < 0.2, lasso), naive and whole-procedure bootstrap intervals, three sample sizes and one or three true modifiers. 400 replicates per cell.
+**The question put to it.** When effect modifiers are selected on the analyzed data before an STC, does an interval that treats the selected model as fixed keep its coverage, and does resampling the whole procedure restore it?
 
-The protocol is registered before any result is seen: [read it](/studies/DEC-11-selection-uncertainty-and-what-belongs-in-an-interval/out/DEC-11-protocol.md).
+**What it found.** Selecting effect modifiers on the analyzed data (interactions with p < 0.2) left the naive STC interval covering 0.887 to 0.927, because its SE ignored which model was selected; a bootstrap that repeats the selection restored 0.938 to 0.968. Lasso at the one-standard-error penalty dropped real modifiers and coverage fell to 0.33 with three modifiers at 1000 per arm. Fitting all candidate interactions kept coverage at 0.93 to 0.96.
+
+**Results.**
+
+- Refuting sentence fails: naive coverage after significance selection below 0.93 beyond Monte Carlo error in some scenarios (0.887 to 0.927); bias at most 0.046.
+- Whole-procedure bootstrap: 0.938 to 0.968.
+- Lasso (lambda 1se) kept on average 0.01 to 0.15 interactions; coverage as low as 0.333 and bias about -0.2 with three real modifiers.
+- The shortfall was not monotone in sample size with three modifiers (largest at 300 per arm), as registered.
+
+**Design.**
+
+Estimand
+:   Target-population marginal log odds ratio, A versus C
+
+Methods compared
+:   all interactions, oracle interactions, no interactions, p < 0.2 selection with naive interval, p < 0.2 selection with whole-procedure bootstrap, lasso selection
+
+Data-generating mechanism
+:   G-computation STC with six candidate modifiers, five selection rules (all, oracle, none, p < 0.2, lasso), naive and whole-procedure bootstrap intervals, three sample sizes and one or three true modifiers. 400 replicates per cell.
+
+Replicates
+:   400 per scenario, 2,400 in total, each with a 60-resample bootstrap
+
+**What this does not answer.** STC only; MAIC-based selection, overlap, larger candidate sets and target-summary uncertainty not run; 400 replicates. Peer review has not been done.
+
+**Peer review.** Not yet done. The result stands on the study alone until it is.
+
+Read it: [PDF](/studies/DEC-11-selection-uncertainty-and-what-belongs-in-an-interval/out/DEC-11.pdf) · [Markdown](/studies/DEC-11-selection-uncertainty-and-what-belongs-in-an-interval/out/DEC-11.md) · [OpenDocument](/studies/DEC-11-selection-uncertainty-and-what-belongs-in-an-interval/out/DEC-11.odt) · Code and data: [studies/DEC-11-selection-uncertainty-and-what-belongs-in-an-interval](https://github.com/choxos/ITC-open-problems/tree/main/studies/DEC-11-selection-uncertainty-and-what-belongs-in-an-interval) · Protocol: [registered before the run](/studies/DEC-11-selection-uncertainty-and-what-belongs-in-an-interval/out/DEC-11-protocol.md)
+
 :::
 
 ## Verification

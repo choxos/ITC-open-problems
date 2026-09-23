@@ -1,8 +1,29 @@
 {
  "problem_id": "DEC-11",
- "also_bears_on": ["COV-01"],
+ "also_bears_on": [
+  "COV-01"
+ ],
  "title": "Coverage of an STC interval after selecting effect modifiers on the same data",
- "status": "running",
+ "status": "complete",
  "question": "When effect modifiers are selected on the analyzed data before an STC, does an interval that treats the selected model as fixed keep its coverage, and does resampling the whole procedure restore it?",
- "design": "G-computation STC with six candidate modifiers, five selection rules (all, oracle, none, p < 0.2, lasso), naive and whole-procedure bootstrap intervals, three sample sizes and one or three true modifiers. 400 replicates per cell."
+ "design": "G-computation STC with six candidate modifiers, five selection rules (all, oracle, none, p < 0.2, lasso), naive and whole-procedure bootstrap intervals, three sample sizes and one or three true modifiers. 400 replicates per cell.",
+ "date_completed": "2026-09-23",
+ "answer": "Selecting effect modifiers on the analyzed data (interactions with p < 0.2) left the naive STC interval covering 0.887 to 0.927, because its SE ignored which model was selected; a bootstrap that repeats the selection restored 0.938 to 0.968. Lasso at the one-standard-error penalty dropped real modifiers and coverage fell to 0.33 with three modifiers at 1000 per arm. Fitting all candidate interactions kept coverage at 0.93 to 0.96.",
+ "findings": [
+  "Refuting sentence fails: naive coverage after significance selection below 0.93 beyond Monte Carlo error in some scenarios (0.887 to 0.927); bias at most 0.046.",
+  "Whole-procedure bootstrap: 0.938 to 0.968.",
+  "Lasso (lambda 1se) kept on average 0.01 to 0.15 interactions; coverage as low as 0.333 and bias about -0.2 with three real modifiers.",
+  "The shortfall was not monotone in sample size with three modifiers (largest at 300 per arm), as registered."
+ ],
+ "not_answered": "STC only; MAIC-based selection, overlap, larger candidate sets and target-summary uncertainty not run; 400 replicates. Peer review has not been done.",
+ "estimand": "Target-population marginal log odds ratio, A versus C",
+ "methods_compared": [
+  "all interactions",
+  "oracle interactions",
+  "no interactions",
+  "p < 0.2 selection with naive interval",
+  "p < 0.2 selection with whole-procedure bootstrap",
+  "lasso selection"
+ ],
+ "n_sim": "400 per scenario, 2,400 in total, each with a 60-resample bootstrap"
 }
