@@ -69,7 +69,7 @@ one_rep <- function(cell, s, th) {
   f <- maic(X, m); w <- f$w
   p1 <- sum(w[A == 1] * y[A == 1]) / sum(w[A == 1]); p0 <- sum(w[A == 0] * y[A == 0]) / sum(w[A == 0])
   v <- function(a, p) sum(w[A == a]^2 * (y[A == a] - p)^2) / sum(w[A == a])^2 / (p * (1 - p))^2
-  ok <- p1 > 0 && p1 < 1 && p0 > 0 && p0 < 1
+  ok <- isTRUE(is.finite(p1) && is.finite(p0) && p1 > 0 && p1 < 1 && p0 > 0 && p0 < 1)
   est <- if (ok) stats::qlogis(p1) - stats::qlogis(p0) else NA
   se <- if (ok) sqrt(v(1, p1) + v(0, p0)) else NA
   wn <- w / sum(w)
