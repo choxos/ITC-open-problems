@@ -18,6 +18,12 @@ tractability: 4
 [Promising]{.chip .chip-maturity-promising}
 [Tractability 4/5]{.chip}
 :::
+::: {.callout-important appearance="simple"}
+## A study has been run against this problem
+
+No. When an aggregate-only treatment's interaction differed from both candidate classes' (by 0.3) while theirs agreed, every admissible partition returned the same answer biased by -0.30; the range over partitions was narrow (0.14), contained the truth in 5% of replicates, and the only available fit test rejected at its nominal 5%. The widest partition covered 0.37. The range widened and contained the correct partition only when the candidate classes disagreed with each other. [Read the study below](#our-study).
+:::
+
 ## Statement
 
 The shared effect modifier assumption is defined relative to a set of treatments assumed to carry identical interaction vectors, and it is the restriction that makes most small-network multilevel network meta-regression and most target-transportable MAIC or STC identifiable at all. Nothing governs how that set is chosen. In practice it is enlarged until the model is estimable: one metastatic prostate cancer analysis grouped every treatment except the reference into a single class spanning docetaxel chemotherapy, androgen deprivation, a non-steroidal antiandrogen and three androgen-receptor pathway inhibitors, across twelve studies with individual patient data from one of them (Shore et al. 2026, doi:10.57264/cer-2025-0100); a relapsed refractory myeloma application shares interactions across a CAR-T product, a nuclear export inhibitor and an antibody-drug conjugate (Maciel et al. 2024, doi:10.1016/j.jval.2024.04.017); and the psoriasis application that validated the method used mechanism-defined classes (doi:10.1177/0272989X221117162). Widening the class strictly weakens the identifying assumption while strictly improving estimability, so the incentive runs toward the widest partition a reviewer will accept, and the partition is typically settled after the analyst has seen which version converges. What does not exist is a criterion linking class membership to an observable implication, a measure of how much a target contrast moves across admissible partitions, or a requirement to report the partition and its justification as an identifying assumption rather than as a modeling detail. The relaxations software provides operate within a fixed partition rather than over it: multinma's class_interactions argument moves between common, exchangeable and independent interactions for a given class structure, and the class-effect model selection algorithm of Perren et al. (doi:10.1177/0272989X251389887) selects among class-effect structures on the treatment effects, not among partitions of the interaction assumption.
@@ -45,6 +51,43 @@ The assumption restricts interaction vectors for treatments whose interactions a
 ## Probable solution or research direction
 
 Build the partition-sensitivity diagnostic first, since it is the cheapest change that would alter practice: refit under every clinically defensible partition and report the induced range of the target contrast next to the point estimate, so a contrast whose sign depends on the class structure becomes visible. Define the admissible candidate set with clinicians before fitting and record it in the protocol, so the partition is a prespecified identifying assumption rather than a consequence of which model converged. Adapt the existing class-effect model selection algorithm from treatment effects to interaction vectors so partitions can be compared on fit where the network supports it, and state the network size at which that comparison has power rather than assuming it does. Where the partition cannot be checked, replace the equality constraint with a hierarchical prior over interaction vectors around a class-level mean and report how the contrast moves as the shrinkage is loosened, which multinma supports within a partition and would need extending across partitions. Finally, require the partition and its justification in reporting, on the same footing as the covariate list.
+
+## Our study
+
+::: {.study-result}
+**A partition-sensitivity display for shared effect modifiers is stable exactly when every candidate partition is wrong**
+
+**The question put to it.** Does the choice of which treatments share an effect-modifier interaction move a target contrast, does the widest estimable partition fail silently, and does the range over defensible partitions contain the truth?
+
+**What it found.** No. When an aggregate-only treatment's interaction differed from both candidate classes' (by 0.3) while theirs agreed, every admissible partition returned the same answer biased by -0.30; the range over partitions was narrow (0.14), contained the truth in 5% of replicates, and the only available fit test rejected at its nominal 5%. The widest partition covered 0.37. The range widened and contained the correct partition only when the candidate classes disagreed with each other.
+
+**Results.**
+
+- Widest partition bias -0.30 and coverage 0.37 at the primary cell, with the fit test rejecting in 5% of analyses.
+- The fit test detects disagreement between treatments with identified interactions (41% when C differs from B) and never the aggregate-only treatment's own departure.
+- With the candidate classes disagreeing, {B}{CD} or {BD}{C} was unbiased when D truly shared that class's interaction.
+
+**Design.**
+
+Estimand
+:   D versus A mean difference at the target covariate mean
+
+Methods compared
+:   network fits under three admissible shared-modifier partitions, range over partitions (sensitivity display)
+
+Data-generating mechanism
+:   A network with individual data on A vs B and aggregate trials of A vs C and A vs D; interaction heterogeneity within and between classes; three admissible partitions fitted by generalized least squares. 6 cells, 4000 replicates each.
+
+Replicates
+:   4000 per cell, 6 cells
+
+**What this does not answer.** Small hand-built network, continuous outcome, linear modification, three partitions, sufficient statistics drawn directly; no overlap factor or ML-NMR fits. Peer review has not been done.
+
+**Peer review.** Not yet done. The result stands on the study alone until it is.
+
+Read it: [PDF](/studies/IDN-19-a-partition-whose-failure-looks-like-success/out/IDN-19.pdf) · [Markdown](/studies/IDN-19-a-partition-whose-failure-looks-like-success/out/IDN-19.md) · [OpenDocument](/studies/IDN-19-a-partition-whose-failure-looks-like-success/out/IDN-19.odt) · Code and data: [studies/IDN-19-a-partition-whose-failure-looks-like-success](https://github.com/choxos/ITC-open-problems/tree/main/studies/IDN-19-a-partition-whose-failure-looks-like-success) · Protocol: [registered before the run](/studies/IDN-19-a-partition-whose-failure-looks-like-success/out/IDN-19-protocol.md)
+
+:::
 
 ## Verification
 

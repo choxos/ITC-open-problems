@@ -1,0 +1,100 @@
+---
+title: "A partition-sensitivity display for shared effect modifiers is stable exactly when every candidate partition is wrong"
+subtitle: "A simulation study answering catalog problem IDN-19"
+author: "Ahmad Sofi-Mahmudi"
+date: 2026-09-23
+bibliography: references.bib
+csl: ../../../vancouver.csl
+link-citations: true
+number-sections: true
+execute:
+  echo: false
+  warning: false
+  message: false
+format:
+  gfm:
+    toc: false
+  pdf:
+    documentclass: article
+    geometry: margin=1in
+    fig-pos: "H"
+  odt: default
+---
+
+```{r setup}
+s <- read.csv("../results/summary.csv"); r <- read.csv("../results/range.csv"); f3 <- function(x) formatC(x, format = "f", digits = 3); pc <- function(x) sprintf("%.0f%%", 100 * x)
+q <- function(sep, het, p) s[s$sep == sep & s$het == het & s$partition == p, ]; rr <- function(sep, het) r[r$sep == sep & r$het == het, ]
+```
+
+# Abstract {.unnumbered}
+
+**Background.** Multilevel network meta-regression identifies an aggregate-only
+treatment's interaction by assuming it shares effect modification with other
+treatments in its class [@phillippo2020mlnmr]. Nothing governs the partition, and
+wider classes fit and converge more easily. Catalog problem IDN-19 asks whether the
+target contrast is sensitive to the partition and whether a sensitivity display over
+defensible partitions would reveal a wrong one.
+
+**Methods.** A network with individual data on A versus B, two aggregate trials of A
+versus C at different covariate means, and one aggregate trial of A versus D; D's and
+C's interactions differing from B's or not; three partitions that identify the D
+versus A target contrast; 4000 replicates per cell.
+
+**Results.** When D's interaction differed from both B's and C's (by 0.3) while theirs
+agreed, every partition returned the same answer, biased by `r f3(q(0, 0.3, "BCD")$bias)`: the range over
+partitions had mean width `r f3(rr(0, 0.3)$point_range_width)`, contained the truth in
+`r pc(rr(0, 0.3)$point_range_contains)` of replicates, and the only available fit test rejected in
+`r pc(q(0, 0.3, "BCD")$q_reject)`. The widest partition covered `r f3(q(0, 0.3, "BCD")$coverage)`. When C's interaction
+differed from B's, the partitions disagreed, the range widened to
+`r f3(rr(0.3, 0)$point_range_width)`, and the correct partition was in it.
+
+**Conclusion.** Partition sensitivity reveals disagreement among the candidate
+classes, not whether the aggregate-only treatment belongs to any of them. A stable
+range is not evidence that the partition is right.
+
+# The problem {#sec-problem}
+
+An aggregate trial of D at one covariate mean identifies D's effect at that mean, not
+its interaction. Transporting D to a target at a different mean needs the interaction,
+which a shared-modifier class borrows from other treatments. The borrowed value can be
+tested only against treatments whose own interactions are identified, so the
+assumption is testable where it is not needed. A display of the target contrast across
+admissible partitions is the natural safeguard; this study measures when it works.
+
+# Design {#sec-design}
+
+Registered protocol: `protocol.md`. Effect of treatment $k$ against A:
+$d_k + g_kx$ with $g_B = 0.3$, $g_C = 0.3 + s$, $g_D = 0.3 + h$, $s \in \{0, 0.3\}$,
+$h \in \{0, 0.15, 0.3\}$. Individual data on A versus B (400 patients); aggregate A
+versus C at covariate means $-0.5$ and $0.5$; aggregate A versus D at 0; each aggregate
+effect with variance 0.01. Target covariate mean 1. Partitions {BCD}, {BD}{C} and
+{B}{CD} were fitted by generalized least squares on the sufficient statistics; only
+{BCD} has residual degrees of freedom for a fit test.
+
+# Results {#sec-results}
+
+![Bias of the D-versus-A target contrast by partition. Bars span 1.96 SE either side of the bias.](figures/fig1-partitions.png){#fig-partitions}
+
+| C differs | D differs | range of estimates contains truth | range of intervals contains truth | range width (estimates) | widest partition coverage | its fit test rejects |
+|---:|---:|---:|---:|---:|---:|---:|
+`r paste(sprintf("| %.1f | %.2f | %s | %s | %s | %s | %s |", r$sep, r$het, pc(r$point_range_contains), pc(r$range_contains), f3(r$point_range_width), f3(vapply(seq_len(nrow(r)), function(i) q(r$sep[i], r$het[i], "BCD")$coverage, 0)), pc(vapply(seq_len(nrow(r)), function(i) q(r$sep[i], r$het[i], "BCD")$q_reject, 0))), collapse = "\n")`
+
+: 4000 replicates per cell. {#tbl-main}
+
+The registered primary was confirmed (@fig-partitions, @tbl-main). With C like B and D
+unlike both, the widest partition was biased by `r f3(q(0, 0.3, "BCD")$bias)` with coverage
+`r f3(q(0, 0.3, "BCD")$coverage)`, and its fit test rejected at the nominal rate: the test compares C's
+interaction with B's, the one comparison the data can make, and says nothing about D's.
+The other two partitions borrowed D's interaction from B or from C, which agreed, so they
+gave the same wrong answer and the sensitivity range was narrow. Only when the candidate
+classes themselves disagreed (C unlike B) did the range widen, and then it contained the
+correct partition's estimate, with {B}{CD} unbiased when D shared C's interaction and
+{BD}{C} when it shared B's.
+
+# What this does not answer {#sec-limits}
+
+A small hand-built network with a continuous outcome and linear modification, three
+admissible partitions, sufficient statistics drawn directly; no overlap factor, larger
+networks or ML-NMR fits. Peer review has not been done.
+
+# References {.unnumbered}
