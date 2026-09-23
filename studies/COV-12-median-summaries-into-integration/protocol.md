@@ -45,3 +45,10 @@ cell are reported.
 
 The conditional model is known rather than estimated; one covariate; ML-NMR
 integration is represented by direct integration over the reconstructed law.
+
+**Amendment after registration.** The first launch recorded mean-recovery error
+against the population mean, inconsistent with the registered regression, which nets
+the sample floor out of the contrast error. Two cells had completed; they were deleted
+without being read, the regressor was changed to error against the sample mean, and
+the run restarted. The commit message for that change says no cell had completed,
+which was wrong.
