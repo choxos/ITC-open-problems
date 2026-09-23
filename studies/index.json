@@ -1,23 +1,35 @@
 {
  "ADJ-04": {
   "slug": "ADJ-04-weighted-conformal-fails-where-it-is-needed",
-  "title": "Weighted conformal prediction under covariate shift",
-  "status": "running",
+  "title": "Weighted conformal prediction keeps its marginal guarantee under shift by returning infinite intervals where the source has no data",
+  "status": "complete",
   "question": "Does weighted conformal prediction give valid intervals for target patients under covariate shift, including where the source has no data?",
-  "answer": null,
-  "findings": [],
-  "not_answered": null,
+  "answer": "No. Weighted conformal intervals kept marginal coverage over the target (0.904 to 0.919 at nominal 0.9), but beyond the source's largest covariate value they covered 0.70 at a small shift and 0.83 at a moderate one, and at the largest shift they covered 0.99 only because 83% of those intervals were infinite. The method makes the support problem visible; it does not solve it. Estimating the density ratio changed nothing.",
+  "findings": [
+   "Beyond the source's range: split conformal 0.63 to 0.68; weighted 0.70, 0.83, 0.99 at target means 0.5, 1, 1.5.",
+   "Infinite intervals beyond the range: 0%, 11% and 83% at the three shifts (true ratio); 0%, 14% and 82% with the estimated ratio.",
+   "Calibration ESS matched n exp(-mu^2) at mu 0.5 and 1 and exceeded it at 1.5 (51 against 32)."
+  ],
+  "not_answered": "Prediction intervals for individual outcomes rather than a marginal treatment effect; one covariate and one outcome model; no BART or Gaussian process arm; no support diagnostic scored as a classifier. Peer review has not been done.",
   "design": "Spline outcome model with curvature where the source is thin; ordinary, true-ratio weighted and estimated-ratio weighted split conformal intervals at three target shifts; coverage overall and beyond the source's range, infinite intervals and calibration effective sample size. 3 cells, 500 replicates each.",
-  "n_sim": null,
-  "estimand": null,
-  "methods_compared": [],
-  "date_completed": null,
+  "n_sim": "500 per shift, 3 shifts",
+  "estimand": "Coverage of 90% prediction intervals for target patients' outcomes, overall and beyond the source's covariate range",
+  "methods_compared": [
+   "split conformal",
+   "weighted conformal with the true density ratio",
+   "weighted conformal with a logistic-regression density ratio"
+  ],
+  "date_completed": "2026-09-23",
   "week": null,
   "code": "studies/ADJ-04-weighted-conformal-fails-where-it-is-needed",
   "protocol": "studies/ADJ-04-weighted-conformal-fails-where-it-is-needed/out/ADJ-04-protocol.md",
   "review": null,
   "review_rounds": 0,
-  "downloads": {},
+  "downloads": {
+   "gfm": "studies/ADJ-04-weighted-conformal-fails-where-it-is-needed/out/ADJ-04.md",
+   "pdf": "studies/ADJ-04-weighted-conformal-fails-where-it-is-needed/out/ADJ-04.pdf",
+   "odt": "studies/ADJ-04-weighted-conformal-fails-where-it-is-needed/out/ADJ-04.odt"
+  },
   "primary_problem": "ADJ-04",
   "secondary": false
  },

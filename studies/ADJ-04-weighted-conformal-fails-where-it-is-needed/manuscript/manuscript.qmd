@@ -1,0 +1,112 @@
+---
+title: "Weighted conformal prediction keeps its marginal guarantee under shift by returning infinite intervals where the source has no data"
+subtitle: "A simulation study answering catalog problem ADJ-04"
+author: "Ahmad Sofi-Mahmudi"
+date: 2026-09-23
+bibliography: references.bib
+csl: ../../../vancouver.csl
+link-citations: true
+number-sections: true
+execute:
+  echo: false
+  warning: false
+  message: false
+format:
+  gfm:
+    toc: false
+  pdf:
+    documentclass: article
+    geometry: margin=1in
+    fig-pos: "H"
+  odt: default
+---
+
+```{r setup}
+s <- read.csv("../results/summary.csv")
+f3 <- function(x) formatC(x, format = "f", digits = 3); pc <- function(x) sprintf("%.0f%%", 100 * x)
+at <- function(m, mu, col) s[[col]][s$method == m & abs(s$mu - mu) < 1e-9]
+```
+
+# Abstract {.unnumbered}
+
+**Background.** Weighted split-conformal prediction reweights calibration scores by the
+target-to-source density ratio and keeps marginal coverage under covariate shift. It
+has been proposed as the honest interval for flexible standardization in
+population-adjusted comparisons. Catalog problem ADJ-04 asks whether it solves the
+support problem.
+
+**Methods.** A spline outcome model fitted to a source with $x \sim N(0, 1)$, curvature
+where the source is thin, target means 0.5, 1 and 1.5; split and weighted conformal
+intervals (true and estimated density ratio) at nominal 0.9; 500 replicates per shift.
+
+**Results.** Over all target patients the weighted intervals covered
+`r f3(min(s$coverage[s$method == "weighted"]))` to
+`r f3(max(s$coverage[s$method == "weighted"]))`. Beyond the source's largest
+covariate value they covered `r f3(at("weighted", 0.5, "coverage_tail"))` at a
+target mean of 0.5 and `r f3(at("weighted", 1, "coverage_tail"))` at 1, and at 1.5
+they covered `r f3(at("weighted", 1.5, "coverage_tail"))` because
+`r pc(at("weighted", 1.5, "tail_infinite"))` of those intervals were infinite.
+Estimating the density ratio changed none of this.
+
+**Conclusion.** The guarantee is marginal over the target. In the region the
+extrapolation concerns, the method either undercovers or reports that it knows
+nothing. It makes the support problem visible; it does not solve it.
+
+# The problem {#sec-problem}
+
+Weighted conformal prediction [@tibshirani2019] extends split conformal prediction
+[@lei2018] to covariate shift by weighting each calibration score by the density
+ratio $w(x) = dF_T/dF_S$. The weighted $(1-\alpha)$ quantile includes a point mass at
+infinity with weight $w(x_{\text{new}})$, so when a target patient's own weight exceeds
+$\alpha$ of the total the interval is infinite. The effective calibration size is
+about $n/\{1 + \chi^2(F_T \Vert F_S)\}$, which for a normal mean shift $\mu$ is
+$n e^{-\mu^2}$. Coverage is guaranteed on average over the target, not conditionally
+on where in the target a patient sits. DESIGN.md predicted that the region beyond the
+source's support is where it fails.
+
+# Design {#sec-design}
+
+Registered protocol: `protocol.md`. Source $x \sim N(0, 1)$: 300 patients to fit a
+natural spline with 3 degrees of freedom and 300 to calibrate. Outcome
+$y = 1 + 0.5x + 0.4\max(x - 1, 0)^2 + e$, $e \sim N(0, 1)$. Target $x \sim N(\mu, 1)$,
+1000 patients per replicate. Scores $\lvert y - \hat y\rvert$. The estimated ratio is a
+logistic regression of 1000 unlabeled target draws against the calibration points.
+"Beyond the source's range" means above the largest source $x$. The registered runner
+reused the outcome function's name for a file path and failed; the variable was renamed
+and the run restarted before any result existed.
+
+# Results {#sec-results}
+
+![Coverage over all target patients and beyond the source's range, and the share of infinite intervals there. Dashed: nominal 0.9.](figures/fig1-tail.png){#fig-tail}
+
+| target mean | interval | coverage | beyond range | infinite beyond range | median finite width | calibration ESS | $n e^{-\mu^2}$ |
+|---:|---|---:|---:|---:|---:|---:|---:|
+`r paste(sprintf("| %.1f | %s | %s | %s | %s | %.2f | %.0f | %.0f |", s$mu, c(unweighted = "split", weighted = "weighted, true ratio", weighted_est = "weighted, estimated ratio")[s$method], f3(s$coverage), f3(s$coverage_tail), f3(s$tail_infinite), s$median_width, s$ess_cal, s$ess_formula), collapse = "\n")`
+
+: 500 replicates per shift; coverage beyond the range is averaged over replicates with at least one such patient. {#tbl-main}
+
+The registered failure condition held on both counts (@fig-tail, @tbl-main). Over the
+whole target the weighted intervals were valid, and split conformal fell to
+`r f3(at("unweighted", 1.5, "coverage"))` at the largest shift. Beyond the source's
+range, split conformal covered about two thirds of patients at every shift, because
+its residual quantile comes from the region where the model fits. Weighting raised
+that coverage in step with the share of infinite intervals: at a target mean of 1,
+`r pc(at("weighted", 1, "tail_infinite"))` of intervals there were infinite and
+coverage was still `r f3(at("weighted", 1, "coverage_tail"))`; at 1.5 almost all were
+infinite. At 0.5 the tail patients' weights were too small to trigger the infinite
+interval and too small to widen the finite one, and coverage there was
+`r f3(at("weighted", 0.5, "coverage_tail"))`, barely above split conformal's
+`r f3(at("unweighted", 0.5, "coverage_tail"))`.
+
+The calibration ESS matched $n e^{-\mu^2}$ at the two smaller shifts and exceeded it
+at 1.5 (`r sprintf("%.0f", at("weighted", 1.5, "ess_cal"))` against
+`r sprintf("%.0f", at("weighted", 1.5, "ess_formula"))`), because the $\chi^2$ divergence
+is driven by weights too rare to appear in 300 calibration points.
+
+# What this does not answer {#sec-limits}
+
+Prediction intervals for individual outcomes, not intervals for a marginal treatment
+effect; one covariate; one outcome model; no BART or Gaussian process arm; no support
+diagnostic evaluated as a classifier. Peer review has not been done.
+
+# References {.unnumbered}
