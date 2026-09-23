@@ -1,0 +1,137 @@
+---
+title: "Calibrating the correlation does not fix the copula: the family moves a standardized contrast by up to 0.03 on the log odds and log hazard scales"
+subtitle: "A numerical study answering catalog problem CMP-15"
+author: "Ahmad Sofi-Mahmudi"
+date: 2026-09-23
+bibliography: references.bib
+csl: ../../../vancouver.csl
+link-citations: true
+number-sections: true
+execute:
+  echo: false
+  warning: false
+  message: false
+format:
+  gfm:
+    toc: false
+  pdf:
+    documentclass: article
+    geometry: margin=1in
+    fig-pos: "H"
+  odt: default
+---
+
+```{r setup}
+e <- read.csv("../results/errors.csv"); cal <- read.csv("../results/calibration.csv"); q <- read.csv("../results/qmc_rmse.csv")
+f3 <- function(x) formatC(x, format = "f", digits = 3); pc <- function(x) sprintf("%.0f%%", 100 * x)
+g <- e[e$recon == "gauss" & e$truth_family != "gauss", ]; mx <- function(l, tf = c("clayton", "gumbel", "t3")) max(abs(g$error[g$link == l & g$truth_family %in% tf]))
+pr <- g[g$link == "cloglog" & g$truth_family %in% c("clayton", "gumbel"), ]
+wf <- merge(e[!(e$recon %in% c("gauss", "gauss_uncal")) & e$truth_family != "gauss" & e$link %in% c("logit", "cloglog"), c("margin", "r", "link", "gamma", "truth_family", "error")],
+            g[g$link %in% c("logit", "cloglog"), c("margin", "r", "link", "gamma", "truth_family", "error")], by = c("margin", "r", "link", "gamma", "truth_family"), suffixes = c("_flex", "_gauss"))
+t3 <- g[g$truth_family == "t3" & g$link %in% c("logit", "cloglog"), ]
+qq <- q[q$link == "cloglog" & q$truth_family == "gumbel" & q$margin == "beta" & q$gamma == 0.3, ]
+```
+
+# Abstract {.unnumbered}
+
+**Background.** Multilevel network meta-regression integrates over a target covariate
+distribution reconstructed from reported margins and correlations with a Gaussian
+copula [@phillippo2020mlnmr]. Calibrating the copula's latent correlation so that the
+output correlations match the reported ones fixes the variance of any linear
+predictor. Catalog problem CMP-15 asks whether the remaining error, which lives in
+asymmetry and tail dependence, can move a standardized contrast.
+
+**Methods.** A population-level calculation: three covariates with normal or skewed
+margins and a true Clayton, Gumbel or $t$ copula at Pearson correlation 0.3 or 0.6,
+against Gaussian copulas calibrated to the same margins and correlation; logit,
+complementary log-log and log links; $10^6$ draws per law with a control variate.
+
+**Results.** The calibrated Gaussian's error in the standardized contrast reached
+`r f3(mx("logit"))` on the log odds ratio scale and `r f3(mx("cloglog"))` on the log
+cumulative hazard ratio scale, above the registered threshold of 0.02 in
+`r sum(abs(pr$error) > 0.02)` of `r nrow(pr)` primary cells, with Monte Carlo error below
+0.001. Lower- and upper-tail dependence pushed the error in opposite directions. On the
+log link the error reached `r f3(mx("log"))`. More integration points did not help: the
+error plateaued by 256 points. A wrong flexible family was further from the truth than
+the Gaussian in `r pc(mean(abs(wf$error_flex) > abs(wf$error_gauss)))` of comparisons.
+
+**Conclusion.** The copula family matters above the second moment, modestly on the
+log odds and log hazard scales and strongly on the log rate scale. Since the family is
+not identified from published data, the defensible report is an envelope over
+families, not a switch to a different single copula.
+
+# The problem {#sec-problem}
+
+For a curved inverse link the target-standardized contrast depends on the covariate
+law through all moments of the linear predictor. Its variance depends only on margins
+and pairwise correlations, so calibrating the correlation fixes the second-order term.
+The third- and higher-order terms depend on the copula's asymmetry and tail dependence,
+which the Gaussian copula sets to zero. Whether that residual is large enough to
+matter is an empirical question, and it can only be answered in a setting where the
+true joint law is known.
+
+# Design {#sec-design}
+
+Registered protocol: `protocol.md`. Covariates with common standard normal or
+standardized Beta(2, 6) margins; exchangeable dependence from a Gaussian, Clayton,
+Gumbel or $t_3$ copula whose parameter was calibrated so the mean pairwise Pearson
+correlation equals $r \in \{0.3, 0.6\}$ (realized within `r sprintf("%.4f", max(abs(cal$realized_r - cal$r)[cal$family != "gauss_uncal"]))` on independent draws).
+Outcome model $\eta_a = \alpha + 0.5\sum_j x_j + a(-0.5 + \gamma\sum_j x_j)$,
+$\gamma \in \{0.15, 0.3\}$. The contrast $h(E[h^{-1}(\eta_1)]) - h(E[h^{-1}(\eta_0)])$ for identity,
+logit, log and complementary log-log links (the last is survival at $t = 1$ under an
+exponential model). Each law was evaluated with $10^6$ draws in four batches, using
+$\sum_j x_j$, whose mean is exactly zero, as a control variate. Reconstructions: the
+Gaussian copula calibrated to $r$, the Gaussian with latent correlation $r$
+(uncalibrated), and each other family calibrated to $r$; the envelope is the range over
+the Gaussian, Clayton, Gumbel and their survival versions.
+
+# Results {#sec-results}
+
+![Error of the calibrated Gaussian reconstruction. Dotted: the registered threshold 0.02.](figures/fig1-errors.png){#fig-errors}
+
+| link | largest error, Clayton | Gumbel | $t_3$ |
+|---|---:|---:|---:|
+| identity | `r f3(mx("identity", "clayton"))` | `r f3(mx("identity", "gumbel"))` | `r f3(mx("identity", "t3"))` |
+| logit | `r f3(mx("logit", "clayton"))` | `r f3(mx("logit", "gumbel"))` | `r f3(mx("logit", "t3"))` |
+| complementary log-log | `r f3(mx("cloglog", "clayton"))` | `r f3(mx("cloglog", "gumbel"))` | `r f3(mx("cloglog", "t3"))` |
+| log | `r f3(mx("log", "clayton"))` | `r f3(mx("log", "gumbel"))` | `r f3(mx("log", "t3"))` |
+
+: Largest absolute error of the calibrated Gaussian over margins, correlations and $\gamma$. MCSE at most 0.0006 on the logit and complementary log-log scales and 0.027 on the log scale. {#tbl-main}
+
+The registered primary fired: on the complementary log-log scale with a tail-dependent
+truth the calibrated Gaussian erred by up to `r f3(max(abs(pr$error)))`, beyond 0.02 in
+`r sum(abs(pr$error) > 0.02)` of `r nrow(pr)` cells, largest with skewed margins, the higher
+correlation and the stronger modification (@fig-errors, @tbl-main). The sign followed
+the tail: against a Clayton truth (lower-tail dependence) the Gaussian's contrast was too
+negative, and against a Gumbel truth (upper-tail dependence) too positive, so the
+Gaussian sits inside the range the families span. A symmetric tail-dependent copula ($t_3$) gave smaller errors. At the
+identity link every error was exactly zero, as the second-order argument requires. On
+the log link, where the marginal rate is an exponential moment of the linear predictor
+and is dominated by the joint upper tail, errors reached `r f3(mx("log"))`.
+
+Calibration itself was a small correction here: the uncalibrated Gaussian differed from
+the calibrated one by at most 0.001 on the logit and complementary log-log scales. With
+randomized quasi-Monte Carlo the calibrated Gaussian's RMSE against a Gumbel truth fell
+from `r f3(qq$rmse[qq$n == 64])` at 64 points to `r f3(qq$rmse[qq$n == 256])` at 256 and
+stayed at `r f3(qq$rmse[qq$n == 4096])` at 4096: integration error vanishes quickly and the
+copula error remains. DESIGN.md's prediction that the error grows with integration order
+did not hold; it plateaus.
+
+A misspecified flexible family was worse than the calibrated Gaussian in
+`r pc(mean(abs(wf$error_flex) > abs(wf$error_gauss)))` of comparisons, the design's falsifier for
+recommending a flexible copula. The envelope over five families contained the $t_3$
+truth, which lies outside them, in `r sum(t3$contained)` of `r nrow(t3)` logit and
+complementary log-log cells, with median width `r f3(stats::median(t3$env_hi - t3$env_lo))`.
+
+The matched-correlation control narrowly failed: the $t$ copula at $r = 0.3$ with skewed
+margins realized a correlation 0.0057 from its target on independent draws, against a
+tolerance of 0.005, within the Monte Carlo error of the check.
+
+# What this does not answer {#sec-limits}
+
+Population-level: no trials, fitting or reconstruction uncertainty. Three exchangeable
+covariates with common margins, one parameter per copula; no mixed or discrete margins,
+so the numerical inversion of latent correlations for binary covariates is not measured;
+no vines. Peer review has not been done.
+
+# References {.unnumbered}

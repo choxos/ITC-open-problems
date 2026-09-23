@@ -22,7 +22,7 @@ key <- function(z) paste(z$margin, z$r, z$label)
 envf <- c("gauss", "clayton", "gumbel", "sclayton", "sgumbel")
 err <- do.call(rbind, lapply(TRUE_FAM, function(tf) {
   tr <- con[con$family == tf, ]
-  do.call(rbind, lapply(c("gauss", "gauss_uncal", setdiff(envf, tf)), function(rf) { rc <- con[con$family == rf, ]; rc <- rc[match(key(tr), key(rc)), ]
+  do.call(rbind, lapply(unique(c("gauss", "gauss_uncal", setdiff(envf, tf))), function(rf) { rc <- con[con$family == rf, ]; rc <- rc[match(key(tr), key(rc)), ]
     data.frame(tr[, c("margin", "r", "link", "gamma")], truth_family = tf, recon = rf, truth = tr$value, error = rc$value - tr$value,
                mcse = sqrt(tr$batch_sd^2 + rc$batch_sd^2) / sqrt(N_BATCH)) })) }))
 env <- do.call(rbind, lapply(split(con[con$family %in% envf, ], list(con$margin[con$family %in% envf], con$r[con$family %in% envf], con$label[con$family %in% envf]), drop = TRUE),
