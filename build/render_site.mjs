@@ -141,19 +141,20 @@ function studySection(s) {
     .map(([k, label]) => `[${label}](/${s.downloads[k]})`)
     .join(' · ')
 
+  const pending = (r, heading) => [
+    '::: {.callout-note}',
+    `## ${heading}`,
+    '',
+    `**Question.** ${r.question}`,
+    '',
+    r.design ? `**Design.** ${r.design}` : null,
+    '',
+    r.protocol ? `The protocol is registered before any result is seen: [read it](/${r.protocol}).` : null,
+    ':::', '',
+  ].filter((x) => x !== null)
+
   if (s.status !== 'complete') {
-    return [
-      '## Our study', '',
-      '::: {.callout-note}',
-      `## ${s.status === 'running' ? 'A study is running' : 'A study is designed'}`,
-      '',
-      `**Question.** ${s.question}`,
-      '',
-      s.design ? `**Design.** ${s.design}` : null,
-      '',
-      s.protocol ? `The protocol is registered before any result is seen: [read it](/${s.protocol}).` : null,
-      ':::', '',
-    ].filter((x) => x !== null)
+    return ['## Our study', '', ...pending(s, s.status === 'running' ? 'A study is running' : 'A study is designed')]
   }
 
   const out = [
@@ -213,6 +214,10 @@ function studySection(s) {
   ].filter(Boolean)
   out.push(links.join(' · '), '')
   out.push(':::', '')
+  // A study registered for the part the result above leaves open.
+  if (s.followup) {
+    out.push(...pending(s.followup, `A follow-up study is ${s.followup.status}`))
+  }
   return out
 }
 
@@ -527,6 +532,9 @@ function studiesPage(queue, index) {
   }
   const done = entries.filter(([, s]) => s.status === 'complete')
   const active = entries.filter(([, s]) => s.status !== 'complete')
+  for (const [pid, s] of Object.entries(index)) {
+    if (s.followup) active.push([pid, s.followup])
+  }
   const link = (id) => {
     const t = REGISTRY_INDEX[id]
     return t ? `[${id}](problems/${t.filename})` : id

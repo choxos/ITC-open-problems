@@ -168,7 +168,10 @@ def verify(d, out):
 def write_index(ds):
     """The site's view of the program: one record per study, keyed by problem."""
     idx = {}
-    primaries = {d["problem_id"] for d in ds}
+    # A registered design does not outrank a finished study that answers its
+    # entry in part; it is attached to that answer as the follow-up instead.
+    primaries = {d["problem_id"] for d in ds if d["status"] != "designed"}
+    designed = {}
     for d in ds:
         out = os.path.join(d["_dir"], "out")
         have = {k: f"studies/{d['_slug']}/out/{d['problem_id']}{e}"
@@ -205,7 +208,10 @@ def write_index(ds):
             "primary_problem": d["problem_id"],
             "secondary": False,
         }
-        idx[d["problem_id"]] = rec
+        if d["status"] == "designed":
+            designed[d["problem_id"]] = rec
+        else:
+            idx[d["problem_id"]] = rec
         # A study usually bears on more than the entry it was aimed at. Those
         # pages get the same record marked secondary, so the section can say
         # plainly that the study was designed for a different entry and answers
@@ -218,6 +224,11 @@ def write_index(ds):
         for other in d.get("also_bears_on") or []:
             if other not in primaries:
                 idx[other] = dict(rec, secondary=True)
+    for pid, rec in designed.items():
+        if idx.get(pid, {}).get("secondary"):
+            idx[pid]["followup"] = rec
+        else:
+            idx[pid] = rec
     json.dump(idx, open(os.path.join(STUDIES, "index.json"), "w", encoding="utf8"),
               indent=1, ensure_ascii=False)
     return idx
