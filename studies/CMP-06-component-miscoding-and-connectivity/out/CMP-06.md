@@ -64,7 +64,8 @@ estimates by their prior probability (at least 0.05 per trial).
 
 Table 1: 2000 replicates per cell; deterministic coverage is conditional
 on the target being estimable under the coding used. Coverage MCSE at
-most 0.008.
+most 0.008 over all replicates; up to 0.025 in the given-a-miscoding
+column.
 
 | miscoding | $p$ | target non-estimable | deterministic coverage | given a miscoding | bias given a miscoding | sensitivity coverage (bounded) | probabilistic coverage (bounded) |
 |----|---:|---:|---:|---:|---:|---:|---:|
