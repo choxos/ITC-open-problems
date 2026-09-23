@@ -16,6 +16,12 @@ maturity: "Emerging"
 [Very high priority]{.chip .chip-priority-very-high}
 [Emerging]{.chip .chip-maturity-emerging}
 :::
+::: {.callout-important appearance="simple"}
+## A study has been run against this problem
+
+No. At a synergy of 0.2 (twice a contrast's SE), 15 of 32 never-administered regimen results that the additive model reported as estimable had 95% coverage below 0.90, down to 0.11. Synergy on a never co-administered pair went wholly into the regimens containing it and was undetectable; synergy on a co-administered pair was absorbed into the component effects and biased regimens without that pair by -0.125, including a never-administered one. Modeling co-administered pairs' interactions removed the leakage. The share of a regimen's pairs never co-administered did not flag the failures (AUROC 0.37). [Read the study below](#our-study).
+:::
+
 ## Statement
 
 Strict component additivity can be clinically false, and interaction CNMA already relaxes it: Rucker et al. 2020 define interaction CNMA models and implement them in netmeta by adding interaction columns to the combination matrix. What is not solved is the disconnected and sparse case, where Petropoulou et al. 2023 found that forward selection of interaction CNMAs performs poorly and recommended separate subnetwork analyses, and where the number of possible component interactions grows combinatorially while the number of observed combinations does not. No method bounds how far an omitted component interaction could move a target cross-gap contrast, and no heredity-constrained sparse selection with subnetwork drift blocks has been implemented for component PAIC. Additivity is also what makes a never-administered combination estimable, and that reporting consequence is unaddressed. Under strict additivity a de novo regimen lies inside the row space, so every estimability screen returns estimable for exactly the extrapolations that are most assumption-driven, and its estimate, interval and rank are printed like those of a randomized regimen; applied reviews then recommend such regimens by name, one estimating 27 daratumumab-based regimens, stating that some have never been reported, and recommending a never-reported one in its abstract. What is missing is a defined provenance quantity, for example the fraction of a regimen's predicted effect carried by component pairs never co-administered in any arm, and a convention requiring it beside the estimate.
@@ -46,6 +52,43 @@ Additivity is what reconnects a disconnected network, so adding interaction term
 ## Probable solution or research direction
 
 Build on interaction CNMA rather than reinventing it: prespecify the interactions that are estimable given the observed combinations, and use sparse or hierarchical priors with an explicit heredity or mechanistic rationale rather than data-driven forward selection, which is already known to fail across a disconnection. Derive omitted-interaction bounds that quantify how far a target cross-gap contrast could move under unmodeled synergy, since that is the part with no existing method. Report for each cross-gap contrast how much of the result depends on shrinkage rather than on likelihood information, and state which drift and interaction directions the design can identify.
+
+## Our study
+
+::: {.study-result}
+**An omitted component interaction biases never-administered regimens and leaks into regimens that do not contain it**
+
+**The question put to it.** When additivity makes a never-administered combination estimable, how far can an omitted component interaction move its predicted effect, and does it contaminate other regimens?
+
+**What it found.** No. At a synergy of 0.2 (twice a contrast's SE), 15 of 32 never-administered regimen results that the additive model reported as estimable had 95% coverage below 0.90, down to 0.11. Synergy on a never co-administered pair went wholly into the regimens containing it and was undetectable; synergy on a co-administered pair was absorbed into the component effects and biased regimens without that pair by -0.125, including a never-administered one. Modeling co-administered pairs' interactions removed the leakage. The share of a regimen's pairs never co-administered did not flag the failures (AUROC 0.37).
+
+**Results.**
+
+- Synergy on C+D (never co-administered): regimens containing C+D biased by 0.2, coverage 0.63 to 0.71; all others exact.
+- Synergy on A+B (co-administered): B+C and B+D biased by -0.125 (coverage 0.73 and 0.81) though neither contains A+B.
+- Interaction model for the co-administered pairs: unbiased when the synergy is on a co-administered pair, no help for C+D.
+
+**Design.**
+
+Estimand
+:   Effect of each two- to four-component regimen against placebo
+
+Methods compared
+:   additive component network meta-analysis, component model with interactions for co-administered pairs
+
+Data-generating mechanism
+:   Exact calculation on an eight-trial component network with three co-administered and three never co-administered component pairs; synergy of three magnitudes placed on one pair, both kinds, or all pairs; additive and prespecified-interaction models.
+
+Replicates
+:   Exact calculation: 4 synergy locations x 3 magnitudes x 2 models x 11 regimens
+
+**What this does not answer.** One connected network, continuous outcome, fixed effect; no disconnection, covariate adjustment, selection procedures or formal synergy bound. Peer review has not been done.
+
+**Peer review.** Not yet done. The result stands on the study alone until it is.
+
+Read it: [PDF](/studies/CMP-03-estimable-by-assumption/out/CMP-03.pdf) · [Markdown](/studies/CMP-03-estimable-by-assumption/out/CMP-03.md) · [OpenDocument](/studies/CMP-03-estimable-by-assumption/out/CMP-03.odt) · Code and data: [studies/CMP-03-estimable-by-assumption](https://github.com/choxos/ITC-open-problems/tree/main/studies/CMP-03-estimable-by-assumption) · Protocol: [registered before the run](/studies/CMP-03-estimable-by-assumption/out/CMP-03-protocol.md)
+
+:::
 
 ## Verification
 

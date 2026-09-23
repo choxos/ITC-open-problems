@@ -1,0 +1,111 @@
+---
+title: "An omitted component interaction biases never-administered regimens and leaks into regimens that do not contain it"
+subtitle: "A numerical study answering catalog problem CMP-03"
+author: "Ahmad Sofi-Mahmudi"
+date: 2026-09-23
+bibliography: references.bib
+csl: ../../../vancouver.csl
+link-citations: true
+number-sections: true
+execute:
+  echo: false
+  warning: false
+  message: false
+format:
+  gfm:
+    toc: false
+  pdf:
+    documentclass: article
+    geometry: margin=1in
+    fig-pos: "H"
+  odt: default
+---
+
+```{r setup}
+s <- read.csv("../results/regimens.csv"); f3 <- function(x) formatC(x, format = "f", digits = 3)
+a <- s[s$model == "additive" & s$magnitude == 0.2, ]; ia <- s[s$model != "additive" & s$magnitude == 0.2, ]
+g <- function(z, loc, r) z[z$location == loc & z$regimen == r, ]
+dn <- s[s$model == "additive" & !s$administered, ]
+auroc <- function(sc, y) { r <- rank(c(sc[y], sc[!y])); ny <- sum(y); (sum(r[seq_len(ny)]) - ny * (ny + 1) / 2) / (ny * sum(!y)) }
+L1 <- "A+B (co-administered)"; L2 <- "C+D (never co-administered)"
+```
+
+# Abstract {.unnumbered}
+
+**Background.** Additive component network meta-analysis [@rucker2020cnma] makes any
+combination of observed components estimable, including regimens no trial
+administered, and prints them like randomized ones. Catalog problem CMP-03 asks
+whether the interactions additivity omits are small enough for that to be harmless.
+
+**Methods.** An exact calculation on an eight-trial network of four components with
+three co-administered and three never co-administered pairs; synergy of 0.1 to 0.3 on
+one pair, on two, or spread over all six; additive and prespecified-interaction models;
+bias and coverage of every regimen.
+
+**Results.** At synergy 0.2, `r sum(dn$magnitude == 0.2 & dn$coverage < 0.90)` of
+`r sum(dn$magnitude == 0.2)` never-administered regimen results had 95% coverage below 0.90, down to
+`r f3(min(dn$coverage[dn$magnitude == 0.2]))`. Synergy on a never co-administered pair (C+D)
+passed entirely into the regimens containing it (coverage `r f3(g(a, L2, "C+D")$coverage)`) and was
+invisible elsewhere. Synergy on a co-administered pair (A+B) was absorbed into the component
+estimates and leaked into regimens without it: B+C, administered, and B+D, never
+administered, were each biased by `r f3(g(a, L1, "B+D")$bias)`. Modeling interactions for the
+co-administered pairs removed the leakage and could not touch C+D. The share of a regimen's
+pairs never co-administered did not predict which de novo estimates failed (AUROC
+`r f3(auroc(dn$rho, dn$coverage < 0.90))`).
+
+**Conclusion.** An estimable never-administered regimen is a model extrapolation. Its
+estimate should be flagged as such, interactions for co-administered pairs should be
+modeled where the network allows, and a bound over plausible synergy for the pairs never
+co-administered should accompany it.
+
+# The problem {#sec-problem}
+
+Under additivity a regimen's effect is the sum of its components' effects, and the sum
+is estimable whenever each component appears somewhere. No trial needs to have given
+the combination. If two components interact, the additive estimate of any regimen
+containing both misses the interaction; if the interacting pair was co-administered
+somewhere, the least-squares fit spreads the misfit over the component effects, so
+regimens that do not contain the pair are biased too.
+
+# Design {#sec-design}
+
+Registered protocol: `protocol.md`. Components A, B, C, D (effects $-0.3, -0.2, -0.25,
+-0.15$ against placebo); trials P-A, P-B, P-C, P-D, A vs A+B, B vs B+C, C vs A+C and P vs A+B,
+each contrast with variance 0.01. Synergy (same sign as the effects) of 0.1, 0.2 or 0.3 on
+A+B, on C+D, on both, or half that on all six pairs. The additive model and the model
+with interaction terms for A+B, B+C and A+C were fitted by generalized least squares;
+bias, SD and coverage are exact.
+
+# Results {#sec-results}
+
+![Coverage of each regimen's 95% interval at synergy 0.2.](figures/fig1-coverage.png){#fig-coverage}
+
+The registered primary was confirmed (@fig-coverage). The additive model reported every
+regimen as estimable, and three patterns followed from where the synergy sat. **On a
+never co-administered pair** the whole interaction went into the regimens containing the
+pair: C+D, A+C+D, B+C+D and A+B+C+D were biased by 0.2 with coverage
+`r f3(min(g(a, L2, "A+C+D")$coverage, g(a, L2, "C+D")$coverage, g(a, L2, "A+B+C+D")$coverage))` to
+`r f3(max(g(a, L2, "A+C+D")$coverage, g(a, L2, "C+D")$coverage, g(a, L2, "A+B+C+D")$coverage))`, while
+every other regimen was exact. The data carry no information about this interaction, so no
+model fitted to them can detect or correct it. **On a co-administered pair** the fit
+absorbed the interaction into the component effects: A+B itself was underestimated in magnitude
+(bias `r f3(g(a, L1, "A+B")$bias)`), and regimens sharing a component but not the pair were
+biased by `r f3(g(a, L1, "B+C")$bias)` (B+C, administered, coverage `r f3(g(a, L1, "B+C")$coverage)`) and
+`r f3(g(a, L1, "B+D")$bias)` (B+D, never administered, coverage `r f3(g(a, L1, "B+D")$coverage)`). Modeling
+the three co-administered pairs' interactions made every estimate unbiased in that
+scenario, at the price of wider intervals. **Spread over all pairs**, the four-component
+regimen covered `r f3(g(a, "all six pairs", "A+B+C+D")$coverage)`.
+
+The provenance share $\rho$, the fraction of a regimen's pairs never co-administered, was
+not a useful flag: it assigns B+D and C+D the same value, but only one of them contains the
+synergy, and it gives A+B+C, assembled from co-administered pairs but never administered as
+a triple, a value of zero while leakage biased it.
+
+# What this does not answer {#sec-limits}
+
+A single connected network with a continuous outcome and a fixed-effect model; no
+disconnection or subnetwork drift, no covariate adjustment layer, no heredity-constrained
+or data-driven selection, and no formal bound over omitted synergy. Peer review has not
+been done.
+
+# References {.unnumbered}
