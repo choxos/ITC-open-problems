@@ -25,6 +25,12 @@ It is catalogued because the underlying methodological problem is general, and b
 reference implementation is where such problems become concrete and checkable.
 :::
 
+::: {.callout-important appearance="simple"}
+## A study has been run against this problem
+
+Partly. Across five defensible reconstructions of the aggregate trial's covariates (normal or gamma margins; the IPD's, the target's, or no correlation), outstandR's G-computation estimate ranged by 0.049 to 0.052 on the log odds ratio scale within a dataset: at the registered materiality threshold, but about a fifth of its sampling SD. The default (normal margins, IPD correlation) was biased by -0.02 to -0.06 on skewed covariates; gamma margins removed most of it. Tail dependence in the true copula changed the range by at most 0.002. [Read the study below](#our-study).
+:::
+
 ## Statement
 
 outstandR reached CRAN as version 2.0.0 on 10 June 2026, titled Model-Based Standardisation for Indirect Treatment Comparison with Limited Subject-Level Data (Green, Gao and Remiro-Azocar), implementing the parametric G-computation approach of Remiro-Azocar, Heath and Baio (doi:10.1002/jrsm.1565). Its CRAN description is framed entirely around the two-trial limited-IPD problem with no mention of networks, so the pairwise focus holds, and no published validation covers its behavior in networks or across disconnected evidence. Dependence on the target covariate distribution is partly definitional rather than a defect, since standardization is defined relative to a declared target, and the package ships custom-copula and diagnostics-and-uncertainty vignettes that acknowledge the sensitivity rather than hiding it. Dependence on the outcome model is a genuine robustness concern, and any disconnected-network use would additionally require structural bridge assumptions that standardization cannot identify.
@@ -51,14 +57,39 @@ Characterize rather than rebuild: run outstandR against alternative reconstructi
 
 ## Our study
 
-::: {.callout-note}
-## A study is running
+::: {.study-result}
+**outstandR's G-computation estimate moved by about 0.05 on the log odds ratio across defensible target reconstructions**
 
-**Question.** How much does outstandR's G-computation estimate depend on how it reconstructs the aggregate trial's covariate distribution from published means and SDs, when the true covariates are skewed and tail-dependent?
+**The question put to it.** How much does outstandR's G-computation estimate depend on how it reconstructs the aggregate trial's covariate distribution from published means and SDs, when the true covariates are skewed and tail-dependent?
 
-**Design.** Skewed target covariates with a Clayton or Gaussian copula, IPD with the same or a different correlation; outstandR's G-computation under five reconstructions (default, reported correlation, independence, gamma margins); anchored binary-outcome comparison. 4 cells, 400 replicates each.
+**What it found.** Partly. Across five defensible reconstructions of the aggregate trial's covariates (normal or gamma margins; the IPD's, the target's, or no correlation), outstandR's G-computation estimate ranged by 0.049 to 0.052 on the log odds ratio scale within a dataset: at the registered materiality threshold, but about a fifth of its sampling SD. The default (normal margins, IPD correlation) was biased by -0.02 to -0.06 on skewed covariates; gamma margins removed most of it. Tail dependence in the true copula changed the range by at most 0.002.
 
-The protocol is registered before any result is seen: [read it](/studies/SFW-12-characterizing-a-package-rather-than-extending-it/out/SFW-12-protocol.md).
+**Results.**
+
+- Margin family and correlation choice each contributed about half of the range.
+- Independence was the worst reconstruction; the IPD's correlation added bias when the target's differed.
+- Registered verdict: material, with the range at the threshold in every cell.
+
+**Design.**
+
+Estimand
+:   Anchored marginal log odds ratio B versus A in the target
+
+Methods compared
+:   outstandR G-computation under five covariate reconstructions
+
+Data-generating mechanism
+:   Skewed target covariates with a Clayton or Gaussian copula, IPD with the same or a different correlation; outstandR's G-computation under five reconstructions (default, reported correlation, independence, gamma margins); anchored binary-outcome comparison. 4 cells, 400 replicates each.
+
+Replicates
+:   400 per cell, 4 cells
+
+**What this does not answer.** Pairwise anchored comparison, two covariates, correct outcome model, point estimates only; no Bayesian G-computation, multiple-imputation marginalization or network use. Peer review has not been done.
+
+**Peer review.** Not yet done. The result stands on the study alone until it is.
+
+Read it: [PDF](/studies/SFW-12-characterizing-a-package-rather-than-extending-it/out/SFW-12.pdf) · [Markdown](/studies/SFW-12-characterizing-a-package-rather-than-extending-it/out/SFW-12.md) · [OpenDocument](/studies/SFW-12-characterizing-a-package-rather-than-extending-it/out/SFW-12.odt) · Code and data: [studies/SFW-12-characterizing-a-package-rather-than-extending-it](https://github.com/choxos/ITC-open-problems/tree/main/studies/SFW-12-characterizing-a-package-rather-than-extending-it) · Protocol: [registered before the run](/studies/SFW-12-characterizing-a-package-rather-than-extending-it/out/SFW-12-protocol.md)
+
 :::
 
 ## Verification
