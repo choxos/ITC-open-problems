@@ -168,6 +168,7 @@ def verify(d, out):
 def write_index(ds):
     """The site's view of the program: one record per study, keyed by problem."""
     idx = {}
+    primaries = {d["problem_id"] for d in ds}
     for d in ds:
         out = os.path.join(d["_dir"], "out")
         have = {k: f"studies/{d['_slug']}/out/{d['problem_id']}{e}"
@@ -210,8 +211,13 @@ def write_index(ds):
         # plainly that the study was designed for a different entry and answers
         # this one only in part. Leaving them off would hide a real answer from
         # the page a reader is most likely to be on.
+        #
+        # A study aimed at an entry outranks one that only bears on it, in
+        # whichever order the directories sort: CMU-02 bears on CMP-14 and sorts
+        # after CMP-14's own study, so a plain overwrite hid the primary.
         for other in d.get("also_bears_on") or []:
-            idx[other] = dict(rec, secondary=True)
+            if other not in primaries:
+                idx[other] = dict(rec, secondary=True)
     json.dump(idx, open(os.path.join(STUDIES, "index.json"), "w", encoding="utf8"),
               indent=1, ensure_ascii=False)
     return idx

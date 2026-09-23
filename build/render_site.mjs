@@ -201,6 +201,8 @@ function studySection(s) {
         `published in full: [read the review](/${s.review}).`,
       ''
     )
+  } else {
+    out.push('**Peer review.** Not yet done. The result stands on the study alone until it is.', '')
   }
 
   const links = [
@@ -310,6 +312,14 @@ function problemPage(p) {
   out.push('## Probable solution or research direction', '', p.proposed_direction, '')
 
   out.push(...studySection(study))
+
+  // A per-entry account of what our studies measured, where it says more than the
+  // study record does. Kept in studies/notes/ because this page is regenerated and
+  // anything written into it directly is lost on the next build.
+  const note = join(ROOT, 'studies/notes', `${p.id}.md`)
+  if (existsSync(note)) {
+    out.push('## What this project measured', '', readFileSync(note, 'utf8').trim(), '')
+  }
 
   out.push('## Verification', '')
   out.push('::: {.verification-trail}')

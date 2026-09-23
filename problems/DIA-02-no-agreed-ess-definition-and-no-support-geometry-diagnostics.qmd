@@ -23,6 +23,12 @@ below are attributed to that document and were checked independently where possi
 anything that could not be independently sourced is marked in the verification trail.
 :::
 
+::: {.callout-important appearance="simple"}
+## A study has been run against this problem
+
+It matters. Two source populations that remove the same mass at the same threshold, one in the effect-modifying coordinate and one in a prognostic coordinate, give panels that agree to within 1.6% while one estimate is biased by 0.016 on the marginal risk difference and the other by less than 0.0001, and material error is 24 times as frequent in the first. Across the two placements every panel member sits within 0.005 of chance; region-specific ESS separates them almost perfectly and sliced optimal transport cost at 0.73, but a convex hull distance maximized over coordinates is as blind as the panel. The registered within-arm primary outcome reads the other way (panel 0.574, best geometric 0.592, rule returns refuted) because within one arm the hole placement is fixed and the outcome measures sampling noise, not geometry. Both readings are reported. Balance on the omitted moment, the comparator most likely to overturn the headline, was never fairly tested. [Read the study below](#our-study).
+:::
+
 ## Statement
 
 A global effective sample size is a scalar function of the weight distribution, so it does not encode where in covariate space the support lies or whether the supported region is relevant to the decision contrast. Reporting is demonstrably incomplete in practice: of 117 oncology MAICs reviewed by Farinasso et al. 2025 (doi:10.1016/j.vhri.2025.101088), only three fulfilled all NICE recommendations and the distribution of weights was among the least reported items. The claim that software reports ESS alone and never computes contrast-specific influence is too strong: cpaic, an unreleased development package on GitHub that is not on CRAN, already exports a weight panel with effective sample size, entropy efficiency, weight variation, concentration and residual balance, plus an edge influence function for a named treatment contrast. What remains missing is a definition set agreed across packages and the support-geometry diagnostics that no package computes: region-specific ESS, convex-hull distance, density-ratio and optimal-transport cost, out-of-distribution maps, and balance on omitted moments.
@@ -47,10 +53,51 @@ Effective sample size is the squared sum of the weights divided by the sum of th
 
 Standardize and extend what exists rather than specify a panel from scratch: agree one definition set across packages, starting from the multi-metric weight panel and contrast-specific influence already implemented in cpaic, and add the support-geometry diagnostics no package computes, namely region-specific ESS, convex-hull distance between source and target support, density-ratio and optimal-transport cost, out-of-distribution maps, and balance on omitted as well as fitted moments. Require the agreed panel in publications and submissions. Evaluate each member of the panel in simulation for its ability to predict realized error, and drop the ones that only describe the fit.
 
+## Our study
+
+::: {.study-result}
+**The reported weight panel cannot see where support is missing**
+
+**The question put to it.** Every member of the overlap panel MAIC reports (Kish ESS, ESS percentage, entropy efficiency, maximum weight, top-share) is a symmetric function of the weights, so none can depend on where in covariate space the source fails to cover the target. Does that blindness matter in an ordinary covariate law, or do weight concentration and support geometry move together tightly enough that the panel is an adequate proxy?
+
+**What it found.** It matters. Two source populations that remove the same mass at the same threshold, one in the effect-modifying coordinate and one in a prognostic coordinate, give panels that agree to within 1.6% while one estimate is biased by 0.016 on the marginal risk difference and the other by less than 0.0001, and material error is 24 times as frequent in the first. Across the two placements every panel member sits within 0.005 of chance; region-specific ESS separates them almost perfectly and sliced optimal transport cost at 0.73, but a convex hull distance maximized over coordinates is as blind as the panel. The registered within-arm primary outcome reads the other way (panel 0.574, best geometric 0.592, rule returns refuted) because within one arm the hole placement is fixed and the outcome measures sampling noise, not geometry. Both readings are reported. Balance on the omitted moment, the comparator most likely to overturn the headline, was never fairly tested.
+
+**Results.**
+
+- The manipulation works in a plain multivariate normal law. With strong effect modification, a hole in the modifying coordinate biases MAIC's marginal risk difference by 0.0164 and a same-sized hole in a prognostic coordinate by -0.0001, while every panel member agrees between the two arms to within 1.6%. The refuting sentence, that such a counterexample needs configurations that do not occur, fails.
+- Across the two hole placements, over 16,000 replicates, the best panel member separates them at 0.505 against 0.5 for chance, standard error 0.004. Region-specific ESS separates them at 1.000 and sliced optimal transport cost at 0.726. Convex hull distance, though it reads position, separates at 0.503 because it is a maximum over coordinates and both arms remove an identical wedge.
+- The registered primary, AUROC against material error within the high-modification arm, returns refuted: best panel member 0.574, best geometric 0.592, a gap of 0.018 against a registered materiality of 0.10. Within one arm every replicate shares the hole placement, so the registered outcome asks which replicate drew a bad sample, and a concentration measure answers that as well as anything. The registered outcome was the wrong measurement for the proposition; it is reported as registered, not relabeled.
+- Two of three controls failed on parts of the grid. At eight covariates and moderate overlap MAIC's own error exceeds the 0.03 material threshold in 0.289 of replicates with no hole at all, the same threshold-below-noise defect IDN-05 documented. Leaving the modifier's second moment unmatched breaks the symmetry the manipulation rests on and the panels diverge by up to 91%. The analysis runs on the 12 of 48 cells the controls leave, all at good overlap.
+- Two of the three ESS definitions implemented are the same statistic when weights are normalized, so the measured comparability spread is Kish against entropy ESS: median 1.55 times, 90th percentile 3.50, maximum 15.5 on identical data.
+- A post hoc probe prices the rescue of the failed strata by the upper Clopper-Pearson bound: 48,000 source records at dim3/moderate and 192,000 at dim8/moderate. It was not run.
+
+**Design.**
+
+Estimand
+:   Target-population marginal risk difference, and material error above 0.03 as the classifier label
+
+Methods compared
+:   Kish ESS, ESS percentage, entropy efficiency, maximum weight, top 5% share, balance on an omitted moment, region-specific ESS, coordinatewise convex hull distance, sliced optimal transport cost
+
+Data-generating mechanism
+:   Target covariates independent standard normal in 3 or 8 dimensions; source shifted by 0.25 or 0.60 with a wedge above the 90th percentile removed from the effect-modifying coordinate, from a prognostic coordinate, or not at all. Binary outcome on the logit scale with one modifying coordinate. 48 cells crossing dimension, hole placement, overlap, balancing set and modification strength, source size 16,000. Nine diagnostics scored by AUROC within the high-modification arm and across the two hole placements.
+
+Replicates
+:   2000 per cell, 96,000 replicates; 24,000 on the 12 cells the controls leave
+
+**What this does not answer.** Balance on the omitted moment, the free check registered as most likely to overturn the headline, was not tested: every cell where it had anything to see was removed by the matched-multiset control. Region-specific ESS was handed the easiest instance, since the region it examines is the region the hole empties, so its near-perfect separation is an upper bound; a hole in a high-modification region the analyst did not think to examine is untested and there it would fail like the panel. No diagnostic is calibrated to a threshold. The analysis subgrid was chosen by a mechanical rule written after the run was read. The realized high-modification hole holds 22% of the modification mass against a registered 25%. MAIC weights only, a binary outcome, normal covariates, one rectangular hole, good overlap only after the null control, and two of the three published ESS definitions. Peer review has not been done.
+
+**Peer review.** Not yet done. The result stands on the study alone until it is.
+
+Read it: [PDF](/studies/DIA-02-the-whole-weight-panel-is-a-multiset-functional/out/DIA-02.pdf) · [Markdown](/studies/DIA-02-the-whole-weight-panel-is-a-multiset-functional/out/DIA-02.md) · [OpenDocument](/studies/DIA-02-the-whole-weight-panel-is-a-multiset-functional/out/DIA-02.odt) · Code and data: [studies/DIA-02-the-whole-weight-panel-is-a-multiset-functional](https://github.com/choxos/ITC-open-problems/tree/main/studies/DIA-02-the-whole-weight-panel-is-a-multiset-functional) · Protocol: [registered before the run](/studies/DIA-02-the-whole-weight-panel-is-a-multiset-functional/out/DIA-02-protocol.md)
+
+:::
+
 ## What this project measured
 
-**Study `studies/DIA-02-the-whole-weight-panel-is-a-multiset-functional`, run and decided
-against a rule registered before the run.** 48 cells, 2000 replicates each, 96,000
+**Study `studies/DIA-02-the-whole-weight-panel-is-a-multiset-functional`.** Its primary
+outcome and controls were fixed before the run; the rule restricting the analysis to the
+cells the controls leave standing was written after it, as its protocol records. 48 cells, 2000 replicates each, 96,000
 replicates. Nine diagnostics: the five reported panel members, all symmetric functions of
 the weight multiset, against four candidates that read position as well as weight.
 
