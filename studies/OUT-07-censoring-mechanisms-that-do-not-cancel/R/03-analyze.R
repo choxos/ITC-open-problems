@@ -3,7 +3,7 @@ source("R/00-model.R")
 g <- build_grid()
 d <- merge(do.call(rbind, lapply(list.files("results/run", full.names = TRUE), readRDS)), g, by = "cell")
 summ <- do.call(rbind, lapply(split(d, d$cell), function(z) { e <- z$naive - z$truth; ei <- z$ipcw - z$truth; n <- nrow(z)
-  data.frame(cell = z$cell[1], truth = z$truth[1], bias = mean(e), mcse = stats::sd(e) / sqrt(n), coverage = mean(abs(e) <= 1.96 * z$naive_se),
+  data.frame(cell = z$cell[1], truth = z$truth[1], bias = mean(e), mcse = stats::sd(e) / sqrt(n), coverage = mean(abs(e) <= 1.96 * z$naive_se, na.rm = TRUE),
              bias_ipcw = mean(ei), mcse_ipcw = stats::sd(ei) / sqrt(n), wrong_sign = mean(sign(z$naive) != sign(z$truth)),
              fragile = mean(z$fragile), delta_true_med = stats::median(z$delta_true, na.rm = TRUE),
              delta_true_in_range = mean(z$delta_true >= 0.5 & z$delta_true <= 2, na.rm = TRUE)) }))

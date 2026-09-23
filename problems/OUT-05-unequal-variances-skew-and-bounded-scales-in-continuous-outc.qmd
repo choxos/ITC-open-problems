@@ -16,6 +16,12 @@ maturity: "Promising"
 [Medium-high priority]{.chip .chip-priority-medium-high}
 [Promising]{.chip .chip-maturity-promising}
 :::
+::: {.callout-important appearance="simple"}
+## A study has been run against this problem
+
+Yes. With a pooled normal residual the transported mean contrast was unbiased while the responder-probability contrast was biased by up to 0.10 when the arms' dispersions differed, with opposite signs at a threshold near the median and one in the tail. Arm-specific SDs fixed it only for normal errors without a floor; Tobit fixed the floor but not skew; logistic regression of the responder indicator was unbiased everywhere. A floor biased the mean contrast by under 2% of the effect, somewhat more at the larger target shift. [Read the study below](#our-study).
+:::
+
 ## Statement
 
 Individual-level normal likelihoods in population-adjusted synthesis use one residual standard deviation for all individual patient data, which can mis-weight studies with genuinely different dispersion and misstate uncertainty. The stronger claim in the source does not hold: under an identity-link normal model the target-standardized mean is the target expectation of the fitted conditional mean and does not contain the residual variance, so heteroscedasticity affects likelihood weighting, uncertainty, shrinkage, predictive distributions and responder probabilities rather than that marginal mean. The restriction is also specific to the individual-level likelihood, since aggregate contrast synthesis ordinarily carries study-specific standard errors already. Bounded instruments, skew and floor or ceiling masses need endpoint-appropriate likelihoods, and reported means and standard deviations generally do not identify those features in a comparator trial.
@@ -41,14 +47,40 @@ Fit study-specific residual variances with hierarchical shrinkage where the numb
 
 ## Our study
 
-::: {.callout-note}
-## A study is running
+::: {.study-result}
+**The transported mean is safe and the responder probability is not**
 
-**Question.** When a bounded continuous outcome is transported by G-computation with a pooled normal residual, is the mean contrast safe while the responder-probability contrast is biased, and does a floor make the bias depend on the target population?
+**The question put to it.** When a bounded continuous outcome is transported by G-computation with a pooled normal residual, is the mean contrast safe while the responder-probability contrast is biased, and does a floor make the bias depend on the target population?
 
-**Design.** Source trial with arm-specific residual SDs, skewed or normal errors and a floor at 0, 10% or 25% mass, transported to targets at two shifts; normal pooled-SD, arm-specific SD, Tobit and direct logistic responder models; mean and responder contrasts at two thresholds. 24 cells, 1000 replicates each.
+**What it found.** Yes. With a pooled normal residual the transported mean contrast was unbiased while the responder-probability contrast was biased by up to 0.10 when the arms' dispersions differed, with opposite signs at a threshold near the median and one in the tail. Arm-specific SDs fixed it only for normal errors without a floor; Tobit fixed the floor but not skew; logistic regression of the responder indicator was unbiased everywhere. A floor biased the mean contrast by under 2% of the effect, somewhat more at the larger target shift.
 
-The protocol is registered before any result is seen: [read it](/studies/OUT-05-the-mean-is-safe-and-the-responder-probability-is-not/out/OUT-05-protocol.md).
+**Results.**
+
+- Dissociation confirmed: pooled-SD mean contrast within 3 MCSE without a floor; responder bias up to 0.102 at SD ratio 2.
+- Normal model with arm-specific SDs: responder bias up to 0.058 with a floor and 0.070 with skew.
+- Tobit: at most 0.003 with normal errors, 0.040 with skew; logistic responder model: at most 0.006 in every scenario.
+- Floor of 25%: linear mean-contrast bias -0.012 to 0.010 at shift 0.3 and -0.070 to 0.038 at shift 1.
+
+**Design.**
+
+Estimand
+:   Target mean difference and target responder-probability differences at two thresholds
+
+Methods compared
+:   normal model, pooled SD, normal model, arm-specific SD, Tobit, arm-specific scales, logistic regression of the responder indicator
+
+Data-generating mechanism
+:   Source trial with arm-specific residual SDs, skewed or normal errors and a floor at 0, 10% or 25% mass, transported to targets at two shifts; normal pooled-SD, arm-specific SD, Tobit and direct logistic responder models; mean and responder contrasts at two thresholds. 24 cells, 1000 replicates each.
+
+Replicates
+:   1000 per scenario, 24,000 in total
+
+**What this does not answer.** One source trial, no ceiling, no intervals, no ML-NMR. Peer review has not been done.
+
+**Peer review.** Not yet done. The result stands on the study alone until it is.
+
+Read it: [PDF](/studies/OUT-05-the-mean-is-safe-and-the-responder-probability-is-not/out/OUT-05.pdf) · [Markdown](/studies/OUT-05-the-mean-is-safe-and-the-responder-probability-is-not/out/OUT-05.md) · [OpenDocument](/studies/OUT-05-the-mean-is-safe-and-the-responder-probability-is-not/out/OUT-05.odt) · Code and data: [studies/OUT-05-the-mean-is-safe-and-the-responder-probability-is-not](https://github.com/choxos/ITC-open-problems/tree/main/studies/OUT-05-the-mean-is-safe-and-the-responder-probability-is-not) · Protocol: [registered before the run](/studies/OUT-05-the-mean-is-safe-and-the-responder-probability-is-not/out/OUT-05-protocol.md)
+
 :::
 
 ## Verification

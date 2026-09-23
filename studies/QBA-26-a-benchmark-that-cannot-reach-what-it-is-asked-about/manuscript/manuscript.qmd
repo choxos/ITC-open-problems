@@ -1,0 +1,97 @@
+---
+title: "The strongest measured covariate does not bound the bias from what was not measured"
+subtitle: "A simulation study answering catalog problem QBA-26"
+author: "Ahmad Sofi-Mahmudi"
+date: 2026-09-23
+bibliography: references.bib
+csl: ../../../vancouver.csl
+link-citations: true
+number-sections: true
+execute:
+  echo: false
+  warning: false
+  message: false
+format:
+  gfm:
+    toc: false
+  pdf:
+    documentclass: article
+    geometry: margin=1in
+    fig-pos: "H"
+  odt: default
+---
+
+```{r setup}
+s <- read.csv("../results/summary.csv")
+f2 <- function(x) formatC(x, format = "f", digits = 2); f3 <- function(x) formatC(x, format = "f", digits = 3)
+k <- s[s$q >= 3 & s$s <= 1, ]; w <- s[s$s <= 0.5 & s$q >= 3, ]
+bm <- function(q, r, st) s$median_benchmark[s$q == q & s$rho == r & s$s == st]
+```
+
+# Abstract {.unnumbered}
+
+**Background.** A common argument in bias analysis is that no measured covariate, when
+dropped, moves the estimate as much as the assumed unmeasured bias, so the unmeasured
+bias is implausible. Catalog problem QBA-26 asks whether such a single-covariate benchmark
+bounds omitted structure that is a sum of several variables.
+
+**Methods.** Unanchored binary-outcome MAIC with four measured covariates and one, three or
+six omitted covariates, correlated at 0, 0.3 or 0.6, each 0.5, 1 or 2 times as strong as
+the strongest measured covariate: 21 scenarios, 1000 replicates each. The benchmark was the
+largest change in the estimate from dropping one measured covariate, used plain or scaled by
+$\sqrt q$, by a correlation-adjusted factor with the true correlation, or by $q$.
+
+**Results.** With three or six omitted variables each no stronger than the strongest measured
+one, the plain benchmark covered the true residual bias in `r f2(min(k$plain))` to
+`r f2(max(k$plain))` of analyses; the bias was `r f2(min(k$ratio))` to `r f2(max(k$ratio))` times the
+median benchmark. Scaling by $\sqrt q$ covered `r f2(min(k$sqrt_q))` to `r f2(max(k$sqrt_q))`.
+Scaling by $q$ covered at least `r f2(min(w$linear))` when each omitted variable was half as
+strong as the strongest measured one, and about 0.6 when as strong. The benchmark itself shrank
+as the omitted structure grew (from `r f3(bm(1, 0, 0.5))` to `r f3(bm(6, 0.6, 2))`), because
+on the odds ratio scale unexplained outcome variation attenuates every covariate's marginal
+effect.
+
+**Conclusion.** A maximum over single measured covariates bounds a sum over omitted ones only
+when one variable is omitted and it is weaker. Any benchmark argument must state an assumption
+about how many omitted variables there are and how strong, and scaling for shifts in the same
+direction needs a factor near $q$, not $\sqrt q$.
+
+# The problem {#sec-problem}
+
+With omitted structure $u = \sum_{j \le q}\gamma_ju_j$, the transport bias of MAIC
+[@signorovitch2010] grows with the sum of the omitted variables' contributions, while a
+leave-one-covariate-out benchmark measures one measured variable at a time. Formal
+benchmarking [@cinelli2020] expresses unmeasured strength as a multiple of a measured
+covariate's, which is an explicit assumption; the informal argument omits it. DESIGN.md
+proposed a multiplier $\sqrt{q\{1 + (q - 1)\bar\rho\}}$, the standard deviation of a sum. When the
+omitted variables are all shifted in the same direction between populations their biases add,
+so the multiplier should be nearer $q$.
+
+# Design {#sec-design}
+
+Registered protocol: `protocol.md`; ADEMP structure [@morris2019]. Individual data on 400
+patients of A; target covariate means 0.3 SD higher. Measured coefficients 0.6, 0.4, 0.3, 0.2;
+omitted coefficients $0.6s$ each; one latent factor gives the omitted variables pairwise
+correlation $\rho$. $\operatorname{logit}p = -1 + x^\top\gamma_x + u^\top\gamma_u$. Estimand: A's marginal
+log odds in the target. The true residual bias is MAIC's limit minus the truth, from $10^6$
+draws. The scaled rules were given the true $q$, which favors them.
+
+# Results {#sec-results}
+
+![Share of analyses whose benchmark covers the true residual bias, by rule, number of omitted variables and their strength.](figures/fig1-coverage.png){#fig-cov}
+
+With one omitted variable half as strong as the strongest measured one, every rule covered
+(@fig-cov); with one as strong, about half did, because the benchmark and the bias were
+equal on average. With more omitted variables coverage by the plain and $\sqrt q$ rules
+collapsed. The correlation-adjusted factor helped only where correlation was high, and only
+with the true correlation, which an analyst does not have. The $q$ multiplier worked when its
+premise held (each omitted variable weaker than the strongest measured one) and failed when
+it did not.
+
+# What this does not answer {#sec-limits}
+
+Omitted variables shifted in the same direction; with random directions their biases partly
+cancel and $\sqrt q$ becomes the relevant scale. Continuous latent-factor correlation; one
+overlap level; the negative-control route was not run. Peer review has not been done.
+
+# References {.unnumbered}

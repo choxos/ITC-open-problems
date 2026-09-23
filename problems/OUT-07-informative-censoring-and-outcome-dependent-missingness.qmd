@@ -16,6 +16,12 @@ maturity: "Promising"
 [Very high priority]{.chip .chip-priority-very-high}
 [Promising]{.chip .chip-maturity-promising}
 :::
+::: {.callout-important appearance="simple"}
+## A study has been run against this problem
+
+Informative censoring cancels in an indirect RMST contrast only when the two mechanisms match. Unanchored, with differing mechanisms the bias was -2.3 to +1.4 months against a true difference of 0.62, reversing the comparison in up to 97% of analyses; equal mechanisms nearly cancelled. Anchored comparisons were protected (bias within 0.22) because both arms of each trial shared its mechanism. Adjusting only the source by inverse probability of censoring weighting helped partly where only the source was informative and broke the cancellation where both were. [Read the study below](#our-study).
+:::
+
 ## Statement
 
 Continuous outcomes go missing and time-to-event outcomes are censored for reasons related to the outcome itself, and the source and comparator trials can have different mechanisms, so the biases do not cancel in an indirect comparison. Dependence between the dropout process and the outcome after dropout is not identified from observed event and censoring data alone without auxiliary information or restrictions, though observable censoring patterns and some model implications can still be examined, so the untestability is specific rather than total. Baseline covariate adjustment cannot correct selection driven by unobserved post-baseline outcomes, but correction is not ruled out in principle: baseline covariates may suffice under conditional independent censoring, and time-varying inverse probability of censoring weighting, congenial imputation or joint models can identify effects under further assumptions. Externally controlled comparisons are where the asymmetry bites hardest, and censoring there is documented to be often informative because it reflects discontinuation for toxicity, patient preference or early switch to alternative therapies.
@@ -40,14 +46,40 @@ Build multiple imputation and inverse probability of censoring weighting that ar
 
 ## Our study
 
-::: {.callout-note}
-## A study is running
+::: {.study-result}
+**Informative censoring on the two sides of an indirect comparison**
 
-**Question.** When censoring depends on latent risk in the source and comparator trials to different degrees, does the bias cancel in the indirect RMST contrast, what does source-side IPCW achieve, and does a one-sided comparator sensitivity analysis cover the truth?
+**The question put to it.** When censoring depends on latent risk in the source and comparator trials to different degrees, does the bias cancel in the indirect RMST contrast, what does source-side IPCW achieve, and does a one-sided comparator sensitivity analysis cover the truth?
 
-**Design.** Shared-frailty event and censoring processes with separate dependence in the source and comparator; 24 cells crossing the two dependences, censoring prevalence and anchored or unanchored design; naive Kaplan-Meier, source-side IPCW and a comparator delta-adjusted sensitivity analysis. 1000 replicates per cell.
+**What it found.** Informative censoring cancels in an indirect RMST contrast only when the two mechanisms match. Unanchored, with differing mechanisms the bias was -2.3 to +1.4 months against a true difference of 0.62, reversing the comparison in up to 97% of analyses; equal mechanisms nearly cancelled. Anchored comparisons were protected (bias within 0.22) because both arms of each trial shared its mechanism. Adjusting only the source by inverse probability of censoring weighting helped partly where only the source was informative and broke the cancellation where both were.
 
-The protocol is registered before any result is seen: [read it](/studies/OUT-07-censoring-mechanisms-that-do-not-cancel/out/OUT-07-protocol.md).
+**Results.**
+
+- Refuting sentence fails: unanchored bias -2.326 to 1.416 months when mechanisms differed; -0.080 to 0.021 when equal.
+- Anchored: bias -0.202 to 0.219 months in all 12 scenarios.
+- Source-side IPCW with a proxy correlated 0.7 with latent risk: 1.42 to 0.99 months where only the source was informative; -0.08 to -0.52 where both were equally informative.
+- The comparator delta reproducing the truth lay outside 0.5 to 2 in up to 70% of analyses (median 2.4 with strong dependence at 50% censoring).
+
+**Design.**
+
+Estimand
+:   RMST difference at 24 months, unanchored (A minus B) or anchored ((A minus C) minus (B minus C))
+
+Methods compared
+:   Kaplan-Meier RMST, source-side inverse probability of censoring weighting, one-sided comparator delta sensitivity analysis
+
+Data-generating mechanism
+:   Shared-frailty event and censoring processes with separate dependence in the source and comparator; 24 cells crossing the two dependences, censoring prevalence and anchored or unanchored design; naive Kaplan-Meier, source-side IPCW and a comparator delta-adjusted sensitivity analysis. 1000 replicates per cell.
+
+Replicates
+:   1000 per scenario, 24,000 in total
+
+**What this does not answer.** No covariate shift between trials; time-constant censoring hazards; one sensitivity parameterization; one baseline proxy. Peer review has not been done.
+
+**Peer review.** Not yet done. The result stands on the study alone until it is.
+
+Read it: [PDF](/studies/OUT-07-censoring-mechanisms-that-do-not-cancel/out/OUT-07.pdf) · [Markdown](/studies/OUT-07-censoring-mechanisms-that-do-not-cancel/out/OUT-07.md) · [OpenDocument](/studies/OUT-07-censoring-mechanisms-that-do-not-cancel/out/OUT-07.odt) · Code and data: [studies/OUT-07-censoring-mechanisms-that-do-not-cancel](https://github.com/choxos/ITC-open-problems/tree/main/studies/OUT-07-censoring-mechanisms-that-do-not-cancel) · Protocol: [registered before the run](/studies/OUT-07-censoring-mechanisms-that-do-not-cancel/out/OUT-07-protocol.md)
+
 :::
 
 ## Verification

@@ -1,0 +1,98 @@
+---
+title: "Informative censoring does not cancel in an unanchored comparison, and adjusting one side can make it worse"
+subtitle: "A simulation study answering catalog problem OUT-07"
+author: "Ahmad Sofi-Mahmudi"
+date: 2026-09-23
+bibliography: references.bib
+csl: ../../../vancouver.csl
+link-citations: true
+number-sections: true
+execute:
+  echo: false
+  warning: false
+  message: false
+format:
+  gfm:
+    toc: false
+  pdf:
+    documentclass: article
+    geometry: margin=1in
+    fig-pos: "H"
+  odt: default
+---
+
+```{r setup}
+s <- read.csv("../results/summary.csv")
+f3 <- function(x) formatC(x, format = "f", digits = 3); f2 <- function(x) formatC(x, format = "f", digits = 2)
+un <- s[s$design == "unanchored", ]; an <- s[s$design == "anchored", ]
+off <- un[un$alpha_s != un$alpha_t, ]; dg <- un[un$alpha_s == un$alpha_t & un$alpha_s > 0, ]
+v <- function(a, b, p, col, dsg = "unanchored") s[s$design == dsg & s$alpha_s == a & s$alpha_t == b & s$prev == p, col]
+```
+
+# Abstract {.unnumbered}
+
+**Background.** When censoring depends on patients' risk, Kaplan-Meier estimates in each
+trial are biased. It is often argued that the biases cancel in an indirect comparison.
+Catalog problem OUT-07 asks when they do.
+
+**Methods.** A shared frailty drove both event and censoring hazards, with separate
+dependence in the source (none or moderate) and the comparator (none, moderate or strong),
+censoring of 20% or 50%, in unanchored and anchored comparisons: 24 scenarios, 1000
+replicates each. Estimand: RMST difference at 24 months (0.62 months unanchored). Methods:
+Kaplan-Meier, inverse probability of censoring weighting on the source side with a baseline
+proxy of risk, and a one-sided comparator sensitivity analysis.
+
+**Results.** Unanchored, with differing mechanisms the bias ranged from
+`r f2(min(off$bias))` to `r f2(max(off$bias))` months, and the sign of the comparison was wrong
+in up to `r f3(max(off$wrong_sign))` of analyses. Equal mechanisms nearly cancelled
+(`r f3(min(dg$bias))` to `r f3(max(dg$bias))`). Anchored comparisons were protected in every
+scenario (`r f3(min(an$bias))` to `r f3(max(an$bias))`), because both arms of each trial shared
+its mechanism. Source-side weighting reduced source bias only partly and, where the
+mechanisms were equal, broke the cancellation (bias `r f3(v(1, 1, 0.5, "bias"))` to
+`r f3(v(1, 1, 0.5, "bias_ipcw"))` at 50% censoring). The comparator sensitivity parameter that
+reproduced the truth lay outside the conventional range 0.5 to 2 in up to
+`r f3(1 - min(un$delta_true_in_range))` of analyses.
+
+**Conclusion.** Cancellation needs equal mechanisms, which an external or single-arm
+comparator seldom has. Anchoring protects; adjusting the source alone does not, and a
+one-sided sensitivity analysis must allow larger departures than usual.
+
+# The problem {#sec-problem}
+
+Each Kaplan-Meier RMST [@royston2013] carries a censoring bias $c$; an unanchored contrast
+carries $c_S - c_T$ and an anchored one the difference of within-trial differences, in which
+each trial's shared mechanism largely cancels. Inverse probability of censoring weighting
+[@robins2000] needs the censoring predictors, which exist for the individual-data source and
+not for an aggregate comparator.
+
+# Design {#sec-design}
+
+Registered protocol: `protocol.md`; ADEMP structure [@morris2019]. Frailty $U \sim N(0, 1)$;
+event hazard $\lambda e^{0.7U}$ ($\lambda_A = 0.045$, $\lambda_B = 0.05$, $\lambda_C = 0.07$ per
+month); censoring hazard $\kappa e^{\alpha U}$, $\kappa$ set for the censoring prevalence by 24
+months; administrative end at 36; 300 per arm. The source records $W = 0.7U + \text{noise}$. The
+sensitivity analysis gives censored comparator patients a remaining hazard of $\delta$ times the
+arm's crude rate ($\delta = 1$ is independent censoring).
+
+# Results {#sec-results}
+
+![Bias of the RMST difference by comparator censoring dependence, for each level of source dependence.](figures/fig1-bias.png){#fig-bias}
+
+Unanchored bias followed $c_S - c_T$ (@fig-bias): positive when only the source censored its
+high-risk patients, negative when only the comparator did, and roughly twice as large at 50%
+censoring. With a true difference of 0.62 months, a comparator with strong dependence
+reversed the comparison in `r f3(v(0, 2, 0.5, "wrong_sign"))` of analyses at 50% censoring.
+
+Weighting on a proxy correlated 0.7 with the latent risk removed about a third of the source
+bias. Applied only to the source, it turned a cancelled comparison into a biased one. In the
+sensitivity analysis the $\delta$ that reproduced the truth had a median of
+`r f2(v(0, 2, 0.5, "delta_true_med"))` with strong comparator dependence, so a range capped at 2 would
+often not reach it.
+
+# What this does not answer {#sec-limits}
+
+No covariate shift between trials, so the population-adjustment layer is absent; time-constant
+censoring hazards; one sensitivity parameterization; a single baseline proxy stands in for the
+source's time-varying censoring predictors. Peer review has not been done.
+
+# References {.unnumbered}
