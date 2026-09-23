@@ -88,9 +88,10 @@ $\mu_1 = 0.5$:
 | right | wrong | 0.097 | -0.000 | 0.302 |
 | wrong | wrong |  | 0.195 | 0.501 |
 
-The second column gives the single-model estimator whose model is wrong
-in that row. The augmented estimator is right whenever one model is, and
-wrong by $\gamma\delta = 0.3$ at $\gamma = 1$ in every row; with both
+The third column is the single-model estimator built on the wrong model
+in that row (MAIC in the second, outcome regression in the third). The
+augmented estimator is right whenever one model is, and its bias at
+$\gamma = 1$ is $\gamma\delta = 0.3$ in the first three rows; with both
 models wrong the two biases add.
 
 The registered sensitivity-region criterion was not met as stated: a
