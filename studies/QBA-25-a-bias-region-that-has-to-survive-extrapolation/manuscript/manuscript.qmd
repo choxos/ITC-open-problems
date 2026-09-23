@@ -1,0 +1,104 @@
+---
+title: "Carrying a hazard-ratio bias into net benefit: the extrapolation family moved the decision more than the bias did"
+subtitle: "A numerical study answering catalog problem QBA-25"
+author: "Ahmad Sofi-Mahmudi"
+date: 2026-09-23
+bibliography: references.bib
+csl: ../../../vancouver.csl
+link-citations: true
+number-sections: true
+execute:
+  echo: false
+  warning: false
+  message: false
+format:
+  gfm:
+    toc: false
+  pdf:
+    documentclass: article
+    geometry: margin=1in
+    fig-pos: "H"
+  odt: default
+---
+
+```{r setup}
+r <- read.csv("../results/summary.csv"); sc <- read.csv("../results/scenarios.csv"); s <- read.csv("../results/surface.csv")
+f3 <- function(x) formatC(x, format = "f", digits = 3); k <- function(x) formatC(round(x), format = "d", big.mark = ",")
+P <- function(m) r$p_reversal[r$method == m]
+```
+
+# Abstract {.unnumbered}
+
+**Background.** A bias analysis of an indirect comparison is specified on the observed
+hazard ratio, but a reimbursement decision depends mostly on extrapolated survival.
+Catalog problem QBA-25 asks whether propagating a corrected estimate and its interval
+into the economic model reproduces the decision uncertainty, or whether the bias must
+share a parameter space with the extrapolation.
+
+**Methods.** A decision model with a three-year trial, a reported hazard ratio of 0.75
+(SE of the log 0.10), a bias of up to ±0.15 on the log hazard ratio, three
+treatment-effect extrapolations (persisting, waning by year 8, cure), and a price at
+which the base case is just favorable. Point propagation, scenario analysis and a joint
+probabilistic reference; 4000 draws.
+
+**Results.** The probability that net benefit was negative was `r f3(P("point propagation (PH, b = 0)"))`
+under point propagation and `r f3(P("joint over b and family"))` under the joint reference.
+Almost all of the difference came from the extrapolation family: adding the bias alone,
+with the persisting effect, moved it to `r f3(P("joint over b, ph"))`, while waning or cure
+alone reversed the decision at the reported estimate. The worst joint combination
+(net benefit `r k(min(s$inb))`) was worse than any one-at-a-time scenario (`r k(min(sc$inb))`).
+
+**Conclusion.** Point propagation understated decision uncertainty, but here because it
+fixed the extrapolation, not because it omitted the bias. The bias region and the
+extrapolation choice should be varied jointly, and the extrapolation is the larger of
+the two.
+
+# The problem {#sec-problem}
+
+Net benefit integrates the survival difference over a lifetime, and most of that
+horizon lies beyond the trial. A bias parameter specified on the observed hazard ratio
+reaches the decision only through the model that extrapolates the treatment effect,
+and that model is itself a choice. Current guidance recommends feeding sensitivity
+results into scenario analyses; a scenario analysis varies one input at a time, which
+is the cross-versus-region problem of multiple bias analysis [@greenland2005] in the
+decision layer.
+
+# Design {#sec-design}
+
+Registered protocol: `protocol.md`. Control survival Weibull (shape 1.3, median 4 years),
+or 30% cured plus the same Weibull. Reported log hazard ratio $\log 0.75$, SE 0.10, over 3
+years of follow-up; bias $b$ with reported = true + $b$, elicited uniform on $[-0.15, 0.15]$.
+After year 3 the effect persists, wanes linearly to none by year 8, or acts only on the
+uncured. Horizon 25 years, discounting 3.5%, utility 0.75, background cost 5000 per year
+alive, threshold 30000 per QALY; the treatment cost for the first three years was set to
+90% of the break-even price under a persisting effect.
+
+# Results {#sec-results}
+
+![Net benefit at the reported estimate across the bias region, by extrapolation family.](figures/fig1-surface.png){#fig-surface}
+
+| propagation | probability of negative net benefit | mean net benefit |
+|---|---:|---:|
+`r paste(sprintf("| %s | %s | %s |", r$method, f3(r$p_reversal), k(r$mean_inb)), collapse = "\n")`
+
+: 4000 probabilistic draws. {#tbl-main}
+
+The registered primary was confirmed: the joint reference gave a reversal probability
+`r formatC(P("joint over b and family") / P("point propagation (PH, b = 0)"), format = "f", digits = 2)`
+times that of point propagation (@tbl-main). The attribution matters for what to do about
+it. Net benefit moved roughly linearly and symmetrically with the bias under each family
+(@fig-surface), so averaging over a symmetric bias region barely changed the reversal
+probability. The extrapolation family shifted the whole curve: with the effect waning or
+confined to the uncured, the decision reversed at the reported estimate. In scenario
+analysis, varying the bias under a persisting effect and varying the family at no bias
+gave a lowest net benefit of `r k(min(sc$inb))`; the joint region reached `r k(min(s$inb))`, a
+combination no single scenario showed.
+
+# What this does not answer {#sec-limits}
+
+A deterministic survival model rather than fitted extrapolations; three families, not
+splines; one symmetric bias parameter; no uncertainty in costs or utilities; one price.
+With an asymmetric elicited bias the bias layer would shift the reversal probability
+directly. Peer review has not been done.
+
+# References {.unnumbered}
