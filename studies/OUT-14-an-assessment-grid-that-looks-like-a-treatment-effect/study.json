@@ -1,7 +1,23 @@
 {
  "problem_id": "OUT-14",
  "title": "Assessment grids that differ between trials",
- "status": "running",
+ "status": "complete",
  "question": "When two trials assess progression on different visit schedules, how much does treating recorded event times as exact bias a transported RMST difference, and do midpoint imputation or an interval-censored model remove it?",
- "design": "Unanchored comparison of two single arms with Weibull event times, 32 cells crossing each trial's assessment spacing (0 to 3 months), the event rate and the true difference; naive, midpoint and interval-censored analyses of RMST at 24 months. 1000 replicates per cell."
+ "design": "Unanchored comparison of two single arms with Weibull event times, 32 cells crossing each trial's assessment spacing (0 to 3 months), the event rate and the true difference; naive, midpoint and interval-censored analyses of RMST at 24 months. 1000 replicates per cell.",
+ "date_completed": "2026-09-23",
+ "answer": "Treating visit-recorded event times as exact biases a cross-trial RMST difference by half the spacing times the event probability by the horizon, with the sign set by which trial visits less often. A 3-month difference in spacing produced a spurious difference of 1.4 months with no true effect, and removed 1.0 of a true 1.2 months in another scenario. Moving events to the interval midpoint or fitting an interval-censored model reduced the bias below 0.1 month.",
+ "findings": [
+  "Naive bias on the prediction (d_B/2)F_B(tau) - (d_A/2)F_A(tau): slope 1.014 (SE 0.005) over 32 scenarios.",
+  "Where the schedules differed by 2 months or more, naive bias was 0.94 to 1.43 months in absolute value; materiality confirmed in all 16 such scenarios.",
+  "Midpoint shift: largest bias 0.081 months; interval-censored Weibull: 0.071 months.",
+  "The registered control (equal schedules, zero bias) failed in 2 of 8 cells, both where the arms' event probabilities differed; there the bias matched the mechanism's prediction (-0.14 and -0.14 against -0.14 and -0.11)."
+ ],
+ "not_answered": "Binary event-by-time endpoints, different maximum follow-up, reconstruction error from digitized curves and visit-window jitter were not simulated. Peer review has not been done.",
+ "estimand": "Difference in restricted mean survival time at 24 months, B minus A",
+ "methods_compared": [
+  "Kaplan-Meier on recorded times",
+  "Kaplan-Meier after midpoint shift",
+  "interval-censored Weibull"
+ ],
+ "n_sim": "1000 per scenario, 32,000 in total"
 }

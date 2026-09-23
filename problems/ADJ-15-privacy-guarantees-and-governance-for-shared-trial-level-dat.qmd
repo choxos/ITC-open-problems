@@ -16,6 +16,12 @@ maturity: "Emerging"
 [High priority]{.chip .chip-priority-high}
 [Emerging]{.chip .chip-maturity-emerging}
 :::
+::: {.callout-important appearance="simple"}
+## A study has been run against this problem
+
+Privacy noise is not negligible at usable budgets for trial-sized targets: at epsilon 1 and 150 patients it was 8% to 60% of the estimate's variance and ignoring it cut coverage to 0.88 to 0.94; at 40 patients to 0.73. Its variance is known exactly, and adding it restored coverage in every scenario, conservatively where noise dominated. Releasing second moments pays only at larger budgets; at small ones it made MAIC infeasible in up to 87% of replicates. [Read the study below](#our-study).
+:::
+
 ## Statement
 
 Differential privacy would let data holders publish richer target-population summaries under a formal guarantee, and adjacent work exists: differentially private covariate balancing propagates privacy noise into weighted treatment-effect estimators (arXiv:2410.14789), FedECA delivers federated inverse-probability-weighted external-control analysis without pooling individual data (arXiv:2311.16984), and methods exist for choosing the privacy parameter for trial data release (PMC11031247). None calibrates a budget for the target moments PAIC needs, and no PAIC estimator treats released summaries as noisy inputs and propagates that noise into the transported effect. Two claims need narrowing: a correctly calibrated guarantee does not cease to hold because an arm is small, with utility rather than validity the casualty, and the assertion that no governance framework exists in evidence synthesis was not verifiable by any auditor.
@@ -43,14 +49,40 @@ Characterize the privacy attack surface of evidence synthesis when trial arms ar
 
 ## Our study
 
-::: {.callout-note}
-## A study is running
+::: {.study-result}
+**Target moments released under differential privacy**
 
-**Question.** When a target trial releases covariate moments under differential privacy, how much does ignoring the added noise cost MAIC coverage at realistic arm sizes and budgets, does propagating its known variance repair it, and when do extra released moments stop paying for their share of the budget?
+**The question put to it.** When a target trial releases covariate moments under differential privacy, how much does ignoring the added noise cost MAIC coverage at realistic arm sizes and budgets, does propagating its known variance repair it, and when do extra released moments stop paying for their share of the budget?
 
-**Design.** MAIC to Laplace-privatized target means or means and second moments, 48 cells crossing target size (40 to 500), privacy budget, released statistics and linear or quadratic effect modification; non-private, noise-ignored and noise-propagated analyses. 1000 replicates per cell.
+**What it found.** Privacy noise is not negligible at usable budgets for trial-sized targets: at epsilon 1 and 150 patients it was 8% to 60% of the estimate's variance and ignoring it cut coverage to 0.88 to 0.94; at 40 patients to 0.73. Its variance is known exactly, and adding it restored coverage in every scenario, conservatively where noise dominated. Releasing second moments pays only at larger budgets; at small ones it made MAIC infeasible in up to 87% of replicates.
 
-The protocol is registered before any result is seen: [read it](/studies/ADJ-15-noise-whose-variance-is-known-exactly/out/ADJ-15-protocol.md).
+**Results.**
+
+- Refuting sentence fails: coverage ignoring the noise was as low as 0.883 at epsilon of at least 1 and targets of at least 150.
+- Propagating the known noise variance gave coverage of at least 0.926 in every private scenario, the minimum matching the non-private analysis's own misspecification; it reached 1.000 where noise dominated.
+- Releasing means and second moments with a split budget left no feasible weights in 45% to 87% of replicates at 40 to 150 patients and epsilon 0.5 to 1.
+- Under quadratic modification at epsilon 4 and 150 patients second moments cut RMSE from 0.229 to 0.171.
+
+**Design.**
+
+Estimand
+:   Target-population mean difference, A versus C, at the target trial's own covariate moments
+
+Methods compared
+:   MAIC to non-private moments, MAIC to private moments, noise ignored, MAIC to private moments, noise variance propagated
+
+Data-generating mechanism
+:   MAIC to Laplace-privatized target means or means and second moments, 48 cells crossing target size (40 to 500), privacy budget, released statistics and linear or quadratic effect modification; non-private, noise-ignored and noise-propagated analyses. 1000 replicates per cell.
+
+Replicates
+:   1000 per scenario, 48,000 in total
+
+**What this does not answer.** Laplace mechanism only; Gaussian mechanism, released correlations and overlap not varied. Results are conditional on feasible weights. Budget choice and governance are outside the study. Peer review has not been done.
+
+**Peer review.** Not yet done. The result stands on the study alone until it is.
+
+Read it: [PDF](/studies/ADJ-15-noise-whose-variance-is-known-exactly/out/ADJ-15.pdf) · [Markdown](/studies/ADJ-15-noise-whose-variance-is-known-exactly/out/ADJ-15.md) · [OpenDocument](/studies/ADJ-15-noise-whose-variance-is-known-exactly/out/ADJ-15.odt) · Code and data: [studies/ADJ-15-noise-whose-variance-is-known-exactly](https://github.com/choxos/ITC-open-problems/tree/main/studies/ADJ-15-noise-whose-variance-is-known-exactly) · Protocol: [registered before the run](/studies/ADJ-15-noise-whose-variance-is-known-exactly/out/ADJ-15-protocol.md)
+
 :::
 
 ## Verification

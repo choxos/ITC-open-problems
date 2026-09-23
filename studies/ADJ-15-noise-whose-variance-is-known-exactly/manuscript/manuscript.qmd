@@ -1,0 +1,122 @@
+---
+title: "Differentially private target moments in MAIC: the noise variance is known, so add it"
+subtitle: "A simulation study answering catalog problem ADJ-15"
+author: "Ahmad Sofi-Mahmudi"
+date: 2026-09-23
+bibliography: references.bib
+csl: ../../../vancouver.csl
+link-citations: true
+number-sections: true
+execute:
+  echo: false
+  warning: false
+  message: false
+format:
+  gfm:
+    toc: false
+  pdf:
+    documentclass: article
+    geometry: margin=1in
+    fig-pos: "H"
+  odt: default
+---
+
+```{r setup}
+s <- read.csv("../results/summary.csv")
+f3 <- function(x) formatC(x, format = "f", digits = 3)
+pv <- s[is.finite(s$eps), ]
+ig <- pv[pv$method == "private_ignored", ]; pr <- pv[pv$method == "private_propagated", ]
+np <- s[s$method == "non_private", ]
+use <- ig[ig$eps >= 1 & ig$n_t >= 150, ]
+cell <- function(d, n, e, r, m) d[d$n_t == n & d$eps == e & d$release == r & d$em == m, ]
+w <- merge(ig[, c("cell", "width")], pr[, c("cell", "width")], by = "cell", suffixes = c("_i", "_p"))
+w$share <- 1 - (w$width_i / w$width_p)^2; w <- merge(w, ig[, c("cell", "n_t", "eps", "release")])
+inf2 <- ig[ig$release == "means_sds", ]
+rm2 <- function(n, e, m, r) cell(pr, n, e, r, m)$rmse
+nat <- s[!is.finite(s$eps), ]
+```
+
+# Abstract {.unnumbered}
+
+**Background.** A target trial may release its covariate moments under differential
+privacy, adding Laplace noise whose variance the data holder knows exactly. Catalog
+problem ADJ-15 asks whether MAIC to noisy moments needs that noise propagated, and
+whether releasing more moments is worth its share of the privacy budget.
+
+**Methods.** MAIC of a source trial (200 per arm) to a target of 40, 150 or 500
+patients releasing means, or means and second moments, at budgets
+$\varepsilon \in \{0.5, 1, 4\}$ or without privacy; linear or quadratic effect
+modification; 48 scenarios, 1000 replicates each. Intervals ignored the noise or added
+$\hat g^\top\Sigma_{\text{noise}}\hat g$.
+
+**Results.** At budgets of at least 1 and targets of at least 150, ignoring the noise
+gave coverage as low as `r f3(min(use$coverage))`; at 40 patients it fell to
+`r f3(min(ig$coverage[ig$n_t == 40]))`. The noise share of the variance ranged from
+under 0.01 to `r f3(max(w$share))`. Adding the known noise variance restored coverage
+to at least `r f3(min(pr$coverage))` in every private scenario, conservatively where
+noise dominated. Releasing second moments at small targets and budgets left no feasible
+weights in up to `r f3(max(inf2$infeasible))` of replicates, because noisy second
+moments fell below the squared means or outside the source data.
+
+**Conclusion.** The noise is not negligible at usable budgets for trial-sized targets.
+Its variance is a published number, so the correction costs nothing and should always be
+applied. Extra moments pay only at larger budgets or targets.
+
+# The problem {#sec-problem}
+
+The Laplace mechanism releases a statistic with sensitivity $\Delta$ plus noise of scale
+$\Delta/\varepsilon$ and variance $2(\Delta/\varepsilon)^2$ [@dwork2006]. For a mean over
+$n_T$ patients of a covariate clipped to a range of 6, $\Delta = 6/n_T$, so the noise
+variance scales as $1/(n_T\varepsilon)^2$ while the sampling variance of the moment
+scales as $1/n_T$. MAIC [@signorovitch2010] weights the source to the released moments,
+so the estimate moves with the noise by the gradient $g = \partial\hat\Delta/\partial m$.
+Unlike other moment uncertainty in population adjustment, $\Sigma_{\text{noise}}$ needs no
+estimation.
+
+# Design {#sec-design}
+
+Registered protocol: `protocol.md`; ADEMP structure [@morris2019]. Source A versus C,
+two covariates clipped to $[-3, 3]$; $y = 0.5\sum x_j + A(-0.4 + 0.4x_1 + \beta_2x_1^2) + e$,
+$\beta_2 \in \{0, 0.3\}$. Target covariates $N(0.5, 0.8^2)$. With second moments
+released the budget is split equally over four statistics (sensitivity $9/n_T$ for the
+second moments). Truth: the effect at the target trial's own non-private moments.
+$\hat g$ by central differences. Replicates whose noisy moments admitted no weights
+are counted as infeasible and excluded from coverage.
+
+# Results {#sec-results}
+
+![Coverage of the noise-ignoring and noise-propagating intervals against the share of the propagated variance due to privacy noise. Each point is a scenario.](figures/fig1-coverage.png){#fig-cov}
+
+Coverage of the noise-ignoring interval fell as the noise share grew, and the
+propagated interval held nominal or above (@fig-cov). The refuting sentence fails: at
+$n_T = 150$, $\varepsilon = 1$, means only, the noise was
+`r f3(w$share[w$n_t == 150 & w$eps == 1 & w$release == "means"][1])` to
+`r f3(w$share[w$n_t == 150 & w$eps == 1 & w$release == "means"][2])` of the variance and
+coverage ignoring it was `r f3(cell(ig, 150, 1, "means", "linear")$coverage)` (linear)
+and `r f3(cell(ig, 150, 1, "means", "quadratic")$coverage)` (quadratic); with second
+moments also released it was `r f3(cell(ig, 150, 1, "means_sds", "quadratic")$coverage)`.
+At $n_T = 500$ or $\varepsilon = 4$ the noise was a few percent of the variance and
+could be ignored.
+
+The propagated interval over-covered where noise dominated (up to
+`r f3(max(pr$coverage))` at $n_T = 40$). Two causes contribute: the replicates with the
+most extreme noise were infeasible and dropped, and a linearization overstates the
+movement of an estimate that cannot leave the range of the source data.
+
+Releasing second moments halves each statistic's budget. It paid under quadratic
+modification when the budget was large (RMSE `r f3(rm2(150, 4, "quadratic", "means_sds"))`
+against `r f3(rm2(150, 4, "quadratic", "means"))` at $n_T = 150$, $\varepsilon = 4$), and
+cost accuracy and feasibility when it was small (infeasible in
+`r f3(cell(ig, 150, 0.5, "means_sds", "linear")$infeasible)` of replicates at $n_T = 150$,
+$\varepsilon = 0.5$). Without privacy the three analyses coincided (coverage
+`r f3(min(nat$coverage))` to `r f3(max(nat$coverage))`).
+
+# What this does not answer {#sec-limits}
+
+Laplace mechanism only; the Gaussian mechanism, released correlations and overlap
+levels were not varied. Performance is conditional on feasible weights, so at small
+budgets with second moments released it describes a minority of replicates. The choice
+of budget itself, a governance question, is outside the study. Peer review has not been
+done.
+
+# References {.unnumbered}

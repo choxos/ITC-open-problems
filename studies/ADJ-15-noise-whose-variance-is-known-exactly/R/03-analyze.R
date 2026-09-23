@@ -3,9 +3,13 @@
 source("R/00-model.R")
 g <- build_grid()
 d <- do.call(rbind, lapply(list.files("results/run", full.names = TRUE), readRDS))
+## Moments made infeasible by the noise (outside the source's hull, or second
+## moments below squared means) leave no estimate; performance is over the
+## feasible replicates and the infeasible share is reported beside it.
 summ <- do.call(rbind, lapply(split(d, list(d$cell, d$method), drop = TRUE), function(z) {
+  inf <- mean(!(z$ok == 1 & is.finite(z$est) & is.finite(z$se))); z <- z[z$ok == 1 & is.finite(z$est) & is.finite(z$se), ]
   e <- z$est - z$truth; n <- nrow(z); cv <- mean(abs(e) <= 1.96 * z$se)
-  data.frame(cell = z$cell[1], method = z$method[1], infeasible = mean(!z$ok), bias = mean(e),
+  data.frame(cell = z$cell[1], method = z$method[1], infeasible = inf, n_ok = n, bias = mean(e),
              mcse = stats::sd(e) / sqrt(n), rmse = sqrt(mean(e^2)), coverage = cv,
              cov_mcse = sqrt(cv * (1 - cv) / n), width = mean(2 * 1.96 * z$se))
 }))
@@ -21,9 +25,9 @@ rm_ <- merge(summ[summ$method == "private_propagated" & summ$release == "means",
 md <- c("# Decision", "",
   sprintf("**Refuting sentence (noise negligible at usable budgets, epsilon >= 1 and target n >= 150): %s.**",
           if (refute) "HOLDS" else "FAILS"), "",
-  "| target n | epsilon | released | modification | coverage ignored | coverage propagated | coverage non-private |",
-  "|---:|---:|---|---|---:|---:|---:|",
-  sprintf("| %d | %s | %s | %s | %.3f | %.3f | %.3f |", ig$n_t, ig$eps, ig$release, ig$em, ig$coverage,
+  "| target n | epsilon | released | modification | infeasible | coverage ignored | coverage propagated | coverage non-private |",
+  "|---:|---:|---|---|---:|---:|---:|---:|",
+  sprintf("| %d | %s | %s | %s | %.3f | %.3f | %.3f | %.3f |", ig$n_t, ig$eps, ig$release, ig$em, ig$infeasible, ig$coverage,
           pr$coverage[match(ig$cell, pr$cell)], np$coverage[match(ig$cell, np$cell)]), "",
   "RMSE, propagated, means only against means and second moments:", "",
   "| target n | epsilon | modification | means | means and second moments |", "|---:|---:|---|---:|---:|",

@@ -16,6 +16,12 @@ maturity: "Emerging"
 [High priority]{.chip .chip-priority-high}
 [Emerging]{.chip .chip-maturity-emerging}
 :::
+::: {.callout-important appearance="simple"}
+## A study has been run against this problem
+
+Treating visit-recorded event times as exact biases a cross-trial RMST difference by half the spacing times the event probability by the horizon, with the sign set by which trial visits less often. A 3-month difference in spacing produced a spurious difference of 1.4 months with no true effect, and removed 1.0 of a true 1.2 months in another scenario. Moving events to the interval midpoint or fitting an interval-censored model reduced the bias below 0.1 month. [Read the study below](#our-study).
+:::
+
 ## Statement
 
 Population-adjusted survival likelihoods do represent this structure: multinma has supported left, right and interval censoring and left truncation for survival outcomes since 0.6.0, and cpaic's exact survival likelihood supports observed events, right, left and interval censoring and delayed entry for both individual and aggregate pseudo-patient rows when those fields are supplied. What survives is an information problem rather than a likelihood problem: pseudo individual data reconstructed from a published right-censored Kaplan-Meier curve cannot express delayed entry or interval censoring, because the publication does not report entry times or assessment intervals. Assessment schedules are design features that patient-level covariate balancing cannot correct, though they can be represented in the observation model or, with enough studies, modeled at study level. Once an outcome is dichotomized into an event-by-time proportion the follow-up length and assessment grid disappear from the reported number, and there is no method for placing binary endpoints from trials with different windows on a common time scale.
@@ -41,14 +47,40 @@ Use the censoring and truncation support that already exists by carrying entry t
 
 ## Our study
 
-::: {.callout-note}
-## A study is running
+::: {.study-result}
+**Assessment grids that differ between trials**
 
-**Question.** When two trials assess progression on different visit schedules, how much does treating recorded event times as exact bias a transported RMST difference, and do midpoint imputation or an interval-censored model remove it?
+**The question put to it.** When two trials assess progression on different visit schedules, how much does treating recorded event times as exact bias a transported RMST difference, and do midpoint imputation or an interval-censored model remove it?
 
-**Design.** Unanchored comparison of two single arms with Weibull event times, 32 cells crossing each trial's assessment spacing (0 to 3 months), the event rate and the true difference; naive, midpoint and interval-censored analyses of RMST at 24 months. 1000 replicates per cell.
+**What it found.** Treating visit-recorded event times as exact biases a cross-trial RMST difference by half the spacing times the event probability by the horizon, with the sign set by which trial visits less often. A 3-month difference in spacing produced a spurious difference of 1.4 months with no true effect, and removed 1.0 of a true 1.2 months in another scenario. Moving events to the interval midpoint or fitting an interval-censored model reduced the bias below 0.1 month.
 
-The protocol is registered before any result is seen: [read it](/studies/OUT-14-an-assessment-grid-that-looks-like-a-treatment-effect/out/OUT-14-protocol.md).
+**Results.**
+
+- Naive bias on the prediction (d_B/2)F_B(tau) - (d_A/2)F_A(tau): slope 1.014 (SE 0.005) over 32 scenarios.
+- Where the schedules differed by 2 months or more, naive bias was 0.94 to 1.43 months in absolute value; materiality confirmed in all 16 such scenarios.
+- Midpoint shift: largest bias 0.081 months; interval-censored Weibull: 0.071 months.
+- The registered control (equal schedules, zero bias) failed in 2 of 8 cells, both where the arms' event probabilities differed; there the bias matched the mechanism's prediction (-0.14 and -0.14 against -0.14 and -0.11).
+
+**Design.**
+
+Estimand
+:   Difference in restricted mean survival time at 24 months, B minus A
+
+Methods compared
+:   Kaplan-Meier on recorded times, Kaplan-Meier after midpoint shift, interval-censored Weibull
+
+Data-generating mechanism
+:   Unanchored comparison of two single arms with Weibull event times, 32 cells crossing each trial's assessment spacing (0 to 3 months), the event rate and the true difference; naive, midpoint and interval-censored analyses of RMST at 24 months. 1000 replicates per cell.
+
+Replicates
+:   1000 per scenario, 32,000 in total
+
+**What this does not answer.** Binary event-by-time endpoints, different maximum follow-up, reconstruction error from digitized curves and visit-window jitter were not simulated. Peer review has not been done.
+
+**Peer review.** Not yet done. The result stands on the study alone until it is.
+
+Read it: [PDF](/studies/OUT-14-an-assessment-grid-that-looks-like-a-treatment-effect/out/OUT-14.pdf) · [Markdown](/studies/OUT-14-an-assessment-grid-that-looks-like-a-treatment-effect/out/OUT-14.md) · [OpenDocument](/studies/OUT-14-an-assessment-grid-that-looks-like-a-treatment-effect/out/OUT-14.odt) · Code and data: [studies/OUT-14-an-assessment-grid-that-looks-like-a-treatment-effect](https://github.com/choxos/ITC-open-problems/tree/main/studies/OUT-14-an-assessment-grid-that-looks-like-a-treatment-effect) · Protocol: [registered before the run](/studies/OUT-14-an-assessment-grid-that-looks-like-a-treatment-effect/out/OUT-14-protocol.md)
+
 :::
 
 ## Verification

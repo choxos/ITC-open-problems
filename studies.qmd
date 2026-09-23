@@ -15,6 +15,16 @@ population differences, which is where these problems live.
 
 ## Completed
 
+### [ADJ-15](problems/ADJ-15-privacy-guarantees-and-governance-for-shared-trial-level-dat.qmd) — Target moments released under differential privacy
+
+**Question.** When a target trial releases covariate moments under differential privacy, how much does ignoring the added noise cost MAIC coverage at realistic arm sizes and budgets, does propagating its known variance repair it, and when do extra released moments stop paying for their share of the budget?
+
+**Answer.** Privacy noise is not negligible at usable budgets for trial-sized targets: at epsilon 1 and 150 patients it was 8% to 60% of the estimate's variance and ignoring it cut coverage to 0.88 to 0.94; at 40 patients to 0.73. Its variance is known exactly, and adding it restored coverage in every scenario, conservatively where noise dominated. Releasing second moments pays only at larger budgets; at small ones it made MAIC infeasible in up to 87% of replicates.
+
+**What it does not answer.** Laplace mechanism only; Gaussian mechanism, released correlations and overlap not varied. Results are conditional on feasible weights. Budget choice and governance are outside the study. Peer review has not been done.
+
+Read it: [PDF](/studies/ADJ-15-noise-whose-variance-is-known-exactly/out/ADJ-15.pdf) · [Markdown](/studies/ADJ-15-noise-whose-variance-is-known-exactly/out/ADJ-15.md) · [OpenDocument](/studies/ADJ-15-noise-whose-variance-is-known-exactly/out/ADJ-15.odt)
+
 ### [CMP-12](problems/CMP-12-no-two-stage-adjusted-estimator-carries-multi-arm-covariance.qmd) — Splitting a multi-arm trial's adjusted contrasts is conservative for one contrast and anticonservative for another
 
 **Question.** When a three-arm trial's population-adjusted contrasts share an arm and a weight vector, what is lost by treating them as independent, is the error ever anticonservative, and is dropping the trial cheaper?
@@ -57,6 +67,16 @@ Read it: [PDF](/studies/CMP-14-aggregate-only-interactions/out/CMP-14.pdf) · [M
 
 Read it: [PDF](/studies/CMU-02-prior-driven-posteriors/out/CMU-02.pdf) · [Markdown](/studies/CMU-02-prior-driven-posteriors/out/CMU-02.md) · [OpenDocument](/studies/CMU-02-prior-driven-posteriors/out/CMU-02.odt)
 
+### [COV-09](problems/COV-09-measurement-non-equivalence-of-covariates-across-trials.qmd) — The same covariate name, two instruments
+
+**Question.** When the source and target measure a matched effect modifier with different instruments, how is the MAIC estimate biased, does a reliability correction recover it, and can a bounded analysis over declared instrument differences contain the truth?
+
+**Answer.** MAIC's bias from a modifier measured by different instruments follows a closed form in the instruments' offsets, slopes and the source reliability. A reliability correction removes it only when both trials use the same instrument; with differing instruments it left bias up to 0.18 and could undo a chance cancellation. An envelope of corrected intervals over declared instrument differences covered the truth at 1.4 to 2.9 times the naive width.
+
+**What it does not answer.** Linear instruments and identity link only; misclassification of binary covariates and bridging-sample correction not run; target sampling error absent. Peer review has not been done.
+
+Read it: [PDF](/studies/COV-09-balancing-a-number-that-means-different-things/out/COV-09.pdf) · [Markdown](/studies/COV-09-balancing-a-number-that-means-different-things/out/COV-09.md) · [OpenDocument](/studies/COV-09-balancing-a-number-that-means-different-things/out/COV-09.odt)
+
 ### [COV-12](problems/COV-12-no-aggregate-integration-method-for-median-based-covariate-s.qmd) — Reconstructing a target covariate from a median: when the mean is enough and when it is not
 
 **Question.** When a target publication reports a skewed covariate as a median with IQR or range, how much error does reconstructing its marginal put into a target-standardized contrast, and is that error a function of the reconstructed mean alone?
@@ -66,6 +86,16 @@ Read it: [PDF](/studies/CMU-02-prior-driven-posteriors/out/CMU-02.pdf) · [Markd
 **What it does not answer.** One covariate with a known conditional model; estimated outcome models and multivariate marginals with dependence (CMP-15) are not covered. The lognormal matcher suits right skew only. ML-NMR integration is represented by direct integration. Two cells were run before a regressor correction and discarded unread. Peer review has not been done.
 
 Read it: [PDF](/studies/COV-12-median-summaries-into-integration/out/COV-12.pdf) · [Markdown](/studies/COV-12-median-summaries-into-integration/out/COV-12.md) · [OpenDocument](/studies/COV-12-median-summaries-into-integration/out/COV-12.odt)
+
+### [COV-14](problems/COV-14-per-comparator-adjustment-sets-yield-non-comparable-paic-con.qmd) — Covariate sets that differ across comparators, and the ranking read from them
+
+**Question.** When one individual-data trial is compared with several aggregate comparators that report different covariates, does adjusting each contrast for everything it reports give a worse ranking than adjusting all contrasts for the common set, even though each contrast is less biased?
+
+**Answer.** Neither adjustment rule protects the ranking. The common (intersection) set ranked better in 15 of 36 scenarios and the maximal sets in 19; which wins depends on whether the omission bias pushes a lower-ranked comparator past a higher one, which the data do not show. The registered inversion was not confirmed in the primary scenarios, whose pattern turned out to widen the top comparator's lead, but held in all six Fawsitt-like scenarios with similar populations. The intersection's per-contrast bias was a median 2.4 times the maximal. A bounded analysis over the other comparators' reported means covered at least 0.93 with similar comparator populations at little extra width.
+
+**What it does not answer.** Continuous outcome and independent covariates; non-collapsible outcomes, correlated omissions, a single ML-NMR network fit and overlap as a factor were not run. Three reporting patterns sample but do not exhaust where omissions can fall. Peer review has not been done.
+
+Read it: [PDF](/studies/COV-14-adjustment-sets-across-comparators/out/COV-14.pdf) · [Markdown](/studies/COV-14-adjustment-sets-across-comparators/out/COV-14.md) · [OpenDocument](/studies/COV-14-adjustment-sets-across-comparators/out/COV-14.odt)
 
 ### [DIA-02](problems/DIA-02-no-agreed-ess-definition-and-no-support-geometry-diagnostics.qmd) — The reported weight panel cannot see where support is missing
 
@@ -171,6 +201,16 @@ Read it: [PDF](/studies/OUT-02-effective-event-sample-size/out/OUT-02.pdf) · [M
 
 Read it: [PDF](/studies/OUT-06-baseline-severity-as-a-modifier-of-its-own-adjustment/out/OUT-06.pdf) · [Markdown](/studies/OUT-06-baseline-severity-as-a-modifier-of-its-own-adjustment/out/OUT-06.md) · [OpenDocument](/studies/OUT-06-baseline-severity-as-a-modifier-of-its-own-adjustment/out/OUT-06.odt)
 
+### [OUT-14](problems/OUT-14-pseudo-ipd-cannot-express-delayed-entry-or-assessment-window.qmd) — Assessment grids that differ between trials
+
+**Question.** When two trials assess progression on different visit schedules, how much does treating recorded event times as exact bias a transported RMST difference, and do midpoint imputation or an interval-censored model remove it?
+
+**Answer.** Treating visit-recorded event times as exact biases a cross-trial RMST difference by half the spacing times the event probability by the horizon, with the sign set by which trial visits less often. A 3-month difference in spacing produced a spurious difference of 1.4 months with no true effect, and removed 1.0 of a true 1.2 months in another scenario. Moving events to the interval midpoint or fitting an interval-censored model reduced the bias below 0.1 month.
+
+**What it does not answer.** Binary event-by-time endpoints, different maximum follow-up, reconstruction error from digitized curves and visit-window jitter were not simulated. Peer review has not been done.
+
+Read it: [PDF](/studies/OUT-14-an-assessment-grid-that-looks-like-a-treatment-effect/out/OUT-14.pdf) · [Markdown](/studies/OUT-14-an-assessment-grid-that-looks-like-a-treatment-effect/out/OUT-14.md) · [OpenDocument](/studies/OUT-14-an-assessment-grid-that-looks-like-a-treatment-effect/out/OUT-14.odt)
+
 ### [OVL-02](problems/OVL-02-ess-is-an-insufficient-overlap-diagnostic-and-no-battery-is-.qmd) — An infeasible MAIC is signaled by its own balance table, not by its effective sample size
 
 **Question.** MAIC has no solution when the target mean lies outside the convex hull of the source covariates. Does the optimizer say so, and can ESS, the maximum weight or the residual balance tell infeasible analyses from hard feasible ones?
@@ -207,15 +247,13 @@ Read it: [PDF](/studies/SFW-10-stacked-variance-and-a-defined-post-trimming-esti
 
 | Problem | Study | Status |
 |---|---|---|
-| [ADJ-15](problems/ADJ-15-privacy-guarantees-and-governance-for-shared-trial-level-dat.qmd) | Target moments released under differential privacy | running |
+| [ADJ-09](problems/ADJ-09-cross-environment-invariance-as-a-screen-for-bridges-and-mod.qmd) | An invariance screen for a bridging assumption, scored as a classifier | running |
 | [CMP-20](problems/CMP-20-poisson-aggregate-likelihood-needs-zero-exposure-rate-covari.qmd) | The exposure-rate covariance the Poisson aggregate likelihood assumes away | running |
 | [COV-03](problems/COV-03-design-dependent-roles-of-prognostic-covariates.qmd) | What an anchored comparison must balance on a non-collapsible scale | running |
-| [COV-09](problems/COV-09-measurement-non-equivalence-of-covariates-across-trials.qmd) | The same covariate name, two instruments | running |
-| [COV-14](problems/COV-14-per-comparator-adjustment-sets-yield-non-comparable-paic-con.qmd) | Covariate sets that differ across comparators, and the ranking read from them | running |
 | [DEC-11](problems/DEC-11-intervals-omit-selection-reconstruction-and-target-summary-e.qmd) | Coverage of an STC interval after selecting effect modifiers on the same data | running |
+| [DIA-14](problems/DIA-14-qba-is-judged-on-oracle-recovery-not-honest-classification.qmd) | A quantitative bias analysis verdict scored as a classifier | running |
 | [MIS-01](problems/MIS-01-missing-aggregate-summaries-and-unavailable-ipd-have-no-reme.qmd) | Missing covariate values in the individual-data trial of a MAIC | running |
 | [OUT-08](problems/OUT-08-overdispersed-counts-and-recurrent-events-as-total-disease-b.qmd) | Overdispersed and zero-inflated counts transported by G-computation | running |
-| [OUT-14](problems/OUT-14-pseudo-ipd-cannot-express-delayed-entry-or-assessment-window.qmd) | Assessment grids that differ between trials | running |
 
 :::
 
