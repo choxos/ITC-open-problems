@@ -1,7 +1,22 @@
 {
  "problem_id": "ADJ-17",
- "title": "What a reconstruction-objective encoding drops",
- "status": "running",
+ "title": "An encoding that reconstructs 91% of the covariates' variance dropped the effect modifier entirely",
+ "status": "complete",
  "question": "Can a covariate encoding learned to reconstruct the covariates drop an effect modifier while reconstructing them well, and would a declared mapping or the full covariate set avoid the resulting transport bias?",
- "design": "Twenty covariates with five strong and fifteen weak directions; the modifier on a strong or weak direction; STC on 2, 5 or 10 principal components, on all covariates, or on a declared modifier score, standardized to a shifted target. 12 cells, 1000 replicates each."
+ "design": "Twenty covariates with five strong and fifteen weak directions; the modifier on a strong or weak direction; STC on 2, 5 or 10 principal components, on all covariates, or on a declared modifier score, standardized to a shifted target. 12 cells, 1000 replicates each.",
+ "date_completed": "2026-09-23",
+ "answer": "No. With the treatment effect modified along a low-variance direction of 20 covariates, STC on five principal components reconstructed 91% of the covariate variance and lost the whole modification: bias -0.20 at a 0.5 SD target shift and -0.40 at 1 SD, coverage 0.49 and 0.02. Ten components (95% reconstructed) still lost most of it. STC on all covariates or on a declared modifier score was unbiased with nominal coverage in every cell, so reconstruction quality does not certify an encoding for transport.",
+ "findings": [
+  "Low-variance modifier: bias at 2, 5, 10 components -0.20, -0.20, -0.14 (0.5 SD shift).",
+  "High-variance modifier: kept at 5 and 10 components; partly lost at 2 because the leading directions had equal variance.",
+  "All-covariate and declared-score STC: bias within 0.01, coverage 0.937 to 0.961."
+ ],
+ "not_answered": "Principal components only; no treatment-effect-preserving or nonlinear encoder, nonlinear heterogeneity or measurement shift; continuous outcome. Peer review has not been done.",
+ "estimand": "Target-population mean difference, -0.5 + 0.4 times the shift along the modifier",
+ "methods_compared": [
+  "STC on principal components (2, 5, 10)",
+  "STC on all covariates",
+  "STC on a declared modifier score"
+ ],
+ "n_sim": "1000 per cell, 12 cells"
 }

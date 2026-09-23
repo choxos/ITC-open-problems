@@ -139,6 +139,40 @@
   "primary_problem": "ADJ-15",
   "secondary": false
  },
+ "ADJ-17": {
+  "slug": "ADJ-17-what-an-encoding-drops",
+  "title": "An encoding that reconstructs 91% of the covariates' variance dropped the effect modifier entirely",
+  "status": "complete",
+  "question": "Can a covariate encoding learned to reconstruct the covariates drop an effect modifier while reconstructing them well, and would a declared mapping or the full covariate set avoid the resulting transport bias?",
+  "answer": "No. With the treatment effect modified along a low-variance direction of 20 covariates, STC on five principal components reconstructed 91% of the covariate variance and lost the whole modification: bias -0.20 at a 0.5 SD target shift and -0.40 at 1 SD, coverage 0.49 and 0.02. Ten components (95% reconstructed) still lost most of it. STC on all covariates or on a declared modifier score was unbiased with nominal coverage in every cell, so reconstruction quality does not certify an encoding for transport.",
+  "findings": [
+   "Low-variance modifier: bias at 2, 5, 10 components -0.20, -0.20, -0.14 (0.5 SD shift).",
+   "High-variance modifier: kept at 5 and 10 components; partly lost at 2 because the leading directions had equal variance.",
+   "All-covariate and declared-score STC: bias within 0.01, coverage 0.937 to 0.961."
+  ],
+  "not_answered": "Principal components only; no treatment-effect-preserving or nonlinear encoder, nonlinear heterogeneity or measurement shift; continuous outcome. Peer review has not been done.",
+  "design": "Twenty covariates with five strong and fifteen weak directions; the modifier on a strong or weak direction; STC on 2, 5 or 10 principal components, on all covariates, or on a declared modifier score, standardized to a shifted target. 12 cells, 1000 replicates each.",
+  "n_sim": "1000 per cell, 12 cells",
+  "estimand": "Target-population mean difference, -0.5 + 0.4 times the shift along the modifier",
+  "methods_compared": [
+   "STC on principal components (2, 5, 10)",
+   "STC on all covariates",
+   "STC on a declared modifier score"
+  ],
+  "date_completed": "2026-09-23",
+  "week": null,
+  "code": "studies/ADJ-17-what-an-encoding-drops",
+  "protocol": "studies/ADJ-17-what-an-encoding-drops/out/ADJ-17-protocol.md",
+  "review": null,
+  "review_rounds": 0,
+  "downloads": {
+   "gfm": "studies/ADJ-17-what-an-encoding-drops/out/ADJ-17.md",
+   "pdf": "studies/ADJ-17-what-an-encoding-drops/out/ADJ-17.pdf",
+   "odt": "studies/ADJ-17-what-an-encoding-drops/out/ADJ-17.odt"
+  },
+  "primary_problem": "ADJ-17",
+  "secondary": false
+ },
  "CMP-03": {
   "slug": "CMP-03-estimable-by-assumption",
   "title": "An omitted component interaction biases never-administered regimens and leaks into regimens that do not contain it",
@@ -204,6 +238,28 @@
    "odt": "studies/CMP-06-component-miscoding-and-connectivity/out/CMP-06.odt"
   },
   "primary_problem": "CMP-06",
+  "secondary": false
+ },
+ "CMP-11": {
+  "slug": "CMP-11-untransported-aggregate-edges",
+  "title": "Two-stage pooling of edges that live in different populations",
+  "status": "running",
+  "question": "How large is the bias from pooling edges standardized to the target with edges left in their own populations, and is the two-stage route still the better practical choice than carrying every edge to the target?",
+  "answer": null,
+  "findings": [],
+  "not_answered": null,
+  "design": "Eight trials of one component, a quarter to three quarters with individual data, aggregate trials separated from the target by 0 to 1 SD, effect modification absent or present, continuous or binary outcome; two-stage marginal and conditional pooling against a transported alternative. 36 cells, 1000 replicates each.",
+  "n_sim": null,
+  "estimand": null,
+  "methods_compared": [],
+  "date_completed": null,
+  "week": null,
+  "code": "studies/CMP-11-untransported-aggregate-edges",
+  "protocol": "studies/CMP-11-untransported-aggregate-edges/out/CMP-11-protocol.md",
+  "review": null,
+  "review_rounds": 0,
+  "downloads": {},
+  "primary_problem": "CMP-11",
   "secondary": false
  },
  "CMP-12": {
@@ -392,6 +448,50 @@
   "primary_problem": "CMP-15",
   "secondary": false
  },
+ "CMP-16": {
+  "slug": "CMP-16-one-tau-across-a-network-that-is-not-exchangeable",
+  "title": "One heterogeneity parameter across two subnetworks that differ in it",
+  "status": "running",
+  "question": "When two subnetworks of a bridged network have different between-study heterogeneity, does a shared tau give the bridged contrast valid intervals, and do stratified or shrunk alternatives do better at realistic study counts?",
+  "answer": null,
+  "findings": [],
+  "not_answered": null,
+  "design": "A bridged contrast summing two subnetworks' pooled effects; heterogeneity ratio 1, 2 or 5 in the bridging or the other subnetwork; 3, 6 or 12 studies each; shared, stratified and shrunk REML heterogeneity with Wald and Hartung-Knapp intervals. 15 cells, 2000 replicates each.",
+  "n_sim": null,
+  "estimand": null,
+  "methods_compared": [],
+  "date_completed": null,
+  "week": null,
+  "code": "studies/CMP-16-one-tau-across-a-network-that-is-not-exchangeable",
+  "protocol": "studies/CMP-16-one-tau-across-a-network-that-is-not-exchangeable/out/CMP-16-protocol.md",
+  "review": null,
+  "review_rounds": 0,
+  "downloads": {},
+  "primary_problem": "CMP-16",
+  "secondary": false
+ },
+ "CMP-18": {
+  "slug": "CMP-18-time-varying-component-effects",
+  "title": "Time-constant component effects when the components' effects vary in time differently",
+  "status": "running",
+  "question": "When two components have different time profiles of effect and their trials differ in follow-up, does adding their time-constant hazard ratios predict the combination's RMST, and does a piecewise extension fix it?",
+  "answer": null,
+  "findings": [],
+  "not_answered": null,
+  "design": "Trials of each component against control with constant, jointly delayed, or delayed-versus-waning effects and equal or unequal follow-up; stratified Cox with time-constant or piecewise component effects predicting the combination's 3-year RMST difference. 4 cells, 500 replicates each.",
+  "n_sim": null,
+  "estimand": null,
+  "methods_compared": [],
+  "date_completed": null,
+  "week": null,
+  "code": "studies/CMP-18-time-varying-component-effects",
+  "protocol": "studies/CMP-18-time-varying-component-effects/out/CMP-18-protocol.md",
+  "review": null,
+  "review_rounds": 0,
+  "downloads": {},
+  "primary_problem": "CMP-18",
+  "secondary": false
+ },
  "CMP-20": {
   "slug": "CMP-20-poisson-exposure-rate-covariance",
   "title": "The aggregate Poisson likelihood is biased by the exposure-rate covariance, and exposure-weighted covariate moments remove the bias",
@@ -427,6 +527,28 @@
   "primary_problem": "CMP-20",
   "secondary": false
  },
+ "CMP-21": {
+  "slug": "CMP-21-congenial-imputation-and-a-tipping-point-that-may-not-be-unique",
+  "title": "One MNAR sensitivity parameter through several routes, and the shape of the tipping set",
+  "status": "running",
+  "question": "When an MNAR shift in imputed effect-modifier values enters a transported anchored contrast through several routes, is the contrast monotone in the shift, and is the tipping point a single value?",
+  "answer": null,
+  "findings": [],
+  "not_answered": null,
+  "design": "Two anchored individual-data trials with MNAR missing modifier values (equal or differing missingness), imputation plus a sensitivity shift over [-1.5, 1.5], STC standardized over a target law with a fixed or data-derived SD. 4 cells, 500 replicates each.",
+  "n_sim": null,
+  "estimand": null,
+  "methods_compared": [],
+  "date_completed": null,
+  "week": null,
+  "code": "studies/CMP-21-congenial-imputation-and-a-tipping-point-that-may-not-be-unique",
+  "protocol": "studies/CMP-21-congenial-imputation-and-a-tipping-point-that-may-not-be-unique/out/CMP-21-protocol.md",
+  "review": null,
+  "review_rounds": 0,
+  "downloads": {},
+  "primary_problem": "CMP-21",
+  "secondary": false
+ },
  "CMP-22": {
   "slug": "CMP-22-measuring-the-dependence-before-modeling-it",
   "title": "Which trials supply individual data, and what selection on it does",
@@ -459,6 +581,28 @@
    "odt": "studies/CMP-22-measuring-the-dependence-before-modeling-it/out/CMP-22.odt"
   },
   "primary_problem": "CMP-22",
+  "secondary": false
+ },
+ "CMP-24": {
+  "slug": "CMP-24-edge-influence-approximation",
+  "title": "cpaic's diagonal-weight edge influence against refitted references",
+  "status": "running",
+  "question": "Does the diagonal-weight influence that cpaic's edge_influence() reports rank studies the way refitted leave-one-study-out references do, once multi-arm covariance and re-estimated heterogeneity enter?",
+  "answer": null,
+  "findings": [],
+  "not_answered": null,
+  "design": "Random four-treatment networks of 8 or 16 studies, two-arm only or with three-arm studies, tau 0 to 0.3; diagonal influence against leave-one-study-out variance importance and estimate change with tau re-estimated. 12 cells, 500 networks each.",
+  "n_sim": null,
+  "estimand": null,
+  "methods_compared": [],
+  "date_completed": null,
+  "week": null,
+  "code": "studies/CMP-24-edge-influence-approximation",
+  "protocol": "studies/CMP-24-edge-influence-approximation/out/CMP-24-protocol.md",
+  "review": null,
+  "review_rounds": 0,
+  "downloads": {},
+  "primary_problem": "CMP-24",
   "secondary": false
  },
  "CMU-02": {
@@ -1184,6 +1328,28 @@
    "odt": "studies/DIA-09-outcome-families-beyond-the-hazard-ratio/out/DIA-09.odt"
   },
   "primary_problem": "DIA-09",
+  "secondary": false
+ },
+ "DIA-10": {
+  "slug": "DIA-10-access-driven-error-attributed-to-the-method",
+  "title": "Does reconstruction error change the ranking of methods or only their level?",
+  "status": "running",
+  "question": "When the comparator arm must be reconstructed from a published Kaplan-Meier figure, does the reconstruction error change which method performs best, as it would if it penalized likelihood-based methods more, or does it only shift every method's error?",
+  "answer": null,
+  "findings": [],
+  "not_answered": null,
+  "design": "OUT-13's publication and reconstruction model; Kaplan-Meier and Weibull RMST on true and reconstructed data and the digitized curve integrated directly; fine or coarse figures, 6-monthly risk table or none, spread or clustered censoring. 8 cells, 1000 replicates each.",
+  "n_sim": null,
+  "estimand": null,
+  "methods_compared": [],
+  "date_completed": null,
+  "week": null,
+  "code": "studies/DIA-10-access-driven-error-attributed-to-the-method",
+  "protocol": "studies/DIA-10-access-driven-error-attributed-to-the-method/out/DIA-10-protocol.md",
+  "review": null,
+  "review_rounds": 0,
+  "downloads": {},
+  "primary_problem": "DIA-10",
   "secondary": false
  },
  "DIA-13": {
