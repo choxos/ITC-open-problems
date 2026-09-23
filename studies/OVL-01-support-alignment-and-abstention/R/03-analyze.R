@@ -27,7 +27,6 @@ au <- do.call(rbind, lapply(c(list(all = d), split(d, d$c_trunc)), function(z) d
     a <- auroc(scores[[s]](z), z[[f]])
     bs <- replicate(200, { i <- sample.int(nrow(z), replace = TRUE); auroc(scores[[s]](z[i, ]), z[[f]][i]) })
     data.frame(c_trunc = z$c_trunc[1], failure = f, diagnostic = s, auroc = a, se = stats::sd(bs), failure_rate = mean(z[[f]])) }))))))
-au$c_trunc[au$c_trunc == Inf & nrow(au) > 0] <- au$c_trunc[au$c_trunc == Inf]
 au$pool <- rep(c("all", names(split(d, d$c_trunc))), each = 12)
 write.csv(au, "results/auroc.csv", row.names = FALSE)
 

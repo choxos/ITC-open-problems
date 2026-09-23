@@ -23,6 +23,12 @@ below are attributed to that document and were checked independently where possi
 anything that could not be independently sourced is marked in the verification trail.
 :::
 
+::: {.callout-important appearance="simple"}
+## A study has been run against this problem
+
+Unsupported target mass caused bias only where the effect bent in the unsupported direction (up to 0.29 for G-computation and 0.30 for MAIC with 27% of the target unsupported), and none with linear modification or orthogonal alignment. Weight and covariate diagnostics, identical across those scenarios by construction, discriminated failed analyses at chance within an overlap level (AUROC 0.48 to 0.52). An outcome-informed score reached 0.59 to 0.66, missing the registered margin by 0.01; neither was usable. Trimming to the supported region was unbiased for the restricted estimand. [Read the study below](#our-study).
+:::
+
 ## Statement
 
 Weak overlap between the source individual patient data and the target population can produce highly variable MAIC weights, a low effective sample size and unstable inference, and can push outcome-regression predictions into regions where they rely heavily on extrapolation; applied work contains exactly this, with 93 pooled patients reduced to an effective sample size of 29 (doi:10.1016/j.clcc.2026.04.003). These are consequences that can occur, not necessities: finite-moment MAIC can retain a healthy effective sample size while still failing to cover unsupported regions or unbalanced features, so a comfortable ESS is not evidence of support. ESS is itself only a concentration functional of the weights, and Phillippo et al. 2018 record that the Kish approximation 'is likely to be an underestimation of the true ESS' because the weights are estimated and correlated with the outcome (doi:10.1177/0272989X17725740); precision is additionally governed by estimator-specific influence, weighted outcome variance, treatment allocation, and for survival outcomes weighted risk-set and event information. What no estimator can fix is the nonparametric identification failure: where target covariate mass is absent from the source, reporting an effect requires stronger modeling assumptions, target redefinition, sensitivity analysis or abstention.
@@ -51,14 +57,40 @@ Report precision in estimator-specific terms rather than through Kish ESS alone:
 
 ## Our study
 
-::: {.callout-note}
-## A study is running
+::: {.study-result}
+**Unsupported target mass matters only where the effect is modified**
 
-**Question.** When part of the target population lies outside the source trial's support, do weight and covariate diagnostics identify the analyses that fail, or is the modification in the unsupported region, which they cannot see, what decides it?
+**The question put to it.** When part of the target population lies outside the source trial's support, do weight and covariate diagnostics identify the analyses that fail, or is the modification in the unsupported region, which they cannot see, what decides it?
 
-**Design.** Anchored transport with one covariate truncated in the source; 36 cells crossing unsupported mass, whether the unsupported direction modifies the effect, linear or bent modification and its strength; MAIC, spline G-computation and trimmed G-computation; weight diagnostics and an outcome-informed score scored as classifiers of failure. 1000 replicates per cell.
+**What it found.** Unsupported target mass caused bias only where the effect bent in the unsupported direction (up to 0.29 for G-computation and 0.30 for MAIC with 27% of the target unsupported), and none with linear modification or orthogonal alignment. Weight and covariate diagnostics, identical across those scenarios by construction, discriminated failed analyses at chance within an overlap level (AUROC 0.48 to 0.52). An outcome-informed score reached 0.59 to 0.66, missing the registered margin by 0.01; neither was usable. Trimming to the supported region was unbiased for the restricted estimand.
 
-The protocol is registered before any result is seen: [read it](/studies/OVL-01-support-alignment-and-abstention/out/OVL-01-protocol.md).
+**Results.**
+
+- Registered verdict NEITHER USABLE: at the largest unsupported mass, alignment-aware score minus Kish ESS AUROC 0.090 (SE 0.013) against a 0.10 margin, both below 0.7.
+- Bias with full alignment and bent modification: -0.29 (G-computation) and -0.30 (MAIC); orthogonal alignment at most 0.023; linear modification at most 0.017 at every truncation.
+- Kish ESS, unsupported mass and largest weight share: AUROC 0.48 to 0.52 within each overlap level.
+- Trimmed G-computation against the restricted estimand: bias at most 0.026, coverage 0.926 to 0.962.
+
+**Design.**
+
+Estimand
+:   Target mean difference over the whole target law; restricted estimand over the supported region
+
+Methods compared
+:   MAIC on target means, spline G-computation, G-computation trimmed to the observed range, Kish ESS, unsupported mass, largest weight share and an outcome-informed alignment score as diagnostics
+
+Data-generating mechanism
+:   Anchored transport with one covariate truncated in the source; 36 cells crossing unsupported mass, whether the unsupported direction modifies the effect, linear or bent modification and its strength; MAIC, spline G-computation and trimmed G-computation; weight diagnostics and an outcome-informed score scored as classifiers of failure. 1000 replicates per cell.
+
+Replicates
+:   1000 per scenario, 36,000 in total
+
+**What this does not answer.** Continuous outcome, two covariates; ML-NMR, ML-UMR and NMI not run; failure defined by non-coverage. Peer review has not been done.
+
+**Peer review.** Not yet done. The result stands on the study alone until it is.
+
+Read it: [PDF](/studies/OVL-01-support-alignment-and-abstention/out/OVL-01.pdf) · [Markdown](/studies/OVL-01-support-alignment-and-abstention/out/OVL-01.md) · [OpenDocument](/studies/OVL-01-support-alignment-and-abstention/out/OVL-01.odt) · Code and data: [studies/OVL-01-support-alignment-and-abstention](https://github.com/choxos/ITC-open-problems/tree/main/studies/OVL-01-support-alignment-and-abstention) · Protocol: [registered before the run](/studies/OVL-01-support-alignment-and-abstention/out/OVL-01-protocol.md)
+
 :::
 
 ## Verification

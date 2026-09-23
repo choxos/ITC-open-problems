@@ -1,7 +1,24 @@
 {
  "problem_id": "OVL-01",
  "title": "Unsupported target mass matters only where the effect is modified",
- "status": "running",
+ "status": "complete",
  "question": "When part of the target population lies outside the source trial's support, do weight and covariate diagnostics identify the analyses that fail, or is the modification in the unsupported region, which they cannot see, what decides it?",
- "design": "Anchored transport with one covariate truncated in the source; 36 cells crossing unsupported mass, whether the unsupported direction modifies the effect, linear or bent modification and its strength; MAIC, spline G-computation and trimmed G-computation; weight diagnostics and an outcome-informed score scored as classifiers of failure. 1000 replicates per cell."
+ "design": "Anchored transport with one covariate truncated in the source; 36 cells crossing unsupported mass, whether the unsupported direction modifies the effect, linear or bent modification and its strength; MAIC, spline G-computation and trimmed G-computation; weight diagnostics and an outcome-informed score scored as classifiers of failure. 1000 replicates per cell.",
+ "date_completed": "2026-09-23",
+ "answer": "Unsupported target mass caused bias only where the effect bent in the unsupported direction (up to 0.29 for G-computation and 0.30 for MAIC with 27% of the target unsupported), and none with linear modification or orthogonal alignment. Weight and covariate diagnostics, identical across those scenarios by construction, discriminated failed analyses at chance within an overlap level (AUROC 0.48 to 0.52). An outcome-informed score reached 0.59 to 0.66, missing the registered margin by 0.01; neither was usable. Trimming to the supported region was unbiased for the restricted estimand.",
+ "findings": [
+  "Registered verdict NEITHER USABLE: at the largest unsupported mass, alignment-aware score minus Kish ESS AUROC 0.090 (SE 0.013) against a 0.10 margin, both below 0.7.",
+  "Bias with full alignment and bent modification: -0.29 (G-computation) and -0.30 (MAIC); orthogonal alignment at most 0.023; linear modification at most 0.017 at every truncation.",
+  "Kish ESS, unsupported mass and largest weight share: AUROC 0.48 to 0.52 within each overlap level.",
+  "Trimmed G-computation against the restricted estimand: bias at most 0.026, coverage 0.926 to 0.962."
+ ],
+ "not_answered": "Continuous outcome, two covariates; ML-NMR, ML-UMR and NMI not run; failure defined by non-coverage. Peer review has not been done.",
+ "estimand": "Target mean difference over the whole target law; restricted estimand over the supported region",
+ "methods_compared": [
+  "MAIC on target means",
+  "spline G-computation",
+  "G-computation trimmed to the observed range",
+  "Kish ESS, unsupported mass, largest weight share and an outcome-informed alignment score as diagnostics"
+ ],
+ "n_sim": "1000 per scenario, 36,000 in total"
 }

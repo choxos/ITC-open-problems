@@ -283,6 +283,38 @@
   "primary_problem": "CMU-02",
   "secondary": false
  },
+ "COV-02": {
+  "slug": "COV-02-the-modifier-set-is-a-property-of-the-scale",
+  "title": "The adjustment set is a property of the scale",
+  "status": "complete",
+  "question": "Does the set of covariates whose imbalance changes a transported contrast differ between the risk difference, risk ratio, marginal odds ratio and conditional odds ratio scales?",
+  "answer": "The covariates a transported contrast depends on change with the scale, but not in the nested way DESIGN.md predicted. Prognostic non-modifiers never affected the conditional log odds ratio and affected some marginal scale by more than 5% in 13 of 24 scenarios, the risk difference included, because with a logistic model every prognostic variable modifies the risk difference; the risk difference was in fact the most sensitive scale (median 4.5% change per unbalanced prognostic variable, against 1.6% for the marginal odds ratio). Sets differed between the risk difference, marginal and conditional odds ratio in 10 of 24 scenarios, below the registered threshold of half, so the refuting sentence holds as registered.",
+  "findings": [
+   "Registered verdict: refuting sentence HOLDS (sets differ in 42% of scenarios against a 50% threshold).",
+   "Marginal odds ratio set containing the risk-difference set (DESIGN.md's prediction): 19 of 24 scenarios.",
+   "Median relative change from one unbalanced prognostic variable: 0.045 (risk difference), 0.035 (log risk ratio), 0.016 (marginal log odds ratio), 0 (conditional log odds ratio). Near-null contrasts inflate relative changes."
+  ],
+  "not_answered": "No time-to-event scale; no sampling or estimation of the sets; independent normal covariates. Peer review has not been done.",
+  "design": "Population-level numerical study: logistic outcome with 0 to 3 conditional modifiers and 2 or 6 prognostic non-modifiers, two prognostic strengths and two imbalances; each covariate's omission scored by its relative change in the target contrast on four scales.",
+  "n_sim": "Population-level calculation, 24 scenarios, 10^6 common random draws each",
+  "estimand": "Target A-versus-C contrast on the risk difference, log risk ratio, marginal and conditional log odds ratio scales",
+  "methods_compared": [
+   "mean balancing with each covariate in turn left unbalanced"
+  ],
+  "date_completed": "2026-09-23",
+  "week": null,
+  "code": "studies/COV-02-the-modifier-set-is-a-property-of-the-scale",
+  "protocol": "studies/COV-02-the-modifier-set-is-a-property-of-the-scale/out/COV-02-protocol.md",
+  "review": null,
+  "review_rounds": 0,
+  "downloads": {
+   "gfm": "studies/COV-02-the-modifier-set-is-a-property-of-the-scale/out/COV-02.md",
+   "pdf": "studies/COV-02-the-modifier-set-is-a-property-of-the-scale/out/COV-02.pdf",
+   "odt": "studies/COV-02-the-modifier-set-is-a-property-of-the-scale/out/COV-02.odt"
+  },
+  "primary_problem": "COV-02",
+  "secondary": false
+ },
  "COV-03": {
   "slug": "COV-03-prognostic-index-variance",
   "title": "What an anchored comparison must balance on a non-collapsible scale",
@@ -1408,22 +1440,36 @@
  "OVL-01": {
   "slug": "OVL-01-support-alignment-and-abstention",
   "title": "Unsupported target mass matters only where the effect is modified",
-  "status": "running",
+  "status": "complete",
   "question": "When part of the target population lies outside the source trial's support, do weight and covariate diagnostics identify the analyses that fail, or is the modification in the unsupported region, which they cannot see, what decides it?",
-  "answer": null,
-  "findings": [],
-  "not_answered": null,
+  "answer": "Unsupported target mass caused bias only where the effect bent in the unsupported direction (up to 0.29 for G-computation and 0.30 for MAIC with 27% of the target unsupported), and none with linear modification or orthogonal alignment. Weight and covariate diagnostics, identical across those scenarios by construction, discriminated failed analyses at chance within an overlap level (AUROC 0.48 to 0.52). An outcome-informed score reached 0.59 to 0.66, missing the registered margin by 0.01; neither was usable. Trimming to the supported region was unbiased for the restricted estimand.",
+  "findings": [
+   "Registered verdict NEITHER USABLE: at the largest unsupported mass, alignment-aware score minus Kish ESS AUROC 0.090 (SE 0.013) against a 0.10 margin, both below 0.7.",
+   "Bias with full alignment and bent modification: -0.29 (G-computation) and -0.30 (MAIC); orthogonal alignment at most 0.023; linear modification at most 0.017 at every truncation.",
+   "Kish ESS, unsupported mass and largest weight share: AUROC 0.48 to 0.52 within each overlap level.",
+   "Trimmed G-computation against the restricted estimand: bias at most 0.026, coverage 0.926 to 0.962."
+  ],
+  "not_answered": "Continuous outcome, two covariates; ML-NMR, ML-UMR and NMI not run; failure defined by non-coverage. Peer review has not been done.",
   "design": "Anchored transport with one covariate truncated in the source; 36 cells crossing unsupported mass, whether the unsupported direction modifies the effect, linear or bent modification and its strength; MAIC, spline G-computation and trimmed G-computation; weight diagnostics and an outcome-informed score scored as classifiers of failure. 1000 replicates per cell.",
-  "n_sim": null,
-  "estimand": null,
-  "methods_compared": [],
-  "date_completed": null,
+  "n_sim": "1000 per scenario, 36,000 in total",
+  "estimand": "Target mean difference over the whole target law; restricted estimand over the supported region",
+  "methods_compared": [
+   "MAIC on target means",
+   "spline G-computation",
+   "G-computation trimmed to the observed range",
+   "Kish ESS, unsupported mass, largest weight share and an outcome-informed alignment score as diagnostics"
+  ],
+  "date_completed": "2026-09-23",
   "week": null,
   "code": "studies/OVL-01-support-alignment-and-abstention",
   "protocol": "studies/OVL-01-support-alignment-and-abstention/out/OVL-01-protocol.md",
   "review": null,
   "review_rounds": 0,
-  "downloads": {},
+  "downloads": {
+   "gfm": "studies/OVL-01-support-alignment-and-abstention/out/OVL-01.md",
+   "pdf": "studies/OVL-01-support-alignment-and-abstention/out/OVL-01.pdf",
+   "odt": "studies/OVL-01-support-alignment-and-abstention/out/OVL-01.odt"
+  },
   "primary_problem": "OVL-01",
   "secondary": false
  },
