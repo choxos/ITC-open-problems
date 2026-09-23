@@ -16,6 +16,12 @@ maturity: "Promising"
 [High priority]{.chip .chip-priority-high}
 [Promising]{.chip .chip-maturity-promising}
 :::
+::: {.callout-important appearance="simple"}
+## A study has been run against this problem
+
+For choices among MAIC and STC specifications the candidates are close: choosing the most precise method covered 0.938 to 0.956, like a prespecified one. Choosing the most favorable estimate shifted it by up to 0.26 on the log odds ratio scale while its interval still covered 0.927 or more, because the favored method often had a wide interval. Averaging with between-model variance over-covered (up to 0.991) because the candidates share data; that difference makes the refuting sentence fail as registered. [Read the study below](#our-study).
+:::
+
 ## Statement
 
 When an ITC or PAIC model is chosen or tuned adaptively and the reported interval conditions on that choice, unconditional coverage can be understated, and no post-selection or shrinkage-propagation machinery has been adapted to population adjustment; both auditors searched and found nothing PAIC-specific. The stronger form does not hold, because regularization is not the same as omitted uncertainty: a Bayesian fit that carries posterior draws through to the transported effect does propagate shrinkage, as the development source choxos/cpaic@9d150e9 does, so what is actually omitted is discrete model-selection uncertainty and the choice of prior scale. The word 'commonly' is an empirical claim the source did not support; the nearest evidence is a methodological review of PAIC publications finding that key methodological aspects were reported inconsistently, with appropriate uncertainty measures among the less-followed recommendations (doi:10.1016/j.jclinepi.2023.09.004).
@@ -38,6 +44,46 @@ Post-selection inference and honest sample splitting exist in general statistics
 ## Probable solution or research direction
 
 Port existing machinery instead of inventing it: stacking or model averaging over scientifically plausible modifier sets, projection-predictive selection from a rich reference model, shrinkage priors with the full posterior carried into the transported effect, and honest splitting or cross-fitting where sample size permits. Do not present cross-fitting as the only valid route, since valid selective inference, resampling that repeats the selection step, debiasing and full Bayesian model averaging are alternatives with their own conditions. The PAIC-specific gap is that no coverage assessment of an effect-modifier selection procedure has been run with the selection step included, which is where the work should start.
+
+## Our study
+
+::: {.study-result}
+**Choosing among population-adjustment models on the same data**
+
+*This study was designed against [MIS-04](https://github.com/choxos/ITC-open-problems/tree/main/studies/MIS-04-selection-over-models-bridges-and-partitions) and bears on this entry in part. What it does not answer is stated below.*
+
+**The question put to it.** When the adjustment model is chosen from the analyzed data, does the chosen model's interval keep its coverage, and what does averaging over candidates change?
+
+**What it found.** For choices among MAIC and STC specifications the candidates are close: choosing the most precise method covered 0.938 to 0.956, like a prespecified one. Choosing the most favorable estimate shifted it by up to 0.26 on the log odds ratio scale while its interval still covered 0.927 or more, because the favored method often had a wide interval. Averaging with between-model variance over-covered (up to 0.991) because the candidates share data; that difference makes the refuting sentence fail as registered.
+
+**Results.**
+
+- Registered verdict FAILS, through the averaged interval's coverage differing from the prespecified one's by more than 0.03.
+- Selection by smallest SE: coverage 0.938 to 0.956, bias as the prespecified linear STC.
+- Selection by most favorable estimate: bias -0.046 to -0.259, coverage 0.927 to 0.960.
+- Equal-weight average with added between-model variance: coverage 0.949 to 0.991, the widest intervals.
+
+**Design.**
+
+Estimand
+:   Marginal log odds ratio, B versus A, in the target (DIA-08)
+
+Methods compared
+:   prespecified linear STC, prespecified MAIC on means, selection by smallest SE, selection by most favorable estimate, equal-weight model averaging
+
+Data-generating mechanism
+:   Re-scoring of DIA-08's stored replicates (16 scenarios x 2000) under prespecified, precision-selected, result-selected and averaged use of four adjustment methods.
+
+Replicates
+:   32,000 stored replicates from DIA-08 re-scored
+
+**What this does not answer.** Outcome and weighting models only; treatment partitions and bridges not studied; equal weights. Peer review has not been done.
+
+**Peer review.** Not yet done. The result stands on the study alone until it is.
+
+Read it: [PDF](/studies/MIS-04-selection-over-models-bridges-and-partitions/out/MIS-04.pdf) · [Markdown](/studies/MIS-04-selection-over-models-bridges-and-partitions/out/MIS-04.md) · [OpenDocument](/studies/MIS-04-selection-over-models-bridges-and-partitions/out/MIS-04.odt) · Code and data: [studies/MIS-04-selection-over-models-bridges-and-partitions](https://github.com/choxos/ITC-open-problems/tree/main/studies/MIS-04-selection-over-models-bridges-and-partitions) · Protocol: [registered before the run](/studies/MIS-04-selection-over-models-bridges-and-partitions/out/MIS-04-protocol.md)
+
+:::
 
 ## Verification
 

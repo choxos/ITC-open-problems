@@ -1,0 +1,87 @@
+# Decision
+
+**Refuting sentence (averaging over surviving candidates changes nothing, so conditional intervals are adequate): FAILS.** Coverage: prespecified linear STC 0.936 to 0.958; selection by smallest SE 0.938 to 0.956; selection by most favorable estimate 0.927 to 0.960; averaged 0.949 to 0.991.
+
+| departure | target mean | law | rule | bias | RMSE | coverage | width | most chosen (share) |
+|---|---:|---|---|---:|---:|---:|---:|---|
+| linear | 0.3 | normal | averaged | -0.007 | 0.260 | 0.949 | 0.996 | all (1.00) |
+| linear | 0.3 | normal | prespecified_maic | -0.000 | 0.271 | 0.935 | 0.999 | maic_means (1.00) |
+| linear | 0.3 | normal | most_favorable | -0.051 | 0.264 | 0.934 | 0.970 | stc_linear (0.29) |
+| linear | 0.3 | normal | min_se | -0.013 | 0.255 | 0.939 | 0.945 | stc_linear (0.67) |
+| linear | 0.3 | normal | prespecified_stc | -0.013 | 0.255 | 0.937 | 0.947 | stc_linear (1.00) |
+| threshold | 0.3 | normal | averaged | -0.004 | 0.250 | 0.958 | 0.986 | all (1.00) |
+| threshold | 0.3 | normal | prespecified_maic | 0.001 | 0.259 | 0.945 | 0.990 | maic_means (1.00) |
+| threshold | 0.3 | normal | most_favorable | -0.046 | 0.255 | 0.942 | 0.963 | stc_flexible (0.31) |
+| threshold | 0.3 | normal | min_se | -0.009 | 0.247 | 0.947 | 0.939 | stc_linear (0.59) |
+| threshold | 0.3 | normal | prespecified_stc | -0.008 | 0.247 | 0.949 | 0.942 | stc_linear (1.00) |
+| interaction | 0.3 | normal | averaged | -0.010 | 0.245 | 0.956 | 0.995 | all (1.00) |
+| interaction | 0.3 | normal | prespecified_maic | -0.004 | 0.257 | 0.943 | 1.000 | maic_means (1.00) |
+| interaction | 0.3 | normal | most_favorable | -0.057 | 0.252 | 0.943 | 0.965 | stc_flexible (0.40) |
+| interaction | 0.3 | normal | min_se | -0.018 | 0.242 | 0.948 | 0.939 | stc_flexible (0.69) |
+| interaction | 0.3 | normal | prespecified_stc | -0.011 | 0.241 | 0.950 | 0.945 | stc_linear (1.00) |
+| quadratic | 0.3 | normal | prespecified_stc | -0.018 | 0.243 | 0.949 | 0.939 | stc_linear (1.00) |
+| quadratic | 0.3 | normal | averaged | -0.020 | 0.246 | 0.958 | 0.986 | all (1.00) |
+| quadratic | 0.3 | normal | prespecified_maic | -0.015 | 0.256 | 0.951 | 0.989 | maic_means (1.00) |
+| quadratic | 0.3 | normal | most_favorable | -0.066 | 0.255 | 0.942 | 0.959 | stc_flexible (0.38) |
+| quadratic | 0.3 | normal | min_se | -0.026 | 0.245 | 0.943 | 0.933 | stc_flexible (0.69) |
+| linear | 0.8 | normal | min_se | -0.005 | 0.272 | 0.956 | 1.080 | stc_linear (0.96) |
+| linear | 0.8 | normal | averaged | 0.004 | 0.291 | 0.976 | 1.303 | all (1.00) |
+| linear | 0.8 | normal | prespecified_maic | 0.014 | 0.328 | 0.956 | 1.304 | maic_means (1.00) |
+| linear | 0.8 | normal | most_favorable | -0.102 | 0.306 | 0.960 | 1.199 | stc_linear (0.35) |
+| linear | 0.8 | normal | prespecified_stc | -0.008 | 0.271 | 0.957 | 1.080 | stc_linear (1.00) |
+| threshold | 0.8 | normal | most_favorable | -0.116 | 0.317 | 0.943 | 1.197 | stc_linear (0.30) |
+| threshold | 0.8 | normal | averaged | -0.018 | 0.294 | 0.974 | 1.289 | all (1.00) |
+| threshold | 0.8 | normal | prespecified_maic | -0.015 | 0.325 | 0.950 | 1.295 | maic_means (1.00) |
+| threshold | 0.8 | normal | min_se | -0.009 | 0.273 | 0.956 | 1.077 | stc_linear (0.96) |
+| threshold | 0.8 | normal | prespecified_stc | -0.010 | 0.273 | 0.958 | 1.078 | stc_linear (1.00) |
+| interaction | 0.8 | normal | prespecified_maic | -0.016 | 0.331 | 0.944 | 1.293 | maic_means (1.00) |
+| interaction | 0.8 | normal | prespecified_stc | 0.034 | 0.277 | 0.944 | 1.075 | stc_linear (1.00) |
+| interaction | 0.8 | normal | averaged | -0.009 | 0.294 | 0.969 | 1.288 | all (1.00) |
+| interaction | 0.8 | normal | most_favorable | -0.113 | 0.318 | 0.941 | 1.197 | stc_flexible (0.40) |
+| interaction | 0.8 | normal | min_se | 0.031 | 0.276 | 0.945 | 1.072 | stc_linear (0.85) |
+| quadratic | 0.8 | normal | averaged | 0.006 | 0.294 | 0.971 | 1.282 | all (1.00) |
+| quadratic | 0.8 | normal | min_se | 0.042 | 0.278 | 0.940 | 1.070 | stc_linear (0.88) |
+| quadratic | 0.8 | normal | prespecified_stc | 0.045 | 0.277 | 0.942 | 1.072 | stc_linear (1.00) |
+| quadratic | 0.8 | normal | prespecified_maic | 0.006 | 0.331 | 0.947 | 1.282 | maic_means (1.00) |
+| quadratic | 0.8 | normal | most_favorable | -0.098 | 0.313 | 0.947 | 1.196 | stc_flexible (0.38) |
+| linear | 1.2 | normal | most_favorable | -0.235 | 0.490 | 0.928 | 1.715 | stc_linear (0.33) |
+| linear | 1.2 | normal | min_se | 0.002 | 0.328 | 0.952 | 1.281 | stc_linear (0.99) |
+| linear | 1.2 | normal | averaged | 0.004 | 0.425 | 0.987 | 2.035 | all (1.00) |
+| linear | 1.2 | normal | prespecified_maic | -0.002 | 0.547 | 0.924 | 1.997 | maic_means (1.00) |
+| linear | 1.2 | normal | prespecified_stc | 0.001 | 0.327 | 0.953 | 1.281 | stc_linear (1.00) |
+| threshold | 1.2 | normal | prespecified_maic | -0.013 | 0.556 | 0.925 | 1.994 | maic_means (1.00) |
+| threshold | 1.2 | normal | most_favorable | -0.256 | 0.500 | 0.928 | 1.710 | stc_linear (0.29) |
+| threshold | 1.2 | normal | prespecified_stc | 0.004 | 0.330 | 0.950 | 1.278 | stc_linear (1.00) |
+| threshold | 1.2 | normal | averaged | -0.014 | 0.429 | 0.990 | 2.040 | all (1.00) |
+| threshold | 1.2 | normal | min_se | 0.004 | 0.330 | 0.949 | 1.277 | stc_linear (0.99) |
+| interaction | 1.2 | normal | averaged | 0.017 | 0.406 | 0.991 | 1.989 | all (1.00) |
+| interaction | 1.2 | normal | prespecified_maic | -0.026 | 0.534 | 0.929 | 1.944 | maic_means (1.00) |
+| interaction | 1.2 | normal | min_se | 0.120 | 0.344 | 0.938 | 1.269 | stc_linear (0.97) |
+| interaction | 1.2 | normal | prespecified_stc | 0.119 | 0.344 | 0.936 | 1.270 | stc_linear (1.00) |
+| interaction | 1.2 | normal | most_favorable | -0.216 | 0.479 | 0.942 | 1.729 | stc_flexible (0.34) |
+| quadratic | 1.2 | normal | averaged | -0.016 | 0.407 | 0.991 | 2.003 | all (1.00) |
+| quadratic | 1.2 | normal | most_favorable | -0.259 | 0.509 | 0.927 | 1.749 | maic_means_sds (0.34) |
+| quadratic | 1.2 | normal | min_se | 0.096 | 0.336 | 0.940 | 1.270 | stc_linear (0.98) |
+| quadratic | 1.2 | normal | prespecified_stc | 0.096 | 0.336 | 0.939 | 1.271 | stc_linear (1.00) |
+| quadratic | 1.2 | normal | prespecified_maic | -0.050 | 0.536 | 0.926 | 1.940 | maic_means (1.00) |
+| linear | 0.3 | skewed | prespecified_maic | -0.020 | 0.259 | 0.951 | 1.009 | maic_means (1.00) |
+| linear | 0.3 | skewed | most_favorable | -0.108 | 0.274 | 0.932 | 0.992 | stc_flexible (0.34) |
+| linear | 0.3 | skewed | min_se | -0.062 | 0.258 | 0.943 | 0.971 | stc_linear (0.93) |
+| linear | 0.3 | skewed | prespecified_stc | -0.061 | 0.258 | 0.942 | 0.971 | stc_linear (1.00) |
+| linear | 0.3 | skewed | averaged | -0.040 | 0.253 | 0.962 | 1.037 | all (1.00) |
+| linear | 0.8 | skewed | averaged | -0.029 | 0.297 | 0.975 | 1.357 | all (1.00) |
+| linear | 0.8 | skewed | prespecified_maic | 0.024 | 0.328 | 0.939 | 1.267 | maic_means (1.00) |
+| linear | 0.8 | skewed | most_favorable | -0.170 | 0.345 | 0.927 | 1.221 | stc_linear (0.27) |
+| linear | 0.8 | skewed | min_se | -0.055 | 0.295 | 0.947 | 1.118 | stc_linear (0.99) |
+| linear | 0.8 | skewed | prespecified_stc | -0.055 | 0.295 | 0.947 | 1.118 | stc_linear (1.00) |
+| linear | 1.2 | skewed | averaged | 0.012 | 0.372 | 0.989 | 1.867 | all (1.00) |
+| linear | 1.2 | skewed | prespecified_maic | 0.107 | 0.463 | 0.921 | 1.646 | maic_means (1.00) |
+| linear | 1.2 | skewed | most_favorable | -0.224 | 0.443 | 0.933 | 1.590 | maic_means_sds (0.30) |
+| linear | 1.2 | skewed | min_se | -0.027 | 0.338 | 0.956 | 1.318 | stc_linear (1.00) |
+| linear | 1.2 | skewed | prespecified_stc | -0.028 | 0.338 | 0.956 | 1.318 | stc_linear (1.00) |
+| none | 0.8 | normal | averaged | 0.005 | 0.316 | 0.975 | 1.361 | all (1.00) |
+| none | 0.8 | normal | prespecified_maic | 0.007 | 0.348 | 0.951 | 1.353 | maic_means (1.00) |
+| none | 0.8 | normal | most_favorable | -0.104 | 0.329 | 0.952 | 1.273 | stc_linear (0.36) |
+| none | 0.8 | normal | min_se | -0.000 | 0.293 | 0.951 | 1.150 | stc_linear (0.97) |
+| none | 0.8 | normal | prespecified_stc | 0.000 | 0.293 | 0.953 | 1.151 | stc_linear (1.00) |
+
