@@ -16,6 +16,12 @@ maturity: "Emerging"
 [High priority]{.chip .chip-priority-high}
 [Emerging]{.chip .chip-maturity-emerging}
 :::
+::: {.callout-important appearance="simple"}
+## A study has been run against this problem
+
+No. The method with the lowest RMSE against its own implicit target differed from the one with the lowest RMSE against the declared decision target in 5 of 6 cells. The unadjusted Bucher comparison, scored against the mixture of populations it estimates, won the native metric everywhere because it has the least variance, and was biased by 0.13 to 0.25 against the declared target in five cells. When the comparator's modification differed from the individual-data treatment's, methods native to the comparator trial's population missed a declared target one covariate SD away by 0.11, and a two-stage transport assuming shared modification did not remove it. [Read the study below](#our-study).
+:::
+
 ## Statement
 
 No published PAIC simulation crosses a full menu of target-population choices with correct versus incorrect second-stage transport and with uncertainty in the reported target moments, and a simulation that defines truth by the estimator's own implicit target makes target-mismatch error invisible. The blanket version of the claim is false: Chandler and Ishak's ML-UMR simulation (arxiv:2606.20341) treats the target population as a design factor over index and comparator populations, crosses it with effect-modification strength, overlap and covariate dependence including a misspecified between-population correlation, uses two effect measures, and scores bias and coverage against true marginal effects computed externally from simulated populations of ten million. The count of eight factors is also not defensible as exact or orthogonal, since target choice, overlap and distributional difference cannot always be varied independently, and dimensions such as network geometry, baseline risk and censoring are equally material.
@@ -37,6 +43,43 @@ What has not been mapped is the interaction between a full menu of target choice
 ## Probable solution or research direction
 
 Extend the existing design rather than start one: Chandler and Ishak's simulation already varies the target population and defines truth externally, so the increment is a wider target menu including pooled, registry and overlap populations, a correct versus incorrect second-stage transport factor, and target-moment uncertainty, run as a coherent fractional-factorial design rather than a full crossing of eight nominally independent factors. Separate the effect-modification factor into functional form and whether modification is shared or treatment-specific, instead of treating four levels as mutually exclusive. Report bias, RMSE and coverage against the declared decision estimand for every method, and report each estimator's error for its own native estimand separately, so target-mismatch error and estimation error can be read apart.
+
+## Our study
+
+::: {.study-result}
+**Scored against its own target, the unadjusted comparison ranked best; against a declared target it ranked worst**
+
+**The question put to it.** Does scoring each method against its own implicit target give the same method ranking as scoring against a declared decision target, across a menu of targets and with correct or misspecified second-stage transport?
+
+**What it found.** No. The method with the lowest RMSE against its own implicit target differed from the one with the lowest RMSE against the declared decision target in 5 of 6 cells. The unadjusted Bucher comparison, scored against the mixture of populations it estimates, won the native metric everywhere because it has the least variance, and was biased by 0.13 to 0.25 against the declared target in five cells. When the comparator's modification differed from the individual-data treatment's, methods native to the comparator trial's population missed a declared target one covariate SD away by 0.11, and a two-stage transport assuming shared modification did not remove it.
+
+**Results.**
+
+- Target mismatch (exact): 0 to 0.003 with shared modification; up to 0.11 for MAIC and STC and 0.25 for Bucher without it.
+- Among adjusted methods RMSE differences were within 0.03 against a sampling SD of about 0.25, so their order is not resolved at 300 per arm.
+- Two-stage STC removed the mismatch under shared modification and matched MAIC's bias when it failed.
+
+**Design.**
+
+Estimand
+:   Marginal log odds ratio B versus A in a declared target population
+
+Methods compared
+:   Bucher, MAIC, STC, two-stage STC to the declared target
+
+Data-generating mechanism
+:   Anchored binary-outcome comparison with individual data on A versus C and published B versus C; three declared targets, B sharing A's modification or not; Bucher, MAIC, STC and two-stage STC; mismatch term exact, estimation term from 1000 replicates per cell, 6 cells.
+
+Replicates
+:   1000 per cell, 6 cells; mismatch term by quadrature
+
+**What this does not answer.** Three declared targets, one covariate, one sample size, exact target moments, four methods; no ML-NMR or ML-UMR. Peer review has not been done.
+
+**Peer review.** Not yet done. The result stands on the study alone until it is.
+
+Read it: [PDF](/studies/EST-11-target-menu-and-second-stage-transport/out/EST-11.pdf) · [Markdown](/studies/EST-11-target-menu-and-second-stage-transport/out/EST-11.md) · [OpenDocument](/studies/EST-11-target-menu-and-second-stage-transport/out/EST-11.odt) · Code and data: [studies/EST-11-target-menu-and-second-stage-transport](https://github.com/choxos/ITC-open-problems/tree/main/studies/EST-11-target-menu-and-second-stage-transport) · Protocol: [registered before the run](/studies/EST-11-target-menu-and-second-stage-transport/out/EST-11-protocol.md)
+
+:::
 
 ## Verification
 
