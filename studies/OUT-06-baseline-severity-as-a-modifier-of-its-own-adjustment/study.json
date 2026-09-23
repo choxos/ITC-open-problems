@@ -1,7 +1,19 @@
 {
  "problem_id": "OUT-06",
- "title": "The change-versus-endpoint choice does not interact with population adjustment",
- "status": "running",
- "question": "When baseline severity modifies the treatment effect, do change-score and endpoint analyses give different target-population contrasts after population adjustment, as the design proposes?",
- "design": "Anchored and unanchored comparisons with a continuous outcome and its baseline; 24 cells crossing baseline shift, baseline-by-treatment interaction and baseline-to-follow-up correlation; naive, MAIC and G-computation estimators in both representations. 1000 replicates per cell."
+ "title": "Change scores and endpoints do not diverge under population adjustment",
+ "status": "complete",
+ "date_completed": "2026-09-22",
+ "question": "When baseline severity modifies the treatment effect, do change-score and endpoint analyses give different target-population contrasts after population adjustment, in proportion to the product of the interaction and the baseline shift?",
+ "answer": "No. Baseline is pre-treatment, so the target follow-up and change contrasts are one quantity under any adjustment. Across 24 scenarios, MAIC and G-computation never diverged beyond Monte Carlo error, and were identical to machine precision in unanchored comparisons. The only divergence was in naive unanchored comparisons, equal to 1.00 times the baseline shift and independent of the baseline-by-treatment interaction.",
+ "findings": [
+  "Adjusted estimators: largest mean endpoint-minus-change difference 0.0068, within 3 Monte Carlo SE of zero in every scenario; in unanchored comparisons the per-replicate difference was at most 4e-13.",
+  "Naive unanchored comparisons: difference = 1.001 (SE 0.002) x shift + 0.007 (SE 0.007) x interaction x shift. Endpoint bias is (b + beta) shift and change bias (b + beta - 1) shift.",
+  "Naive anchored comparisons agree in expectation across representations but are both biased by the unadjusted modification.",
+  "The design's proposed product structure was derived from a misreading: with baseline as a covariate, the treatment and treatment-by-baseline coefficients of a linear model are identical for follow-up and change."
+ ],
+ "not_answered": "Continuous outcome with a linear conditional mean only; nonlinear links, threshold-based responder estimands and joint repeated-measures models are not tested. Peer review has not been done.",
+ "design": "Anchored and unanchored comparisons, individual data on A versus C and arm means on B versus C, 24 scenarios crossing baseline shift (0, 0.5, 1 SD), baseline-by-treatment interaction (0, 0.3) and baseline-to-follow-up correlation (0.4, 0.8), 300 per arm.",
+ "estimand": "Target-population mean difference in follow-up, B versus A",
+ "methods_compared": ["naive", "MAIC on the baseline mean", "G-computation with baseline as covariate", "each in endpoint and change representation"],
+ "n_sim": "1000 per scenario, 24,000 in total"
 }
