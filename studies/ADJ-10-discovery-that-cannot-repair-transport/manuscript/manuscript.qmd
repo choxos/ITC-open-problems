@@ -1,0 +1,120 @@
+---
+title: "Modifier discovery across trials: no penalty is both stable and powerful, and study-level heterogeneity creates a false modifier that more trials entrench"
+subtitle: "A simulation study answering catalog problem ADJ-10"
+author: "Ahmad Sofi-Mahmudi"
+date: 2026-09-23
+bibliography: references.bib
+csl: ../../../vancouver.csl
+link-citations: true
+number-sections: true
+execute:
+  echo: false
+  warning: false
+  message: false
+format:
+  gfm:
+    toc: false
+  pdf:
+    documentclass: article
+    geometry: margin=1in
+    fig-pos: "H"
+  odt: default
+---
+
+```{r setup}
+s <- read.csv("../results/summary.csv")
+f2 <- function(x) formatC(x, format = "f", digits = 2); f3 <- function(x) formatC(x, format = "f", digits = 3)
+sel <- function(method, penalty, conf) s[s$method == method & s$penalty == penalty & s$conf == conf, ]
+rg <- function(x, f = f2) paste(f(min(x)), "to", f(max(x)))
+pm1 <- sel("pooled", "min", 0.3); pm0 <- sel("pooled", "min", 0); wm1 <- sel("within", "min", 0.3); wm0 <- sel("within", "min", 0)
+p1 <- rbind(sel("pooled", "1se", 0), sel("within", "1se", 0))
+k <- function(z, K, M) z[z$K == K & z$M == M, ]
+```
+
+# Abstract {.unnumbered}
+
+**Background.** Population adjustment needs the effect modifiers, and data-driven
+discovery from pooled trial data is proposed when they are unknown. Catalog problem
+ADJ-10 asks whether discovered sets are stable and correct enough to use, and whether
+study-level factors create modifiers that more data do not remove.
+
+**Methods.** Three to twelve trials with 2400 patients in total, ten candidate
+covariates whose means vary across trials, one or three true modifiers, and an
+unmeasured study-level factor that shifts the treatment effect and, when confounded,
+tracks one covariate's trial mean. Lasso on the interactions at the
+minimum-cross-validation penalty and by the one-standard-error rule, pooled or with
+trial-specific treatment effects; 300 replicates per cell, each with an independent
+second dataset for stability.
+
+**Results.** At the minimum-error penalty the true modifiers were found in almost every
+analysis, together with `r rg(c(pm0$false_disc, wm0$false_disc))` false modifiers among
+seven null covariates, and the selected sets agreed across independent datasets with
+Jaccard similarity `r rg(c(pm0$stability, wm0$stability))`. The one-standard-error rule
+was stable only when it selected nothing: a single modifier was found in
+`r rg(p1$power[p1$M == 1], f3)` of analyses. With study-level confounding, pooled discovery
+selected the confounded covariate in `r f2(k(pm1, 3, 1)$x10)` of analyses with 3 trials
+and `r f2(k(pm1, 12, 1)$x10)` with 12; trial-specific treatment effects held it to
+`r rg(wm1$x10)`, the rate for any null covariate.
+
+**Conclusion.** Discovery is a hypothesis generator. Where effect heterogeneity has a
+study-level cause, pooled discovery converts it into a false modifier, and more
+trials at the same total size make that more certain, not less.
+
+# The problem {#sec-problem}
+
+A covariate modifies the treatment effect within trials if patients who differ in it
+respond differently. Across trials, a covariate whose trial mean correlates with the
+trial's treatment effect looks like a modifier whatever the reason, the ecological
+bias that IPD meta-analysis guidance separates by estimating interactions within
+trials [@riley2020]. A pooled analysis with one treatment effect uses both sources.
+When a study-level factor such as a protocol difference moves the treatment effect,
+every covariate whose trial means happen to follow it becomes a candidate modifier.
+
+# Design {#sec-design}
+
+Registered protocol: `protocol.md`. $K \in \{3, 6, 12\}$ trials of $2400/K$ patients;
+covariates $x_j \sim N(m_{kj}, 1)$ with trial means $m_{kj} \sim N(0, 0.5^2)$;
+$y = 0.3\sum_j x_j + A(-0.5 + 0.2\sum_{j \le M} x_j + cS_k) + e$, $e \sim N(0, 1)$, with an
+unmeasured $S_k \sim N(0, 1)$. With confounding ($c = 0.3$), $m_{k,10} = 0.7S_k + N(0, 0.3^2)$.
+Lasso [@tibshirani1996] penalizes only the ten interactions; the pooled model has one
+treatment effect, the within-trial model one per trial. Both penalties come from one
+cross-validated fit. The target effect at covariate means 0.5 and $S = 0$ is refitted by
+least squares with the selected interactions.
+
+# Results {#sec-results}
+
+![Share of analyses selecting the confounded covariate $x_{10}$. Dashed: no confounding, where $x_{10}$ is an ordinary null covariate.](figures/fig1-x10.png){#fig-x10}
+
+| analysis | power | false modifiers (of 7) | stability | target bias |
+|---|---:|---:|---:|---:|
+| pooled, minimum CV, no confounding | `r rg(pm0$power)` | `r rg(pm0$false_disc)` | `r rg(pm0$stability)` | `r rg(pm0$bias, f3)` |
+| pooled, minimum CV, confounding | `r rg(pm1$power)` | `r rg(pm1$false_disc)` | `r rg(pm1$stability)` | `r rg(pm1$bias, f3)` |
+| within-trial, minimum CV, confounding | `r rg(wm1$power)` | `r rg(wm1$false_disc)` | `r rg(wm1$stability)` | `r rg(wm1$bias, f3)` |
+| one SE rule, one modifier, no confounding | `r rg(p1$power[p1$M == 1], f3)` | `r rg(p1$false_disc[p1$M == 1])` | `r rg(p1$stability[p1$M == 1])` | `r rg(p1$bias[p1$M == 1], f3)` |
+| one SE rule, three modifiers, no confounding | `r rg(p1$power[p1$M == 3])` | `r rg(p1$false_disc[p1$M == 3])` | `r rg(p1$stability[p1$M == 3])` | `r rg(p1$bias[p1$M == 3], f3)` |
+
+: Ranges over the number of trials (and modifiers where not stated); 300 replicates per cell. Power is the share of true modifiers selected; the false-modifier count excludes $x_{10}$. {#tbl-main}
+
+The registered condition for usability, stability of at least 0.8 with at most 0.5
+false modifiers in every cell, failed for every method (@tbl-main). The minimum-error
+penalty traded stability for power; the one-standard-error rule's high stability with
+a single modifier was agreement on the empty set, and its target estimate was biased
+toward no modification.
+
+Study-level confounding affected pooled discovery in two ways (@fig-x10). It selected
+$x_{10}$ more often as trials were added at the same total size, because more trials
+give more trial means with which to fit the study-level pattern. And it raised the false
+modifiers among the other null covariates from `r rg(pm0$false_disc)` to
+`r rg(pm1$false_disc)`, because their trial means correlate with $S_k$ by chance. Trial-specific treatment effects absorbed $S_k$ and removed both
+effects. The pooled minimum-error target estimate was biased by
+`r rg(pm1$bias, f3)`, the spurious interaction times the target mean.
+
+# What this does not answer {#sec-limits}
+
+Lasso only; multi-study causal forests and other flexible learners were not run.
+Continuous outcome, so event sparsity is absent; linear modification; one overlap
+level. The within-trial analysis needs the IPD of every trial. Selected sets are
+evaluated as hypotheses; post-selection inference for the target is DEC-11's and
+COV-04's subject. Peer review has not been done.
+
+# References {.unnumbered}
