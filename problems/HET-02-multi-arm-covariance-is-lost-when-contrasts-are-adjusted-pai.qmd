@@ -23,6 +23,12 @@ below are attributed to that document and were checked independently where possi
 anything that could not be independently sourced is marked in the verification trail.
 :::
 
+::: {.callout-important appearance="simple"}
+## A study has been run against this problem
+
+Entering pseudo-contrasts built against one comparator arm as independent counts that arm once per study. Its reported SE shrank as studies were added while the estimate's spread did not, so coverage fell from 0.88 with one study to 0.57 with eight (comparator arm of 50). Modeling the shared covariance kept coverage at 0.95. In this fixed-effect network the point estimate barely changed; the error is in the stated precision. [Read the study below](#our-study).
+:::
+
 ## Statement
 
 MAIC-style weighting is defined for one pairwise comparison against one aggregate study, so a two-stage weighting workflow that outputs separately adjusted contrasts with only marginal standard errors loses the covariance induced by a shared common arm and the covariance induced by shared weight estimation. Regression-based population adjustment already solves this at the network level: multilevel network meta-regression is a one-stage arm-level likelihood valid for networks of any size (Phillippo et al. 2020, doi:10.1111/rssa.12579), implemented in multinma since 2020, where multi-arm studies carry correlated multivariate-normal random effects (Perren et al. 2025, doi:10.1177/0272989X251389887). What is open is the weighting branch: there is no arm-level MAIC-style estimator, and no sandwich or multivariate bootstrap variance estimator for weighted multi-arm contrasts that also carries weight-estimation uncertainty has been derived or benchmarked. The same split holds in cpaic, an unreleased development package on GitHub that is not on CRAN: at commit 9d150e9 cmlnmr() gives within-study deviations from a study baseline the standard 0.5 NMA correlation, while cmaic() and cstc() refuse IPD studies with more than two arms rather than processing them pairwise. The same covariance is lost without any multi-arm trial present. Where a sparse network admits single-arm studies by matching each to a comparator arm of an existing randomized trial, several pseudo-contrasts can be built from the same comparator arm, so their errors are correlated through shared control observations exactly as contrasts are correlated within a multi-arm trial; published implementations nonetheless enter them into the network likelihood as independent evidence, and in a late-onset Pompe disease network admitting the matched single-arm studies reversed the direction of the headline comparison.
@@ -50,6 +56,43 @@ Multi-arm trials produce correlated contrasts because they share a common arm, a
 ## Probable solution or research direction
 
 Do not rebuild the one-stage arm-level likelihood, which ML-NMR in multinma already provides; extend the weighting branch to match it. Derive a MAIC-style estimator that applies one weight set to a joint arm-level model, with a sandwich or multivariate bootstrap variance that accounts for weight estimation as well as the outcome model, and give two-stage implementations a joint covariance matrix to export instead of marginal standard errors. Benchmark it in simulations that inject three-arm and four-arm studies with correlated contrasts and unequal variances, reporting variance recovery, inconsistency inflation and undercoverage, with ML-NMR as the reference rather than as the thing being replaced. In cpaic the concrete step is multi-arm support for cmaic() and cstc(), which currently reject such studies outright.
+
+## Our study
+
+::: {.study-result}
+**Matched single-arm studies built against one comparator arm**
+
+**The question put to it.** When several single-arm studies are each matched to the same comparator arm and their pseudo-contrasts enter a network as independent, how much does that overstate precision, and does it change the conclusion?
+
+**What it found.** Entering pseudo-contrasts built against one comparator arm as independent counts that arm once per study. Its reported SE shrank as studies were added while the estimate's spread did not, so coverage fell from 0.88 with one study to 0.57 with eight (comparator arm of 50). Modeling the shared covariance kept coverage at 0.95. In this fixed-effect network the point estimate barely changed; the error is in the stated precision.
+
+**Results.**
+
+- Refuting sentence fails: naive coverage 0.567 to 0.884 with two or more pseudo-contrasts; correct 0.945 to 0.955.
+- Naive SE with a comparator arm of 50: 0.137 (one study) to 0.059 (eight), against a true spread of 0.167 to 0.147.
+- Mean absolute difference between naive and correct point estimates small; sign disagreement rare.
+
+**Design.**
+
+Estimand
+:   A versus C mean difference in the network
+
+Methods compared
+:   generalized least squares with the shared-arm covariance, pseudo-contrasts entered as independent
+
+Data-generating mechanism
+:   Network with two randomized trials and one to eight single-arm studies sharing one comparator arm; fixed-effect generalized least squares with the correct block covariance or with independence. 8 cells, 4000 replicates each.
+
+Replicates
+:   4000 per scenario, 32,000 in total
+
+**What this does not answer.** Fixed-effect continuous network without a weighting step; heterogeneity and conflicting evidence, where the point estimate can also move, not run. Peer review has not been done.
+
+**Peer review.** Not yet done. The result stands on the study alone until it is.
+
+Read it: [PDF](/studies/HET-02-one-comparator-arm-counted-many-times/out/HET-02.pdf) · [Markdown](/studies/HET-02-one-comparator-arm-counted-many-times/out/HET-02.md) · [OpenDocument](/studies/HET-02-one-comparator-arm-counted-many-times/out/HET-02.odt) · Code and data: [studies/HET-02-one-comparator-arm-counted-many-times](https://github.com/choxos/ITC-open-problems/tree/main/studies/HET-02-one-comparator-arm-counted-many-times) · Protocol: [registered before the run](/studies/HET-02-one-comparator-arm-counted-many-times/out/HET-02-protocol.md)
+
+:::
 
 ## Verification
 

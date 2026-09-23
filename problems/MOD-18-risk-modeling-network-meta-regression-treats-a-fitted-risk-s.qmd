@@ -18,6 +18,12 @@ tractability: 3
 [Emerging]{.chip .chip-maturity-emerging}
 [Tractability 3/5]{.chip}
 :::
+::: {.callout-important appearance="simple"}
+## A study has been run against this problem
+
+Little, given a prognostic cohort of about a thousand patients or more: propagating the score's estimation uncertainty widened intervals by at most 2.4%, and plug-in coverage stayed near nominal. With 300 cohort patients the widening reached 7% at the risk tails against about 1% at the median, confirming that the understatement is worst where recommendations are made, and plug-in coverage fell to 0.924. The registered rule (plug-in coverage at least 0.93 everywhere) was missed in that one scenario, so the refuting sentence fails as registered. [Read the study below](#our-study).
+:::
+
 ## Statement
 
 Risk-modeling approaches to treatment effect heterogeneity fit a prognostic model for baseline risk in one dataset, optionally recalibrate it in the trial data, then enter the fitted risk score into a network meta-regression as a prognostic covariate and as an effect modifier. Where the stages are fitted separately the synthesis conditions on that score as though it were observed, so the sampling and shrinkage uncertainty of the prognostic model and of the recalibration never reaches the treatment-effect posterior. This is the generated-regressor problem arriving in evidence synthesis: standard errors computed as if an estimated regressor were data are too small, and the understatement grows where the regressor is least well estimated, which in risk modeling is the tails of the risk distribution and therefore exactly where risk-stratified treatment recommendations are made. The three-stage version that combines a cohort-based prognostic model, recalibration in the trials, and a network meta-regression on the resulting score names a single Bayesian model implementing all three stages as the way to incorporate uncertainty from all stages and avoid spuriously overprecise conclusions, and does not build it; no published risk-modeling meta-analysis or network meta-analysis does. The magnitude of the interval understatement has not been quantified for any published network, so the reported credible intervals on risk-stratified benefit are too narrow by an unknown amount.
@@ -46,14 +52,39 @@ Quantify the understatement first, because it is cheap and decides whether the r
 
 ## Our study
 
-::: {.callout-note}
-## A study is running
+::: {.study-result}
+**An estimated risk score used as a regressor**
 
-**Question.** When a risk score estimated in a prognostic cohort is used as a regressor for treatment-effect heterogeneity, does treating it as data understate the interval, and is the understatement worst at the tails of risk?
+**The question put to it.** When a risk score estimated in a prognostic cohort is used as a regressor for treatment-effect heterogeneity, does treating it as data understate the interval, and is the understatement worst at the tails of risk?
 
-**Design.** Logistic prognostic score from cohorts of 300 to 5000, used in a six-trial individual-data meta-regression with calibration drift; plug-in and bootstrap-propagated intervals for the treatment effect at the 10th, 50th and 90th risk percentiles. 6 cells, 500 replicates each.
+**What it found.** Little, given a prognostic cohort of about a thousand patients or more: propagating the score's estimation uncertainty widened intervals by at most 2.4%, and plug-in coverage stayed near nominal. With 300 cohort patients the widening reached 7% at the risk tails against about 1% at the median, confirming that the understatement is worst where recommendations are made, and plug-in coverage fell to 0.924. The registered rule (plug-in coverage at least 0.93 everywhere) was missed in that one scenario, so the refuting sentence fails as registered.
 
-The protocol is registered before any result is seen: [read it](/studies/MOD-18-a-generated-regressor-worst-where-it-is-used/out/MOD-18-protocol.md).
+**Results.**
+
+- Widening ratio 1.001 to 1.024 with cohorts of 1000 or 5000; 1.011 to 1.073 with 300.
+- Tails against median with 300: widening 1.065 to 1.073 against 1.011 to 1.012.
+- Plug-in coverage 0.924 to 0.970; propagated 0.932 to 0.974.
+
+**Design.**
+
+Estimand
+:   Treatment log odds ratio at the 10th, 50th and 90th percentiles of true risk
+
+Methods compared
+:   plug-in interval treating the score as data, interval adding bootstrap variance of the score
+
+Data-generating mechanism
+:   Logistic prognostic score from cohorts of 300 to 5000, used in a six-trial individual-data meta-regression with calibration drift; plug-in and bootstrap-propagated intervals for the treatment effect at the 10th, 50th and 90th risk percentiles. 6 cells, 500 replicates each.
+
+Replicates
+:   500 per scenario, 3,000 in total, each with 20 bootstrap refits
+
+**What this does not answer.** Pairwise six-trial analysis; frequentist bootstrap rather than a joint or cut Bayesian model; well-specified score. Peer review has not been done.
+
+**Peer review.** Not yet done. The result stands on the study alone until it is.
+
+Read it: [PDF](/studies/MOD-18-a-generated-regressor-worst-where-it-is-used/out/MOD-18.pdf) · [Markdown](/studies/MOD-18-a-generated-regressor-worst-where-it-is-used/out/MOD-18.md) · [OpenDocument](/studies/MOD-18-a-generated-regressor-worst-where-it-is-used/out/MOD-18.odt) · Code and data: [studies/MOD-18-a-generated-regressor-worst-where-it-is-used](https://github.com/choxos/ITC-open-problems/tree/main/studies/MOD-18-a-generated-regressor-worst-where-it-is-used) · Protocol: [registered before the run](/studies/MOD-18-a-generated-regressor-worst-where-it-is-used/out/MOD-18-protocol.md)
+
 :::
 
 ## Verification

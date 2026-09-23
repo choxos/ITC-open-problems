@@ -1,0 +1,81 @@
+---
+title: "Single-arm studies matched to one comparator arm must enter a network with their shared covariance"
+subtitle: "A simulation study answering catalog problem HET-02"
+author: "Ahmad Sofi-Mahmudi"
+date: 2026-09-23
+bibliography: references.bib
+csl: ../../../vancouver.csl
+link-citations: true
+number-sections: true
+execute:
+  echo: false
+  warning: false
+  message: false
+format:
+  gfm:
+    toc: false
+  pdf:
+    documentclass: article
+    geometry: margin=1in
+    fig-pos: "H"
+  odt: default
+---
+
+```{r setup}
+s <- read.csv("../results/summary.csv")
+f3 <- function(x) formatC(x, format = "f", digits = 3)
+v <- function(m, n, col) s[s$M == m & s$n_c == n, col]
+```
+
+# Abstract {.unnumbered}
+
+**Background.** When several single-arm studies are each matched to the same comparator arm, their
+pseudo-contrasts share that arm's sampling error. Published implementations enter them as
+independent. Catalog problem HET-02 asks what that does to a network estimate.
+
+**Methods.** Network of two randomized trials (B versus C with a C arm of 50 or 200, A versus B) and
+one to eight single-arm studies of A matched to trial 1's C arm; fixed-effect generalized least squares
+with the correct block covariance or with the pseudo-contrasts treated as independent (8 scenarios,
+4000 replicates each).
+
+**Results.** Modeling the shared arm gave coverage of `r f3(min(s$cov_right))` to `r f3(max(s$cov_right))`.
+Treating the pseudo-contrasts as independent shrank the reported SE as studies were added
+(`r f3(v(1, 50, "se_naive"))` to `r f3(v(8, 50, "se_naive"))` with a C arm of 50) while the estimate's true
+spread barely changed (`r f3(v(1, 50, "sd_naive"))` to `r f3(v(8, 50, "sd_naive"))`); coverage fell to
+`r f3(min(s$cov_naive))`. The two analyses' point estimates differed little (mean absolute difference at
+most `r f3(max(s$mean_abs_diff))`) and rarely in sign.
+
+**Conclusion.** A comparator arm reused by several matched studies must be counted once. Ignoring the
+shared covariance leaves the estimate nearly unchanged here but reports a precision that grows with
+the number of studies, so the interval, and any decision based on significance, is wrong.
+
+# The problem {#sec-problem}
+
+With $d_k = \hat\mu_k - \hat\mu_C$, every pair has $\operatorname{Cov}(d_j, d_k) = \operatorname{Var}(\hat\mu_C)$, and each
+also shares it with any other contrast estimated from the same C arm. This is the multi-arm
+correlation of network meta-analysis [@franchini2012] arising without a multi-arm trial.
+
+# Design {#sec-design}
+
+Registered protocol: `protocol.md`; ADEMP structure [@morris2019]. Continuous outcome, SD 1; single-arm
+studies of 100; trial 2 with 200 per arm; true A versus C 0.15, B versus C 0.3. The correct covariance
+puts $\operatorname{Var}(\hat\mu_C)$ between every pair of pseudo-contrasts and between each pseudo-contrast and
+trial 1's contrast. A first probe had the latter sign wrong; it was corrected before the run.
+
+# Results {#sec-results}
+
+![Coverage of the A-versus-C estimate by the number of single-arm studies sharing one comparator arm.](figures/fig1-coverage.png){#fig-cov}
+
+The naive SE fell roughly as $1/\sqrt{M}$ because the C arm's error was treated as averaging out, while
+it is common to every pseudo-contrast (@fig-cov). The damage grew with the number of studies and was
+worse when the shared arm was small, since then its error is a larger part of each pseudo-contrast's
+variance.
+
+# What this does not answer {#sec-limits}
+
+Fixed-effect network with continuous outcomes and no weighting step; with heterogeneity or conflicting
+direct and indirect evidence, reweighting the shared arm can also move the point estimate, which is how
+a published network reversed its conclusion. The weighting-induced covariance is CMP-12's subject. Peer
+review has not been done.
+
+# References {.unnumbered}
