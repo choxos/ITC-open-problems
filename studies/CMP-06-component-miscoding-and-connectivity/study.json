@@ -1,7 +1,22 @@
 {
  "problem_id": "CMP-06",
- "title": "Component miscoding in a network bridged by one shared component",
- "status": "running",
+ "title": "Miscoding the shared component of a bridged network costs identifiability, not accuracy; miscoding an internal component biases the bridged estimate",
+ "status": "complete",
  "question": "When the component coding of a disconnected network bridged by a shared component is wrong, does the error perturb the estimate or change what is estimable, and do sensitivity or probabilistic coding give honest intervals?",
- "design": "Two subnetworks linked only by component A; subnetwork-2 codings miscoded independently with probability 0 to 0.3, either coding the shared component as a distinct agent (connectivity-changing) or dropping an internal component (connectivity-preserving); deterministic, sensitivity and probabilistic coding. 7 cells, 2000 replicates each."
+ "design": "Two subnetworks linked only by component A; subnetwork-2 codings miscoded independently with probability 0 to 0.3, either coding the shared component as a distinct agent (connectivity-changing) or dropping an internal component (connectivity-preserving); deterministic, sensitivity and probabilistic coding. 7 cells, 2000 replicates each.",
+ "date_completed": "2026-09-23",
+ "answer": "Partly. When the bridge is real, coding the shared component as a distinct agent removed that trial's bridging information and, when it hit both bridging trials (up to 9.5% of replicates), made the target non-estimable, which a rank screen detects exactly; otherwise the estimate stayed unbiased with nominal coverage. The miscoding that left the row space intact, dropping an internal component, biased the target by about 0.8 SE and cut coverage to 0.83 given a miscoding. Probabilistic coding restored coverage (0.967 or more); coding sensitivity did too but was the whole line whenever a plausible coding broke the bridge.",
+ "findings": [
+  "Connectivity-changing miscoding: coverage 0.943 to 0.945 given a miscoding and estimability; non-estimable 0.4% to 9.5%.",
+  "Connectivity-preserving miscoding: bias -0.095 to -0.105, coverage 0.826 to 0.868 given a miscoding (second null control failed).",
+  "A false bridge (a distinct agent coded as the shared component) is not identified under the true coding and was not simulated."
+ ],
+ "not_answered": "One hand-built network, fixed-effect contrast-level fits, no covariate adjustment, synergy or Bayesian arm; independent miscoding within a small plausible set. Peer review has not been done.",
+ "estimand": "Effect of component B across the gap",
+ "methods_compared": [
+  "deterministic coding with a rank screen",
+  "coding sensitivity over the plausible set",
+  "probabilistic coding (prior-weighted mixture)"
+ ],
+ "n_sim": "2000 per cell, 7 cells"
 }

@@ -16,6 +16,12 @@ maturity: "Emerging"
 [High priority]{.chip .chip-priority-high}
 [Emerging]{.chip .chip-maturity-emerging}
 :::
+::: {.callout-important appearance="simple"}
+## A study has been run against this problem
+
+Partly. When the bridge is real, coding the shared component as a distinct agent removed that trial's bridging information and, when it hit both bridging trials (up to 9.5% of replicates), made the target non-estimable, which a rank screen detects exactly; otherwise the estimate stayed unbiased with nominal coverage. The miscoding that left the row space intact, dropping an internal component, biased the target by about 0.8 SE and cut coverage to 0.83 given a miscoding. Probabilistic coding restored coverage (0.967 or more); coding sensitivity did too but was the whole line whenever a plausible coding broke the bridge. [Read the study below](#our-study).
+:::
+
 ## Statement
 
 Component PAIC as implemented takes covariates as observed values with no calibration or latent measurement-error model, and derives the component matrix by deterministically parsing treatment labels with no probability model for component assignment. Because a bridge exists exactly when two subnetworks share a component, a coding error can change the design matrix, its rank, and its row space, and so can create or remove shared-component paths rather than merely perturbing a coefficient. Not every miscoding changes connectivity, and measurement error in a variable that is not an effect modifier need not bias the estimand, so the concern is conditional on which covariate or component is uncertain.
@@ -37,6 +43,43 @@ Component coding is currently a deterministic analyst decision with no uncertain
 ## Probable solution or research direction
 
 Introduce probabilistic component coding so that assignment uncertainty propagates into the design matrix, the row space, and therefore the estimand, and report how often the cross-gap contrast becomes non-estimable under plausible codings. Add covariate calibration models for effect modifiers using existing measurement-error machinery, prioritizing the modifiers that actually load the requested contrast. Because the concern is conditional, the first deliverable is a diagnostic that identifies which coding and measurement uncertainties would matter for a given target contrast.
+
+## Our study
+
+::: {.study-result}
+**Miscoding the shared component of a bridged network costs identifiability, not accuracy; miscoding an internal component biases the bridged estimate**
+
+**The question put to it.** When the component coding of a disconnected network bridged by a shared component is wrong, does the error perturb the estimate or change what is estimable, and do sensitivity or probabilistic coding give honest intervals?
+
+**What it found.** Partly. When the bridge is real, coding the shared component as a distinct agent removed that trial's bridging information and, when it hit both bridging trials (up to 9.5% of replicates), made the target non-estimable, which a rank screen detects exactly; otherwise the estimate stayed unbiased with nominal coverage. The miscoding that left the row space intact, dropping an internal component, biased the target by about 0.8 SE and cut coverage to 0.83 given a miscoding. Probabilistic coding restored coverage (0.967 or more); coding sensitivity did too but was the whole line whenever a plausible coding broke the bridge.
+
+**Results.**
+
+- Connectivity-changing miscoding: coverage 0.943 to 0.945 given a miscoding and estimability; non-estimable 0.4% to 9.5%.
+- Connectivity-preserving miscoding: bias -0.095 to -0.105, coverage 0.826 to 0.868 given a miscoding (second null control failed).
+- A false bridge (a distinct agent coded as the shared component) is not identified under the true coding and was not simulated.
+
+**Design.**
+
+Estimand
+:   Effect of component B across the gap
+
+Methods compared
+:   deterministic coding with a rank screen, coding sensitivity over the plausible set, probabilistic coding (prior-weighted mixture)
+
+Data-generating mechanism
+:   Two subnetworks linked only by component A; subnetwork-2 codings miscoded independently with probability 0 to 0.3, either coding the shared component as a distinct agent (connectivity-changing) or dropping an internal component (connectivity-preserving); deterministic, sensitivity and probabilistic coding. 7 cells, 2000 replicates each.
+
+Replicates
+:   2000 per cell, 7 cells
+
+**What this does not answer.** One hand-built network, fixed-effect contrast-level fits, no covariate adjustment, synergy or Bayesian arm; independent miscoding within a small plausible set. Peer review has not been done.
+
+**Peer review.** Not yet done. The result stands on the study alone until it is.
+
+Read it: [PDF](/studies/CMP-06-component-miscoding-and-connectivity/out/CMP-06.pdf) · [Markdown](/studies/CMP-06-component-miscoding-and-connectivity/out/CMP-06.md) · [OpenDocument](/studies/CMP-06-component-miscoding-and-connectivity/out/CMP-06.odt) · Code and data: [studies/CMP-06-component-miscoding-and-connectivity](https://github.com/choxos/ITC-open-problems/tree/main/studies/CMP-06-component-miscoding-and-connectivity) · Protocol: [registered before the run](/studies/CMP-06-component-miscoding-and-connectivity/out/CMP-06-protocol.md)
+
+:::
 
 ## Verification
 
