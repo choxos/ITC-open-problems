@@ -1,7 +1,25 @@
 {
  "problem_id": "MOD-01",
- "title": "Does reconstructing the target's joint covariate law from published marginals change the standardized contrast?",
- "status": "running",
+ "title": "Standardizing over an independence reconstruction of the target biased the marginal log odds ratio by up to 0.21; a correlation matrix removed the bias, and the error was linear in one covariance term",
+ "status": "complete",
  "question": "Standardization needs the target's joint covariate law while publications report marginals; when the dependence the marginals leave free is reconstructed wrongly, how much does the standardized marginal contrast move, and when is the reconstruction immaterial?",
- "design": "Target covariate laws built from copulas of known dependence with exact marginals; outcome models standardized over joint laws reconstructed under independence and alternatives; bias and coverage against the true target contrast. The decision rule is registered as code (R/07-decision.R, committed 2 August 2026 before the grid was launched); there is no separate protocol document. 224 cells, 476 replicates each."
+ "design": "Target covariates from Gaussian, Clayton or Gumbel copulas with exact published marginals; correlation, prognostic sign pattern, effect modification, scale, overlap and dimension crossed; standardization over the true, independence and borrowed-correlation laws. 224 cells, 476 replicates each.",
+ "date_completed": "2026-09-24",
+ "answer": "Yes, the refuting sentence fails: the reconstruction matters, and it is fixable. In the registered primary cells (all-positive prognostic signs, quadratic effect modification, correlation 0.6) G-computation over an independence reconstruction of the target biased the marginal log odds ratio by 0.126 on average and 0.210 at worst, against a material 0.05, with coverage 0.898; with the correlation matrix borrowed from the trial the estimate was within 0.002 of standardization over the true joint law. The independence error was linear in the covariance term it drops (R-squared 0.92 to 0.99 by block), and the copula family beyond the correlation matrix moved the estimate by at most 0.004.",
+ "findings": [
+  "The registered falsifier fired: mixed prognostic signs reversed or shrank the dropped covariance term rather than cancelling it, and independence stayed biased (mean -0.056, worst -0.077, quadratic modification).",
+  "On the risk-difference scale the error was about a quarter of the log odds ratio's (mean absolute 0.011 against 0.044), not zero.",
+  "An interval over correlations declared from -0.3 to 0.7 covered at 0.971 with width 1.01 against 0.69 for the true law.",
+  "Both exact controls passed (one covariate; zero correlation)."
+ ],
+ "not_answered": "Reported marginals exact; outcome model correctly specified; continuous covariates; the borrowed correlation is optimistic because the trial shares the target's dependence. Registration was by DESIGN.md sections 4 to 8 and R/07-decision.R, committed before the grid; there is no separate protocol document. Peer review has not been done.",
+ "estimand": "Target-population marginal log odds ratio (and risk difference), A versus C",
+ "methods_compared": [
+  "G-computation over the true joint law",
+  "G-computation over an independence reconstruction",
+  "G-computation with a borrowed correlation matrix",
+  "interval over declared correlations",
+  "STC at target means (reference)"
+ ],
+ "n_sim": "476 per cell, 224 cells"
 }

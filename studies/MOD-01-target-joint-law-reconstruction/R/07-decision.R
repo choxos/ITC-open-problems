@@ -95,7 +95,8 @@ main <- function() {
     add("exactly irrelevant; it does not, because collapsibility fixes the")
     add("relation between the marginal and the mean conditional effect without")
     add("fixing that mean against the joint law. Measured, the collapsible scale")
-    add("carries %.0f%% to %.0f%% of the log odds ratio's reconstruction shift")
+    add("carries %.0f%% to %.0f%% of the log odds ratio's reconstruction shift",
+        100 * min(ctl$scale_ratio$table$ratio), 100 * max(ctl$scale_ratio$table$ratio))
     add("rather than none of it, and the arm is reported as a prediction below.\n")
   }
 
