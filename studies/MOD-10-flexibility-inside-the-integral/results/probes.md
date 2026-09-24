@@ -1,0 +1,43 @@
+# Probes
+
+## P1 one replicate per cell
+
+- cell 1 (linear, unsupported 0.00): methods par, spline, spline_gated, gp; finite TRUE
+- cell 2 (hinge, unsupported 0.00): methods par, spline, spline_gated, gp; finite TRUE
+- cell 3 (linear, unsupported 0.05): methods par, spline, spline_gated, gp; finite TRUE
+- cell 4 (hinge, unsupported 0.05): methods par, spline, spline_gated, gp; finite TRUE
+- cell 5 (linear, unsupported 0.20): methods par, spline, spline_gated, gp; finite TRUE
+- cell 6 (hinge, unsupported 0.20): methods par, spline, spline_gated, gp; finite TRUE
+- cell 7 (plateau, unsupported 0.05): methods par, spline, spline_gated, gp; finite TRUE
+- cell 8 (plateau, unsupported 0.20): methods par, spline, spline_gated, gp; finite TRUE
+- one-column against 64-column prediction of the surface basis: largest difference 0.0e+00; gp rank 17 of 17
+
+## P2 parametric least-false bias (arm size 15000)
+
+- linear, unsupported 0.00: truth -0.275; bias on S 0.007, off S 0.000
+- hinge, unsupported 0.00: truth 0.325; bias on S -0.125, off S 0.000
+- linear, unsupported 0.05: truth -0.264; bias on S 0.006, off S 0.000
+- hinge, unsupported 0.05: truth 0.366; bias on S -0.118, off S -0.021
+- linear, unsupported 0.20: truth -0.230; bias on S 0.005, off S 0.002
+- hinge, unsupported 0.20: truth 0.490; bias on S -0.100, off S -0.085
+- plateau, unsupported 0.05: truth 0.339; bias on S -0.118, off S 0.006
+- plateau, unsupported 0.20: truth 0.380; bias on S -0.100, off S 0.025
+
+## P2b flexible surfaces at 20% unsupported mass (arm size 3000, one replicate)
+
+- hinge: par on S -0.121, off S -0.094; spline on S 0.002, off S 0.024; spline_gated on S 0.002, off S -0.103; gp on S 0.002, off S 0.006
+- plateau: par on S -0.121, off S 0.016; spline on S 0.002, off S 0.134; spline_gated on S 0.002, off S 0.007; gp on S 0.002, off S 0.116
+
+## P2c plateau, 20% unsupported, arm size 150 (50 replicates)
+
+- gp: bias on S -0.009 (MCSE 0.012), off S 0.101 (MCSE 0.010)
+- par: bias on S -0.097 (MCSE 0.009), off S 0.029 (MCSE 0.004)
+- spline: bias on S -0.008 (MCSE 0.012), off S 0.122 (MCSE 0.011)
+- spline_gated: bias on S -0.008 (MCSE 0.012), off S 0.002 (MCSE 0.005)
+
+## P3 null control (linear, no unsupported mass, 20 replicates) and P4 cost
+
+- bias (empirical SD): gp -0.005 (0.101), par -0.003 (0.095), spline -0.005 (0.102), spline_gated -0.005 (0.102)
+- CPU per replicate 0.50 s; total for 8 cells x 1000 replicates about 1.1 CPU-hours
+- one gp fit: 0.11 s CPU at 64 quadrature points, 0.16 s at 256
+

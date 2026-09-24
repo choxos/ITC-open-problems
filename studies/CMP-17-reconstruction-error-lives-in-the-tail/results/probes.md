@@ -1,0 +1,30 @@
+# Probes
+
+## P1 one replicate per cell, 2-draw ensemble
+
+- cell 1 (coarse, table 6, spread, 250 per arm, effect): methods oracle, single, draws; routes joint_study, joint_common, km, arm; estimates finite TRUE
+- cell 2 (coarse, table 0, spread, 250 per arm, effect): methods oracle, single, draws; routes joint_study, joint_common, km, arm; estimates finite TRUE
+- cell 3 (coarse, table 6, clustered, 250 per arm, effect): methods oracle, single, draws; routes joint_study, joint_common, km, arm; estimates finite TRUE
+- cell 4 (coarse, table 0, clustered, 250 per arm, effect): methods oracle, single, draws; routes joint_study, joint_common, km, arm; estimates finite TRUE
+- cell 5 (fine, table 1, spread, 250 per arm, effect): methods oracle, single, draws; routes joint_study, joint_common, km, arm; estimates finite TRUE
+- cell 6 (coarse, table 0, clustered, 250 per arm, null): methods oracle, single, draws; routes joint_study, joint_common, km, arm; estimates finite TRUE
+- cell 7 (coarse, table 0, clustered, 1000 per arm, effect): methods oracle, single, draws; routes joint_study, joint_common, km, arm; estimates finite TRUE
+
+## P2 materiality, mean error and SE ratio by route and estimand (no ensemble)
+
+- null control (fine, monthly table, 250 per arm, 40 replicates): arm s48 0.098 (mean error -0.0004, SE ratio 1.008); joint_common loghr 0.042 (mean error 0.0008, SE ratio 1.002); joint_common rmst24 0.042 (mean error -0.0041, SE ratio 1.002); joint_common s12 0.043 (mean error -0.0002, SE ratio 1.002); joint_common s30 0.042 (mean error -0.0003, SE ratio 1.002); joint_common s48 0.039 (mean error -0.0002, SE ratio 1.002); joint_study loghr 0.045 (mean error 0.0004, SE ratio 1.003); joint_study rmst24 0.045 (mean error -0.0023, SE ratio 1.003); joint_study s12 0.045 (mean error -0.0001, SE ratio 1.003); joint_study s30 0.045 (mean error -0.0002, SE ratio 1.003); joint_study s48 0.041 (mean error -0.0001, SE ratio 1.002); km loghr 0.050 (mean error 0.0020, SE ratio 1.003); km rmst24 0.012 (mean error -0.0016, SE ratio 1.000); km s12 0.036 (mean error 0.0002, SE ratio 1.001); km s30 0.176 (mean error -0.0030, SE ratio 1.009)
+- coarse, no table, clustered, 250 per arm (40 replicates): arm s48 0.193 (mean error -0.0010, SE ratio 0.965); joint_common loghr 0.086 (mean error -0.0025, SE ratio 1.002); joint_common rmst24 0.091 (mean error 0.0071, SE ratio 0.996); joint_common s12 0.092 (mean error 0.0003, SE ratio 0.995); joint_common s30 0.087 (mean error 0.0009, SE ratio 1.001); joint_common s48 0.082 (mean error 0.0008, SE ratio 1.001); joint_study loghr 0.094 (mean error -0.0061, SE ratio 1.007); joint_study rmst24 0.096 (mean error 0.0218, SE ratio 0.998); joint_study s12 0.096 (mean error 0.0009, SE ratio 0.996); joint_study s30 0.095 (mean error 0.0022, SE ratio 1.007); joint_study s48 0.088 (mean error 0.0018, SE ratio 1.007); km loghr 0.086 (mean error -0.0024, SE ratio 1.002); km rmst24 0.023 (mean error 0.0012, SE ratio 1.011); km s12 0.124 (mean error 0.0004, SE ratio 1.018); km s30 0.064 (mean error 0.0007, SE ratio 0.958)
+- large-trial cell, 1000 per arm (20 replicates): arm s48 0.216 (mean error -0.0023, SE ratio 0.950); joint_common loghr 0.104 (mean error -0.0009, SE ratio 1.000); joint_common rmst24 0.108 (mean error 0.0016, SE ratio 0.995); joint_common s12 0.109 (mean error 0.0000, SE ratio 0.994); joint_common s30 0.105 (mean error 0.0003, SE ratio 1.000); joint_common s48 0.099 (mean error 0.0002, SE ratio 0.999); joint_study loghr 0.110 (mean error -0.0043, SE ratio 1.006); joint_study rmst24 0.109 (mean error 0.0169, SE ratio 0.997); joint_study s12 0.109 (mean error 0.0007, SE ratio 0.996); joint_study s30 0.110 (mean error 0.0016, SE ratio 1.006); joint_study s48 0.103 (mean error 0.0012, SE ratio 1.003); km loghr 0.109 (mean error -0.0010, SE ratio 1.000); km rmst24 0.016 (mean error 0.0069, SE ratio 1.011); km s12 0.114 (mean error -0.0007, SE ratio 1.018); km s30 0.130 (mean error -0.0019, SE ratio 0.952)
+
+## P2c one arm: Kaplan-Meier error by time and number at risk (30 replicates each)
+
+- null control (fine, monthly table): KM error RMSE at 12, 29.5, 30, 30.5 months 0.0015, 0.0065, 0.0070, 0.0080; at risk at 30 months true 16.7, reconstructed 13.8
+- coarse, no table, clustered: KM error RMSE at 12, 29.5, 30, 30.5 months 0.0028, 0.0038, 0.0062, 0.0090; at risk at 30 months true 12.3, reconstructed 20.3
+
+## P3 unit cost
+
+- full replicate (10 draws per arm): 250 per arm elapsed 29.4 s, CPU 2.6 s; 1000 per arm elapsed 62.7 s, CPU 4.5 s
+- total CPU for 7 cells x 500 replicates: about 2.8 hours
+
+
+Prediction from P2. Single-reconstruction SE ratios are 0.95 to 1.02 and downstream materiality is at most 0.13 on every route except the Kaplan-Meier 30-month contrast in the null cell (0.18), so single coverage should sit near 0.94 to 0.95; the "propagation needed" branch needs materiality near 0.45. The registered run is therefore expected to read "refuting sentence holds" on all three routes, with the upstream positive control passing (arm materiality 0.19 at 250 per arm, 0.22 at 1000) and the joint route carrying about half of it (0.088 against 0.193). The error is in the tail in absolute terms (P2c: Kaplan-Meier error 0.0028 at 12 months, 0.0062 at 30, and the number at risk at 30 months overstated from 12.3 to 20.3 without a table), but the sampling SD grows there too.
