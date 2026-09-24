@@ -50,6 +50,18 @@ ML-NMR requires numerical integration over the covariate distribution inside eve
 
 Characterize where the cost actually binds now that 0.9.1 has reduced the default integration burden: report runtime against total integration rows, outcome model and parameter dimension so users can predict feasibility instead of discovering it mid-analysis. Continue reducing cost through better quadrature and integration-point selection, reuse of parameter-independent structure and parallelization, and add the requested cmdstanr backend for compilation and workflow gains without expecting it to remove the integration cost. Treat this as a scaling boundary to be documented rather than a defect to be conceded, since no maintainer statement concedes a runtime bug.
 
+## Our study
+
+::: {.callout-note}
+## A study is designed
+
+**Question.** Decomposing multinma ML-NMR cost per effective draw into CPU per gradient (integration arithmetic) and gradients per effective draw (sampler geometry), does cost rise in proportion to integration points at realistic network sizes, and at what integration order does aggregate integration become the dominant part of each gradient?
+
+**Design.** CPU per gradient timed on multinma's compiled model over integration points, aggregate-study count, covariate dimension, binomial or M-spline survival outcome and fixed or random effects; gradients per effective draw counted from NUTS fits on a binomial and M-spline subgrid. 90 cells, 5 repeats each for timing cells and 3 for sampler cells.
+
+The protocol is registered before any result is seen: [read it](/studies/SFW-06-mlnmr-scaling-map/out/SFW-06-protocol.md).
+:::
+
 ## Verification
 
 ::: {.verification-trail}

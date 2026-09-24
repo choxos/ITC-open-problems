@@ -41,6 +41,18 @@ Cost is driven by likelihood and gradient evaluations rather than by the number 
 
 The integration-error diagnostic exists, so the work is to lower the cost it prices and to widen the checks it does not cover. Benchmark adaptive integration, calibrated variational approximation, GPU and parallel Stan backends, and likelihood emulation against exact ML-NMR fits, since none has been evaluated in this setting. Extend cumulative integration-error reporting to general likelihoods and survival models, where it is currently unsupported, and report runtime next to residual integration error so the trade-off is made knowingly. Add hierarchical cross-validation and level-specific PSIS diagnostics for the shrinkage and population-prediction layers that no current check reaches.
 
+## Our study
+
+::: {.callout-note}
+## A study is designed
+
+**Question.** In survival ML-NMR with Weibull or M-spline baselines, 4 or 12 aggregate studies and 5 covariates, how often does residual integration error move the transported log hazard ratio by a quarter of a posterior SD or more, and how often does the split-chain check that runs half the chains at half the points detect it?
+
+**Design.** Posterior modes on multinma's own log density along a nested Sobol ladder from 4 to 512 points against a 1024-point reference; the split-chain check emulated from the shift of every saved quantity and validated against real fits; a Laplace prefix check as candidate. 6 cells, 50 datasets each (10 in the validation cell).
+
+The protocol is registered before any result is seen: [read it](/studies/CMU-01-the-error-check-that-does-not-reach-survival/out/CMU-01-protocol.md).
+:::
+
 ## Verification
 
 ::: {.verification-trail}
