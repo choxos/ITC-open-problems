@@ -174,6 +174,12 @@ def write_index(ds):
     designed = {}
     for d in ds:
         out = os.path.join(d["_dir"], "out")
+        # A registered protocol is served before any manuscript exists, so a
+        # designed or running study's page links to something that is there.
+        if os.path.exists(os.path.join(d["_dir"], "protocol.md")):
+            os.makedirs(out, exist_ok=True)
+            shutil.copy2(os.path.join(d["_dir"], "protocol.md"),
+                         os.path.join(out, f"{d['problem_id']}-protocol.md"))
         have = {k: f"studies/{d['_slug']}/out/{d['problem_id']}{e}"
                 for k, e in FORMATS.items()
                 if os.path.exists(os.path.join(out, d["problem_id"] + e))}
