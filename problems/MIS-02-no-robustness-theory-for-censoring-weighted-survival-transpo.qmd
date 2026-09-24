@@ -16,6 +16,12 @@ maturity: "Emerging"
 [High priority]{.chip .chip-priority-high}
 [Emerging]{.chip .chip-maturity-emerging}
 :::
+::: {.callout-important appearance="simple"}
+## A study has been run against this problem
+
+No, the refuting sentence fails. In the registered primary cell (60% censored before 24 months, poor overlap, positively correlated participation and censoring weights) TADA with bootstrap SE had SE ratio 0.80 and coverage 0.886, with bias 0.233 (MCSE 0.145): the registered verdict is fails by variance. The product of the two weight sets kept an effective sample size of 25 against 112 for the participation weights alone, and TADA's RMSE (3.25) exceeded that of the participation-weighted Kaplan-Meier with no censoring weights (2.23). The fixed-weight sandwich did no worse (SE ratio 0.80, coverage 0.892). [Read the study below](#our-study).
+:::
+
 ## Statement
 
 For survival outcomes, censoring that depends on covariates adds a weighting or modeling layer on top of transport adjustment. Yan et al. (2025, doi:10.1002/pst.70029) built that estimator: TADA multiplies time-varying inverse-probability-of-censoring weights by method-of-moments participation weights and estimates variance by nonparametric bootstrap, evaluated in an ADEMP simulation study, so the construction is done for the unanchored survival transport case under conditionally independent censoring, positivity, and correctly specified nuisance models. What is not done is the robustness characterization, which the paper itself lists as future work: sandwich variance under heavy censoring, non-proportional-hazards censoring models, and doubly robust protection against partial misspecification of either weighting component. Sampling error in the published target moments is also not propagated, because the method of moments conditions on them, and censoring driven by unmeasured event prognosis stays unidentified without a sensitivity parameter.
@@ -40,14 +46,40 @@ The estimator exists, so the work is characterization rather than construction. 
 
 ## Our study
 
-::: {.callout-note}
-## A study is running
+::: {.study-result}
+**TADA's bootstrap undercovered under heavy censoring and poor overlap, and a censoring model fitted through administrative follow-up left part of the censoring bias in place**
 
-**Question.** Does the TADA estimator, participation weights times inverse-probability-of-censoring weights with bootstrap variance, stay unbiased and well calibrated when censoring is heavy, overlap poor and the two weight sets correlated?
+**The question put to it.** Does the TADA estimator, participation weights times inverse-probability-of-censoring weights with bootstrap variance, stay unbiased and well calibrated when censoring is heavy, overlap poor and the two weight sets correlated?
 
-**Design.** Transported RMST difference from a two-arm trial with covariate-dependent censoring; 25% or 60% censoring, good or poor overlap, positively or negatively correlated weight sets, plus two null controls; participation-only Kaplan-Meier, TADA with bootstrap and fixed-weight sandwich SE, TADA with a misspecified censoring model. 10 cells, 500 replicates each.
+**What it found.** No, the refuting sentence fails. In the registered primary cell (60% censored before 24 months, poor overlap, positively correlated participation and censoring weights) TADA with bootstrap SE had SE ratio 0.80 and coverage 0.886, with bias 0.233 (MCSE 0.145): the registered verdict is fails by variance. The product of the two weight sets kept an effective sample size of 25 against 112 for the participation weights alone, and TADA's RMSE (3.25) exceeded that of the participation-weighted Kaplan-Meier with no censoring weights (2.23). The fixed-weight sandwich did no worse (SE ratio 0.80, coverage 0.892).
 
-The protocol is registered before any result is seen: [read it](/studies/MIS-02-two-weight-sets-multiplied/out/MIS-02-protocol.md).
+**Results.**
+
+- Post hoc: the registered Cox censoring model was fitted through the administrative end of follow-up at 36 months, which attenuated its covariate coefficient (0.88 against 1.2 at 20000 per arm). Refitted on the 24-month horizon with the registered seeds, TADA's bias in the positively correlated cells fell from 0.23 to 0.43 months to 0.10 to 0.31, and in the primary cell the bootstrap still undercovered (SE ratio 0.78, coverage 0.874).
+- With no censoring before the horizon the bootstrap already undercovered at poor overlap (SE ratio 0.92, coverage 0.916), so part of the deficit is the participation weights alone.
+- Product-to-participation effective sample size was 0.15 to 0.22 at 60% censoring with positive correlation, 0.56 with covariate-independent censoring and 0.32 to 0.80 with negative correlation.
+- Second null control passed at 2.4 MCSE (weighted Kaplan-Meier bias -0.180, MCSE 0.074): a near miss.
+
+**Design.**
+
+Estimand
+:   Target-population RMST difference to 24 months, A minus C
+
+Methods compared
+:   participation-weighted Kaplan-Meier, TADA with bootstrap SE, TADA with fixed-weight sandwich SE, TADA with a censoring model omitting the covariate
+
+Data-generating mechanism
+:   Transported RMST difference from a two-arm trial with covariate-dependent censoring; 25% or 60% censoring, good or poor overlap, positively or negatively correlated weight sets, plus two null controls; participation-only Kaplan-Meier, TADA with bootstrap and fixed-weight sandwich SE, TADA with a misspecified censoring model. 10 cells, 500 replicates each.
+
+Replicates
+:   500 per cell, 10 cells
+
+**What this does not answer.** RMST only, with complete-case IPCW rather than time-varying weights in a Cox model; one covariate drives both weight sets, so their correlation and the censoring weights' spread are confounded; no stacked M-estimation variance; no censoring by unmeasured prognosis; target moments exact. The horizon-fitted censoring model is a post hoc correction reported beside the registered result. Peer review has not been done.
+
+**Peer review.** Not yet done. The result stands on the study alone until it is.
+
+Read it: [PDF](/studies/MIS-02-two-weight-sets-multiplied/out/MIS-02.pdf) · [Markdown](/studies/MIS-02-two-weight-sets-multiplied/out/MIS-02.md) · [OpenDocument](/studies/MIS-02-two-weight-sets-multiplied/out/MIS-02.odt) · Code and data: [studies/MIS-02-two-weight-sets-multiplied](https://github.com/choxos/ITC-open-problems/tree/main/studies/MIS-02-two-weight-sets-multiplied) · Protocol: [registered before the run](/studies/MIS-02-two-weight-sets-multiplied/out/MIS-02-protocol.md)
+
 :::
 
 ## Verification
